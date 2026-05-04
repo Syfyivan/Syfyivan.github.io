@@ -25,6 +25,12 @@ jobs:
           node-version: '18'
 
       - name: Update token usage JSON
+        env:
+          # Optional: set repo variables to enable USD estimation in token-usage.json
+          # TOKEN_PRICE_INPUT_PER_1M_USD: <number>
+          # TOKEN_PRICE_OUTPUT_PER_1M_USD: <number>
+          TOKEN_PRICE_INPUT_PER_1M_USD: ${{ vars.TOKEN_PRICE_INPUT_PER_1M_USD }}
+          TOKEN_PRICE_OUTPUT_PER_1M_USD: ${{ vars.TOKEN_PRICE_OUTPUT_PER_1M_USD }}
         run: |
           python3 tools/token_usage_sync.py --out source/stats/token-usage.json
 

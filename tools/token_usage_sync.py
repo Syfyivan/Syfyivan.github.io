@@ -6,6 +6,7 @@ import json
 import os
 import re
 import sys
+from decimal import Decimal, InvalidOperation
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 
@@ -112,6 +113,16 @@ def _build_subtitle(total_in: int, total_out: int, by_agent: Dict[str, Dict[str,
     if codex or coco:
         parts.append(f"Codex {_format_int(codex)} / Coco {_format_int(coco)}")
     return " · ".join(parts)
+
+
+def _get_decimal_env(name: str) -> Optional[Decimal]:
+    raw = os.getenv(name)
+    if not raw:
+        return None
+    try:
+        return Decimal(str(raw).strip())
+    except (InvalidOperation, ValueError):
+        return None
 
 
 def main() -> int:
@@ -261,6 +272,24 @@ def main() -> int:
         },
         "by_agent": by_agent,
     }
+
+    # Optional USD estimate if pricing is provided via env.
+    # Use per-1M token prices (USD). If not set, omit cost fields.
+    in_price = _get_decimal_env("TOKEN_PRICE_INPUT_PER_1M_USD")
+    out_price = _get_decimal_env("TOKEN_PRICE_OUTPUT_PER_1M_USD")
+    if in_price is not None and out_price is not None:
+        in_tokens = Decimal(totals["input_tokens"])
+        out_tokens = Decimal(totals["output_tokens"])
+        million = Decimal(1_000_000)
+        cost = (in_tokens / million) * in_price + (out_tokens / million) * out_price
+        data["pricing"] = {
+            "currency": "USD",
+            "input_per_1m": str(in_price),
+            "output_per_1m": str(out_price),
+            "note": "Estimated from env TOKEN_PRICE_*_PER_1M_USD",
+        }
+        data["total"]["cost_usd"] = float(cost.quantize(Decimal("0.0001")))
+
     data["subtitle"] = _build_subtitle(
         totals["input_tokens"],
         totals["output_tokens"],

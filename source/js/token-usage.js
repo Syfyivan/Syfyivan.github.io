@@ -11,6 +11,23 @@
     }
   }
 
+  function formatCompact(n) {
+    var x = Number(n);
+    if (!isFinite(x)) return "0";
+    var abs = Math.abs(x);
+    var sign = x < 0 ? "-" : "";
+    if (abs >= 1e9) return sign + (abs / 1e9).toFixed(abs >= 1e10 ? 1 : 2) + "B";
+    if (abs >= 1e6) return sign + (abs / 1e6).toFixed(abs >= 1e8 ? 1 : 2) + "M";
+    if (abs >= 1e3) return sign + (abs / 1e3).toFixed(1) + "K";
+    return sign + String(Math.round(abs));
+  }
+
+  function formatUSD(n) {
+    var x = Number(n);
+    if (!isFinite(x)) return "—";
+    return "$" + x.toFixed(x >= 100 ? 0 : x >= 10 ? 1 : 2);
+  }
+
   function pick(obj, path) {
     var cur = obj;
     for (var i = 0; i < path.length; i++) {
@@ -25,9 +42,9 @@
     var isHome = window.location.pathname === "/" || /\/index\.html$/.test(window.location.pathname);
     if (!isHome) return null;
 
-    // Try to place inside banner first.
-    var banner = document.querySelector("header .banner, .banner, .index-img");
-    var parent = banner || document.querySelector("main") || document.body;
+    // Prefer placing inside the main board (avoids covering the banner/nav).
+    var boardCol = document.querySelector("#board .col-12.col-md-10.m-auto") || document.querySelector("#board") || null;
+    var parent = boardCol || document.querySelector("main") || document.body;
 
     var existing = document.getElementById("token-usage");
     if (existing) return existing;
@@ -40,17 +57,7 @@
       '<div class="token-usage__subtitle" data-role="subtitle">Loading…</div>' +
       '<div class="token-usage__grid" data-role="grid"></div>';
 
-    if (banner) {
-      // Put after existing subtitle if possible, otherwise append.
-      var subtitle = banner.querySelector(".subtitle, .banner-subtitle, .index-info .subtitle");
-      if (subtitle && subtitle.parentNode) {
-        subtitle.parentNode.insertBefore(box, subtitle.nextSibling);
-      } else {
-        parent.appendChild(box);
-      }
-    } else {
-      parent.insertBefore(box, parent.firstChild);
-    }
+    parent.insertBefore(box, parent.firstChild);
 
     return box;
   }
@@ -62,24 +69,32 @@
     var totalTokens = pick(data, ["total", "tokens"]) || 0;
     var inputTokens = pick(data, ["total", "input_tokens"]) || 0;
     var outputTokens = pick(data, ["total", "output_tokens"]) || 0;
+    var costUSD = pick(data, ["total", "cost_usd"]);
     var codexTotal = pick(data, ["by_agent", "codex", "total_tokens"]) || pick(data, ["by_agent", "codex", "tokens"]) || 0;
     var cocoTotal = pick(data, ["by_agent", "coco", "total_tokens"]) || pick(data, ["by_agent", "coco", "tokens"]) || 0;
 
-    var subtitle = data && data.subtitle ? String(data.subtitle) :
-      ("已用 Token " + formatInt(totalTokens) + "（输入 " + formatInt(inputTokens) + " / 输出 " + formatInt(outputTokens) + "）");
+    var subtitle = "已用 Token " + formatCompact(totalTokens) + "（输入 " + formatCompact(inputTokens) + " / 输出 " + formatCompact(outputTokens) + "）";
+    if (typeof costUSD === "number" && isFinite(costUSD)) {
+      subtitle += " · 约 " + formatUSD(costUSD);
+    }
     subtitleEl.textContent = subtitle;
 
     var cells = [
-      { k: "Total", v: formatInt(totalTokens) },
-      { k: "Input", v: formatInt(inputTokens) },
-      { k: "Output", v: formatInt(outputTokens) },
-      { k: "Codex", v: formatInt(codexTotal) },
-      { k: "Coco", v: formatInt(cocoTotal) },
+      { k: "Total", v: formatCompact(totalTokens), hint: formatInt(totalTokens) },
+      { k: "Input", v: formatCompact(inputTokens), hint: formatInt(inputTokens) },
+      { k: "Output", v: formatCompact(outputTokens), hint: formatInt(outputTokens) },
+      { k: "Codex", v: formatCompact(codexTotal), hint: formatInt(codexTotal) },
+      { k: "Coco", v: formatCompact(cocoTotal), hint: formatInt(cocoTotal) },
     ];
+
+    if (typeof costUSD === "number" && isFinite(costUSD)) {
+      cells.push({ k: "USD", v: formatUSD(costUSD), hint: "estimated" });
+    }
 
     var html = "";
     for (var i = 0; i < cells.length; i++) {
-      html += '<div class="token-usage__cell"><div class="token-usage__k">' +
+      var titleAttr = cells[i].hint ? ' title="' + String(cells[i].hint).replace(/"/g, "&quot;") + '"' : "";
+      html += '<div class="token-usage__cell"' + titleAttr + '><div class="token-usage__k">' +
         cells[i].k +
         '</div><div class="token-usage__v">' +
         cells[i].v +
@@ -113,4 +128,3 @@
     run();
   }
 })();
-

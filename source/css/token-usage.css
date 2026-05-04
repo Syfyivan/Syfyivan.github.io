@@ -1,6 +1,6 @@
 .token-usage {
-  max-width: 720px;
-  margin: 18px auto 0;
+  max-width: 820px;
+  margin: 18px auto 22px;
   padding: 14px 16px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.88);
@@ -31,14 +31,8 @@ body.dark-mode .token-usage {
 .token-usage__grid {
   margin-top: 12px;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 10px;
-}
-
-@media (max-width: 680px) {
-  .token-usage__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 
 .token-usage__cell {
@@ -61,5 +55,5 @@ body.dark-mode .token-usage__cell {
   font-size: 16px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  word-break: break-word;
 }
-
