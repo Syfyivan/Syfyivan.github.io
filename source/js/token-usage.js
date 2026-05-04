@@ -42,12 +42,21 @@
     var isHome = window.location.pathname === "/" || /\/index\.html$/.test(window.location.pathname);
     if (!isHome) return null;
 
+    var existing = document.getElementById("token-usage");
+
     // Prefer placing inside the main board (avoids covering the banner/nav).
     var boardCol = document.querySelector("#board .col-12.col-md-10.m-auto") || document.querySelector("#board") || null;
     var parent = boardCol || document.querySelector("main") || document.body;
 
-    var existing = document.getElementById("token-usage");
-    if (existing) return existing;
+    // If an old/cached widget exists but is in the header/banner area, move it into the board.
+    if (existing) {
+      var inBoard = !!(existing.closest && existing.closest("#board"));
+      var inHeader = !!(existing.closest && existing.closest("header"));
+      if (!inBoard && inHeader && parent && parent.insertBefore) {
+        parent.insertBefore(existing, parent.firstChild);
+      }
+      return existing;
+    }
 
     var box = document.createElement("div");
     box.id = "token-usage";
@@ -57,7 +66,17 @@
       '<div class="token-usage__subtitle" data-role="subtitle">Loading…</div>' +
       '<div class="token-usage__grid" data-role="grid"></div>';
 
-    parent.insertBefore(box, parent.firstChild);
+    // Insert at the top of the main content column (before the post cards), never into the banner.
+    if (boardCol) {
+      var firstCard = boardCol.querySelector(".index-card") || null;
+      if (firstCard && firstCard.parentNode) {
+        firstCard.parentNode.insertBefore(box, firstCard);
+      } else {
+        boardCol.insertBefore(box, boardCol.firstChild);
+      }
+    } else {
+      parent.insertBefore(box, parent.firstChild);
+    }
 
     return box;
   }
