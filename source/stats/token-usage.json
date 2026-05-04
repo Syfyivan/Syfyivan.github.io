@@ -27,7 +27,30 @@
     "parsed_lines": 80985,
     "scanned": 111
   },
-  "generated_at": "2026-05-04T13:08:14Z",
+  "generated_at": "2026-05-04T15:48:04Z",
+  "periods": {
+    "day": {
+      "input_tokens": 7944703,
+      "output_tokens": 52006,
+      "tokens": 7996709
+    },
+    "month": {
+      "input_tokens": 10179209,
+      "output_tokens": 69178,
+      "tokens": 10248387
+    },
+    "week": {
+      "input_tokens": 7944703,
+      "output_tokens": 52006,
+      "tokens": 7996709
+    }
+  },
+  "periods_meta": {
+    "day": "2026-05-04",
+    "month_start": "2026-05-01",
+    "tz": "UTC",
+    "week_start": "2026-05-04"
+  },
   "roots": {
     "archived_sessions": "~/.codex/archived_sessions",
     "sessions": "~/.codex/sessions"
@@ -38,5 +61,5 @@
     "output_tokens": 4348373,
     "tokens": 1930322154
   },
-  "version": 1
+  "version": 2
 }

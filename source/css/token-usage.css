@@ -3,15 +3,17 @@
   margin: 18px auto 22px;
   padding: 14px 16px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  color: #2f4154;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
 body.dark-mode .token-usage {
-  background: rgba(20, 24, 34, 0.72);
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(34, 41, 57, 0.78);
   border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
 
 .token-usage__title {
@@ -19,13 +21,56 @@ body.dark-mode .token-usage {
   letter-spacing: 0.02em;
   font-size: 14px;
   text-transform: uppercase;
-  opacity: 0.9;
+  opacity: 0.72;
 }
 
 .token-usage__subtitle {
   margin-top: 6px;
   font-size: 14px;
-  opacity: 0.88;
+  opacity: 0.82;
+}
+
+.token-usage__periods {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 680px) {
+  .token-usage__periods {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+
+.token-usage__period {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(47, 65, 84, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+body.dark-mode .token-usage__period {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.token-usage__period-k {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.token-usage__period-v {
+  margin-top: 2px;
+  font-size: 16px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.token-usage__period-s {
+  margin-top: 2px;
+  font-size: 12px;
+  opacity: 0.72;
 }
 
 .token-usage__grid {
@@ -38,11 +83,13 @@ body.dark-mode .token-usage {
 .token-usage__cell {
   padding: 10px 10px;
   border-radius: 12px;
-  background: rgba(15, 23, 42, 0.05);
+  background: rgba(47, 65, 84, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 body.dark-mode .token-usage__cell {
   background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .token-usage__k {

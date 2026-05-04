@@ -14,6 +14,10 @@ def _utc_now_iso() -> str:
     return dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
+def _utc_today() -> dt.date:
+    return dt.datetime.now(dt.timezone.utc).date()
+
+
 def _iter_jsonl_files(root: str) -> Iterable[str]:
     if not root or not os.path.isdir(root):
         return
@@ -88,6 +92,47 @@ def _extract_token_count_total(obj: Dict[str, Any]) -> Optional[Dict[str, int]]:
     }
 
 
+_DATE_IN_PATH_RE = re.compile(r"/(20\d{2})/(\d{2})/(\d{2})/")
+
+
+def _date_from_path(path: str) -> Optional[dt.date]:
+    p = (path or "").replace("\\", "/")
+    m = _DATE_IN_PATH_RE.search(p)
+    if not m:
+        return None
+    try:
+        y, mo, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        return dt.date(y, mo, d)
+    except Exception:
+        return None
+
+
+def _new_bucket() -> Dict[str, int]:
+    return {"input_tokens": 0, "output_tokens": 0, "tokens": 0}
+
+
+def _bucket_add(bucket: Dict[str, int], input_tokens: int, output_tokens: int, tokens: int) -> None:
+    bucket["input_tokens"] = bucket.get("input_tokens", 0) + int(input_tokens)
+    bucket["output_tokens"] = bucket.get("output_tokens", 0) + int(output_tokens)
+    bucket["tokens"] = bucket.get("tokens", 0) + int(tokens)
+
+
+def _week_start(d: dt.date) -> dt.date:
+    # ISO week starts on Monday.
+    return d - dt.timedelta(days=d.weekday())
+
+
+def _sum_daily(daily: Dict[str, Dict[str, int]], start: dt.date, end_inclusive: dt.date) -> Dict[str, int]:
+    out = _new_bucket()
+    cur = start
+    while cur <= end_inclusive:
+        b = daily.get(cur.isoformat())
+        if b:
+            _bucket_add(out, b.get("input_tokens", 0), b.get("output_tokens", 0), b.get("tokens", 0))
+        cur += dt.timedelta(days=1)
+    return out
+
+
 _COCO_RE = re.compile(r"\b(coco|trae)\b", re.IGNORECASE)
 _CODEX_RE = re.compile(r"\bcodex\b", re.IGNORECASE)
 
@@ -152,6 +197,7 @@ def main() -> int:
     files.sort()
 
     totals = {"input_tokens": 0, "output_tokens": 0, "tokens": 0}
+    daily_totals: Dict[str, Dict[str, int]] = {}
     by_agent: Dict[str, Dict[str, int]] = {
         "codex": {
             "input_tokens": 0,
@@ -182,6 +228,7 @@ def main() -> int:
 
     for path in files:
         scanned += 1
+        file_day = _date_from_path(path)
         originator = ""
         agent = "unknown"
         last_total: Optional[Dict[str, int]] = None
@@ -233,6 +280,19 @@ def main() -> int:
                         totals["output_tokens"] += delta.get("output_tokens", 0)
                         totals["tokens"] += delta.get("total_tokens", 0)
 
+                        if file_day is not None:
+                            key = file_day.isoformat()
+                            day_bucket = daily_totals.get(key)
+                            if day_bucket is None:
+                                day_bucket = _new_bucket()
+                                daily_totals[key] = day_bucket
+                            _bucket_add(
+                                day_bucket,
+                                delta.get("input_tokens", 0),
+                                delta.get("output_tokens", 0),
+                                delta.get("total_tokens", 0),
+                            )
+
                         bucket = by_agent.get(agent) if agent in by_agent else by_agent["unknown"]
                         bucket["input_tokens"] += delta.get("input_tokens", 0)
                         bucket["cached_input_tokens"] += delta.get("cached_input_tokens", 0)
@@ -247,6 +307,14 @@ def main() -> int:
                         totals["output_tokens"] += out_tok
                         totals["tokens"] += in_tok + out_tok
 
+                        if file_day is not None:
+                            key = file_day.isoformat()
+                            day_bucket = daily_totals.get(key)
+                            if day_bucket is None:
+                                day_bucket = _new_bucket()
+                                daily_totals[key] = day_bucket
+                            _bucket_add(day_bucket, in_tok, out_tok, in_tok + out_tok)
+
                         bucket = by_agent.get(agent) if agent in by_agent else by_agent["unknown"]
                         bucket["input_tokens"] += in_tok
                         bucket["output_tokens"] += out_tok
@@ -257,8 +325,18 @@ def main() -> int:
             parse_errors += 1
             continue
 
+    today = _utc_today()
+    ws = _week_start(today)
+    ms = today.replace(day=1)
+
+    periods = {
+        "day": _sum_daily(daily_totals, today, today),
+        "week": _sum_daily(daily_totals, ws, today),
+        "month": _sum_daily(daily_totals, ms, today),
+    }
+
     data = {
-        "version": 1,
+        "version": 2,
         "generated_at": _utc_now_iso(),
         "roots": {
             "sessions": "~/.codex/sessions",
@@ -269,6 +347,13 @@ def main() -> int:
             "input_tokens": totals["input_tokens"],
             "output_tokens": totals["output_tokens"],
             "tokens": totals["tokens"],
+        },
+        "periods": periods,
+        "periods_meta": {
+            "tz": "UTC",
+            "day": today.isoformat(),
+            "week_start": ws.isoformat(),
+            "month_start": ms.isoformat(),
         },
         "by_agent": by_agent,
     }
@@ -289,6 +374,14 @@ def main() -> int:
             "note": "Estimated from env TOKEN_PRICE_*_PER_1M_USD",
         }
         data["total"]["cost_usd"] = float(cost.quantize(Decimal("0.0001")))
+
+        for name in ["day", "week", "month"]:
+            p = data.get("periods", {}).get(name)
+            if isinstance(p, dict):
+                in_tokens_p = Decimal(int(p.get("input_tokens", 0)))
+                out_tokens_p = Decimal(int(p.get("output_tokens", 0)))
+                cost_p = (in_tokens_p / million) * in_price + (out_tokens_p / million) * out_price
+                p["cost_usd"] = float(cost_p.quantize(Decimal("0.0001")))
 
     data["subtitle"] = _build_subtitle(
         totals["input_tokens"],
