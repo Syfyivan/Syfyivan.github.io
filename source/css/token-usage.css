@@ -1,0 +1,65 @@
+.token-usage {
+  max-width: 720px;
+  margin: 18px auto 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+body.dark-mode .token-usage {
+  background: rgba(20, 24, 34, 0.72);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+.token-usage__title {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-size: 14px;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.token-usage__subtitle {
+  margin-top: 6px;
+  font-size: 14px;
+  opacity: 0.88;
+}
+
+.token-usage__grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 680px) {
+  .token-usage__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.token-usage__cell {
+  padding: 10px 10px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.05);
+}
+
+body.dark-mode .token-usage__cell {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.token-usage__k {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.token-usage__v {
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
