@@ -137,10 +137,26 @@ _COCO_RE = re.compile(r"\b(coco|trae)\b", re.IGNORECASE)
 _CODEX_RE = re.compile(r"\bcodex\b", re.IGNORECASE)
 
 
+_COCO_ORIGINATORS = {
+    # Coco/Trae CLI often runs on the same Codex session infra.
+    # In practice, these sessions do not include "coco" in originator.
+    "codex_cli_rs",
+    "codex-tui",
+    "codex_vscode",
+}
+
+
 def _classify_agent(originator: str) -> str:
-    if originator and _COCO_RE.search(originator):
+    o = (originator or "").strip()
+    o_lower = o.lower()
+
+    if o and _COCO_RE.search(o):
         return "coco"
-    if originator and _CODEX_RE.search(originator):
+
+    if o_lower in _COCO_ORIGINATORS:
+        return "coco"
+
+    if o and _CODEX_RE.search(o):
         return "codex"
     return "unknown"
 
@@ -325,14 +341,24 @@ def main() -> int:
             parse_errors += 1
             continue
 
-    today = _utc_today()
-    ws = _week_start(today)
-    ms = today.replace(day=1)
+    # Use the most recent day with data as the anchor day.
+    # This avoids showing 0 for "day" just because UTC date rolled over.
+    anchor_day: dt.date
+    if daily_totals:
+        try:
+            anchor_day = max(dt.date.fromisoformat(k) for k in daily_totals.keys())
+        except Exception:
+            anchor_day = _utc_today()
+    else:
+        anchor_day = _utc_today()
+
+    ws = _week_start(anchor_day)
+    ms = anchor_day.replace(day=1)
 
     periods = {
-        "day": _sum_daily(daily_totals, today, today),
-        "week": _sum_daily(daily_totals, ws, today),
-        "month": _sum_daily(daily_totals, ms, today),
+        "day": _sum_daily(daily_totals, anchor_day, anchor_day),
+        "week": _sum_daily(daily_totals, ws, anchor_day),
+        "month": _sum_daily(daily_totals, ms, anchor_day),
     }
 
     data = {
@@ -351,7 +377,7 @@ def main() -> int:
         "periods": periods,
         "periods_meta": {
             "tz": "UTC",
-            "day": today.isoformat(),
+            "day": anchor_day.isoformat(),
             "week_start": ws.isoformat(),
             "month_start": ms.isoformat(),
         },

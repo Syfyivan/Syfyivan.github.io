@@ -1,25 +1,25 @@
 {
   "by_agent": {
     "coco": {
+      "cached_input_tokens": 889984,
+      "input_tokens": 1103120,
+      "output_tokens": 6546,
+      "reasoning_output_tokens": 3455,
+      "total_tokens": 1109666
+    },
+    "codex": {
+      "cached_input_tokens": 1817835776,
+      "input_tokens": 1924870661,
+      "output_tokens": 4341827,
+      "reasoning_output_tokens": 1440445,
+      "total_tokens": 1929212488
+    },
+    "unknown": {
       "cached_input_tokens": 0,
       "input_tokens": 0,
       "output_tokens": 0,
       "reasoning_output_tokens": 0,
       "total_tokens": 0
-    },
-    "codex": {
-      "cached_input_tokens": 1818725760,
-      "input_tokens": 1925878484,
-      "output_tokens": 4347918,
-      "reasoning_output_tokens": 1443650,
-      "total_tokens": 1930226402
-    },
-    "unknown": {
-      "cached_input_tokens": 0,
-      "input_tokens": 95297,
-      "output_tokens": 455,
-      "reasoning_output_tokens": 250,
-      "total_tokens": 95752
     }
   },
   "files": {
@@ -27,7 +27,7 @@
     "parsed_lines": 80985,
     "scanned": 111
   },
-  "generated_at": "2026-05-04T15:48:04Z",
+  "generated_at": "2026-05-05T01:06:42Z",
   "periods": {
     "day": {
       "input_tokens": 7944703,
@@ -55,7 +55,7 @@
     "archived_sessions": "~/.codex/archived_sessions",
     "sessions": "~/.codex/sessions"
   },
-  "subtitle": "已用 Token 1,930,322,154（输入 1,925,973,781 / 输出 4,348,373） · Codex 1,930,226,402 / Coco 0",
+  "subtitle": "已用 Token 1,930,322,154（输入 1,925,973,781 / 输出 4,348,373） · Codex 1,929,212,488 / Coco 1,109,666",
   "total": {
     "input_tokens": 1925973781,
     "output_tokens": 4348373,
