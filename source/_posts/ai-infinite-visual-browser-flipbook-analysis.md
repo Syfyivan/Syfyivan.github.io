@@ -154,6 +154,8 @@ OPENAI_API_KEY=你的key npm run visual-server
 
 如果没有 `OPENAI_API_KEY`，接口返回 `provider: "local"`，前端就退回本地 canvas fallback。这样即使只部署静态博客，新板块也能玩起来；如果云服务器配置好代理和 key，就能切换到真实 AI 生成。
 
+完整的云服务器部署、pm2/systemd 常驻、Nginx/Caddy 反向代理配置，单独整理在项目文档：[AI 视觉服务端部署说明](/docs/ai-visual-server-deploy.md)。
+
 ## 图片生成接口怎么接
 
 OpenAI 的图片生成可以通过 Image API 走：
