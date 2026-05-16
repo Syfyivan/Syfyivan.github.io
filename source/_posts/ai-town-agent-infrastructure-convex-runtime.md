@@ -1,7 +1,7 @@
 ---
 title: "AI Town 值得学习的不是像素小镇，而是 Agent 基础设施"
 date: 2026-05-16 17:48:00
-tags: [AI, Agent, Convex, 向量检索, 系统设计]
+tags: [AI, Agent, AI Town, Convex, 向量检索, 系统设计, 课程]
 categories: [技术笔记]
 ---
 

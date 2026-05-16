@@ -387,6 +387,7 @@ navbar:
     - { key: "archive", link: "/archives/", icon: "iconfont icon-archive-fill" }
     - { key: "category", link: "/categories/", icon: "iconfont icon-category-fill" }
     - { key: "tag", link: "/tags/", icon: "iconfont icon-tags-fill" }
+    - { key: "courses", name: "课程", link: "/courses/", icon: "iconfont icon-articles" }
     - { key: "visual_browser", name: "AI视觉", link: "/flipbook/", icon: "iconfont icon-image" }
     - { key: "about", link: "/about/", icon: "iconfont icon-user-fill" }
     - { key: "晨读", link: "/morning-read/", icon: "iconfont icon-newspaper" }
