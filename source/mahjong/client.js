@@ -1,0 +1,529 @@
+(function () {
+  "use strict";
+
+  var TILE_SUITS = [
+    { key: "characters", label: "万" },
+    { key: "dots", label: "筒" },
+    { key: "bamboo", label: "条" }
+  ];
+
+  var STORAGE_KEY = "lanMahjongProfile";
+  var roomInput = document.getElementById("roomInput");
+  var nameInput = document.getElementById("nameInput");
+  var serverInput = document.getElementById("serverInput");
+  var joinForm = document.getElementById("joinForm");
+  var randomRoomButton = document.getElementById("randomRoomButton");
+  var lobbyPanel = document.getElementById("lobbyPanel");
+  var lobbyNote = document.getElementById("lobbyNote");
+  var gamePanel = document.getElementById("gamePanel");
+  var connectionStatus = document.getElementById("connectionStatus");
+  var roomStatus = document.getElementById("roomStatus");
+  var wallStatus = document.getElementById("wallStatus");
+  var activeRoomLabel = document.getElementById("activeRoomLabel");
+  var copyRoomButton = document.getElementById("copyRoomButton");
+  var playerList = document.getElementById("playerList");
+  var readyButton = document.getElementById("readyButton");
+  var startButton = document.getElementById("startButton");
+  var newRoundButton = document.getElementById("newRoundButton");
+  var eventLog = document.getElementById("eventLog");
+  var seatTop = document.getElementById("seatTop");
+  var seatLeft = document.getElementById("seatLeft");
+  var seatRight = document.getElementById("seatRight");
+  var roundLabel = document.getElementById("roundLabel");
+  var turnLabel = document.getElementById("turnLabel");
+  var lastDiscard = document.getElementById("lastDiscard");
+  var claimBar = document.getElementById("claimBar");
+  var selfMelds = document.getElementById("selfMelds");
+  var handRow = document.getElementById("handRow");
+  var actionRow = document.getElementById("actionRow");
+
+  var state = {
+    socket: null,
+    view: null,
+    reconnectTimer: null,
+    manualClose: false,
+    clientId: getClientId()
+  };
+
+  function getClientId() {
+    var existing = localStorage.getItem(STORAGE_KEY + ".clientId");
+    if (existing) {
+      return existing;
+    }
+    var next = "client-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem(STORAGE_KEY + ".clientId", next);
+    return next;
+  }
+
+  function loadProfile() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveProfile(profile) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  }
+
+  function getQuery() {
+    return new URLSearchParams(window.location.search);
+  }
+
+  function randomRoomCode() {
+    var alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    var code = "";
+    for (var i = 0; i < 5; i += 1) {
+      code += alphabet[Math.floor(Math.random() * alphabet.length)];
+    }
+    return code;
+  }
+
+  function defaultServerUrl() {
+    if (window.location.protocol === "file:") {
+      return "ws://localhost:8787/mahjong/ws";
+    }
+    var protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    return protocol + "//" + window.location.host + "/mahjong/ws";
+  }
+
+  function normalizeServerUrl(value) {
+    var raw = String(value || "").trim();
+    if (!raw) {
+      return defaultServerUrl();
+    }
+    if (!/^[a-z]+:\/\//i.test(raw)) {
+      raw = "ws://" + raw;
+    }
+    var url = new URL(raw);
+    if (url.protocol === "http:") {
+      url.protocol = "ws:";
+    }
+    if (url.protocol === "https:") {
+      url.protocol = "wss:";
+    }
+    if (url.protocol !== "ws:" && url.protocol !== "wss:") {
+      throw new Error("服务器地址需要使用 ws、wss、http 或 https");
+    }
+    if (url.pathname === "/" || url.pathname === "") {
+      url.pathname = "/mahjong/ws";
+    }
+    return url.toString();
+  }
+
+  function initForm() {
+    var query = getQuery();
+    var profile = loadProfile();
+    nameInput.value = query.get("name") || profile.name || "玩家" + Math.floor(Math.random() * 90 + 10);
+    roomInput.value = (query.get("room") || profile.room || randomRoomCode()).toUpperCase();
+    serverInput.value = query.get("server") || profile.server || defaultServerUrl();
+  }
+
+  function setNotice(text) {
+    lobbyNote.textContent = text;
+  }
+
+  function send(message) {
+    if (!state.socket || state.socket.readyState !== WebSocket.OPEN) {
+      setNotice("连接未就绪");
+      return;
+    }
+    state.socket.send(JSON.stringify(message));
+  }
+
+  function connect() {
+    var profile;
+    try {
+      profile = {
+        name: nameInput.value.trim() || "玩家",
+        room: roomInput.value.trim().toUpperCase() || randomRoomCode(),
+        server: normalizeServerUrl(serverInput.value)
+      };
+    } catch (error) {
+      setNotice(error.message);
+      return;
+    }
+
+    saveProfile(profile);
+    nameInput.value = profile.name;
+    roomInput.value = profile.room;
+    serverInput.value = profile.server;
+    clearTimeout(state.reconnectTimer);
+    state.manualClose = false;
+
+    if (state.socket) {
+      state.manualClose = true;
+      state.socket.close();
+      state.manualClose = false;
+    }
+
+    setNotice("连接中");
+    connectionStatus.textContent = "连接中";
+
+    var socket = new WebSocket(profile.server);
+    state.socket = socket;
+
+    socket.addEventListener("open", function () {
+      connectionStatus.textContent = "已连接";
+      setNotice("已连接");
+      send({
+        type: "join",
+        name: profile.name,
+        room: profile.room,
+        clientId: state.clientId
+      });
+    });
+
+    socket.addEventListener("message", function (event) {
+      var data;
+      try {
+        data = JSON.parse(event.data);
+      } catch (error) {
+        return;
+      }
+      if (data.type === "view") {
+        state.view = data.view;
+        render();
+      }
+      if (data.type === "error") {
+        setNotice(data.message || "操作失败");
+      }
+    });
+
+    socket.addEventListener("close", function () {
+      connectionStatus.textContent = "已断开";
+      if (!state.manualClose) {
+        setNotice("连接断开");
+        state.reconnectTimer = setTimeout(connect, 1800);
+      }
+    });
+
+    socket.addEventListener("error", function () {
+      connectionStatus.textContent = "连接失败";
+      setNotice("连接失败");
+    });
+  }
+
+  function tileMeta(type) {
+    var suit = TILE_SUITS[Math.floor(type / 9)];
+    var rank = (type % 9) + 1;
+    return {
+      rank: rank,
+      suit: suit,
+      label: rank + suit.label
+    };
+  }
+
+  function createTile(tile, options) {
+    var opts = options || {};
+    var type = typeof tile === "number" ? tile : tile.type;
+    var meta = tileMeta(type);
+    var element = document.createElement(opts.button ? "button" : "div");
+    element.className = opts.mini ? "mini-tile" : "tile";
+    element.dataset.suit = meta.suit.key;
+    element.title = meta.label;
+
+    if (opts.mini) {
+      element.textContent = meta.label;
+      return element;
+    }
+
+    var rank = document.createElement("span");
+    rank.className = "rank";
+    rank.textContent = String(meta.rank);
+    var suit = document.createElement("span");
+    suit.className = "suit";
+    suit.textContent = meta.suit.label;
+    element.append(rank, suit);
+
+    if (opts.button) {
+      element.type = "button";
+      element.disabled = Boolean(opts.disabled);
+      element.addEventListener("click", function () {
+        opts.onClick(tile);
+      });
+    }
+    return element;
+  }
+
+  function createTileBack() {
+    var tile = document.createElement("div");
+    tile.className = "tile-back";
+    tile.textContent = "";
+    return tile;
+  }
+
+  function renderMelds(melds, target, mini) {
+    target.textContent = "";
+    (melds || []).forEach(function (meld) {
+      var set = document.createElement("div");
+      set.className = "meld-set";
+      meld.tiles.forEach(function (type) {
+        set.appendChild(createTile(type, { mini: mini !== false }));
+      });
+      target.appendChild(set);
+    });
+  }
+
+  function actionLabel(action) {
+    if (action.action === "hu") {
+      return "胡";
+    }
+    if (action.action === "pong") {
+      return "碰";
+    }
+    if (action.action === "kong") {
+      return "杠";
+    }
+    if (action.action === "chow") {
+      return "吃 " + action.tiles.map(function (type) {
+        return tileMeta(type).label;
+      }).join(" ");
+    }
+    return action.action;
+  }
+
+  function createActionButton(label, kind, onClick) {
+    var button = document.createElement("button");
+    button.className = "action-button";
+    button.dataset.kind = kind || "";
+    button.type = "button";
+    button.textContent = label;
+    button.addEventListener("click", onClick);
+    return button;
+  }
+
+  function renderPlayers(view) {
+    playerList.textContent = "";
+    view.players.forEach(function (player) {
+      var item = document.createElement("div");
+      item.className = "player-item";
+
+      var dot = document.createElement("div");
+      dot.className = "seat-dot";
+      dot.textContent = String(player.seat + 1);
+
+      var text = document.createElement("div");
+      var name = document.createElement("div");
+      name.className = "player-name";
+      name.textContent = player.name + (player.isSelf ? "（我）" : "");
+      var status = document.createElement("div");
+      status.className = "player-state";
+      status.textContent = player.connected ? (player.ready ? "已准备" : "未准备") : "离线";
+      text.append(name, status);
+
+      var count = document.createElement("div");
+      count.className = "player-state";
+      count.textContent = player.handCount + " 张";
+
+      item.append(dot, text, count);
+      playerList.appendChild(item);
+    });
+  }
+
+  function renderSeat(container, player) {
+    container.textContent = "";
+    container.hidden = !player;
+    if (!player) {
+      return;
+    }
+
+    var header = document.createElement("div");
+    header.className = "seat-header";
+    var name = document.createElement("div");
+    name.className = "seat-name";
+    name.textContent = player.name;
+    var count = document.createElement("div");
+    count.className = "seat-count";
+    count.textContent = player.handCount + " 张";
+    header.append(name, count);
+
+    var backs = document.createElement("div");
+    backs.className = "mini-row";
+    for (var i = 0; i < Math.min(player.handCount, 14); i += 1) {
+      backs.appendChild(createTileBack());
+    }
+
+    var melds = document.createElement("div");
+    melds.className = "meld-row";
+    renderMelds(player.melds, melds, true);
+
+    var discards = document.createElement("div");
+    discards.className = "discard-row";
+    player.discards.forEach(function (tile) {
+      discards.appendChild(createTile(tile.type, { mini: true }));
+    });
+
+    container.append(header, backs, melds, discards);
+  }
+
+  function renderSeats(view) {
+    seatTop.hidden = true;
+    seatTop.textContent = "";
+    seatLeft.hidden = true;
+    seatRight.hidden = true;
+    seatLeft.textContent = "";
+    seatRight.textContent = "";
+
+    var selfSeat = view.player ? view.player.seat : 0;
+    view.players.forEach(function (player) {
+      if (player.isSelf) {
+        return;
+      }
+      var delta = (player.seat - selfSeat + 3) % 3;
+      renderSeat(delta === 1 ? seatRight : seatLeft, player);
+    });
+  }
+
+  function renderHand(view) {
+    handRow.textContent = "";
+    view.hand.forEach(function (tile) {
+      handRow.appendChild(createTile(tile, {
+        button: true,
+        disabled: !view.canDiscard,
+        onClick: function (selected) {
+          send({ type: "discard", tileId: selected.id });
+        }
+      }));
+    });
+
+    renderMelds(view.selfMelds, selfMelds, true);
+  }
+
+  function renderActions(view) {
+    actionRow.textContent = "";
+    claimBar.textContent = "";
+    claimBar.hidden = true;
+
+    if (view.canDraw) {
+      actionRow.appendChild(createActionButton("摸牌", "draw", function () {
+        send({ type: "draw" });
+      }));
+    }
+
+    view.selfActions.forEach(function (action) {
+      actionRow.appendChild(createActionButton(actionLabel(action), action.action, function () {
+        send({ type: "selfAction", actionId: action.id });
+      }));
+    });
+
+    if (view.phase === "playing" && view.canDiscard) {
+      var hint = document.createElement("span");
+      hint.className = "player-state";
+      hint.textContent = "请选择一张牌";
+      actionRow.appendChild(hint);
+    }
+
+    if (view.claimActions.length > 0) {
+      claimBar.hidden = false;
+      view.claimActions.forEach(function (action) {
+        claimBar.appendChild(createActionButton(actionLabel(action), action.action, function () {
+          send({ type: "claim", actionId: action.id });
+        }));
+      });
+      claimBar.appendChild(createActionButton("过", "pass", function () {
+        send({ type: "claim", actionId: "pass" });
+      }));
+    }
+  }
+
+  function renderCenter(view) {
+    roundLabel.textContent = "第 " + view.round + " 局";
+    if (view.phase === "ended") {
+      turnLabel.innerHTML = "";
+      var result = document.createElement("span");
+      result.className = "result-banner";
+      result.textContent = view.result || "本局结束";
+      turnLabel.appendChild(result);
+    } else if (view.turnName) {
+      turnLabel.textContent = view.turnName + " 的回合";
+    } else {
+      turnLabel.textContent = view.players.length + "/3 入座";
+    }
+
+    lastDiscard.textContent = "";
+    if (view.lastDiscard) {
+      lastDiscard.appendChild(createTile(view.lastDiscard.tile.type, {}));
+    }
+  }
+
+  function renderLog(view) {
+    eventLog.textContent = "";
+    view.events.slice().reverse().forEach(function (entry) {
+      var line = document.createElement("p");
+      line.textContent = entry;
+      eventLog.appendChild(line);
+    });
+  }
+
+  function render() {
+    var view = state.view;
+    if (!view) {
+      return;
+    }
+
+    lobbyPanel.hidden = true;
+    gamePanel.hidden = false;
+    connectionStatus.textContent = view.connected ? "已连接" : "已断开";
+    roomStatus.textContent = "房间 " + view.room;
+    wallStatus.textContent = "牌山 " + view.wallCount;
+    activeRoomLabel.textContent = view.room;
+    readyButton.textContent = view.player.ready ? "取消准备" : "准备";
+    readyButton.disabled = view.phase === "playing";
+    startButton.disabled = !view.canStart;
+    newRoundButton.hidden = view.phase !== "ended";
+
+    renderPlayers(view);
+    renderSeats(view);
+    renderCenter(view);
+    renderHand(view);
+    renderActions(view);
+    renderLog(view);
+  }
+
+  joinForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    connect();
+  });
+
+  randomRoomButton.addEventListener("click", function () {
+    roomInput.value = randomRoomCode();
+  });
+
+  readyButton.addEventListener("click", function () {
+    send({ type: "ready" });
+  });
+
+  startButton.addEventListener("click", function () {
+    send({ type: "startRound" });
+  });
+
+  newRoundButton.addEventListener("click", function () {
+    send({ type: "newRound" });
+  });
+
+  copyRoomButton.addEventListener("click", function () {
+    var view = state.view;
+    var profile = loadProfile();
+    var pageUrl = new URL(window.location.href);
+    pageUrl.searchParams.set("room", view ? view.room : roomInput.value);
+    pageUrl.searchParams.set("server", profile.server || serverInput.value);
+    var text = [
+      "房间：" + (view ? view.room : roomInput.value),
+      "服务器：" + (profile.server || serverInput.value),
+      "页面：" + pageUrl.toString()
+    ].join("\n");
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(function () {
+        setNotice("已复制");
+      });
+    }
+  });
+
+  initForm();
+  if (getQuery().get("join") === "1" || getQuery().get("autojoin") === "1") {
+    setTimeout(connect, 0);
+  }
+}());

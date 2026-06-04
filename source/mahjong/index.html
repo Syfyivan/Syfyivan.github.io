@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>三人麻将局</title>
+    <meta name="description" content="可在局域网联机的三人麻将网页桌。" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="mahjong-app">
+      <section class="table-shell" aria-label="三人麻将局">
+        <header class="table-header">
+          <a class="brand" href="./" aria-label="三人麻将局首页">
+            <span class="brand-mark" aria-hidden="true">三</span>
+            <span>三人麻将局</span>
+          </a>
+          <div class="status-strip" aria-live="polite">
+            <span class="status-pill" id="connectionStatus">未连接</span>
+            <span class="status-pill" id="roomStatus">房间 --</span>
+            <span class="status-pill" id="wallStatus">牌山 --</span>
+          </div>
+        </header>
+
+        <section class="lobby-panel" id="lobbyPanel" aria-label="房间">
+          <form class="join-form" id="joinForm">
+            <label>
+              <span>名字</span>
+              <input id="nameInput" name="name" type="text" maxlength="16" autocomplete="nickname" required />
+            </label>
+            <label>
+              <span>房间</span>
+              <input id="roomInput" name="room" type="text" maxlength="8" autocapitalize="characters" required />
+            </label>
+            <label>
+              <span>服务器</span>
+              <input id="serverInput" name="server" type="text" inputmode="url" autocomplete="off" required />
+            </label>
+            <div class="form-actions">
+              <button class="primary-button" type="submit">入座</button>
+              <button class="ghost-button" type="button" id="randomRoomButton">换房号</button>
+            </div>
+          </form>
+          <div class="lobby-note" id="lobbyNote">等待连接</div>
+        </section>
+
+        <section class="game-layout" id="gamePanel" aria-label="牌桌" hidden>
+          <aside class="side-panel" aria-label="房间状态">
+            <div class="room-card">
+              <div>
+                <span class="meta-label">房间</span>
+                <strong id="activeRoomLabel">--</strong>
+              </div>
+              <button class="icon-action" type="button" id="copyRoomButton" aria-label="复制房间信息">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M8 8h10v10H8z" />
+                  <path d="M6 14H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" />
+                </svg>
+              </button>
+            </div>
+            <div class="player-list" id="playerList"></div>
+            <div class="room-actions">
+              <button class="ghost-button" type="button" id="readyButton">准备</button>
+              <button class="primary-button" type="button" id="startButton" disabled>开局</button>
+              <button class="ghost-button" type="button" id="newRoundButton" hidden>再来</button>
+            </div>
+            <div class="event-log" id="eventLog" aria-live="polite"></div>
+          </aside>
+
+          <section class="mahjong-table" aria-label="麻将桌">
+            <div class="seat seat-top" id="seatTop"></div>
+            <div class="seat seat-left" id="seatLeft"></div>
+            <div class="seat seat-right" id="seatRight"></div>
+
+            <div class="center-board">
+              <div class="round-chip" id="roundLabel">第 0 局</div>
+              <div class="turn-label" id="turnLabel">等待入座</div>
+              <div class="last-discard" id="lastDiscard"></div>
+            </div>
+
+            <div class="claim-bar" id="claimBar" hidden></div>
+
+            <section class="self-area" aria-label="我的手牌">
+              <div class="meld-row" id="selfMelds"></div>
+              <div class="hand-row" id="handRow"></div>
+              <div class="action-row" id="actionRow"></div>
+            </section>
+          </section>
+        </section>
+      </section>
+    </main>
+    <script src="./client.js"></script>
+  </body>
+</html>
