@@ -216,8 +216,8 @@ h1 {
 .locator-grid strong {
   margin-bottom: 8px;
   color: var(--teal-dark);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 15px;
+  line-height: 1.45;
 }
 
 .locator-grid span {
