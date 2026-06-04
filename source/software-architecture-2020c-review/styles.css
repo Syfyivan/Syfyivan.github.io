@@ -52,6 +52,7 @@ a { color: inherit; }
 .quick-links {
   display: flex;
   gap: 8px;
+  max-width: 100%;
   overflow-x: auto;
   padding-bottom: 2px;
 }
@@ -142,7 +143,7 @@ h1 {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
   margin: 18px 0 34px;
 }
@@ -226,11 +227,147 @@ h1 {
   line-height: 1.65;
 }
 
+.learning-panel,
+.chapter-chain {
+  margin: 0 0 34px;
+  padding: clamp(20px, 4vw, 34px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.learning-head {
+  max-width: 900px;
+  margin-bottom: 20px;
+}
+
+.learning-head h2 {
+  margin: 0;
+  font-size: clamp(26px, 4vw, 42px);
+  line-height: 1.18;
+}
+
+.learning-head p:last-child {
+  margin: 14px 0 0;
+  color: #3f4751;
+  font-size: 17px;
+}
+
+.study-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.study-flow div {
+  min-height: 170px;
+  padding: 16px;
+  border: 1px solid rgba(29, 78, 216, 0.15);
+  border-radius: 8px;
+  background: rgba(29, 78, 216, 0.055);
+}
+
+.study-flow span {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 12px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.study-flow strong,
+.study-flow em {
+  display: block;
+}
+
+.study-flow strong {
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.study-flow em {
+  color: #3f4751;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.memory-grid article,
+.chapter-list article,
+.exam-template {
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  border-radius: 8px;
+  background: rgba(244, 251, 249, 0.74);
+}
+
+.memory-grid article {
+  padding: 18px;
+}
+
+.memory-grid h3,
+.chapter-list h3,
+.exam-template h3 {
+  margin: 0 0 10px;
+  line-height: 1.35;
+}
+
+.memory-grid p,
+.chapter-list p,
+.exam-template p {
+  margin: 8px 0 0;
+  color: #3f4751;
+}
+
+.memory-line {
+  padding: 10px 12px;
+  border-left: 4px solid var(--amber);
+  border-radius: 8px;
+  background: rgba(183, 121, 31, 0.08);
+  color: #5f3d0c !important;
+  font-weight: 700;
+}
+
+.chapter-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.chapter-list article {
+  padding: 16px;
+  min-height: 248px;
+}
+
+.chapter-list strong {
+  color: var(--teal-dark);
+}
+
+.exam-template {
+  margin-top: 16px;
+  padding: 18px;
+  background: rgba(183, 121, 31, 0.08);
+  border-color: rgba(183, 121, 31, 0.22);
+}
+
 .layout {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
   gap: 28px;
   align-items: start;
+  min-width: 0;
 }
 
 .toc {
@@ -242,6 +379,7 @@ h1 {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.86);
+  min-width: 0;
 }
 
 .toc p {
@@ -265,6 +403,7 @@ h1 {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.94);
   box-shadow: var(--shadow);
+  min-width: 0;
 }
 
 .content > h1:first-child {
@@ -295,6 +434,7 @@ h1 {
 
 .content p {
   margin: 12px 0;
+  overflow-wrap: anywhere;
 }
 
 .answer-line,
@@ -368,7 +508,10 @@ ol {
   .hero,
   .layout,
   .summary-grid,
-  .locator-grid {
+  .locator-grid,
+  .study-flow,
+  .memory-grid,
+  .chapter-list {
     grid-template-columns: 1fr;
   }
 
@@ -418,7 +561,6 @@ ol {
   .topbar,
   .toc,
   .summary-grid,
-  .locator-panel,
   .answer-strip {
     display: none;
   }

@@ -3,14 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="2020C 软件架构与中间件试题逐题定位与解析，按半开卷复习资料段落索引整理。" />
-  <title>2020C 软件架构与中间件逐题定位与解析</title>
+  <meta name="description" content="2020C 软件架构与中间件学习链路、纸质资料定位与逐题解析，帮助开卷考试前快速理解和翻找资料。" />
+  <title>2020C 软件架构与中间件学习链路与逐题解析</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="topbar" aria-label="页面顶部">
     <a class="brand" href="/">一凡的博客</a>
     <nav class="quick-links" aria-label="页面内导航">
+      <a href="#study">学习链路</a>
+      <a href="#chapter-chain">章节理解</a>
       <a href="#choices">选择题</a>
       <a href="#short">简答题</a>
       <a href="#design">设计题</a>
@@ -22,8 +24,8 @@
     <section class="hero" aria-labelledby="page-title">
       <div class="hero-copy">
         <p class="eyebrow">软件架构与中间件 · 开卷复习索引</p>
-        <h1 id="page-title">2020C 逐题定位与解析</h1>
-        <p class="lead">按 2020C 试卷逐题映射到半开卷复习资料段落，补齐资料未直接覆盖的考点，并整理成可快速翻阅的答题框架。</p>
+        <h1 id="page-title">2020C 学习链路与逐题解析</h1>
+        <p class="lead">按纸质资料的章节标题建立理解链路，再把 2020C 试题逐题映射到可翻找的位置。你可以一边看网站，一边翻 Word 资料，把“为什么这么设计”先理解起来。</p>
       </div>
       <aside class="answer-strip" aria-label="选择题速查答案">
         <span>选择题速查</span>
@@ -33,6 +35,16 @@
 
     <section class="summary-grid" aria-label="内容概览">
       
+      <a class="summary-item" href="#study">
+        <span>学习链路</span>
+        <strong>4 条</strong>
+        <em>从问题推到方案</em>
+      </a>
+      <a class="summary-item" href="#chapter-chain">
+        <span>章节理解</span>
+        <strong>9 块</strong>
+        <em>每章看懂什么</em>
+      </a>
       <a class="summary-item" href="#choices">
         <span>选择题</span>
         <strong>10 题</strong>
@@ -41,7 +53,7 @@
       <a class="summary-item" href="#short">
         <span>简答题</span>
         <strong>6 题</strong>
-        <em>按段落背诵</em>
+        <em>按章节翻找</em>
       </a>
       <a class="summary-item" href="#design">
         <span>设计题</span>
@@ -73,18 +85,126 @@
       </div>
     </section>
 
+    <section class="learning-panel" id="study" aria-labelledby="study-title">
+      <div class="learning-head">
+        <p class="eyebrow">理解与记忆链路</p>
+        <h2 id="study-title">先看懂“问题怎么一步步变大”，再记每个方案</h2>
+        <p>这门课不是一堆零散名词。它的主线是：系统规模变大以后，单机、单库、同步调用都会遇到瓶颈，于是架构开始分层、拆分、缓存、异步、复制和分片。</p>
+      </div>
+
+      <div class="study-flow" aria-label="总学习链路">
+        <div><span>1</span><strong>先问问题</strong><em>用户多了、请求多了、数据多了、机器会坏、数据不能错。</em></div>
+        <div><span>2</span><strong>再找方案</strong><em>负载均衡、缓存、消息队列、服务框架、主从、分库分表。</em></div>
+        <div><span>3</span><strong>再看代价</strong><em>复制延迟、一致性、跨库查询、缓存雪崩、服务治理复杂度。</em></div>
+        <div><span>4</span><strong>最后会答题</strong><em>选择题抓概念边界，简答题写定义和区别，设计题按层组织。</em></div>
+      </div>
+
+      <div class="memory-grid" aria-label="核心记忆链路">
+        <article>
+          <h3>高并发链路</h3>
+          <p><strong>单服务器扛不住</strong> → 先做单机优化 → 加负载均衡把请求分给多台服务器 → 用缓存减少重复读数据库 → 用消息队列把非关键流程异步化 → 用分布式服务拆业务。</p>
+          <p class="memory-line">记忆句：高并发先分流，再缓存，再异步，再拆服务。</p>
+        </article>
+        <article>
+          <h3>数据变大链路</h3>
+          <p><strong>单库单表变慢</strong> → 读写分离缓解读压力 → 主从复制带来复制延迟 → 分库分表降低单库单表数据量 → 水平切分需要路由 → 跨库事务和 Join 变复杂。</p>
+          <p class="memory-line">记忆句：数据大了要拆，拆了就要路由，路由后事务和查询会变难。</p>
+        </article>
+        <article>
+          <h3>高可用链路</h3>
+          <p><strong>机器一定会故障</strong> → 主备/主从保存副本 → 负载均衡和服务注册发现健康节点 → 集群容错失败切换 → 容器调度负责拉起和扩容。</p>
+          <p class="memory-line">记忆句：高可用不是不坏，而是坏了能发现、能切换、能恢复。</p>
+        </article>
+        <article>
+          <h3>数据正确链路</h3>
+          <p><strong>支付、订单不能重复或错乱</strong> → 幂等防重复请求 → 状态机限制状态流转 → 关键读写走主库 → 同组数据尽量同分片 → 日志、补偿、对账处理异常。</p>
+          <p class="memory-line">记忆句：正确性靠幂等、状态机、主库读写、同组同分片和对账。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="chapter-chain" id="chapter-chain" aria-labelledby="chapter-title">
+      <div class="learning-head">
+        <p class="eyebrow">边看网站边翻资料</p>
+        <h2 id="chapter-title">每一章只抓三个东西：问题、方案、代价</h2>
+      </div>
+
+      <div class="chapter-list">
+        <article>
+          <h3>1.1/1.2 系统体系结构概述</h3>
+          <p><strong>先看懂：</strong>架构不是代码细节，而是构件、连接件、拓扑、约束和质量。质量属性靠结构设计来支撑。</p>
+          <p><strong>记住：</strong>架构 = 构件 + 连接件 + 拓扑结构 + 约束 + 质量。中间件 = 屏蔽异构性、实现互操作、共性凝练和复用。</p>
+          <p><strong>答题用：</strong>中间件作用、质量属性、4+1 视图、设计题开头的质量目标。</p>
+        </article>
+        <article>
+          <h3>2.1 软件设计模式概述</h3>
+          <p><strong>先看懂：</strong>设计模式是在局部设计里降低耦合、提高复用。观察者模式解释发布订阅，MVC 解释表示层的分工。</p>
+          <p><strong>记住：</strong>观察者/发布订阅强调触发和通知；MVC 强调 Model、View、Controller 分离。</p>
+          <p><strong>答题用：</strong>事件系统、MVC 设计、设计模式分类。</p>
+        </article>
+        <article>
+          <h3>3.1 计算层的软件架构技术挑战</h3>
+          <p><strong>先看懂：</strong>计算层解决“请求处理能力”的问题。规模变大后，要从集中应用走向分布式服务。</p>
+          <p><strong>记住：</strong>高性能看响应时间、TPS、QPS；高扩展靠垂直扩展和水平扩展；高可用看故障和恢复。</p>
+          <p><strong>答题用：</strong>设计题里的计算层总述、高性能/高扩展/高可用定义。</p>
+        </article>
+        <article>
+          <h3>3.3 负载均衡</h3>
+          <p><strong>先看懂：</strong>负载均衡本质是把请求分给多台机器，解决单服务器性能上限。</p>
+          <p><strong>记住：</strong>DNS 简单但更新慢；硬件强但贵；软件便宜灵活但性能一般。算法有轮询、加权轮询、负载最低、性能最优、Hash。</p>
+          <p><strong>答题用：</strong>高并发入口层设计、负载均衡选择题、综合题计算层。</p>
+        </article>
+        <article>
+          <h3>3.4 消息队列</h3>
+          <p><strong>先看懂：</strong>消息队列不是为了多一个组件，而是为了异步、削峰、解耦。</p>
+          <p><strong>记住：</strong>同步通信耦合紧；异步通信并行度高。时间解耦是不必同一时间运行，空间解耦是不必知道对方在哪里。</p>
+          <p><strong>答题用：</strong>消息中间件、事件驱动、发布订阅、异步处理设计。</p>
+        </article>
+        <article>
+          <h3>3.5 分布式服务框架</h3>
+          <p><strong>先看懂：</strong>服务拆多以后，要有人负责注册、发现、路由、容错、治理和调用。</p>
+          <p><strong>记住：</strong>请求链路可以想成：API 网关 → 服务发现/注册中心 → 服务路由 → 服务调用 → 集群容错 → 数据层。幂等解决重复请求副作用。</p>
+          <p><strong>答题用：</strong>微服务、API 网关、服务治理、支付/订单的幂等性。</p>
+        </article>
+        <article>
+          <h3>4.2 数据读写与主从分离</h3>
+          <p><strong>先看懂：</strong>数据库压力大时，把读写分散到不同节点；但复制不是瞬间完成，所以会有延迟。</p>
+          <p><strong>记住：</strong>主备简单但备机不服务；主从能读扩展但有复制延迟；主主都能写但冲突复杂。关键业务写后读要读主库。</p>
+          <p><strong>答题用：</strong>主备/主从区别、复制延迟、数据集中/分散集群。</p>
+        </article>
+        <article>
+          <h3>4.3 数据分库分表</h3>
+          <p><strong>先看懂：</strong>分库分表解决单库单表数据量和访问压力过大的问题。</p>
+          <p><strong>记住：</strong>垂直切分偏业务拆分，水平切分偏性能扩展。客户端分片可在应用层、JDBC、ORM 中实现。拆分后麻烦是事务、Join、排序分页、扩容迁移。</p>
+          <p><strong>答题用：</strong>垂直/水平分表比较、客户端分片、支付数据一致性设计。</p>
+        </article>
+        <article>
+          <h3>4.4 数据缓存</h3>
+          <p><strong>先看懂：</strong>缓存把热点数据放到更快、更近的位置，减少后端压力。</p>
+          <p><strong>记住：</strong>缓存类型有本地、分布式、反向代理、CDN。清理策略有 FIFO、LFU、LRU、过期时间。问题有一致性、穿透、并发、雪崩、热点。</p>
+          <p><strong>答题用：</strong>缓存简答题、清理策略选择题、设计题里的热点访问优化。</p>
+        </article>
+      </div>
+
+      <div class="exam-template">
+        <h3>看完一遍后，用这个模板检查自己是否真懂了</h3>
+        <p>任意拿一个章节，都能说出：它解决什么问题、用了什么方案、方案带来什么代价、考试设计题里放在哪一层。</p>
+      </div>
+    </section>
+
     <div class="layout">
       <aside class="toc" aria-label="复习导航">
         <p>复习导航</p>
+        <a href="#study">学习链路</a>
+        <a href="#chapter-chain">章节理解</a>
         <a href="#choices">一、多项选择题</a>
         <a href="#short">二、简答题</a>
         <a href="#design">三、设计题</a>
         <a href="#applied">四、综合应用题</a>
-        <a href="#gap">资料缺口提醒</a>
       </aside>
       <article class="content">
         <h1>2020C《软件架构与中间件》逐题定位与解析</h1>
-<p class="note-line">说明：本文件中的 <code>Pxxx</code> 是对 <code>软件架构与中间件-半开卷.docx</code> 抽取文本后按段落生成的定位编号，便于在唯一可带复习资料中快速查找。部分 2020C 试题涉及的术语在该 Word 资料中没有直接出现，我已标注为“资料未直接命中”或“弱命中”，并给出可作答的课程常识解析。</p>
+<p class="note-line">说明：下面每道题的“资料位置”都按纸质资料里的章节标题写，不需要再换算段落编号。复习时先读上面的理解链路，再用逐题解析练翻找和答题。</p>
 <h2 class="section-title" id="choices">一、多项选择题</h2>
 <h3 class="question-title">1. 大型电商网站的架构进化</h3>
 <p class="answer-line">答案：<code>A B C</code></p>
@@ -195,8 +315,6 @@
 <h3 class="question-title">3. 如何为多终端提供友好、快捷展示</h3>
 <p class="source-line">资料位置：资料未直接命中表示层细节；可弱参考 1 系统体系结构的内涵及要点 → 部分软件质量因素及其对策（易用性：统一风格界面、定制）；目录中的“5 表示层的设计基础”；第三章：计算机软件架构技术 → 3.5 分布式服务框架 → API 网关方式。</p>
 <p class="analysis-line">答题要点：多终端包括手机端、POS 机、自助设备等，应通过统一 API 网关提供一致接口，同时按终端能力适配页面和交互。异步内容加载方面，先加载验证主流程必需内容，如摄像头授权、取景框、提示语和验证按钮，非关键内容如广告、帮助、活动、历史记录延后加载；网络慢时展示轻量页面和明确状态反馈。自适应适配方面，根据屏幕尺寸、摄像头能力、系统版本、网络状态和输入方式选择布局与交互，保证按钮、提示、取景区域在不同设备上清晰可用。为了满足 2 秒应答，应减少首屏资源体积，缓存静态资源，本地预校验图像质量，将复杂分析放到后端或异步链路，并在失败时给出快速重试路径。</p>
-<h2 class="section-title" id="gap">资料缺口提醒</h2>
-<p>这份 Word 资料对计算层、消息队列、分布式服务、数据层、分库分表、缓存覆盖较充分；但对 2020C 中若干选择题考点覆盖不足，包括 MVC 细节、三层 C/S 对比、管道-过滤器、分层系统风格、并行范式 SPMD/Master-Worker/预测执行、视觉流程、Bootstrap、ATAM 效用树。复习时建议把本文件中标注“资料未直接命中”的答案要点手写或打印补充到可带资料旁边，考试翻找时不要在 Word 里浪费时间。</p>
 
       </article>
     </div>
