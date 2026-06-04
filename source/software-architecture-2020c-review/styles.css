@@ -171,6 +171,61 @@ h1 {
   line-height: 1;
 }
 
+.locator-panel {
+  margin: 0 0 34px;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid rgba(15, 118, 110, 0.22);
+  border-radius: 8px;
+  background: rgba(244, 251, 249, 0.92);
+  box-shadow: 0 10px 28px rgba(32, 36, 42, 0.06);
+}
+
+.locator-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.locator-head h2 {
+  margin: 0;
+  font-size: clamp(22px, 3vw, 32px);
+  line-height: 1.2;
+}
+
+.locator-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.locator-grid div {
+  min-height: 128px;
+  padding: 14px;
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.locator-grid strong,
+.locator-grid span {
+  display: block;
+}
+
+.locator-grid strong {
+  margin-bottom: 8px;
+  color: var(--teal-dark);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 15px;
+}
+
+.locator-grid span {
+  color: #3f4751;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
 .layout {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
@@ -312,7 +367,8 @@ ol {
 
   .hero,
   .layout,
-  .summary-grid {
+  .summary-grid,
+  .locator-grid {
     grid-template-columns: 1fr;
   }
 
@@ -322,6 +378,11 @@ ol {
 
   .summary-item {
     min-height: 108px;
+  }
+
+  .locator-head {
+    align-items: start;
+    flex-direction: column;
   }
 }
 
@@ -357,6 +418,7 @@ ol {
   .topbar,
   .toc,
   .summary-grid,
+  .locator-panel,
   .answer-strip {
     display: none;
   }
