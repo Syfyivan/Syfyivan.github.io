@@ -12,6 +12,7 @@
     <a class="brand" href="/">一凡的博客</a>
     <nav class="quick-links" aria-label="页面内导航">
       <a href="#study">读资料</a>
+      <a href="#chain-map">对应关系</a>
       <a href="#chapter-chain">资料导读</a>
       <a href="#choices">选择题</a>
       <a href="#short">简答题</a>
@@ -39,6 +40,11 @@
         <span>读资料</span>
         <strong>4 步</strong>
         <em>先定位再理解</em>
+      </a>
+      <a class="summary-item" href="#chain-map">
+        <span>对应关系</span>
+        <strong>4 链</strong>
+        <em>链路对应章节</em>
       </a>
       <a class="summary-item" href="#chapter-chain">
         <span>资料导读</span>
@@ -97,6 +103,45 @@
         <div><span>2</span><strong>再找纸上关键词</strong><em>每节都给出一两个能在纸质资料上扫到的关键词，用它快速确认位置。</em></div>
         <div><span>3</span><strong>看人话解释</strong><em>把资料句子翻译成“问题、方案、代价”，看懂以后再回到原文。</em></div>
         <div><span>4</span><strong>最后连到题目</strong><em>每节都标出能支持哪些选择题、简答题或设计题，考场才知道翻哪里。</em></div>
+      </div>
+
+      <div class="chain-map" id="chain-map" aria-labelledby="chain-map-title">
+        <div class="chain-map-head">
+          <h3 id="chain-map-title">记忆链路和资料的对应关系</h3>
+          <p>这些链路不是额外背诵材料，而是把 Word 资料中分散的章节压缩成四条翻找路线。看链路时，按右侧章节回到纸质资料找原文。</p>
+        </div>
+
+        <article>
+          <h4>高并发链路</h4>
+          <p><strong>链路含义：</strong>请求量变大以后，先扩计算能力，再减少同步等待和重复访问。</p>
+          <p><strong>对应资料：</strong>3.1 计算层的软件架构技术挑战 → 3.3 负载均衡 → 4.4 数据缓存 → 3.4 消息队列 → 3.5 分布式服务框架。</p>
+          <p><strong>纸上找：</strong>“TPS/QPS”“高性能集群”“负载均衡”“缓存的作用”“异步通信”“服务治理”。</p>
+          <p><strong>对应题目：</strong>选择题 1，大型电商网站架构进化；综合应用题 1，计算层高性能、高扩展、高可用。</p>
+        </article>
+
+        <article>
+          <h4>数据变大链路</h4>
+          <p><strong>链路含义：</strong>单库单表扛不住以后，先拆读写，再拆数据；拆完以后必须解决路由、事务和查询复杂度。</p>
+          <p><strong>对应资料：</strong>4.1 数据驱动的软件架构演化 → 4.2 数据读写与主从分离 → 4.3 数据分库分表 → 分库分表引起的问题。</p>
+          <p><strong>纸上找：</strong>“单机 MySQL”“读写分离·复制延迟”“垂直拆分、水平拆分”“水平切分的路由过程”“跨节点 Join”。</p>
+          <p><strong>对应题目：</strong>选择题 6，客户端分片；简答题 4、5；综合应用题 2，数据层快速稳定访问。</p>
+        </article>
+
+        <article>
+          <h4>高可用链路</h4>
+          <p><strong>链路含义：</strong>高可用不是机器不坏，而是坏了能发现、能切换、能恢复，并尽量不中断服务。</p>
+          <p><strong>对应资料：</strong>1.2 质量属性中的健壮性/可用性 → 4.2 主备/主从/主主复制 → 3.3 负载均衡 → 3.5 集群容错、服务发现/注册 → Docker 与 Kubernetes 调度。</p>
+          <p><strong>纸上找：</strong>“故障转移”“主备复制”“主从复制”“Failover/Failback/Failfast”“服务注册表”“Replication Controller”。</p>
+          <p><strong>对应题目：</strong>简答题 3、4；综合应用题 1 的高可用部分；支付设计题的主备和副本思路。</p>
+        </article>
+
+        <article>
+          <h4>数据正确链路</h4>
+          <p><strong>链路含义：</strong>支付、订单这类业务不能重复扣款、不能读到旧状态，所以要限制重复请求、状态流转和数据分布。</p>
+          <p><strong>对应资料：</strong>3.5 幂等性概念与解决方案 → 4.2 复制延迟及关键业务读主机 → 4.3 同组数据跨库问题、分布式事务问题、扩容与迁移日志。</p>
+          <p><strong>纸上找：</strong>“幂等性”“状态机控制法”“写操作后的读操作指定发给数据库主服务器”“同组数据跨库问题”“更新操作日志”。</p>
+          <p><strong>对应题目：</strong>设计题 2、3，支付子系统一致性；综合应用题 2 的关键数据读写策略。</p>
+        </article>
       </div>
 
       <div class="study-note">
@@ -259,6 +304,7 @@
       <aside class="toc" aria-label="复习导航">
         <p>复习导航</p>
         <a href="#study">怎么读资料</a>
+        <a href="#chain-map">链路对应关系</a>
         <a href="#chapter-chain">资料逐节导读</a>
         <a href="#choices">一、多项选择题</a>
         <a href="#short">二、简答题</a>
