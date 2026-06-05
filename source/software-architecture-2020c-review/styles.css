@@ -93,6 +93,14 @@ main {
   padding: clamp(30px, 6vw, 68px) 0 22px;
 }
 
+.hero-copy {
+  min-width: 0;
+}
+
+.hero > * {
+  min-width: 0;
+}
+
 .eyebrow {
   margin: 0 0 14px;
   color: var(--teal-dark);
@@ -107,6 +115,8 @@ h1 {
   font-size: clamp(34px, 7vw, 76px);
   line-height: 1.05;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .lead {
@@ -114,6 +124,8 @@ h1 {
   margin: 22px 0 0;
   color: #3f4751;
   font-size: clamp(16px, 2vw, 20px);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .answer-strip {
@@ -139,6 +151,8 @@ h1 {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 15px;
   line-height: 1.6;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .summary-grid {
@@ -299,63 +313,61 @@ h1 {
   line-height: 1.65;
 }
 
-.memory-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.memory-grid article,
-.chapter-list article,
-.exam-template {
+.study-note,
+.guide-card,
+.material-fix {
   border: 1px solid rgba(15, 118, 110, 0.18);
   border-radius: 8px;
   background: rgba(244, 251, 249, 0.74);
 }
 
-.memory-grid article {
+.study-note {
+  margin-top: 16px;
   padding: 18px;
+  border-left: 5px solid var(--teal);
 }
 
-.memory-grid h3,
-.chapter-list h3,
-.exam-template h3 {
+.study-note h3,
+.guide-card h3,
+.material-fix h3 {
   margin: 0 0 10px;
   line-height: 1.35;
 }
 
-.memory-grid p,
-.chapter-list p,
-.exam-template p {
+.study-note p,
+.guide-card p,
+.material-fix p {
   margin: 8px 0 0;
   color: #3f4751;
 }
 
-.memory-line {
-  padding: 10px 12px;
-  border-left: 4px solid var(--amber);
-  border-radius: 8px;
-  background: rgba(183, 121, 31, 0.08);
-  color: #5f3d0c !important;
-  font-weight: 700;
-}
-
-.chapter-list {
+.guide-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-.chapter-list article {
-  padding: 16px;
-  min-height: 248px;
+.guide-card {
+  padding: 18px;
+  min-height: 360px;
 }
 
-.chapter-list strong {
+.guide-card h3 {
+  color: var(--ink);
+}
+
+.guide-card strong {
   color: var(--teal-dark);
 }
 
-.exam-template {
+.guide-meta {
+  padding: 10px 12px;
+  border: 1px solid rgba(29, 78, 216, 0.14);
+  border-radius: 8px;
+  background: rgba(29, 78, 216, 0.055);
+}
+
+.material-fix {
   margin-top: 16px;
   padding: 18px;
   background: rgba(183, 121, 31, 0.08);
@@ -510,8 +522,7 @@ ol {
   .summary-grid,
   .locator-grid,
   .study-flow,
-  .memory-grid,
-  .chapter-list {
+  .guide-list {
     grid-template-columns: 1fr;
   }
 
@@ -585,7 +596,10 @@ ol {
   .answer-line,
   .source-line,
   .analysis-line,
-  .note-line {
+  .note-line,
+  .guide-card,
+  .study-note,
+  .material-fix {
     break-inside: avoid;
   }
 }

@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="2020C 软件架构与中间件学习链路、纸质资料定位与逐题解析，帮助开卷考试前快速理解和翻找资料。" />
-  <title>2020C 软件架构与中间件学习链路与逐题解析</title>
+  <meta name="description" content="2020C 软件架构与中间件资料导读、纸质资料定位与逐题解析，帮助开卷考试前快速理解和翻找资料。" />
+  <title>2020C 软件架构与中间件资料导读与逐题解析</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="topbar" aria-label="页面顶部">
     <a class="brand" href="/">一凡的博客</a>
     <nav class="quick-links" aria-label="页面内导航">
-      <a href="#study">学习链路</a>
-      <a href="#chapter-chain">章节理解</a>
+      <a href="#study">读资料</a>
+      <a href="#chapter-chain">资料导读</a>
       <a href="#choices">选择题</a>
       <a href="#short">简答题</a>
       <a href="#design">设计题</a>
@@ -24,8 +24,8 @@
     <section class="hero" aria-labelledby="page-title">
       <div class="hero-copy">
         <p class="eyebrow">软件架构与中间件 · 开卷复习索引</p>
-        <h1 id="page-title">2020C 学习链路与逐题解析</h1>
-        <p class="lead">按纸质资料的章节标题建立理解链路，再把 2020C 试题逐题映射到可翻找的位置。你可以一边看网站，一边翻 Word 资料，把“为什么这么设计”先理解起来。</p>
+        <h1 id="page-title">2020C 资料导读</h1>
+        <p class="lead">按纸质资料的章节标题解释每一部分在讲什么，再把 2020C 试题逐题映射到可翻找的位置。你可以一边看网站，一边翻 Word 资料，把“为什么这么设计”先理解起来。</p>
       </div>
       <aside class="answer-strip" aria-label="选择题速查答案">
         <span>选择题速查</span>
@@ -36,14 +36,14 @@
     <section class="summary-grid" aria-label="内容概览">
       
       <a class="summary-item" href="#study">
-        <span>学习链路</span>
-        <strong>4 条</strong>
-        <em>从问题推到方案</em>
+        <span>读资料</span>
+        <strong>4 步</strong>
+        <em>先定位再理解</em>
       </a>
       <a class="summary-item" href="#chapter-chain">
-        <span>章节理解</span>
-        <strong>9 块</strong>
-        <em>每章看懂什么</em>
+        <span>资料导读</span>
+        <strong>15 节</strong>
+        <em>对应纸质资料</em>
       </a>
       <a class="summary-item" href="#choices">
         <span>选择题</span>
@@ -87,116 +87,179 @@
 
     <section class="learning-panel" id="study" aria-labelledby="study-title">
       <div class="learning-head">
-        <p class="eyebrow">理解与记忆链路</p>
-        <h2 id="study-title">先看懂“问题怎么一步步变大”，再记每个方案</h2>
-        <p>这门课不是一堆零散名词。它的主线是：系统规模变大以后，单机、单库、同步调用都会遇到瓶颈，于是架构开始分层、拆分、缓存、异步、复制和分片。</p>
+        <p class="eyebrow">怎么配合纸质资料看</p>
+        <h2 id="study-title">网站负责“翻译资料”，Word 负责“考场原文定位”</h2>
+        <p>资料里的话很密，容易看成概念堆叠。复习时不要先背，先按下面四步把每一节还原成“它在解决什么问题”。</p>
       </div>
 
-      <div class="study-flow" aria-label="总学习链路">
-        <div><span>1</span><strong>先问问题</strong><em>用户多了、请求多了、数据多了、机器会坏、数据不能错。</em></div>
-        <div><span>2</span><strong>再找方案</strong><em>负载均衡、缓存、消息队列、服务框架、主从、分库分表。</em></div>
-        <div><span>3</span><strong>再看代价</strong><em>复制延迟、一致性、跨库查询、缓存雪崩、服务治理复杂度。</em></div>
-        <div><span>4</span><strong>最后会答题</strong><em>选择题抓概念边界，简答题写定义和区别，设计题按层组织。</em></div>
+      <div class="study-flow" aria-label="读资料四步法">
+        <div><span>1</span><strong>先找资料标题</strong><em>按 Word 里的章标题找，例如“3.3 负载均衡”“4.3 数据分库分表”，不要靠段落编号。</em></div>
+        <div><span>2</span><strong>再找纸上关键词</strong><em>每节都给出一两个能在纸质资料上扫到的关键词，用它快速确认位置。</em></div>
+        <div><span>3</span><strong>看人话解释</strong><em>把资料句子翻译成“问题、方案、代价”，看懂以后再回到原文。</em></div>
+        <div><span>4</span><strong>最后连到题目</strong><em>每节都标出能支持哪些选择题、简答题或设计题，考场才知道翻哪里。</em></div>
       </div>
 
-      <div class="memory-grid" aria-label="核心记忆链路">
-        <article>
-          <h3>高并发链路</h3>
-          <p><strong>单服务器扛不住</strong> → 先做单机优化 → 加负载均衡把请求分给多台服务器 → 用缓存减少重复读数据库 → 用消息队列把非关键流程异步化 → 用分布式服务拆业务。</p>
-          <p class="memory-line">记忆句：高并发先分流，再缓存，再异步，再拆服务。</p>
-        </article>
-        <article>
-          <h3>数据变大链路</h3>
-          <p><strong>单库单表变慢</strong> → 读写分离缓解读压力 → 主从复制带来复制延迟 → 分库分表降低单库单表数据量 → 水平切分需要路由 → 跨库事务和 Join 变复杂。</p>
-          <p class="memory-line">记忆句：数据大了要拆，拆了就要路由，路由后事务和查询会变难。</p>
-        </article>
-        <article>
-          <h3>高可用链路</h3>
-          <p><strong>机器一定会故障</strong> → 主备/主从保存副本 → 负载均衡和服务注册发现健康节点 → 集群容错失败切换 → 容器调度负责拉起和扩容。</p>
-          <p class="memory-line">记忆句：高可用不是不坏，而是坏了能发现、能切换、能恢复。</p>
-        </article>
-        <article>
-          <h3>数据正确链路</h3>
-          <p><strong>支付、订单不能重复或错乱</strong> → 幂等防重复请求 → 状态机限制状态流转 → 关键读写走主库 → 同组数据尽量同分片 → 日志、补偿、对账处理异常。</p>
-          <p class="memory-line">记忆句：正确性靠幂等、状态机、主库读写、同组同分片和对账。</p>
-        </article>
+      <div class="study-note">
+        <h3>判断自己看懂资料的标准</h3>
+        <p>任意翻到一节，都能回答三句话：这节解决什么问题？资料给了什么方案？这个方案带来什么复杂度或易错点？能说出这三句，就不用死背整段原文。</p>
       </div>
     </section>
 
     <section class="chapter-chain" id="chapter-chain" aria-labelledby="chapter-title">
       <div class="learning-head">
-        <p class="eyebrow">边看网站边翻资料</p>
-        <h2 id="chapter-title">每一章只抓三个东西：问题、方案、代价</h2>
+        <p class="eyebrow">资料逐节导读</p>
+        <h2 id="chapter-title">按 Word 资料顺序看：每一部分到底在讲什么</h2>
+        <p>下面的“资料位置”就是你纸质资料里要找的标题；“纸上找”是更快的定位关键词；“看不懂时”是把原文翻译成考试能用的话。</p>
       </div>
 
-      <div class="chapter-list">
-        <article>
-          <h3>1.1/1.2 系统体系结构概述</h3>
-          <p><strong>先看懂：</strong>架构不是代码细节，而是构件、连接件、拓扑、约束和质量。质量属性靠结构设计来支撑。</p>
-          <p><strong>记住：</strong>架构 = 构件 + 连接件 + 拓扑结构 + 约束 + 质量。中间件 = 屏蔽异构性、实现互操作、共性凝练和复用。</p>
-          <p><strong>答题用：</strong>中间件作用、质量属性、4+1 视图、设计题开头的质量目标。</p>
+      <div class="guide-list">
+        <article class="guide-card">
+          <h3>1.1 系统体系结构概述</h3>
+          <p class="guide-meta"><strong>资料位置：</strong>1 系统体系结构的内涵及要点 → 1.1 系统体系结构概述。</p>
+          <p><strong>纸上找：</strong>“架构 = 构件 + 连接件 + 拓扑结构 + 约束 + 质量”。</p>
+          <p><strong>这部分讲什么：</strong>架构不是某一段代码，而是系统由哪些部分组成、这些部分怎么连接、整体要满足哪些约束和质量。</p>
+          <p><strong>看不懂时：</strong>把“构件”理解成模块或服务，把“连接件”理解成接口、协议、消息、调用关系，把“拓扑”理解成它们连成的整体形状。</p>
+          <p><strong>对应考点：</strong>分层系统的构件/连接件、软件架构定义、设计题开头的系统结构说明。</p>
         </article>
-        <article>
+
+        <article class="guide-card">
+          <h3>1.2 SA 作用、质量属性与 4+1 视图</h3>
+          <p class="guide-meta"><strong>资料位置：</strong>1 系统体系结构的内涵及要点 → 1.2 系统体系结构概述。</p>
+          <p><strong>纸上找：</strong>“SA 作用”“架构师的关注点”“部分软件质量因素及其对策”“4+1 视图模型”。</p>
+          <p><strong>这部分讲什么：</strong>软件架构用来沟通、复用和记录关键决策；架构师关注质量属性；4+1 视图把系统从不同角度讲清楚。</p>
+          <p><strong>看不懂时：</strong>质量属性就是“系统好不好用、快不快、稳不稳、安不安全”。4+1 视图可以理解成设计题模板：用例、逻辑、开发、进程、物理。</p>
+          <p><strong>对应考点：</strong>质量属性选择题、ATAM/效用树可借用这一节、MVC 设计题里的 4+1 视图组织。</p>
+        </article>
+
+        <article class="guide-card">
+          <h3>1.2 中间件</h3>
+          <p class="guide-meta"><strong>资料位置：</strong>1 系统体系结构的内涵及要点 → 1.2 → 系统=服务集群+中间件、软件中间件的作用、中间件分类。</p>
+          <p><strong>纸上找：</strong>“屏蔽异构性、实现互操作、共性凝练和复用”。</p>
+          <p><strong>这部分讲什么：</strong>中间件夹在应用和底层系统之间，把通信、集成、事务、消息、服务管理这类公共能力抽出来。</p>
+          <p><strong>看不懂时：</strong>把中间件理解成“不同系统之间的公共翻译层和公共服务层”。它让业务系统少关心操作系统、网络、协议、平台差异。</p>
+          <p><strong>对应考点：</strong>简答题“软件中间件的作用”、消息中间件、分布式服务框架。</p>
+        </article>
+
+        <article class="guide-card">
           <h3>2.1 软件设计模式概述</h3>
-          <p><strong>先看懂：</strong>设计模式是在局部设计里降低耦合、提高复用。观察者模式解释发布订阅，MVC 解释表示层的分工。</p>
-          <p><strong>记住：</strong>观察者/发布订阅强调触发和通知；MVC 强调 Model、View、Controller 分离。</p>
-          <p><strong>答题用：</strong>事件系统、MVC 设计、设计模式分类。</p>
+          <p class="guide-meta"><strong>资料位置：</strong>2 软件设计模式基础 → 2.1 软件设计模式概述。</p>
+          <p><strong>纸上找：</strong>“创建型模式、结构型模式、行为型模式、J2EE 模式”“开闭原则”。</p>
+          <p><strong>这部分讲什么：</strong>设计模式是局部设计经验，目标是让代码更好扩展、更容易复用、更少耦合。</p>
+          <p><strong>看不懂时：</strong>不要逐字背每个模式，先记分类：创建型管“怎么创建对象”，结构型管“怎么组合对象”，行为型管“对象怎么协作”。</p>
+          <p><strong>对应考点：</strong>MVC、观察者/发布订阅、事件系统风格、设计模式分类。</p>
         </article>
-        <article>
+
+        <article class="guide-card">
+          <h3>2.1 常见模式：单例、工厂、适配器、代理、观察者</h3>
+          <p class="guide-meta"><strong>资料位置：</strong>2 软件设计模式基础 → 创建型/结构型/行为型模式。</p>
+          <p><strong>纸上找：</strong>“单例模式”“工厂模式”“适配器模式”“代理模式”“观察者模式”。</p>
+          <p><strong>这部分讲什么：</strong>这些模式分别解决唯一实例、对象创建、接口不兼容、访问控制/增强、一对多通知的问题。</p>
+          <p><strong>看不懂时：</strong>观察者就是资料里最接近“发布订阅/事件系统”的点；代理可以顺手理解缓存、日志、权限这类非业务增强。</p>
+          <p><strong>对应考点：</strong>事件系统选择题、MVC/表示层弱关联、发布订阅和消息代理的理解。</p>
+        </article>
+
+        <article class="guide-card">
           <h3>3.1 计算层的软件架构技术挑战</h3>
-          <p><strong>先看懂：</strong>计算层解决“请求处理能力”的问题。规模变大后，要从集中应用走向分布式服务。</p>
-          <p><strong>记住：</strong>高性能看响应时间、TPS、QPS；高扩展靠垂直扩展和水平扩展；高可用看故障和恢复。</p>
-          <p><strong>答题用：</strong>设计题里的计算层总述、高性能/高扩展/高可用定义。</p>
+          <p class="guide-meta"><strong>资料位置：</strong>第三章：计算机软件架构技术 → 3.1 计算层的软件架构技术挑战。</p>
+          <p><strong>纸上找：</strong>“计算复杂性”“应用从集中走向分布式”“服务治理”“TPS、QPS”。</p>
+          <p><strong>这部分讲什么：</strong>计算层关注请求处理能力。用户和业务变多后，单体应用会走向业务拆分、服务化、治理和扩展。</p>
+          <p><strong>看不懂时：</strong>把它看作“为什么要从一个应用拆成很多服务”。拆分以后性能、容量、安全、降级、上线下线都要治理。</p>
+          <p><strong>对应考点：</strong>大型电商架构演进、综合题计算层、高性能/高扩展/高可用定义。</p>
         </article>
-        <article>
+
+        <article class="guide-card">
           <h3>3.3 负载均衡</h3>
-          <p><strong>先看懂：</strong>负载均衡本质是把请求分给多台机器，解决单服务器性能上限。</p>
-          <p><strong>记住：</strong>DNS 简单但更新慢；硬件强但贵；软件便宜灵活但性能一般。算法有轮询、加权轮询、负载最低、性能最优、Hash。</p>
-          <p><strong>答题用：</strong>高并发入口层设计、负载均衡选择题、综合题计算层。</p>
+          <p class="guide-meta"><strong>资料位置：</strong>第三章：计算机软件架构技术 → 3.3 负载均衡。</p>
+          <p><strong>纸上找：</strong>“DNS 负载均衡、硬件负载均衡、软件负载均衡”“轮询、加权轮询、Hash”。</p>
+          <p><strong>这部分讲什么：</strong>单服务器有性能上限，负载均衡就是增加任务分配器，把请求分给多台服务器。</p>
+          <p><strong>看不懂时：</strong>地理级用 DNS，集群级可用 F5，机器级常见 Nginx；算法就是“按什么规则把请求发给谁”。</p>
+          <p><strong>对应考点：</strong>电商演进选择题、综合应用题计算层、高并发入口层设计。</p>
         </article>
-        <article>
+
+        <article class="guide-card">
           <h3>3.4 消息队列</h3>
-          <p><strong>先看懂：</strong>消息队列不是为了多一个组件，而是为了异步、削峰、解耦。</p>
-          <p><strong>记住：</strong>同步通信耦合紧；异步通信并行度高。时间解耦是不必同一时间运行，空间解耦是不必知道对方在哪里。</p>
-          <p><strong>答题用：</strong>消息中间件、事件驱动、发布订阅、异步处理设计。</p>
+          <p class="guide-meta"><strong>资料位置：</strong>第三章：计算机软件架构技术 → 3.4 消息队列。</p>
+          <p><strong>纸上找：</strong>“MOM”“发布订阅”“事件驱动”“时间解耦、空间解耦”。</p>
+          <p><strong>这部分讲什么：</strong>消息队列让系统通过消息通信，不必所有调用都同步等待，常用于异步、削峰、解耦。</p>
+          <p><strong>看不懂时：</strong>时间解耦是双方不必同时在线；空间解耦是发送方不必知道接收方在哪；异步是发出后先不阻塞主流程。</p>
+          <p><strong>对应考点：</strong>事件系统风格、消息中间件、综合题中的异步处理。</p>
         </article>
-        <article>
+
+        <article class="guide-card">
           <h3>3.5 分布式服务框架</h3>
-          <p><strong>先看懂：</strong>服务拆多以后，要有人负责注册、发现、路由、容错、治理和调用。</p>
-          <p><strong>记住：</strong>请求链路可以想成：API 网关 → 服务发现/注册中心 → 服务路由 → 服务调用 → 集群容错 → 数据层。幂等解决重复请求副作用。</p>
-          <p><strong>答题用：</strong>微服务、API 网关、服务治理、支付/订单的幂等性。</p>
+          <p class="guide-meta"><strong>资料位置：</strong>第三章：计算机软件架构技术 → 3.5 分布式服务框架。</p>
+          <p><strong>纸上找：</strong>“服务订阅发布、服务路由、集群容错、服务调用、幂等性”。</p>
+          <p><strong>这部分讲什么：</strong>服务拆多以后，需要框架处理注册发现、路由、容错、调用协议、序列化、配置和重复请求问题。</p>
+          <p><strong>看不懂时：</strong>把一次调用想成：消费者找服务地址 → 路由选实例 → 调用失败要不要重试 → 写操作要防重复副作用。</p>
+          <p><strong>对应考点：</strong>微服务设计、支付幂等性、综合题计算层服务治理。</p>
         </article>
-        <article>
+
+        <article class="guide-card">
+          <h3>3.5 微服务、API 网关、服务发现与注册</h3>
+          <p class="guide-meta"><strong>资料位置：</strong>第三章 → 3.5 → 微服务的定义、服务集成、服务发现、服务注册、数据去中心化。</p>
+          <p><strong>纸上找：</strong>“API-网关方式”“消息代理方式”“客户端发现模式、服务端发现模式”。</p>
+          <p><strong>这部分讲什么：</strong>微服务按业务拆小，网关负责统一入口，注册中心保存服务地址，发现机制帮助调用方找到可用实例。</p>
+          <p><strong>看不懂时：</strong>API 网关像所有客户端的统一门面；服务注册表像地址簿；服务发现就是查地址并选一个健康实例。</p>
+          <p><strong>对应考点：</strong>刷脸支付多终端统一接口、微服务集成方式、服务发现和负载均衡。</p>
+        </article>
+
+        <article class="guide-card">
+          <h3>Docker 与 Kubernetes 调度</h3>
+          <p class="guide-meta"><strong>资料位置：</strong>第三章后半部分 → Docker 引擎、Docker VS VM、Docker 调度工具、K8S、POD 调度。</p>
+          <p><strong>纸上找：</strong>“Docker 是 C/S 结构”“Swarm、Mesos、Kubernetes”“Pod、Label、Replication Controller”。</p>
+          <p><strong>这部分讲什么：</strong>容器让应用部署更轻量，调度系统负责把容器放到合适机器上运行，并处理扩容、健康检查和故障迁移。</p>
+          <p><strong>看不懂时：</strong>Docker 解决“打包和运行环境”，Kubernetes 解决“很多容器放到哪些机器、坏了怎么拉起、怎么找到服务”。</p>
+          <p><strong>对应考点：</strong>综合题计算层高可用、扩容、容器调度相关表述。</p>
+        </article>
+
+        <article class="guide-card">
+          <h3>4.1 数据驱动的软件架构演化</h3>
+          <p class="guide-meta"><strong>资料位置：</strong>4 数据层的软件架构技术 → 4.1 数据驱动的软件架构演化。</p>
+          <p><strong>纸上找：</strong>“单机 MySQL”“Memcached+MySQL+垂直分离”“MySQL 主从读写分离”“分库分表+水平拆分”。</p>
+          <p><strong>这部分讲什么：</strong>数据层的演化主线是单机数据库扛不住后，先缓存，再读写分离，再分库分表，再考虑 NoSQL/集群。</p>
+          <p><strong>看不懂时：</strong>数据层所有技术都围绕三个压力：数据太多、索引太大、读写请求太多。</p>
+          <p><strong>对应考点：</strong>电商架构演进、数据层综合题、缓存和分库分表出现的原因。</p>
+        </article>
+
+        <article class="guide-card">
           <h3>4.2 数据读写与主从分离</h3>
-          <p><strong>先看懂：</strong>数据库压力大时，把读写分散到不同节点；但复制不是瞬间完成，所以会有延迟。</p>
-          <p><strong>记住：</strong>主备简单但备机不服务；主从能读扩展但有复制延迟；主主都能写但冲突复杂。关键业务写后读要读主库。</p>
-          <p><strong>答题用：</strong>主备/主从区别、复制延迟、数据集中/分散集群。</p>
+          <p class="guide-meta"><strong>资料位置：</strong>4 数据层的软件架构技术 → 4.2 数据读写与主从分离。</p>
+          <p><strong>纸上找：</strong>“读写分离·复制延迟”“主备复制”“主从复制”“主主复制”“数据集中集群、数据分散集群”。</p>
+          <p><strong>这部分讲什么：</strong>通过复制和多节点提高读性能、可用性和容灾能力，但会带来复制延迟、故障切换和数据冲突。</p>
+          <p><strong>看不懂时：</strong>主备偏备份，备机平时不服务；主从可让从机读；主主两边都能写但最容易冲突；关键业务写后读要读主库。</p>
+          <p><strong>对应考点：</strong>数据集中/分散集群区别、对称/非对称集群、支付一致性设计。</p>
         </article>
-        <article>
+
+        <article class="guide-card">
           <h3>4.3 数据分库分表</h3>
-          <p><strong>先看懂：</strong>分库分表解决单库单表数据量和访问压力过大的问题。</p>
-          <p><strong>记住：</strong>垂直切分偏业务拆分，水平切分偏性能扩展。客户端分片可在应用层、JDBC、ORM 中实现。拆分后麻烦是事务、Join、排序分页、扩容迁移。</p>
-          <p><strong>答题用：</strong>垂直/水平分表比较、客户端分片、支付数据一致性设计。</p>
+          <p class="guide-meta"><strong>资料位置：</strong>4 数据层的软件架构技术 → 4.3 数据分库分表。</p>
+          <p><strong>纸上找：</strong>“垂直拆分、水平拆分”“客户端分片”“垂直切分更偏业务拆分，水平切分更偏技术性能指标”。</p>
+          <p><strong>这部分讲什么：</strong>分库分表就是把数据拆开，降低单库单表压力。拆法分垂直和水平，访问时必须能路由到正确分片。</p>
+          <p><strong>看不懂时：</strong>垂直是按业务或字段拆，例如 User、Pay、Commodity；水平是同结构按行拆，例如 User0、User1。拆完以后事务、Join、排序分页会变难。</p>
+          <p><strong>对应考点：</strong>客户端分片选择题、垂直/水平分表简答题、支付系统数据一致性。</p>
         </article>
-        <article>
+
+        <article class="guide-card">
           <h3>4.4 数据缓存</h3>
-          <p><strong>先看懂：</strong>缓存把热点数据放到更快、更近的位置，减少后端压力。</p>
-          <p><strong>记住：</strong>缓存类型有本地、分布式、反向代理、CDN。清理策略有 FIFO、LFU、LRU、过期时间。问题有一致性、穿透、并发、雪崩、热点。</p>
-          <p><strong>答题用：</strong>缓存简答题、清理策略选择题、设计题里的热点访问优化。</p>
+          <p class="guide-meta"><strong>资料位置：</strong>4 数据层的软件架构技术 → 4.4 数据缓存。</p>
+          <p><strong>纸上找：</strong>“本地缓存、分布式缓存、反向代理缓存、CDN 缓存”“FIFO、LFU、LRU”“缓存穿透、并发、雪崩、热点”。</p>
+          <p><strong>这部分讲什么：</strong>缓存把热点数据放到更快、更近的位置，减少数据库或后端服务压力。</p>
+          <p><strong>看不懂时：</strong>先分清缓存位置：应用内是本地缓存，独立 Redis/Memcached 是分布式缓存，Nginx/Varnish 是反向代理缓存，离用户近的是 CDN。</p>
+          <p><strong>对应考点：</strong>缓存清理策略选择题、缓存问题简答题、综合题热点访问优化。</p>
         </article>
       </div>
 
-      <div class="exam-template">
-        <h3>看完一遍后，用这个模板检查自己是否真懂了</h3>
-        <p>任意拿一个章节，都能说出：它解决什么问题、用了什么方案、方案带来什么代价、考试设计题里放在哪一层。</p>
+      <div class="material-fix">
+        <h3>资料本身需要注意的地方</h3>
+        <p>这份 Word 的计算层和数据层够用，但表示层正文很弱：目录里有“5 表示层的设计基础”，正文里没有完整内容。因此视觉流程、Bootstrap、MVC 与三层 C/S 比较、ATAM 效用树、管道-过滤器、SPMD/Master-Worker/预测执行这些点，只靠原资料不太好查。最小修改建议是在 Word 最后一页加“2020C 弱覆盖补充”，不要重写主体资料。</p>
       </div>
     </section>
 
     <div class="layout">
       <aside class="toc" aria-label="复习导航">
         <p>复习导航</p>
-        <a href="#study">学习链路</a>
-        <a href="#chapter-chain">章节理解</a>
+        <a href="#study">怎么读资料</a>
+        <a href="#chapter-chain">资料逐节导读</a>
         <a href="#choices">一、多项选择题</a>
         <a href="#short">二、简答题</a>
         <a href="#design">三、设计题</a>
