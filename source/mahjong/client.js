@@ -1,17 +1,40 @@
 (function () {
   "use strict";
 
-  var TILE_SUITS = [
-    { key: "characters", label: "万" },
-    { key: "dots", label: "筒" },
-    { key: "bamboo", label: "条" }
-  ];
+  var CHINESE_NUMBERS = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
+  var TILE_DEFS = [
+    { key: "characters", label: "万", group: "characters" },
+    { key: "dots", label: "筒", group: "dots" },
+    { key: "bamboo", label: "条", group: "bamboo" }
+  ].flatMap(function (suit, suitIndex) {
+    return CHINESE_NUMBERS.map(function (rank, index) {
+      return {
+        type: suitIndex * 9 + index,
+        group: suit.group,
+        rank: index + 1,
+        rankLabel: rank,
+        suit: suit.label,
+        label: String(index + 1) + suit.label
+      };
+    });
+  }).concat("东南西北中发白".split("").map(function (label, index) {
+    return {
+      type: 27 + index,
+      group: index < 4 ? "wind" : "dragon",
+      rank: 0,
+      rankLabel: label,
+      suit: "字",
+      label: label
+    };
+  }));
 
   var STORAGE_KEY = "lanMahjongProfile";
   var roomInput = document.getElementById("roomInput");
   var nameInput = document.getElementById("nameInput");
   var serverInput = document.getElementById("serverInput");
   var inviteInput = document.getElementById("inviteInput");
+  var variantInputs = Array.from(document.querySelectorAll('input[name="variant"]'));
+  var seatCountInputs = Array.from(document.querySelectorAll('input[name="seatCount"]'));
   var joinForm = document.getElementById("joinForm");
   var randomRoomButton = document.getElementById("randomRoomButton");
   var applyInviteButton = document.getElementById("applyInviteButton");
@@ -22,6 +45,7 @@
   var roomStatus = document.getElementById("roomStatus");
   var wallStatus = document.getElementById("wallStatus");
   var activeRoomLabel = document.getElementById("activeRoomLabel");
+  var roomConfigLabel = document.getElementById("roomConfigLabel");
   var copyRoomButton = document.getElementById("copyRoomButton");
   var playerList = document.getElementById("playerList");
   var readyButton = document.getElementById("readyButton");
@@ -70,6 +94,27 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
   }
 
+  function radioValue(inputs, fallback) {
+    var selected = inputs.find(function (input) {
+      return input.checked;
+    });
+    return selected ? selected.value : fallback;
+  }
+
+  function setRadioValue(inputs, value) {
+    inputs.forEach(function (input) {
+      input.checked = input.value === String(value);
+    });
+  }
+
+  function selectedVariant() {
+    return radioValue(variantInputs, "sichuan");
+  }
+
+  function selectedSeatCount() {
+    return Number(radioValue(seatCountInputs, "3")) === 4 ? 4 : 3;
+  }
+
   function getQuery() {
     return new URLSearchParams(window.location.search);
   }
@@ -101,7 +146,9 @@
   function createInviteCode(room, server) {
     return "MJ1-" + encodeInvitePayload({
       room: String(room || "").toUpperCase(),
-      server: normalizeServerUrl(server)
+      server: normalizeServerUrl(server),
+      variant: selectedVariant(),
+      seatCount: selectedSeatCount()
     });
   }
 
@@ -129,7 +176,9 @@
     var payload = decodeInvitePayload(raw.slice(4));
     return {
       room: String(payload.room || payload.r || "").toUpperCase(),
-      server: normalizeServerUrl(payload.server || payload.s || "")
+      server: normalizeServerUrl(payload.server || payload.s || ""),
+      variant: payload.variant || payload.v || selectedVariant(),
+      seatCount: Number(payload.seatCount || payload.n || selectedSeatCount()) === 4 ? 4 : 3
     };
   }
 
@@ -148,6 +197,12 @@
     roomInput.value = invite.room;
     if (invite.server) {
       serverInput.value = invite.server;
+    }
+    if (invite.variant) {
+      setRadioValue(variantInputs, invite.variant);
+    }
+    if (invite.seatCount) {
+      setRadioValue(seatCountInputs, invite.seatCount);
     }
     inviteInput.value = String(value || "").trim();
     setNotice(autoConnect ? "使用邀请码连接中" : "已填入邀请码");
@@ -198,6 +253,8 @@
     nameInput.value = query.get("name") || profile.name || "玩家" + Math.floor(Math.random() * 90 + 10);
     roomInput.value = (query.get("room") || profile.room || randomRoomCode()).toUpperCase();
     serverInput.value = query.get("server") || profile.server || defaultServerUrl();
+    setRadioValue(variantInputs, query.get("variant") || profile.variant || "sichuan");
+    setRadioValue(seatCountInputs, query.get("seatCount") || profile.seatCount || 3);
     inviteInput.value = query.get("invite") || "";
     if (window.location.hostname.endsWith("github.io")) {
       setNotice("粘贴房主邀请码或打开房主局域网页面");
@@ -225,7 +282,9 @@
       profile = {
         name: nameInput.value.trim() || "玩家",
         room: roomInput.value.trim().toUpperCase() || randomRoomCode(),
-        server: normalizeServerUrl(serverInput.value)
+        server: normalizeServerUrl(serverInput.value),
+        variant: selectedVariant(),
+        seatCount: selectedSeatCount()
       };
     } catch (error) {
       setNotice(error.message);
@@ -268,7 +327,9 @@
         type: "join",
         name: profile.name,
         room: profile.room,
-        clientId: state.clientId
+        clientId: state.clientId,
+        variant: profile.variant,
+        seatCount: profile.seatCount
       });
     });
 
@@ -311,13 +372,26 @@
   }
 
   function tileMeta(type) {
-    var suit = TILE_SUITS[Math.floor(type / 9)];
-    var rank = (type % 9) + 1;
-    return {
-      rank: rank,
-      suit: suit,
-      label: rank + suit.label
+    return TILE_DEFS[type] || {
+      type: type,
+      group: "unknown",
+      rank: 0,
+      rankLabel: "?",
+      suit: "",
+      label: "未知牌"
     };
+  }
+
+  function appendPips(target, meta) {
+    var grid = document.createElement("span");
+    grid.className = "tile-symbols tile-symbols-" + meta.group;
+    grid.dataset.count = String(meta.rank);
+    for (var index = 0; index < meta.rank; index += 1) {
+      var pip = document.createElement("span");
+      pip.className = meta.group === "dots" ? "dot-pip" : "bamboo-pip";
+      grid.appendChild(pip);
+    }
+    target.appendChild(grid);
   }
 
   function createTile(tile, options) {
@@ -326,7 +400,8 @@
     var meta = tileMeta(type);
     var element = document.createElement(opts.button ? "button" : "div");
     element.className = opts.mini ? "mini-tile" : "tile";
-    element.dataset.suit = meta.suit.key;
+    element.dataset.suit = meta.group;
+    element.dataset.type = String(type);
     element.title = meta.label;
 
     if (opts.mini) {
@@ -334,13 +409,31 @@
       return element;
     }
 
-    var rank = document.createElement("span");
-    rank.className = "rank";
-    rank.textContent = String(meta.rank);
-    var suit = document.createElement("span");
-    suit.className = "suit";
-    suit.textContent = meta.suit.label;
-    element.append(rank, suit);
+    var face = document.createElement("span");
+    face.className = "tile-face";
+
+    if (meta.group === "characters") {
+      var characterRank = document.createElement("span");
+      characterRank.className = "character-rank";
+      characterRank.textContent = meta.rankLabel;
+      var characterSuit = document.createElement("span");
+      characterSuit.className = "character-suit";
+      characterSuit.textContent = "萬";
+      face.append(characterRank, characterSuit);
+    } else if (meta.group === "dots" || meta.group === "bamboo") {
+      appendPips(face, meta);
+      var suitMark = document.createElement("span");
+      suitMark.className = "suit-mark";
+      suitMark.textContent = meta.suit;
+      face.appendChild(suitMark);
+    } else {
+      var honor = document.createElement("span");
+      honor.className = "honor-glyph";
+      honor.textContent = meta.rankLabel;
+      face.appendChild(honor);
+    }
+
+    element.appendChild(face);
 
     if (opts.button) {
       element.type = "button";
@@ -477,12 +570,17 @@
     seatRight.textContent = "";
 
     var selfSeat = view.player ? view.player.seat : 0;
+    var seatCount = view.config ? view.config.seatCount : 3;
     view.players.forEach(function (player) {
       if (player.isSelf) {
         return;
       }
-      var delta = (player.seat - selfSeat + 3) % 3;
-      renderSeat(delta === 1 ? seatRight : seatLeft, player);
+      var delta = (player.seat - selfSeat + seatCount) % seatCount;
+      if (seatCount === 4 && delta === 2) {
+        renderSeat(seatTop, player);
+      } else {
+        renderSeat(delta === 1 ? seatRight : seatLeft, player);
+      }
     });
   }
 
@@ -549,7 +647,7 @@
     } else if (view.turnName) {
       turnLabel.textContent = view.turnName + " 的回合";
     } else {
-      turnLabel.textContent = view.players.length + "/3 入座";
+      turnLabel.textContent = view.players.length + "/" + (view.config ? view.config.seatCount : 3) + " 入座";
     }
 
     lastDiscard.textContent = "";
@@ -579,6 +677,11 @@
     roomStatus.textContent = "房间 " + view.room;
     wallStatus.textContent = "牌山 " + view.wallCount;
     activeRoomLabel.textContent = view.room;
+    if (view.config) {
+      roomConfigLabel.textContent = view.config.variantLabel + " · " + view.config.seatCount + "人局";
+      setRadioValue(variantInputs, view.config.variant);
+      setRadioValue(seatCountInputs, view.config.seatCount);
+    }
     readyButton.textContent = view.player.ready ? "取消准备" : "准备";
     readyButton.disabled = view.phase === "playing";
     addBotButton.disabled = !view.canAddBot;

@@ -20,11 +20,69 @@ const contentTypes = {
   ".svg": "image/svg+xml; charset=utf-8"
 };
 
-const suits = ["万", "筒", "条"];
-const botNames = ["牌搭子一号", "牌搭子二号", "牌搭子三号"];
+const tileDefinitions = [
+  ...["万", "筒", "条"].flatMap((suit, suitIndex) =>
+    Array.from({ length: 9 }, (_, index) => ({
+      label: String(index + 1) + suit,
+      numberTile: true,
+      type: suitIndex * 9 + index
+    }))
+  ),
+  ..."东南西北中发白".split("").map((label, index) => ({
+    label,
+    numberTile: false,
+    type: 27 + index
+  }))
+];
+
+const variants = {
+  sichuan: {
+    key: "sichuan",
+    label: "川麻",
+    tileTypes: Array.from({ length: 27 }, (_, index) => index),
+    allowChow: false
+  },
+  dongbei: {
+    key: "dongbei",
+    label: "东北麻将",
+    tileTypes: Array.from({ length: 34 }, (_, index) => index),
+    allowChow: true
+  }
+};
+
+const botNames = ["牌搭子一号", "牌搭子二号", "牌搭子三号", "牌搭子四号"];
 
 function tileName(type) {
-  return String((type % 9) + 1) + suits[Math.floor(type / 9)];
+  return tileDefinitions[type]?.label || "未知牌";
+}
+
+function normalizeVariant(value) {
+  return variants[String(value || "").toLowerCase()]?.key || "sichuan";
+}
+
+function normalizeSeatCount(value) {
+  const count = Number(value);
+  return count === 4 ? 4 : 3;
+}
+
+function makeConfig(options = {}) {
+  const variant = normalizeVariant(options.variant);
+  return {
+    variant,
+    seatCount: normalizeSeatCount(options.seatCount)
+  };
+}
+
+function variantFor(room) {
+  return variants[room.config.variant] || variants.sichuan;
+}
+
+function roomSeatCount(room) {
+  return normalizeSeatCount(room.config.seatCount);
+}
+
+function roomConfigLabel(room) {
+  return variantFor(room).label + " · " + roomSeatCount(room) + "人局";
 }
 
 function sanitizeName(value) {
@@ -46,9 +104,10 @@ function log(room, text) {
   }
 }
 
-function makeRoom(code) {
+function makeRoom(code, options) {
   return {
     code,
+    config: makeConfig(options),
     players: [],
     phase: "lobby",
     round: 0,
@@ -87,10 +146,10 @@ function connectedOrBot(player) {
   return isBot(player) || player.connected;
 }
 
-function getRoom(code) {
+function getRoom(code, options) {
   const roomCode = normalizeRoom(code);
   if (!rooms.has(roomCode)) {
-    rooms.set(roomCode, makeRoom(roomCode));
+    rooms.set(roomCode, makeRoom(roomCode, options));
   }
   return rooms.get(roomCode);
 }
@@ -103,12 +162,21 @@ function currentPlayer(room) {
   return playerBySeat(room, room.currentSeat);
 }
 
-function nextSeat(seat) {
-  return (seat + 1) % 3;
+function nextSeat(room, seat) {
+  return (seat + 1) % roomSeatCount(room);
 }
 
 function nextPlayer(room, seat) {
-  return playerBySeat(room, nextSeat(seat));
+  return playerBySeat(room, nextSeat(room, seat));
+}
+
+function nextOpenSeat(room) {
+  for (let seat = 0; seat < roomSeatCount(room); seat += 1) {
+    if (!playerBySeat(room, seat)) {
+      return seat;
+    }
+  }
+  return room.players.length;
 }
 
 function sortHand(player) {
@@ -125,15 +193,15 @@ function shuffle(items) {
   return items;
 }
 
-function buildWall(round) {
+function buildWall(room) {
   const wall = [];
   let tileId = 0;
-  for (let type = 0; type < 27; type += 1) {
+  variantFor(room).tileTypes.forEach((type) => {
     for (let copy = 0; copy < 4; copy += 1) {
       tileId += 1;
-      wall.push({ id: "r" + round + "-t" + tileId, type });
+      wall.push({ id: "r" + room.round + "-t" + tileId, type });
     }
-  }
+  });
   return shuffle(wall);
 }
 
@@ -142,7 +210,7 @@ function countType(hand, type) {
 }
 
 function typeCounts(types) {
-  const counts = Array(27).fill(0);
+  const counts = Array(tileDefinitions.length).fill(0);
   types.forEach((type) => {
     counts[type] += 1;
   });
@@ -170,7 +238,7 @@ function canFormMelds(counts, meldsNeeded) {
 
   const rank = first % 9;
   const suitStart = first - rank;
-  if (rank <= 6 && first + 2 < suitStart + 9 && counts[first + 1] > 0 && counts[first + 2] > 0) {
+  if (first < 27 && rank <= 6 && first + 2 < suitStart + 9 && counts[first + 1] > 0 && counts[first + 2] > 0) {
     counts[first] -= 1;
     counts[first + 1] -= 1;
     counts[first + 2] -= 1;
@@ -233,6 +301,9 @@ function canWinPlayer(player, extraTile) {
 }
 
 function chowOptions(hand, discardType) {
+  if (discardType >= 27) {
+    return [];
+  }
   const options = [];
   const rank = discardType % 9;
   const suitStart = discardType - rank;
@@ -288,7 +359,7 @@ function buildClaimActions(room, discard) {
         consume: [type, type]
       });
     }
-    if (nextSeat(discard.fromSeat) === player.seat) {
+    if (variantFor(room).allowChow && nextSeat(room, discard.fromSeat) === player.seat) {
       chowOptions(player.hand, type).forEach((option, index) => {
         actions.push({
           id: makeActionId("chow", player.seat, type, index),
@@ -321,7 +392,7 @@ function buildSelfActions(room, player) {
     });
   }
 
-  for (let type = 0; type < 27; type += 1) {
+  variantFor(room).tileTypes.forEach((type) => {
     if (countType(player.hand, type) === 4) {
       actions.push({
         id: "self-kong-" + type,
@@ -331,7 +402,7 @@ function buildSelfActions(room, player) {
         consume: [type, type, type, type]
       });
     }
-  }
+  });
   return actions;
 }
 
@@ -364,7 +435,7 @@ function drawTile(room, player) {
 function canStartRound(room) {
   return (
     room.phase !== "playing" &&
-    room.players.length === 3 &&
+    room.players.length === roomSeatCount(room) &&
     room.players.every(connectedOrBot) &&
     (room.players.every((player) => player.ready || isBot(player)) || room.phase === "ended")
   );
@@ -376,18 +447,29 @@ function nextBotName(room) {
 }
 
 function addBot(room) {
-  if (room.phase === "playing" || room.players.length >= 3) {
+  if (room.phase === "playing" || room.players.length >= roomSeatCount(room)) {
     return false;
   }
-  const bot = makePlayer("bot-" + room.code + "-" + randomUUID(), nextBotName(room), room.players.length, true);
+  const bot = makePlayer("bot-" + room.code + "-" + randomUUID(), nextBotName(room), nextOpenSeat(room), true);
   room.players.push(bot);
   log(room, bot.name + " 补位入座");
   return true;
 }
 
+function roomIsVacant(room) {
+  return room.players.length > 0 && !room.players.some((player) => player.connected && !isBot(player));
+}
+
+function applyRoomConfig(room, options) {
+  room.config = makeConfig(options);
+}
+
 function tileKeepScore(hand, tile) {
   const type = tile.type;
   const same = countType(hand, type);
+  if (type >= 27) {
+    return same * 4;
+  }
   const rank = type % 9;
   const suitStart = type - rank;
   let score = same * 3;
@@ -434,12 +516,12 @@ function startRound(room) {
   room.phase = "playing";
   room.result = "";
   room.round += 1;
-  room.dealerSeat = (room.round - 1) % 3;
+  room.dealerSeat = (room.round - 1) % roomSeatCount(room);
   room.currentSeat = room.dealerSeat;
   room.turnDrawn = true;
   room.lastDiscard = null;
   room.pending = null;
-  room.wall = buildWall(room.round);
+  room.wall = buildWall(room);
   room.events = [];
 
   room.players.forEach((player) => {
@@ -458,6 +540,7 @@ function startRound(room) {
   dealer.hand.push(room.wall.pop());
   room.players.forEach(sortHand);
   log(room, "第 " + room.round + " 局开始，" + dealer.name + " 坐庄");
+  log(room, roomConfigLabel(room) + "，牌组 " + variantFor(room).tileTypes.length * 4 + " 张");
   return true;
 }
 
@@ -480,7 +563,7 @@ function advanceAfterDiscard(room, discard) {
   fromPlayer.discards.push(discard.tile);
   room.lastDiscard = null;
   room.pending = null;
-  room.currentSeat = nextSeat(discard.fromSeat);
+  room.currentSeat = nextSeat(room, discard.fromSeat);
   room.turnDrawn = false;
 }
 
@@ -571,8 +654,9 @@ function runBotStep(room) {
   broadcast(room);
 }
 
-function responseDistance(fromSeat, seat) {
-  return (seat - fromSeat + 3) % 3;
+function responseDistance(room, fromSeat, seat) {
+  const count = roomSeatCount(room);
+  return (seat - fromSeat + count) % count;
 }
 
 function resolvePending(room) {
@@ -596,7 +680,10 @@ function resolvePending(room) {
     if (b.action.priority !== a.action.priority) {
       return b.action.priority - a.action.priority;
     }
-    return responseDistance(pending.discard.fromSeat, a.player.seat) - responseDistance(pending.discard.fromSeat, b.player.seat);
+    return (
+      responseDistance(room, pending.discard.fromSeat, a.player.seat) -
+      responseDistance(room, pending.discard.fromSeat, b.player.seat)
+    );
   });
 
   const huResponses = responses.filter((response) => response.action.action === "hu");
@@ -639,10 +726,18 @@ function buildView(room, player) {
   const canDiscard = room.phase === "playing" && !room.pending && room.currentSeat === player.seat && room.turnDrawn;
   const canDraw = room.phase === "playing" && !room.pending && room.currentSeat === player.seat && !room.turnDrawn;
   const turn = room.phase === "playing" ? currentPlayer(room) : null;
+  const variant = variantFor(room);
 
   return {
     connected: Boolean(player.connected),
     room: room.code,
+    config: {
+      variant: variant.key,
+      variantLabel: variant.label,
+      seatCount: roomSeatCount(room),
+      tileCount: variant.tileTypes.length * 4,
+      allowChow: variant.allowChow
+    },
     phase: room.phase,
     round: room.round,
     wallCount: room.wall.length,
@@ -672,7 +767,7 @@ function buildView(room, player) {
     selfMelds: player.melds,
     lastDiscard: room.lastDiscard,
     canStart: canStartRound(room) && player.seat === 0,
-    canAddBot: room.phase !== "playing" && room.players.length < 3 && player.seat === 0,
+    canAddBot: room.phase !== "playing" && room.players.length < roomSeatCount(room) && player.seat === 0,
     canDraw,
     canDiscard,
     selfActions,
@@ -698,13 +793,21 @@ function broadcast(room) {
 }
 
 function handleJoin(peer, message) {
-  const room = getRoom(message.room);
+  const requestedConfig = makeConfig(message);
+  const room = getRoom(message.room, requestedConfig);
   const requestedId = String(message.clientId || randomUUID());
   const name = sanitizeName(message.name);
+
+  if (room.phase !== "playing" && roomIsVacant(room)) {
+    room.players = [];
+    room.events = ["房间已创建"];
+    applyRoomConfig(room, requestedConfig);
+  }
+
   let player = room.players.find((candidate) => candidate.id === requestedId);
 
   if (!player) {
-    if (room.players.length >= 3) {
+    if (room.players.length >= roomSeatCount(room)) {
       const replaceable =
         room.phase === "lobby" ? room.players.find((candidate) => isBot(candidate) || !candidate.connected) : null;
       if (!replaceable) {
@@ -719,9 +822,18 @@ function handleJoin(peer, message) {
       player.melds = [];
       player.discards = [];
     } else {
-      player = makePlayer(requestedId, name, room.players.length);
+      if (room.players.length === 0) {
+        applyRoomConfig(room, requestedConfig);
+      }
+      player = makePlayer(requestedId, name, nextOpenSeat(room));
       room.players.push(player);
     }
+  } else if (
+    room.phase !== "playing" &&
+    player.seat === 0 &&
+    room.players.every((candidate) => candidate.id === requestedId || !connectedOrBot(candidate))
+  ) {
+    applyRoomConfig(room, requestedConfig);
   }
 
   if (player.peer && player.peer !== peer) {
@@ -764,7 +876,7 @@ function handleAddBot(peer) {
   }
   const { room, player } = peer;
   if (player.seat !== 0) {
-    sendJson(peer, { type: "error", message: "由 1 号位补人机" });
+    sendJson(peer, { type: "error", message: "由房主补人机" });
     return;
   }
   if (!addBot(room)) {
@@ -779,11 +891,11 @@ function handleStart(peer) {
     return;
   }
   if (peer.player.seat !== 0) {
-    sendJson(peer, { type: "error", message: "由 1 号位开局" });
+    sendJson(peer, { type: "error", message: "由房主开局" });
     return;
   }
   if (!startRound(peer.room)) {
-    sendJson(peer, { type: "error", message: "需要三人在线并准备" });
+    sendJson(peer, { type: "error", message: "需要 " + roomSeatCount(peer.room) + " 人在线并准备" });
     return;
   }
   broadcast(peer.room);

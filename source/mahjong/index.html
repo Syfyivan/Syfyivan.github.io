@@ -32,6 +32,32 @@
               <span>房号</span>
               <input id="roomInput" name="room" type="text" maxlength="8" autocapitalize="characters" required />
             </label>
+            <fieldset class="segmented-field">
+              <legend>玩法</legend>
+              <div class="segmented-control" role="radiogroup" aria-label="玩法">
+                <label>
+                  <input type="radio" name="variant" value="sichuan" checked />
+                  <span>川麻</span>
+                </label>
+                <label>
+                  <input type="radio" name="variant" value="dongbei" />
+                  <span>东北</span>
+                </label>
+              </div>
+            </fieldset>
+            <fieldset class="segmented-field">
+              <legend>人数</legend>
+              <div class="segmented-control" role="radiogroup" aria-label="人数">
+                <label>
+                  <input type="radio" name="seatCount" value="3" checked />
+                  <span>三人局</span>
+                </label>
+                <label>
+                  <input type="radio" name="seatCount" value="4" />
+                  <span>四人局</span>
+                </label>
+              </div>
+            </fieldset>
             <label>
               <span>服务器</span>
               <input id="serverInput" name="server" type="text" inputmode="url" autocomplete="off" required />
@@ -54,10 +80,11 @@
         <section class="game-layout" id="gamePanel" aria-label="牌桌" hidden>
           <aside class="side-panel" aria-label="房间状态">
             <div class="room-card">
-              <div>
-                <span class="meta-label">房间</span>
-                <strong id="activeRoomLabel">--</strong>
-              </div>
+            <div>
+              <span class="meta-label">房间</span>
+              <strong id="activeRoomLabel">--</strong>
+              <span class="room-mode" id="roomConfigLabel">--</span>
+            </div>
               <button class="icon-action" type="button" id="copyRoomButton" aria-label="复制房间信息">
                 <svg aria-hidden="true" viewBox="0 0 24 24">
                   <path d="M8 8h10v10H8z" />
