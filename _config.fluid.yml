@@ -83,7 +83,7 @@ fun_features:
   # 为 subtitle 添加打字机效果
   # Typing animation for subtitle
   typing:
-    enable: true
+    enable: false
 
     # 打印速度，数字越大越慢
     # Typing speed, the larger the number, the slower
@@ -228,7 +228,7 @@ color:
 font:
   font_size: 16px
   font_family:
-  letter_spacing: 0.02em
+  letter_spacing: 0
   code_font_size: 85%
 
 # 指定自定义 .js 文件路径，支持列表；路径是相对 source 目录，如 /js/custom.js 对应存放目录 source/js/custom.js
@@ -240,6 +240,7 @@ custom_js:
 # The usage is the same as custom_js
 custom_css:
   - /css/token-usage.css?v=20260507-1.css
+  - /css/site-polish.css?v=20260606-1.css
 
 # 网页访问统计
 # Analysis of website visitors
@@ -511,12 +512,12 @@ index:
   # 头图高度，屏幕百分比
   # Height ratio of banner image
   # Available: 0 - 100
-  banner_img_height: 100
+  banner_img_height: 64
 
   # 头图黑色蒙版的不透明度，available: 0 - 1.0，1 是完全不透明
   # Opacity of the banner mask, 1.0 is completely opaque
   # Available: 0 - 1.0
-  banner_mask_alpha: 0.3
+  banner_mask_alpha: 0.44
 
   # 首页副标题的独立设置
   # Independent config of home page subtitle
@@ -525,7 +526,7 @@ index:
 
     # 为空则按 hexo config.subtitle 显示，支持列表格式来实现随机选择一行文字显示
     # If empty, text based on `subtitle` in hexo config, support list format to random selection of a row for display
-    text: "记录生活与技术的点滴"
+    text: "一凡的博客"
 
     # 通过 API 接口作为首页副标题的内容，必须返回的是 JSON 格式，如果请求失败则按 text 字段显示，该功能必须先开启 typing 打字机功能
     # Subtitle of the homepage through the API, must be returned a JSON. If the request fails, it will be displayed in `text` value. This feature must first enable the typing animation
@@ -579,8 +580,8 @@ index:
 #---------------------------
 post:
   banner_img: /img/default.png
-  banner_img_height: 70
-  banner_mask_alpha: 0.3
+  banner_img_height: 42
+  banner_mask_alpha: 0.44
 
   # 文章在首页的默认封面图，当没有指定 index_img 时会使用该图片，若两者都为空则不显示任何图片
   # Path of the default post cover when `index_img` is not set. If both are empty, no image will be displayed

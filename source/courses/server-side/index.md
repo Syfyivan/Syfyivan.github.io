@@ -14,6 +14,8 @@ description: "一条按写服务的顺序整理的 Go 后端学习路线：接�
   --server-teal: #0f766e;
   --server-blue: #2f6387;
   --server-coral: #bd5945;
+  max-width: 900px;
+  margin: 0 auto;
   color: var(--server-ink);
 }
 
@@ -24,8 +26,10 @@ description: "一条按写服务的顺序整理的 Go 后端学习路线：接�
 .server-hero {
   padding: 32px;
   border: 1px solid var(--server-line);
+  border-left: 5px solid var(--server-teal);
   border-radius: 8px;
-  background: var(--server-panel);
+  background: #fbfcfb;
+  box-shadow: 0 10px 26px rgba(24, 33, 43, 0.05);
 }
 
 .server-kicker {
@@ -84,6 +88,13 @@ description: "一条按写服务的顺序整理的 Go 后端学习路线：接�
   border-radius: 8px;
   background: var(--server-panel);
   box-shadow: 0 10px 24px rgba(24, 33, 43, 0.06);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.lesson-card:hover {
+  border-color: rgba(15, 118, 110, 0.26);
+  box-shadow: 0 14px 30px rgba(24, 33, 43, 0.08);
+  transform: translateY(-1px);
 }
 
 .lesson-number {
@@ -141,6 +152,19 @@ description: "一条按写服务的顺序整理的 Go 后端学习路线：接�
   margin-bottom: 6px;
 }
 
+html[data-user-color-scheme="dark"] .server-track {
+  --server-ink: rgba(246, 249, 252, 0.94);
+  --server-muted: rgba(224, 233, 242, 0.72);
+  --server-line: rgba(255, 255, 255, 0.1);
+  --server-panel: rgba(23, 32, 42, 0.9);
+  --server-wash: rgba(255, 255, 255, 0.045);
+}
+
+html[data-user-color-scheme="dark"] .server-hero,
+html[data-user-color-scheme="dark"] .lesson-card {
+  background: var(--server-panel);
+}
+
 @media (max-width: 760px) {
   .server-hero {
     padding: 22px;
@@ -152,6 +176,7 @@ description: "一条按写服务的顺序整理的 Go 后端学习路线：接�
 
   .lesson-card {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .lesson-number {
@@ -161,6 +186,10 @@ description: "一条按写服务的顺序整理的 Go 后端学习路线：接�
 
   .rhythm-grid {
     grid-template-columns: 1fr;
+  }
+
+  .lesson-link {
+    width: 100%;
   }
 }
 </style>
