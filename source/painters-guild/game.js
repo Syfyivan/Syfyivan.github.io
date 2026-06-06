@@ -19,6 +19,24 @@ const ROLE_DATA = {
   social: { label: "社交画家", phase: "交付", color: "#7d5d7e" }
 };
 
+const ASSET_ROOT = "./assets/freegamesprites/tavern/";
+
+const PAINTER_ASSETS = {
+  p1: "tavern-bard.webp",
+  p2: "tavern-bartender.webp",
+  p3: "tavern-tavern-wench.webp",
+  p4: "tavern-hooded-stranger.webp"
+};
+
+const STATION_ASSETS = {
+  bed: { base: "tavern-bed-double.webp" },
+  desk: { base: "tavern-long-table.webp", prop: "tavern-bookshelf.webp" },
+  door: { base: "village-sign.webp", prop: "tavern-window-shuttered.webp" },
+  gallery: { base: "wanted-poster-wall.webp", prop: "tavern-dartboard.webp" },
+  mixer: { base: "tavern-bar-counter.webp", prop: "market-barrel-tap.webp" },
+  storage: { base: "tavern-storage-cabinet.webp", prop: "tavern-wall-shelf.webp" }
+};
+
 const TOWN_CLIENTS = [
   { name: "咖啡馆老板", place: "咖啡馆", taste: "poster" },
   { name: "镇长办公室", place: "镇政厅", taste: "portrait" },
@@ -794,7 +812,9 @@ function renderPainters() {
     button.dataset.painterId = painter.id;
     button.draggable = !locked;
     button.innerHTML = `
-      <span class="painter-face" style="background:${role.color}">${painter.name.slice(0, 1)}</span>
+      <span class="painter-face" style="--face-color:${role.color}">
+        ${assetImage(painterAsset(painter), "painter-face-img")}
+      </span>
       <span>
         <h3>${painter.name}</h3>
         <p>${role.label} · ${actionLabel(painter)} · ${escapeHtml(ownerLabel)}</p>
@@ -823,6 +843,18 @@ function actionLabel(painter) {
 
 function clampStat(value) {
   return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function assetPath(fileName) {
+  return ASSET_ROOT + fileName;
+}
+
+function assetImage(fileName, className) {
+  return `<img class="${className}" src="${assetPath(fileName)}" alt="" loading="lazy" decoding="async" draggable="false" />`;
+}
+
+function painterAsset(painter) {
+  return PAINTER_ASSETS[painter.id] || PAINTER_ASSETS.p1;
 }
 
 function renderRoom() {
@@ -861,6 +893,7 @@ function renderRoom() {
         token.title = painter.name;
         token.innerHTML = `
           <span class="painter-name-tag">${escapeHtml(painter.name)} · ${actionLabel(painter)}</span>
+          ${assetImage(painterAsset(painter), "painter-sprite")}
           <span class="painter-head"></span>
           <span class="painter-body"></span>
           <span class="painter-arm"></span>
@@ -880,16 +913,6 @@ function renderRoom() {
 }
 
 function stationMarkup(station, task) {
-  const iconClass = {
-    bed: "pixel-bed",
-    desk: "pixel-desk",
-    door: "pixel-door",
-    easel: "pixel-easel",
-    empty: "pixel-empty",
-    gallery: "pixel-gallery",
-    mixer: "pixel-mixer",
-    storage: "pixel-storage"
-  }[station.type] || "pixel-empty";
   const subtitle = stationSubtitle(station, task);
   const progress = task
     ? `<span class="station-progress">
@@ -897,7 +920,7 @@ function stationMarkup(station, task) {
         <small>${PHASES[task.phaseIndex]} · 品质 ${Math.round(task.quality)}</small>
       </span>`
     : "";
-  const stationArt = task ? paintingMarkup(task) : `<span class="${iconClass}" aria-hidden="true"></span>`;
+  const stationArt = task ? paintingMarkup(task) : stationAssetMarkup(station);
   return `
     <span class="station-label">
       <span class="station-title"><span>${station.label}</span><b>${station.type === "easel" && task ? Math.round(task.deadline * 10) / 10 + "天" : ""}</b></span>
@@ -906,6 +929,36 @@ function stationMarkup(station, task) {
     <span class="station-art">${stationArt}</span>
     ${progress}
   `;
+}
+
+function stationAssetMarkup(station) {
+  const iconClass = stationIconClass(station.type);
+  const baseAsset = STATION_ASSETS[station.type];
+  if (!baseAsset) return `<span class="${iconClass}" aria-hidden="true"></span>`;
+
+  const config = { ...baseAsset };
+  if (station.type === "bed" && station.id.includes("2")) {
+    config.base = "tavern-bed-single.webp";
+  }
+
+  const prop = config.prop ? assetImage(config.prop, "asset-sprite station-prop") : "";
+  const base = config.base ? assetImage(config.base, "asset-sprite station-sprite") : "";
+  return `<span class="station-asset is-${station.type}" aria-hidden="true">${prop}${base}</span>`;
+}
+
+function stationIconClass(type) {
+  return (
+    {
+      bed: "pixel-bed",
+      desk: "pixel-desk",
+      door: "pixel-door",
+      easel: "pixel-easel",
+      empty: "pixel-empty",
+      gallery: "pixel-gallery",
+      mixer: "pixel-mixer",
+      storage: "pixel-storage"
+    }[type] || "pixel-empty"
+  );
 }
 
 function paintingMarkup(task) {

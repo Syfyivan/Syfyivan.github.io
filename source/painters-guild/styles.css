@@ -285,7 +285,7 @@ button:disabled {
 
 .painter-card {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
+  grid-template-columns: 52px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
   width: 100%;
@@ -314,17 +314,24 @@ button:disabled {
 }
 
 .painter-face {
+  width: 48px;
+  height: 52px;
   display: grid;
   place-items: center;
   border-radius: 8px;
-  color: #201610;
-  font-weight: 900;
+  background: var(--face-color);
+  background:
+    radial-gradient(circle at 50% 36%, rgba(255, 255, 255, 0.14), transparent 32%),
+    color-mix(in srgb, var(--face-color) 78%, #201610);
   box-shadow: inset 0 -4px rgba(0, 0, 0, 0.12);
 }
 
-.painter-face {
+.painter-face-img {
   width: 42px;
   height: 42px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.26));
 }
 
 .painter-token {
@@ -344,6 +351,24 @@ button:disabled {
 
 .painter-token:active {
   cursor: grabbing;
+}
+
+.painter-sprite {
+  position: absolute;
+  left: -4px;
+  bottom: 1px;
+  z-index: 4;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+  user-select: none;
+}
+
+.painter-token.role-finisher .painter-sprite,
+.painter-token.role-social .painter-sprite {
+  transform: scaleX(-1);
 }
 
 .painter-name-tag {
@@ -422,6 +447,13 @@ button:disabled {
   display: block;
 }
 
+.painter-token .painter-head,
+.painter-token .painter-body,
+.painter-token .painter-arm,
+.painter-token .painter-legs {
+  display: none;
+}
+
 .painter-head {
   left: 11px;
   top: 4px;
@@ -488,7 +520,7 @@ button:disabled {
 
 .painter-brush {
   display: none;
-  right: -5px;
+  right: -8px;
   top: 25px;
   width: 20px;
   height: 5px;
@@ -517,6 +549,10 @@ button:disabled {
 
 .painter-token.is-mixing .painter-arm {
   animation: painterStir 0.7s ease-in-out infinite;
+}
+
+.painter-token.is-mixing .painter-sprite {
+  animation: painterMix 0.72s ease-in-out infinite;
 }
 
 .painter-token.is-painting {
@@ -670,11 +706,13 @@ button:disabled {
   bottom: 14px;
   height: 32%;
   background:
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 84px),
-    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 22px);
+    linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.28)),
+    url("./assets/freegamesprites/tavern/tavern-wood-floor.webp");
+  background-size: auto, 96px 96px;
   transform: skewX(-8deg);
   transform-origin: bottom;
-  opacity: 0.6;
+  opacity: 0.68;
+  image-rendering: pixelated;
 }
 
 .station {
@@ -693,7 +731,10 @@ button:disabled {
   color: var(--ink);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 24%),
+    url("./assets/freegamesprites/tavern/tavern-wood-floor.webp"),
     rgba(216, 165, 75, 0.08);
+  background-size: auto, 96px 96px, auto;
+  background-blend-mode: normal, soft-light, normal;
   overflow: hidden;
 }
 
@@ -718,19 +759,28 @@ button:disabled {
 .station.floor-0 {
   background:
     radial-gradient(ellipse at 50% 8%, rgba(244, 223, 184, 0.12), transparent 34%),
+    url("./assets/freegamesprites/tavern/tavern-wood-floor.webp"),
     rgba(210, 167, 111, 0.08);
+  background-size: auto, 96px 96px, auto;
+  background-blend-mode: normal, soft-light, normal;
 }
 
 .station.floor-1 {
   background:
     radial-gradient(ellipse at 20% 12%, rgba(31, 143, 134, 0.08), transparent 30%),
+    url("./assets/freegamesprites/tavern/tavern-wood-floor.webp"),
     rgba(200, 141, 82, 0.1);
+  background-size: auto, 96px 96px, auto;
+  background-blend-mode: normal, soft-light, normal;
 }
 
 .station.floor-2 {
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.1), transparent 28%),
+    url("./assets/freegamesprites/tavern/tavern-wood-floor.webp"),
     rgba(116, 70, 38, 0.34);
+  background-size: auto, 96px 96px, auto;
+  background-blend-mode: normal, soft-light, normal;
 }
 
 .station.floor-0.room-3::after,
@@ -854,8 +904,116 @@ button:disabled {
   z-index: 2;
   display: grid;
   place-items: center;
-  min-height: 70px;
+  min-height: 82px;
   margin: 4px 0 2px;
+}
+
+.asset-sprite {
+  display: block;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+  user-select: none;
+}
+
+.station-asset {
+  position: relative;
+  display: block;
+  width: 96px;
+  height: 74px;
+  filter: drop-shadow(0 9px 0 rgba(0, 0, 0, 0.16));
+}
+
+.station-sprite,
+.station-prop {
+  position: absolute;
+}
+
+.station-sprite {
+  left: 50%;
+  bottom: 2px;
+  width: 92px;
+  height: 64px;
+  transform: translateX(-50%);
+}
+
+.station-prop {
+  right: 0;
+  top: 0;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+}
+
+.station-asset.is-bed .station-sprite {
+  width: 108px;
+  height: 66px;
+}
+
+.station-asset.is-desk .station-sprite {
+  width: 102px;
+  height: 58px;
+}
+
+.station-asset.is-desk .station-prop {
+  right: 2px;
+  top: -7px;
+  width: 38px;
+  height: 56px;
+}
+
+.station-asset.is-mixer .station-sprite {
+  width: 112px;
+  height: 62px;
+}
+
+.station-asset.is-mixer .station-prop {
+  left: 4px;
+  right: auto;
+  top: 26px;
+  width: 42px;
+  height: 42px;
+}
+
+.station-asset.is-storage .station-sprite {
+  width: 82px;
+  height: 76px;
+}
+
+.station-asset.is-storage .station-prop {
+  right: -4px;
+  top: 0;
+  width: 52px;
+  height: 28px;
+}
+
+.station-asset.is-gallery .station-sprite {
+  left: 40%;
+  bottom: 21px;
+  width: 38px;
+  height: 44px;
+}
+
+.station-asset.is-gallery .station-prop {
+  right: 13px;
+  top: 11px;
+  width: 42px;
+  height: 42px;
+}
+
+.station-asset.is-door .station-sprite {
+  left: 52%;
+  bottom: 6px;
+  width: 56px;
+  height: 62px;
+}
+
+.station-asset.is-door .station-prop {
+  left: 5px;
+  right: auto;
+  top: 6px;
+  width: 46px;
+  height: 52px;
 }
 
 .pixel-easel,
