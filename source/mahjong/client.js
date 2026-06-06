@@ -68,6 +68,13 @@
   var rulesDetailsContent = document.getElementById("rulesDetailsContent");
   var guideModal = document.getElementById("guideModal");
   var guideCloseButton = document.getElementById("guideCloseButton");
+  var guideExitButton = document.getElementById("guideExitButton");
+  var guideStartButton = document.getElementById("guideStartButton");
+  var guideCoach = document.getElementById("guideCoach");
+  var guideCoachStep = document.getElementById("guideCoachStep");
+  var guideCoachTitle = document.getElementById("guideCoachTitle");
+  var guideCoachText = document.getElementById("guideCoachText");
+  var guideCoachExitButton = document.getElementById("guideCoachExitButton");
   var rulesList = document.getElementById("rulesList");
   var eventLog = document.getElementById("eventLog");
   var seatTop = document.getElementById("seatTop");
@@ -93,7 +100,13 @@
     selectedTileId: null,
     lastSignals: {},
     audioContext: null,
-    soundEnabled: localStorage.getItem(STORAGE_KEY + ".sound") !== "off"
+    soundEnabled: localStorage.getItem(STORAGE_KEY + ".sound") !== "off",
+    guide: {
+      active: false,
+      currentKey: "",
+      round: null,
+      completed: false
+    }
   };
 
   function getClientId() {
@@ -576,6 +589,221 @@
     guideModal.hidden = true;
   }
 
+  function clearGuideTargets() {
+    document.querySelectorAll(".guide-target").forEach(function (element) {
+      element.classList.remove("guide-target");
+    });
+  }
+
+  function stopFullGuide() {
+    state.guide.active = false;
+    state.guide.currentKey = "";
+    state.guide.round = null;
+    state.guide.completed = false;
+    guideCoach.hidden = true;
+    clearGuideTargets();
+  }
+
+  function startFullGuide() {
+    hideGuideModal();
+    state.guide.active = true;
+    state.guide.currentKey = "";
+    state.guide.round = state.view && state.view.phase === "playing" ? state.view.round : null;
+    state.guide.completed = false;
+    guideCoach.hidden = false;
+    playTone("select");
+    updateGuideCoach(state.view);
+  }
+
+  function guideStep(key, title, text, target) {
+    return {
+      key: key,
+      title: title,
+      text: text,
+      target: target
+    };
+  }
+
+  function enabledActionButton(label) {
+    return Array.from(actionRow.querySelectorAll("button")).find(function (button) {
+      return button.textContent.trim() === label && !button.disabled;
+    });
+  }
+
+  function firstEnabledHandTile() {
+    return Array.from(handRow.querySelectorAll(".tile")).find(function (tile) {
+      return !tile.disabled;
+    });
+  }
+
+  function determineGuideStep(view) {
+    var seatCount;
+    var playerCount;
+    var actionLabels;
+    if (!view) {
+      return guideStep(
+        "join",
+        "先进入房间",
+        "填写名字和房号，或粘贴朋友发来的邀请码，然后加入房间。",
+        joinForm
+      );
+    }
+
+    seatCount = view.config ? Number(view.config.seatCount || 3) : 3;
+    playerCount = Array.isArray(view.players) ? view.players.length : 0;
+
+    if (view.phase === "lobby") {
+      if (playerCount < seatCount) {
+        if (view.canAddBot) {
+          return guideStep(
+            "fill-seats",
+            "第 1 步：凑齐这一桌",
+            "把邀请码发给朋友；如果人数不齐，点“补人机”补满座位。",
+            addBotButton
+          );
+        }
+        return guideStep(
+          "wait-seats",
+          "第 1 步：等房主凑齐人",
+          "房主可以发邀请码或补人机。你先确认自己已经入座，等人数满了再准备。",
+          playerList
+        );
+      }
+      if (!view.player.ready) {
+        return guideStep(
+          "ready",
+          "第 2 步：准备",
+          "人齐后先点“准备”。所有真人准备好后，房主才能开局。",
+          readyButton
+        );
+      }
+      if (view.canStart) {
+        return guideStep(
+          "start",
+          "第 3 步：开局",
+          "你是房主，大家准备好了就点“开局”。",
+          startButton
+        );
+      }
+      return guideStep(
+        "wait-start",
+        "第 3 步：等房主开局",
+        "你已经准备好，等房主点击开局。可以先看左侧规则卡。",
+        rulesDetailsButton
+      );
+    }
+
+    if (view.phase === "ended") {
+      return guideStep(
+        "round-ended",
+        "本局完成",
+        "这一局已经结束。查看结算后，可以点“再来”继续下一局，或退出房间。",
+        endModal.hidden ? newRoundButton : endModal
+      );
+    }
+
+    if (view.claimActions && view.claimActions.length > 0) {
+      return guideStep(
+        "claim",
+        "响应别人打出的牌",
+        "这里会出现吃、碰、杠、胡。想要就点对应按钮，不想要就点“过”。",
+        claimBar
+      );
+    }
+
+    if (view.canPeekBao) {
+      return guideStep(
+        "peek-bao",
+        "上听后看宝",
+        "你已经上听了。点“看宝”查看宝牌；看宝后会锁定听口，之后摸到宝牌或幺鸡可摸宝胡。",
+        baoTray
+      );
+    }
+
+    actionLabels = (view.selfActions || []).map(function (action) {
+      return action.action;
+    });
+    if (actionLabels.includes("baoHu")) {
+      return guideStep(
+        "bao-hu",
+        "可以摸宝胡",
+        "你摸到了宝牌或幺鸡，可以点“摸宝胡”结束这一局。",
+        enabledActionButton("摸宝胡") || actionRow
+      );
+    }
+    if (actionLabels.includes("hu")) {
+      return guideStep(
+        "self-hu",
+        "可以胡牌",
+        "你当前可以自摸胡。确认要胡就点“胡”，不胡也可以继续打牌。",
+        enabledActionButton("胡") || actionRow
+      );
+    }
+    if (actionLabels.includes("kong")) {
+      return guideStep(
+        "self-kong",
+        "可以杠",
+        "你手里有可杠的牌。想杠就点“杠”，杠后会补摸一张。",
+        actionRow
+      );
+    }
+    if (view.canDraw) {
+      return guideStep(
+        "draw",
+        "轮到你摸牌",
+        "点“摸牌”拿一张新牌。摸完后再选择要打出的牌。",
+        enabledActionButton("摸牌") || actionRow
+      );
+    }
+    if (view.canDiscard) {
+      if (state.selectedTileId) {
+        return guideStep(
+          "confirm-discard",
+          "确认出牌",
+          "已高亮选中的牌。再次点击同一张牌，才会真正打出。",
+          handRow.querySelector(".tile-selected") || handRow
+        );
+      }
+      return guideStep(
+        "discard",
+        "选择要打出的牌",
+        "先点一张手牌让它高亮；为了防误触，第二次点同一张牌才会打出。",
+        firstEnabledHandTile() || handRow
+      );
+    }
+
+    return guideStep(
+      "watch",
+      "观察牌河",
+      "现在是别人回合。看下方牌河，记住每个人打过的牌，等轮到你或出现可响应按钮。",
+      discardRiver
+    );
+  }
+
+  function updateGuideCoach(view) {
+    var step;
+    if (!state.guide.active) {
+      guideCoach.hidden = true;
+      clearGuideTargets();
+      return;
+    }
+
+    step = determineGuideStep(view);
+    guideCoach.hidden = false;
+    guideCoachStep.textContent = step.key === "round-ended" ? "新手指导 · 完成" : "新手指导 · 全程";
+    guideCoachTitle.textContent = step.title;
+    guideCoachText.textContent = step.text;
+
+    clearGuideTargets();
+    if (step.target && !step.target.hidden) {
+      step.target.classList.add("guide-target");
+    }
+    if (state.guide.currentKey !== step.key) {
+      state.guide.currentKey = step.key;
+      playTone(step.key === "round-ended" ? "end" : "select");
+    }
+  }
+
   function updateSoundButton() {
     soundButton.textContent = state.soundEnabled ? "声音开" : "声音关";
     soundButton.setAttribute("aria-pressed", state.soundEnabled ? "true" : "false");
@@ -909,6 +1137,7 @@
             setNotice("已选中，第二次点击同一张牌才会打出");
             renderHand(state.view);
             renderActions(state.view);
+            updateGuideCoach(state.view);
             return;
           }
           state.selectedTileId = null;
@@ -1094,6 +1323,7 @@
     state.endDialogRound = null;
     state.selectedTileId = null;
     state.lastSignals = {};
+    stopFullGuide();
     hideEndModal();
     hideRulesModal();
     hideGuideModal();
@@ -1142,6 +1372,7 @@
     renderLog(view);
     notifyForView(view);
     showEndModal(view);
+    updateGuideCoach(view);
   }
 
   joinForm.addEventListener("submit", function (event) {
@@ -1221,6 +1452,18 @@
   });
 
   guideCloseButton.addEventListener("click", hideGuideModal);
+
+  guideExitButton.addEventListener("click", function () {
+    hideGuideModal();
+    stopFullGuide();
+  });
+
+  guideStartButton.addEventListener("click", function () {
+    unlockAudio();
+    startFullGuide();
+  });
+
+  guideCoachExitButton.addEventListener("click", stopFullGuide);
 
   rulesModal.addEventListener("click", function (event) {
     if (event.target === rulesModal) {

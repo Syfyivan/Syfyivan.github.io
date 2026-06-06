@@ -183,7 +183,7 @@
           <div class="rules-card-header">
             <div>
               <div class="end-kicker">新手指导</div>
-              <h2 id="guideTitle">怎么开始一局</h2>
+              <h2 id="guideTitle">选择指导方式</h2>
             </div>
             <button class="icon-action" type="button" id="guideCloseButton" aria-label="关闭新手指导">
               <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -200,7 +200,20 @@
             <li>东北麻将上听后点“看宝”，宝牌只对已选择看宝的人可见；看宝后不能换听，摸到宝牌或幺鸡可点“摸宝胡”。</li>
             <li>牌河按玩家分组展示，每个人出过和被吃碰杠过的牌都能看到。</li>
           </ol>
+          <p class="guide-choice-note">只想看说明可以退出；第一次玩建议开启全程指导，系统会跟着这一局动态提示下一步。</p>
+          <div class="guide-choice-actions">
+            <button class="ghost-button" type="button" id="guideExitButton">退出新手引导</button>
+            <button class="primary-button" type="button" id="guideStartButton">全程指导一局</button>
+          </div>
         </div>
+      </div>
+      <div class="guide-coach" id="guideCoach" hidden>
+        <div class="guide-coach-copy">
+          <span class="guide-coach-step" id="guideCoachStep">新手指导</span>
+          <strong id="guideCoachTitle">开始一局</strong>
+          <p id="guideCoachText">跟着提示完成这一局。</p>
+        </div>
+        <button class="ghost-button" type="button" id="guideCoachExitButton">退出指导</button>
       </div>
     </main>
     <script src="./client.js"></script>
