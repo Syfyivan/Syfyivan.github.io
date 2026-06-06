@@ -57,7 +57,7 @@ const variants = {
     label: "川麻",
     tileTypes: Array.from({ length: 27 }, (_, index) => index),
     allowChow: false,
-    rules: ["108 张数牌，无风箭字牌", "不能吃牌，可碰、杠、胡", "基础胡牌判定，暂不计定缺、血战与番型"],
+    rules: ["108 张数牌，无风箭字牌", "不能吃牌，可碰、杠、胡", "本版结算普通胡、自摸、清一色、七对、碰碰胡和杠分"],
     detailedRules: [
       {
         title: "牌组",
@@ -69,7 +69,11 @@ const variants = {
       },
       {
         title: "胡牌",
-        items: ["本版川麻先使用基础胡牌判定：4 组面子 + 1 对将，或七对子。", "暂不实现定缺、血战到底和完整番型。"]
+        items: ["本版川麻先使用基础胡牌判定：4 组面子 + 1 对将，或七对子。", "本版结算普通胡 1 分；自摸每家付 2 分；清一色 4 分，七对 4 分，碰碰胡 2 分，杠上开花加 2 分。"]
+      },
+      {
+        title: "杠分",
+        items: ["点杠由点杠者付 1 分。", "补杠每家付 1 分。", "暗杠每家付 2 分。", "杠分先记账，本局结束时统一结算到总分。"]
       }
     ]
   },
@@ -89,7 +93,7 @@ const variants = {
       "可吃、碰、杠、胡，吃牌仅下家",
       "胡牌需有对子、幺九或字牌；三色全、清一色、混一色均可",
       "上听后可选择看宝；未看宝者不可见宝牌",
-      "看宝后锁定听口，可对宝胡、摸宝胡；摸到幺鸡也算摸宝胡"
+      "看宝后锁定牌局，只能摸切；可对宝胡、摸宝胡，摸到幺鸡也算摸宝胡"
     ],
     detailedRules: [
       {
@@ -107,8 +111,8 @@ const variants = {
           "东南西北和中发白不能吃，只能碰、明杠或暗杠。",
           "起手发完牌时，如果手里刚好有东南西北四风，可以亮为一组起手暗杠；后续摸齐不再算这个特殊杠。",
           "起手发完牌时，如果手里刚好有中发白三箭，可以亮为一组起手暗杠；后续摸齐不再算这个特殊杠。",
-          "普通四张相同牌仍按明杠、暗杠处理，杠后从牌山补摸一张。",
-          "本版先不单独计算风杠、箭杠、明杠、暗杠的分数，也暂不做抢杠胡。"
+          "普通四张相同牌仍按明杠、暗杠处理；已经碰出的刻子又自摸第四张时，可以补杠。",
+          "杠后从牌山补摸一张；本版暂不做抢杠胡。"
         ]
       },
       {
@@ -137,9 +141,19 @@ const variants = {
           "本版保持自动上听；上听后玩家可以选择看宝，未看宝的人不能看到宝牌。",
           "第一位选择看宝的上听玩家掷 2 骰，从牌山尾端按点数翻出宝牌；后续上听玩家选择看宝时看当前宝牌。",
           "只有已上听且已看宝的玩家才可以对宝胡或摸宝胡；如果宝牌正好是已看宝玩家的听口，立即按对宝胡结算。",
-          "看宝后听口锁定，之后出牌必须保持同一组听口，不能换听。",
+          "看宝后牌局锁定，之后每次摸牌只能打刚摸到的那张，不能再换牌、吃碰杠或调整听口。",
           "已看宝后如果新摸到与宝牌同名的牌，或摸到幺鸡，可以点“摸宝胡”。",
           "如果同名宝牌已有 3 张进入明面牌池，会重新掷骰换宝；所有玩家都选择看宝后，宝牌等同于全员可见。"
+        ]
+      },
+      {
+        title: "本版计分",
+        items: [
+          "东北各地计分差异较大，本版采用可玩的简化分表：普通自摸每家付 2 分，点炮由点炮者付 2 分。",
+          "对宝胡、摸宝胡每家付 8 分；七对加 2 分，清一色加 4 分，混一色加 2 分，漂胡/碰碰胡加 2 分，杠上开花加 2 分。",
+          "点杠由点杠者付 1 分；补杠每家付 1 分；暗杠、起手东西南北杠每家付 2 分。",
+          "幺鸡、幺饼、中发白按大杠处理：明杠/补杠 2 分，暗杠/起手中发白杠 4 分。",
+          "杠分在本局过程中记账，本局胡牌或流局后统一结算到每名玩家总分。"
         ]
       }
     ]
@@ -148,6 +162,12 @@ const variants = {
 
 const botNames = ["牌搭子一号", "牌搭子二号", "牌搭子三号", "牌搭子四号"];
 const YAOJI_TYPE = 18;
+const kongScores = {
+  claimed: 1,
+  added: 1,
+  concealed: 2,
+  initial: 2
+};
 
 function tileName(type) {
   return tileDefinitions[type]?.label || "未知牌";
@@ -219,6 +239,8 @@ function makeRoom(code, options) {
     pending: null,
     botTimer: null,
     result: "",
+    scoreTransfers: [],
+    scoreResult: null,
     events: ["房间已创建"]
   };
 }
@@ -235,10 +257,13 @@ function makePlayer(id, name, seat, bot = false) {
     melds: [],
     discards: [],
     drawnTileId: null,
+    drawnSource: null,
     ting: false,
     waitingTypes: [],
     baoSeen: false,
     lockedWaitingTypes: [],
+    score: 0,
+    roundDelta: 0,
     peer: null
   };
 }
@@ -312,6 +337,10 @@ function buildWall(room) {
 
 function countType(hand, type) {
   return hand.reduce((count, tile) => count + (tile.type === type ? 1 : 0), 0);
+}
+
+function isDongbeiBigKongType(type) {
+  return type === 9 || type === YAOJI_TYPE || (type >= 31 && type <= 33);
 }
 
 function typeCounts(types) {
@@ -625,6 +654,9 @@ function settleDuiBaoWin(room, player) {
   room.pending = null;
   room.lastDiscard = null;
   room.result = player.name + " 对宝 " + tileName(room.bao.type);
+  const summary = scoreWinningHand(room, player, { mode: "duiBao", tile: { type: room.bao.type } });
+  addScoreFromOthers(room, player, summary.points, "对宝胡：" + summary.items.join("，"));
+  finishRoundScores(room, [summary]);
   log(room, room.result);
 }
 
@@ -702,8 +734,192 @@ function canDiscardWithBaoLock(room, player, tileId) {
   if (!player.baoSeen) {
     return true;
   }
+  if (player.drawnTileId) {
+    return tileId === player.drawnTileId;
+  }
   const nextWaitingTypes = waitingTypesAfterDiscard(room, player, tileId);
   return Boolean(nextWaitingTypes && sameTypeList(nextWaitingTypes, player.lockedWaitingTypes));
+}
+
+function addScoreTransfer(room, fromPlayer, toPlayer, points, reason) {
+  if (!fromPlayer || !toPlayer || fromPlayer.seat === toPlayer.seat || points <= 0) {
+    return;
+  }
+  room.scoreTransfers.push({
+    fromSeat: fromPlayer.seat,
+    fromName: fromPlayer.name,
+    toSeat: toPlayer.seat,
+    toName: toPlayer.name,
+    points,
+    reason
+  });
+}
+
+function addScoreFromOthers(room, toPlayer, points, reason) {
+  room.players.forEach((player) => {
+    if (player.seat !== toPlayer.seat) {
+      addScoreTransfer(room, player, toPlayer, points, reason);
+    }
+  });
+}
+
+function scoreKong(room, player, kind, reason, fromPlayer = null, type = null) {
+  let points = kongScores[kind] || 0;
+  if (variantFor(room).key === "dongbei" && isDongbeiBigKongType(type)) {
+    points *= 2;
+  }
+  if (points <= 0) {
+    return;
+  }
+  if (kind === "claimed" && fromPlayer) {
+    addScoreTransfer(room, fromPlayer, player, points, reason);
+    return;
+  }
+  addScoreFromOthers(room, player, points, reason);
+}
+
+function isPureFlush(types) {
+  const suits = numberSuits(types);
+  return suits.size === 1 && types.every((type) => type < 27);
+}
+
+function isMixedFlush(types) {
+  const suits = numberSuits(types);
+  return suits.size === 1 && types.some((type) => type >= 27);
+}
+
+function canFormTriplets(counts, meldsNeeded) {
+  if (meldsNeeded === 0) {
+    return counts.every((count) => count === 0);
+  }
+  const first = counts.findIndex((count) => count > 0);
+  if (first === -1 || counts[first] < 3) {
+    return false;
+  }
+  counts[first] -= 3;
+  const ok = canFormTriplets(counts, meldsNeeded - 1);
+  counts[first] += 3;
+  return ok;
+}
+
+function isAllTripletsShape(types, melds) {
+  if ((melds || []).some((meld) => meld.kind === "chow")) {
+    return false;
+  }
+  const meldCount = (melds || []).length;
+  const meldsNeeded = 4 - meldCount;
+  if (meldsNeeded < 0 || types.length !== meldsNeeded * 3 + 2) {
+    return false;
+  }
+  const counts = typeCounts(types);
+  for (let pair = 0; pair < counts.length; pair += 1) {
+    if (counts[pair] < 2) {
+      continue;
+    }
+    counts[pair] -= 2;
+    if (canFormTriplets(counts, meldsNeeded)) {
+      counts[pair] += 2;
+      return true;
+    }
+    counts[pair] += 2;
+  }
+  return false;
+}
+
+function winConcealedTypes(player, tile) {
+  const types = player.hand.map((item) => item.type);
+  if (tile) {
+    types.push(tile.type);
+  }
+  return types;
+}
+
+function winAllTypes(player, tile) {
+  return winConcealedTypes(player, tile).concat(allMeldTypes(player));
+}
+
+function scoreWinningHand(room, player, context = {}) {
+  const variant = variantFor(room).key;
+  const mode = context.mode || "hu";
+  const selfDraw = !context.fromPlayer;
+  const concealedTypes = winConcealedTypes(player, context.tile);
+  const allTypes = winAllTypes(player, context.tile);
+  const items = [];
+  let points;
+
+  if (mode === "duiBao") {
+    points = 8;
+    items.push("对宝 8");
+  } else if (mode === "baoHu") {
+    points = 8;
+    items.push("摸宝 8");
+  } else if (selfDraw) {
+    points = 2;
+    items.push("自摸 2");
+  } else {
+    points = 2;
+    items.push("点炮胡 2");
+  }
+
+  if (isSevenPairs(concealedTypes)) {
+    const value = variant === "sichuan" ? 4 : 2;
+    points += value;
+    items.push("七对 +" + value);
+  } else if (isAllTripletsShape(concealedTypes, player.melds)) {
+    points += 2;
+    items.push((variant === "dongbei" ? "漂胡/碰碰胡" : "碰碰胡") + " +2");
+  }
+
+  if (isPureFlush(allTypes)) {
+    points += 4;
+    items.push("清一色 +4");
+  } else if (variant === "dongbei" && isMixedFlush(allTypes)) {
+    points += 2;
+    items.push("混一色 +2");
+  }
+
+  if (player.drawnSource === "kong" && selfDraw) {
+    points += 2;
+    items.push("杠上开花 +2");
+  }
+
+  return {
+    playerSeat: player.seat,
+    playerName: player.name,
+    points,
+    items
+  };
+}
+
+function finishRoundScores(room, winSummaries = []) {
+  const deltas = new Map(room.players.map((player) => [player.seat, 0]));
+  room.scoreTransfers.forEach((transfer) => {
+    deltas.set(transfer.fromSeat, (deltas.get(transfer.fromSeat) || 0) - transfer.points);
+    deltas.set(transfer.toSeat, (deltas.get(transfer.toSeat) || 0) + transfer.points);
+  });
+  room.players.forEach((player) => {
+    player.roundDelta = deltas.get(player.seat) || 0;
+    player.score += player.roundDelta;
+  });
+  room.scoreResult = {
+    winSummaries,
+    transfers: room.scoreTransfers.slice(),
+    deltas: room.players
+      .slice()
+      .sort((a, b) => a.seat - b.seat)
+      .map((player) => ({
+        seat: player.seat,
+        name: player.name,
+        delta: player.roundDelta,
+        total: player.score
+      }))
+  };
+  const scoreLine = room.scoreResult.deltas
+    .map((item) => item.name + " " + (item.delta >= 0 ? "+" : "") + item.delta + "（总 " + item.total + "）")
+    .join("；");
+  if (scoreLine) {
+    log(room, "本局结算：" + scoreLine);
+  }
 }
 
 function chowOptions(hand, discardType) {
@@ -821,10 +1037,29 @@ function buildSelfActions(room, player) {
           id: "self-kong-" + type,
           action: "kong",
           priority: 3,
+          kongKind: "concealed",
           tiles: [type, type, type, type],
           consume: [type, type, type, type]
         });
       }
+    });
+    player.melds.forEach((meld, index) => {
+      if (meld.kind !== "pong") {
+        return;
+      }
+      const type = meld.claimedType ?? meld.tiles?.[0];
+      if (typeof type !== "number" || countType(player.hand, type) < 1) {
+        return;
+      }
+      actions.push({
+        id: "self-added-kong-" + index + "-" + type,
+        action: "kong",
+        priority: 3,
+        kongKind: "added",
+        meldIndex: index,
+        tiles: [type, type, type, type],
+        consume: [type]
+      });
     });
   }
   return actions;
@@ -842,10 +1077,11 @@ function removeTilesByTypes(player, types) {
   return removed;
 }
 
-function drawTile(room, player) {
+function drawTile(room, player, source = "wall") {
   if (room.wall.length === 0) {
     room.phase = "ended";
     room.result = "流局";
+    finishRoundScores(room);
     log(room, "牌山摸空，本局流局");
     return null;
   }
@@ -853,6 +1089,7 @@ function drawTile(room, player) {
   player.hand.push(tile);
   sortHand(player);
   player.drawnTileId = tile.id;
+  player.drawnSource = source;
   room.turnDrawn = true;
   return tile;
 }
@@ -864,6 +1101,7 @@ function drawSupplementTile(room, player) {
   const tile = takeTileFromWall(room);
   player.hand.push(tile);
   sortHand(player);
+  player.drawnSource = null;
   return tile;
 }
 
@@ -884,6 +1122,7 @@ function applyInitialSpecialKongs(room, player) {
       initial: true,
       label: pattern.label
     });
+    scoreKong(room, player, "initial", pattern.label, null, pattern.tiles[0]);
     log(room, player.name + " " + pattern.label);
     if (pattern.supplement) {
       const tile = drawSupplementTile(room, player);
@@ -958,6 +1197,9 @@ function tileKeepScore(hand, tile) {
 }
 
 function chooseBotDiscard(player) {
+  if (player.baoSeen && player.drawnTileId) {
+    return player.hand.find((tile) => tile.id === player.drawnTileId) || player.hand[0];
+  }
   return player.hand
     .map((tile) => ({ tile, score: tileKeepScore(player.hand, tile) }))
     .sort((a, b) => a.score - b.score || a.tile.type - b.tile.type)[0].tile;
@@ -986,6 +1228,8 @@ function startRound(room) {
 
   room.phase = "playing";
   room.result = "";
+  room.scoreTransfers = [];
+  room.scoreResult = null;
   room.round += 1;
   room.dealerSeat = (room.round - 1) % roomSeatCount(room);
   room.currentSeat = room.dealerSeat;
@@ -1004,8 +1248,10 @@ function startRound(room) {
     player.melds = [];
     player.discards = [];
     player.drawnTileId = null;
+    player.drawnSource = null;
     player.ting = false;
     player.waitingTypes = [];
+    player.roundDelta = 0;
     resetBaoChoice(player);
   });
 
@@ -1034,6 +1280,17 @@ function settleWin(room, winners, fromPlayer, tile) {
   room.pending = null;
   room.lastDiscard = null;
   const winnerNames = winners.map((player) => player.name).join("、");
+  const summaries = winners.map((player) => scoreWinningHand(room, player, { mode: "hu", fromPlayer, tile }));
+  winners.forEach((player, index) => {
+    const summary = summaries[index];
+    const reason = (fromPlayer && tile ? "点炮胡" : "自摸") + "：" + summary.items.join("，");
+    if (fromPlayer && tile) {
+      addScoreTransfer(room, fromPlayer, player, summary.points, reason);
+    } else {
+      addScoreFromOthers(room, player, summary.points, reason);
+    }
+  });
+  finishRoundScores(room, summaries);
   if (fromPlayer && tile) {
     room.result = winnerNames + " 胡 " + fromPlayer.name + " 的 " + tileName(tile.type);
     log(room, room.result);
@@ -1048,6 +1305,10 @@ function settleBaoWin(room, player) {
   room.pending = null;
   room.lastDiscard = null;
   room.result = player.name + " 摸宝 " + tileName(baoDrawWinningType(room, player) ?? room.bao.type);
+  const drawnType = baoDrawWinningType(room, player) ?? room.bao.type;
+  const summary = scoreWinningHand(room, player, { mode: "baoHu" });
+  addScoreFromOthers(room, player, summary.points, "摸宝胡：" + summary.items.join("，"));
+  finishRoundScores(room, [summary]);
   log(room, room.result);
 }
 
@@ -1055,6 +1316,7 @@ function advanceAfterDiscard(room, discard) {
   const fromPlayer = playerBySeat(room, discard.fromSeat);
   fromPlayer.discards.push(discard.tile);
   fromPlayer.drawnTileId = null;
+  fromPlayer.drawnSource = null;
   refreshTing(room, fromPlayer);
   if (room.phase === "ended") {
     return;
@@ -1172,6 +1434,7 @@ function runBotStep(room) {
   const index = player.hand.findIndex((candidate) => candidate.id === tile.id);
   player.hand.splice(index, 1);
   player.drawnTileId = null;
+  player.drawnSource = null;
   room.turnDrawn = false;
   room.lastDiscard = { tile, fromSeat: player.seat };
   recordDiscard(room, room.lastDiscard);
@@ -1241,6 +1504,7 @@ function resolvePending(room) {
   removeTilesByTypes(player, action.consume);
   player.ting = false;
   player.waitingTypes = [];
+  player.drawnSource = null;
   player.melds.push({
     kind: action.action,
     tiles: action.tiles.slice().sort((a, b) => a - b),
@@ -1257,8 +1521,16 @@ function resolvePending(room) {
   }
 
   if (action.action === "kong") {
+    scoreKong(
+      room,
+      player,
+      "claimed",
+      "明杠 " + tileName(pending.discard.tile.type),
+      playerBySeat(room, pending.discard.fromSeat),
+      pending.discard.tile.type
+    );
     log(room, player.name + " 杠 " + tileName(pending.discard.tile.type));
-    drawTile(room, player);
+    drawTile(room, player, "kong");
   } else {
     room.turnDrawn = true;
     log(room, player.name + (action.action === "pong" ? " 碰 " : " 吃 ") + tileName(pending.discard.tile.type));
@@ -1318,6 +1590,7 @@ function buildView(room, player) {
     discardHistory: room.discardHistory,
     wallCount: room.wall.length,
     result: room.result,
+    scoreResult: room.scoreResult,
     turnName: turn ? turn.name : "",
     turnSeat: turn ? turn.seat : null,
     player: {
@@ -1325,10 +1598,13 @@ function buildView(room, player) {
       seat: player.seat,
       ready: player.ready,
       drawnTileId: player.drawnTileId,
+      lockedDiscardTileId: player.baoSeen && player.drawnTileId ? player.drawnTileId : null,
       ting: computedSelfTing,
       waitingTypes: player.waitingTypes,
       baoSeen: player.baoSeen,
-      lockedWaitingTypes: player.lockedWaitingTypes
+      lockedWaitingTypes: player.lockedWaitingTypes,
+      score: player.score,
+      roundDelta: player.roundDelta
     },
     players: room.players
       .slice()
@@ -1346,6 +1622,8 @@ function buildView(room, player) {
         ting: item.id === player.id ? computedSelfTing : item.ting,
         baoSeen: item.baoSeen,
         drawnTileId: item.id === player.id ? item.drawnTileId : null,
+        score: item.score,
+        roundDelta: item.roundDelta,
         isSelf: item.id === player.id
       })),
     hand: player.hand,
@@ -1408,8 +1686,11 @@ function handleJoin(peer, message) {
       player.melds = [];
       player.discards = [];
       player.drawnTileId = null;
+      player.drawnSource = null;
       player.ting = false;
       player.waitingTypes = [];
+      player.score = 0;
+      player.roundDelta = 0;
       resetBaoChoice(player);
     } else {
       if (room.players.length === 0) {
@@ -1541,11 +1822,12 @@ function handleDiscard(peer, message) {
     return;
   }
   if (!canDiscardWithBaoLock(room, player, message.tileId)) {
-    sendJson(peer, { type: "error", message: "看宝后不能换听，请选择保持原听口的牌" });
+    sendJson(peer, { type: "error", message: "看宝后只能摸切，请打出刚摸到的牌" });
     return;
   }
   const tile = player.hand.splice(index, 1)[0];
   player.drawnTileId = null;
+  player.drawnSource = null;
   room.turnDrawn = false;
   room.lastDiscard = { tile, fromSeat: player.seat };
   recordDiscard(room, room.lastDiscard);
@@ -1622,17 +1904,32 @@ function handleSelfAction(peer, message) {
     removeTilesByTypes(player, action.consume);
     player.ting = false;
     player.waitingTypes = [];
-    player.melds.push({
-      kind: "kong",
-      tiles: action.tiles.slice(),
-      fromSeat: player.seat
-    });
-    log(room, player.name + " 暗杠 " + tileName(action.tiles[0]));
+    player.drawnTileId = null;
+    player.drawnSource = null;
+    if (action.kongKind === "added") {
+      const meld = player.melds[action.meldIndex];
+      if (!meld || meld.kind !== "pong") {
+        sendJson(peer, { type: "error", message: "补杠已失效" });
+        return;
+      }
+      meld.kind = "added-kong";
+      meld.tiles = action.tiles.slice();
+      scoreKong(room, player, "added", "补杠 " + tileName(action.tiles[0]), null, action.tiles[0]);
+      log(room, player.name + " 补杠 " + tileName(action.tiles[0]));
+    } else {
+      player.melds.push({
+        kind: "concealed-kong",
+        tiles: action.tiles.slice(),
+        fromSeat: player.seat
+      });
+      scoreKong(room, player, "concealed", "暗杠 " + tileName(action.tiles[0]), null, action.tiles[0]);
+      log(room, player.name + " 暗杠 " + tileName(action.tiles[0]));
+    }
     if (maybeChangeBao(room)) {
       broadcast(room);
       return;
     }
-    drawTile(room, player);
+    drawTile(room, player, "kong");
     sortHand(player);
     broadcast(room);
   }
@@ -1924,10 +2221,12 @@ export function startServer(preferredPort = defaultPort, attempts = 0) {
 
 export const mahjongTestHooks = {
   applyInitialSpecialKongs,
+  buildSelfActions,
   buildView,
   buildWall,
   canDiscardWithBaoLock,
   chooseBaoForPlayer,
+  drawTile,
   isBaoDraw,
   makePlayer,
   makeRoom,
@@ -1935,6 +2234,8 @@ export const mahjongTestHooks = {
   publicTypeCount,
   refreshTing,
   revealBao,
+  settleBaoWin,
+  settleWin,
   startRound
 };
 

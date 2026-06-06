@@ -1207,13 +1207,70 @@ input:focus {
 
 .end-card {
   display: grid;
-  width: min(360px, 100%);
+  width: min(520px, 100%);
   gap: 12px;
   padding: 20px;
   background: rgba(24, 33, 27, 0.96);
   border: 1px solid var(--line);
   border-radius: 8px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.end-result {
+  display: grid;
+  gap: 10px;
+}
+
+.end-result-title,
+.score-detail-list p,
+.score-transfers p {
+  margin: 0;
+}
+
+.end-result-title {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.score-detail-list,
+.score-transfers {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.score-deltas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.score-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 8px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.score-chip[data-positive="true"] {
+  color: #f7d77c;
+  border-color: rgba(216, 163, 63, 0.48);
+}
+
+.score-transfers summary {
+  color: var(--gold);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .rules-card,

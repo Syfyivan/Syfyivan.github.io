@@ -195,6 +195,21 @@ withFixedDice(() => {
 }
 
 {
+  const room = makePlayingRoom("BAO6");
+  const player = room.players[0];
+  const drawn = tile(6);
+  player.hand = hand([0, 0, 0, 1, 1, 1, 2, 2, 2, 8, 8, 8, 4]).concat(drawn);
+  mahjongTestHooks.refreshTing(room, player);
+  player.baoSeen = true;
+  player.lockedWaitingTypes = [4];
+  player.drawnTileId = drawn.id;
+  assert.equal(mahjongTestHooks.canDiscardWithBaoLock(room, player, drawn.id), true);
+  assert.equal(mahjongTestHooks.canDiscardWithBaoLock(room, player, player.hand[0].id), false);
+  assert.equal(mahjongTestHooks.buildView(room, player).player.lockedDiscardTileId, drawn.id);
+  console.log("PASS seeing treasure forces drawn tile discard after drawing");
+}
+
+{
   const room = makePlayingRoom("KONG1");
   const player = room.players[0];
   player.hand = hand([27, 28, 29, 30, 0, 0, 0, 1, 1, 1, 2, 2, 2]);
@@ -204,6 +219,8 @@ withFixedDice(() => {
   assert.equal(player.melds[0].kind, "initial-wind-kong");
   assert.equal(player.hand.length, 10, "wind special kong receives one supplement tile");
   assert.equal(player.hand.some((item) => [27, 28, 29, 30].includes(item.type)), false);
+  assert.equal(room.scoreTransfers.length, 2);
+  assert.equal(room.scoreTransfers[0].points, 2);
   console.log("PASS initial wind kong is exposed once at deal");
 }
 
@@ -216,7 +233,37 @@ withFixedDice(() => {
   assert.equal(player.melds[0].kind, "initial-dragon-kong");
   assert.equal(player.hand.length, 10);
   assert.equal(player.hand.some((item) => [31, 32, 33].includes(item.type)), false);
+  assert.equal(room.scoreTransfers.length, 2);
+  assert.equal(room.scoreTransfers[0].points, 4);
   console.log("PASS initial dragon kong is exposed once at deal");
+}
+
+{
+  const room = makePlayingRoom("KONG3");
+  const player = room.players[0];
+  const drawn = tile(9);
+  room.turnDrawn = true;
+  player.melds = [{ kind: "pong", tiles: [9, 9, 9], fromSeat: 1, claimedType: 9 }];
+  player.hand = hand([0, 1, 2, 3, 4, 5, 18, 19, 20, 27, 27, 28, 29]).concat(drawn);
+  player.drawnTileId = drawn.id;
+  const actions = mahjongTestHooks.buildSelfActions(room, player);
+  const addedKong = actions.find((action) => action.action === "kong" && action.kongKind === "added");
+  assert.ok(addedKong, "self-drawn fourth tile should offer added kong");
+  assert.equal(addedKong.tiles[0], 9);
+  console.log("PASS self drawn fourth tile offers added kong");
+}
+
+{
+  const room = makePlayingRoom("SCORE1");
+  const player = room.players[0];
+  player.hand = hand([0, 1, 2, 9, 10, 11, 18, 19, 20, 24, 25, 26, 27, 27]);
+  mahjongTestHooks.settleWin(room, [player], null, null);
+  assert.equal(room.phase, "ended");
+  assert.ok(room.scoreResult, "settlement creates score result");
+  assert.equal(player.roundDelta, 4, "self draw base 2 paid by two opponents in 3-player room");
+  assert.equal(room.players[1].roundDelta, -2);
+  assert.equal(room.players[2].roundDelta, -2);
+  console.log("PASS round settlement scores self draw");
 }
 
 {

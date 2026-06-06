@@ -715,7 +715,7 @@
       return guideStep(
         "peek-bao",
         "上听后看宝",
-        "你已经上听了。点“看宝”查看宝牌；看宝后会锁定听口，之后摸到宝牌或幺鸡可摸宝胡。",
+        "你已经上听了。点“看宝”查看宝牌；看宝后锁定牌局，只能摸什么打什么，摸到宝牌或幺鸡可摸宝胡。",
         baoTray
       );
     }
@@ -767,7 +767,9 @@
       return guideStep(
         "discard",
         "选择要打出的牌",
-        "先点一张手牌让它高亮；为了防误触，第二次点同一张牌才会打出。",
+        view.player && view.player.lockedDiscardTileId
+          ? "你已看宝，这轮只能打刚摸到的牌。先点高亮，再点一次确认。"
+          : "先点一张手牌让它高亮；为了防误触，第二次点同一张牌才会打出。",
         firstEnabledHandTile() || handRow
       );
     }
@@ -887,6 +889,10 @@
       return tile.id === state.selectedTileId;
     })) {
       state.selectedTileId = null;
+      return;
+    }
+    if (view.player && view.player.lockedDiscardTileId && state.selectedTileId !== view.player.lockedDiscardTileId) {
+      state.selectedTileId = null;
     }
   }
 
@@ -955,6 +961,61 @@
     return action.action;
   }
 
+  function formatDelta(value) {
+    var number = Number(value || 0);
+    return (number > 0 ? "+" : "") + number;
+  }
+
+  function renderEndResult(view) {
+    var scoreResult = view.scoreResult || null;
+    endResult.textContent = "";
+
+    var title = document.createElement("p");
+    title.className = "end-result-title";
+    title.textContent = view.result || "本局结束";
+    endResult.appendChild(title);
+
+    if (!scoreResult) {
+      return;
+    }
+
+    if (scoreResult.winSummaries && scoreResult.winSummaries.length > 0) {
+      var wins = document.createElement("div");
+      wins.className = "score-detail-list";
+      scoreResult.winSummaries.forEach(function (summary) {
+        var line = document.createElement("p");
+        line.textContent = summary.playerName + "：" + summary.items.join("，") + " => 每家/点炮者 " + summary.points + " 分";
+        wins.appendChild(line);
+      });
+      endResult.appendChild(wins);
+    }
+
+    var deltas = document.createElement("div");
+    deltas.className = "score-deltas";
+    (scoreResult.deltas || []).forEach(function (item) {
+      var chip = document.createElement("span");
+      chip.className = "score-chip";
+      chip.dataset.positive = Number(item.delta || 0) >= 0 ? "true" : "false";
+      chip.textContent = item.name + " " + formatDelta(item.delta) + " / 总 " + item.total;
+      deltas.appendChild(chip);
+    });
+    endResult.appendChild(deltas);
+
+    if (scoreResult.transfers && scoreResult.transfers.length > 0) {
+      var transfers = document.createElement("details");
+      transfers.className = "score-transfers";
+      var summaryLabel = document.createElement("summary");
+      summaryLabel.textContent = "计分明细";
+      transfers.appendChild(summaryLabel);
+      scoreResult.transfers.forEach(function (transfer) {
+        var row = document.createElement("p");
+        row.textContent = transfer.fromName + " -> " + transfer.toName + "：" + transfer.points + " 分（" + transfer.reason + "）";
+        transfers.appendChild(row);
+      });
+      endResult.appendChild(transfers);
+    }
+  }
+
   function claimShortLabel(action) {
     return {
       hu: "胡",
@@ -1001,11 +1062,12 @@
       } else {
         status.textContent = player.connected ? (player.ready ? "已准备" : "未准备") : "离线";
       }
+      status.textContent += " · 总分 " + Number(player.score || 0);
       text.append(name, status);
 
       var count = document.createElement("div");
       count.className = "player-state";
-      count.textContent = player.handCount + " 张";
+      count.textContent = view.phase === "ended" ? formatDelta(player.roundDelta) : player.handCount + " 张";
 
       item.append(dot, text, count);
       playerList.appendChild(item);
@@ -1121,10 +1183,12 @@
   function renderHand(view) {
     handRow.textContent = "";
     var drawnTileId = view.player ? view.player.drawnTileId : "";
+    var lockedDiscardTileId = view.player ? view.player.lockedDiscardTileId : "";
     view.hand.forEach(function (tile) {
+      var lockedOut = Boolean(lockedDiscardTileId && tile.id !== lockedDiscardTileId);
       handRow.appendChild(createTile(tile, {
         button: true,
-        disabled: !view.canDiscard,
+        disabled: !view.canDiscard || lockedOut,
         drawn: tile.id === drawnTileId,
         selected: tile.id === state.selectedTileId,
         onClick: function (selected) {
@@ -1164,7 +1228,7 @@
       actionRow.appendChild(createActionButton("看宝", "peekBao", requestPeekBao));
       var peekHint = document.createElement("span");
       peekHint.className = "player-state action-hint";
-      peekHint.textContent = "看宝后锁定听口；之后可摸宝胡";
+      peekHint.textContent = "看宝后锁定牌局；之后只能摸切";
       actionRow.appendChild(peekHint);
     }
 
@@ -1189,7 +1253,11 @@
     if (view.phase === "playing" && view.canDiscard) {
       var hint = document.createElement("span");
       hint.className = "player-state action-hint discard-confirm-hint";
-      hint.textContent = state.selectedTileId ? "再次点击确认出牌" : "先点一张牌，高亮后再点一次出牌";
+      if (view.player && view.player.lockedDiscardTileId) {
+        hint.textContent = state.selectedTileId ? "再次点击确认摸切" : "已看宝，只能打刚摸到的牌";
+      } else {
+        hint.textContent = state.selectedTileId ? "再次点击确认出牌" : "先点一张牌，高亮后再点一次出牌";
+      }
       actionRow.appendChild(hint);
     }
 
@@ -1273,7 +1341,7 @@
       note.title = "看宝骰子：" + view.bao.dice.values.join(" + ") + " = " + view.bao.dice.total +
         "\n明面数量：牌河和副露里已经亮出的宝牌数量，满 3 张会换宝";
     } else {
-      note.title = "只有已上听且已选择看宝的人能看到宝牌；看宝后不能换听";
+      note.title = "只有已上听且已选择看宝的人能看到宝牌；看宝后只能摸切";
     }
 
     baoTray.append(label, tileWrap, note);
@@ -1303,7 +1371,7 @@
       return;
     }
     state.endDialogRound = view.round;
-    endResult.textContent = view.result || "本局结束";
+    renderEndResult(view);
     modalNewRoundButton.disabled = !view.canStart;
     endModal.hidden = false;
   }
