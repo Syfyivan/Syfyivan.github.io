@@ -16,6 +16,7 @@ function base(types) {
 }
 
 let nextTileId = 0;
+const YAOJI_TYPE = 18;
 function tile(type) {
   nextTileId += 1;
   return { id: "test-tile-" + nextTileId, type };
@@ -116,10 +117,14 @@ withFixedDice(() => {
   player.hand = hand([0, 0, 0, 1, 1, 1, 2, 2, 2, 8, 8, 8, 4]);
   room.wall = [tile(4), tile(0)];
   mahjongTestHooks.refreshTing(room, player);
-  assert.equal(room.bao.type, 4, "first listener reveals treasure by dice");
+  assert.equal(room.bao, null, "listening does not reveal treasure before the player chooses to look");
+  assert.equal(mahjongTestHooks.buildView(room, player).canPeekBao, true);
+  mahjongTestHooks.chooseBaoForPlayer(room, player);
+  assert.equal(room.bao.type, 4, "first listener who chooses treasure reveals it by dice");
+  assert.equal(player.baoSeen, true);
   assert.equal(room.phase, "ended", "matching treasure wait settles dui bao immediately");
   assert.match(room.result, /对宝 5万/);
-  console.log("PASS first listening player can win by dui bao");
+  console.log("PASS first listening player must choose treasure before dui bao");
 });
 
 withFixedDice(() => {
@@ -130,17 +135,25 @@ withFixedDice(() => {
   second.hand = hand([0, 0, 0, 1, 1, 1, 2, 2, 2, 8, 8, 8, 5]);
   room.wall = [tile(5), tile(0)];
   mahjongTestHooks.refreshTing(room, first);
+  mahjongTestHooks.chooseBaoForPlayer(room, first);
   assert.equal(room.phase, "playing");
   assert.equal(room.bao.type, 5);
   mahjongTestHooks.refreshTing(room, second);
-  assert.equal(room.phase, "ended", "later listener sees current treasure and can dui bao");
+  const hiddenView = mahjongTestHooks.buildView(room, second);
+  assert.equal(hiddenView.bao.revealed, false, "later listener cannot see treasure before choosing");
+  assert.equal(hiddenView.canPeekBao, true);
+  mahjongTestHooks.chooseBaoForPlayer(room, second);
+  assert.equal(room.phase, "ended", "later listener chooses current treasure and can dui bao");
   assert.match(room.result, /玩家二 对宝 6万/);
-  console.log("PASS later listening player sees current treasure");
+  console.log("PASS later listener must choose before seeing current treasure");
 });
 
 withFixedDice(() => {
   const room = makePlayingRoom("BAO3");
   room.bao = { tile: tile(0), type: 0, dice: { values: [1, 1], total: 2 } };
+  room.players[0].ting = true;
+  room.players[0].baoSeen = true;
+  room.players[0].lockedWaitingTypes = [4];
   room.wall = [tile(2), tile(1)];
   room.discardHistory = [
     { tile: tile(0), fromSeat: 0, claimedBySeat: null, claim: null },
@@ -148,9 +161,38 @@ withFixedDice(() => {
     { tile: tile(0), fromSeat: 2, claimedBySeat: null, claim: null }
   ];
   mahjongTestHooks.maybeChangeBao(room);
-  assert.equal(room.bao.type, 1, "three public treasure tiles force a new treasure");
-  console.log("PASS three public treasure tiles change treasure");
+  assert.equal(room.bao.type, 1, "three visible treasure tiles force a new treasure");
+  console.log("PASS three visible treasure tiles change treasure");
 });
+
+{
+  const room = makePlayingRoom("BAO4");
+  const player = room.players[0];
+  const yaoJi = tile(YAOJI_TYPE);
+  room.bao = { tile: tile(0), type: 0, dice: { values: [1, 1], total: 2 } };
+  player.ting = true;
+  player.baoSeen = true;
+  player.lockedWaitingTypes = [4];
+  player.drawnTileId = yaoJi.id;
+  room.turnDrawn = true;
+  player.hand = hand([0, 0, 0, 1, 1, 1, 2, 2, 2, 8, 8, 8, 4]).concat(yaoJi);
+  assert.equal(mahjongTestHooks.isBaoDraw(room, player), true, "yao ji counts as bao draw after seeing treasure");
+  assert.equal(mahjongTestHooks.buildView(room, player).selfActions.some((action) => action.action === "baoHu"), true);
+  console.log("PASS yao ji counts as bao draw after seeing treasure");
+}
+
+{
+  const room = makePlayingRoom("BAO5");
+  const player = room.players[0];
+  const extra = tile(6);
+  player.hand = hand([0, 0, 0, 1, 1, 1, 2, 2, 2, 8, 8, 8, 4]).concat(extra);
+  mahjongTestHooks.refreshTing(room, player);
+  player.baoSeen = true;
+  player.lockedWaitingTypes = [4];
+  assert.equal(mahjongTestHooks.canDiscardWithBaoLock(room, player, extra.id), true);
+  assert.equal(mahjongTestHooks.canDiscardWithBaoLock(room, player, player.hand[0].id), false);
+  console.log("PASS seeing treasure locks the listening waits");
+}
 
 {
   const room = makePlayingRoom("KONG1");

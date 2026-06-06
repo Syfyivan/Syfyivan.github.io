@@ -613,7 +613,7 @@
       var status = document.createElement("div");
       status.className = "player-state";
       if (view.phase === "playing") {
-        status.textContent = player.ting ? "已上听" : (player.bot ? "人机进行中" : "进行中");
+        status.textContent = player.baoSeen ? "已看宝" : (player.ting ? "已上听" : (player.bot ? "人机进行中" : "进行中"));
       } else if (player.bot) {
         status.textContent = "人机已就位";
       } else {
@@ -644,7 +644,7 @@
     name.textContent = player.name;
     var count = document.createElement("div");
     count.className = "seat-count";
-    count.textContent = player.ting ? "已上听" : player.handCount + " 张";
+    count.textContent = player.baoSeen ? "已看宝" : (player.ting ? "已上听" : player.handCount + " 张");
     header.append(name, count);
 
     var backs = document.createElement("div");
@@ -758,14 +758,24 @@
     claimBar.textContent = "";
     claimBar.hidden = true;
 
+    if (view.canPeekBao) {
+      actionRow.appendChild(createActionButton("看宝", "peekBao", function () {
+        send({ type: "peekBao" });
+      }));
+      var peekHint = document.createElement("span");
+      peekHint.className = "player-state action-hint";
+      peekHint.textContent = "看宝后锁定听口";
+      actionRow.appendChild(peekHint);
+    }
+
     if (view.canDraw) {
       actionRow.appendChild(createActionButton("摸牌", "draw", function () {
         send({ type: "draw" });
       }));
-      if (view.player.ting && view.bao && view.bao.revealed) {
+      if (view.player.ting && view.bao && view.bao.revealed && view.player.baoSeen) {
         var drawHint = document.createElement("span");
         drawHint.className = "player-state action-hint";
-        drawHint.textContent = "已上听，摸到宝牌可摸宝胡";
+        drawHint.textContent = "已看宝，摸到宝牌或幺鸡可摸宝胡";
         actionRow.appendChild(drawHint);
       }
     }
@@ -850,14 +860,17 @@
     note.className = "bao-note";
     if (view.bao.revealed) {
       var visibleCount = Number(view.bao.visibleCount || 0);
+      var seenPrefix = view.bao.allSeen ? "全员已看宝" : "你已看宝";
       note.textContent = (view.bao.label || tileMeta(view.bao.type).label) +
-        " · 明面" + visibleCount + "/3";
+        " · " + seenPrefix + " · 明面" + visibleCount + "/3";
     } else {
-      note.textContent = "上听后可见";
+      note.textContent = view.bao.label || "上听后可选择看宝";
     }
     if (view.bao.dice && view.bao.dice.values) {
       note.title = "看宝骰子：" + view.bao.dice.values.join(" + ") + " = " + view.bao.dice.total +
         "\n明面数量：牌河和副露里已经亮出的宝牌数量，满 3 张会换宝";
+    } else {
+      note.title = "只有已上听且已选择看宝的人能看到宝牌；看宝后不能换听";
     }
 
     baoTray.append(label, tileWrap, note);

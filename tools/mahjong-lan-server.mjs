@@ -88,8 +88,8 @@ const variants = {
       "136 张，含东南西北中发白",
       "可吃、碰、杠、胡，吃牌仅下家",
       "胡牌需有对子、幺九或字牌；三色全、清一色、混一色均可",
-      "第一位上听后掷骰看宝，后上听者直接看宝",
-      "上听后可对宝胡、摸宝胡；三张宝公开后换宝"
+      "上听后可选择看宝；未看宝者不可见宝牌",
+      "看宝后锁定听口，可对宝胡、摸宝胡；摸到幺鸡也算摸宝胡"
     ],
     detailedRules: [
       {
@@ -134,11 +134,12 @@ const variants = {
       {
         title: "宝牌和上听",
         items: [
-          "本版保持自动上听，不要求手动报听，也不锁定换听。",
-          "第一位玩家上听后自动掷 2 骰，从牌山尾端按点数翻出宝牌；后续玩家上听后直接看当前宝牌。",
-          "如果宝牌正好是玩家的听口，立即按对宝胡结算。",
-          "上听后如果新摸到与宝牌同名的牌，可以点“摸宝胡”。",
-          "如果同名宝牌已有 3 张进入公开牌池，会重新掷骰换宝。"
+          "本版保持自动上听；上听后玩家可以选择看宝，未看宝的人不能看到宝牌。",
+          "第一位选择看宝的上听玩家掷 2 骰，从牌山尾端按点数翻出宝牌；后续上听玩家选择看宝时看当前宝牌。",
+          "只有已上听且已看宝的玩家才可以对宝胡或摸宝胡；如果宝牌正好是已看宝玩家的听口，立即按对宝胡结算。",
+          "看宝后听口锁定，之后出牌必须保持同一组听口，不能换听。",
+          "已看宝后如果新摸到与宝牌同名的牌，或摸到幺鸡，可以点“摸宝胡”。",
+          "如果同名宝牌已有 3 张进入明面牌池，会重新掷骰换宝；所有玩家都选择看宝后，宝牌等同于全员可见。"
         ]
       }
     ]
@@ -146,6 +147,7 @@ const variants = {
 };
 
 const botNames = ["牌搭子一号", "牌搭子二号", "牌搭子三号", "牌搭子四号"];
+const YAOJI_TYPE = 18;
 
 function tileName(type) {
   return tileDefinitions[type]?.label || "未知牌";
@@ -235,6 +237,8 @@ function makePlayer(id, name, seat, bot = false) {
     drawnTileId: null,
     ting: false,
     waitingTypes: [],
+    baoSeen: false,
+    lockedWaitingTypes: [],
     peer: null
   };
 }
@@ -470,21 +474,47 @@ function canWinPlayer(room, player, extraTile) {
   return canWinTypes(types, player.melds.length, winOptions(room, player, extraTile?.type));
 }
 
-function waitingTypes(room, player) {
+function normalizeTypeList(types) {
+  return Array.from(new Set(types)).sort((a, b) => a - b);
+}
+
+function sameTypeList(left, right) {
+  const normalizedLeft = normalizeTypeList(left);
+  const normalizedRight = normalizeTypeList(right);
+  return (
+    normalizedLeft.length === normalizedRight.length &&
+    normalizedLeft.every((type, index) => type === normalizedRight[index])
+  );
+}
+
+function waitingTypesForHand(room, player, handTypes) {
   const variant = variantFor(room);
-  const types = player.hand.map((tile) => tile.type);
   return variant.tileTypes.filter((type) => {
-    if (types.filter((item) => item === type).length >= 4) {
+    if (handTypes.filter((item) => item === type).length >= 4) {
       return false;
     }
-    return canWinTypes(types.concat(type), player.melds.length, winOptions(room, player, type));
+    const allTypes = handTypes.concat(type).concat(allMeldTypes(player));
+    return canWinTypes(handTypes.concat(type), player.melds.length, {
+      variant: variant.key,
+      allTypes
+    });
   });
+}
+
+function waitingTypes(room, player) {
+  return waitingTypesForHand(room, player, player.hand.map((tile) => tile.type));
+}
+
+function resetBaoChoice(player) {
+  player.baoSeen = false;
+  player.lockedWaitingTypes = [];
 }
 
 function refreshTing(room, player) {
   if (room.phase !== "playing") {
     player.ting = false;
     player.waitingTypes = [];
+    resetBaoChoice(player);
     return false;
   }
   const nextWaitingTypes = waitingTypes(room, player);
@@ -493,19 +523,16 @@ function refreshTing(room, player) {
   player.ting = nextWaitingTypes.length > 0;
   if (!wasTing && player.ting) {
     log(room, player.name + " 上听");
-    if (roomUsesBao(room)) {
-      if (!room.bao) {
-        revealBao(room, player, "first-ting");
-      } else {
-        log(room, player.name + " 可看当前宝牌 " + tileName(room.bao.type));
-      }
+    if (roomUsesBao(room) && isBot(player)) {
+      chooseBaoForPlayer(room, player);
     }
   }
   if (wasTing && !player.ting) {
     log(room, player.name + " 退听");
+    resetBaoChoice(player);
   }
-  if (player.ting && room.bao) {
-    settleDuiBaoForTingPlayers(room);
+  if (player.ting && player.baoSeen && room.bao) {
+    settleDuiBaoForBaoSeenPlayers(room);
   }
   return player.ting;
 }
@@ -529,6 +556,15 @@ function publicTypeCount(room, type) {
     });
   });
   return count;
+}
+
+function allPlayersHaveSeenBao(room) {
+  const activePlayers = room.players.filter(connectedOrBot);
+  return activePlayers.length > 0 && activePlayers.every((player) => player.baoSeen);
+}
+
+function playerCanSeeBao(room, player) {
+  return room.phase === "ended" || player.baoSeen || allPlayersHaveSeenBao(room);
 }
 
 function takeTileFromWall(room, indexFromTail = 0) {
@@ -579,8 +615,7 @@ function revealBao(room, player, reason = "ting") {
       dice.values.join(" + ") +
       " = " +
       dice.total +
-      "，宝牌为 " +
-      tileName(tile.type)
+      "，已翻出宝牌"
   );
   return true;
 }
@@ -593,19 +628,32 @@ function settleDuiBaoWin(room, player) {
   log(room, room.result);
 }
 
-function settleDuiBaoForTingPlayers(room) {
+function settleDuiBaoForBaoSeenPlayers(room) {
   if (!roomUsesBao(room) || !room.bao || room.phase !== "playing") {
     return false;
   }
   const winner = room.players
     .slice()
     .sort((a, b) => responseDistance(room, room.currentSeat, a.seat) - responseDistance(room, room.currentSeat, b.seat))
-    .find((player) => player.ting && player.waitingTypes.includes(room.bao.type));
+    .find((player) => player.ting && player.baoSeen && player.waitingTypes.includes(room.bao.type));
   if (!winner) {
     return false;
   }
   settleDuiBaoWin(room, winner);
   return true;
+}
+
+function chooseBaoForPlayer(room, player) {
+  if (!roomUsesBao(room) || room.phase !== "playing" || !player.ting) {
+    return false;
+  }
+  if (!room.bao && !revealBao(room, player, "player-choice")) {
+    return false;
+  }
+  player.baoSeen = true;
+  player.lockedWaitingTypes = normalizeTypeList(player.waitingTypes);
+  log(room, player.name + " 看宝，听口锁定");
+  return settleDuiBaoForBaoSeenPlayers(room);
 }
 
 function maybeChangeBao(room) {
@@ -615,20 +663,47 @@ function maybeChangeBao(room) {
   if (publicTypeCount(room, room.bao.type) < 3) {
     return false;
   }
-  const oldBao = tileName(room.bao.type);
-  log(room, oldBao + " 已公开 3 张，重新换宝");
+  log(room, "宝牌已明面 3 张，重新换宝");
   if (!revealBao(room, currentPlayer(room), "visible-three")) {
     return false;
   }
-  return settleDuiBaoForTingPlayers(room);
+  return settleDuiBaoForBaoSeenPlayers(room);
+}
+
+function baoDrawWinningType(room, player) {
+  if (!roomUsesBao(room) || !room.bao || !player.ting || !player.baoSeen || !player.drawnTileId) {
+    return null;
+  }
+  const drawnTile = player.hand.find((tile) => tile.id === player.drawnTileId);
+  if (!drawnTile) {
+    return null;
+  }
+  return drawnTile.type === room.bao.type || drawnTile.type === YAOJI_TYPE ? drawnTile.type : null;
 }
 
 function isBaoDraw(room, player) {
-  if (!roomUsesBao(room) || !room.bao || !player.ting || !player.drawnTileId) {
-    return false;
+  return baoDrawWinningType(room, player) !== null;
+}
+
+function waitingTypesAfterDiscard(room, player, tileId) {
+  let removed = false;
+  const remainingTypes = [];
+  player.hand.forEach((tile) => {
+    if (!removed && tile.id === tileId) {
+      removed = true;
+      return;
+    }
+    remainingTypes.push(tile.type);
+  });
+  return removed ? waitingTypesForHand(room, player, remainingTypes) : null;
+}
+
+function canDiscardWithBaoLock(room, player, tileId) {
+  if (!player.baoSeen) {
+    return true;
   }
-  const drawnTile = player.hand.find((tile) => tile.id === player.drawnTileId);
-  return Boolean(drawnTile && drawnTile.type === room.bao.type);
+  const nextWaitingTypes = waitingTypesAfterDiscard(room, player, tileId);
+  return Boolean(nextWaitingTypes && sameTypeList(nextWaitingTypes, player.lockedWaitingTypes));
 }
 
 function chowOptions(hand, discardType) {
@@ -671,6 +746,12 @@ function buildClaimActions(room, discard) {
         tiles: [type],
         consume: []
       });
+    }
+    if (player.baoSeen) {
+      if (actions.length > 0) {
+        actionsByPlayer.set(player.id, actions);
+      }
+      return;
     }
     if (countType(player.hand, type) >= 3) {
       actions.push({
@@ -724,25 +805,28 @@ function buildSelfActions(room, player) {
   }
 
   if (isBaoDraw(room, player)) {
+    const baoType = baoDrawWinningType(room, player);
     actions.unshift({
       id: "self-bao-hu",
       action: "baoHu",
       priority: 5,
-      tiles: [room.bao.type]
+      tiles: [baoType]
     });
   }
 
-  variantFor(room).tileTypes.forEach((type) => {
-    if (countType(player.hand, type) === 4) {
-      actions.push({
-        id: "self-kong-" + type,
-        action: "kong",
-        priority: 3,
-        tiles: [type, type, type, type],
-        consume: [type, type, type, type]
-      });
-    }
-  });
+  if (!player.baoSeen) {
+    variantFor(room).tileTypes.forEach((type) => {
+      if (countType(player.hand, type) === 4) {
+        actions.push({
+          id: "self-kong-" + type,
+          action: "kong",
+          priority: 3,
+          tiles: [type, type, type, type],
+          consume: [type, type, type, type]
+        });
+      }
+    });
+  }
   return actions;
 }
 
@@ -922,6 +1006,7 @@ function startRound(room) {
     player.drawnTileId = null;
     player.ting = false;
     player.waitingTypes = [];
+    resetBaoChoice(player);
   });
 
   for (let count = 0; count < 13; count += 1) {
@@ -939,7 +1024,7 @@ function startRound(room) {
   log(room, "骰子 " + room.dice.values.join(" + ") + " = " + room.dice.total);
   log(room, roomConfigLabel(room) + "，牌组 " + variantFor(room).tileTypes.length * 4 + " 张");
   if (roomUsesBao(room)) {
-    log(room, "等待第一位玩家上听后掷骰看宝");
+    log(room, "上听后可选择看宝；看宝后锁定听口");
   }
   return true;
 }
@@ -962,7 +1047,7 @@ function settleBaoWin(room, player) {
   room.phase = "ended";
   room.pending = null;
   room.lastDiscard = null;
-  room.result = player.name + " 摸宝 " + tileName(room.bao.type);
+  room.result = player.name + " 摸宝 " + tileName(baoDrawWinningType(room, player) ?? room.bao.type);
   log(room, room.result);
 }
 
@@ -1185,8 +1270,10 @@ function buildView(room, player) {
   const claimActions = room.pending ? room.pending.actionsByPlayer.get(player.id) || [] : [];
   const canDiscard = room.phase === "playing" && !room.pending && room.currentSeat === player.seat && room.turnDrawn;
   const canDraw = room.phase === "playing" && !room.pending && room.currentSeat === player.seat && !room.turnDrawn;
+  const canPeekBao = roomUsesBao(room) && room.phase === "playing" && !room.pending && player.ting && !player.baoSeen;
   const turn = room.phase === "playing" ? currentPlayer(room) : null;
   const variant = variantFor(room);
+  const baoRevealed = Boolean(room.bao && playerCanSeeBao(room, player));
 
   return {
     connected: Boolean(player.connected),
@@ -1211,14 +1298,17 @@ function buildView(room, player) {
         }
       ])
     },
-    bao: roomUsesBao(room) && room.bao
+    bao: roomUsesBao(room)
       ? {
           enabled: true,
-          revealed: player.ting || room.phase === "ended",
-          type: player.ting || room.phase === "ended" ? room.bao.type : null,
-          label: player.ting || room.phase === "ended" ? tileName(room.bao.type) : "未上听不可见",
-          dice: room.bao.dice,
-          visibleCount: publicTypeCount(room, room.bao.type)
+          exists: Boolean(room.bao),
+          revealed: baoRevealed,
+          seenBySelf: player.baoSeen,
+          allSeen: allPlayersHaveSeenBao(room),
+          type: baoRevealed ? room.bao.type : null,
+          label: baoRevealed ? tileName(room.bao.type) : (player.ting ? "看宝后可见" : "上听后可选择看宝"),
+          dice: baoRevealed ? room.bao.dice : null,
+          visibleCount: baoRevealed ? publicTypeCount(room, room.bao.type) : 0
         }
       : null,
     phase: room.phase,
@@ -1234,7 +1324,9 @@ function buildView(room, player) {
       ready: player.ready,
       drawnTileId: player.drawnTileId,
       ting: player.ting,
-      waitingTypes: player.waitingTypes
+      waitingTypes: player.waitingTypes,
+      baoSeen: player.baoSeen,
+      lockedWaitingTypes: player.lockedWaitingTypes
     },
     players: room.players
       .slice()
@@ -1250,6 +1342,7 @@ function buildView(room, player) {
         melds: item.melds,
         discards: item.discards,
         ting: item.ting,
+        baoSeen: item.baoSeen,
         drawnTileId: item.id === player.id ? item.drawnTileId : null,
         isSelf: item.id === player.id
       })),
@@ -1260,6 +1353,7 @@ function buildView(room, player) {
     canAddBot: room.phase !== "playing" && room.players.length < roomSeatCount(room) && player.seat === 0,
     canDraw,
     canDiscard,
+    canPeekBao,
     selfActions,
     claimActions,
     events: room.events.slice(-12)
@@ -1314,6 +1408,7 @@ function handleJoin(peer, message) {
       player.drawnTileId = null;
       player.ting = false;
       player.waitingTypes = [];
+      resetBaoChoice(player);
     } else {
       if (room.players.length === 0) {
         applyRoomConfig(room, requestedConfig);
@@ -1443,6 +1538,10 @@ function handleDiscard(peer, message) {
     sendJson(peer, { type: "error", message: "找不到这张牌" });
     return;
   }
+  if (!canDiscardWithBaoLock(room, player, message.tileId)) {
+    sendJson(peer, { type: "error", message: "看宝后不能换听，请选择保持原听口的牌" });
+    return;
+  }
   const tile = player.hand.splice(index, 1)[0];
   player.drawnTileId = null;
   room.turnDrawn = false;
@@ -1460,6 +1559,40 @@ function handleDiscard(peer, message) {
     return;
   }
   startPendingOrAdvance(room, room.lastDiscard);
+  broadcast(room);
+}
+
+function handlePeekBao(peer) {
+  if (!requirePlayer(peer)) {
+    return;
+  }
+  const { room, player } = peer;
+  if (!roomUsesBao(room)) {
+    sendJson(peer, { type: "error", message: "本玩法没有宝牌" });
+    return;
+  }
+  if (room.phase !== "playing" || room.pending) {
+    sendJson(peer, { type: "error", message: "现在不能看宝" });
+    return;
+  }
+  if (!player.ting) {
+    refreshTing(room, player);
+  }
+  if (!player.ting) {
+    sendJson(peer, { type: "error", message: "上听后才能看宝" });
+    return;
+  }
+  if (player.baoSeen) {
+    sendJson(peer, {
+      type: "view",
+      view: buildView(room, player)
+    });
+    return;
+  }
+  if (!chooseBaoForPlayer(room, player) && !player.baoSeen) {
+    sendJson(peer, { type: "error", message: "牌山不足，不能看宝" });
+    return;
+  }
   broadcast(room);
 }
 
@@ -1547,6 +1680,10 @@ function handleMessage(peer, raw) {
   }
   if (message.type === "rename") {
     handleRename(peer, message);
+    return;
+  }
+  if (message.type === "peekBao") {
+    handlePeekBao(peer);
     return;
   }
   if (message.type === "addBot") {
@@ -1787,6 +1924,9 @@ export const mahjongTestHooks = {
   applyInitialSpecialKongs,
   buildView,
   buildWall,
+  canDiscardWithBaoLock,
+  chooseBaoForPlayer,
+  isBaoDraw,
   makePlayer,
   makeRoom,
   maybeChangeBao,
