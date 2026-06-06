@@ -3,14 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="2020C 软件架构与中间件资料导读、纸质资料定位与逐题解析，帮助开卷考试前快速理解和翻找资料。" />
-  <title>2020C 软件架构与中间件资料导读与逐题解析</title>
+  <meta name="description" content="2020C 软件架构与中间件知识点讲解、资料导读、纸质资料定位与逐题解析，帮助开卷考试前快速理解和翻找资料。" />
+  <title>2020C 软件架构与中间件知识点讲解与资料导读</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="topbar" aria-label="页面顶部">
     <a class="brand" href="/">一凡的博客</a>
     <nav class="quick-links" aria-label="页面内导航">
+      <a href="#concepts">知识点</a>
       <a href="#study">读资料</a>
       <a href="#chain-map">对应关系</a>
       <a href="#chapter-chain">资料导读</a>
@@ -26,7 +27,7 @@
       <div class="hero-copy">
         <p class="eyebrow">软件架构与中间件 · 开卷复习索引</p>
         <h1 id="page-title">2020C 资料导读</h1>
-        <p class="lead">按纸质资料的章节标题解释每一部分在讲什么，再把 2020C 试题逐题映射到可翻找的位置。你可以一边看网站，一边翻 Word 资料，把“为什么这么设计”先理解起来。</p>
+        <p class="lead">先把核心知识点讲成人话，再按纸质资料的章节标题解释每一部分在讲什么，并把 2020C 试题逐题映射到可翻找的位置。</p>
       </div>
       <aside class="answer-strip" aria-label="选择题速查答案">
         <span>选择题速查</span>
@@ -36,6 +37,11 @@
 
     <section class="summary-grid" aria-label="内容概览">
       
+      <a class="summary-item" href="#concepts">
+        <span>知识点</span>
+        <strong>12 个</strong>
+        <em>先讲懂概念</em>
+      </a>
       <a class="summary-item" href="#study">
         <span>读资料</span>
         <strong>4 步</strong>
@@ -88,6 +94,112 @@
         <div><strong>4.1/4.2 数据演化与主从分离</strong><span>位于“4 数据层的软件架构技术”；含单机 MySQL、读写分离、主备/主从/主主、数据集中/分散集群。</span></div>
         <div><strong>4.3 数据分库分表</strong><span>位于“4 数据层的软件架构技术”；含垂直/水平拆分、客户端分片、JDBC/ORM、代理分片、分布式事务、Sharding-JDBC。</span></div>
         <div><strong>4.4 数据缓存</strong><span>位于“4 数据层的软件架构技术”；含缓存定义、本地/分布式/反向代理/CDN 缓存、FIFO/LFU/LRU、缓存穿透/并发/雪崩/热点。</span></div>
+      </div>
+    </section>
+
+    <section class="concept-panel" id="concepts" aria-labelledby="concept-title">
+      <div class="learning-head">
+        <p class="eyebrow">知识点讲解</p>
+        <h2 id="concept-title">先把概念翻成人话，再回到资料原文</h2>
+        <p>下面这些是 2020C 里最容易“看见词但不懂意思”的知识点。每个知识点都按“它是什么、为什么会出现、资料怎么看、考试怎么写”来讲。</p>
+      </div>
+
+      <div class="concept-grid" aria-label="核心知识点讲解">
+        <article class="concept-card">
+          <h3>1. 软件架构</h3>
+          <p><strong>一句话：</strong>软件架构是在系统层面决定“有哪些部分、怎么连接、要满足什么质量”。</p>
+          <p><strong>为什么出现：</strong>系统小的时候写功能就行；系统大了以后，性能、安全、扩展、维护都不是某个函数能解决的，必须先设计整体结构。</p>
+          <p><strong>资料怎么看：</strong>看到“构件、连接件、拓扑结构、约束、质量”，不要背术语。构件是模块/服务，连接件是调用/接口/消息，拓扑是连接关系，约束是规则，质量是性能、可用性等目标。</p>
+          <p><strong>考试怎么写：</strong>答设计题时先说架构目标，再按构件、连接、部署、质量属性展开。</p>
+        </article>
+
+        <article class="concept-card">
+          <h3>2. 质量属性</h3>
+          <p><strong>一句话：</strong>质量属性就是系统“好不好”的不同维度，例如快不快、稳不稳、安不安全、好不好维护。</p>
+          <p><strong>为什么出现：</strong>功能正确不等于系统可用。支付系统能扣款只是功能；不重复扣、两秒内返回、故障能恢复，才是架构要保证的质量。</p>
+          <p><strong>资料怎么看：</strong>性能对应集群、缓存、异步；安全对应防火墙、加密、单一入口；可用性对应集群、灾备、故障转移。</p>
+          <p><strong>考试怎么写：</strong>遇到“质量属性/ATAM/效用树”，就把目标拆成性能、可用性、一致性、安全、可扩展、可维护。</p>
+        </article>
+
+        <article class="concept-card">
+          <h3>3. 中间件</h3>
+          <p><strong>一句话：</strong>中间件是夹在应用和底层系统之间的公共能力层。</p>
+          <p><strong>为什么出现：</strong>分布式系统里有不同语言、系统、网络、协议和数据源。如果每个业务都自己处理通信、事务、消息、服务发现，会重复且容易错。</p>
+          <p><strong>资料怎么看：</strong>“屏蔽异构性”就是隐藏不同平台差异；“互操作”就是让不同系统能协作；“共性凝练和复用”就是把大家都要用的能力抽出来。</p>
+          <p><strong>考试怎么写：</strong>简答题先写位置，再写三大作用：屏蔽异构性、实现互操作、共性能力复用。</p>
+        </article>
+
+        <article class="concept-card">
+          <h3>4. 4+1 视图</h3>
+          <p><strong>一句话：</strong>4+1 视图是从五个角度描述同一个系统。</p>
+          <p><strong>为什么出现：</strong>一个系统给用户、开发者、部署人员、运维人员看的重点不一样，所以不能只画一张图。</p>
+          <p><strong>资料怎么看：</strong>用例视图讲用户场景；逻辑视图讲类、对象、接口和模块；开发视图讲代码和模块组织；进程视图讲运行时进程通信；物理视图讲部署到哪些机器。</p>
+          <p><strong>考试怎么写：</strong>设计题不知道怎么组织时，直接按这五块写，尤其适合 MVC/早期电商网站设计题。</p>
+        </article>
+
+        <article class="concept-card">
+          <h3>5. 负载均衡</h3>
+          <p><strong>一句话：</strong>负载均衡就是把请求分给多台机器，避免一台机器被打满。</p>
+          <p><strong>为什么出现：</strong>单服务器再优化也有上限。用户变多后，需要多台服务器一起提供服务，还要有一个“分配器”决定请求发给谁。</p>
+          <p><strong>资料怎么看：</strong>DNS 负责地理级分流，F5/LVS 偏集群级，Nginx 常做机器级；轮询是平均发，加权轮询是按能力发，Hash 是让同类请求尽量去同一台。</p>
+          <p><strong>考试怎么写：</strong>电商演进和综合题计算层，都可以写“入口层使用负载均衡，结合健康检查和合适算法”。</p>
+        </article>
+
+        <article class="concept-card">
+          <h3>6. 消息队列 / MOM</h3>
+          <p><strong>一句话：</strong>消息队列让系统通过消息间接通信，不必所有流程都同步等待。</p>
+          <p><strong>为什么出现：</strong>下单后发短信、写日志、更新推荐不一定要卡住主流程。放进消息队列后，主流程可以先返回，其他服务慢慢消费。</p>
+          <p><strong>资料怎么看：</strong>时间解耦是不必同时运行；空间解耦是不必知道对方在哪里；发布订阅是一条消息可以通知多个订阅者。</p>
+          <p><strong>考试怎么写：</strong>看到异步、削峰、解耦、事件驱动，就往消息队列/MOM/发布订阅上靠。</p>
+        </article>
+
+        <article class="concept-card">
+          <h3>7. 分布式服务框架</h3>
+          <p><strong>一句话：</strong>分布式服务框架负责让很多服务能被注册、发现、路由、调用和容错。</p>
+          <p><strong>为什么出现：</strong>服务拆多以后，调用方不可能手写所有服务地址，也不能每次失败就让业务代码自己处理。</p>
+          <p><strong>资料怎么看：</strong>服务订阅发布解决“服务在哪里”；服务路由解决“选哪个实例”；集群容错解决“失败后怎么办”；序列化和协议解决“怎么传数据”。</p>
+          <p><strong>考试怎么写：</strong>综合题计算层可以写“服务注册发现 + 路由 + 集群容错 + 同步/异步/并行调用”。</p>
+        </article>
+
+        <article class="concept-card">
+          <h3>8. 幂等性</h3>
+          <p><strong>一句话：</strong>幂等性是同一个操作执行一次或多次，业务结果都一样。</p>
+          <p><strong>为什么出现：</strong>网络抖动、用户重复点击、MQ 重复消费、RPC 重试都可能让同一请求到达多次；支付场景如果不幂等，就可能重复扣款。</p>
+          <p><strong>资料怎么看：</strong>查询天然幂等；新增通常不幂等；基于唯一流水号、去重表、版本号、状态机可以把不幂等操作变得可控。</p>
+          <p><strong>考试怎么写：</strong>支付设计题一定写唯一流水号/订单号、去重表或唯一索引、状态机控制、失败重试和补偿。</p>
+        </article>
+
+        <article class="concept-card">
+          <h3>9. 微服务、API 网关、服务发现</h3>
+          <p><strong>一句话：</strong>微服务是按业务拆小，API 网关是统一入口，服务发现是动态找服务地址。</p>
+          <p><strong>为什么出现：</strong>业务复杂后，一个大系统太难改、难部署、难扩容；拆成小服务后，又需要统一入口和动态寻址。</p>
+          <p><strong>资料怎么看：</strong>API 网关处理统一接口、安全、限流、监控；注册中心像服务地址簿；客户端发现是调用方自己查地址，服务端发现是先到负载均衡器再转发。</p>
+          <p><strong>考试怎么写：</strong>多终端、微服务集成、统一接口时，写 API 网关；动态实例、扩容和健康检查时，写服务注册发现。</p>
+        </article>
+
+        <article class="concept-card">
+          <h3>10. 读写分离与复制延迟</h3>
+          <p><strong>一句话：</strong>读写分离是主库写、从库读；复制延迟是主库写完后，从库还没来得及同步。</p>
+          <p><strong>为什么出现：</strong>多数系统读多写少，把读请求分给从库能减轻主库压力。但复制不是瞬间完成，所以会出现刚写完读不到。</p>
+          <p><strong>资料怎么看：</strong>关键业务“写后读”要读主库；读从库失败再读主库；非关键读可以走从库。</p>
+          <p><strong>考试怎么写：</strong>支付、注册、订单状态这类关键链路，写完后的读操作必须读主库，不能盲目读从库。</p>
+        </article>
+
+        <article class="concept-card">
+          <h3>11. 分库分表</h3>
+          <p><strong>一句话：</strong>分库分表是把一个太大的库或表拆成多个库或表。</p>
+          <p><strong>为什么出现：</strong>数据量太大、索引太大、单实例吞吐到瓶颈时，单库单表会拖慢查询和写入。</p>
+          <p><strong>资料怎么看：</strong>垂直拆分按业务或字段拆，结构可能不同；水平拆分按行拆，结构相同但数据分散。拆完以后一定会遇到路由、事务、Join、排序分页、扩容迁移问题。</p>
+          <p><strong>考试怎么写：</strong>比较题写“垂直偏业务拆分，水平偏性能扩展”；设计题写“同组数据尽量同分片”。</p>
+        </article>
+
+        <article class="concept-card">
+          <h3>12. 缓存</h3>
+          <p><strong>一句话：</strong>缓存是把常用数据放到更快、更近的位置，减少后端压力。</p>
+          <p><strong>为什么出现：</strong>热点数据反复查数据库很浪费，缓存能减少 I/O 和数据库访问。</p>
+          <p><strong>资料怎么看：</strong>本地缓存快但不能共享；分布式缓存可共享；反向代理缓存离应用近；CDN 缓存离用户近。FIFO 看进入时间，LFU 看使用次数，LRU 看最近使用时间。</p>
+          <p><strong>考试怎么写：</strong>缓存问题要能解释一致性、穿透、并发、雪崩、热点；清理策略题记住 FIFO/LFU/LRU/过期时间。</p>
+        </article>
       </div>
     </section>
 
@@ -303,6 +415,7 @@
     <div class="layout">
       <aside class="toc" aria-label="复习导航">
         <p>复习导航</p>
+        <a href="#concepts">知识点讲解</a>
         <a href="#study">怎么读资料</a>
         <a href="#chain-map">链路对应关系</a>
         <a href="#chapter-chain">资料逐节导读</a>
