@@ -652,6 +652,37 @@ input:focus {
   gap: 6px;
 }
 
+.bao-tray {
+  display: inline-grid;
+  grid-template-columns: auto auto auto;
+  gap: 6px;
+  align-items: center;
+  min-height: 38px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+}
+
+.bao-label,
+.bao-note {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.bao-label {
+  color: var(--gold);
+}
+
+.bao-tile {
+  display: grid;
+  width: 25px;
+  height: 35px;
+  place-items: center;
+}
+
 .die {
   display: grid;
   width: 28px;

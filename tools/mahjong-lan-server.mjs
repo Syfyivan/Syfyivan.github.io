@@ -17,6 +17,7 @@ const contentTypes = {
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".png": "image/png",
   ".svg": "image/svg+xml; charset=utf-8"
 };
 
@@ -48,7 +49,13 @@ const variants = {
     label: "东北麻将",
     tileTypes: Array.from({ length: 34 }, (_, index) => index),
     allowChow: true,
-    rules: ["136 张，含东南西北中发白", "可吃、碰、杠、胡，吃牌仅下家", "基础胡牌判定，暂不加宝牌、混儿等地方扩展"]
+    usesBao: true,
+    rules: [
+      "136 张，含东南西北中发白",
+      "可吃、碰、杠、胡，吃牌仅下家",
+      "开局从牌山尾端扣 1 张作宝牌",
+      "未上听不可看宝，上听后摸到同名宝牌可摸宝胡"
+    ]
   }
 };
 
@@ -117,6 +124,7 @@ function makeRoom(code, options) {
     currentSeat: 0,
     turnDrawn: false,
     wall: [],
+    bao: null,
     dice: null,
     lastDiscard: null,
     discardHistory: [],
@@ -139,6 +147,8 @@ function makePlayer(id, name, seat, bot = false) {
     melds: [],
     discards: [],
     drawnTileId: null,
+    ting: false,
+    waitingTypes: [],
     peer: null
   };
 }
@@ -305,6 +315,60 @@ function canWinPlayer(player, extraTile) {
   return canWinTypes(types, player.melds.length);
 }
 
+function waitingTypes(room, player) {
+  const variant = variantFor(room);
+  const types = player.hand.map((tile) => tile.type);
+  return variant.tileTypes.filter((type) => {
+    if (types.filter((item) => item === type).length >= 4) {
+      return false;
+    }
+    return canWinTypes(types.concat(type), player.melds.length);
+  });
+}
+
+function refreshTing(room, player) {
+  if (room.phase !== "playing") {
+    player.ting = false;
+    player.waitingTypes = [];
+    return false;
+  }
+  const nextWaitingTypes = waitingTypes(room, player);
+  const wasTing = player.ting;
+  player.waitingTypes = nextWaitingTypes;
+  player.ting = nextWaitingTypes.length > 0;
+  if (!wasTing && player.ting) {
+    log(room, player.name + " 上听");
+  }
+  if (wasTing && !player.ting) {
+    log(room, player.name + " 退听");
+  }
+  return player.ting;
+}
+
+function roomUsesBao(room) {
+  return Boolean(variantFor(room).usesBao);
+}
+
+function setupBao(room) {
+  if (!roomUsesBao(room) || room.wall.length === 0) {
+    room.bao = null;
+    return;
+  }
+  const tile = room.wall.pop();
+  room.bao = {
+    tile,
+    type: tile.type
+  };
+}
+
+function isBaoDraw(room, player) {
+  if (!roomUsesBao(room) || !room.bao || !player.ting || !player.drawnTileId) {
+    return false;
+  }
+  const drawnTile = player.hand.find((tile) => tile.id === player.drawnTileId);
+  return Boolean(drawnTile && drawnTile.type === room.bao.type);
+}
+
 function chowOptions(hand, discardType) {
   if (discardType >= 27) {
     return [];
@@ -394,6 +458,15 @@ function buildSelfActions(room, player) {
       action: "hu",
       priority: 4,
       tiles: []
+    });
+  }
+
+  if (isBaoDraw(room, player)) {
+    actions.unshift({
+      id: "self-bao-hu",
+      action: "baoHu",
+      priority: 5,
+      tiles: [room.bao.type]
     });
   }
 
@@ -538,6 +611,7 @@ function startRound(room) {
   room.pending = null;
   room.dice = rollDice();
   room.wall = buildWall(room);
+  room.bao = null;
   room.events = [];
 
   room.players.forEach((player) => {
@@ -546,6 +620,8 @@ function startRound(room) {
     player.melds = [];
     player.discards = [];
     player.drawnTileId = null;
+    player.ting = false;
+    player.waitingTypes = [];
   });
 
   for (let count = 0; count < 13; count += 1) {
@@ -557,10 +633,14 @@ function startRound(room) {
   const dealerTile = room.wall.pop();
   dealer.hand.push(dealerTile);
   dealer.drawnTileId = dealerTile.id;
+  setupBao(room);
   room.players.forEach(sortHand);
   log(room, "第 " + room.round + " 局开始，" + dealer.name + " 坐庄");
   log(room, "骰子 " + room.dice.values.join(" + ") + " = " + room.dice.total);
   log(room, roomConfigLabel(room) + "，牌组 " + variantFor(room).tileTypes.length * 4 + " 张");
+  if (room.bao) {
+    log(room, "宝牌已从牌山尾端扣下，上听后可见");
+  }
   return true;
 }
 
@@ -578,10 +658,19 @@ function settleWin(room, winners, fromPlayer, tile) {
   }
 }
 
+function settleBaoWin(room, player) {
+  room.phase = "ended";
+  room.pending = null;
+  room.lastDiscard = null;
+  room.result = player.name + " 摸宝 " + tileName(room.bao.type);
+  log(room, room.result);
+}
+
 function advanceAfterDiscard(room, discard) {
   const fromPlayer = playerBySeat(room, discard.fromSeat);
   fromPlayer.discards.push(discard.tile);
   fromPlayer.drawnTileId = null;
+  refreshTing(room, fromPlayer);
   room.lastDiscard = null;
   room.pending = null;
   room.currentSeat = nextSeat(room, discard.fromSeat);
@@ -679,6 +768,12 @@ function runBotStep(room) {
     return;
   }
 
+  if (isBaoDraw(room, player)) {
+    settleBaoWin(room, player);
+    broadcast(room);
+    return;
+  }
+
   if (canWinPlayer(player)) {
     settleWin(room, [player], null, null);
     broadcast(room);
@@ -693,6 +788,7 @@ function runBotStep(room) {
   room.lastDiscard = { tile, fromSeat: player.seat };
   recordDiscard(room, room.lastDiscard);
   log(room, player.name + " 打出 " + tileName(tile.type));
+  refreshTing(room, player);
   startPendingOrAdvance(room, room.lastDiscard);
   broadcast(room);
 }
@@ -746,6 +842,8 @@ function resolvePending(room) {
   const player = winner.player;
   markDiscardClaimed(room, pending.discard, player, action.action);
   removeTilesByTypes(player, action.consume);
+  player.ting = false;
+  player.waitingTypes = [];
   player.melds.push({
     kind: action.action,
     tiles: action.tiles.slice().sort((a, b) => a - b),
@@ -787,6 +885,14 @@ function buildView(room, player) {
         "开局掷 2 骰用于桌面提示，本版不按骰子切牌墩"
       ])
     },
+    bao: roomUsesBao(room) && room.bao
+      ? {
+          enabled: true,
+          revealed: player.ting || room.phase === "ended",
+          type: player.ting || room.phase === "ended" ? room.bao.type : null,
+          label: player.ting || room.phase === "ended" ? tileName(room.bao.type) : "未上听不可见"
+        }
+      : null,
     phase: room.phase,
     round: room.round,
     dice: room.dice,
@@ -798,7 +904,9 @@ function buildView(room, player) {
       id: player.id,
       seat: player.seat,
       ready: player.ready,
-      drawnTileId: player.drawnTileId
+      drawnTileId: player.drawnTileId,
+      ting: player.ting,
+      waitingTypes: player.waitingTypes
     },
     players: room.players
       .slice()
@@ -813,6 +921,7 @@ function buildView(room, player) {
         handCount: item.hand.length,
         melds: item.melds,
         discards: item.discards,
+        ting: item.ting,
         drawnTileId: item.id === player.id ? item.drawnTileId : null,
         isSelf: item.id === player.id
       })),
@@ -874,6 +983,9 @@ function handleJoin(peer, message) {
       player.hand = [];
       player.melds = [];
       player.discards = [];
+      player.drawnTileId = null;
+      player.ting = false;
+      player.waitingTypes = [];
     } else {
       if (room.players.length === 0) {
         applyRoomConfig(room, requestedConfig);
@@ -990,6 +1102,7 @@ function handleDiscard(peer, message) {
   room.lastDiscard = { tile, fromSeat: player.seat };
   recordDiscard(room, room.lastDiscard);
   log(room, player.name + " 打出 " + tileName(tile.type));
+  refreshTing(room, player);
   startPendingOrAdvance(room, room.lastDiscard);
   broadcast(room);
 }
@@ -1004,6 +1117,11 @@ function handleSelfAction(peer, message) {
     sendJson(peer, { type: "error", message: "现在不能这样操作" });
     return;
   }
+  if (action.action === "baoHu") {
+    settleBaoWin(room, player);
+    broadcast(room);
+    return;
+  }
   if (action.action === "hu") {
     settleWin(room, [player], null, null);
     broadcast(room);
@@ -1011,6 +1129,8 @@ function handleSelfAction(peer, message) {
   }
   if (action.action === "kong") {
     removeTilesByTypes(player, action.consume);
+    player.ting = false;
+    player.waitingTypes = [];
     player.melds.push({
       kind: "kong",
       tiles: action.tiles.slice(),

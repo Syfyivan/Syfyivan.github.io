@@ -65,6 +65,7 @@
   var roundLabel = document.getElementById("roundLabel");
   var turnLabel = document.getElementById("turnLabel");
   var diceTray = document.getElementById("diceTray");
+  var baoTray = document.getElementById("baoTray");
   var lastDiscard = document.getElementById("lastDiscard");
   var discardRiver = document.getElementById("discardRiver");
   var claimBar = document.getElementById("claimBar");
@@ -491,6 +492,9 @@
     if (action.action === "hu") {
       return "胡";
     }
+    if (action.action === "baoHu") {
+      return "摸宝胡";
+    }
     if (action.action === "pong") {
       return "碰";
     }
@@ -541,7 +545,9 @@
       name.textContent = player.name + (player.isSelf ? "（我）" : "");
       var status = document.createElement("div");
       status.className = "player-state";
-      if (player.bot) {
+      if (view.phase === "playing") {
+        status.textContent = player.ting ? "已上听" : (player.bot ? "人机进行中" : "进行中");
+      } else if (player.bot) {
         status.textContent = "人机已就位";
       } else {
         status.textContent = player.connected ? (player.ready ? "已准备" : "未准备") : "离线";
@@ -571,7 +577,7 @@
     name.textContent = player.name;
     var count = document.createElement("div");
     count.className = "seat-count";
-    count.textContent = player.handCount + " 张";
+    count.textContent = player.ting ? "已上听" : player.handCount + " 张";
     header.append(name, count);
 
     var backs = document.createElement("div");
@@ -729,6 +735,7 @@
         diceTray.appendChild(die);
       });
     }
+    renderBao(view);
     if (view.phase === "ended") {
       turnLabel.innerHTML = "";
       var result = document.createElement("span");
@@ -745,6 +752,36 @@
     if (view.lastDiscard) {
       lastDiscard.appendChild(createTile(view.lastDiscard.tile.type, {}));
     }
+  }
+
+  function renderBao(view) {
+    baoTray.textContent = "";
+    baoTray.hidden = !view.bao;
+    if (!view.bao) {
+      return;
+    }
+
+    var label = document.createElement("span");
+    label.className = "bao-label";
+    label.textContent = "宝牌";
+
+    var tileWrap = document.createElement("div");
+    tileWrap.className = "bao-tile";
+    if (view.bao.revealed && typeof view.bao.type === "number") {
+      tileWrap.appendChild(createTile(view.bao.type, { mini: true }));
+    } else {
+      tileWrap.appendChild(createTileBack());
+    }
+
+    var note = document.createElement("span");
+    note.className = "bao-note";
+    if (view.bao.revealed) {
+      note.textContent = view.bao.label || tileMeta(view.bao.type).label;
+    } else {
+      note.textContent = "上听后可见";
+    }
+
+    baoTray.append(label, tileWrap, note);
   }
 
   function renderLog(view) {
