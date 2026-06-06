@@ -824,9 +824,13 @@
     var note = document.createElement("span");
     note.className = "bao-note";
     if (view.bao.revealed) {
-      note.textContent = view.bao.label || tileMeta(view.bao.type).label;
+      note.textContent = (view.bao.label || tileMeta(view.bao.type).label) +
+        (view.bao.visibleCount ? " · 公开" + view.bao.visibleCount + "/3" : "");
     } else {
       note.textContent = "上听后可见";
+    }
+    if (view.bao.dice && view.bao.dice.values) {
+      note.title = "看宝骰子：" + view.bao.dice.values.join(" + ") + " = " + view.bao.dice.total;
     }
 
     baoTray.append(label, tileWrap, note);
