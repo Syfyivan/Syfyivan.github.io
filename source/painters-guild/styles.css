@@ -572,6 +572,30 @@ button:disabled {
   transform: rotate(-9deg);
 }
 
+.station.is-easel.has-task .painter-token {
+  left: calc(6px + var(--painter-index) * 18px);
+  right: auto;
+  bottom: 4px;
+  z-index: 9;
+  transform: scale(0.62);
+  transform-origin: left bottom;
+}
+
+.station.is-easel.has-task .painter-token.is-painting {
+  animation: painterWorkSmall 0.72s steps(2, end) infinite;
+}
+
+.station.is-easel.has-task .painter-name-tag {
+  display: none;
+}
+
+.station.is-easel.has-task .painter-stat-bars {
+  left: -7px;
+  top: 7px;
+  transform: scale(0.72);
+  transform-origin: left top;
+}
+
 .painter-card h3 {
   margin: 0 0 4px;
   font-size: 16px;
@@ -880,6 +904,10 @@ button:disabled {
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
 }
 
+.station.is-rush .station-title b {
+  color: #ffd38a;
+}
+
 .station-title span {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -904,6 +932,12 @@ button:disabled {
   place-items: center;
   min-height: 82px;
   margin: 4px 0 2px;
+}
+
+.station.is-easel.has-task .station-art {
+  align-items: start;
+  min-height: 96px;
+  padding-top: 0;
 }
 
 .station:not(.is-empty) .station-art::before {
@@ -1181,6 +1215,15 @@ button:disabled {
   filter:
     drop-shadow(0 0 2px rgba(249, 239, 225, 0.16))
     drop-shadow(0 8px 0 rgba(0, 0, 0, 0.16));
+}
+
+.station.is-easel.has-task .painting-canvas {
+  transform: translateY(-34px) scale(1.18);
+  transform-origin: center top;
+}
+
+.station.is-easel.has-task .station-progress {
+  margin-top: -36px;
 }
 
 .painting-canvas::before {
@@ -1515,6 +1558,17 @@ button:disabled {
   }
 }
 
+@keyframes painterWorkSmall {
+  0%,
+  100% {
+    transform: translateX(-1px) rotate(-2deg) scale(0.62);
+  }
+
+  50% {
+    transform: translateX(2px) rotate(3deg) scale(0.62);
+  }
+}
+
 @keyframes painterMix {
   0%,
   100% {
@@ -1589,6 +1643,20 @@ button:disabled {
   background: rgba(31, 143, 134, 0.12);
 }
 
+.order-card.is-rush {
+  border-color: rgba(188, 75, 75, 0.56);
+  background:
+    linear-gradient(90deg, rgba(188, 75, 75, 0.14), transparent 46%),
+    rgba(255, 255, 255, 0.06);
+}
+
+.order-card.is-rush.is-active {
+  border-color: rgba(255, 174, 93, 0.58);
+  background:
+    linear-gradient(90deg, rgba(188, 75, 75, 0.14), transparent 46%),
+    rgba(31, 143, 134, 0.12);
+}
+
 .order-head {
   display: grid;
   grid-template-columns: 46px minmax(0, 1fr);
@@ -1615,6 +1683,15 @@ button:disabled {
   font-weight: 900;
 }
 
+.order-title b {
+  flex: 0 0 auto;
+  color: var(--gold);
+}
+
+.order-card.is-rush .order-title b {
+  color: #ffd38a;
+}
+
 .order-title span {
   min-width: 0;
   overflow: hidden;
@@ -1637,6 +1714,13 @@ button:disabled {
   color: var(--muted);
   background: rgba(0, 0, 0, 0.22);
   font-size: 12px;
+}
+
+.order-meta .is-rush-deadline {
+  color: #fff0cf;
+  border: 1px solid rgba(255, 174, 93, 0.34);
+  background: rgba(188, 75, 75, 0.3);
+  font-weight: 900;
 }
 
 .order-actions {

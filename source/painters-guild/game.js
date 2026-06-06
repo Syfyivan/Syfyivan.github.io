@@ -78,6 +78,9 @@ const INITIAL_STATIONS = [
 ];
 
 const PHASES = ["构图", "打底", "上色", "精修", "装裱"];
+const MONTH_DAYS = 30;
+const RUSH_DEADLINE_DAYS = 30;
+const RUSH_ORDER_RATE = 0.28;
 
 const els = {
   artCount: document.getElementById("artCountLabel"),
@@ -212,7 +215,12 @@ function makeOrder() {
   const style = Math.random() < 0.45 ? client.taste : randomItem(Object.keys(STYLE_LABELS));
   const trendBonus = style === activeTrend() ? 1.18 : 1;
   const difficulty = Math.floor(18 + state.prestige * 1.1 + Math.random() * 18);
-  const reward = Math.round((46 + difficulty * 1.9) * trendBonus);
+  const rush = Math.random() < RUSH_ORDER_RATE;
+  const deadline = rush
+    ? Math.round((10 + Math.random() * 19) * 10) / 10
+    : Math.round((36 + difficulty * 0.85 + Math.random() * 88) * 10) / 10;
+  const rushMultiplier = rush ? 1.75 + (RUSH_DEADLINE_DAYS - deadline) / RUSH_DEADLINE_DAYS : 1;
+  const reward = Math.round((76 + difficulty * 2.35) * trendBonus * rushMultiplier);
   const title = randomItem(ORDER_TITLES[style]);
   return {
     id: "o" + Date.now().toString(36) + Math.floor(Math.random() * 1000).toString(36),
@@ -221,7 +229,8 @@ function makeOrder() {
     title,
     style,
     difficulty,
-    deadline: Math.round(2.1 + Math.random() * 2.5 + difficulty / 55),
+    deadline,
+    rush,
     reward,
     prestige: Math.max(2, Math.round(difficulty / 15)),
     paintCost: Math.max(5, Math.round(difficulty / 5)),
@@ -322,7 +331,7 @@ function acceptOrder(orderId) {
   state.paint -= order.paintCost;
   const task = createTask(order, station.id);
   state.activeTasks.push(task);
-  addLog("承接《" + order.title + "》，放到" + station.label + "。");
+  addLog("承接" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》，放到" + station.label + "。");
 }
 
 function declineOrder(orderId) {
@@ -408,7 +417,7 @@ function stepGame(dt) {
     state.orderTimer = 0;
     const order = makeOrder();
     state.orders.push(order);
-    addLog(order.client + "送来《" + order.title + "》。");
+    addLog(order.client + "送来" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》。");
   }
 
   updatePainters(scaled);
@@ -845,6 +854,20 @@ function clampStat(value) {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
+function isRushOrder(order) {
+  return Boolean(order.rush) || order.deadline < RUSH_DEADLINE_DAYS;
+}
+
+function deadlineLabel(days) {
+  const safeDays = Math.max(0, Number(days) || 0);
+  if (safeDays >= MONTH_DAYS) return (safeDays / MONTH_DAYS).toFixed(1) + "个月";
+  return safeDays.toFixed(1) + "天";
+}
+
+function deadlineBadge(order) {
+  return (isRushOrder(order) ? "加急 · " : "") + deadlineLabel(order.deadline);
+}
+
 function assetPath(fileName) {
   return ASSET_ROOT + fileName;
 }
@@ -877,6 +900,7 @@ function renderRoom() {
         x +
         (station.type === "empty" ? " is-empty" : "") +
         (task ? " has-task" : "") +
+        (task && isRushOrder(task) ? " is-rush" : "") +
         (working ? " is-working" : "");
       stationEl.dataset.stationId = station.id;
       stationEl.dataset.stationType = station.type;
@@ -923,7 +947,7 @@ function stationMarkup(station, task, working = false) {
   const stationArt = task ? paintingMarkup(task, working) : stationAssetMarkup(station);
   return `
     <span class="station-label">
-      <span class="station-title"><span>${station.label}</span><b>${station.type === "easel" && task ? Math.round(task.deadline * 10) / 10 + "天" : ""}</b></span>
+      <span class="station-title"><span>${station.label}</span><b>${station.type === "easel" && task ? deadlineBadge(task) : ""}</b></span>
       <span class="station-subtitle">${subtitle}</span>
     </span>
     <span class="station-art">${stationArt}</span>
@@ -1029,16 +1053,17 @@ function renderOrders() {
 
   for (const order of items) {
     const card = document.createElement("article");
-    card.className = "order-card" + (order.status === "active" ? " is-active" : "");
+    const rush = isRushOrder(order);
+    card.className = "order-card" + (order.status === "active" ? " is-active" : "") + (rush ? " is-rush" : "");
     const active = order.status === "active";
     card.innerHTML = `
       <div class="order-head">
         <span class="commission-thumb" style="background:${artBackground(order)}"></span>
-        <div class="order-title"><span>${order.title}</span><b>${STYLE_LABELS[order.style]}</b></div>
+        <div class="order-title"><span>${order.title}</span><b>${rush ? "加急 · " : ""}${STYLE_LABELS[order.style]}</b></div>
       </div>
       <div class="order-meta">
         <span>${order.client}</span>
-        <span>${Math.max(0, order.deadline).toFixed(1)} 天</span>
+        <span class="${rush ? "is-rush-deadline" : ""}">${deadlineBadge(order)}</span>
         <span>${order.reward} 金币</span>
         <span>${order.paintCost} 颜料</span>
       </div>
@@ -1210,7 +1235,7 @@ function bindEvents() {
     if (sendOnline("new_order")) return;
     const order = makeOrder();
     state.orders.push(order);
-    addLog(order.client + "送来《" + order.title + "》。");
+    addLog(order.client + "送来" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》。");
   });
 
   els.pause.addEventListener("click", () => {

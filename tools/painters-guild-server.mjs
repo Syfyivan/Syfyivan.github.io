@@ -64,6 +64,8 @@ const INITIAL_STATIONS = [
 ];
 
 const PHASES = ["构图", "打底", "上色", "精修", "装裱"];
+const RUSH_DEADLINE_DAYS = 30;
+const RUSH_ORDER_RATE = 0.28;
 const rooms = new Map();
 
 function createInitialState(roomId) {
@@ -139,12 +141,21 @@ function randomItem(items) {
   return items[Math.floor(Math.random() * items.length)];
 }
 
+function isRushOrder(order) {
+  return Boolean(order.rush) || order.deadline < RUSH_DEADLINE_DAYS;
+}
+
 function makeOrder(state) {
   const client = randomItem(TOWN_CLIENTS);
   const style = Math.random() < 0.45 ? client.taste : randomItem(Object.keys(STYLE_LABELS));
   const trendBonus = style === activeTrend(state) ? 1.18 : 1;
   const difficulty = Math.floor(18 + state.prestige * 1.1 + Math.random() * 18);
-  const reward = Math.round((46 + difficulty * 1.9) * trendBonus);
+  const rush = Math.random() < RUSH_ORDER_RATE;
+  const deadline = rush
+    ? Math.round((10 + Math.random() * 19) * 10) / 10
+    : Math.round((36 + difficulty * 0.85 + Math.random() * 88) * 10) / 10;
+  const rushMultiplier = rush ? 1.75 + (RUSH_DEADLINE_DAYS - deadline) / RUSH_DEADLINE_DAYS : 1;
+  const reward = Math.round((76 + difficulty * 2.35) * trendBonus * rushMultiplier);
   const title = randomItem(ORDER_TITLES[style]);
   return {
     id: "o" + Date.now().toString(36) + Math.floor(Math.random() * 1000).toString(36),
@@ -153,7 +164,8 @@ function makeOrder(state) {
     title,
     style,
     difficulty,
-    deadline: Math.round(2.1 + Math.random() * 2.5 + difficulty / 55),
+    deadline,
+    rush,
     reward,
     prestige: Math.max(2, Math.round(difficulty / 15)),
     paintCost: Math.max(5, Math.round(difficulty / 5)),
@@ -223,7 +235,7 @@ function acceptOrder(state, orderId) {
   state.orders = state.orders.filter((item) => item.id !== orderId);
   state.paint -= order.paintCost;
   state.activeTasks.push(createTask(order, station.id));
-  addLog(state, "承接《" + order.title + "》，放到" + station.label + "。");
+  addLog(state, "承接" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》，放到" + station.label + "。");
 }
 
 function declineOrder(state, orderId) {
@@ -296,7 +308,7 @@ function stepGame(state, dt) {
     state.orderTimer = 0;
     const order = makeOrder(state);
     state.orders.push(order);
-    addLog(state, order.client + "送来《" + order.title + "》。");
+    addLog(state, order.client + "送来" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》。");
   }
 
   updatePainters(state, scaled);
