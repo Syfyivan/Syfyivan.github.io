@@ -11,8 +11,10 @@
   var roomInput = document.getElementById("roomInput");
   var nameInput = document.getElementById("nameInput");
   var serverInput = document.getElementById("serverInput");
+  var inviteInput = document.getElementById("inviteInput");
   var joinForm = document.getElementById("joinForm");
   var randomRoomButton = document.getElementById("randomRoomButton");
+  var applyInviteButton = document.getElementById("applyInviteButton");
   var lobbyPanel = document.getElementById("lobbyPanel");
   var lobbyNote = document.getElementById("lobbyNote");
   var gamePanel = document.getElementById("gamePanel");
@@ -81,6 +83,80 @@
     return code;
   }
 
+  function encodeInvitePayload(payload) {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(payload))))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/g, "");
+  }
+
+  function decodeInvitePayload(value) {
+    var normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+    while (normalized.length % 4) {
+      normalized += "=";
+    }
+    return JSON.parse(decodeURIComponent(escape(atob(normalized))));
+  }
+
+  function createInviteCode(room, server) {
+    return "MJ1-" + encodeInvitePayload({
+      room: String(room || "").toUpperCase(),
+      server: normalizeServerUrl(server)
+    });
+  }
+
+  function parseInviteCode(value) {
+    var raw = String(value || "").trim();
+    var maybeUrl;
+    if (!raw) {
+      throw new Error("请先粘贴邀请码");
+    }
+    try {
+      maybeUrl = new URL(raw);
+      raw = maybeUrl.searchParams.get("invite") || raw;
+    } catch (error) {
+      // Plain invite codes are expected most of the time.
+    }
+    raw = raw.replace(/\s+/g, "");
+
+    if (/^[A-Z0-9]{4,8}$/i.test(raw)) {
+      return { room: raw.toUpperCase(), server: serverInput.value };
+    }
+    if (!raw.toUpperCase().startsWith("MJ1-")) {
+      throw new Error("邀请码格式不对");
+    }
+
+    var payload = decodeInvitePayload(raw.slice(4));
+    return {
+      room: String(payload.room || payload.r || "").toUpperCase(),
+      server: normalizeServerUrl(payload.server || payload.s || "")
+    };
+  }
+
+  function applyInviteCode(value, autoConnect) {
+    var invite;
+    try {
+      invite = parseInviteCode(value);
+      if (!invite.room) {
+        throw new Error("邀请码缺少房号");
+      }
+    } catch (error) {
+      setNotice(error.message || "邀请码不可用");
+      return false;
+    }
+
+    roomInput.value = invite.room;
+    if (invite.server) {
+      serverInput.value = invite.server;
+    }
+    inviteInput.value = String(value || "").trim();
+    setNotice(autoConnect ? "使用邀请码连接中" : "已填入邀请码");
+    if (autoConnect) {
+      connect();
+    }
+    return true;
+  }
+
   function defaultServerUrl() {
     if (window.location.protocol === "file:") {
       return "ws://localhost:8787/mahjong/ws";
@@ -122,8 +198,12 @@
     nameInput.value = query.get("name") || profile.name || "玩家" + Math.floor(Math.random() * 90 + 10);
     roomInput.value = (query.get("room") || profile.room || randomRoomCode()).toUpperCase();
     serverInput.value = query.get("server") || profile.server || defaultServerUrl();
+    inviteInput.value = query.get("invite") || "";
     if (window.location.hostname.endsWith("github.io")) {
-      setNotice("联机请打开房主电脑的局域网页面");
+      setNotice("粘贴房主邀请码或打开房主局域网页面");
+    }
+    if (inviteInput.value) {
+      applyInviteCode(inviteInput.value, query.get("join") === "1" || query.get("autojoin") === "1");
     }
   }
 
@@ -167,6 +247,16 @@
 
     setNotice("连接中");
     connectionStatus.textContent = "连接中";
+
+    if (
+      window.location.protocol === "https:" &&
+      profile.server.indexOf("ws://") === 0 &&
+      !/^ws:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::|\/)/.test(profile.server)
+    ) {
+      connectionStatus.textContent = "连接受限";
+      setNotice("HTTPS 页面需要 wss 邀请码，或打开房主局域网页面");
+      return;
+    }
 
     var socket = new WebSocket(profile.server);
     state.socket = socket;
@@ -510,6 +600,12 @@
 
   randomRoomButton.addEventListener("click", function () {
     roomInput.value = randomRoomCode();
+    inviteInput.value = "";
+    setNotice("新房号已生成，房主先创建");
+  });
+
+  applyInviteButton.addEventListener("click", function () {
+    applyInviteCode(inviteInput.value, true);
   });
 
   readyButton.addEventListener("click", function () {
@@ -531,24 +627,29 @@
   copyRoomButton.addEventListener("click", function () {
     var view = state.view;
     var profile = loadProfile();
+    var room = view ? view.room : roomInput.value;
+    var server = profile.server || serverInput.value;
+    var inviteCode = createInviteCode(room, server);
     var pageUrl = new URL(window.location.href);
-    pageUrl.searchParams.set("room", view ? view.room : roomInput.value);
-    pageUrl.searchParams.set("server", profile.server || serverInput.value);
+    pageUrl.search = "";
+    pageUrl.searchParams.set("invite", inviteCode);
     var text = [
-      "房间：" + (view ? view.room : roomInput.value),
-      "服务器：" + (profile.server || serverInput.value),
+      "邀请码：" + inviteCode,
+      "房间：" + room,
+      "服务器：" + server,
       "页面：" + pageUrl.toString()
     ].join("\n");
+    inviteInput.value = inviteCode;
 
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(function () {
-        setNotice("已复制");
+        setNotice("已复制邀请码");
       });
     }
   });
 
   initForm();
-  if (getQuery().get("join") === "1" || getQuery().get("autojoin") === "1") {
+  if (!inviteInput.value && (getQuery().get("join") === "1" || getQuery().get("autojoin") === "1")) {
     setTimeout(connect, 0);
   }
 }());

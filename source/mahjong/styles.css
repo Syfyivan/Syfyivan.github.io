@@ -145,6 +145,16 @@ button:disabled {
   align-items: end;
 }
 
+.invite-panel {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
 label {
   display: grid;
   gap: 6px;
@@ -639,6 +649,7 @@ input:focus {
 
   .lobby-panel,
   .join-form,
+  .invite-panel,
   .game-layout {
     grid-template-columns: 1fr;
   }
