@@ -1,20 +1,20 @@
 :root {
   color-scheme: dark;
-  --bg: #171412;
-  --panel: #25201b;
-  --panel-2: #2f2922;
-  --paper: #f4dfb8;
-  --paper-dark: #d6bd8d;
-  --ink: #f9efe1;
-  --muted: #cdbfae;
-  --line: rgba(255, 255, 255, 0.14);
-  --terracotta: #bd6244;
-  --teal: #1f8f86;
-  --moss: #66854c;
-  --plum: #7d5d7e;
-  --gold: #d8a54b;
+  --bg: #121827;
+  --panel: #1d2433;
+  --panel-2: #273149;
+  --paper: #f6d89d;
+  --paper-dark: #d99b5f;
+  --ink: #f6f0df;
+  --muted: #b8c5d7;
+  --line: rgba(181, 205, 230, 0.18);
+  --terracotta: #c8684c;
+  --teal: #4bb4a2;
+  --moss: #8fbd68;
+  --plum: #a16ee8;
+  --gold: #f0b85b;
   --red: #bc4b4b;
-  --blue: #477da5;
+  --blue: #6da7d7;
   --shadow: rgba(0, 0, 0, 0.34);
 }
 
@@ -31,9 +31,7 @@ body {
   margin: 0;
   overflow: hidden;
   background:
-    radial-gradient(circle at 15% 10%, rgba(189, 98, 68, 0.18), transparent 32%),
-    radial-gradient(circle at 85% 0%, rgba(31, 143, 134, 0.16), transparent 30%),
-    linear-gradient(135deg, #171412, #242016 52%, #132421);
+    linear-gradient(180deg, #192236 0, #101725 58%, #0e1320 100%);
   color: var(--ink);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -92,7 +90,7 @@ button:disabled {
   align-items: center;
   min-height: 58px;
   padding: 10px 12px;
-  background: rgba(37, 32, 27, 0.92);
+  background: rgba(29, 36, 51, 0.94);
 }
 
 .brand {
@@ -112,8 +110,8 @@ button:disabled {
   height: 36px;
   place-items: center;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--gold), var(--terracotta));
-  color: #26140c;
+  background: linear-gradient(135deg, var(--gold), var(--teal));
+  color: #192236;
   font-weight: 950;
 }
 
@@ -203,7 +201,7 @@ button:disabled {
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(37, 32, 27, 0.88);
+  background: rgba(29, 36, 51, 0.9);
   box-shadow: 0 14px 42px var(--shadow);
 }
 
@@ -318,17 +316,17 @@ button:disabled {
   height: 52px;
   display: grid;
   place-items: center;
-  border-radius: 8px;
-  background: var(--face-color);
   background:
-    radial-gradient(circle at 50% 36%, rgba(255, 255, 255, 0.14), transparent 32%),
-    color-mix(in srgb, var(--face-color) 78%, #201610);
+    linear-gradient(180deg, rgba(246, 216, 157, 0.14), transparent 42%),
+    #151d2c;
+  border: 2px solid rgba(181, 205, 230, 0.18);
+  border-radius: 6px;
   box-shadow: inset 0 -4px rgba(0, 0, 0, 0.12);
 }
 
 .painter-face-img {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
   image-rendering: pixelated;
   filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.26));
@@ -336,8 +334,8 @@ button:disabled {
 
 .painter-token {
   --painter-color: var(--gold);
-  width: 38px;
-  height: 54px;
+  width: 34px;
+  height: 44px;
   position: absolute;
   right: calc(10px + var(--painter-index) * 23px);
   bottom: 12px;
@@ -355,20 +353,20 @@ button:disabled {
 
 .painter-sprite {
   position: absolute;
-  left: -4px;
-  bottom: 1px;
+  left: -2px;
+  bottom: 0;
   z-index: 4;
-  width: 48px;
-  height: 48px;
+  width: 38px;
+  height: 38px;
   object-fit: contain;
   image-rendering: pixelated;
   pointer-events: none;
   user-select: none;
   filter:
-    drop-shadow(0 0 2px rgba(249, 239, 225, 0.28))
+    drop-shadow(0 0 1px rgba(246, 240, 223, 0.18))
     drop-shadow(0 4px 0 rgba(0, 0, 0, 0.34))
-    brightness(1.08)
-    contrast(1.04);
+    brightness(1.03)
+    contrast(1.03);
 }
 
 .painter-token.role-finisher .painter-sprite,
@@ -536,7 +534,7 @@ button:disabled {
 }
 
 .painter-token.is-painting .painter-brush {
-  display: block;
+  display: none;
 }
 
 .painter-token.is-painting .painter-arm,
@@ -573,11 +571,11 @@ button:disabled {
 }
 
 .station.is-easel.has-task .painter-token {
-  left: calc(6px + var(--painter-index) * 18px);
+  left: calc(7px + var(--painter-index) * 16px);
   right: auto;
   bottom: 4px;
   z-index: 9;
-  transform: scale(0.62);
+  transform: scale(0.72);
   transform-origin: left bottom;
 }
 
@@ -592,7 +590,7 @@ button:disabled {
 .station.is-easel.has-task .painter-stat-bars {
   left: -7px;
   top: 7px;
-  transform: scale(0.72);
+  transform: scale(0.68);
   transform-origin: left top;
 }
 
@@ -696,15 +694,14 @@ button:disabled {
   min-height: 0;
   flex: 1;
   padding: 18px 18px 14px;
-  border: 5px solid #4b2d1d;
+  border: 5px solid #222b3d;
   border-radius: 8px;
   background:
-    linear-gradient(180deg, rgba(56, 33, 21, 0.82) 0 18px, transparent 18px),
-    radial-gradient(ellipse at 16% 20%, rgba(244, 223, 184, 0.13), transparent 22%),
-    radial-gradient(ellipse at 82% 18%, rgba(71, 125, 165, 0.1), transparent 22%),
-    linear-gradient(180deg, #be925f 0 10%, #9d7046 10% 12%, #765238 12% 61%, #5c3724 61% 66%, #926038 66% 100%);
+    linear-gradient(180deg, rgba(39, 49, 73, 0.96) 0 20px, transparent 20px),
+    linear-gradient(90deg, rgba(246, 216, 157, 0.08) 0 1px, transparent 1px 24px),
+    linear-gradient(180deg, #7d6370 0 11%, #596980 11% 14%, #334058 14% 61%, #293344 61% 66%, #806047 66% 100%);
   box-shadow:
-    inset 0 0 0 2px rgba(244, 223, 184, 0.12),
+    inset 0 0 0 2px rgba(181, 205, 230, 0.12),
     inset 0 -26px 36px rgba(0, 0, 0, 0.22);
   overflow: hidden;
 }
@@ -723,9 +720,9 @@ button:disabled {
   top: 16px;
   height: 46px;
   background:
-    linear-gradient(90deg, transparent 0 10%, rgba(74, 45, 31, 0.72) 10% 12%, transparent 12% 38%, rgba(74, 45, 31, 0.72) 38% 40%, transparent 40% 70%, rgba(74, 45, 31, 0.72) 70% 72%, transparent 72%),
-    linear-gradient(#6a402a, #4b2d1d);
-  border: 3px solid #3c2418;
+    linear-gradient(90deg, transparent 0 10%, rgba(21, 29, 44, 0.76) 10% 12%, transparent 12% 38%, rgba(21, 29, 44, 0.76) 38% 40%, transparent 40% 70%, rgba(21, 29, 44, 0.76) 70% 72%, transparent 72%),
+    linear-gradient(#66778f, #344158);
+  border: 3px solid #222b3d;
   border-radius: 0 0 5px 5px;
 }
 
@@ -735,9 +732,10 @@ button:disabled {
   bottom: 14px;
   height: 38%;
   background:
-    linear-gradient(180deg, rgba(124, 72, 39, 0.1), rgba(49, 29, 19, 0.34)),
-    url("./assets/freegamesprites/tavern/tavern-wood-floor.webp");
-  background-size: auto, 128px 128px;
+    linear-gradient(180deg, rgba(246, 216, 157, 0.1), rgba(27, 18, 15, 0.28)),
+    linear-gradient(90deg, rgba(36, 22, 16, 0.18) 0 2px, transparent 2px 28px),
+    linear-gradient(#9c704d, #76503c);
+  background-size: auto, 28px 100%, auto;
   background-blend-mode: normal, multiply;
   transform: skewX(-8deg);
   transform-origin: bottom;
@@ -755,13 +753,13 @@ button:disabled {
   min-height: 0;
   padding: 10px;
   border: 0;
-  border-right: 4px solid rgba(72, 42, 26, 0.56);
-  border-bottom: 5px solid rgba(72, 42, 26, 0.62);
+  border-right: 4px solid rgba(21, 29, 44, 0.55);
+  border-bottom: 5px solid rgba(21, 29, 44, 0.64);
   border-radius: 0;
   color: var(--ink);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 24%),
-    rgba(231, 184, 112, 0.035);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), transparent 24%),
+    rgba(109, 167, 215, 0.035);
   overflow: hidden;
 }
 
@@ -780,25 +778,25 @@ button:disabled {
 }
 
 .station.room-0 {
-  border-left: 5px solid rgba(72, 42, 26, 0.72);
+  border-left: 5px solid rgba(21, 29, 44, 0.75);
 }
 
 .station.floor-0 {
   background:
-    radial-gradient(ellipse at 50% 8%, rgba(244, 223, 184, 0.12), transparent 34%),
-    rgba(202, 156, 92, 0.08);
+    linear-gradient(180deg, rgba(246, 216, 157, 0.08), transparent 36%),
+    rgba(89, 105, 128, 0.12);
 }
 
 .station.floor-1 {
   background:
-    radial-gradient(ellipse at 20% 12%, rgba(31, 143, 134, 0.08), transparent 30%),
-    rgba(132, 86, 53, 0.12);
+    linear-gradient(180deg, rgba(75, 180, 162, 0.08), transparent 34%),
+    rgba(51, 64, 88, 0.16);
 }
 
 .station.floor-2 {
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.1), transparent 28%),
-    rgba(116, 70, 38, 0.24);
+    rgba(128, 96, 71, 0.28);
 }
 
 .station.floor-0.room-3::after,
@@ -960,17 +958,17 @@ button:disabled {
   pointer-events: none;
   user-select: none;
   filter:
-    drop-shadow(0 0 1px rgba(249, 239, 225, 0.18))
+    drop-shadow(0 0 1px rgba(246, 240, 223, 0.18))
     drop-shadow(0 5px 0 rgba(0, 0, 0, 0.2))
-    brightness(1.06)
+    brightness(1.04)
     contrast(1.04);
 }
 
 .station-asset {
   position: relative;
   display: block;
-  width: 96px;
-  height: 74px;
+  width: 76px;
+  height: 60px;
   filter: drop-shadow(0 9px 0 rgba(0, 0, 0, 0.12));
 }
 
@@ -981,89 +979,89 @@ button:disabled {
 
 .station-sprite {
   left: 50%;
-  bottom: 2px;
-  width: 92px;
-  height: 64px;
+  bottom: 8px;
+  width: 48px;
+  height: 48px;
   transform: translateX(-50%);
 }
 
 .station-prop {
   right: 0;
-  top: 0;
+  top: 3px;
   z-index: 2;
+  width: 36px;
+  height: 36px;
+}
+
+.station-asset.is-bed .station-sprite {
+  width: 58px;
+  height: 58px;
+}
+
+.station-asset.is-desk .station-sprite {
+  width: 42px;
+  height: 42px;
+}
+
+.station-asset.is-desk .station-prop {
+  right: 9px;
+  top: 1px;
+  width: 42px;
+  height: 42px;
+}
+
+.station-asset.is-mixer .station-sprite {
   width: 38px;
   height: 38px;
 }
 
-.station-asset.is-bed .station-sprite {
-  width: 108px;
-  height: 66px;
-}
-
-.station-asset.is-desk .station-sprite {
-  width: 102px;
-  height: 58px;
-}
-
-.station-asset.is-desk .station-prop {
-  right: 2px;
-  top: -7px;
-  width: 38px;
-  height: 56px;
-}
-
-.station-asset.is-mixer .station-sprite {
-  width: 112px;
-  height: 62px;
-}
-
 .station-asset.is-mixer .station-prop {
-  left: 4px;
+  left: 10px;
   right: auto;
-  top: 26px;
-  width: 42px;
-  height: 42px;
+  top: 16px;
+  width: 34px;
+  height: 34px;
 }
 
 .station-asset.is-storage .station-sprite {
-  width: 82px;
-  height: 76px;
+  width: 48px;
+  height: 48px;
 }
 
 .station-asset.is-storage .station-prop {
-  right: -4px;
-  top: 0;
-  width: 52px;
-  height: 28px;
+  right: 8px;
+  top: 5px;
+  width: 36px;
+  height: 36px;
 }
 
 .station-asset.is-gallery .station-sprite {
-  left: 40%;
-  bottom: 21px;
+  left: 39%;
+  bottom: 13px;
   width: 38px;
-  height: 44px;
+  height: 38px;
 }
 
 .station-asset.is-gallery .station-prop {
-  right: 13px;
-  top: 11px;
-  width: 42px;
-  height: 42px;
+  right: 12px;
+  top: 9px;
+  width: 36px;
+  height: 36px;
 }
 
 .station-asset.is-door .station-sprite {
   left: 52%;
-  bottom: 6px;
-  width: 56px;
-  height: 62px;
+  bottom: 8px;
+  width: 50px;
+  height: 50px;
 }
 
 .station-asset.is-door .station-prop {
-  left: 5px;
+  left: 8px;
   right: auto;
-  top: 6px;
-  width: 46px;
-  height: 52px;
+  top: 9px;
+  width: 34px;
+  height: 34px;
 }
 
 .pixel-easel,
@@ -1218,12 +1216,12 @@ button:disabled {
 }
 
 .station.is-easel.has-task .painting-canvas {
-  transform: translateY(-34px) scale(1.18);
+  transform: translateY(-13px) scale(1.06);
   transform-origin: center top;
 }
 
 .station.is-easel.has-task .station-progress {
-  margin-top: -36px;
+  margin-top: -14px;
 }
 
 .painting-canvas::before {
@@ -1233,9 +1231,9 @@ button:disabled {
   right: 24px;
   bottom: 0;
   height: 30px;
-  border-left: 5px solid #6d442b;
-  border-right: 5px solid #6d442b;
-  border-bottom: 5px solid #6d442b;
+  border-left: 5px solid #533c34;
+  border-right: 5px solid #533c34;
+  border-bottom: 5px solid #533c34;
   transform: skewX(-13deg);
   z-index: 0;
 }
@@ -1247,7 +1245,7 @@ button:disabled {
   top: 2px;
   width: 62px;
   height: 52px;
-  border: 5px solid #6d442b;
+  border: 5px solid #533c34;
   border-radius: 4px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.78), transparent 34%),
@@ -1454,15 +1452,7 @@ button:disabled {
 }
 
 .brush-sprite {
-  left: 69px;
-  top: 23px;
-  z-index: 6;
-  width: 26px;
-  height: 8px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #5b3328 0 62%, var(--paint-a) 62%);
-  transform: rotate(-24deg);
-  opacity: 0;
+  display: none;
 }
 
 .brush-sprite::after {
@@ -1477,8 +1467,7 @@ button:disabled {
 }
 
 .painting-canvas.is-working .brush-sprite {
-  opacity: 1;
-  animation: brushMove 0.92s ease-in-out infinite;
+  display: none;
 }
 
 .station-progress {
@@ -1561,11 +1550,11 @@ button:disabled {
 @keyframes painterWorkSmall {
   0%,
   100% {
-    transform: translateX(-1px) rotate(-2deg) scale(0.62);
+    transform: translateX(-1px) rotate(-2deg) scale(0.72);
   }
 
   50% {
-    transform: translateX(2px) rotate(3deg) scale(0.62);
+    transform: translateX(2px) rotate(3deg) scale(0.72);
   }
 }
 

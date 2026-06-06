@@ -10,7 +10,15 @@ Imported assets:
 - License: CC0 / public domain
 - Retrieved: 2026-06-06
 
+- Source: Kenney Tiny Dungeon 1.0
+- URL: https://kenney.nl/assets/tiny-dungeon
+- License: Creative Commons Zero (CC0)
+- Retrieved: 2026-06-07
+
 Local files under `freegamesprites/tavern/` are copied from FreeGameSprites
 sprite image URLs for use in the blog-hosted prototype. Attribution is not
 required by CC0, but the source is recorded here so the art path stays
 auditable.
+
+Local files under `kenney-tiny-dungeon/` are copied from Kenney's Tiny Dungeon
+zip package. The included `License.txt` is retained next to the tiles.

@@ -19,22 +19,22 @@ const ROLE_DATA = {
   social: { label: "社交画家", phase: "交付", color: "#7d5d7e" }
 };
 
-const ASSET_ROOT = "./assets/freegamesprites/tavern/";
+const ASSET_ROOT = "./assets/kenney-tiny-dungeon/Tiles/";
 
 const PAINTER_ASSETS = {
-  p1: "tavern-bard.webp",
-  p2: "tavern-bartender.webp",
-  p3: "tavern-tavern-wench.webp",
-  p4: "tavern-hooded-stranger.webp"
+  p1: "tile_0061.png",
+  p2: "tile_0074.png",
+  p3: "tile_0075.png",
+  p4: "tile_0060.png"
 };
 
 const STATION_ASSETS = {
-  bed: { base: "tavern-bed-double.webp" },
-  desk: { base: "tavern-long-table.webp", prop: "tavern-bookshelf.webp" },
-  door: { base: "village-sign.webp", prop: "tavern-window-shuttered.webp" },
-  gallery: { base: "wanted-poster-wall.webp", prop: "tavern-dartboard.webp" },
-  mixer: { base: "tavern-bar-counter.webp", prop: "market-barrel-tap.webp" },
-  storage: { base: "tavern-storage-cabinet.webp", prop: "tavern-wall-shelf.webp" }
+  bed: { base: "tile_0072.png" },
+  desk: { base: "tile_0066.png", prop: "tile_0074.png" },
+  door: { base: "tile_0045.png", prop: "tile_0046.png" },
+  gallery: { base: "tile_0089.png", prop: "tile_0101.png" },
+  mixer: { base: "tile_0113.png", prop: "tile_0114.png" },
+  storage: { base: "tile_0063.png", prop: "tile_0090.png" }
 };
 
 const TOWN_CLIENTS = [
@@ -182,7 +182,7 @@ function createPainter(id, name, role, stationId) {
     fatigue: role === "social" ? 10 : 14,
     mood: 72,
     mode: "steady",
-    action: "idle"
+    action: defaultActionForStationId(stationId)
   };
 }
 
@@ -285,6 +285,35 @@ function taskAtStation(stationId) {
   return state.activeTasks.find((task) => task.stationId === stationId);
 }
 
+function defaultActionForStation(station, task = null) {
+  if (!station) return "idle";
+  if (station.type === "easel") return task ? "painting" : "practicing";
+  if (station.type === "bed") return "resting";
+  if (station.type === "mixer") return "mixing";
+  if (station.type === "desk") return "studying";
+  if (station.type === "door") return "receiving";
+  if (station.type === "gallery") return "curating";
+  if (station.type === "storage") return "sorting";
+  return "idle";
+}
+
+function defaultActionForStationId(stationId) {
+  const station = INITIAL_STATIONS.find((item) => item.id === stationId);
+  return defaultActionForStation(station);
+}
+
+function syncPainterAction(painter) {
+  const station = stationById(painter.stationId);
+  const task = station?.type === "easel" ? taskAtStation(station.id) : null;
+  painter.action = defaultActionForStation(station, task);
+}
+
+function syncPaintersAtStation(stationId) {
+  state.painters
+    .filter((painter) => painter.stationId === stationId)
+    .forEach(syncPainterAction);
+}
+
 function freeEasel() {
   return state.stations.find((station) => station.type === "easel" && !taskAtStation(station.id));
 }
@@ -300,17 +329,7 @@ function assignPainterToStation(stationId) {
   if (!painter || !station || station.type === "empty") return;
 
   painter.stationId = station.id;
-  if (station.type === "easel") {
-    painter.action = taskAtStation(station.id) ? "painting" : "idle";
-  } else if (station.type === "bed") {
-    painter.action = "resting";
-  } else if (station.type === "mixer") {
-    painter.action = "mixing";
-  } else if (station.type === "desk") {
-    painter.action = "studying";
-  } else {
-    painter.action = "idle";
-  }
+  syncPainterAction(painter);
   addLog(painter.name + "前往" + station.label + "。");
 }
 
@@ -331,6 +350,7 @@ function acceptOrder(orderId) {
   state.paint -= order.paintCost;
   const task = createTask(order, station.id);
   state.activeTasks.push(task);
+  syncPaintersAtStation(station.id);
   addLog("承接" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》，放到" + station.label + "。");
 }
 
@@ -457,10 +477,21 @@ function updatePainters(dt) {
     if (station.type === "easel" && painter.action === "painting") {
       const task = taskAtStation(station.id);
       if (!task) {
-        painter.action = "idle";
+        painter.action = "practicing";
         continue;
       }
       updatePainting(painter, task, dt);
+    }
+
+    if (station.type === "easel" && painter.action === "practicing") {
+      const task = taskAtStation(station.id);
+      if (task) {
+        painter.action = "painting";
+        updatePainting(painter, task, dt);
+      } else {
+        painter.skill = Math.min(100, painter.skill + dt * 0.035);
+        painter.fatigue = Math.min(100, painter.fatigue + dt * 0.35);
+      }
     }
   }
 
@@ -536,7 +567,7 @@ function completeTask(task) {
   state.painters
     .filter((painter) => painter.stationId === task.stationId)
     .forEach((painter) => {
-      painter.action = "idle";
+      syncPainterAction(painter);
       painter.mood = Math.min(100, painter.mood + 8);
     });
   addLog("《" + task.title + "》交付到" + task.place + "，收入 " + reward + "。");
@@ -548,7 +579,7 @@ function failTask(task) {
   state.painters
     .filter((painter) => painter.stationId === task.stationId)
     .forEach((painter) => {
-      painter.action = "idle";
+      syncPainterAction(painter);
       painter.mood = Math.max(10, painter.mood - 10);
   });
   addLog("《" + task.title + "》错过了期限。");
@@ -844,9 +875,13 @@ function renderPainters() {
 
 function actionLabel(painter) {
   if (painter.action === "painting") return MODE_LABELS[painter.mode];
+  if (painter.action === "practicing") return "练习";
   if (painter.action === "resting") return "休息";
   if (painter.action === "mixing") return "调色";
   if (painter.action === "studying") return "学习";
+  if (painter.action === "receiving") return "接待";
+  if (painter.action === "curating") return "布展";
+  if (painter.action === "sorting") return "整理";
   return "待命";
 }
 
@@ -962,7 +997,7 @@ function stationAssetMarkup(station) {
 
   const config = { ...baseAsset };
   if (station.type === "bed" && station.id.includes("2")) {
-    config.base = "tavern-bed-single.webp";
+    config.base = "tile_0072.png";
   }
 
   const prop = config.prop ? assetImage(config.prop, "asset-sprite station-prop") : "";

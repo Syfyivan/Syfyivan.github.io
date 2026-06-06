@@ -124,7 +124,7 @@ function createPainter(id, name, role, stationId) {
     fatigue: role === "social" ? 10 : 14,
     mood: 72,
     mode: "steady",
-    action: "idle"
+    action: defaultActionForStationId(stationId)
   };
 }
 
@@ -197,6 +197,35 @@ function taskAtStation(state, stationId) {
   return state.activeTasks.find((task) => task.stationId === stationId);
 }
 
+function defaultActionForStation(station, task = null) {
+  if (!station) return "idle";
+  if (station.type === "easel") return task ? "painting" : "practicing";
+  if (station.type === "bed") return "resting";
+  if (station.type === "mixer") return "mixing";
+  if (station.type === "desk") return "studying";
+  if (station.type === "door") return "receiving";
+  if (station.type === "gallery") return "curating";
+  if (station.type === "storage") return "sorting";
+  return "idle";
+}
+
+function defaultActionForStationId(stationId) {
+  const station = INITIAL_STATIONS.find((item) => item.id === stationId);
+  return defaultActionForStation(station);
+}
+
+function syncPainterAction(state, painter) {
+  const station = stationById(state, painter.stationId);
+  const task = station?.type === "easel" ? taskAtStation(state, station.id) : null;
+  painter.action = defaultActionForStation(station, task);
+}
+
+function syncPaintersAtStation(state, stationId) {
+  state.painters
+    .filter((painter) => painter.stationId === stationId)
+    .forEach((painter) => syncPainterAction(state, painter));
+}
+
 function freeEasel(state) {
   return state.stations.find((station) => station.type === "easel" && !taskAtStation(state, station.id));
 }
@@ -211,17 +240,7 @@ function assignPainterToStation(state, painterId, stationId) {
   if (!painter || !station || station.type === "empty") return;
 
   painter.stationId = station.id;
-  if (station.type === "easel") {
-    painter.action = taskAtStation(state, station.id) ? "painting" : "idle";
-  } else if (station.type === "bed") {
-    painter.action = "resting";
-  } else if (station.type === "mixer") {
-    painter.action = "mixing";
-  } else if (station.type === "desk") {
-    painter.action = "studying";
-  } else {
-    painter.action = "idle";
-  }
+  syncPainterAction(state, painter);
   addLog(state, painter.name + "前往" + station.label + "。");
 }
 
@@ -235,6 +254,7 @@ function acceptOrder(state, orderId) {
   state.orders = state.orders.filter((item) => item.id !== orderId);
   state.paint -= order.paintCost;
   state.activeTasks.push(createTask(order, station.id));
+  syncPaintersAtStation(state, station.id);
   addLog(state, "承接" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》，放到" + station.label + "。");
 }
 
@@ -348,9 +368,20 @@ function updatePainters(state, dt) {
     if (station.type === "easel" && painter.action === "painting") {
       const task = taskAtStation(state, station.id);
       if (!task) {
-        painter.action = "idle";
+        painter.action = "practicing";
       } else {
         updatePainting(state, painter, task, dt);
+      }
+    }
+
+    if (station.type === "easel" && painter.action === "practicing") {
+      const task = taskAtStation(state, station.id);
+      if (task) {
+        painter.action = "painting";
+        updatePainting(state, painter, task, dt);
+      } else {
+        painter.skill = Math.min(100, painter.skill + dt * 0.035);
+        painter.fatigue = Math.min(100, painter.fatigue + dt * 0.35);
       }
     }
   }
@@ -424,7 +455,7 @@ function completeTask(state, task) {
   state.painters
     .filter((painter) => painter.stationId === task.stationId)
     .forEach((painter) => {
-      painter.action = "idle";
+      syncPainterAction(state, painter);
       painter.mood = Math.min(100, painter.mood + 8);
     });
   addLog(state, "《" + task.title + "》交付到" + task.place + "，收入 " + reward + "。");
@@ -436,7 +467,7 @@ function failTask(state, task) {
   state.painters
     .filter((painter) => painter.stationId === task.stationId)
     .forEach((painter) => {
-      painter.action = "idle";
+      syncPainterAction(state, painter);
       painter.mood = Math.max(10, painter.mood - 10);
     });
   addLog(state, "《" + task.title + "》错过了期限。");
