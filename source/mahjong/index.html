@@ -29,7 +29,7 @@
               <input id="nameInput" name="name" type="text" maxlength="16" autocomplete="nickname" required />
             </label>
             <label>
-              <span>房间</span>
+              <span>房号</span>
               <input id="roomInput" name="room" type="text" maxlength="8" autocapitalize="characters" required />
             </label>
             <label>
@@ -37,11 +37,11 @@
               <input id="serverInput" name="server" type="text" inputmode="url" autocomplete="off" required />
             </label>
             <div class="form-actions">
-              <button class="primary-button" type="submit">入座</button>
-              <button class="ghost-button" type="button" id="randomRoomButton">换房号</button>
+              <button class="primary-button" type="submit">创建/加入</button>
+              <button class="ghost-button" type="button" id="randomRoomButton">新房号</button>
             </div>
           </form>
-          <div class="lobby-note" id="lobbyNote">等待连接</div>
+          <div class="lobby-note" id="lobbyNote">房主先生成房号</div>
         </section>
 
         <section class="game-layout" id="gamePanel" aria-label="牌桌" hidden>
@@ -61,6 +61,7 @@
             <div class="player-list" id="playerList"></div>
             <div class="room-actions">
               <button class="ghost-button" type="button" id="readyButton">准备</button>
+              <button class="ghost-button" type="button" id="addBotButton">补人机</button>
               <button class="primary-button" type="button" id="startButton" disabled>开局</button>
               <button class="ghost-button" type="button" id="newRoundButton" hidden>再来</button>
             </div>

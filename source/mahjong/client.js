@@ -23,6 +23,7 @@
   var copyRoomButton = document.getElementById("copyRoomButton");
   var playerList = document.getElementById("playerList");
   var readyButton = document.getElementById("readyButton");
+  var addBotButton = document.getElementById("addBotButton");
   var startButton = document.getElementById("startButton");
   var newRoundButton = document.getElementById("newRoundButton");
   var eventLog = document.getElementById("eventLog");
@@ -84,6 +85,9 @@
     if (window.location.protocol === "file:") {
       return "ws://localhost:8787/mahjong/ws";
     }
+    if (window.location.hostname.endsWith("github.io")) {
+      return "ws://localhost:8787/mahjong/ws";
+    }
     var protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     return protocol + "//" + window.location.host + "/mahjong/ws";
   }
@@ -118,6 +122,9 @@
     nameInput.value = query.get("name") || profile.name || "玩家" + Math.floor(Math.random() * 90 + 10);
     roomInput.value = (query.get("room") || profile.room || randomRoomCode()).toUpperCase();
     serverInput.value = query.get("server") || profile.server || defaultServerUrl();
+    if (window.location.hostname.endsWith("github.io")) {
+      setNotice("联机请打开房主电脑的局域网页面");
+    }
   }
 
   function setNotice(text) {
@@ -194,14 +201,22 @@
     socket.addEventListener("close", function () {
       connectionStatus.textContent = "已断开";
       if (!state.manualClose) {
-        setNotice("连接断开");
+        if (window.location.hostname.endsWith("github.io")) {
+          setNotice("GitHub Pages 不运行房间服务器");
+        } else {
+          setNotice("连接断开");
+        }
         state.reconnectTimer = setTimeout(connect, 1800);
       }
     });
 
     socket.addEventListener("error", function () {
       connectionStatus.textContent = "连接失败";
-      setNotice("连接失败");
+      if (window.location.hostname.endsWith("github.io")) {
+        setNotice("请使用 npm run mahjong:lan 打印的地址");
+      } else {
+        setNotice("连接失败");
+      }
     });
   }
 
@@ -299,6 +314,7 @@
     view.players.forEach(function (player) {
       var item = document.createElement("div");
       item.className = "player-item";
+      item.dataset.bot = player.bot ? "true" : "false";
 
       var dot = document.createElement("div");
       dot.className = "seat-dot";
@@ -310,7 +326,11 @@
       name.textContent = player.name + (player.isSelf ? "（我）" : "");
       var status = document.createElement("div");
       status.className = "player-state";
-      status.textContent = player.connected ? (player.ready ? "已准备" : "未准备") : "离线";
+      if (player.bot) {
+        status.textContent = "人机已就位";
+      } else {
+        status.textContent = player.connected ? (player.ready ? "已准备" : "未准备") : "离线";
+      }
       text.append(name, status);
 
       var count = document.createElement("div");
@@ -471,6 +491,7 @@
     activeRoomLabel.textContent = view.room;
     readyButton.textContent = view.player.ready ? "取消准备" : "准备";
     readyButton.disabled = view.phase === "playing";
+    addBotButton.disabled = !view.canAddBot;
     startButton.disabled = !view.canStart;
     newRoundButton.hidden = view.phase !== "ended";
 
@@ -493,6 +514,10 @@
 
   readyButton.addEventListener("click", function () {
     send({ type: "ready" });
+  });
+
+  addBotButton.addEventListener("click", function () {
+    send({ type: "addBot" });
   });
 
   startButton.addEventListener("click", function () {

@@ -314,6 +314,10 @@ input:focus {
   font-weight: 900;
 }
 
+.player-item[data-bot="true"] .seat-dot {
+  background: var(--gold);
+}
+
 .player-name {
   overflow: hidden;
   color: var(--text);

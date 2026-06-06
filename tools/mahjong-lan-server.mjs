@@ -21,6 +21,7 @@ const contentTypes = {
 };
 
 const suits = ["万", "筒", "条"];
+const botNames = ["牌搭子一号", "牌搭子二号", "牌搭子三号"];
 
 function tileName(type) {
   return String((type % 9) + 1) + suits[Math.floor(type / 9)];
@@ -57,9 +58,33 @@ function makeRoom(code) {
     wall: [],
     lastDiscard: null,
     pending: null,
+    botTimer: null,
     result: "",
     events: ["房间已创建"]
   };
+}
+
+function makePlayer(id, name, seat, bot = false) {
+  return {
+    id,
+    name,
+    seat,
+    bot,
+    connected: bot,
+    ready: bot,
+    hand: [],
+    melds: [],
+    discards: [],
+    peer: null
+  };
+}
+
+function isBot(player) {
+  return Boolean(player && player.bot);
+}
+
+function connectedOrBot(player) {
+  return isBot(player) || player.connected;
 }
 
 function getRoom(code) {
@@ -340,9 +365,65 @@ function canStartRound(room) {
   return (
     room.phase !== "playing" &&
     room.players.length === 3 &&
-    room.players.every((player) => player.connected) &&
-    (room.players.every((player) => player.ready) || room.phase === "ended")
+    room.players.every(connectedOrBot) &&
+    (room.players.every((player) => player.ready || isBot(player)) || room.phase === "ended")
   );
+}
+
+function nextBotName(room) {
+  const usedNames = new Set(room.players.map((player) => player.name));
+  return botNames.find((name) => !usedNames.has(name)) || "牌搭子" + (room.players.length + 1);
+}
+
+function addBot(room) {
+  if (room.phase === "playing" || room.players.length >= 3) {
+    return false;
+  }
+  const bot = makePlayer("bot-" + room.code + "-" + randomUUID(), nextBotName(room), room.players.length, true);
+  room.players.push(bot);
+  log(room, bot.name + " 补位入座");
+  return true;
+}
+
+function tileKeepScore(hand, tile) {
+  const type = tile.type;
+  const same = countType(hand, type);
+  const rank = type % 9;
+  const suitStart = type - rank;
+  let score = same * 3;
+
+  [-2, -1, 1, 2].forEach((offset) => {
+    const nextType = type + offset;
+    if (nextType >= suitStart && nextType < suitStart + 9) {
+      score += countType(hand, nextType);
+    }
+  });
+  if (rank === 0 || rank === 8) {
+    score -= 1;
+  }
+  return score;
+}
+
+function chooseBotDiscard(player) {
+  return player.hand
+    .map((tile) => ({ tile, score: tileKeepScore(player.hand, tile) }))
+    .sort((a, b) => a.score - b.score || a.tile.type - b.tile.type)[0].tile;
+}
+
+function chooseBotClaimAction(actions) {
+  const win = actions.find((action) => action.action === "hu");
+  if (win) {
+    return win;
+  }
+  const strong = actions.find((action) => action.action === "kong" || action.action === "pong");
+  if (strong && Math.random() < 0.45) {
+    return strong;
+  }
+  const chow = actions.find((action) => action.action === "chow");
+  if (chow && Math.random() < 0.25) {
+    return chow;
+  }
+  return null;
 }
 
 function startRound(room) {
@@ -414,6 +495,80 @@ function startPendingOrAdvance(room, discard) {
     actionsByPlayer,
     responses: new Map()
   };
+}
+
+function hasBotWork(room) {
+  if (room.phase !== "playing") {
+    return false;
+  }
+  if (room.pending) {
+    return Array.from(room.pending.actionsByPlayer.keys()).some((playerId) => {
+      const player = room.players.find((candidate) => candidate.id === playerId);
+      return isBot(player) && !room.pending.responses.has(playerId);
+    });
+  }
+  return isBot(currentPlayer(room));
+}
+
+function scheduleBotStep(room) {
+  if (room.botTimer || !hasBotWork(room)) {
+    return;
+  }
+  room.botTimer = setTimeout(() => {
+    room.botTimer = null;
+    runBotStep(room);
+  }, 650);
+}
+
+function runBotStep(room) {
+  if (room.phase !== "playing") {
+    return;
+  }
+
+  if (room.pending) {
+    Array.from(room.pending.actionsByPlayer.entries()).forEach(([playerId, actions]) => {
+      const player = room.players.find((candidate) => candidate.id === playerId);
+      if (!isBot(player) || room.pending.responses.has(playerId)) {
+        return;
+      }
+      room.pending.responses.set(playerId, {
+        player,
+        action: chooseBotClaimAction(actions)
+      });
+    });
+    resolvePending(room);
+    broadcast(room);
+    return;
+  }
+
+  const player = currentPlayer(room);
+  if (!isBot(player)) {
+    return;
+  }
+
+  if (!room.turnDrawn) {
+    const tile = drawTile(room, player);
+    if (tile) {
+      log(room, player.name + " 摸牌");
+    }
+    broadcast(room);
+    return;
+  }
+
+  if (canWinPlayer(player)) {
+    settleWin(room, [player], null, null);
+    broadcast(room);
+    return;
+  }
+
+  const tile = chooseBotDiscard(player);
+  const index = player.hand.findIndex((candidate) => candidate.id === tile.id);
+  player.hand.splice(index, 1);
+  room.turnDrawn = false;
+  room.lastDiscard = { tile, fromSeat: player.seat };
+  log(room, player.name + " 打出 " + tileName(tile.type));
+  startPendingOrAdvance(room, room.lastDiscard);
+  broadcast(room);
 }
 
 function responseDistance(fromSeat, seat) {
@@ -505,8 +660,9 @@ function buildView(room, player) {
         id: item.id,
         name: item.name,
         seat: item.seat,
-        connected: item.connected,
+        connected: connectedOrBot(item),
         ready: item.ready,
+        bot: item.bot,
         handCount: item.hand.length,
         melds: item.melds,
         discards: item.discards,
@@ -516,6 +672,7 @@ function buildView(room, player) {
     selfMelds: player.melds,
     lastDiscard: room.lastDiscard,
     canStart: canStartRound(room) && player.seat === 0,
+    canAddBot: room.phase !== "playing" && room.players.length < 3 && player.seat === 0,
     canDraw,
     canDiscard,
     selfActions,
@@ -537,6 +694,7 @@ function broadcast(room) {
       });
     }
   });
+  scheduleBotStep(room);
 }
 
 function handleJoin(peer, message) {
@@ -547,25 +705,21 @@ function handleJoin(peer, message) {
 
   if (!player) {
     if (room.players.length >= 3) {
-      const replaceable = room.phase === "lobby" ? room.players.find((candidate) => !candidate.connected) : null;
+      const replaceable =
+        room.phase === "lobby" ? room.players.find((candidate) => isBot(candidate) || !candidate.connected) : null;
       if (!replaceable) {
         sendJson(peer, { type: "error", message: "房间已满" });
         return;
       }
       player = replaceable;
       player.id = requestedId;
+      player.bot = false;
+      player.ready = false;
+      player.hand = [];
+      player.melds = [];
+      player.discards = [];
     } else {
-      player = {
-        id: requestedId,
-        name,
-        seat: room.players.length,
-        connected: false,
-        ready: false,
-        hand: [],
-        melds: [],
-        discards: [],
-        peer: null
-      };
+      player = makePlayer(requestedId, name, room.players.length);
       room.players.push(player);
     }
   }
@@ -601,6 +755,22 @@ function handleReady(peer) {
   }
   player.ready = !player.ready;
   log(room, player.name + (player.ready ? " 已准备" : " 取消准备"));
+  broadcast(room);
+}
+
+function handleAddBot(peer) {
+  if (!requirePlayer(peer)) {
+    return;
+  }
+  const { room, player } = peer;
+  if (player.seat !== 0) {
+    sendJson(peer, { type: "error", message: "由 1 号位补人机" });
+    return;
+  }
+  if (!addBot(room)) {
+    sendJson(peer, { type: "error", message: "现在不能补人机" });
+    return;
+  }
   broadcast(room);
 }
 
@@ -726,6 +896,10 @@ function handleMessage(peer, raw) {
   }
   if (message.type === "ready") {
     handleReady(peer);
+    return;
+  }
+  if (message.type === "addBot") {
+    handleAddBot(peer);
     return;
   }
   if (message.type === "startRound" || message.type === "newRound") {
