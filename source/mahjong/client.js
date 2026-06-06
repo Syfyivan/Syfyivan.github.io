@@ -82,7 +82,6 @@
     socket: null,
     view: null,
     reconnectTimer: null,
-    manualClose: false,
     endDialogRound: null,
     clientId: getClientId()
   };
@@ -311,10 +310,9 @@
     roomInput.value = profile.room;
     serverInput.value = profile.server;
     clearTimeout(state.reconnectTimer);
-    state.manualClose = false;
 
     if (state.socket) {
-      state.manualClose = true;
+      state.socket.manualClose = true;
       state.socket.close();
     }
 
@@ -332,9 +330,13 @@
     }
 
     var socket = new WebSocket(profile.server);
+    socket.manualClose = false;
     state.socket = socket;
 
     socket.addEventListener("open", function () {
+      if (state.socket !== socket) {
+        return;
+      }
       connectionStatus.textContent = "已连接";
       setNotice("已连接");
       send({
@@ -349,6 +351,9 @@
 
     socket.addEventListener("message", function (event) {
       var data;
+      if (state.socket !== socket) {
+        return;
+      }
       try {
         data = JSON.parse(event.data);
       } catch (error) {
@@ -364,20 +369,26 @@
     });
 
     socket.addEventListener("close", function () {
-      connectionStatus.textContent = "已断开";
-      if (state.manualClose) {
-        state.manualClose = false;
+      if (state.socket !== socket) {
         return;
       }
+      state.socket = null;
+      if (socket.manualClose) {
+        return;
+      }
+      connectionStatus.textContent = "重连中";
       if (window.location.hostname.endsWith("github.io")) {
         setNotice("GitHub Pages 不运行房间服务器");
       } else {
-        setNotice("连接断开");
+        setNotice("连接断开，正在重连");
       }
       state.reconnectTimer = setTimeout(connect, 1800);
     });
 
     socket.addEventListener("error", function () {
+      if (state.socket !== socket) {
+        return;
+      }
       connectionStatus.textContent = "连接失败";
       if (window.location.hostname.endsWith("github.io")) {
         setNotice("请使用 npm run mahjong:lan 打印的地址");
@@ -866,8 +877,8 @@
 
   function resetToLobby() {
     clearTimeout(state.reconnectTimer);
-    state.manualClose = true;
     if (state.socket) {
+      state.socket.manualClose = true;
       state.socket.close();
     }
     state.socket = null;
