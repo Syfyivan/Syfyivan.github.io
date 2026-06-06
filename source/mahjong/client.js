@@ -762,6 +762,12 @@
       actionRow.appendChild(createActionButton("摸牌", "draw", function () {
         send({ type: "draw" });
       }));
+      if (view.player.ting && view.bao && view.bao.revealed) {
+        var drawHint = document.createElement("span");
+        drawHint.className = "player-state action-hint";
+        drawHint.textContent = "已上听，摸到宝牌可摸宝胡";
+        actionRow.appendChild(drawHint);
+      }
     }
 
     view.selfActions.forEach(function (action) {
@@ -843,13 +849,15 @@
     var note = document.createElement("span");
     note.className = "bao-note";
     if (view.bao.revealed) {
+      var visibleCount = Number(view.bao.visibleCount || 0);
       note.textContent = (view.bao.label || tileMeta(view.bao.type).label) +
-        (view.bao.visibleCount ? " · 公开" + view.bao.visibleCount + "/3" : "");
+        " · 明面" + visibleCount + "/3";
     } else {
       note.textContent = "上听后可见";
     }
     if (view.bao.dice && view.bao.dice.values) {
-      note.title = "看宝骰子：" + view.bao.dice.values.join(" + ") + " = " + view.bao.dice.total;
+      note.title = "看宝骰子：" + view.bao.dice.values.join(" + ") + " = " + view.bao.dice.total +
+        "\n明面数量：牌河和副露里已经亮出的宝牌数量，满 3 张会换宝";
     }
 
     baoTray.append(label, tileWrap, note);

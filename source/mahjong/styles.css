@@ -858,8 +858,15 @@ input:focus {
 }
 
 .action-row {
+  align-items: center;
   justify-content: center;
   min-height: 40px;
+}
+
+.action-hint {
+  max-width: min(100%, 260px);
+  text-align: center;
+  white-space: normal;
 }
 
 .tile {
