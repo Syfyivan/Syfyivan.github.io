@@ -880,7 +880,7 @@ function renderRoom() {
         (working ? " is-working" : "");
       stationEl.dataset.stationId = station.id;
       stationEl.dataset.stationType = station.type;
-      stationEl.innerHTML = stationMarkup(station, task);
+      stationEl.innerHTML = stationMarkup(station, task, working);
 
       stationPainters.forEach((painter, index) => {
         const role = ROLE_DATA[painter.role];
@@ -912,7 +912,7 @@ function renderRoom() {
   }
 }
 
-function stationMarkup(station, task) {
+function stationMarkup(station, task, working = false) {
   const subtitle = stationSubtitle(station, task);
   const progress = task
     ? `<span class="station-progress">
@@ -920,7 +920,7 @@ function stationMarkup(station, task) {
         <small>${PHASES[task.phaseIndex]} · 品质 ${Math.round(task.quality)}</small>
       </span>`
     : "";
-  const stationArt = task ? paintingMarkup(task) : stationAssetMarkup(station);
+  const stationArt = task ? paintingMarkup(task, working) : stationAssetMarkup(station);
   return `
     <span class="station-label">
       <span class="station-title"><span>${station.label}</span><b>${station.type === "easel" && task ? Math.round(task.deadline * 10) / 10 + "天" : ""}</b></span>
@@ -961,19 +961,34 @@ function stationIconClass(type) {
   );
 }
 
-function paintingMarkup(task) {
+function clamp01(value) {
+  return Math.max(0, Math.min(1, value));
+}
+
+function paintingMarkup(task, working) {
   const [a, b, c] = paintingPalette(task.style);
-  const progress = Math.max(8, Math.round(task.progress));
-  const fill = Math.max(6, Math.min(42, Math.round(progress * 0.42)));
-  const strokeOne = Math.max(5, Math.min(31, Math.round(progress * 0.31)));
-  const strokeTwo = Math.max(4, Math.min(28, Math.round(progress * 0.28)));
-  const strokeThree = Math.max(4, Math.min(25, Math.round(progress * 0.25)));
+  const progress = Math.max(0, Math.min(100, Math.round(task.progress)));
+  const visualProgress = progress <= 0 ? 0 : Math.min(100, Math.round(Math.pow(progress / 100, 0.65) * 100));
+  const fill = Math.max(0, Math.min(58, Math.round(visualProgress * 0.58)));
+  const strokeOne = Math.max(0, Math.min(42, Math.round(visualProgress * 0.42)));
+  const strokeTwo = Math.max(0, Math.min(36, Math.round(visualProgress * 0.36)));
+  const strokeThree = Math.max(0, Math.min(31, Math.round(visualProgress * 0.31)));
+  const blank = clamp01(1 - visualProgress / 16).toFixed(2);
+  const sketch = clamp01(visualProgress / 18).toFixed(2);
+  const color = clamp01((visualProgress - 9) / 32).toFixed(2);
+  const detail = clamp01((visualProgress - 46) / 30).toFixed(2);
+  const finish = clamp01((visualProgress - 78) / 18).toFixed(2);
+  const figureScale = (0.86 + clamp01((visualProgress - 12) / 56) * 0.14).toFixed(2);
   return `
-    <span class="painting-canvas" style="--paint-progress:${fill}px;--stroke-one:${strokeOne}px;--stroke-two:${strokeTwo}px;--stroke-three:${strokeThree}px;--paint-a:${a};--paint-b:${b};--paint-c:${c}">
+    <span class="painting-canvas style-${task.style} ${working ? "is-working" : "is-paused"}" style="--paint-progress:${fill}px;--stroke-one:${strokeOne}px;--stroke-two:${strokeTwo}px;--stroke-three:${strokeThree}px;--blank-opacity:${blank};--sketch-opacity:${sketch};--color-opacity:${color};--detail-opacity:${detail};--finish-opacity:${finish};--figure-scale:${figureScale};--paint-a:${a};--paint-b:${b};--paint-c:${c}">
+      <span class="blank-label">空白画布</span>
+      <span class="paint-sketch"></span>
       <span class="paint-wash"></span>
+      <span class="paint-figure"></span>
       <span class="paint-stroke stroke-one"></span>
       <span class="paint-stroke stroke-two"></span>
       <span class="paint-stroke stroke-three"></span>
+      <span class="finish-glint"></span>
       <span class="brush-sprite" aria-hidden="true"></span>
     </span>
   `;

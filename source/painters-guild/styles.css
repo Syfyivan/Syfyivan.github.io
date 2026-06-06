@@ -364,6 +364,11 @@ button:disabled {
   image-rendering: pixelated;
   pointer-events: none;
   user-select: none;
+  filter:
+    drop-shadow(0 0 2px rgba(249, 239, 225, 0.28))
+    drop-shadow(0 4px 0 rgba(0, 0, 0, 0.34))
+    brightness(1.08)
+    contrast(1.04);
 }
 
 .painter-token.role-finisher .painter-sprite,
@@ -670,10 +675,10 @@ button:disabled {
   border: 5px solid #4b2d1d;
   border-radius: 8px;
   background:
-    linear-gradient(180deg, rgba(56, 33, 21, 0.88) 0 20px, transparent 20px),
-    radial-gradient(ellipse at 16% 20%, rgba(244, 223, 184, 0.2), transparent 18%),
-    radial-gradient(ellipse at 82% 18%, rgba(71, 125, 165, 0.14), transparent 19%),
-    linear-gradient(180deg, #d2a76f 0 8%, #b98456 8% 10%, #cc9b64 10% 61%, #5d3a28 61% 66%, #8b562f 66% 100%);
+    linear-gradient(180deg, rgba(56, 33, 21, 0.82) 0 18px, transparent 18px),
+    radial-gradient(ellipse at 16% 20%, rgba(244, 223, 184, 0.13), transparent 22%),
+    radial-gradient(ellipse at 82% 18%, rgba(71, 125, 165, 0.1), transparent 22%),
+    linear-gradient(180deg, #be925f 0 10%, #9d7046 10% 12%, #765238 12% 61%, #5c3724 61% 66%, #926038 66% 100%);
   box-shadow:
     inset 0 0 0 2px rgba(244, 223, 184, 0.12),
     inset 0 -26px 36px rgba(0, 0, 0, 0.22);
@@ -704,14 +709,15 @@ button:disabled {
   left: 24px;
   right: 24px;
   bottom: 14px;
-  height: 32%;
+  height: 38%;
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.28)),
+    linear-gradient(180deg, rgba(124, 72, 39, 0.1), rgba(49, 29, 19, 0.34)),
     url("./assets/freegamesprites/tavern/tavern-wood-floor.webp");
-  background-size: auto, 96px 96px;
+  background-size: auto, 128px 128px;
+  background-blend-mode: normal, multiply;
   transform: skewX(-8deg);
   transform-origin: bottom;
-  opacity: 0.68;
+  opacity: 0.34;
   image-rendering: pixelated;
 }
 
@@ -730,11 +736,8 @@ button:disabled {
   border-radius: 0;
   color: var(--ink);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 24%),
-    url("./assets/freegamesprites/tavern/tavern-wood-floor.webp"),
-    rgba(216, 165, 75, 0.08);
-  background-size: auto, 96px 96px, auto;
-  background-blend-mode: normal, soft-light, normal;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 24%),
+    rgba(231, 184, 112, 0.035);
   overflow: hidden;
 }
 
@@ -746,8 +749,8 @@ button:disabled {
   bottom: 0;
   height: 20px;
   background:
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 28px),
-    linear-gradient(180deg, rgba(55, 33, 20, 0.12), rgba(55, 33, 20, 0.34));
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04), transparent 30%, rgba(0, 0, 0, 0.08)),
+    linear-gradient(180deg, rgba(55, 33, 20, 0.08), rgba(55, 33, 20, 0.22));
   pointer-events: none;
   z-index: 0;
 }
@@ -759,28 +762,19 @@ button:disabled {
 .station.floor-0 {
   background:
     radial-gradient(ellipse at 50% 8%, rgba(244, 223, 184, 0.12), transparent 34%),
-    url("./assets/freegamesprites/tavern/tavern-wood-floor.webp"),
-    rgba(210, 167, 111, 0.08);
-  background-size: auto, 96px 96px, auto;
-  background-blend-mode: normal, soft-light, normal;
+    rgba(202, 156, 92, 0.08);
 }
 
 .station.floor-1 {
   background:
     radial-gradient(ellipse at 20% 12%, rgba(31, 143, 134, 0.08), transparent 30%),
-    url("./assets/freegamesprites/tavern/tavern-wood-floor.webp"),
-    rgba(200, 141, 82, 0.1);
-  background-size: auto, 96px 96px, auto;
-  background-blend-mode: normal, soft-light, normal;
+    rgba(132, 86, 53, 0.12);
 }
 
 .station.floor-2 {
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.1), transparent 28%),
-    url("./assets/freegamesprites/tavern/tavern-wood-floor.webp"),
-    rgba(116, 70, 38, 0.34);
-  background-size: auto, 96px 96px, auto;
-  background-blend-mode: normal, soft-light, normal;
+    rgba(116, 70, 38, 0.24);
 }
 
 .station.floor-0.room-3::after,
@@ -823,11 +817,15 @@ button:disabled {
 }
 
 .station.has-task {
-  background: rgba(63, 38, 26, 0.18);
+  background:
+    radial-gradient(ellipse at 50% 62%, rgba(244, 223, 184, 0.16), transparent 48%),
+    rgba(63, 38, 26, 0.12);
 }
 
 .station.is-working {
-  background: rgba(31, 143, 134, 0.12);
+  background:
+    radial-gradient(ellipse at 50% 62%, rgba(31, 143, 134, 0.18), transparent 48%),
+    rgba(63, 38, 26, 0.12);
 }
 
 .station.is-drop-target {
@@ -851,9 +849,9 @@ button:disabled {
   justify-self: start;
   max-width: 100%;
   padding: 5px 7px;
-  border: 1px solid rgba(216, 165, 75, 0.16);
+  border: 1px solid rgba(216, 165, 75, 0.24);
   border-radius: 5px;
-  background: rgba(38, 24, 17, 0.58);
+  background: rgba(31, 21, 15, 0.72);
   box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1);
 }
 
@@ -908,12 +906,30 @@ button:disabled {
   margin: 4px 0 2px;
 }
 
+.station:not(.is-empty) .station-art::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: min(112px, 88%);
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(244, 223, 184, 0.18), rgba(0, 0, 0, 0.16) 64%, transparent 70%);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
 .asset-sprite {
   display: block;
   object-fit: contain;
   image-rendering: pixelated;
   pointer-events: none;
   user-select: none;
+  filter:
+    drop-shadow(0 0 1px rgba(249, 239, 225, 0.18))
+    drop-shadow(0 5px 0 rgba(0, 0, 0, 0.2))
+    brightness(1.06)
+    contrast(1.04);
 }
 
 .station-asset {
@@ -921,7 +937,7 @@ button:disabled {
   display: block;
   width: 96px;
   height: 74px;
-  filter: drop-shadow(0 9px 0 rgba(0, 0, 0, 0.16));
+  filter: drop-shadow(0 9px 0 rgba(0, 0, 0, 0.12));
 }
 
 .station-sprite,
@@ -1027,7 +1043,9 @@ button:disabled {
   position: relative;
   width: 70px;
   height: 52px;
-  filter: drop-shadow(0 9px 0 rgba(0, 0, 0, 0.14));
+  filter:
+    drop-shadow(0 0 1px rgba(249, 239, 225, 0.2))
+    drop-shadow(0 8px 0 rgba(0, 0, 0, 0.16));
 }
 
 .pixel-easel::before,
@@ -1157,18 +1175,21 @@ button:disabled {
 .painting-canvas {
   position: relative;
   display: block;
-  width: 78px;
-  height: 64px;
-  transform: translateY(2px);
+  width: 104px;
+  height: 86px;
+  transform: translateY(4px);
+  filter:
+    drop-shadow(0 0 2px rgba(249, 239, 225, 0.16))
+    drop-shadow(0 8px 0 rgba(0, 0, 0, 0.16));
 }
 
 .painting-canvas::before {
   content: "";
   position: absolute;
-  left: 18px;
-  right: 18px;
+  left: 24px;
+  right: 24px;
   bottom: 0;
-  height: 24px;
+  height: 30px;
   border-left: 5px solid #6d442b;
   border-right: 5px solid #6d442b;
   border-bottom: 5px solid #6d442b;
@@ -1179,59 +1200,184 @@ button:disabled {
 .painting-canvas::after {
   content: "";
   position: absolute;
-  left: 14px;
+  left: 18px;
   top: 2px;
-  width: 50px;
-  height: 44px;
+  width: 62px;
+  height: 52px;
   border: 5px solid #6d442b;
   border-radius: 4px;
-  background: #f5dfb6;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.78), transparent 34%),
+    #f5dfb6;
   box-shadow:
     inset 0 0 0 2px rgba(255, 255, 255, 0.28),
     0 8px 0 rgba(0, 0, 0, 0.15);
   z-index: 1;
 }
 
+.blank-label,
+.paint-sketch,
 .paint-wash,
+.paint-figure,
 .paint-stroke,
+.finish-glint,
 .brush-sprite {
   position: absolute;
   z-index: 2;
   pointer-events: none;
 }
 
-.paint-wash {
-  left: 19px;
-  top: 7px;
-  width: var(--paint-progress);
+.blank-label {
+  left: 30px;
+  top: 24px;
+  z-index: 4;
+  color: rgba(77, 48, 31, 0.62);
+  font-size: 10px;
+  font-weight: 900;
+  opacity: var(--blank-opacity);
+  transition: opacity 0.18s linear;
+}
+
+.paint-sketch {
+  left: 25px;
+  top: 12px;
+  width: 48px;
   height: 34px;
+  border: 2px solid rgba(77, 48, 31, 0.44);
+  border-left-width: 0;
+  border-right-width: 0;
+  opacity: var(--sketch-opacity);
+  transform: rotate(-3deg);
+  transition: opacity 0.18s linear;
+}
+
+.paint-sketch::before,
+.paint-sketch::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(77, 48, 31, 0.5);
+  transform-origin: left center;
+}
+
+.paint-sketch::before {
+  top: 10px;
+  transform: rotate(14deg);
+}
+
+.paint-sketch::after {
+  top: 23px;
+  transform: rotate(-12deg);
+}
+
+.paint-wash {
+  left: 23px;
+  top: 8px;
+  width: var(--paint-progress);
+  height: 44px;
   border-radius: 3px;
   background:
     radial-gradient(circle at 28% 42%, var(--paint-a) 0 24%, transparent 25%),
     radial-gradient(circle at 64% 35%, var(--paint-b) 0 21%, transparent 22%),
     linear-gradient(135deg, transparent 0 22%, var(--paint-c) 22% 54%, transparent 55%);
-  opacity: 0.86;
+  background:
+    radial-gradient(circle at 28% 42%, color-mix(in srgb, var(--paint-a) 88%, #fff) 0 24%, transparent 25%),
+    radial-gradient(circle at 64% 35%, color-mix(in srgb, var(--paint-b) 86%, #fff) 0 21%, transparent 22%),
+    linear-gradient(135deg, transparent 0 22%, color-mix(in srgb, var(--paint-c) 86%, #fff) 22% 54%, transparent 55%);
+  opacity: var(--color-opacity);
   overflow: hidden;
   transition: width 0.18s linear;
 }
 
+.paint-figure {
+  z-index: 3;
+  opacity: var(--color-opacity);
+  transform: scale(var(--figure-scale));
+  transform-origin: center bottom;
+  transition:
+    opacity 0.18s linear,
+    transform 0.18s linear;
+}
+
+.painting-canvas.style-portrait .paint-figure {
+  left: 39px;
+  top: 15px;
+  width: 21px;
+  height: 31px;
+  border-radius: 999px 999px 8px 8px;
+  background:
+    radial-gradient(circle at 50% 26%, #f4c796 0 24%, transparent 25%),
+    linear-gradient(180deg, transparent 0 40%, var(--paint-a) 41% 100%);
+}
+
+.painting-canvas.style-religious .paint-figure {
+  left: 31px;
+  top: 11px;
+  width: 39px;
+  height: 40px;
+  border-radius: 20px 20px 4px 4px;
+  background:
+    radial-gradient(circle at 50% 19%, var(--paint-b) 0 12%, transparent 13%),
+    linear-gradient(90deg, transparent 0 43%, var(--paint-a) 43% 57%, transparent 57%),
+    linear-gradient(180deg, rgba(244, 223, 184, 0.72), var(--paint-c));
+}
+
+.painting-canvas.style-landscape .paint-figure {
+  left: 25px;
+  top: 14px;
+  width: 55px;
+  height: 37px;
+  border-radius: 3px;
+  background:
+    radial-gradient(circle at 70% 22%, var(--gold) 0 8%, transparent 9%),
+    linear-gradient(150deg, transparent 0 44%, var(--paint-b) 45% 62%, transparent 63%),
+    linear-gradient(30deg, transparent 0 38%, var(--paint-a) 39% 58%, transparent 59%),
+    linear-gradient(180deg, rgba(71, 125, 165, 0.7) 0 54%, var(--paint-c) 55% 100%);
+}
+
+.painting-canvas.style-poster .paint-figure {
+  left: 28px;
+  top: 12px;
+  width: 48px;
+  height: 42px;
+  border-radius: 3px;
+  background:
+    linear-gradient(135deg, var(--paint-a) 0 34%, var(--paper) 34% 47%, var(--paint-b) 47% 70%, var(--paint-c) 70%);
+}
+
+.painting-canvas.style-abstract .paint-figure {
+  left: 29px;
+  top: 12px;
+  width: 47px;
+  height: 40px;
+  border-radius: 3px;
+  background:
+    radial-gradient(circle at 70% 28%, var(--paint-b) 0 13%, transparent 14%),
+    linear-gradient(135deg, var(--paint-a) 0 42%, transparent 43%),
+    linear-gradient(45deg, transparent 0 45%, var(--paint-c) 46% 70%, transparent 71%),
+    rgba(244, 223, 184, 0.72);
+}
+
 .paint-stroke {
-  left: 22px;
-  height: 5px;
+  left: 27px;
+  height: 4px;
   border-radius: 999px;
+  opacity: var(--detail-opacity);
   transform-origin: left center;
-  animation: paintStroke 1.05s ease-in-out infinite;
 }
 
 .stroke-one {
-  top: 15px;
+  top: 19px;
   width: var(--stroke-one);
   background: var(--paint-a);
   transform: rotate(-9deg);
 }
 
 .stroke-two {
-  top: 27px;
+  top: 31px;
   width: var(--stroke-two);
   background: var(--paint-b);
   transform: rotate(7deg);
@@ -1239,22 +1385,41 @@ button:disabled {
 }
 
 .stroke-three {
-  top: 36px;
+  top: 41px;
   width: var(--stroke-three);
   background: var(--paint-c);
   transform: rotate(-4deg);
   animation-delay: 0.34s;
 }
 
+.painting-canvas.is-working .paint-stroke {
+  animation: paintStroke 1.05s ease-in-out infinite;
+}
+
+.finish-glint {
+  left: 25px;
+  top: 9px;
+  z-index: 5;
+  width: 56px;
+  height: 44px;
+  border-radius: 3px;
+  background:
+    linear-gradient(120deg, transparent 0 16%, rgba(255, 255, 255, 0.46) 17% 19%, transparent 20% 100%),
+    linear-gradient(40deg, transparent 0 68%, rgba(255, 255, 255, 0.32) 69% 72%, transparent 73%);
+  opacity: var(--finish-opacity);
+  transition: opacity 0.18s linear;
+}
+
 .brush-sprite {
-  left: 56px;
-  top: 18px;
+  left: 69px;
+  top: 23px;
+  z-index: 6;
   width: 26px;
   height: 8px;
   border-radius: 999px;
   background: linear-gradient(90deg, #5b3328 0 62%, var(--paint-a) 62%);
   transform: rotate(-24deg);
-  animation: brushMove 0.92s ease-in-out infinite;
+  opacity: 0;
 }
 
 .brush-sprite::after {
@@ -1266,6 +1431,11 @@ button:disabled {
   height: 6px;
   border-radius: 50%;
   background: var(--paint-b);
+}
+
+.painting-canvas.is-working .brush-sprite {
+  opacity: 1;
+  animation: brushMove 0.92s ease-in-out infinite;
 }
 
 .station-progress {
