@@ -392,16 +392,39 @@
     };
   }
 
-  function appendPips(target, meta) {
-    var grid = document.createElement("span");
-    grid.className = "tile-symbols tile-symbols-" + meta.group;
-    grid.dataset.count = String(meta.rank);
-    for (var index = 0; index < meta.rank; index += 1) {
-      var pip = document.createElement("span");
-      pip.className = meta.group === "dots" ? "dot-pip" : "bamboo-pip";
-      grid.appendChild(pip);
+  function tileAsset(type) {
+    if (type < 9) {
+      return "assets/tiles/wan-" + (type + 1) + ".png";
     }
-    target.appendChild(grid);
+    if (type < 18) {
+      return "assets/tiles/tong-" + (type - 8) + ".png";
+    }
+    if (type < 27) {
+      return "assets/tiles/tiao-" + (type - 17) + ".png";
+    }
+    return {
+      27: "assets/tiles/east.png",
+      28: "assets/tiles/south.png",
+      29: "assets/tiles/west.png",
+      30: "assets/tiles/north.png",
+      31: "assets/tiles/red.png",
+      32: "assets/tiles/green.png",
+      33: "assets/tiles/white.png"
+    }[type] || "assets/tiles/back.png";
+  }
+
+  function createTileImage(src, label) {
+    var image = document.createElement("img");
+    image.className = "tile-image";
+    image.src = src;
+    image.alt = "";
+    image.draggable = false;
+
+    var fallback = document.createElement("span");
+    fallback.className = "tile-fallback";
+    fallback.textContent = label;
+
+    return [image, fallback];
   }
 
   function createTile(tile, options) {
@@ -417,37 +440,9 @@
     element.dataset.type = String(type);
     element.title = meta.label;
     element.setAttribute("aria-label", meta.label);
-
-    if (opts.mini) {
-      element.textContent = meta.label;
-      return element;
-    }
-
-    var face = document.createElement("span");
-    face.className = "tile-face";
-
-    if (meta.group === "characters") {
-      var characterRank = document.createElement("span");
-      characterRank.className = "character-rank";
-      characterRank.textContent = meta.rankLabel;
-      var characterSuit = document.createElement("span");
-      characterSuit.className = "character-suit";
-      characterSuit.textContent = "萬";
-      face.append(characterRank, characterSuit);
-    } else if (meta.group === "dots" || meta.group === "bamboo") {
-      appendPips(face, meta);
-      var suitMark = document.createElement("span");
-      suitMark.className = "suit-mark";
-      suitMark.textContent = meta.suit;
-      face.appendChild(suitMark);
-    } else {
-      var honor = document.createElement("span");
-      honor.className = "honor-glyph";
-      honor.textContent = meta.rankLabel;
-      face.appendChild(honor);
-    }
-
-    element.appendChild(face);
+    createTileImage(tileAsset(type), meta.label).forEach(function (node) {
+      element.appendChild(node);
+    });
 
     if (opts.button) {
       element.type = "button";
@@ -462,7 +457,10 @@
   function createTileBack() {
     var tile = document.createElement("div");
     tile.className = "tile-back";
-    tile.textContent = "";
+    tile.setAttribute("aria-label", "牌背");
+    createTileImage("assets/tiles/back.png", "牌背").forEach(function (node) {
+      tile.appendChild(node);
+    });
     return tile;
   }
 
