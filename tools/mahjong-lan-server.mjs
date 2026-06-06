@@ -932,11 +932,8 @@ function startRound(room) {
   const dealer = playerBySeat(room, room.dealerSeat);
   const dealerTile = takeTileFromWall(room);
   dealer.hand.push(dealerTile);
-  dealer.drawnTileId = dealerTile.id;
   room.players.forEach((player) => applyInitialSpecialKongs(room, player));
-  if (!dealer.hand.some((tile) => tile.id === dealer.drawnTileId)) {
-    dealer.drawnTileId = dealer.hand[dealer.hand.length - 1]?.id || null;
-  }
+  dealer.drawnTileId = null;
   room.players.forEach(sortHand);
   log(room, "第 " + room.round + " 局开始，" + dealer.name + " 坐庄");
   log(room, "骰子 " + room.dice.values.join(" + ") + " = " + room.dice.total);
@@ -1765,13 +1762,15 @@ export function startServer(preferredPort = defaultPort, attempts = 0) {
 
 export const mahjongTestHooks = {
   applyInitialSpecialKongs,
+  buildView,
   buildWall,
   makePlayer,
   makeRoom,
   maybeChangeBao,
   publicTypeCount,
   refreshTing,
-  revealBao
+  revealBao,
+  startRound
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

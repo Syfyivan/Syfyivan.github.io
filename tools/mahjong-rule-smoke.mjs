@@ -176,3 +176,24 @@ withFixedDice(() => {
   assert.equal(player.hand.some((item) => [31, 32, 33].includes(item.type)), false);
   console.log("PASS initial dragon kong is exposed once at deal");
 }
+
+{
+  const room = mahjongTestHooks.makeRoom("START1", { variant: "dongbei", seatCount: 3 });
+  room.players = [
+    mahjongTestHooks.makePlayer("p0", "庄家", 0),
+    mahjongTestHooks.makePlayer("p1", "闲家一", 1),
+    mahjongTestHooks.makePlayer("p2", "闲家二", 2)
+  ];
+  room.players.forEach((player) => {
+    player.connected = true;
+    player.ready = true;
+  });
+  assert.equal(mahjongTestHooks.startRound(room), true);
+  const dealer = room.players[0];
+  const view = mahjongTestHooks.buildView(room, dealer);
+  assert.equal(dealer.drawnTileId, null, "opening dealer tile is not displayed as a fresh draw");
+  assert.equal(view.player.drawnTileId, null);
+  assert.equal(view.canDiscard, true, "dealer can discard immediately after the opening deal");
+  assert.equal(view.hand.length > 0, true);
+  console.log("PASS opening deal does not mark a drawn tile but still allows discard");
+}
