@@ -903,6 +903,10 @@ function deadlineBadge(order) {
   return (isRushOrder(order) ? "加急 · " : "") + deadlineLabel(order.deadline);
 }
 
+function compactDeadlineBadge(order) {
+  return (isRushOrder(order) ? "急 " : "") + deadlineLabel(order.deadline);
+}
+
 function assetPath(fileName) {
   return ASSET_ROOT + fileName;
 }
@@ -982,7 +986,7 @@ function stationMarkup(station, task, working = false) {
   const stationArt = task ? paintingMarkup(task, working) : stationAssetMarkup(station);
   return `
     <span class="station-label">
-      <span class="station-title"><span>${station.label}</span><b>${station.type === "easel" && task ? deadlineBadge(task) : ""}</b></span>
+      <span class="station-title"><span>${station.label}</span><b>${station.type === "easel" && task ? compactDeadlineBadge(task) : ""}</b></span>
       <span class="station-subtitle">${subtitle}</span>
     </span>
     <span class="station-art">${stationArt}</span>
