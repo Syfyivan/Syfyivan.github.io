@@ -57,6 +57,11 @@
   var endModal = document.getElementById("endModal");
   var endResult = document.getElementById("endResult");
   var rulesTitle = document.getElementById("rulesTitle");
+  var rulesDetailsButton = document.getElementById("rulesDetailsButton");
+  var rulesModal = document.getElementById("rulesModal");
+  var rulesModalTitle = document.getElementById("rulesModalTitle");
+  var rulesCloseButton = document.getElementById("rulesCloseButton");
+  var rulesDetailsContent = document.getElementById("rulesDetailsContent");
   var rulesList = document.getElementById("rulesList");
   var eventLog = document.getElementById("eventLog");
   var seatTop = document.getElementById("seatTop");
@@ -480,12 +485,55 @@
   function renderRules(view) {
     var config = view.config || {};
     rulesTitle.textContent = (config.variantLabel || "规则") + " · " + (config.seatCount || 3) + "人";
+    rulesModalTitle.textContent = (config.variantLabel || "规则") + " · " + (config.seatCount || 3) + "人完整规则";
+    rulesDetailsButton.setAttribute("aria-label", "查看" + (config.variantLabel || "规则") + "完整规则");
     rulesList.textContent = "";
     (config.rules || []).forEach(function (rule) {
       var item = document.createElement("li");
       item.textContent = rule;
       rulesList.appendChild(item);
     });
+    renderDetailedRules(config);
+  }
+
+  function renderDetailedRules(config) {
+    rulesDetailsContent.textContent = "";
+    var sections = config.detailedRules || [];
+    if (sections.length === 0) {
+      sections = [{
+        title: "规则",
+        items: config.rules || []
+      }];
+    }
+
+    sections.forEach(function (section) {
+      var block = document.createElement("section");
+      block.className = "rules-detail-section";
+
+      var title = document.createElement("h3");
+      title.textContent = section.title || "规则";
+      block.appendChild(title);
+
+      var list = document.createElement("ul");
+      (section.items || []).forEach(function (rule) {
+        var item = document.createElement("li");
+        item.textContent = rule;
+        list.appendChild(item);
+      });
+      block.appendChild(list);
+      rulesDetailsContent.appendChild(block);
+    });
+  }
+
+  function showRulesModal() {
+    if (!state.view) {
+      return;
+    }
+    rulesModal.hidden = false;
+  }
+
+  function hideRulesModal() {
+    rulesModal.hidden = true;
   }
 
   function actionLabel(action) {
@@ -822,6 +870,7 @@
     state.view = null;
     state.endDialogRound = null;
     hideEndModal();
+    hideRulesModal();
     lobbyPanel.hidden = false;
     gamePanel.hidden = true;
     connectionStatus.textContent = "未连接";
@@ -902,6 +951,22 @@
 
   modalExitButton.addEventListener("click", function () {
     resetToLobby();
+  });
+
+  rulesDetailsButton.addEventListener("click", showRulesModal);
+
+  rulesCloseButton.addEventListener("click", hideRulesModal);
+
+  rulesModal.addEventListener("click", function (event) {
+    if (event.target === rulesModal) {
+      hideRulesModal();
+    }
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && !rulesModal.hidden) {
+      hideRulesModal();
+    }
   });
 
   copyRoomButton.addEventListener("click", function () {

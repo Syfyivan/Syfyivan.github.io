@@ -8,6 +8,7 @@
     "deploy": "hexo deploy",
     "server": "hexo server",
     "mahjong:lan": "node tools/mahjong-lan-server.mjs",
+    "mahjong:rules-test": "node tools/mahjong-rule-smoke.mjs",
     "visual-server": "node tools/visual-browser-server.mjs"
   },
   "hexo": {

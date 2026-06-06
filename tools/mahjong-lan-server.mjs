@@ -42,7 +42,21 @@ const variants = {
     label: "川麻",
     tileTypes: Array.from({ length: 27 }, (_, index) => index),
     allowChow: false,
-    rules: ["108 张数牌，无风箭字牌", "不能吃牌，可碰、杠、胡", "基础胡牌判定，暂不计定缺、血战与番型"]
+    rules: ["108 张数牌，无风箭字牌", "不能吃牌，可碰、杠、胡", "基础胡牌判定，暂不计定缺、血战与番型"],
+    detailedRules: [
+      {
+        title: "牌组",
+        items: ["使用万、筒、条三门数牌，共 108 张。", "不使用东南西北中发白。"]
+      },
+      {
+        title: "操作",
+        items: ["不能吃牌。", "可以碰、明杠、暗杠、胡。", "杠后立即补摸一张。"]
+      },
+      {
+        title: "胡牌",
+        items: ["本版川麻先使用基础胡牌判定：4 组面子 + 1 对将，或七对子。", "暂不实现定缺、血战到底和完整番型。"]
+      }
+    ]
   },
   dongbei: {
     key: "dongbei",
@@ -50,11 +64,62 @@ const variants = {
     tileTypes: Array.from({ length: 34 }, (_, index) => index),
     allowChow: true,
     usesBao: true,
+    winRules: {
+      requireTerminalOrHonor: true,
+      requireAllNumberSuits: true,
+      requireExactPair: true
+    },
     rules: [
       "136 张，含东南西北中发白",
       "可吃、碰、杠、胡，吃牌仅下家",
+      "胡牌需有对子、幺九或字牌，且万筒条不缺门",
       "开局从牌山尾端扣 1 张作宝牌",
       "未上听不可看宝，上听后摸到同名宝牌可摸宝胡"
+    ],
+    detailedRules: [
+      {
+        title: "牌组和人数",
+        items: [
+          "使用 136 张：万、筒、条各 1-9 四张，东南西北中发白各四张。",
+          "三人局和四人局都按同一套牌组发牌；三人局只是少一个玩家座位。",
+          "庄家起手 14 张，其余玩家起手 13 张。"
+        ]
+      },
+      {
+        title: "吃碰杠",
+        items: [
+          "可以吃、碰、杠；吃牌只能吃上家刚打出的牌。",
+          "东南西北和中发白不能吃，只能碰、明杠或暗杠。",
+          "风牌杠和箭牌杠都算一组刻子面子；杠后立即从牌山补摸一张。",
+          "本版先不单独计算风杠、箭杠、明杠、暗杠的分数，也暂不做抢杠胡。"
+        ]
+      },
+      {
+        title: "基础胡牌结构",
+        items: [
+          "普通胡必须能拆成 4 组面子 + 1 对将；面子可以是顺子、刻子或杠。",
+          "东北局必须有对子才能胡；本版要求将牌在整副牌里正好两张，不把刻子拆成将。",
+          "七对子作为特殊牌型保留，也必须满足下面的东北附加条件。",
+          "对对胡/漂胡属于 4 组刻子或杠 + 1 对将，本版允许胡，但仍要满足幺九/字牌和不缺门。"
+        ]
+      },
+      {
+        title: "东北附加胡牌条件",
+        items: [
+          "胡牌的整副牌必须至少含 1 张幺九或字牌：1、9，或东南西北中发白。",
+          "胡牌的整副牌不能缺门：万、筒、条三门都要至少出现一张；字牌不算一门。",
+          "这些条件会同时用于上听判断、点炮胡、自摸胡和摸宝胡。"
+        ]
+      },
+      {
+        title: "宝牌和上听",
+        items: [
+          "开局发完牌后，从牌山尾端扣下 1 张作为宝牌。",
+          "未上听时只能看到宝牌背面；上听后可以看到具体宝牌。",
+          "上听后如果新摸到与宝牌同名的牌，可以点“摸宝胡”。",
+          "本版自动判定上听，不做手动报听锁手；换吃、碰、杠后会重新判听。"
+        ]
+      }
     ]
   }
 };
@@ -232,6 +297,18 @@ function typeCounts(types) {
   return counts;
 }
 
+function isTerminalOrHonor(type) {
+  return type >= 27 || type % 9 === 0 || type % 9 === 8;
+}
+
+function numberSuitIndex(type) {
+  return type < 27 ? Math.floor(type / 9) : -1;
+}
+
+function allMeldTypes(player) {
+  return player.melds.flatMap((meld) => meld.tiles || []);
+}
+
 function canFormMelds(counts, meldsNeeded) {
   if (meldsNeeded === 0) {
     return counts.every((count) => count === 0);
@@ -279,17 +356,17 @@ function isSevenPairs(types) {
   return counts.filter((count) => count === 2).length === 7;
 }
 
-export function canWinTypes(types, meldCount = 0) {
+function winningShape(types, meldCount = 0) {
   const concealedTypes = types.slice().sort((a, b) => a - b);
   const meldsNeeded = 4 - meldCount;
   if (meldsNeeded < 0) {
-    return false;
+    return null;
   }
   if (meldCount === 0 && isSevenPairs(concealedTypes)) {
-    return true;
+    return { kind: "sevenPairs", pairType: null };
   }
   if (concealedTypes.length !== meldsNeeded * 3 + 2) {
-    return false;
+    return null;
   }
 
   const counts = typeCounts(concealedTypes);
@@ -300,19 +377,59 @@ export function canWinTypes(types, meldCount = 0) {
     counts[pair] -= 2;
     if (canFormMelds(counts, meldsNeeded)) {
       counts[pair] += 2;
-      return true;
+      return { kind: "standard", pairType: pair };
     }
     counts[pair] += 2;
   }
-  return false;
+  return null;
 }
 
-function canWinPlayer(player, extraTile) {
+function satisfiesVariantWinRules(variant, allTypes, shape) {
+  const rules = variant.winRules || {};
+  if (rules.requireExactPair && shape.kind === "standard" && typeCounts(allTypes)[shape.pairType] !== 2) {
+    return false;
+  }
+  if (rules.requireTerminalOrHonor && !allTypes.some(isTerminalOrHonor)) {
+    return false;
+  }
+  if (rules.requireAllNumberSuits) {
+    const suits = new Set(allTypes.map(numberSuitIndex).filter((suit) => suit >= 0));
+    if (suits.size < 3) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function canWinTypes(types, meldCount = 0, options = {}) {
+  const shape = winningShape(types, meldCount);
+  if (!shape) {
+    return false;
+  }
+  const variant = variants[options.variant] || null;
+  if (variant && !satisfiesVariantWinRules(variant, options.allTypes || types, shape)) {
+    return false;
+  }
+  return true;
+}
+
+function winOptions(room, player, extraType) {
+  const concealedTypes = player.hand.map((tile) => tile.type);
+  if (typeof extraType === "number") {
+    concealedTypes.push(extraType);
+  }
+  return {
+    variant: variantFor(room).key,
+    allTypes: concealedTypes.concat(allMeldTypes(player))
+  };
+}
+
+function canWinPlayer(room, player, extraTile) {
   const types = player.hand.map((tile) => tile.type);
   if (extraTile) {
     types.push(extraTile.type);
   }
-  return canWinTypes(types, player.melds.length);
+  return canWinTypes(types, player.melds.length, winOptions(room, player, extraTile?.type));
 }
 
 function waitingTypes(room, player) {
@@ -322,7 +439,7 @@ function waitingTypes(room, player) {
     if (types.filter((item) => item === type).length >= 4) {
       return false;
     }
-    return canWinTypes(types.concat(type), player.melds.length);
+    return canWinTypes(types.concat(type), player.melds.length, winOptions(room, player, type));
   });
 }
 
@@ -401,7 +518,7 @@ function buildClaimActions(room, discard) {
     }
     const actions = [];
     const type = discard.tile.type;
-    if (canWinPlayer(player, discard.tile)) {
+    if (canWinPlayer(room, player, discard.tile)) {
       actions.push({
         id: makeActionId("hu", player.seat, type),
         action: "hu",
@@ -452,7 +569,7 @@ function buildSelfActions(room, player) {
   }
 
   const actions = [];
-  if (canWinPlayer(player)) {
+  if (canWinPlayer(room, player)) {
     actions.push({
       id: "self-hu",
       action: "hu",
@@ -774,7 +891,7 @@ function runBotStep(room) {
     return;
   }
 
-  if (canWinPlayer(player)) {
+  if (canWinPlayer(room, player)) {
     settleWin(room, [player], null, null);
     broadcast(room);
     return;
@@ -883,6 +1000,15 @@ function buildView(room, player) {
       rules: variant.rules.concat([
         roomSeatCount(room) + " 人局：庄家 14 张，其余玩家 13 张",
         "开局掷 2 骰用于桌面提示，本版不按骰子切牌墩"
+      ]),
+      detailedRules: (variant.detailedRules || []).concat([
+        {
+          title: "本局发牌",
+          items: [
+            roomSeatCount(room) + " 人局：庄家 14 张，其余玩家 13 张。",
+            "开局掷 2 骰用于桌面提示，本版不按骰子切牌墩。"
+          ]
+        }
       ])
     },
     bao: roomUsesBao(room) && room.bao

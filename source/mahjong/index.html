@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>麻将局</title>
     <meta name="description" content="可和朋友联机的麻将网页桌。" />
+    <link rel="icon" href="data:," />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -99,8 +100,17 @@
               <button class="primary-button" type="button" id="startButton" disabled>开局</button>
               <button class="ghost-button" type="button" id="newRoundButton" hidden>再来</button>
             </div>
-            <section class="rules-panel" aria-label="规则">
-              <div class="rules-title" id="rulesTitle">规则</div>
+            <section class="rules-panel" id="rulesPanel" aria-label="规则">
+              <button
+                class="rules-header"
+                type="button"
+                id="rulesDetailsButton"
+                aria-haspopup="dialog"
+                title="点击查看完整规则"
+              >
+                <span class="rules-title" id="rulesTitle">规则</span>
+                <span class="rules-more">详情</span>
+              </button>
               <ul id="rulesList"></ul>
             </section>
             <div class="event-log" id="eventLog" aria-live="polite"></div>
@@ -140,6 +150,23 @@
             <button class="primary-button" type="button" id="modalNewRoundButton">再来</button>
             <button class="ghost-button" type="button" id="modalExitButton">退出</button>
           </div>
+        </div>
+      </div>
+      <div class="rules-modal" id="rulesModal" role="dialog" aria-modal="true" aria-labelledby="rulesModalTitle" hidden>
+        <div class="rules-card">
+          <div class="rules-card-header">
+            <div>
+              <div class="end-kicker">完整规则</div>
+              <h2 id="rulesModalTitle">规则</h2>
+            </div>
+            <button class="icon-action" type="button" id="rulesCloseButton" aria-label="关闭规则">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="rules-details" id="rulesDetailsContent"></div>
         </div>
       </div>
     </main>
