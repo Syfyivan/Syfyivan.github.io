@@ -282,6 +282,54 @@ h1 {
   color: var(--ink);
 }
 
+.deep-lessons {
+  margin-top: 22px;
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid rgba(183, 121, 31, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.82);
+}
+
+.deep-head {
+  max-width: 920px;
+  margin-bottom: 18px;
+}
+
+.deep-head h3 {
+  margin: 0;
+  font-size: clamp(24px, 3.5vw, 36px);
+  line-height: 1.2;
+}
+
+.deep-head p:last-child {
+  margin: 12px 0 0;
+  color: #3f4751;
+}
+
+.deep-card {
+  margin-top: 14px;
+  padding: 18px;
+  border: 1px solid rgba(183, 121, 31, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.deep-card h4 {
+  margin: 0 0 12px;
+  color: #6f4308;
+  font-size: 19px;
+  line-height: 1.35;
+}
+
+.deep-card p {
+  margin: 10px 0 0;
+  color: #3f4751;
+}
+
+.deep-card strong {
+  color: var(--teal-dark);
+}
+
 .learning-head {
   max-width: 900px;
   margin-bottom: 20px;
@@ -666,6 +714,7 @@ ol {
   .analysis-line,
   .note-line,
   .concept-card,
+  .deep-card,
   .guide-card,
   .study-note,
   .material-fix {
