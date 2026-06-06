@@ -210,9 +210,9 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
     <article class="course-card">
       <span class="course-badge">进行中</span>
       <h3>Go 与服务端学习路线</h3>
-      <p>从 Go 基础、HTTP/RPC、数据库、缓存、消息队列一路学到微服务治理、架构设计和生产运维，重点串起微服务、架构和中间件。</p>
+      <p>按写一个服务的顺序整理：Go、HTTP、数据库、Redis、MQ、RPC、观测、架构和上线。先把请求链路走明白，再慢慢补中间件。</p>
       <div class="course-card-footer">
-        <span>适合：想系统补齐后端能力栈的人</span>
+        <span>适合：想把后端知识串成一条线的人</span>
         <a class="course-link" href="/courses/server-side/">进入课程</a>
       </div>
     </article>
@@ -235,6 +235,6 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
     </article>
   </section>
   <section class="course-note">
-    <p>课程页不是替代博客文章，而是给文章加上学习顺序。以后新增同主题文章时，只需要把它挂到对应课程模块里，就能形成一条持续扩展的知识路径。</p>
+    <p>课程页只负责排顺序。以后同一主题的新文章，放回对应模块里就行，不用再翻归档找线索。</p>
   </section>
 </div>
