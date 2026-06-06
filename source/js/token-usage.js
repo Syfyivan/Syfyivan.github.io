@@ -66,10 +66,10 @@
     box.className = "token-usage";
     box.innerHTML =
       '<div class="token-usage__header">' +
-      '<div class="token-usage__title">Token Usage</div>' +
-      '<button class="token-usage__refresh" type="button" data-role="refresh" aria-label="Refresh Token Usage">刷新</button>' +
+      '<div class="token-usage__title">用量记录</div>' +
+      '<button class="token-usage__refresh" type="button" data-role="refresh" aria-label="刷新用量记录">刷新</button>' +
       "</div>" +
-      '<div class="token-usage__subtitle" data-role="subtitle">Loading…</div>' +
+      '<div class="token-usage__subtitle" data-role="subtitle">加载中...</div>' +
       '<div class="token-usage__meta" data-role="meta"></div>' +
       '<div class="token-usage__periods" data-role="periods"></div>' +
       '<div class="token-usage__grid" data-role="grid"></div>';
@@ -78,7 +78,7 @@
     if (boardCol) {
       var firstCard = boardCol.querySelector(".index-card") || null;
       if (firstCard && firstCard.parentNode) {
-        firstCard.parentNode.insertBefore(box, firstCard);
+        firstCard.parentNode.insertBefore(box, firstCard.nextSibling);
       } else {
         boardCol.insertBefore(box, boardCol.firstChild);
       }
@@ -154,15 +154,15 @@
     }
 
     var cells = [
-      { k: "Total", v: formatCompact(totalTokens), hint: formatInt(totalTokens) },
-      { k: "Input", v: formatCompact(inputTokens), hint: formatInt(inputTokens) },
-      { k: "Output", v: formatCompact(outputTokens), hint: formatInt(outputTokens) },
+      { k: "总量", v: formatCompact(totalTokens), hint: formatInt(totalTokens) },
+      { k: "输入", v: formatCompact(inputTokens), hint: formatInt(inputTokens) },
+      { k: "输出", v: formatCompact(outputTokens), hint: formatInt(outputTokens) },
       { k: "Codex", v: formatCompact(codexTotal), hint: formatInt(codexTotal) },
       { k: "Coco", v: formatCompact(cocoTotal), hint: formatInt(cocoTotal) },
     ];
 
     cells.push({
-      k: "USD",
+      k: "费用",
       v: hasCost ? formatUSD(costUSD) : "—",
       hint: hasCost
         ? "estimated"
@@ -212,7 +212,7 @@
         var msg = e && e.message ? e.message : "unknown";
         setMeta(box, "刷新失败（" + msg + "）");
         var subtitleEl = box.querySelector('[data-role="subtitle"]');
-        if (subtitleEl && !subtitleEl.textContent) subtitleEl.textContent = "Token Usage 暂不可用";
+        if (subtitleEl && !subtitleEl.textContent) subtitleEl.textContent = "用量记录暂不可用";
       })
       .finally(function () {
         setLoading(box, false);
