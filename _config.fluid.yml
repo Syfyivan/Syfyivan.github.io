@@ -391,6 +391,7 @@ navbar:
     - { key: "courses", name: "课程", link: "/courses/", icon: "iconfont icon-articles" }
     - { key: "visual_browser", name: "AI视觉", link: "/flipbook/", icon: "iconfont icon-image" }
     - { key: "mahjong", name: "麻将", link: "/mahjong/", icon: "iconfont icon-articles" }
+    - { key: "painters_guild", name: "画室", link: "/painters-guild/", icon: "iconfont icon-image" }
     - { key: "about", link: "/about/", icon: "iconfont icon-user-fill" }
     - { key: "晨读", link: "/morning-read/", icon: "iconfont icon-newspaper" }
     #- { key: "links", link: "/links/", icon: "iconfont icon-link-fill" }

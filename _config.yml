@@ -32,6 +32,7 @@ skip_render:
   - stats/token-usage.json
   - flipbook/**
   - mahjong/**
+  - painters-guild/**
   - docs/**
   - software-architecture-2020c-review/**
 
