@@ -771,8 +771,9 @@ input:focus {
   z-index: 2;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  align-items: start;
   gap: 8px;
-  max-height: 108px;
+  max-height: 128px;
   padding: 8px;
   overflow: hidden;
   background: rgba(10, 38, 29, 0.92);
@@ -785,6 +786,7 @@ input:focus {
   display: grid;
   gap: 5px;
   min-width: 0;
+  overflow: hidden;
 }
 
 .river-group[data-self="true"] .river-title {
@@ -804,10 +806,13 @@ input:focus {
 .river-tiles {
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
   gap: 4px;
   min-height: 28px;
-  max-height: 58px;
-  overflow: hidden;
+  max-height: 76px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 2px;
 }
 
 .river-empty {
