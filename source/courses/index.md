@@ -192,8 +192,12 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>1</strong>
+        <strong>2</strong>
         <span>已建课程</span>
+      </div>
+      <div class="course-stat">
+        <strong>10</strong>
+        <span>服务端学习模块</span>
       </div>
       <div class="course-stat">
         <strong>7</strong>
@@ -203,6 +207,15 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
   </section>
   <h2 class="course-section-title">课程目录</h2>
   <section class="course-grid">
+    <article class="course-card">
+      <span class="course-badge">进行中</span>
+      <h3>Go 与服务端学习路线</h3>
+      <p>从 Go 基础、HTTP/RPC、数据库、缓存、消息队列一路学到微服务治理、架构设计和生产运维，重点串起微服务、架构和中间件。</p>
+      <div class="course-card-footer">
+        <span>适合：想系统补齐后端能力栈的人</span>
+        <a class="course-link" href="/courses/server-side/">进入课程</a>
+      </div>
+    </article>
     <article class="course-card">
       <span class="course-badge">进行中</span>
       <h3>AI Town：Agent 基础设施课程</h3>
