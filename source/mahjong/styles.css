@@ -24,12 +24,14 @@
 
 html,
 body {
-  min-height: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 body {
   margin: 0;
-  overflow-x: hidden;
+  overflow: hidden;
   background:
     linear-gradient(135deg, rgba(28, 46, 35, 0.92), rgba(12, 20, 15, 0.98)),
     #101511;
@@ -54,17 +56,20 @@ button:disabled {
 }
 
 .mahjong-app {
-  min-height: 100vh;
-  padding: 16px;
+  height: 100dvh;
+  min-height: 0;
+  padding: 8px 12px;
+  overflow: hidden;
 }
 
 .table-shell {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
   width: min(1440px, 100%);
   min-width: 0;
-  min-height: calc(100vh - 32px);
+  height: 100%;
+  min-height: 0;
   margin: 0 auto;
 }
 
@@ -77,6 +82,7 @@ button:disabled {
 }
 
 .table-header {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -324,9 +330,10 @@ input:focus {
   display: grid;
   grid-template-columns: minmax(230px, 300px) minmax(0, 1fr);
   gap: 14px;
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
 }
 
 .side-panel {
@@ -334,7 +341,8 @@ input:focus {
   flex-direction: column;
   gap: 14px;
   min-width: 0;
-  min-height: 620px;
+  min-height: 0;
+  overflow: hidden;
   padding: 14px;
   background: rgba(24, 33, 27, 0.94);
   border-radius: 8px;
@@ -374,6 +382,7 @@ input:focus {
 .player-list {
   display: grid;
   gap: 8px;
+  flex: 0 0 auto;
 }
 
 .player-item {
@@ -416,8 +425,35 @@ input:focus {
 }
 
 .room-actions {
+  flex: 0 0 auto;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--line);
+}
+
+.rules-panel {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 6px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.rules-title {
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.rules-panel ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 16px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .event-log {
@@ -425,7 +461,7 @@ input:focus {
   flex: 1;
   flex-direction: column;
   gap: 8px;
-  min-height: 160px;
+  min-height: 0;
   overflow: auto;
   color: var(--muted);
   font-size: 13px;
@@ -443,7 +479,8 @@ input:focus {
   position: relative;
   width: 100%;
   min-width: 0;
-  min-height: 680px;
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
@@ -540,9 +577,31 @@ input:focus {
 }
 
 .mini-tile {
+  position: relative;
   color: var(--ink);
   background: var(--tile);
   border: 1px solid var(--tile-side);
+}
+
+.mini-tile-claimed {
+  box-shadow: 0 0 0 2px rgba(216, 163, 63, 0.35);
+}
+
+.mini-tile-claimed::after {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  color: #20170a;
+  content: attr(data-claim);
+  background: var(--gold);
+  border-radius: 999px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
 }
 
 .tile-back {
@@ -554,7 +613,7 @@ input:focus {
 
 .center-board {
   position: absolute;
-  top: 43%;
+  top: 42%;
   left: 50%;
   z-index: 1;
   display: grid;
@@ -567,6 +626,25 @@ input:focus {
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 8px;
   transform: translate(-50%, -50%);
+}
+
+.dice-tray {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.die {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  color: #1f170a;
+  background: var(--gold);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.15);
+  font-size: 15px;
+  font-weight: 900;
 }
 
 .round-chip {
@@ -604,12 +682,64 @@ input:focus {
   border-radius: 8px;
 }
 
+.discard-river-board {
+  position: absolute;
+  right: 18px;
+  bottom: 252px;
+  left: 18px;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+  max-height: 108px;
+  padding: 8px;
+  overflow: hidden;
+  background: rgba(10, 38, 29, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+}
+
+.river-group {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.river-group[data-self="true"] .river-title {
+  color: var(--gold);
+}
+
+.river-title {
+  overflow: hidden;
+  color: rgba(247, 240, 220, 0.76);
+  font-size: 12px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+}
+
+.river-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 28px;
+  max-height: 58px;
+  overflow: hidden;
+}
+
+.river-empty {
+  color: rgba(247, 240, 220, 0.6);
+  font-size: 12px;
+}
+
 .self-area {
   position: absolute;
   right: 18px;
   bottom: 18px;
   left: 18px;
-  z-index: 2;
+  z-index: 3;
   display: grid;
   gap: 10px;
   padding: 12px;
@@ -682,6 +812,26 @@ input:focus {
 .tile:not([disabled]):hover {
   border-color: var(--gold);
   transform: translateY(-6px);
+}
+
+.tile-drawn {
+  transform: translateY(-8px);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.42),
+    0 0 0 3px rgba(216, 163, 63, 0.42),
+    0 12px 22px rgba(0, 0, 0, 0.38);
+}
+
+.tile-drawn::after {
+  width: auto;
+  height: auto;
+  padding: 1px 4px;
+  color: #21180b;
+  content: "摸";
+  background: var(--gold);
+  border-radius: 999px;
+  font-size: 10px;
+  opacity: 1;
 }
 
 .tile-face {
@@ -831,6 +981,54 @@ input:focus {
 
 .result-banner {
   color: var(--gold);
+}
+
+.end-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(8, 13, 10, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.end-card {
+  display: grid;
+  width: min(360px, 100%);
+  gap: 12px;
+  padding: 20px;
+  background: rgba(24, 33, 27, 0.96);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.end-kicker {
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.end-card h2,
+.end-card p {
+  margin: 0;
+}
+
+.end-card h2 {
+  font-size: 28px;
+}
+
+.end-card p {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.end-actions {
+  display: flex;
+  gap: 8px;
 }
 
 [hidden] {

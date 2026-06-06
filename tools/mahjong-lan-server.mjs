@@ -40,13 +40,15 @@ const variants = {
     key: "sichuan",
     label: "川麻",
     tileTypes: Array.from({ length: 27 }, (_, index) => index),
-    allowChow: false
+    allowChow: false,
+    rules: ["108 张数牌，无风箭字牌", "不能吃牌，可碰、杠、胡", "基础胡牌判定，暂不计定缺、血战与番型"]
   },
   dongbei: {
     key: "dongbei",
     label: "东北麻将",
     tileTypes: Array.from({ length: 34 }, (_, index) => index),
-    allowChow: true
+    allowChow: true,
+    rules: ["136 张，含东南西北中发白", "可吃、碰、杠、胡，吃牌仅下家", "基础胡牌判定，暂不加宝牌、混儿等地方扩展"]
   }
 };
 
@@ -115,7 +117,9 @@ function makeRoom(code, options) {
     currentSeat: 0,
     turnDrawn: false,
     wall: [],
+    dice: null,
     lastDiscard: null,
+    discardHistory: [],
     pending: null,
     botTimer: null,
     result: "",
@@ -134,6 +138,7 @@ function makePlayer(id, name, seat, bot = false) {
     hand: [],
     melds: [],
     discards: [],
+    drawnTileId: null,
     peer: null
   };
 }
@@ -428,8 +433,17 @@ function drawTile(room, player) {
   const tile = room.wall.pop();
   player.hand.push(tile);
   sortHand(player);
+  player.drawnTileId = tile.id;
   room.turnDrawn = true;
   return tile;
+}
+
+function rollDice() {
+  const values = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
+  return {
+    values,
+    total: values[0] + values[1]
+  };
 }
 
 function canStartRound(room) {
@@ -520,7 +534,9 @@ function startRound(room) {
   room.currentSeat = room.dealerSeat;
   room.turnDrawn = true;
   room.lastDiscard = null;
+  room.discardHistory = [];
   room.pending = null;
+  room.dice = rollDice();
   room.wall = buildWall(room);
   room.events = [];
 
@@ -529,6 +545,7 @@ function startRound(room) {
     player.hand = [];
     player.melds = [];
     player.discards = [];
+    player.drawnTileId = null;
   });
 
   for (let count = 0; count < 13; count += 1) {
@@ -537,9 +554,12 @@ function startRound(room) {
     });
   }
   const dealer = playerBySeat(room, room.dealerSeat);
-  dealer.hand.push(room.wall.pop());
+  const dealerTile = room.wall.pop();
+  dealer.hand.push(dealerTile);
+  dealer.drawnTileId = dealerTile.id;
   room.players.forEach(sortHand);
   log(room, "第 " + room.round + " 局开始，" + dealer.name + " 坐庄");
+  log(room, "骰子 " + room.dice.values.join(" + ") + " = " + room.dice.total);
   log(room, roomConfigLabel(room) + "，牌组 " + variantFor(room).tileTypes.length * 4 + " 张");
   return true;
 }
@@ -561,10 +581,31 @@ function settleWin(room, winners, fromPlayer, tile) {
 function advanceAfterDiscard(room, discard) {
   const fromPlayer = playerBySeat(room, discard.fromSeat);
   fromPlayer.discards.push(discard.tile);
+  fromPlayer.drawnTileId = null;
   room.lastDiscard = null;
   room.pending = null;
   room.currentSeat = nextSeat(room, discard.fromSeat);
   room.turnDrawn = false;
+}
+
+function recordDiscard(room, discard) {
+  room.discardHistory.push({
+    tile: discard.tile,
+    fromSeat: discard.fromSeat,
+    claimedBySeat: null,
+    claim: null
+  });
+}
+
+function markDiscardClaimed(room, discard, player, action) {
+  for (let index = room.discardHistory.length - 1; index >= 0; index -= 1) {
+    const entry = room.discardHistory[index];
+    if (entry.tile.id === discard.tile.id && entry.fromSeat === discard.fromSeat) {
+      entry.claimedBySeat = player.seat;
+      entry.claim = action;
+      return;
+    }
+  }
 }
 
 function startPendingOrAdvance(room, discard) {
@@ -647,8 +688,10 @@ function runBotStep(room) {
   const tile = chooseBotDiscard(player);
   const index = player.hand.findIndex((candidate) => candidate.id === tile.id);
   player.hand.splice(index, 1);
+  player.drawnTileId = null;
   room.turnDrawn = false;
   room.lastDiscard = { tile, fromSeat: player.seat };
+  recordDiscard(room, room.lastDiscard);
   log(room, player.name + " 打出 " + tileName(tile.type));
   startPendingOrAdvance(room, room.lastDiscard);
   broadcast(room);
@@ -688,6 +731,7 @@ function resolvePending(room) {
 
   const huResponses = responses.filter((response) => response.action.action === "hu");
   if (huResponses.length > 0) {
+    markDiscardClaimed(room, pending.discard, huResponses[0].player, "hu");
     settleWin(
       room,
       huResponses.map((response) => response.player),
@@ -700,6 +744,7 @@ function resolvePending(room) {
   const winner = responses[0];
   const action = winner.action;
   const player = winner.player;
+  markDiscardClaimed(room, pending.discard, player, action.action);
   removeTilesByTypes(player, action.consume);
   player.melds.push({
     kind: action.action,
@@ -736,17 +781,24 @@ function buildView(room, player) {
       variantLabel: variant.label,
       seatCount: roomSeatCount(room),
       tileCount: variant.tileTypes.length * 4,
-      allowChow: variant.allowChow
+      allowChow: variant.allowChow,
+      rules: variant.rules.concat([
+        roomSeatCount(room) + " 人局：庄家 14 张，其余玩家 13 张",
+        "开局掷 2 骰用于桌面提示，本版不按骰子切牌墩"
+      ])
     },
     phase: room.phase,
     round: room.round,
+    dice: room.dice,
+    discardHistory: room.discardHistory,
     wallCount: room.wall.length,
     result: room.result,
     turnName: turn ? turn.name : "",
     player: {
       id: player.id,
       seat: player.seat,
-      ready: player.ready
+      ready: player.ready,
+      drawnTileId: player.drawnTileId
     },
     players: room.players
       .slice()
@@ -761,6 +813,7 @@ function buildView(room, player) {
         handCount: item.hand.length,
         melds: item.melds,
         discards: item.discards,
+        drawnTileId: item.id === player.id ? item.drawnTileId : null,
         isSelf: item.id === player.id
       })),
     hand: player.hand,
@@ -932,8 +985,10 @@ function handleDiscard(peer, message) {
     return;
   }
   const tile = player.hand.splice(index, 1)[0];
+  player.drawnTileId = null;
   room.turnDrawn = false;
   room.lastDiscard = { tile, fromSeat: player.seat };
+  recordDiscard(room, room.lastDiscard);
   log(room, player.name + " 打出 " + tileName(tile.type));
   startPendingOrAdvance(room, room.lastDiscard);
   broadcast(room);
@@ -1238,7 +1293,7 @@ export function startServer(preferredPort = defaultPort, attempts = 0) {
     const urls = ["http://localhost:" + preferredPort + "/mahjong/"].concat(
       localAddresses().map((address) => "http://" + address + ":" + preferredPort + "/mahjong/")
     );
-    console.log("三人麻将局已启动：");
+    console.log("麻将局已启动：");
     urls.forEach((url) => console.log("  " + url));
   });
   return server;

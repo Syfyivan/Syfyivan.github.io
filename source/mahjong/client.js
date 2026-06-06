@@ -52,13 +52,21 @@
   var addBotButton = document.getElementById("addBotButton");
   var startButton = document.getElementById("startButton");
   var newRoundButton = document.getElementById("newRoundButton");
+  var modalNewRoundButton = document.getElementById("modalNewRoundButton");
+  var modalExitButton = document.getElementById("modalExitButton");
+  var endModal = document.getElementById("endModal");
+  var endResult = document.getElementById("endResult");
+  var rulesTitle = document.getElementById("rulesTitle");
+  var rulesList = document.getElementById("rulesList");
   var eventLog = document.getElementById("eventLog");
   var seatTop = document.getElementById("seatTop");
   var seatLeft = document.getElementById("seatLeft");
   var seatRight = document.getElementById("seatRight");
   var roundLabel = document.getElementById("roundLabel");
   var turnLabel = document.getElementById("turnLabel");
+  var diceTray = document.getElementById("diceTray");
   var lastDiscard = document.getElementById("lastDiscard");
+  var discardRiver = document.getElementById("discardRiver");
   var claimBar = document.getElementById("claimBar");
   var selfMelds = document.getElementById("selfMelds");
   var handRow = document.getElementById("handRow");
@@ -69,6 +77,7 @@
     view: null,
     reconnectTimer: null,
     manualClose: false,
+    endDialogRound: null,
     clientId: getClientId()
   };
 
@@ -301,7 +310,6 @@
     if (state.socket) {
       state.manualClose = true;
       state.socket.close();
-      state.manualClose = false;
     }
 
     setNotice("连接中");
@@ -351,14 +359,16 @@
 
     socket.addEventListener("close", function () {
       connectionStatus.textContent = "已断开";
-      if (!state.manualClose) {
-        if (window.location.hostname.endsWith("github.io")) {
-          setNotice("GitHub Pages 不运行房间服务器");
-        } else {
-          setNotice("连接断开");
-        }
-        state.reconnectTimer = setTimeout(connect, 1800);
+      if (state.manualClose) {
+        state.manualClose = false;
+        return;
       }
+      if (window.location.hostname.endsWith("github.io")) {
+        setNotice("GitHub Pages 不运行房间服务器");
+      } else {
+        setNotice("连接断开");
+      }
+      state.reconnectTimer = setTimeout(connect, 1800);
     });
 
     socket.addEventListener("error", function () {
@@ -400,9 +410,13 @@
     var meta = tileMeta(type);
     var element = document.createElement(opts.button ? "button" : "div");
     element.className = opts.mini ? "mini-tile" : "tile";
+    if (opts.drawn) {
+      element.className += " tile-drawn";
+    }
     element.dataset.suit = meta.group;
     element.dataset.type = String(type);
     element.title = meta.label;
+    element.setAttribute("aria-label", meta.label);
 
     if (opts.mini) {
       element.textContent = meta.label;
@@ -464,6 +478,17 @@
     });
   }
 
+  function renderRules(view) {
+    var config = view.config || {};
+    rulesTitle.textContent = (config.variantLabel || "规则") + " · " + (config.seatCount || 3) + "人";
+    rulesList.textContent = "";
+    (config.rules || []).forEach(function (rule) {
+      var item = document.createElement("li");
+      item.textContent = rule;
+      rulesList.appendChild(item);
+    });
+  }
+
   function actionLabel(action) {
     if (action.action === "hu") {
       return "胡";
@@ -480,6 +505,15 @@
       }).join(" ");
     }
     return action.action;
+  }
+
+  function claimShortLabel(action) {
+    return {
+      hu: "胡",
+      pong: "碰",
+      kong: "杠",
+      chow: "吃"
+    }[action] || "";
   }
 
   function createActionButton(label, kind, onClick) {
@@ -584,12 +618,61 @@
     });
   }
 
+  function renderDiscardRiver(view) {
+    discardRiver.textContent = "";
+    var history = Array.isArray(view.discardHistory) ? view.discardHistory : [];
+    view.players.forEach(function (player) {
+      var group = document.createElement("section");
+      group.className = "river-group";
+      if (player.isSelf) {
+        group.dataset.self = "true";
+      }
+
+      var title = document.createElement("div");
+      title.className = "river-title";
+      title.textContent = player.name + (player.isSelf ? "（我）" : "");
+
+      var tiles = document.createElement("div");
+      tiles.className = "river-tiles";
+      var playerDiscards = history.length > 0
+        ? history.filter(function (entry) {
+          return entry.fromSeat === player.seat;
+        })
+        : player.discards.map(function (tile) {
+          return { tile: tile, fromSeat: player.seat, claim: null };
+        });
+
+      if (playerDiscards.length === 0) {
+        var empty = document.createElement("span");
+        empty.className = "river-empty";
+        empty.textContent = "未出牌";
+        tiles.appendChild(empty);
+      } else {
+        playerDiscards.forEach(function (entry) {
+          var tile = createTile(entry.tile.type, { mini: true });
+          var claim = claimShortLabel(entry.claim);
+          if (claim) {
+            tile.className += " mini-tile-claimed";
+            tile.dataset.claim = claim;
+            tile.title = tile.title + "（已" + claim + "）";
+          }
+          tiles.appendChild(tile);
+        });
+      }
+
+      group.append(title, tiles);
+      discardRiver.appendChild(group);
+    });
+  }
+
   function renderHand(view) {
     handRow.textContent = "";
+    var drawnTileId = view.player ? view.player.drawnTileId : "";
     view.hand.forEach(function (tile) {
       handRow.appendChild(createTile(tile, {
         button: true,
         disabled: !view.canDiscard,
+        drawn: tile.id === drawnTileId,
         onClick: function (selected) {
           send({ type: "discard", tileId: selected.id });
         }
@@ -638,6 +721,16 @@
 
   function renderCenter(view) {
     roundLabel.textContent = "第 " + view.round + " 局";
+    diceTray.textContent = "";
+    diceTray.hidden = !(view.dice && view.dice.values);
+    if (!diceTray.hidden) {
+      view.dice.values.forEach(function (value) {
+        var die = document.createElement("span");
+        die.className = "die";
+        die.textContent = String(value);
+        diceTray.appendChild(die);
+      });
+    }
     if (view.phase === "ended") {
       turnLabel.innerHTML = "";
       var result = document.createElement("span");
@@ -665,6 +758,43 @@
     });
   }
 
+  function showEndModal(view) {
+    if (view.phase !== "ended") {
+      state.endDialogRound = null;
+      endModal.hidden = true;
+      return;
+    }
+    if (state.endDialogRound === view.round) {
+      return;
+    }
+    state.endDialogRound = view.round;
+    endResult.textContent = view.result || "本局结束";
+    modalNewRoundButton.disabled = !view.canStart;
+    endModal.hidden = false;
+  }
+
+  function hideEndModal() {
+    endModal.hidden = true;
+  }
+
+  function resetToLobby() {
+    clearTimeout(state.reconnectTimer);
+    state.manualClose = true;
+    if (state.socket) {
+      state.socket.close();
+    }
+    state.socket = null;
+    state.view = null;
+    state.endDialogRound = null;
+    hideEndModal();
+    lobbyPanel.hidden = false;
+    gamePanel.hidden = true;
+    connectionStatus.textContent = "未连接";
+    roomStatus.textContent = "房间 --";
+    wallStatus.textContent = "牌山 --";
+    setNotice("已退出房间");
+  }
+
   function render() {
     var view = state.view;
     if (!view) {
@@ -690,10 +820,13 @@
 
     renderPlayers(view);
     renderSeats(view);
+    renderRules(view);
+    renderDiscardRiver(view);
     renderCenter(view);
     renderHand(view);
     renderActions(view);
     renderLog(view);
+    showEndModal(view);
   }
 
   joinForm.addEventListener("submit", function (event) {
@@ -725,6 +858,15 @@
 
   newRoundButton.addEventListener("click", function () {
     send({ type: "newRound" });
+  });
+
+  modalNewRoundButton.addEventListener("click", function () {
+    hideEndModal();
+    send({ type: "newRound" });
+  });
+
+  modalExitButton.addEventListener("click", function () {
+    resetToLobby();
   });
 
   copyRoomButton.addEventListener("click", function () {

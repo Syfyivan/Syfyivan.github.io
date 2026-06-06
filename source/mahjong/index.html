@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>三人麻将局</title>
-    <meta name="description" content="可在局域网联机的三人麻将网页桌。" />
+    <title>麻将局</title>
+    <meta name="description" content="可和朋友联机的麻将网页桌。" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="mahjong-app">
-      <section class="table-shell" aria-label="三人麻将局">
+      <section class="table-shell" aria-label="麻将局">
         <header class="table-header">
-          <a class="brand" href="./" aria-label="三人麻将局首页">
-            <span class="brand-mark" aria-hidden="true">三</span>
-            <span>三人麻将局</span>
+          <a class="brand" href="./" aria-label="麻将局首页">
+            <span class="brand-mark" aria-hidden="true">麻</span>
+            <span>麻将局</span>
           </a>
           <div class="status-strip" aria-live="polite">
             <span class="status-pill" id="connectionStatus">未连接</span>
@@ -80,11 +80,11 @@
         <section class="game-layout" id="gamePanel" aria-label="牌桌" hidden>
           <aside class="side-panel" aria-label="房间状态">
             <div class="room-card">
-            <div>
-              <span class="meta-label">房间</span>
-              <strong id="activeRoomLabel">--</strong>
-              <span class="room-mode" id="roomConfigLabel">--</span>
-            </div>
+              <div>
+                <span class="meta-label">房间</span>
+                <strong id="activeRoomLabel">--</strong>
+                <span class="room-mode" id="roomConfigLabel">--</span>
+              </div>
               <button class="icon-action" type="button" id="copyRoomButton" aria-label="复制房间信息">
                 <svg aria-hidden="true" viewBox="0 0 24 24">
                   <path d="M8 8h10v10H8z" />
@@ -99,6 +99,10 @@
               <button class="primary-button" type="button" id="startButton" disabled>开局</button>
               <button class="ghost-button" type="button" id="newRoundButton" hidden>再来</button>
             </div>
+            <section class="rules-panel" aria-label="规则">
+              <div class="rules-title" id="rulesTitle">规则</div>
+              <ul id="rulesList"></ul>
+            </section>
             <div class="event-log" id="eventLog" aria-live="polite"></div>
           </aside>
 
@@ -109,9 +113,12 @@
 
             <div class="center-board">
               <div class="round-chip" id="roundLabel">第 0 局</div>
+              <div class="dice-tray" id="diceTray" hidden></div>
               <div class="turn-label" id="turnLabel">等待入座</div>
               <div class="last-discard" id="lastDiscard"></div>
             </div>
+
+            <div class="discard-river-board" id="discardRiver" aria-label="出过的牌"></div>
 
             <div class="claim-bar" id="claimBar" hidden></div>
 
@@ -123,6 +130,17 @@
           </section>
         </section>
       </section>
+      <div class="end-modal" id="endModal" role="dialog" aria-modal="true" aria-labelledby="endTitle" hidden>
+        <div class="end-card">
+          <div class="end-kicker">本局结束</div>
+          <h2 id="endTitle">结算</h2>
+          <p id="endResult">--</p>
+          <div class="end-actions">
+            <button class="primary-button" type="button" id="modalNewRoundButton">再来</button>
+            <button class="ghost-button" type="button" id="modalExitButton">退出</button>
+          </div>
+        </div>
+      </div>
     </main>
     <script src="./client.js"></script>
   </body>
