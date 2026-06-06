@@ -767,7 +767,7 @@
       var status = document.createElement("div");
       status.className = "player-state";
       if (view.phase === "playing") {
-        status.textContent = player.baoSeen ? "已摸宝" : (player.ting ? "已上听" : (player.bot ? "人机进行中" : "进行中"));
+        status.textContent = player.baoSeen ? "已看宝" : (player.ting ? "已上听" : (player.bot ? "人机进行中" : "进行中"));
       } else if (player.bot) {
         status.textContent = "人机已就位";
       } else {
@@ -798,7 +798,7 @@
     name.textContent = player.name;
     var count = document.createElement("div");
     count.className = "seat-count";
-    count.textContent = player.baoSeen ? "已摸宝" : (player.ting ? "已上听" : player.handCount + " 张");
+    count.textContent = player.baoSeen ? "已看宝" : (player.ting ? "已上听" : player.handCount + " 张");
     header.append(name, count);
 
     var backs = document.createElement("div");
@@ -921,19 +921,21 @@
     renderMelds(view.selfMelds, selfMelds, true);
   }
 
+  function requestPeekBao() {
+    playTone("bao");
+    send({ type: "peekBao" });
+  }
+
   function renderActions(view) {
     actionRow.textContent = "";
     claimBar.textContent = "";
     claimBar.hidden = true;
 
     if (view.canPeekBao) {
-      actionRow.appendChild(createActionButton("摸宝", "peekBao", function () {
-        playTone("bao");
-        send({ type: "peekBao" });
-      }));
+      actionRow.appendChild(createActionButton("看宝", "peekBao", requestPeekBao));
       var peekHint = document.createElement("span");
       peekHint.className = "player-state action-hint";
-      peekHint.textContent = "摸宝后锁定听口";
+      peekHint.textContent = "看宝后锁定听口；之后可摸宝胡";
       actionRow.appendChild(peekHint);
     }
 
@@ -944,7 +946,7 @@
       if (view.player.ting && view.bao && view.bao.revealed && view.player.baoSeen) {
         var drawHint = document.createElement("span");
         drawHint.className = "player-state action-hint";
-        drawHint.textContent = "已摸宝，摸到宝牌或幺鸡可摸宝胡";
+        drawHint.textContent = "已看宝，摸到宝牌或幺鸡可摸宝胡";
         actionRow.appendChild(drawHint);
       }
     }
@@ -1009,6 +1011,7 @@
   function renderBao(view) {
     baoTray.textContent = "";
     baoTray.hidden = !view.bao;
+    baoTray.classList.toggle("has-peek-action", Boolean(view.canPeekBao));
     if (!view.bao) {
       return;
     }
@@ -1029,20 +1032,27 @@
     note.className = "bao-note";
     if (view.bao.revealed) {
       var visibleCount = Number(view.bao.visibleCount || 0);
-      var seenPrefix = view.bao.allSeen ? "全员已摸宝" : "你已摸宝";
+      var seenPrefix = view.bao.allSeen ? "全员已看宝" : "你已看宝";
       note.textContent = (view.bao.label || tileMeta(view.bao.type).label) +
         " · " + seenPrefix + " · 明面" + visibleCount + "/3";
+    } else if (view.canPeekBao) {
+      note.textContent = "已上听，可点看宝";
     } else {
-      note.textContent = view.bao.label || "上听后点摸宝";
+      note.textContent = view.bao.label || "上听后点看宝";
     }
     if (view.bao.dice && view.bao.dice.values) {
-      note.title = "摸宝骰子：" + view.bao.dice.values.join(" + ") + " = " + view.bao.dice.total +
+      note.title = "看宝骰子：" + view.bao.dice.values.join(" + ") + " = " + view.bao.dice.total +
         "\n明面数量：牌河和副露里已经亮出的宝牌数量，满 3 张会换宝";
     } else {
-      note.title = "只有已上听且已选择摸宝的人能看到宝牌；摸宝后不能换听";
+      note.title = "只有已上听且已选择看宝的人能看到宝牌；看宝后不能换听";
     }
 
     baoTray.append(label, tileWrap, note);
+    if (view.canPeekBao) {
+      var peekButton = createActionButton("看宝", "peekBao", requestPeekBao);
+      peekButton.className += " bao-peek-button";
+      baoTray.appendChild(peekButton);
+    }
   }
 
   function renderLog(view) {

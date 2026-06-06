@@ -710,6 +710,10 @@ input:focus {
   border-radius: 8px;
 }
 
+.bao-tray.has-peek-action {
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+}
+
 .bao-label,
 .bao-note {
   color: var(--muted);
@@ -1117,6 +1121,12 @@ input:focus {
   color: #21180b;
   background: linear-gradient(180deg, #f2c45a, var(--gold));
   border-color: rgba(255, 255, 255, 0.32);
+}
+
+.bao-peek-button {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
 }
 
 .game-layout.is-my-turn .self-area {
