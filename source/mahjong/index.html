@@ -106,6 +106,8 @@
               <button class="ghost-button" type="button" id="addBotButton">补人机</button>
               <button class="primary-button" type="button" id="startButton" disabled>开局</button>
               <button class="ghost-button" type="button" id="newRoundButton" hidden>再来</button>
+              <button class="ghost-button" type="button" id="soundButton" aria-pressed="true">声音开</button>
+              <button class="ghost-button" type="button" id="guideButton">新手指导</button>
             </div>
             <section class="rules-panel" id="rulesPanel" aria-label="规则">
               <button
@@ -174,6 +176,30 @@
             </button>
           </div>
           <div class="rules-details" id="rulesDetailsContent"></div>
+        </div>
+      </div>
+      <div class="guide-modal" id="guideModal" role="dialog" aria-modal="true" aria-labelledby="guideTitle" hidden>
+        <div class="guide-card">
+          <div class="rules-card-header">
+            <div>
+              <div class="end-kicker">新手指导</div>
+              <h2 id="guideTitle">怎么开始一局</h2>
+            </div>
+            <button class="icon-action" type="button" id="guideCloseButton" aria-label="关闭新手指导">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
+            </button>
+          </div>
+          <ol class="guide-steps">
+            <li>房主创建房间，复制邀请码发给朋友；朋友粘贴邀请码后入座。</li>
+            <li>人数不齐时房主点“补人机”，人齐后点“开局”。</li>
+            <li>轮到你时先摸牌；出牌要先点中一张牌，再点同一张牌确认。</li>
+            <li>有人打牌后，可操作区会提示吃、碰、杠、胡或过。</li>
+            <li>东北麻将上听后点“摸宝”，宝牌只对已选择摸宝的人可见，之后不能换听。</li>
+            <li>牌河按玩家分组展示，每个人出过和被吃碰杠过的牌都能看到。</li>
+          </ol>
         </div>
       </div>
     </main>

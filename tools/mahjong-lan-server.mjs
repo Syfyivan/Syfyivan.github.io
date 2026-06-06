@@ -88,8 +88,8 @@ const variants = {
       "136 张，含东南西北中发白",
       "可吃、碰、杠、胡，吃牌仅下家",
       "胡牌需有对子、幺九或字牌；三色全、清一色、混一色均可",
-      "上听后可选择看宝；未看宝者不可见宝牌",
-      "看宝后锁定听口，可对宝胡、摸宝胡；摸到幺鸡也算摸宝胡"
+      "上听后可选择摸宝；未摸宝者不可见宝牌",
+      "摸宝后锁定听口，可对宝胡、摸宝胡；摸到幺鸡也算摸宝胡"
     ],
     detailedRules: [
       {
@@ -134,12 +134,12 @@ const variants = {
       {
         title: "宝牌和上听",
         items: [
-          "本版保持自动上听；上听后玩家可以选择看宝，未看宝的人不能看到宝牌。",
-          "第一位选择看宝的上听玩家掷 2 骰，从牌山尾端按点数翻出宝牌；后续上听玩家选择看宝时看当前宝牌。",
-          "只有已上听且已看宝的玩家才可以对宝胡或摸宝胡；如果宝牌正好是已看宝玩家的听口，立即按对宝胡结算。",
-          "看宝后听口锁定，之后出牌必须保持同一组听口，不能换听。",
-          "已看宝后如果新摸到与宝牌同名的牌，或摸到幺鸡，可以点“摸宝胡”。",
-          "如果同名宝牌已有 3 张进入明面牌池，会重新掷骰换宝；所有玩家都选择看宝后，宝牌等同于全员可见。"
+          "本版保持自动上听；上听后玩家可以选择摸宝，未摸宝的人不能看到宝牌。",
+          "第一位选择摸宝的上听玩家掷 2 骰，从牌山尾端按点数翻出宝牌；后续上听玩家选择摸宝时看当前宝牌。",
+          "只有已上听且已摸宝的玩家才可以对宝胡或摸宝胡；如果宝牌正好是已摸宝玩家的听口，立即按对宝胡结算。",
+          "摸宝后听口锁定，之后出牌必须保持同一组听口，不能换听。",
+          "已摸宝后如果新摸到与宝牌同名的牌，或摸到幺鸡，可以点“摸宝胡”。",
+          "如果同名宝牌已有 3 张进入明面牌池，会重新掷骰换宝；所有玩家都选择摸宝后，宝牌等同于全员可见。"
         ]
       }
     ]
@@ -611,7 +611,7 @@ function revealBao(room, player, reason = "ting") {
   log(
     room,
     (player ? player.name : "系统") +
-      " 掷骰看宝 " +
+      " 掷骰摸宝 " +
       dice.values.join(" + ") +
       " = " +
       dice.total +
@@ -652,7 +652,7 @@ function chooseBaoForPlayer(room, player) {
   }
   player.baoSeen = true;
   player.lockedWaitingTypes = normalizeTypeList(player.waitingTypes);
-  log(room, player.name + " 看宝，听口锁定");
+  log(room, player.name + " 摸宝，听口锁定");
   return settleDuiBaoForBaoSeenPlayers(room);
 }
 
@@ -1024,7 +1024,7 @@ function startRound(room) {
   log(room, "骰子 " + room.dice.values.join(" + ") + " = " + room.dice.total);
   log(room, roomConfigLabel(room) + "，牌组 " + variantFor(room).tileTypes.length * 4 + " 张");
   if (roomUsesBao(room)) {
-    log(room, "上听后可选择看宝；看宝后锁定听口");
+    log(room, "上听后可选择摸宝；摸宝后锁定听口");
   }
   return true;
 }
@@ -1270,7 +1270,8 @@ function buildView(room, player) {
   const claimActions = room.pending ? room.pending.actionsByPlayer.get(player.id) || [] : [];
   const canDiscard = room.phase === "playing" && !room.pending && room.currentSeat === player.seat && room.turnDrawn;
   const canDraw = room.phase === "playing" && !room.pending && room.currentSeat === player.seat && !room.turnDrawn;
-  const canPeekBao = roomUsesBao(room) && room.phase === "playing" && !room.pending && player.ting && !player.baoSeen;
+  const computedSelfTing = player.ting || waitingTypes(room, player).length > 0;
+  const canPeekBao = roomUsesBao(room) && room.phase === "playing" && !room.pending && computedSelfTing && !player.baoSeen;
   const turn = room.phase === "playing" ? currentPlayer(room) : null;
   const variant = variantFor(room);
   const baoRevealed = Boolean(room.bao && playerCanSeeBao(room, player));
@@ -1306,7 +1307,7 @@ function buildView(room, player) {
           seenBySelf: player.baoSeen,
           allSeen: allPlayersHaveSeenBao(room),
           type: baoRevealed ? room.bao.type : null,
-          label: baoRevealed ? tileName(room.bao.type) : (player.ting ? "看宝后可见" : "上听后可选择看宝"),
+          label: baoRevealed ? tileName(room.bao.type) : (computedSelfTing ? "摸宝后可见" : "上听后点摸宝"),
           dice: baoRevealed ? room.bao.dice : null,
           visibleCount: baoRevealed ? publicTypeCount(room, room.bao.type) : 0
         }
@@ -1318,12 +1319,13 @@ function buildView(room, player) {
     wallCount: room.wall.length,
     result: room.result,
     turnName: turn ? turn.name : "",
+    turnSeat: turn ? turn.seat : null,
     player: {
       id: player.id,
       seat: player.seat,
       ready: player.ready,
       drawnTileId: player.drawnTileId,
-      ting: player.ting,
+      ting: computedSelfTing,
       waitingTypes: player.waitingTypes,
       baoSeen: player.baoSeen,
       lockedWaitingTypes: player.lockedWaitingTypes
@@ -1341,7 +1343,7 @@ function buildView(room, player) {
         handCount: item.hand.length,
         melds: item.melds,
         discards: item.discards,
-        ting: item.ting,
+        ting: item.id === player.id ? computedSelfTing : item.ting,
         baoSeen: item.baoSeen,
         drawnTileId: item.id === player.id ? item.drawnTileId : null,
         isSelf: item.id === player.id
@@ -1539,7 +1541,7 @@ function handleDiscard(peer, message) {
     return;
   }
   if (!canDiscardWithBaoLock(room, player, message.tileId)) {
-    sendJson(peer, { type: "error", message: "看宝后不能换听，请选择保持原听口的牌" });
+    sendJson(peer, { type: "error", message: "摸宝后不能换听，请选择保持原听口的牌" });
     return;
   }
   const tile = player.hand.splice(index, 1)[0];
@@ -1572,14 +1574,14 @@ function handlePeekBao(peer) {
     return;
   }
   if (room.phase !== "playing" || room.pending) {
-    sendJson(peer, { type: "error", message: "现在不能看宝" });
+    sendJson(peer, { type: "error", message: "现在不能摸宝" });
     return;
   }
   if (!player.ting) {
     refreshTing(room, player);
   }
   if (!player.ting) {
-    sendJson(peer, { type: "error", message: "上听后才能看宝" });
+    sendJson(peer, { type: "error", message: "上听后才能摸宝" });
     return;
   }
   if (player.baoSeen) {
@@ -1590,7 +1592,7 @@ function handlePeekBao(peer) {
     return;
   }
   if (!chooseBaoForPlayer(room, player) && !player.baoSeen) {
-    sendJson(peer, { type: "error", message: "牌山不足，不能看宝" });
+    sendJson(peer, { type: "error", message: "牌山不足，不能摸宝" });
     return;
   }
   broadcast(room);

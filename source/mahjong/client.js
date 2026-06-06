@@ -54,6 +54,8 @@
   var addBotButton = document.getElementById("addBotButton");
   var startButton = document.getElementById("startButton");
   var newRoundButton = document.getElementById("newRoundButton");
+  var soundButton = document.getElementById("soundButton");
+  var guideButton = document.getElementById("guideButton");
   var modalNewRoundButton = document.getElementById("modalNewRoundButton");
   var modalExitButton = document.getElementById("modalExitButton");
   var endModal = document.getElementById("endModal");
@@ -64,6 +66,8 @@
   var rulesModalTitle = document.getElementById("rulesModalTitle");
   var rulesCloseButton = document.getElementById("rulesCloseButton");
   var rulesDetailsContent = document.getElementById("rulesDetailsContent");
+  var guideModal = document.getElementById("guideModal");
+  var guideCloseButton = document.getElementById("guideCloseButton");
   var rulesList = document.getElementById("rulesList");
   var eventLog = document.getElementById("eventLog");
   var seatTop = document.getElementById("seatTop");
@@ -85,7 +89,11 @@
     view: null,
     reconnectTimer: null,
     endDialogRound: null,
-    clientId: getClientId()
+    clientId: getClientId(),
+    selectedTileId: null,
+    lastSignals: {},
+    audioContext: null,
+    soundEnabled: localStorage.getItem(STORAGE_KEY + ".sound") !== "off"
   };
 
   function getClientId() {
@@ -461,9 +469,13 @@
     if (opts.drawn) {
       element.className += " tile-drawn";
     }
+    if (opts.selected) {
+      element.className += " tile-selected";
+      element.setAttribute("aria-pressed", "true");
+    }
     element.dataset.suit = meta.group;
     element.dataset.type = String(type);
-    element.title = meta.label;
+    element.title = meta.label + (opts.selected ? "，再次点击确认出牌" : "");
     element.setAttribute("aria-label", meta.label);
     createTileImage(tileAsset(type), meta.label).forEach(function (node) {
       element.appendChild(node);
@@ -473,6 +485,7 @@
       element.type = "button";
       element.disabled = Boolean(opts.disabled);
       element.addEventListener("click", function () {
+        unlockAudio();
         opts.onClick(tile);
       });
     }
@@ -555,6 +568,144 @@
     rulesModal.hidden = true;
   }
 
+  function showGuideModal() {
+    guideModal.hidden = false;
+  }
+
+  function hideGuideModal() {
+    guideModal.hidden = true;
+  }
+
+  function updateSoundButton() {
+    soundButton.textContent = state.soundEnabled ? "声音开" : "声音关";
+    soundButton.setAttribute("aria-pressed", state.soundEnabled ? "true" : "false");
+  }
+
+  function setSoundEnabled(enabled) {
+    state.soundEnabled = Boolean(enabled);
+    localStorage.setItem(STORAGE_KEY + ".sound", state.soundEnabled ? "on" : "off");
+    updateSoundButton();
+    if (state.soundEnabled) {
+      unlockAudio();
+      playTone("select");
+    }
+  }
+
+  function unlockAudio() {
+    var AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+    if (!state.soundEnabled || !AudioContextCtor) {
+      return null;
+    }
+    if (!state.audioContext) {
+      state.audioContext = new AudioContextCtor();
+    }
+    if (state.audioContext.state === "suspended") {
+      state.audioContext.resume();
+    }
+    return state.audioContext;
+  }
+
+  function tonePattern(kind) {
+    return {
+      turn: [660, 880],
+      claim: [520, 660, 780],
+      bao: [760, 1040],
+      end: [420, 330],
+      select: [620],
+      discard: [360]
+    }[kind] || [560];
+  }
+
+  function playTone(kind) {
+    var context = unlockAudio();
+    var notes = tonePattern(kind);
+    if (!context || !notes.length) {
+      return;
+    }
+    notes.forEach(function (frequency, index) {
+      var start = context.currentTime + index * 0.065;
+      var oscillator = context.createOscillator();
+      var gain = context.createGain();
+      oscillator.type = kind === "discard" ? "triangle" : "sine";
+      oscillator.frequency.setValueAtTime(frequency, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(kind === "turn" || kind === "bao" ? 0.085 : 0.055, start + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.13);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(start);
+      oscillator.stop(start + 0.15);
+    });
+  }
+
+  function pulseElement(element, className) {
+    if (!element) {
+      return;
+    }
+    element.classList.remove(className);
+    void element.offsetWidth;
+    element.classList.add(className);
+    setTimeout(function () {
+      element.classList.remove(className);
+    }, 760);
+  }
+
+  function clearInvalidSelection(view) {
+    if (!state.selectedTileId || !view.canDiscard) {
+      state.selectedTileId = null;
+      return;
+    }
+    if (!view.hand.some(function (tile) {
+      return tile.id === state.selectedTileId;
+    })) {
+      state.selectedTileId = null;
+    }
+  }
+
+  function notifyForView(view) {
+    var claimActions = Array.isArray(view.claimActions) ? view.claimActions : [];
+    var selfTurn = Boolean(view.canDraw || view.canDiscard);
+    var turnSignal = [
+      view.phase,
+      view.round,
+      view.turnSeat,
+      view.canDraw ? "draw" : "",
+      view.canDiscard ? "discard" : ""
+    ].join(":");
+    var claimSignal = claimActions.map(function (action) {
+      return action.id;
+    }).join("|");
+    var baoSignal = view.canPeekBao ? view.round + ":" + view.wallCount + ":" + view.player.seat : "";
+    var endSignal = view.phase === "ended" ? view.round + ":" + (view.result || "") : "";
+
+    gamePanel.classList.toggle("is-my-turn", selfTurn);
+    gamePanel.classList.toggle("has-claim", claimActions.length > 0);
+    gamePanel.classList.toggle("can-peek-bao", Boolean(view.canPeekBao));
+
+    if (selfTurn && state.lastSignals.turn !== turnSignal) {
+      playTone("turn");
+      pulseElement(gamePanel, "attention-pulse");
+    }
+    if (claimSignal && state.lastSignals.claim !== claimSignal) {
+      playTone("claim");
+      pulseElement(claimBar, "attention-pulse");
+    }
+    if (baoSignal && state.lastSignals.bao !== baoSignal) {
+      playTone("bao");
+      pulseElement(actionRow, "attention-pulse");
+    }
+    if (endSignal && state.lastSignals.end !== endSignal) {
+      playTone("end");
+    }
+
+    state.lastSignals = {
+      turn: turnSignal,
+      claim: claimSignal,
+      bao: baoSignal,
+      end: endSignal
+    };
+  }
+
   function actionLabel(action) {
     if (action.action === "hu") {
       return "胡";
@@ -591,7 +742,10 @@
     button.dataset.kind = kind || "";
     button.type = "button";
     button.textContent = label;
-    button.addEventListener("click", onClick);
+    button.addEventListener("click", function (event) {
+      unlockAudio();
+      onClick(event);
+    });
     return button;
   }
 
@@ -613,7 +767,7 @@
       var status = document.createElement("div");
       status.className = "player-state";
       if (view.phase === "playing") {
-        status.textContent = player.baoSeen ? "已看宝" : (player.ting ? "已上听" : (player.bot ? "人机进行中" : "进行中"));
+        status.textContent = player.baoSeen ? "已摸宝" : (player.ting ? "已上听" : (player.bot ? "人机进行中" : "进行中"));
       } else if (player.bot) {
         status.textContent = "人机已就位";
       } else {
@@ -644,7 +798,7 @@
     name.textContent = player.name;
     var count = document.createElement("div");
     count.className = "seat-count";
-    count.textContent = player.baoSeen ? "已看宝" : (player.ting ? "已上听" : player.handCount + " 张");
+    count.textContent = player.baoSeen ? "已摸宝" : (player.ting ? "已上听" : player.handCount + " 张");
     header.append(name, count);
 
     var backs = document.createElement("div");
@@ -744,7 +898,21 @@
         button: true,
         disabled: !view.canDiscard,
         drawn: tile.id === drawnTileId,
+        selected: tile.id === state.selectedTileId,
         onClick: function (selected) {
+          if (!view.canDiscard) {
+            return;
+          }
+          if (state.selectedTileId !== selected.id) {
+            state.selectedTileId = selected.id;
+            playTone("select");
+            setNotice("已选中，第二次点击同一张牌才会打出");
+            renderHand(state.view);
+            renderActions(state.view);
+            return;
+          }
+          state.selectedTileId = null;
+          playTone("discard");
           send({ type: "discard", tileId: selected.id });
         }
       }));
@@ -759,12 +927,13 @@
     claimBar.hidden = true;
 
     if (view.canPeekBao) {
-      actionRow.appendChild(createActionButton("看宝", "peekBao", function () {
+      actionRow.appendChild(createActionButton("摸宝", "peekBao", function () {
+        playTone("bao");
         send({ type: "peekBao" });
       }));
       var peekHint = document.createElement("span");
       peekHint.className = "player-state action-hint";
-      peekHint.textContent = "看宝后锁定听口";
+      peekHint.textContent = "摸宝后锁定听口";
       actionRow.appendChild(peekHint);
     }
 
@@ -775,7 +944,7 @@
       if (view.player.ting && view.bao && view.bao.revealed && view.player.baoSeen) {
         var drawHint = document.createElement("span");
         drawHint.className = "player-state action-hint";
-        drawHint.textContent = "已看宝，摸到宝牌或幺鸡可摸宝胡";
+        drawHint.textContent = "已摸宝，摸到宝牌或幺鸡可摸宝胡";
         actionRow.appendChild(drawHint);
       }
     }
@@ -788,8 +957,8 @@
 
     if (view.phase === "playing" && view.canDiscard) {
       var hint = document.createElement("span");
-      hint.className = "player-state";
-      hint.textContent = "请选择一张牌";
+      hint.className = "player-state action-hint discard-confirm-hint";
+      hint.textContent = state.selectedTileId ? "再次点击确认出牌" : "先点一张牌，高亮后再点一次出牌";
       actionRow.appendChild(hint);
     }
 
@@ -860,17 +1029,17 @@
     note.className = "bao-note";
     if (view.bao.revealed) {
       var visibleCount = Number(view.bao.visibleCount || 0);
-      var seenPrefix = view.bao.allSeen ? "全员已看宝" : "你已看宝";
+      var seenPrefix = view.bao.allSeen ? "全员已摸宝" : "你已摸宝";
       note.textContent = (view.bao.label || tileMeta(view.bao.type).label) +
         " · " + seenPrefix + " · 明面" + visibleCount + "/3";
     } else {
-      note.textContent = view.bao.label || "上听后可选择看宝";
+      note.textContent = view.bao.label || "上听后点摸宝";
     }
     if (view.bao.dice && view.bao.dice.values) {
-      note.title = "看宝骰子：" + view.bao.dice.values.join(" + ") + " = " + view.bao.dice.total +
+      note.title = "摸宝骰子：" + view.bao.dice.values.join(" + ") + " = " + view.bao.dice.total +
         "\n明面数量：牌河和副露里已经亮出的宝牌数量，满 3 张会换宝";
     } else {
-      note.title = "只有已上听且已选择看宝的人能看到宝牌；看宝后不能换听";
+      note.title = "只有已上听且已选择摸宝的人能看到宝牌；摸宝后不能换听";
     }
 
     baoTray.append(label, tileWrap, note);
@@ -913,8 +1082,11 @@
     state.socket = null;
     state.view = null;
     state.endDialogRound = null;
+    state.selectedTileId = null;
+    state.lastSignals = {};
     hideEndModal();
     hideRulesModal();
+    hideGuideModal();
     lobbyPanel.hidden = false;
     gamePanel.hidden = true;
     connectionStatus.textContent = "未连接";
@@ -943,6 +1115,7 @@
       setRadioValue(variantInputs, view.config.variant);
       setRadioValue(seatCountInputs, view.config.seatCount);
     }
+    clearInvalidSelection(view);
     readyButton.textContent = view.player.ready ? "取消准备" : "准备";
     readyButton.disabled = view.phase === "playing";
     addBotButton.disabled = !view.canAddBot;
@@ -957,27 +1130,32 @@
     renderHand(view);
     renderActions(view);
     renderLog(view);
+    notifyForView(view);
     showEndModal(view);
   }
 
   joinForm.addEventListener("submit", function (event) {
     event.preventDefault();
+    unlockAudio();
     connect();
   });
 
   randomRoomButton.addEventListener("click", function () {
+    unlockAudio();
     roomInput.value = randomRoomCode();
     inviteInput.value = "";
     setNotice("新房号已生成，房主先创建");
   });
 
   applyInviteButton.addEventListener("click", function () {
+    unlockAudio();
     applyInviteCode(inviteInput.value, true);
   });
 
   profileForm.addEventListener("submit", function (event) {
     var nextName;
     event.preventDefault();
+    unlockAudio();
     nextName = activeNameInput.value.trim();
     if (!nextName) {
       setNotice("名字不能为空");
@@ -989,27 +1167,33 @@
   });
 
   readyButton.addEventListener("click", function () {
+    unlockAudio();
     send({ type: "ready" });
   });
 
   addBotButton.addEventListener("click", function () {
+    unlockAudio();
     send({ type: "addBot" });
   });
 
   startButton.addEventListener("click", function () {
+    unlockAudio();
     send({ type: "startRound" });
   });
 
   newRoundButton.addEventListener("click", function () {
+    unlockAudio();
     send({ type: "newRound" });
   });
 
   modalNewRoundButton.addEventListener("click", function () {
+    unlockAudio();
     hideEndModal();
     send({ type: "newRound" });
   });
 
   modalExitButton.addEventListener("click", function () {
+    unlockAudio();
     resetToLobby();
   });
 
@@ -1017,9 +1201,26 @@
 
   rulesCloseButton.addEventListener("click", hideRulesModal);
 
+  soundButton.addEventListener("click", function () {
+    setSoundEnabled(!state.soundEnabled);
+  });
+
+  guideButton.addEventListener("click", function () {
+    unlockAudio();
+    showGuideModal();
+  });
+
+  guideCloseButton.addEventListener("click", hideGuideModal);
+
   rulesModal.addEventListener("click", function (event) {
     if (event.target === rulesModal) {
       hideRulesModal();
+    }
+  });
+
+  guideModal.addEventListener("click", function (event) {
+    if (event.target === guideModal) {
+      hideGuideModal();
     }
   });
 
@@ -1027,9 +1228,13 @@
     if (event.key === "Escape" && !rulesModal.hidden) {
       hideRulesModal();
     }
+    if (event.key === "Escape" && !guideModal.hidden) {
+      hideGuideModal();
+    }
   });
 
   copyRoomButton.addEventListener("click", function () {
+    unlockAudio();
     var view = state.view;
     var profile = loadProfile();
     var room = view ? view.room : roomInput.value;
@@ -1053,6 +1258,8 @@
     }
   });
 
+  document.addEventListener("pointerdown", unlockAudio, { once: true });
+  updateSoundButton();
   initForm();
   if (!inviteInput.value && (getQuery().get("join") === "1" || getQuery().get("autojoin") === "1")) {
     setTimeout(connect, 0);
