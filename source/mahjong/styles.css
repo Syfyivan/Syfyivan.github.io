@@ -379,6 +379,20 @@ input:focus {
   font-weight: 800;
 }
 
+.profile-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+  flex: 0 0 auto;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-editor input {
+  min-height: 42px;
+}
+
 .player-list {
   display: grid;
   gap: 8px;

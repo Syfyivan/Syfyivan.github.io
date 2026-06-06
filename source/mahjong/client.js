@@ -47,6 +47,8 @@
   var activeRoomLabel = document.getElementById("activeRoomLabel");
   var roomConfigLabel = document.getElementById("roomConfigLabel");
   var copyRoomButton = document.getElementById("copyRoomButton");
+  var profileForm = document.getElementById("profileForm");
+  var activeNameInput = document.getElementById("activeNameInput");
   var playerList = document.getElementById("playerList");
   var readyButton = document.getElementById("readyButton");
   var addBotButton = document.getElementById("addBotButton");
@@ -106,6 +108,12 @@
 
   function saveProfile(profile) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  }
+
+  function updateSavedName(name) {
+    var profile = loadProfile();
+    profile.name = name;
+    saveProfile(profile);
   }
 
   function radioValue(inputs, fallback) {
@@ -906,6 +914,9 @@
     roomStatus.textContent = "房间 " + view.room;
     wallStatus.textContent = "牌山 " + view.wallCount;
     activeRoomLabel.textContent = view.room;
+    if (document.activeElement !== activeNameInput) {
+      activeNameInput.value = view.player.name || nameInput.value;
+    }
     if (view.config) {
       roomConfigLabel.textContent = view.config.variantLabel + " · " + view.config.seatCount + "人局";
       setRadioValue(variantInputs, view.config.variant);
@@ -941,6 +952,19 @@
 
   applyInviteButton.addEventListener("click", function () {
     applyInviteCode(inviteInput.value, true);
+  });
+
+  profileForm.addEventListener("submit", function (event) {
+    var nextName;
+    event.preventDefault();
+    nextName = activeNameInput.value.trim();
+    if (!nextName) {
+      setNotice("名字不能为空");
+      return;
+    }
+    nameInput.value = nextName;
+    updateSavedName(nextName);
+    send({ type: "rename", name: nextName });
   });
 
   readyButton.addEventListener("click", function () {

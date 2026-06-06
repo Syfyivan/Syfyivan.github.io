@@ -1363,6 +1363,25 @@ function handleReady(peer) {
   broadcast(room);
 }
 
+function handleRename(peer, message) {
+  if (!requirePlayer(peer)) {
+    return;
+  }
+  const { room, player } = peer;
+  const nextName = sanitizeName(message.name);
+  if (nextName === player.name) {
+    sendJson(peer, {
+      type: "view",
+      view: buildView(room, player)
+    });
+    return;
+  }
+  const previousName = player.name;
+  player.name = nextName;
+  log(room, previousName + " 改名为 " + player.name);
+  broadcast(room);
+}
+
 function handleAddBot(peer) {
   if (!requirePlayer(peer)) {
     return;
@@ -1524,6 +1543,10 @@ function handleMessage(peer, raw) {
   }
   if (message.type === "ready") {
     handleReady(peer);
+    return;
+  }
+  if (message.type === "rename") {
+    handleRename(peer, message);
     return;
   }
   if (message.type === "addBot") {
