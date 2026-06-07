@@ -100,6 +100,11 @@ const PHASES = ["构图", "打底", "上色", "精修", "装裱"];
 const MONTH_DAYS = 30;
 const RUSH_DEADLINE_DAYS = 30;
 const RUSH_ORDER_RATE = 0.28;
+const GUILD_DIRECTOR_INTERVAL = 1.35;
+const NPC_REST_FATIGUE = 72;
+const NPC_EMERGENCY_FATIGUE = 92;
+const NPC_PAINT_LOW_RATIO = 0.38;
+const NPC_PAINT_TARGET_RATIO = 0.82;
 
 const els = {
   apprenticeCoin: document.getElementById("apprenticeCoinLabel"),
@@ -157,6 +162,7 @@ function createInitialState() {
     selectedPainterId: "p1",
     viewMode: "boss",
     apprentice: createApprenticeState(),
+    npcDirector: createNpcDirectorState(),
     paused: false,
     speed: 1,
     orderTimer: 0,
@@ -183,6 +189,12 @@ function createApprenticeState() {
     shifts: 0,
     completedWorks: 0,
     totalEarned: 0
+  };
+}
+
+function createNpcDirectorState() {
+  return {
+    timer: 0
   };
 }
 
@@ -247,8 +259,17 @@ function ensureApprenticeState() {
   return state.apprentice;
 }
 
+function ensureNpcDirectorState() {
+  if (!state.npcDirector) state.npcDirector = createNpcDirectorState();
+  return state.npcDirector;
+}
+
 function apprenticePainter() {
   return painterById(APPRENTICE_PAINTER_ID);
+}
+
+function npcPainters() {
+  return state.painters.filter((painter) => painter.id !== APPRENTICE_PAINTER_ID);
 }
 
 function apprenticeRank(painter = apprenticePainter()) {
@@ -465,6 +486,34 @@ function freeEasel(preferredPainterId = state.selectedPainterId) {
   return easels.sort((a, b) => paintersAtStation(b.id).length - paintersAtStation(a.id).length)[0];
 }
 
+function stationWithOpenSlot(type, painterId = "", predicate = () => true) {
+  return state.stations.find((station) => {
+    return station.type === type && predicate(station) && freeSlotForStation(station, painterId) >= 0;
+  });
+}
+
+function npcStationWithOpenSlot(type, painterId = "", predicate = () => true) {
+  return stationWithOpenSlot(type, painterId, (station) => station.id !== "apprentice-bench" && predicate(station));
+}
+
+function isPainterOnActiveTask(painter) {
+  const station = stationById(painter.stationId);
+  return station?.type === "easel" && Boolean(taskAtStation(station.id));
+}
+
+function movePainterToStation(painter, station, message = "") {
+  if (!painter || !station || station.type === "empty") return false;
+  const slotIndex = freeSlotForStation(station, painter.id);
+  if (slotIndex < 0) return false;
+  const moved = painter.stationId !== station.id;
+  painter.stationId = station.id;
+  painter.slotIndex = slotIndex;
+  syncPainterAction(painter);
+  if (moved && painter.id === APPRENTICE_PAINTER_ID) ensureApprenticeState().shifts += 1;
+  if (moved && message) addLog(message);
+  return true;
+}
+
 function emptyStation() {
   return state.stations.find((station) => station.type === "empty");
 }
@@ -480,11 +529,7 @@ function assignPainterToStation(stationId) {
     return;
   }
 
-  const moved = painter.stationId !== station.id;
-  painter.stationId = station.id;
-  painter.slotIndex = slotIndex;
-  syncPainterAction(painter);
-  if (moved && painter.id === APPRENTICE_PAINTER_ID) ensureApprenticeState().shifts += 1;
+  movePainterToStation(painter, station);
   addLog(painter.name + "前往" + station.label + "。");
 }
 
@@ -596,6 +641,146 @@ function buyItem(type) {
   addLog("购买了" + item.label + "。");
 }
 
+function updateGuildDirector(dt) {
+  if (!isApprenticeView() || isOnline()) return;
+  const director = ensureNpcDirectorState();
+  director.timer += dt;
+  if (director.timer < GUILD_DIRECTOR_INTERVAL) return;
+  director.timer = 0;
+
+  restTiredNpcPainters();
+  maintainGuildPaint();
+  acceptGuildManagedOrder();
+  staffActiveTasks();
+  assignNpcRoutineWork();
+}
+
+function restTiredNpcPainters() {
+  for (const painter of [...npcPainters()].sort((a, b) => b.fatigue - a.fatigue)) {
+    const busy = isPainterOnActiveTask(painter);
+    if (painter.fatigue < NPC_EMERGENCY_FATIGUE && (busy || painter.fatigue < NPC_REST_FATIGUE)) continue;
+    const bed = stationWithOpenSlot("bed", painter.id);
+    if (bed) movePainterToStation(painter, bed, "管事让" + painter.name + "去休息。");
+  }
+}
+
+function maintainGuildPaint() {
+  const needsPaint = state.paint < state.paintMax * NPC_PAINT_LOW_RATIO || state.orders.some((order) => order.paintCost > state.paint);
+  const enoughPaint = state.paint >= state.paintMax * NPC_PAINT_TARGET_RATIO;
+  if (!needsPaint || enoughPaint) return;
+  const mixerStation = stationWithOpenSlot("mixer");
+  if (!mixerStation) return;
+  const alreadyMixing = paintersAtStation(mixerStation.id).some((painter) => painter.id !== APPRENTICE_PAINTER_ID);
+  if (alreadyMixing) return;
+  const mixer = bestAvailableNpc((painter) => painter.role === "mixer") || bestAvailableNpc();
+  if (mixer) movePainterToStation(mixer, mixerStation, "管事安排" + mixer.name + "研磨颜料。");
+}
+
+function acceptGuildManagedOrder() {
+  if (state.orders.length <= 1) return;
+  const station = freeGuildEasel();
+  if (!station) return;
+  const order = [...state.orders].sort((a, b) => {
+    if (isRushOrder(a) !== isRushOrder(b)) return isRushOrder(a) ? -1 : 1;
+    return a.deadline - b.deadline;
+  })[0];
+  if (!order || state.paint < order.paintCost) return;
+
+  state.orders = state.orders.filter((item) => item.id !== order.id);
+  state.paint -= order.paintCost;
+  state.activeTasks.push(createTask(order, station.id));
+  syncPaintersAtStation(station.id);
+  addLog("管事接下" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》，安排到" + station.label + "。");
+}
+
+function freeGuildEasel() {
+  return state.stations
+    .filter((station) => {
+      if (station.type !== "easel" || taskAtStation(station.id)) return false;
+      if (paintersAtStation(station.id).some((painter) => painter.id === APPRENTICE_PAINTER_ID)) return false;
+      return freeSlotForStation(station) >= 0;
+    })
+    .sort((a, b) => {
+      const painterDelta = npcPaintersAtStation(b.id).length - npcPaintersAtStation(a.id).length;
+      if (painterDelta) return painterDelta;
+      return stationSlotCount(b) - stationSlotCount(a);
+    })[0];
+}
+
+function staffActiveTasks() {
+  const tasks = [...state.activeTasks].sort((a, b) => a.deadline - b.deadline || a.progress - b.progress);
+  for (const task of tasks) {
+    const station = stationById(task.stationId);
+    if (!station) continue;
+    const slotCount = stationSlotCount(station);
+    const currentCount = paintersAtStation(station.id).length;
+    const apprenticeThere = paintersAtStation(station.id).some((painter) => painter.id === APPRENTICE_PAINTER_ID);
+    const targetCount = Math.min(slotCount, isRushOrder(task) ? slotCount : apprenticeThere ? 2 : Math.min(2, slotCount));
+    for (let count = currentCount; count < targetCount; count += 1) {
+      const helper = bestNpcForTask(task);
+      if (!helper) break;
+      if (!movePainterToStation(helper, station, "管事安排" + helper.name + "协助《" + task.title + "》。")) break;
+    }
+  }
+}
+
+function assignNpcRoutineWork() {
+  for (const painter of npcPainters()) {
+    if (isPainterOnActiveTask(painter) || painter.fatigue >= NPC_REST_FATIGUE) continue;
+    const station = routineStationForPainter(painter);
+    if (station) movePainterToStation(painter, station, routineLogMessage(painter, station));
+  }
+}
+
+function routineStationForPainter(painter) {
+  if (painter.role === "mixer" && state.paint < state.paintMax * NPC_PAINT_TARGET_RATIO) {
+    return npcStationWithOpenSlot("mixer", painter.id);
+  }
+  if (painter.role === "social") return npcStationWithOpenSlot("gallery", painter.id) || npcStationWithOpenSlot("door", painter.id);
+  if (painter.role === "finisher") {
+    return npcStationWithOpenSlot("desk", painter.id);
+  }
+  if (painter.role === "mixer") return npcStationWithOpenSlot("storage", painter.id) || npcStationWithOpenSlot("desk", painter.id);
+  if (painter.skill < 24) return npcStationWithOpenSlot("desk", painter.id) || npcStationWithOpenSlot("door", painter.id);
+  return npcStationWithOpenSlot("door", painter.id) || npcStationWithOpenSlot("desk", painter.id);
+}
+
+function routineLogMessage(painter, station) {
+  const action = {
+    desk: "学习",
+    door: "接待客人",
+    gallery: "布展",
+    mixer: "研磨颜料",
+    storage: "整理颜料"
+  }[station.type];
+  return action ? "管事安排" + painter.name + action + "。" : "";
+}
+
+function bestAvailableNpc(predicate = () => true) {
+  return npcPainters()
+    .filter((painter) => {
+      return predicate(painter) && !isPainterOnActiveTask(painter) && painter.fatigue < NPC_REST_FATIGUE;
+    })
+    .sort((a, b) => a.fatigue - b.fatigue || b.skill - a.skill)[0];
+}
+
+function bestNpcForTask(task) {
+  const phase = PHASES[task.phaseIndex] || PHASES[0];
+  return npcPainters()
+    .filter((painter) => !isPainterOnActiveTask(painter) && painter.fatigue < NPC_EMERGENCY_FATIGUE)
+    .sort((a, b) => {
+      const phaseDelta = Number(ROLE_DATA[b.role]?.phase === phase) - Number(ROLE_DATA[a.role]?.phase === phase);
+      if (phaseDelta) return phaseDelta;
+      const fatigueDelta = a.fatigue - b.fatigue;
+      if (Math.abs(fatigueDelta) > 8) return fatigueDelta;
+      return b.skill - a.skill;
+    })[0];
+}
+
+function npcPaintersAtStation(stationId) {
+  return paintersAtStation(stationId).filter((painter) => painter.id !== APPRENTICE_PAINTER_ID);
+}
+
 function setSelectedMode(mode) {
   if (sendOnline("set_mode", { mode })) return;
   const painter = selectedPainter();
@@ -634,6 +819,7 @@ function stepGame(dt) {
     addLog(order.client + "送来" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》。");
   }
 
+  updateGuildDirector(scaled);
   updatePainters(scaled);
   updateDeadlines(scaled);
 }
@@ -991,6 +1177,7 @@ function applySnapshot(snapshot) {
   if (!Array.isArray(state.players)) state.players = [];
   if (!state.viewMode || !VIEW_MODES[state.viewMode]) state.viewMode = "boss";
   ensureApprenticeState();
+  ensureNpcDirectorState();
   normalizePainterSlots();
   state.selectedPainterId = isOnline() ? preferredPainterId : state.selectedPainterId;
   if (!painterById(state.selectedPainterId)) state.selectedPainterId = state.painters[0]?.id || "";
