@@ -42,22 +42,33 @@ const ORDER_TITLES = {
 };
 
 const SHOP_ITEMS = [
-  { type: "easel", label: "画架", cost: 90 },
+  { type: "easel", label: "小画架", cost: 90, stationType: "easel", slots: 1 },
+  { type: "large-easel", label: "大画架", cost: 150, stationType: "easel", slots: 3, size: "large" },
   { type: "bed", label: "床", cost: 75 },
   { type: "storage", label: "颜料柜", cost: 60 },
   { type: "gallery", label: "展示墙", cost: 110 }
 ];
 
+const DEFAULT_STATION_SLOTS = {
+  bed: 1,
+  desk: 1,
+  door: 1,
+  easel: 1,
+  gallery: 1,
+  mixer: 1,
+  storage: 1
+};
+
 const INITIAL_STATIONS = [
-  { id: "door", type: "door", label: "门口", x: 0, y: 0 },
-  { id: "easel-1", type: "easel", label: "画架一", x: 1, y: 0, taskId: null },
-  { id: "easel-2", type: "easel", label: "画架二", x: 2, y: 0, taskId: null },
-  { id: "mixer", type: "mixer", label: "调色台", x: 4, y: 0 },
-  { id: "desk", type: "desk", label: "书桌", x: 5, y: 0 },
-  { id: "bed-1", type: "bed", label: "床一", x: 0, y: 1 },
-  { id: "bed-2", type: "bed", label: "床二", x: 1, y: 1 },
-  { id: "gallery", type: "gallery", label: "展示墙", x: 4, y: 1 },
-  { id: "storage", type: "storage", label: "颜料柜", x: 5, y: 1 },
+  { id: "door", type: "door", label: "门口", x: 0, y: 0, slots: 1 },
+  { id: "easel-1", type: "easel", label: "小画架", x: 1, y: 0, taskId: null, slots: 1, size: "small" },
+  { id: "easel-2", type: "easel", label: "大画架", x: 2, y: 0, taskId: null, slots: 3, size: "large" },
+  { id: "mixer", type: "mixer", label: "调色台", x: 4, y: 0, slots: 1 },
+  { id: "desk", type: "desk", label: "书桌", x: 5, y: 0, slots: 1 },
+  { id: "bed-1", type: "bed", label: "床一", x: 0, y: 1, slots: 1 },
+  { id: "bed-2", type: "bed", label: "床二", x: 1, y: 1, slots: 1 },
+  { id: "gallery", type: "gallery", label: "展示墙", x: 4, y: 1, slots: 1 },
+  { id: "storage", type: "storage", label: "颜料柜", x: 5, y: 1, slots: 1 },
   { id: "empty-1", type: "empty", label: "空位", x: 2, y: 2 },
   { id: "empty-2", type: "empty", label: "空位", x: 3, y: 2 },
   { id: "empty-3", type: "empty", label: "空位", x: 4, y: 2 }
@@ -114,12 +125,13 @@ function createInitialStations() {
   return stations;
 }
 
-function createPainter(id, name, role, stationId) {
+function createPainter(id, name, role, stationId, slotIndex = 0) {
   return {
     id,
     name,
     role,
     stationId,
+    slotIndex,
     skill: role === "finisher" ? 17 : role === "mixer" ? 13 : 12,
     fatigue: role === "social" ? 10 : 14,
     mood: 72,
@@ -197,6 +209,62 @@ function taskAtStation(state, stationId) {
   return state.activeTasks.find((task) => task.stationId === stationId);
 }
 
+function stationSlotCount(station) {
+  if (!station || station.type === "empty") return 0;
+  const slots = Number(station.slots || DEFAULT_STATION_SLOTS[station.type] || 1);
+  return Math.max(1, Math.min(4, Math.floor(slots)));
+}
+
+function validSlotIndex(station, slotIndex) {
+  return Number.isInteger(slotIndex) && slotIndex >= 0 && slotIndex < stationSlotCount(station);
+}
+
+function paintersAtStation(state, stationId) {
+  return state.painters
+    .filter((painter) => painter.stationId === stationId)
+    .sort((a, b) => (a.slotIndex ?? 0) - (b.slotIndex ?? 0) || a.id.localeCompare(b.id));
+}
+
+function firstOpenSlot(station, usedSlots) {
+  for (let index = 0; index < stationSlotCount(station); index += 1) {
+    if (!usedSlots.has(index)) return index;
+  }
+  return -1;
+}
+
+function normalizePainterSlots(state) {
+  for (const station of state.stations) {
+    const slots = stationSlotCount(station);
+    if (!slots) continue;
+    const used = new Set();
+    for (const painter of paintersAtStation(state, station.id)) {
+      if (!validSlotIndex(station, painter.slotIndex) || used.has(painter.slotIndex)) {
+        painter.slotIndex = firstOpenSlot(station, used);
+      }
+      used.add(painter.slotIndex);
+    }
+  }
+}
+
+function occupiedSlots(state, stationId, exceptPainterId = "") {
+  const station = stationById(state, stationId);
+  const used = new Set();
+  if (!station) return used;
+  for (const painter of state.painters) {
+    if (painter.stationId !== stationId || painter.id === exceptPainterId) continue;
+    if (validSlotIndex(station, painter.slotIndex)) used.add(painter.slotIndex);
+  }
+  return used;
+}
+
+function freeSlotForStation(state, station, painterId = "") {
+  if (!station || station.type === "empty") return -1;
+  normalizePainterSlots(state);
+  const painter = painterById(state, painterId);
+  if (painter?.stationId === station.id && validSlotIndex(station, painter.slotIndex)) return painter.slotIndex;
+  return firstOpenSlot(station, occupiedSlots(state, station.id, painterId));
+}
+
 function defaultActionForStation(station, task = null) {
   if (!station) return "idle";
   if (station.type === "easel") return task ? "painting" : "practicing";
@@ -226,8 +294,12 @@ function syncPaintersAtStation(state, stationId) {
     .forEach((painter) => syncPainterAction(state, painter));
 }
 
-function freeEasel(state) {
-  return state.stations.find((station) => station.type === "easel" && !taskAtStation(state, station.id));
+function freeEasel(state, preferredPainterId = "") {
+  const easels = state.stations.filter((station) => station.type === "easel" && !taskAtStation(state, station.id));
+  const preferredPainter = painterById(state, preferredPainterId);
+  const preferredStation = preferredPainter ? stationById(state, preferredPainter.stationId) : null;
+  if (preferredStation?.type === "easel" && !taskAtStation(state, preferredStation.id)) return preferredStation;
+  return easels.sort((a, b) => paintersAtStation(state, b.id).length - paintersAtStation(state, a.id).length)[0];
 }
 
 function emptyStation(state) {
@@ -238,16 +310,19 @@ function assignPainterToStation(state, painterId, stationId) {
   const painter = painterById(state, painterId);
   const station = stationById(state, stationId);
   if (!painter || !station || station.type === "empty") return;
+  const slotIndex = freeSlotForStation(state, station, painter.id);
+  if (slotIndex < 0) return addLog(state, station.label + "的点位已经站满了。");
 
   painter.stationId = station.id;
+  painter.slotIndex = slotIndex;
   syncPainterAction(state, painter);
   addLog(state, painter.name + "前往" + station.label + "。");
 }
 
-function acceptOrder(state, orderId) {
+function acceptOrder(state, orderId, preferredPainterId = "") {
   const order = state.orders.find((item) => item.id === orderId);
   if (!order) return;
-  const station = freeEasel(state);
+  const station = freeEasel(state, preferredPainterId);
   if (!station) return addLog(state, "没有空画架，暂时接不了新活。");
   if (state.paint < order.paintCost) return addLog(state, "颜料不足，先去调色。");
 
@@ -283,12 +358,15 @@ function buyItem(state, type) {
     });
     state.prestige += 6;
   } else {
-    const count = state.stations.filter((station) => station.type === type).length + 1;
+    const stationType = item.stationType || type;
+    const count = state.stations.filter((station) => station.type === stationType).length + 1;
     Object.assign(emptyStation(state), {
-      id: type + "-" + Date.now().toString(36),
-      type,
+      id: stationType + "-" + Date.now().toString(36),
+      type: stationType,
       label: item.label + count,
-      taskId: null
+      taskId: null,
+      slots: item.slots || DEFAULT_STATION_SLOTS[stationType] || 1,
+      size: item.size || "small"
     });
   }
   addLog(state, "购买了" + item.label + "。");
@@ -483,6 +561,7 @@ function createRoom(roomId) {
 }
 
 function serializeRoom(room) {
+  normalizePainterSlots(room.state);
   room.state.players = [...room.clients]
     .filter((client) => client.name && client.painterId)
     .map((client) => ({ id: client.id, name: client.name, painterId: client.painterId }));
@@ -564,7 +643,7 @@ function handleClientMessage(client, message) {
       setPainterIdle(state, client.painterId);
       break;
     case "accept_order":
-      acceptOrder(state, payload.orderId);
+      acceptOrder(state, payload.orderId, client.painterId);
       break;
     case "decline_order":
       declineOrder(state, payload.orderId);

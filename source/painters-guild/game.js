@@ -56,22 +56,33 @@ const ORDER_TITLES = {
 };
 
 const SHOP_ITEMS = [
-  { type: "easel", label: "画架", cost: 90, desc: "增加一个可承接订单的位置" },
+  { type: "easel", label: "小画架", cost: 90, desc: "增加一个单人作画位置", stationType: "easel", slots: 1 },
+  { type: "large-easel", label: "大画架", cost: 150, desc: "增加一个三人协作画位", stationType: "easel", slots: 3, size: "large" },
   { type: "bed", label: "床", cost: 75, desc: "增加一个恢复疲劳的位置" },
   { type: "storage", label: "颜料柜", cost: 60, desc: "颜料上限增加 18" },
   { type: "gallery", label: "展示墙", cost: 110, desc: "声望增加 6，作品展示位更醒目" }
 ];
 
+const DEFAULT_STATION_SLOTS = {
+  bed: 1,
+  desk: 1,
+  door: 1,
+  easel: 1,
+  gallery: 1,
+  mixer: 1,
+  storage: 1
+};
+
 const INITIAL_STATIONS = [
-  { id: "door", type: "door", label: "门口", x: 0, y: 0 },
-  { id: "easel-1", type: "easel", label: "画架一", x: 1, y: 0, taskId: null },
-  { id: "easel-2", type: "easel", label: "画架二", x: 2, y: 0, taskId: null },
-  { id: "mixer", type: "mixer", label: "调色台", x: 4, y: 0 },
-  { id: "desk", type: "desk", label: "书桌", x: 5, y: 0 },
-  { id: "bed-1", type: "bed", label: "床一", x: 0, y: 1 },
-  { id: "bed-2", type: "bed", label: "床二", x: 1, y: 1 },
-  { id: "gallery", type: "gallery", label: "展示墙", x: 4, y: 1 },
-  { id: "storage", type: "storage", label: "颜料柜", x: 5, y: 1 },
+  { id: "door", type: "door", label: "门口", x: 0, y: 0, slots: 1 },
+  { id: "easel-1", type: "easel", label: "小画架", x: 1, y: 0, taskId: null, slots: 1, size: "small" },
+  { id: "easel-2", type: "easel", label: "大画架", x: 2, y: 0, taskId: null, slots: 3, size: "large" },
+  { id: "mixer", type: "mixer", label: "调色台", x: 4, y: 0, slots: 1 },
+  { id: "desk", type: "desk", label: "书桌", x: 5, y: 0, slots: 1 },
+  { id: "bed-1", type: "bed", label: "床一", x: 0, y: 1, slots: 1 },
+  { id: "bed-2", type: "bed", label: "床二", x: 1, y: 1, slots: 1 },
+  { id: "gallery", type: "gallery", label: "展示墙", x: 4, y: 1, slots: 1 },
+  { id: "storage", type: "storage", label: "颜料柜", x: 5, y: 1, slots: 1 },
   { id: "empty-1", type: "empty", label: "空位", x: 2, y: 2 },
   { id: "empty-2", type: "empty", label: "空位", x: 3, y: 2 },
   { id: "empty-3", type: "empty", label: "空位", x: 4, y: 2 }
@@ -172,12 +183,13 @@ function createInitialStations() {
   return stations;
 }
 
-function createPainter(id, name, role, stationId) {
+function createPainter(id, name, role, stationId, slotIndex = 0) {
   return {
     id,
     name,
     role,
     stationId,
+    slotIndex,
     skill: role === "finisher" ? 17 : role === "mixer" ? 13 : 12,
     fatigue: role === "social" ? 10 : 14,
     mood: 72,
@@ -193,6 +205,7 @@ function cloneFreshState() {
     delete state[key];
   });
   Object.assign(state, next);
+  state.orders.push(makeOrder(), makeOrder());
   addLog("画室重新开张。");
 }
 
@@ -285,6 +298,62 @@ function taskAtStation(stationId) {
   return state.activeTasks.find((task) => task.stationId === stationId);
 }
 
+function stationSlotCount(station) {
+  if (!station || station.type === "empty") return 0;
+  const slots = Number(station.slots || DEFAULT_STATION_SLOTS[station.type] || 1);
+  return Math.max(1, Math.min(4, Math.floor(slots)));
+}
+
+function validSlotIndex(station, slotIndex) {
+  return Number.isInteger(slotIndex) && slotIndex >= 0 && slotIndex < stationSlotCount(station);
+}
+
+function paintersAtStation(stationId) {
+  return state.painters
+    .filter((painter) => painter.stationId === stationId)
+    .sort((a, b) => (a.slotIndex ?? 0) - (b.slotIndex ?? 0) || a.id.localeCompare(b.id));
+}
+
+function normalizePainterSlots() {
+  for (const station of state.stations) {
+    const slots = stationSlotCount(station);
+    if (!slots) continue;
+    const used = new Set();
+    for (const painter of paintersAtStation(station.id)) {
+      if (!validSlotIndex(station, painter.slotIndex) || used.has(painter.slotIndex)) {
+        painter.slotIndex = firstOpenSlot(station, used);
+      }
+      used.add(painter.slotIndex);
+    }
+  }
+}
+
+function firstOpenSlot(station, usedSlots) {
+  for (let index = 0; index < stationSlotCount(station); index += 1) {
+    if (!usedSlots.has(index)) return index;
+  }
+  return -1;
+}
+
+function occupiedSlots(stationId, exceptPainterId = "") {
+  const station = stationById(stationId);
+  const used = new Set();
+  if (!station) return used;
+  for (const painter of state.painters) {
+    if (painter.stationId !== stationId || painter.id === exceptPainterId) continue;
+    if (validSlotIndex(station, painter.slotIndex)) used.add(painter.slotIndex);
+  }
+  return used;
+}
+
+function freeSlotForStation(station, painterId = "") {
+  if (!station || station.type === "empty") return -1;
+  normalizePainterSlots();
+  const painter = painterById(painterId);
+  if (painter?.stationId === station.id && validSlotIndex(station, painter.slotIndex)) return painter.slotIndex;
+  return firstOpenSlot(station, occupiedSlots(station.id, painterId));
+}
+
 function defaultActionForStation(station, task = null) {
   if (!station) return "idle";
   if (station.type === "easel") return task ? "painting" : "practicing";
@@ -314,8 +383,12 @@ function syncPaintersAtStation(stationId) {
     .forEach(syncPainterAction);
 }
 
-function freeEasel() {
-  return state.stations.find((station) => station.type === "easel" && !taskAtStation(station.id));
+function freeEasel(preferredPainterId = state.selectedPainterId) {
+  const easels = state.stations.filter((station) => station.type === "easel" && !taskAtStation(station.id));
+  const preferredPainter = painterById(preferredPainterId);
+  const preferredStation = preferredPainter ? stationById(preferredPainter.stationId) : null;
+  if (preferredStation?.type === "easel" && !taskAtStation(preferredStation.id)) return preferredStation;
+  return easels.sort((a, b) => paintersAtStation(b.id).length - paintersAtStation(a.id).length)[0];
 }
 
 function emptyStation() {
@@ -327,8 +400,14 @@ function assignPainterToStation(stationId) {
   const painter = selectedPainter();
   const station = stationById(stationId);
   if (!painter || !station || station.type === "empty") return;
+  const slotIndex = freeSlotForStation(station, painter.id);
+  if (slotIndex < 0) {
+    addLog(station.label + "的点位已经站满了。");
+    return;
+  }
 
   painter.stationId = station.id;
+  painter.slotIndex = slotIndex;
   syncPainterAction(painter);
   addLog(painter.name + "前往" + station.label + "。");
 }
@@ -391,12 +470,15 @@ function buyItem(type) {
     state.prestige += 6;
   } else {
     const empty = emptyStation();
-    const count = state.stations.filter((station) => station.type === type).length + 1;
+    const stationType = item.stationType || type;
+    const count = state.stations.filter((station) => station.type === stationType).length + 1;
     Object.assign(empty, {
-      id: type + "-" + Date.now().toString(36),
-      type,
+      id: stationType + "-" + Date.now().toString(36),
+      type: stationType,
       label: item.label + count,
-      taskId: null
+      taskId: null,
+      slots: item.slots || DEFAULT_STATION_SLOTS[stationType] || 1,
+      size: item.size || "small"
     });
   }
   addLog("购买了" + item.label + "。");
@@ -754,6 +836,7 @@ function applySnapshot(snapshot) {
   });
   Object.assign(state, snapshot);
   if (!Array.isArray(state.players)) state.players = [];
+  normalizePainterSlots();
   state.selectedPainterId = isOnline() ? preferredPainterId : state.selectedPainterId;
   if (!painterById(state.selectedPainterId)) state.selectedPainterId = state.painters[0]?.id || "";
   scheduleRender();
@@ -921,13 +1004,15 @@ function painterAsset(painter) {
 
 function renderRoom() {
   els.roomGrid.innerHTML = "";
+  normalizePainterSlots();
   const cells = new Map(state.stations.map((station) => [station.x + ":" + station.y, station]));
   for (let y = 0; y < 3; y += 1) {
     for (let x = 0; x < 6; x += 1) {
       const station = cells.get(x + ":" + y);
       const task = station.type === "easel" ? taskAtStation(station.id) : null;
-      const stationPainters = state.painters.filter((item) => item.stationId === station.id);
+      const stationPainters = paintersAtStation(station.id);
       const working = stationPainters.some((painter) => painter.action === "painting");
+      const slotCount = stationSlotCount(station);
       const stationEl = document.createElement("button");
       stationEl.type = "button";
       stationEl.className =
@@ -940,18 +1025,24 @@ function renderRoom() {
         (station.type === "empty" ? " is-empty" : "") +
         (task ? " has-task" : "") +
         (task && isRushOrder(task) ? " is-rush" : "") +
-        (working ? " is-working" : "");
+        (working ? " is-working" : "") +
+        (slotCount > 1 ? " is-large-easel" : "") +
+        (slotCount && stationPainters.length >= slotCount ? " is-full" : " has-open-slot");
       stationEl.dataset.stationId = station.id;
       stationEl.dataset.stationType = station.type;
+      stationEl.dataset.slotCount = String(slotCount);
       stationEl.innerHTML = stationMarkup(station, task, working);
 
-      stationPainters.forEach((painter, index) => {
+      stationPainters.forEach((painter) => {
         const role = ROLE_DATA[painter.role];
         const token = document.createElement("span");
+        const slotIndex = validSlotIndex(station, painter.slotIndex) ? painter.slotIndex : 0;
+        const slotOffset = (slotIndex - (slotCount - 1) / 2) * (station.type === "easel" && task ? 28 : 31);
         token.className = "painter-token is-" + painter.action + " role-" + painter.role;
         token.style.setProperty("--painter-color", role.color);
-        token.style.setProperty("--painter-index", index);
+        token.style.setProperty("--painter-slot-offset", slotOffset + "px");
         token.dataset.painterId = painter.id;
+        token.dataset.slotIndex = String(slotIndex);
         token.draggable = canControlPainter(painter.id);
         token.title = painter.name;
         token.innerHTML = `
@@ -990,8 +1081,19 @@ function stationMarkup(station, task, working = false) {
       <span class="station-subtitle">${subtitle}</span>
     </span>
     <span class="station-art">${stationArt}</span>
+    ${workSlotsMarkup(station)}
     ${progress}
   `;
+}
+
+function workSlotsMarkup(station) {
+  const slotCount = stationSlotCount(station);
+  if (!slotCount) return "";
+  const used = occupiedSlots(station.id);
+  const slots = Array.from({ length: slotCount }, (_, index) => {
+    return `<span class="work-slot ${used.has(index) ? "is-occupied" : ""}"></span>`;
+  }).join("");
+  return `<span class="work-slot-row" aria-hidden="true">${slots}</span>`;
 }
 
 function stationAssetMarkup(station) {
@@ -1128,8 +1230,9 @@ function renderShop() {
     const el = document.createElement("article");
     el.className = "shop-item";
     const disabled = state.coins < item.cost || (item.type !== "storage" && !emptyStation());
+    const iconType = item.stationType || item.type;
     el.innerHTML = `
-      <span class="shop-icon is-${item.type}" aria-hidden="true"></span>
+      <span class="shop-icon is-${iconType}" aria-hidden="true"></span>
       <span>
         <h3>${item.label}</h3>
         <p>${item.desc}</p>
@@ -1227,6 +1330,9 @@ function bindEvents() {
   els.roomGrid.addEventListener("dragover", (event) => {
     const station = event.target.closest("[data-station-id]");
     if (!station || station.dataset.stationType === "empty") return;
+    const stationState = stationById(station.dataset.stationId);
+    const painterId = activeDragPainterId || state.selectedPainterId;
+    if (freeSlotForStation(stationState, painterId) < 0) return;
     event.preventDefault();
     station.classList.add("is-drop-target");
   });

@@ -334,10 +334,12 @@ button:disabled {
 
 .painter-token {
   --painter-color: var(--gold);
+  --painter-slot-offset: 0px;
   width: 34px;
   height: 44px;
   position: absolute;
-  right: calc(10px + var(--painter-index) * 23px);
+  left: calc(50% - 17px + var(--painter-slot-offset));
+  right: auto;
   bottom: 12px;
   z-index: 7;
   color: transparent;
@@ -571,12 +573,12 @@ button:disabled {
 }
 
 .station.is-easel.has-task .painter-token {
-  left: calc(7px + var(--painter-index) * 16px);
+  left: calc(50% - 17px + var(--painter-slot-offset));
   right: auto;
-  bottom: 4px;
+  bottom: 2px;
   z-index: 9;
-  transform: scale(0.72);
-  transform-origin: left bottom;
+  transform: scale(0.68);
+  transform-origin: center bottom;
 }
 
 .station.is-easel.has-task .painter-token.is-painting {
@@ -863,6 +865,10 @@ button:disabled {
   filter: drop-shadow(0 10px 0 rgba(0, 0, 0, 0.18)) saturate(1.16);
 }
 
+.station.is-full:not(.is-empty):not(.is-drop-target) {
+  box-shadow: inset 0 -2px rgba(189, 98, 68, 0.16);
+}
+
 .station-label {
   position: relative;
   z-index: 2;
@@ -902,8 +908,21 @@ button:disabled {
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
 }
 
+.station.has-task .station-label {
+  min-width: min(112px, 94%);
+}
+
+.station.is-easel.has-task .station-title {
+  gap: 5px;
+  font-size: 11px;
+}
+
 .station.is-rush .station-title b {
   color: #ffd38a;
+}
+
+.station-title b {
+  white-space: nowrap;
 }
 
 .station-title span {
@@ -936,6 +955,14 @@ button:disabled {
   align-items: start;
   min-height: 96px;
   padding-top: 0;
+}
+
+.station.is-large-easel .station-art {
+  min-height: 92px;
+}
+
+.station.is-large-easel.has-task .station-art {
+  min-height: 108px;
 }
 
 .station:not(.is-empty) .station-art::before {
@@ -1204,6 +1231,11 @@ button:disabled {
   border: 2px dashed rgba(255, 255, 255, 0.22);
 }
 
+.station.is-large-easel .pixel-easel {
+  transform: scale(1.18);
+  transform-origin: center bottom;
+}
+
 .painting-canvas {
   position: relative;
   display: block;
@@ -1216,12 +1248,20 @@ button:disabled {
 }
 
 .station.is-easel.has-task .painting-canvas {
-  transform: translateY(-13px) scale(1.06);
+  transform: translateY(-16px) scale(1.08);
   transform-origin: center top;
+}
+
+.station.is-large-easel.has-task .painting-canvas {
+  transform: translateY(-17px) scale(1.22);
 }
 
 .station.is-easel.has-task .station-progress {
   margin-top: -14px;
+}
+
+.station.is-large-easel.has-task .station-progress {
+  margin-top: -10px;
 }
 
 .painting-canvas::before {
@@ -1468,6 +1508,39 @@ button:disabled {
 
 .painting-canvas.is-working .brush-sprite {
   display: none;
+}
+
+.work-slot-row {
+  position: relative;
+  z-index: 8;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  min-height: 8px;
+  margin: -1px 0 3px;
+  pointer-events: none;
+}
+
+.work-slot {
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgba(249, 239, 225, 0.34);
+  border-radius: 50%;
+  background: rgba(21, 29, 44, 0.56);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.24);
+}
+
+.work-slot.is-occupied {
+  border-color: rgba(216, 165, 75, 0.82);
+  background: var(--gold);
+}
+
+.station.is-easel.has-task .work-slot-row {
+  margin-top: -12px;
+}
+
+.station.is-large-easel.has-task .work-slot-row {
+  margin-top: -6px;
 }
 
 .station-progress {
