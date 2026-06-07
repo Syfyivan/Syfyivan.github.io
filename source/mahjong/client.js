@@ -88,6 +88,7 @@
   var discardRiver = document.getElementById("discardRiver");
   var claimBar = document.getElementById("claimBar");
   var selfMelds = document.getElementById("selfMelds");
+  var guideAdvice = document.getElementById("guideAdvice");
   var handRow = document.getElementById("handRow");
   var actionRow = document.getElementById("actionRow");
 
@@ -479,6 +480,9 @@
     var meta = tileMeta(type);
     var element = document.createElement(opts.button ? "button" : "div");
     element.className = opts.mini ? "mini-tile" : "tile";
+    if (tile && tile.id) {
+      element.dataset.tileId = tile.id;
+    }
     if (opts.drawn) {
       element.className += " tile-drawn";
     }
@@ -486,13 +490,26 @@
       element.className += " tile-selected";
       element.setAttribute("aria-pressed", "true");
     }
+    if (opts.guideAdvice && opts.guideAdvice.level) {
+      element.className += " tile-guide-" + opts.guideAdvice.level;
+    }
     element.dataset.suit = meta.group;
     element.dataset.type = String(type);
     element.title = meta.label + (opts.selected ? "，再次点击确认出牌" : "");
+    if (opts.guideAdvice) {
+      element.title += "。建议：" + opts.guideAdvice.summary + "。效果：" + opts.guideAdvice.effect;
+    }
     element.setAttribute("aria-label", meta.label);
     createTileImage(tileAsset(type), meta.label).forEach(function (node) {
       element.appendChild(node);
     });
+    if (opts.guideAdvice && opts.guideAdvice.badge) {
+      var badge = document.createElement("span");
+      badge.className = "tile-guide-badge";
+      badge.textContent = opts.guideAdvice.badge;
+      badge.title = opts.guideAdvice.summary;
+      element.appendChild(badge);
+    }
 
     if (opts.button) {
       element.type = "button";
@@ -601,6 +618,10 @@
     state.guide.round = null;
     state.guide.completed = false;
     guideCoach.hidden = true;
+    if (guideAdvice) {
+      guideAdvice.hidden = true;
+    }
+    gamePanel.classList.remove("has-guide-advice");
     clearGuideTargets();
   }
 
@@ -640,6 +661,271 @@
     return Array.from(handRow.querySelectorAll(".tile")).find(function (tile) {
       return !tile.disabled;
     });
+  }
+
+  function handTileById(tileId) {
+    return Array.from(handRow.querySelectorAll(".tile")).find(function (tile) {
+      return tile.dataset.tileId === String(tileId);
+    });
+  }
+
+  function isNumberTile(type) {
+    return type >= 0 && type < 27;
+  }
+
+  function isTerminalOrHonor(type) {
+    var meta = tileMeta(type);
+    return type >= 27 || meta.rank === 1 || meta.rank === 9;
+  }
+
+  function neighborType(type, offset) {
+    var meta = tileMeta(type);
+    var nextRank = meta.rank + offset;
+    if (!isNumberTile(type) || nextRank < 1 || nextRank > 9) {
+      return null;
+    }
+    return type + offset;
+  }
+
+  function countTypes(tiles) {
+    var counts = {};
+    (tiles || []).forEach(function (tile) {
+      var type = typeof tile === "number" ? tile : tile.type;
+      counts[type] = (counts[type] || 0) + 1;
+    });
+    return counts;
+  }
+
+  function selfOpenTypes(view) {
+    return (view.selfMelds || []).flatMap(function (meld) {
+      return meld.tiles || [];
+    });
+  }
+
+  function visibleTypeCount(view, type) {
+    var count = 0;
+    (view.discardHistory || []).forEach(function (entry) {
+      if (entry.tile && entry.tile.type === type) {
+        count += 1;
+      }
+    });
+    (view.players || []).forEach(function (player) {
+      (player.melds || []).forEach(function (meld) {
+        (meld.tiles || []).forEach(function (tileType) {
+          if (tileType === type) {
+            count += 1;
+          }
+        });
+      });
+    });
+    return count;
+  }
+
+  function terminalHonorCount(view, exceptTileId) {
+    var concealed = (view.hand || []).filter(function (tile) {
+      return tile.id !== exceptTileId && isTerminalOrHonor(tile.type);
+    }).length;
+    var opened = selfOpenTypes(view).filter(isTerminalOrHonor).length;
+    return concealed + opened;
+  }
+
+  function waitingLabel(view) {
+    var waits = view.player && Array.isArray(view.player.waitingTypes) ? view.player.waitingTypes : [];
+    if (!waits.length) {
+      return "";
+    }
+    return waits.map(function (type) {
+      return tileMeta(type).label;
+    }).join("、");
+  }
+
+  function baseDiscardEffect(view, advice) {
+    var parts = ["打出 " + advice.label + " 后，会结束你的出牌。"];
+    var waits = waitingLabel(view);
+    if (view.config && view.config.allowChow) {
+      parts.push("别人可能吃、碰、杠或胡；无人响应就轮到下家摸牌。");
+    } else {
+      parts.push("别人可能碰、杠或胡；无人响应就轮到下家摸牌。");
+    }
+    if (waits) {
+      parts.push("你现在已上听，当前听 " + waits + "。");
+    }
+    return parts.join("");
+  }
+
+  function discardAdviceList(view) {
+    var counts = countTypes(view.hand || []);
+    var lockedDiscardTileId = view.player ? view.player.lockedDiscardTileId : "";
+    var drawnTileId = view.player ? view.player.drawnTileId : "";
+    var baoType = view.bao && view.bao.revealed && view.player && view.player.baoSeen ? view.bao.type : null;
+    var variant = view.config ? view.config.variant : "";
+    var raw = (view.hand || []).map(function (tile) {
+      var meta = tileMeta(tile.type);
+      var same = counts[tile.type] || 0;
+      var visible = visibleTypeCount(view, tile.type);
+      var reasons = [];
+      var score = 0;
+      var legal = Boolean(view.canDiscard);
+      var forced = false;
+
+      if (lockedDiscardTileId && tile.id !== lockedDiscardTileId) {
+        return {
+          tile: tile,
+          label: meta.label,
+          legal: false,
+          level: "blocked",
+          badge: "锁",
+          score: 99,
+          summary: "看宝后不能改听，这张不能打",
+          effect: "你已看宝锁定牌局，只能打刚摸到的那张牌。"
+        };
+      }
+
+      if (lockedDiscardTileId && tile.id === lockedDiscardTileId) {
+        forced = true;
+        reasons.push("看宝后只能摸切");
+        return {
+          tile: tile,
+          label: meta.label,
+          legal: legal,
+          level: "forced",
+          badge: "摸切",
+          score: -99,
+          summary: "已看宝锁定，只能打刚摸到的 " + meta.label,
+          effect: "打出它会保持原来的听口，继续等宝牌或幺鸡摸宝胡。",
+          forced: true
+        };
+      }
+
+      if (same >= 4) {
+        score += 10;
+        reasons.push("四张同牌有机会杠，通常别先拆");
+      } else if (same === 3) {
+        score += 8;
+        reasons.push("三张同牌是刻子，价值较高");
+      } else if (same === 2) {
+        score += 5;
+        reasons.push("对子可做将，也可能碰牌");
+      }
+
+      if (isNumberTile(tile.type)) {
+        var left = neighborType(tile.type, -1);
+        var right = neighborType(tile.type, 1);
+        var nearLeft = neighborType(tile.type, -2);
+        var nearRight = neighborType(tile.type, 2);
+        var hasLeft = left !== null && counts[left] > 0;
+        var hasRight = right !== null && counts[right] > 0;
+        var hasNear = (nearLeft !== null && counts[nearLeft] > 0) || (nearRight !== null && counts[nearRight] > 0);
+
+        if (hasLeft && hasRight) {
+          score += 6;
+          reasons.push("两边都有邻张，容易组成顺子");
+        } else if (hasLeft || hasRight) {
+          score += 3;
+          reasons.push("旁边有搭子，留下来更容易进张");
+        } else if (hasNear) {
+          score += 1;
+          reasons.push("隔一张有连接，价值一般");
+        } else if (meta.rank === 1 || meta.rank === 9) {
+          score -= 3;
+          reasons.push("孤张幺九进张少，通常可以先处理");
+        } else {
+          score -= 1;
+          reasons.push("孤张中张，暂时没有直接搭子");
+        }
+      } else if (same === 1) {
+        score -= 2;
+        reasons.push("单张字牌不能成顺，通常先处理");
+      }
+
+      if (variant === "dongbei" && isTerminalOrHonor(tile.type) && terminalHonorCount(view, tile.id) === 0) {
+        score += 12;
+        reasons.push("东北麻将胡牌常需要幺九或字牌，最后一张要谨慎");
+      }
+
+      if (baoType !== null && tile.type === baoType) {
+        score += 12;
+        reasons.push("这是你看过的宝牌，别主动打掉");
+      }
+
+      if (visible >= 3) {
+        score -= 4;
+        reasons.push("明面已见 " + visible + " 张，剩余少，保留价值下降");
+      } else if (visible === 2) {
+        score -= 2;
+        reasons.push("明面已见 2 张，价值略降");
+      }
+
+      if (tile.id === drawnTileId) {
+        reasons.push("这是刚摸到的牌");
+      }
+
+      return {
+        tile: tile,
+        label: meta.label,
+        legal: legal,
+        level: "normal",
+        badge: "",
+        score: score,
+        summary: reasons[0] || "这张牌可以打，但不是特别明显的推荐",
+        effect: "",
+        forced: forced
+      };
+    });
+    var legalItems = raw.filter(function (item) {
+      return item.legal;
+    }).sort(function (a, b) {
+      return a.score - b.score || a.tile.type - b.tile.type;
+    });
+    legalItems.forEach(function (item, index) {
+      if (item.forced) {
+        item.level = "forced";
+        item.badge = "摸切";
+      } else if (index === 0 || (index === 1 && item.score <= legalItems[0].score + 2)) {
+        item.level = "recommended";
+        item.badge = "荐";
+      } else if (item.score >= 8) {
+        item.level = "caution";
+        item.badge = "慎";
+      }
+      if (!item.forced) {
+        item.effect = baseDiscardEffect(view, item);
+      }
+    });
+    return raw;
+  }
+
+  function discardAdviceById(view) {
+    var map = {};
+    discardAdviceList(view).forEach(function (advice) {
+      map[advice.tile.id] = advice;
+    });
+    return map;
+  }
+
+  function selectedAdvice(view) {
+    if (!state.selectedTileId) {
+      return null;
+    }
+    return discardAdviceById(view)[state.selectedTileId] || null;
+  }
+
+  function recommendedAdvice(view) {
+    return discardAdviceList(view).filter(function (item) {
+      return item.legal;
+    }).sort(function (a, b) {
+      return a.score - b.score || a.tile.type - b.tile.type;
+    })[0] || null;
+  }
+
+  function selectTileForPreview(tileId, message) {
+    state.selectedTileId = tileId;
+    playTone("select");
+    setNotice(message || "已选中，第二次点击同一张牌才会打出");
+    renderHand(state.view);
+    renderActions(state.view);
+    renderGuideAdvice(state.view);
+    updateGuideCoach(state.view);
   }
 
   function determineGuideStep(view) {
@@ -712,7 +998,7 @@
       return guideStep(
         "claim",
         "响应别人打出的牌",
-        "这里会出现吃、碰、杠、胡。想要就点对应按钮，不想要就点“过”。",
+        "这里会出现吃、碰、杠、胡。胡会直接结算；碰/吃会拿走这张牌并轮到你出牌；不想改变手牌就点“过”。",
         enabledClaimButton() || claimBar
       );
     }
@@ -733,7 +1019,7 @@
       return guideStep(
         "bao-hu",
         "可以摸宝胡",
-        "你摸到了宝牌或幺鸡，可以点“摸宝胡”结束这一局。",
+        "你已看宝并摸到了宝牌或幺鸡。点“摸宝胡”会立刻结束本局并按宝胡分结算。",
         enabledActionButton("摸宝胡") || actionRow
       );
     }
@@ -741,7 +1027,7 @@
       return guideStep(
         "self-hu",
         "可以胡牌",
-        "你当前可以自摸胡。确认要胡就点“胡”，不胡也可以继续打牌。",
+        "你当前可以自摸胡。点“胡”会结束本局并结算；如果想放弃胡牌，也可以继续按出牌建议打牌。",
         enabledActionButton("胡") || actionRow
       );
     }
@@ -749,7 +1035,7 @@
       return guideStep(
         "self-kong",
         "可以杠",
-        "你手里有可杠的牌。想杠就点“杠”，杠后会补摸一张。",
+        "你手里有可杠的牌。点“杠”会亮出四张并补摸一张，可能杠上开花，也会产生杠分。",
         enabledActionButton("杠") || actionRow
       );
     }
@@ -762,21 +1048,25 @@
       );
     }
     if (view.canDiscard) {
+      var advice = selectedAdvice(view);
+      var recommended = recommendedAdvice(view);
       if (state.selectedTileId) {
         return guideStep(
           "confirm-discard",
-          "确认出牌",
-          "已高亮选中的牌。再次点击同一张牌，才会真正打出。",
+          "确认打出 " + (advice ? advice.label : "这张牌"),
+          advice
+            ? advice.summary + "。打出后的效果：" + advice.effect + " 再次点击高亮手牌才会真正打出。"
+            : "已高亮选中的牌。再次点击同一张牌，才会真正打出。",
           handRow.querySelector(".tile-selected") || handRow
         );
       }
       return guideStep(
         "discard",
-        "选择要打出的牌",
-        view.player && view.player.lockedDiscardTileId
-          ? "你已看宝，这轮只能打刚摸到的牌。先点高亮，再点一次确认。"
+        recommended ? "建议先看 " + recommended.label : "选择要打出的牌",
+        recommended
+          ? recommended.summary + "。打出后的效果：" + recommended.effect + " 先点它高亮，再点一次确认。"
           : "先点一张手牌让它高亮；为了防误触，第二次点同一张牌才会打出。",
-        firstEnabledHandTile() || handRow
+        (recommended && handTileById(recommended.tile.id)) || firstEnabledHandTile() || guideAdvice || handRow
       );
     }
 
@@ -1188,8 +1478,88 @@
     });
   }
 
+  function renderGuideAdvice(view) {
+    var adviceItems;
+    var selected;
+    var legalItems;
+    var header;
+    var title;
+    var note;
+    var cards;
+    if (!guideAdvice) {
+      return;
+    }
+    guideAdvice.textContent = "";
+    guideAdvice.hidden = !(state.guide.active && view && view.canDiscard);
+    gamePanel.classList.toggle("has-guide-advice", !guideAdvice.hidden);
+    if (guideAdvice.hidden) {
+      return;
+    }
+
+    adviceItems = discardAdviceList(view);
+    selected = selectedAdvice(view);
+    legalItems = adviceItems.filter(function (item) {
+      return item.legal;
+    }).sort(function (a, b) {
+      return a.score - b.score || a.tile.type - b.tile.type;
+    });
+
+    header = document.createElement("div");
+    header.className = "guide-advice-header";
+    title = document.createElement("strong");
+    title.textContent = selected ? "已选 " + selected.label : "出牌建议";
+    note = document.createElement("span");
+    if (selected) {
+      note.textContent = selected.summary + "。再次点击手牌会打出；想换牌就点另一张。";
+    } else if (view.player && view.player.lockedDiscardTileId) {
+      note.textContent = "你已看宝，不能换听，这轮只能摸切高亮的那张。";
+    } else {
+      note.textContent = "绿色“荐”是相对更适合先打的牌；点建议卡或手牌只会先高亮。";
+    }
+    header.append(title, note);
+    guideAdvice.appendChild(header);
+
+    if (selected) {
+      var selectedEffect = document.createElement("p");
+      selectedEffect.className = "guide-advice-effect";
+      selectedEffect.textContent = selected.effect;
+      guideAdvice.appendChild(selectedEffect);
+    }
+
+    cards = document.createElement("div");
+    cards.className = "guide-advice-cards";
+    legalItems.slice(0, 4).forEach(function (advice) {
+      var card = document.createElement("button");
+      var text = document.createElement("span");
+      var cardTitle = document.createElement("strong");
+      var cardNote = document.createElement("span");
+      card.className = "guide-advice-card";
+      card.dataset.level = advice.level;
+      card.type = "button";
+      card.title = advice.summary + "。" + advice.effect;
+      card.appendChild(createTile(advice.tile.type, { mini: true }));
+      cardTitle.textContent = advice.label + (advice.badge ? " · " + advice.badge : "");
+      cardNote.textContent = advice.summary;
+      text.append(cardTitle, cardNote);
+      card.appendChild(text);
+      card.addEventListener("click", function () {
+        selectTileForPreview(advice.tile.id, "已选中 " + advice.label + "，再点手牌确认出牌");
+      });
+      cards.appendChild(card);
+    });
+    guideAdvice.appendChild(cards);
+
+    if (legalItems.length > 4) {
+      var more = document.createElement("p");
+      more.className = "guide-advice-more";
+      more.textContent = "还有 " + (legalItems.length - 4) + " 张也能打；点任意手牌会显示这张牌的解释。";
+      guideAdvice.appendChild(more);
+    }
+  }
+
   function renderHand(view) {
     handRow.textContent = "";
+    var adviceMap = state.guide.active && view.canDiscard ? discardAdviceById(view) : {};
     var drawnTileId = view.player ? view.player.drawnTileId : "";
     var lockedDiscardTileId = view.player ? view.player.lockedDiscardTileId : "";
     view.hand.forEach(function (tile) {
@@ -1198,18 +1568,14 @@
         button: true,
         disabled: !view.canDiscard || lockedOut,
         drawn: tile.id === drawnTileId,
+        guideAdvice: adviceMap[tile.id],
         selected: tile.id === state.selectedTileId,
         onClick: function (selected) {
           if (!view.canDiscard) {
             return;
           }
           if (state.selectedTileId !== selected.id) {
-            state.selectedTileId = selected.id;
-            playTone("select");
-            setNotice("已选中，第二次点击同一张牌才会打出");
-            renderHand(state.view);
-            renderActions(state.view);
-            updateGuideCoach(state.view);
+            selectTileForPreview(selected.id, "已选中，第二次点击同一张牌才会打出");
             return;
           }
           state.selectedTileId = null;
@@ -1260,11 +1626,14 @@
 
     if (view.phase === "playing" && view.canDiscard) {
       var hint = document.createElement("span");
+      var advice = selectedAdvice(view);
       hint.className = "player-state action-hint discard-confirm-hint";
-      if (view.player && view.player.lockedDiscardTileId) {
+      if (advice) {
+        hint.textContent = advice.summary + "；再点高亮手牌确认";
+      } else if (view.player && view.player.lockedDiscardTileId) {
         hint.textContent = state.selectedTileId ? "再次点击确认摸切" : "已看宝，只能打刚摸到的牌";
       } else {
-        hint.textContent = state.selectedTileId ? "再次点击确认出牌" : "先点一张牌，高亮后再点一次出牌";
+        hint.textContent = state.guide.active ? "看出牌建议，先点推荐牌，高亮后再点一次" : "先点一张牌，高亮后再点一次出牌";
       }
       actionRow.appendChild(hint);
     }
@@ -1445,6 +1814,7 @@
     renderCenter(view);
     renderHand(view);
     renderActions(view);
+    renderGuideAdvice(view);
     renderLog(view);
     notifyForView(view);
     showEndModal(view);

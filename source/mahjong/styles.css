@@ -813,6 +813,11 @@ input:focus {
   backdrop-filter: blur(8px);
 }
 
+.game-layout.has-guide-advice .discard-river-board {
+  bottom: 350px;
+  max-height: 92px;
+}
+
 .river-group {
   display: grid;
   gap: 5px;
@@ -871,8 +876,119 @@ input:focus {
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: center;
-  gap: 5px;
+  column-gap: 5px;
+  row-gap: 16px;
   min-height: 72px;
+}
+
+.guide-advice {
+  display: grid;
+  gap: 7px;
+  max-height: 88px;
+  min-height: 0;
+  padding: 8px 10px;
+  overflow: auto;
+  color: var(--text);
+  background: rgba(18, 40, 31, 0.92);
+  border: 1px solid rgba(216, 163, 63, 0.4);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.guide-advice-header {
+  display: grid;
+  gap: 2px;
+}
+
+.guide-advice-header strong {
+  color: var(--gold);
+  font-size: 13px;
+}
+
+.guide-advice-header span,
+.guide-advice-effect,
+.guide-advice-more {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.guide-advice-effect {
+  color: var(--text);
+}
+
+.guide-advice-cards {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.guide-advice-card {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr);
+  align-items: center;
+  flex: 0 0 min(220px, 76vw);
+  gap: 7px;
+  min-height: 42px;
+  padding: 5px 7px;
+  color: var(--text);
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.guide-advice-card:hover {
+  border-color: rgba(216, 163, 63, 0.62);
+  transform: translateY(-1px);
+}
+
+.guide-advice-card[data-level="recommended"] {
+  background: rgba(48, 128, 92, 0.22);
+  border-color: rgba(105, 190, 132, 0.7);
+}
+
+.guide-advice-card[data-level="caution"] {
+  background: rgba(155, 99, 38, 0.18);
+  border-color: rgba(216, 163, 63, 0.58);
+}
+
+.guide-advice-card[data-level="forced"] {
+  background: rgba(56, 93, 128, 0.24);
+  border-color: rgba(103, 169, 218, 0.66);
+}
+
+.guide-advice-card .mini-tile {
+  pointer-events: none;
+}
+
+.guide-advice-card span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.guide-advice-card strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.guide-advice-card span span {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .action-row {
@@ -1210,8 +1326,64 @@ input:focus {
     opacity: 0.55;
   }
   50% {
-    opacity: 1;
-  }
+  opacity: 1;
+}
+
+.tile-guide-recommended .tile-image {
+  filter:
+    drop-shadow(0 0 8px rgba(105, 190, 132, 0.95))
+    drop-shadow(0 11px 15px rgba(0, 0, 0, 0.28));
+}
+
+.tile-guide-caution .tile-image {
+  filter:
+    drop-shadow(0 0 7px rgba(216, 163, 63, 0.85))
+    drop-shadow(0 11px 15px rgba(0, 0, 0, 0.28));
+}
+
+.tile-guide-forced .tile-image {
+  filter:
+    drop-shadow(0 0 8px rgba(103, 169, 218, 0.95))
+    drop-shadow(0 11px 15px rgba(0, 0, 0, 0.28));
+}
+
+.tile-guide-blocked .tile-image {
+  filter: grayscale(0.35) opacity(0.72);
+}
+
+.tile-guide-badge {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  color: #1d261f;
+  background: #8bd39b;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 5px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.32);
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 15px;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.tile-guide-caution .tile-guide-badge {
+  color: #21180b;
+  background: var(--gold);
+}
+
+.tile-guide-forced .tile-guide-badge {
+  color: #f7f0dc;
+  background: #2f73a7;
+}
+
+.tile-guide-blocked .tile-guide-badge {
+  color: rgba(247, 240, 220, 0.86);
+  background: rgba(120, 126, 121, 0.88);
+}
 }
 
 .end-modal {
@@ -1581,6 +1753,11 @@ button.guide-target {
     max-height: 104px;
   }
 
+  .game-layout.has-guide-advice .discard-river-board {
+    bottom: 312px;
+    max-height: 72px;
+  }
+
   .river-tiles {
     max-height: 54px;
   }
@@ -1591,11 +1768,16 @@ button.guide-target {
   }
 
   .tile {
-    width: clamp(36px, 4.8vw, 54px);
+    width: clamp(32px, 4.1vw, 46px);
   }
 
   .hand-row {
-    min-height: 66px;
+    min-height: 60px;
+  }
+
+  .guide-advice {
+    max-height: 78px;
+    padding: 7px 9px;
   }
 }
 
@@ -1717,6 +1899,11 @@ button.guide-target {
     bottom: 206px;
     left: 10px;
     max-height: 96px;
+  }
+
+  .game-layout.has-guide-advice .discard-river-board {
+    bottom: 420px;
+    max-height: 82px;
   }
 
   .guide-choice-actions,
