@@ -1,1813 +1,1197 @@
-const STYLE_LABELS = {
-  portrait: "肖像",
-  religious: "宗教",
-  landscape: "风景",
-  poster: "海报",
-  abstract: "实验"
-};
-
-const MODE_LABELS = {
-  fast: "快画",
-  steady: "稳画",
-  detail: "精修"
-};
-
-const ROLE_DATA = {
-  sketch: { label: "速写师", phase: "构图", color: "#d8a54b" },
-  finisher: { label: "精修师", phase: "精修", color: "#1f8f86" },
-  mixer: { label: "调色师", phase: "上色", color: "#bd6244" },
-  social: { label: "社交画家", phase: "交付", color: "#7d5d7e" },
-  apprentice: { label: "学徒", phase: "构图", color: "#6da7d7" }
-};
-
-const ASSET_ROOT = "./assets/kenney-tiny-dungeon/Tiles/";
-const APPRENTICE_PAINTER_ID = "me";
-const VIEW_MODES = {
-  boss: "老板",
-  apprentice: "学徒"
-};
-
-const PAINTER_ASSETS = {
-  p1: "tile_0112.png",
-  p2: "tile_0098.png",
-  p3: "tile_0099.png",
-  p4: "tile_0084.png",
-  me: "tile_0088.png"
-};
-
-const STATION_ASSETS = {
-  bed: { base: "tile_0072.png" },
-  desk: { base: "tile_0066.png", prop: "tile_0074.png" },
-  door: { base: "tile_0045.png", prop: "tile_0046.png" },
-  gallery: { base: "tile_0089.png", prop: "tile_0101.png" },
-  mixer: { base: "tile_0113.png", prop: "tile_0114.png" },
-  storage: { base: "tile_0063.png", prop: "tile_0090.png" }
-};
-
-const TOWN_CLIENTS = [
-  { name: "咖啡馆老板", place: "咖啡馆", taste: "poster" },
-  { name: "镇长办公室", place: "镇政厅", taste: "portrait" },
-  { name: "学校老师", place: "学校走廊", taste: "landscape" },
-  { name: "教堂管事", place: "教堂侧廊", taste: "religious" },
-  { name: "广场策展人", place: "小镇广场", taste: "abstract" },
-  { name: "面包店姐妹", place: "面包店", taste: "poster" },
-  { name: "旅店老板", place: "旅店大厅", taste: "landscape" }
-];
-
-const ORDER_TITLES = {
-  portrait: ["纪念肖像", "候选人画像", "家族小像", "店主肖像"],
-  religious: ["祭坛草图", "圣徒壁画", "节日宗教画", "穹顶习作"],
-  landscape: ["河岸风景", "花园长卷", "晨雾小景", "小镇远眺"],
-  poster: ["新店招牌", "节日海报", "菜单插画", "工坊广告"],
-  abstract: ["实验挂画", "色块练习", "梦境屏风", "新派展品"]
-};
-
-const SHOP_ITEMS = [
-  { type: "easel", label: "小画架", cost: 90, desc: "增加一个单人作画位置", stationType: "easel", slots: 1 },
-  { type: "large-easel", label: "大画架", cost: 150, desc: "增加一个三人协作画位", stationType: "easel", slots: 3, size: "large" },
-  { type: "bed", label: "床", cost: 75, desc: "增加一个恢复疲劳的位置" },
-  { type: "storage", label: "颜料柜", cost: 60, desc: "颜料上限增加 18" },
-  { type: "gallery", label: "展示墙", cost: 110, desc: "声望增加 6，作品展示位更醒目" }
-];
-
-const DEFAULT_STATION_SLOTS = {
-  bed: 1,
-  desk: 1,
-  door: 1,
-  easel: 1,
-  gallery: 1,
-  mixer: 1,
-  storage: 1
-};
-
-const INITIAL_STATIONS = [
-  { id: "door", type: "door", label: "门口", x: 0, y: 0, slots: 1 },
-  { id: "easel-1", type: "easel", label: "小画架", x: 1, y: 0, taskId: null, slots: 1, size: "small" },
-  { id: "easel-2", type: "easel", label: "大画架", x: 2, y: 0, taskId: null, slots: 3, size: "large" },
-  { id: "apprentice-bench", type: "desk", label: "学徒桌", x: 3, y: 0, slots: 1 },
-  { id: "mixer", type: "mixer", label: "调色台", x: 4, y: 0, slots: 1 },
-  { id: "desk", type: "desk", label: "书桌", x: 5, y: 0, slots: 1 },
-  { id: "bed-1", type: "bed", label: "床一", x: 0, y: 1, slots: 1 },
-  { id: "bed-2", type: "bed", label: "床二", x: 1, y: 1, slots: 1 },
-  { id: "gallery", type: "gallery", label: "展示墙", x: 4, y: 1, slots: 1 },
-  { id: "storage", type: "storage", label: "颜料柜", x: 5, y: 1, slots: 1 },
-  { id: "empty-1", type: "empty", label: "空位", x: 2, y: 2 },
-  { id: "empty-2", type: "empty", label: "空位", x: 3, y: 2 },
-  { id: "empty-3", type: "empty", label: "空位", x: 4, y: 2 }
-];
-
-const PHASES = ["构图", "打底", "上色", "精修", "装裱"];
-const MONTH_DAYS = 30;
-const RUSH_DEADLINE_DAYS = 30;
-const RUSH_ORDER_RATE = 0.28;
-const GUILD_DIRECTOR_INTERVAL = 1.35;
-const NPC_REST_FATIGUE = 72;
-const NPC_EMERGENCY_FATIGUE = 92;
-const NPC_PAINT_LOW_RATIO = 0.38;
-const NPC_PAINT_TARGET_RATIO = 0.82;
-
-const els = {
-  apprenticeCoin: document.getElementById("apprenticeCoinLabel"),
-  apprenticePanel: document.getElementById("apprenticePanel"),
-  artCount: document.getElementById("artCountLabel"),
-  artworkTrack: document.getElementById("artworkTrack"),
-  coin: document.getElementById("coinLabel"),
-  connect: document.getElementById("connectButton"),
-  connectionForm: document.getElementById("connectionForm"),
-  connectionStatus: document.getElementById("connectionStatus"),
-  day: document.getElementById("dayLabel"),
-  disconnect: document.getElementById("disconnectButton"),
-  eventLog: document.getElementById("eventLog"),
-  identitySwitch: document.getElementById("identitySwitch"),
-  newOrder: document.getElementById("newOrderButton"),
-  orderList: document.getElementById("orderList"),
-  paint: document.getElementById("paintLabel"),
-  painterList: document.getElementById("painterList"),
-  playerName: document.getElementById("playerNameInput"),
-  pause: document.getElementById("pauseButton"),
-  prestige: document.getElementById("prestigeLabel"),
-  reset: document.getElementById("resetButton"),
-  roomId: document.getElementById("roomIdInput"),
-  roomGrid: document.getElementById("roomGrid"),
-  selectedPainter: document.getElementById("selectedPainterLabel"),
-  serverUrl: document.getElementById("serverUrlInput"),
-  shopList: document.getElementById("shopList"),
-  speed: document.getElementById("speedButton"),
-  trend: document.getElementById("trendLabel")
-};
-
-const state = createInitialState();
-const online = {
-  socket: null,
-  connected: false,
-  painterId: "",
-  playerName: "",
-  roomId: "",
-  status: "本地试玩"
-};
-let lastTime = performance.now();
-let lastAutoRender = performance.now();
-let renderQueued = false;
-let activeDragPainterId = "";
-
-function createInitialState() {
-  return {
-    roomId: "",
-    day: 1,
-    dayProgress: 0,
-    coins: 120,
-    paint: 42,
-    paintMax: 80,
-    prestige: 8,
-    selectedPainterId: "p1",
-    viewMode: "boss",
-    apprentice: createApprenticeState(),
-    npcDirector: createNpcDirectorState(),
-    paused: false,
-    speed: 1,
-    orderTimer: 0,
-    trendIndex: 0,
-    players: [],
-    painters: [
-      createPainter("p1", "青岚", "sketch", "door"),
-      createPainter("p2", "阿澈", "finisher", "desk"),
-      createPainter("p3", "南星", "mixer", "mixer"),
-      createPainter("p4", "小满", "social", "gallery"),
-      createPainter(APPRENTICE_PAINTER_ID, "我", "apprentice", "apprentice-bench")
-    ],
-    stations: createInitialStations(),
-    orders: [],
-    activeTasks: [],
-    artworks: [],
-    log: []
+(() => {
+  const WORLD = { width: 1100, height: 680 };
+  const PHASES = ["构图", "打底", "上色", "精修", "装裱"];
+  const STYLES = {
+    portrait: { label: "肖像", colors: ["#b95b49", "#f0c889", "#2d2530"] },
+    religious: { label: "宗教", colors: ["#d7ad55", "#678cc4", "#f6e1aa"] },
+    landscape: { label: "风景", colors: ["#6f9d5f", "#4ba393", "#d2b86c"] },
+    poster: { label: "海报", colors: ["#c7644b", "#d9aa4c", "#2aa198"] },
+    abstract: { label: "实验", colors: ["#8d6aa9", "#5f92c8", "#d9aa4c"] }
   };
-}
-
-function createApprenticeState() {
-  return {
-    wallet: 0,
-    shifts: 0,
-    completedWorks: 0,
-    totalEarned: 0
+  const MODE_DATA = {
+    fast: { label: "快画", speed: 1.36, quality: -0.012, fatigue: 1.25 },
+    steady: { label: "稳画", speed: 1, quality: 0.008, fatigue: 1 },
+    detail: { label: "精修", speed: 0.72, quality: 0.028, fatigue: 1.1 }
   };
-}
-
-function createNpcDirectorState() {
-  return {
-    timer: 0
+  const ROLE_DATA = {
+    sketch: { label: "速写师", phase: "构图" },
+    finisher: { label: "精修师", phase: "精修" },
+    mixer: { label: "调色师", phase: "上色" },
+    social: { label: "社交画家", phase: "装裱" },
+    apprentice: { label: "学徒", phase: "构图" }
   };
-}
+  const CLIENTS = [
+    { name: "咖啡馆老板", place: "咖啡馆", style: "poster" },
+    { name: "镇长办公室", place: "镇政厅", style: "portrait" },
+    { name: "学校老师", place: "学校走廊", style: "landscape" },
+    { name: "教堂管事", place: "教堂侧廊", style: "religious" },
+    { name: "广场策展人", place: "小镇广场", style: "abstract" },
+    { name: "面包店姐妹", place: "面包店", style: "poster" },
+    { name: "旅店老板", place: "旅店大厅", style: "landscape" }
+  ];
+  const TITLES = {
+    portrait: ["纪念肖像", "候选人画像", "家族小像", "店主肖像"],
+    religious: ["祭坛草图", "圣徒壁画", "节日宗教画", "穹顶习作"],
+    landscape: ["河岸风景", "花园长卷", "晨雾小景", "小镇远眺"],
+    poster: ["新店招牌", "节日海报", "菜单插画", "工坊广告"],
+    abstract: ["实验挂画", "色块练习", "梦境屏风", "新派展品"]
+  };
 
-function createInitialStations() {
-  const stations = structuredClone(INITIAL_STATIONS);
-  const occupied = new Set(stations.map((station) => station.x + ":" + station.y));
-  for (let y = 0; y < 3; y += 1) {
-    for (let x = 0; x < 6; x += 1) {
-      const key = x + ":" + y;
-      if (!occupied.has(key)) {
-        stations.push({
-          id: "empty-" + x + "-" + y,
-          type: "empty",
-          label: "空位",
-          x,
-          y
-        });
+  const els = {
+    canvas: document.getElementById("guildCanvas"),
+    day: document.getElementById("dayLabel"),
+    clock: document.getElementById("clockLabel"),
+    coins: document.getElementById("coinLabel"),
+    wage: document.getElementById("wageLabel"),
+    paint: document.getElementById("paintLabel"),
+    prestige: document.getElementById("prestigeLabel"),
+    orders: document.getElementById("orderList"),
+    painters: document.getElementById("painterList"),
+    log: document.getElementById("eventLog"),
+    selected: document.getElementById("selectedLabel"),
+    art: document.getElementById("artStrip"),
+    artCount: document.getElementById("artCountLabel"),
+    pause: document.getElementById("pauseButton"),
+    speed: document.getElementById("speedButton"),
+    reset: document.getElementById("resetButton"),
+    newOrder: document.getElementById("newOrderButton"),
+    modeButtons: [...document.querySelectorAll("[data-mode]")]
+  };
+
+  const ctx = els.canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+
+  const stationTemplates = [
+    { id: "door", type: "door", label: "门口", x: 72, y: 128, w: 118, h: 130, slots: 1 },
+    { id: "easel-small", type: "easel", label: "小画架", x: 255, y: 162, w: 138, h: 160, slots: 1, size: "small" },
+    { id: "easel-large", type: "easel", label: "大画架", x: 505, y: 142, w: 226, h: 190, slots: 3, size: "large" },
+    { id: "apprentice-desk", type: "desk", label: "学徒桌", x: 815, y: 162, w: 130, h: 135, slots: 1 },
+    { id: "mixer", type: "mixer", label: "调色台", x: 142, y: 410, w: 138, h: 122, slots: 1 },
+    { id: "bed", type: "bed", label: "床", x: 340, y: 430, w: 164, h: 110, slots: 1 },
+    { id: "gallery", type: "gallery", label: "展示墙", x: 610, y: 420, w: 164, h: 122, slots: 1 },
+    { id: "storage", type: "storage", label: "颜料柜", x: 856, y: 406, w: 146, h: 135, slots: 1 }
+  ];
+
+  const initialPainters = [
+    createPainter("p1", "青岚", "sketch", "#4c8e62", "#6a3329", "door", 42),
+    createPainter("p2", "阿澈", "finisher", "#547da8", "#3b2a28", "easel-small", 48),
+    createPainter("p3", "南星", "mixer", "#b86a52", "#8b4b33", "mixer", 38),
+    createPainter("p4", "小满", "social", "#8d6aa9", "#502d66", "gallery", 34),
+    createPainter("me", "我", "apprentice", "#d38b54", "#6c3b28", "apprentice-desk", 9, true)
+  ];
+
+  let lastTime = performance.now();
+  let uiTimer = 0;
+  let hoveredStationId = "";
+  let state = createState();
+
+  function createPainter(id, name, role, shirt, hair, stationId, skill, isPlayer = false) {
+    return {
+      id,
+      name,
+      role,
+      shirt,
+      hair,
+      stationId,
+      slotIndex: 0,
+      targetStationId: stationId,
+      x: 0,
+      y: 0,
+      targetX: 0,
+      targetY: 0,
+      skill,
+      fatigue: isPlayer ? 8 : 14,
+      mood: 74,
+      action: "idle",
+      mode: "steady",
+      isPlayer,
+      contributed: new Set()
+    };
+  }
+
+  function createState() {
+    const nextState = {
+      day: 1,
+      minute: 8 * 60,
+      dayCarry: 0,
+      coins: 120,
+      wage: 0,
+      paint: 54,
+      paintMax: 90,
+      prestige: 8,
+      speed: 1,
+      paused: false,
+      mode: "steady",
+      selectedPainterId: "me",
+      directorTimer: 0,
+      orderTimer: 0,
+      artSerial: 1,
+      orders: [],
+      tasks: [],
+      paintings: [],
+      stations: stationTemplates.map((station) => ({ ...station })),
+      painters: initialPainters.map((painter) => ({ ...painter, contributed: new Set() })),
+      log: []
+    };
+
+    normalizePainterSlots(nextState);
+    for (const painter of nextState.painters) {
+      const point = stationSlotPoint(nextState, painter.stationId, painter.slotIndex);
+      painter.x = point.x;
+      painter.y = point.y;
+      painter.targetX = point.x;
+      painter.targetY = point.y;
+      syncPainterAction(nextState, painter);
+    }
+
+    nextState.orders.push(generateOrder(nextState, false));
+    nextState.orders.push(generateOrder(nextState, true));
+    nextState.orders.push(generateOrder(nextState, false));
+    addLog(nextState, "画室开张，第一批客户已经到了。");
+    addLog(nextState, "你作为学徒开始今天的日班。");
+    return nextState;
+  }
+
+  function stationById(game, stationId) {
+    return game.stations.find((station) => station.id === stationId);
+  }
+
+  function painterById(game, painterId) {
+    return game.painters.find((painter) => painter.id === painterId);
+  }
+
+  function taskAtStation(game, stationId) {
+    return game.tasks.find((task) => task.stationId === stationId);
+  }
+
+  function paintersAtStation(game, stationId) {
+    return game.painters
+      .filter((painter) => painter.stationId === stationId)
+      .sort((a, b) => a.slotIndex - b.slotIndex);
+  }
+
+  function normalizePainterSlots(game) {
+    for (const station of game.stations) {
+      const used = new Set();
+      for (const painter of paintersAtStation(game, station.id)) {
+        if (!Number.isInteger(painter.slotIndex) || painter.slotIndex < 0 || painter.slotIndex >= station.slots || used.has(painter.slotIndex)) {
+          painter.slotIndex = firstOpenSlot(game, station, used);
+        }
+        used.add(painter.slotIndex);
       }
     }
   }
-  return stations;
-}
 
-function createPainter(id, name, role, stationId, slotIndex = 0) {
-  const startingSkill = role === "finisher" ? 17 : role === "mixer" ? 13 : role === "apprentice" ? 8 : 12;
-  const startingFatigue = role === "social" ? 10 : role === "apprentice" ? 6 : 14;
-  return {
-    id,
-    name,
-    role,
-    stationId,
-    slotIndex,
-    skill: startingSkill,
-    fatigue: startingFatigue,
-    mood: 72,
-    mode: "steady",
-    action: defaultActionForStationId(stationId)
-  };
-}
-
-function cloneFreshState() {
-  if (sendOnline("reset")) return;
-  const next = createInitialState();
-  Object.keys(state).forEach((key) => {
-    delete state[key];
-  });
-  Object.assign(state, next);
-  state.orders.push(makeOrder(), makeOrder());
-  addLog("画室重新开张。");
-}
-
-function activeTrend() {
-  return Object.keys(STYLE_LABELS)[state.trendIndex % Object.keys(STYLE_LABELS).length];
-}
-
-function isApprenticeView() {
-  return state.viewMode === "apprentice";
-}
-
-function ensureApprenticeState() {
-  if (!state.apprentice) state.apprentice = createApprenticeState();
-  return state.apprentice;
-}
-
-function ensureNpcDirectorState() {
-  if (!state.npcDirector) state.npcDirector = createNpcDirectorState();
-  return state.npcDirector;
-}
-
-function apprenticePainter() {
-  return painterById(APPRENTICE_PAINTER_ID);
-}
-
-function npcPainters() {
-  return state.painters.filter((painter) => painter.id !== APPRENTICE_PAINTER_ID);
-}
-
-function apprenticeRank(painter = apprenticePainter()) {
-  const skill = painter?.skill || 0;
-  if (skill >= 70) return "准画师";
-  if (skill >= 45) return "熟练学徒";
-  if (skill >= 24) return "工坊助手";
-  return "新学徒";
-}
-
-function addApprenticePay(amount) {
-  if (amount <= 0) return;
-  const apprentice = ensureApprenticeState();
-  apprentice.wallet += amount;
-  apprentice.totalEarned += amount;
-}
-
-function addLog(message) {
-  state.log.unshift(message);
-  state.log = state.log.slice(0, 18);
-  scheduleRender();
-}
-
-function randomItem(items) {
-  return items[Math.floor(Math.random() * items.length)];
-}
-
-function makeOrder() {
-  const client = randomItem(TOWN_CLIENTS);
-  const style = Math.random() < 0.45 ? client.taste : randomItem(Object.keys(STYLE_LABELS));
-  const trendBonus = style === activeTrend() ? 1.18 : 1;
-  const difficulty = Math.floor(18 + state.prestige * 1.1 + Math.random() * 18);
-  const rush = Math.random() < RUSH_ORDER_RATE;
-  const deadline = rush
-    ? Math.round((10 + Math.random() * 19) * 10) / 10
-    : Math.round((36 + difficulty * 0.85 + Math.random() * 88) * 10) / 10;
-  const rushMultiplier = rush ? 1.75 + (RUSH_DEADLINE_DAYS - deadline) / RUSH_DEADLINE_DAYS : 1;
-  const reward = Math.round((76 + difficulty * 2.35) * trendBonus * rushMultiplier);
-  const title = randomItem(ORDER_TITLES[style]);
-  return {
-    id: "o" + Date.now().toString(36) + Math.floor(Math.random() * 1000).toString(36),
-    client: client.name,
-    place: client.place,
-    title,
-    style,
-    difficulty,
-    deadline,
-    rush,
-    reward,
-    prestige: Math.max(2, Math.round(difficulty / 15)),
-    paintCost: Math.max(5, Math.round(difficulty / 5)),
-    status: "offered"
-  };
-}
-
-function createTask(order, stationId) {
-  return {
-    ...order,
-    stationId,
-    status: "active",
-    progress: 0,
-    quality: 54,
-    phaseIndex: 0,
-    usedPaint: 0
-  };
-}
-
-function stationById(id) {
-  return state.stations.find((station) => station.id === id);
-}
-
-function painterById(id) {
-  return state.painters.find((painter) => painter.id === id);
-}
-
-function selectedPainter() {
-  return painterById(state.selectedPainterId);
-}
-
-function setViewMode(mode) {
-  if (!VIEW_MODES[mode]) return;
-  if (mode === "apprentice" && isOnline()) {
-    setConnectionStatus("学徒视角先在本地试玩");
-    return;
-  }
-  state.viewMode = mode;
-  if (mode === "apprentice") {
-    state.selectedPainterId = APPRENTICE_PAINTER_ID;
-  } else if (state.selectedPainterId === APPRENTICE_PAINTER_ID) {
-    state.selectedPainterId = state.painters.find((painter) => painter.id !== APPRENTICE_PAINTER_ID)?.id || APPRENTICE_PAINTER_ID;
-  }
-  addLog("切换为" + VIEW_MODES[mode] + "视角。");
-  scheduleRender();
-}
-
-function canControlPainter(painterId) {
-  if (isApprenticeView()) return !isOnline() && painterId === APPRENTICE_PAINTER_ID;
-  return !isOnline() || painterId === online.painterId;
-}
-
-function selectPainter(painterId) {
-  if (!painterById(painterId)) return false;
-  if (isApprenticeView() && painterId !== APPRENTICE_PAINTER_ID) {
-    setConnectionStatus("学徒视角只能操作自己");
-    return false;
-  }
-  if (!canControlPainter(painterId)) {
-    setConnectionStatus("联机时只能操作你认领的画家");
-    return false;
-  }
-  state.selectedPainterId = painterId;
-  scheduleRender();
-  return true;
-}
-
-function playerForPainter(painterId) {
-  return (state.players || []).find((player) => player.painterId === painterId);
-}
-
-function taskAtStation(stationId) {
-  return state.activeTasks.find((task) => task.stationId === stationId);
-}
-
-function stationSlotCount(station) {
-  if (!station || station.type === "empty") return 0;
-  const slots = Number(station.slots || DEFAULT_STATION_SLOTS[station.type] || 1);
-  return Math.max(1, Math.min(4, Math.floor(slots)));
-}
-
-function validSlotIndex(station, slotIndex) {
-  return Number.isInteger(slotIndex) && slotIndex >= 0 && slotIndex < stationSlotCount(station);
-}
-
-function paintersAtStation(stationId) {
-  return state.painters
-    .filter((painter) => painter.stationId === stationId)
-    .sort((a, b) => (a.slotIndex ?? 0) - (b.slotIndex ?? 0) || a.id.localeCompare(b.id));
-}
-
-function normalizePainterSlots() {
-  for (const station of state.stations) {
-    const slots = stationSlotCount(station);
-    if (!slots) continue;
-    const used = new Set();
-    for (const painter of paintersAtStation(station.id)) {
-      if (!validSlotIndex(station, painter.slotIndex) || used.has(painter.slotIndex)) {
-        painter.slotIndex = firstOpenSlot(station, used);
+  function firstOpenSlot(game, station, usedSlots = new Set(), exceptPainterId = "") {
+    const used = new Set(usedSlots);
+    for (const painter of game.painters) {
+      if (painter.id !== exceptPainterId && painter.stationId === station.id && Number.isInteger(painter.slotIndex)) {
+        used.add(painter.slotIndex);
       }
-      used.add(painter.slotIndex);
     }
-  }
-}
-
-function firstOpenSlot(station, usedSlots) {
-  for (let index = 0; index < stationSlotCount(station); index += 1) {
-    if (!usedSlots.has(index)) return index;
-  }
-  return -1;
-}
-
-function occupiedSlots(stationId, exceptPainterId = "") {
-  const station = stationById(stationId);
-  const used = new Set();
-  if (!station) return used;
-  for (const painter of state.painters) {
-    if (painter.stationId !== stationId || painter.id === exceptPainterId) continue;
-    if (validSlotIndex(station, painter.slotIndex)) used.add(painter.slotIndex);
-  }
-  return used;
-}
-
-function freeSlotForStation(station, painterId = "") {
-  if (!station || station.type === "empty") return -1;
-  normalizePainterSlots();
-  const painter = painterById(painterId);
-  if (painter?.stationId === station.id && validSlotIndex(station, painter.slotIndex)) return painter.slotIndex;
-  return firstOpenSlot(station, occupiedSlots(station.id, painterId));
-}
-
-function defaultActionForStation(station, task = null) {
-  if (!station) return "idle";
-  if (station.type === "easel") return task ? "painting" : "practicing";
-  if (station.type === "bed") return "resting";
-  if (station.type === "mixer") return "mixing";
-  if (station.type === "desk") return "studying";
-  if (station.type === "door") return "receiving";
-  if (station.type === "gallery") return "curating";
-  if (station.type === "storage") return "sorting";
-  return "idle";
-}
-
-function defaultActionForStationId(stationId) {
-  const station = INITIAL_STATIONS.find((item) => item.id === stationId);
-  return defaultActionForStation(station);
-}
-
-function syncPainterAction(painter) {
-  const station = stationById(painter.stationId);
-  const task = station?.type === "easel" ? taskAtStation(station.id) : null;
-  painter.action = defaultActionForStation(station, task);
-}
-
-function syncPaintersAtStation(stationId) {
-  state.painters
-    .filter((painter) => painter.stationId === stationId)
-    .forEach(syncPainterAction);
-}
-
-function freeEasel(preferredPainterId = state.selectedPainterId) {
-  const easels = state.stations.filter((station) => station.type === "easel" && !taskAtStation(station.id));
-  const preferredPainter = painterById(preferredPainterId);
-  const preferredStation = preferredPainter ? stationById(preferredPainter.stationId) : null;
-  if (preferredStation?.type === "easel" && !taskAtStation(preferredStation.id)) return preferredStation;
-  return easels.sort((a, b) => paintersAtStation(b.id).length - paintersAtStation(a.id).length)[0];
-}
-
-function stationWithOpenSlot(type, painterId = "", predicate = () => true) {
-  return state.stations.find((station) => {
-    return station.type === type && predicate(station) && freeSlotForStation(station, painterId) >= 0;
-  });
-}
-
-function npcStationWithOpenSlot(type, painterId = "", predicate = () => true) {
-  return stationWithOpenSlot(type, painterId, (station) => station.id !== "apprentice-bench" && predicate(station));
-}
-
-function isPainterOnActiveTask(painter) {
-  const station = stationById(painter.stationId);
-  return station?.type === "easel" && Boolean(taskAtStation(station.id));
-}
-
-function movePainterToStation(painter, station, message = "") {
-  if (!painter || !station || station.type === "empty") return false;
-  const slotIndex = freeSlotForStation(station, painter.id);
-  if (slotIndex < 0) return false;
-  const moved = painter.stationId !== station.id;
-  painter.stationId = station.id;
-  painter.slotIndex = slotIndex;
-  syncPainterAction(painter);
-  if (moved && painter.id === APPRENTICE_PAINTER_ID) ensureApprenticeState().shifts += 1;
-  if (moved && message) addLog(message);
-  return true;
-}
-
-function emptyStation() {
-  return state.stations.find((station) => station.type === "empty");
-}
-
-function assignPainterToStation(stationId) {
-  if (sendOnline("assign_station", { stationId })) return;
-  const painter = selectedPainter();
-  const station = stationById(stationId);
-  if (!painter || !station || station.type === "empty") return;
-  const slotIndex = freeSlotForStation(station, painter.id);
-  if (slotIndex < 0) {
-    addLog(station.label + "的点位已经站满了。");
-    return;
-  }
-
-  movePainterToStation(painter, station);
-  addLog(painter.name + "前往" + station.label + "。");
-}
-
-function acceptOrder(orderId) {
-  if (sendOnline("accept_order", { orderId })) return;
-  const order = state.orders.find((item) => item.id === orderId);
-  if (!order) return;
-  const apprenticeMode = isApprenticeView();
-  let station = freeEasel(apprenticeMode ? APPRENTICE_PAINTER_ID : state.selectedPainterId);
-  if (apprenticeMode) {
-    const apprentice = apprenticePainter();
-    const canStandAtChosen = station ? freeSlotForStation(station, apprentice?.id) >= 0 : false;
-    if (!canStandAtChosen) {
-      station = state.stations.find(
-        (item) => item.type === "easel" && !taskAtStation(item.id) && freeSlotForStation(item, apprentice?.id) >= 0
-      );
+    for (let i = 0; i < station.slots; i += 1) {
+      if (!used.has(i)) return i;
     }
+    return -1;
   }
-  if (!station) {
-    addLog("没有空画架，暂时接不了新活。");
-    return;
-  }
-  if (state.paint < order.paintCost) {
-    addLog("颜料不足，先去调色。");
-    return;
-  }
-  state.orders = state.orders.filter((item) => item.id !== orderId);
-  state.paint -= order.paintCost;
-  const task = createTask(order, station.id);
-  state.activeTasks.push(task);
-  if (apprenticeMode) {
-    const apprentice = apprenticePainter();
-    const slotIndex = apprentice ? freeSlotForStation(station, apprentice.id) : -1;
-    if (apprentice && slotIndex >= 0) {
-      const moved = apprentice.stationId !== station.id;
-      apprentice.stationId = station.id;
-      apprentice.slotIndex = slotIndex;
-      if (moved) ensureApprenticeState().shifts += 1;
+
+  function freeSlot(game, station, painterId = "") {
+    const painter = painterId ? painterById(game, painterId) : null;
+    if (painter?.stationId === station.id && painter.slotIndex >= 0 && painter.slotIndex < station.slots) {
+      return painter.slotIndex;
     }
-  }
-  syncPaintersAtStation(station.id);
-  addLog(
-    (apprenticeMode ? "你领到" : "承接") +
-      (isRushOrder(order) ? "加急" : "") +
-      "《" +
-      order.title +
-      "》，放到" +
-      station.label +
-      "。"
-  );
-}
-
-function declineOrder(orderId) {
-  if (sendOnline("decline_order", { orderId })) return;
-  const order = state.orders.find((item) => item.id === orderId);
-  if (!order) return;
-  state.orders = state.orders.filter((item) => item.id !== orderId);
-  if (isApprenticeView()) {
-    addLog("你把《" + order.title + "》放回了柜台。");
-    return;
-  }
-  state.prestige = Math.max(0, state.prestige - 1);
-  addLog("婉拒了" + order.client + "的订单。");
-}
-
-function buyItem(type) {
-  if (sendOnline("buy_item", { itemType: type })) return;
-  if (isApprenticeView()) {
-    addLog("学徒不能动用工坊账本。");
-    return;
-  }
-  const item = SHOP_ITEMS.find((entry) => entry.type === type);
-  if (!item || state.coins < item.cost) {
-    addLog("金币还不够。");
-    return;
+    return firstOpenSlot(game, station, new Set(), painterId);
   }
 
-  if (type !== "storage" && !emptyStation()) {
-    addLog("画室没有空位了。");
-    return;
-  }
-
-  state.coins -= item.cost;
-
-  if (type === "storage") {
-    state.paintMax += 18;
-    state.paint = Math.min(state.paintMax, state.paint + 10);
-  } else if (type === "gallery") {
-    const empty = emptyStation();
-    Object.assign(empty, {
-      id: "gallery-" + Date.now().toString(36),
-      type: "gallery",
-      label: "展示墙"
-    });
-    state.prestige += 6;
-  } else {
-    const empty = emptyStation();
-    const stationType = item.stationType || type;
-    const count = state.stations.filter((station) => station.type === stationType).length + 1;
-    Object.assign(empty, {
-      id: stationType + "-" + Date.now().toString(36),
-      type: stationType,
-      label: item.label + count,
-      taskId: null,
-      slots: item.slots || DEFAULT_STATION_SLOTS[stationType] || 1,
-      size: item.size || "small"
-    });
-  }
-  addLog("购买了" + item.label + "。");
-}
-
-function updateGuildDirector(dt) {
-  if (!isApprenticeView() || isOnline()) return;
-  const director = ensureNpcDirectorState();
-  director.timer += dt;
-  if (director.timer < GUILD_DIRECTOR_INTERVAL) return;
-  director.timer = 0;
-
-  restTiredNpcPainters();
-  maintainGuildPaint();
-  acceptGuildManagedOrder();
-  staffActiveTasks();
-  assignNpcRoutineWork();
-}
-
-function restTiredNpcPainters() {
-  for (const painter of [...npcPainters()].sort((a, b) => b.fatigue - a.fatigue)) {
-    const busy = isPainterOnActiveTask(painter);
-    if (painter.fatigue < NPC_EMERGENCY_FATIGUE && (busy || painter.fatigue < NPC_REST_FATIGUE)) continue;
-    const bed = stationWithOpenSlot("bed", painter.id);
-    if (bed) movePainterToStation(painter, bed, "管事让" + painter.name + "去休息。");
-  }
-}
-
-function maintainGuildPaint() {
-  const needsPaint = state.paint < state.paintMax * NPC_PAINT_LOW_RATIO || state.orders.some((order) => order.paintCost > state.paint);
-  const enoughPaint = state.paint >= state.paintMax * NPC_PAINT_TARGET_RATIO;
-  if (!needsPaint || enoughPaint) return;
-  const mixerStation = stationWithOpenSlot("mixer");
-  if (!mixerStation) return;
-  const alreadyMixing = paintersAtStation(mixerStation.id).some((painter) => painter.id !== APPRENTICE_PAINTER_ID);
-  if (alreadyMixing) return;
-  const mixer = bestAvailableNpc((painter) => painter.role === "mixer") || bestAvailableNpc();
-  if (mixer) movePainterToStation(mixer, mixerStation, "管事安排" + mixer.name + "研磨颜料。");
-}
-
-function acceptGuildManagedOrder() {
-  if (state.orders.length <= 1) return;
-  const station = freeGuildEasel();
-  if (!station) return;
-  const order = [...state.orders].sort((a, b) => {
-    if (isRushOrder(a) !== isRushOrder(b)) return isRushOrder(a) ? -1 : 1;
-    return a.deadline - b.deadline;
-  })[0];
-  if (!order || state.paint < order.paintCost) return;
-
-  state.orders = state.orders.filter((item) => item.id !== order.id);
-  state.paint -= order.paintCost;
-  state.activeTasks.push(createTask(order, station.id));
-  syncPaintersAtStation(station.id);
-  addLog("管事接下" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》，安排到" + station.label + "。");
-}
-
-function freeGuildEasel() {
-  return state.stations
-    .filter((station) => {
-      if (station.type !== "easel" || taskAtStation(station.id)) return false;
-      if (paintersAtStation(station.id).some((painter) => painter.id === APPRENTICE_PAINTER_ID)) return false;
-      return freeSlotForStation(station) >= 0;
-    })
-    .sort((a, b) => {
-      const painterDelta = npcPaintersAtStation(b.id).length - npcPaintersAtStation(a.id).length;
-      if (painterDelta) return painterDelta;
-      return stationSlotCount(b) - stationSlotCount(a);
-    })[0];
-}
-
-function staffActiveTasks() {
-  const tasks = [...state.activeTasks].sort((a, b) => a.deadline - b.deadline || a.progress - b.progress);
-  for (const task of tasks) {
-    const station = stationById(task.stationId);
-    if (!station) continue;
-    const slotCount = stationSlotCount(station);
-    const currentCount = paintersAtStation(station.id).length;
-    const apprenticeThere = paintersAtStation(station.id).some((painter) => painter.id === APPRENTICE_PAINTER_ID);
-    const targetCount = Math.min(slotCount, isRushOrder(task) ? slotCount : apprenticeThere ? 2 : Math.min(2, slotCount));
-    for (let count = currentCount; count < targetCount; count += 1) {
-      const helper = bestNpcForTask(task);
-      if (!helper) break;
-      if (!movePainterToStation(helper, station, "管事安排" + helper.name + "协助《" + task.title + "》。")) break;
+  function stationSlotPoint(game, stationId, slotIndex = 0) {
+    const station = stationById(game, stationId);
+    if (!station) return { x: 120, y: 560 };
+    const centerX = station.x + station.w / 2;
+    const baseY = station.y + station.h - 18;
+    if (station.type === "easel") {
+      const offsets = station.slots === 3 ? [-42, 0, 42] : [0];
+      return { x: centerX + (offsets[slotIndex] || 0), y: station.y + station.h + 8 };
     }
+    if (station.type === "bed") return { x: centerX + (slotIndex - 0.5) * 26, y: station.y + station.h - 8 };
+    if (station.type === "door") return { x: centerX + 10, y: baseY };
+    if (station.type === "gallery") return { x: centerX + 34, y: baseY };
+    if (station.type === "storage") return { x: centerX - 28, y: baseY };
+    return { x: centerX, y: baseY };
   }
-}
 
-function assignNpcRoutineWork() {
-  for (const painter of npcPainters()) {
-    if (isPainterOnActiveTask(painter) || painter.fatigue >= NPC_REST_FATIGUE) continue;
-    const station = routineStationForPainter(painter);
-    if (station) movePainterToStation(painter, station, routineLogMessage(painter, station));
+  function assignPainter(game, painterId, stationId, message = "") {
+    const painter = painterById(game, painterId);
+    const station = stationById(game, stationId);
+    if (!painter || !station) return false;
+    const slot = freeSlot(game, station, painter.id);
+    if (slot < 0) return false;
+    painter.stationId = station.id;
+    painter.targetStationId = station.id;
+    painter.slotIndex = slot;
+    const target = stationSlotPoint(game, station.id, slot);
+    painter.targetX = target.x;
+    painter.targetY = target.y;
+    if (message) addLog(game, message);
+    syncPainterAction(game, painter);
+    return true;
   }
-}
 
-function routineStationForPainter(painter) {
-  if (painter.role === "mixer" && state.paint < state.paintMax * NPC_PAINT_TARGET_RATIO) {
-    return npcStationWithOpenSlot("mixer", painter.id);
-  }
-  if (painter.role === "social") return npcStationWithOpenSlot("gallery", painter.id) || npcStationWithOpenSlot("door", painter.id);
-  if (painter.role === "finisher") {
-    return npcStationWithOpenSlot("desk", painter.id);
-  }
-  if (painter.role === "mixer") return npcStationWithOpenSlot("storage", painter.id) || npcStationWithOpenSlot("desk", painter.id);
-  if (painter.skill < 24) return npcStationWithOpenSlot("desk", painter.id) || npcStationWithOpenSlot("door", painter.id);
-  return npcStationWithOpenSlot("door", painter.id) || npcStationWithOpenSlot("desk", painter.id);
-}
-
-function routineLogMessage(painter, station) {
-  const action = {
-    desk: "学习",
-    door: "接待客人",
-    gallery: "布展",
-    mixer: "研磨颜料",
-    storage: "整理颜料"
-  }[station.type];
-  return action ? "管事安排" + painter.name + action + "。" : "";
-}
-
-function bestAvailableNpc(predicate = () => true) {
-  return npcPainters()
-    .filter((painter) => {
-      return predicate(painter) && !isPainterOnActiveTask(painter) && painter.fatigue < NPC_REST_FATIGUE;
-    })
-    .sort((a, b) => a.fatigue - b.fatigue || b.skill - a.skill)[0];
-}
-
-function bestNpcForTask(task) {
-  const phase = PHASES[task.phaseIndex] || PHASES[0];
-  return npcPainters()
-    .filter((painter) => !isPainterOnActiveTask(painter) && painter.fatigue < NPC_EMERGENCY_FATIGUE)
-    .sort((a, b) => {
-      const phaseDelta = Number(ROLE_DATA[b.role]?.phase === phase) - Number(ROLE_DATA[a.role]?.phase === phase);
-      if (phaseDelta) return phaseDelta;
-      const fatigueDelta = a.fatigue - b.fatigue;
-      if (Math.abs(fatigueDelta) > 8) return fatigueDelta;
-      return b.skill - a.skill;
-    })[0];
-}
-
-function npcPaintersAtStation(stationId) {
-  return paintersAtStation(stationId).filter((painter) => painter.id !== APPRENTICE_PAINTER_ID);
-}
-
-function setSelectedMode(mode) {
-  if (sendOnline("set_mode", { mode })) return;
-  const painter = selectedPainter();
-  if (!painter) return;
-  painter.mode = mode;
-  addLog(painter.name + "改用" + MODE_LABELS[mode] + "。");
-}
-
-function setSelectedIdle() {
-  if (sendOnline("idle")) return;
-  const painter = selectedPainter();
-  if (!painter) return;
-  painter.action = "idle";
-  addLog(painter.name + "停手了。");
-}
-
-function stepGame(dt) {
-  if (state.paused) return;
-  const scaled = dt * state.speed;
-  state.dayProgress += scaled / 8;
-  state.orderTimer += scaled;
-
-  while (state.dayProgress >= 1) {
-    state.dayProgress -= 1;
-    state.day += 1;
-    if (state.day % 4 === 0) {
-      state.trendIndex += 1;
-      addLog("市场风向变成" + STYLE_LABELS[activeTrend()] + "。");
+  function syncPainterAction(game, painter) {
+    const station = stationById(game, painter.stationId);
+    const task = station?.type === "easel" ? taskAtStation(game, station.id) : null;
+    if (distance(painter.x, painter.y, painter.targetX, painter.targetY) > 8) {
+      painter.action = "walking";
+      return;
     }
-  }
-
-  if (state.orderTimer > 7.2 && state.orders.length < 5) {
-    state.orderTimer = 0;
-    const order = makeOrder();
-    state.orders.push(order);
-    addLog(order.client + "送来" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》。");
-  }
-
-  updateGuildDirector(scaled);
-  updatePainters(scaled);
-  updateDeadlines(scaled);
-}
-
-function updatePainters(dt) {
-  for (const painter of state.painters) {
-    const station = stationById(painter.stationId);
-    if (!station) continue;
-
-    if (painter.fatigue >= 100 && painter.action !== "resting") {
+    if (!station) {
       painter.action = "idle";
-      painter.mood = Math.max(24, painter.mood - 8);
-      addLog(painter.name + "太累了，停下来喘口气。");
+    } else if (station.type === "easel") {
+      painter.action = task ? "painting" : "waiting";
+    } else if (station.type === "mixer") {
+      painter.action = "mixing";
+    } else if (station.type === "bed") {
+      painter.action = "resting";
+    } else if (station.type === "desk") {
+      painter.action = "studying";
+    } else if (station.type === "door") {
+      painter.action = "receiving";
+    } else if (station.type === "gallery") {
+      painter.action = "curating";
+    } else if (station.type === "storage") {
+      painter.action = "sorting";
+    } else {
+      painter.action = "idle";
+    }
+  }
+
+  function distance(ax, ay, bx, by) {
+    return Math.hypot(ax - bx, ay - by);
+  }
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function pick(list) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function generateOrder(game, forceRush = false) {
+    const client = pick(CLIENTS);
+    const style = client.style;
+    const rush = forceRush || Math.random() < 0.28;
+    const deadline = rush ? 12 + Math.random() * 16 : 48 + Math.random() * 92;
+    const base = rush ? 210 : 118;
+    const pay = Math.round(base + deadline * (rush ? 7.2 : 1.6) + game.prestige * 7 + Math.random() * 55);
+    return {
+      id: "order-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7),
+      title: pick(TITLES[style]),
+      client: client.name,
+      place: client.place,
+      style,
+      rush,
+      deadline,
+      maxDeadline: deadline,
+      pay,
+      paintCost: rush ? 8 + Math.floor(Math.random() * 3) : 5 + Math.floor(Math.random() * 4)
+    };
+  }
+
+  function acceptOrder(game, orderId, stationId = "", painterId = "") {
+    const order = game.orders.find((item) => item.id === orderId);
+    if (!order) return false;
+    if (game.paint < order.paintCost) {
+      addLog(game, "颜料不够，调色台需要先补给。");
+      return false;
+    }
+    const station = stationId ? stationById(game, stationId) : bestFreeEasel(game, true, painterId);
+    if (!station) {
+      addLog(game, "画架都满了。");
+      return false;
+    }
+    game.orders = game.orders.filter((item) => item.id !== order.id);
+    game.paint -= order.paintCost;
+    game.tasks.push({
+      id: "task-" + order.id,
+      stationId: station.id,
+      title: order.title,
+      client: order.client,
+      place: order.place,
+      style: order.style,
+      rush: order.rush,
+      deadline: order.deadline,
+      maxDeadline: order.maxDeadline,
+      pay: order.pay,
+      progress: 0,
+      phaseIndex: 0,
+      quality: 58 + Math.random() * 10,
+      playerHelped: false
+    });
+    addLog(game, (order.rush ? "加急" : "普通") + "《" + order.title + "》挂到" + station.label + "。");
+    for (const painter of paintersAtStation(game, station.id)) syncPainterAction(game, painter);
+    return station.id;
+  }
+
+  function bestFreeEasel(game, preferPlayer = false, painterId = "") {
+    const me = painterById(game, "me");
+    if (preferPlayer) {
+      const current = stationById(game, me.stationId);
+      if (current?.type === "easel" && !taskAtStation(game, current.id)) return current;
+    }
+    return game.stations
+      .filter((station) => station.type === "easel" && !taskAtStation(game, station.id))
+      .filter((station) => !painterId || freeSlot(game, station, painterId) >= 0)
+      .sort((a, b) => {
+        const playerPenaltyA = paintersAtStation(game, a.id).some((painter) => painter.id === "me") ? 1 : 0;
+        const playerPenaltyB = paintersAtStation(game, b.id).some((painter) => painter.id === "me") ? 1 : 0;
+        if (playerPenaltyA !== playerPenaltyB) return playerPenaltyA - playerPenaltyB;
+        return b.slots - a.slots;
+      })[0];
+  }
+
+  function rejectOrder(game, orderId) {
+    const order = game.orders.find((item) => item.id === orderId);
+    if (!order) return;
+    game.orders = game.orders.filter((item) => item.id !== orderId);
+    game.prestige = Math.max(0, game.prestige - 1);
+    addLog(game, "婉拒了《" + order.title + "》。");
+  }
+
+  function addLog(game, text) {
+    game.log.unshift(text);
+    game.log = game.log.slice(0, 9);
+    uiTimer = 999;
+  }
+
+  function step(rawDt) {
+    const dt = Math.min(rawDt, 0.055) * state.speed;
+    const dayDelta = dt * 0.025;
+    state.dayCarry += dayDelta;
+    state.minute += dayDelta * 24 * 60;
+    while (state.minute >= 24 * 60) {
+      state.minute -= 24 * 60;
+      state.day += 1;
+      addLog(state, "第 " + state.day + " 天开始。");
     }
 
-    if (station.type === "bed" && painter.action === "resting") {
-      painter.fatigue = Math.max(0, painter.fatigue - dt * 7.4);
-      painter.mood = Math.min(100, painter.mood + dt * 1.8);
-      if (painter.fatigue <= 1) painter.action = "idle";
+    state.orderTimer += dayDelta;
+    if (state.orderTimer > 0.36 && state.orders.length < 4) {
+      state.orderTimer = 0;
+      const order = generateOrder(state);
+      state.orders.push(order);
+      addLog(state, order.client + "送来《" + order.title + "》。");
     }
 
-    if (station.type === "door" && painter.action === "receiving") {
-      const roleBonus = painter.role === "social" ? 1.35 : 1;
-      state.prestige += dt * 0.006 * roleBonus;
-      painter.fatigue = Math.min(100, painter.fatigue + dt * 0.52);
-      painter.skill = Math.min(100, painter.skill + dt * 0.02);
-      awardApprenticeShiftPay(painter, dt * 0.14);
-    }
+    updatePainters(dt);
+    updateTasks(dt, dayDelta);
+    updateNpcDirector(dt);
+    updateOrderDeadlines(dayDelta);
+  }
 
-    if (station.type === "mixer" && painter.action === "mixing") {
-      const roleBonus = painter.role === "mixer" ? 1.45 : 1;
-      state.paint = Math.min(state.paintMax, state.paint + dt * (1.8 + painter.skill / 45) * roleBonus);
-      painter.fatigue = Math.min(100, painter.fatigue + dt * 1.45);
-      painter.skill = Math.min(100, painter.skill + dt * 0.035);
-      awardApprenticeShiftPay(painter, dt * 0.18);
-    }
+  function updatePainters(dt) {
+    for (const painter of state.painters) {
+      const dx = painter.targetX - painter.x;
+      const dy = painter.targetY - painter.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 2) {
+        const speed = painter.id === "me" ? 148 : 122;
+        const stepSize = Math.min(dist, speed * dt);
+        painter.x += (dx / dist) * stepSize;
+        painter.y += (dy / dist) * stepSize;
+      }
+      syncPainterAction(state, painter);
 
-    if (station.type === "desk" && painter.action === "studying") {
-      painter.skill = Math.min(100, painter.skill + dt * 0.22);
-      painter.fatigue = Math.min(100, painter.fatigue + dt * 0.8);
-      painter.mood = Math.max(12, painter.mood - dt * 0.25);
-    }
+      if (painter.action === "resting") {
+        painter.fatigue = Math.max(0, painter.fatigue - 2.3 * dt);
+        painter.mood = Math.min(100, painter.mood + 0.7 * dt);
+      } else if (painter.action === "mixing") {
+        painter.fatigue = Math.min(100, painter.fatigue + 0.34 * dt);
+        painter.skill = Math.min(100, painter.skill + 0.045 * dt);
+        state.paint = Math.min(state.paintMax, state.paint + (0.7 + painter.skill / 150) * dt);
+      } else if (painter.action === "studying") {
+        painter.fatigue = Math.min(100, painter.fatigue + 0.2 * dt);
+        painter.skill = Math.min(100, painter.skill + 0.08 * dt);
+      } else if (painter.action === "receiving" || painter.action === "curating") {
+        painter.fatigue = Math.min(100, painter.fatigue + 0.16 * dt);
+        state.prestige = Math.min(99, state.prestige + 0.006 * dt);
+      } else if (painter.action === "sorting") {
+        painter.fatigue = Math.min(100, painter.fatigue + 0.12 * dt);
+        state.paintMax = Math.max(state.paintMax, 90);
+      }
 
-    if (station.type === "gallery" && painter.action === "curating") {
-      state.prestige += dt * 0.005;
-      painter.skill = Math.min(100, painter.skill + dt * 0.018);
-      painter.fatigue = Math.min(100, painter.fatigue + dt * 0.48);
-      awardApprenticeShiftPay(painter, dt * 0.12);
+      if (painter.fatigue > 85 && painter.action !== "resting") {
+        painter.mood = Math.max(15, painter.mood - 0.18 * dt);
+      }
     }
+  }
 
-    if (station.type === "storage" && painter.action === "sorting") {
-      state.paint = Math.min(state.paintMax, state.paint + dt * 0.32);
-      painter.skill = Math.min(100, painter.skill + dt * 0.018);
-      painter.fatigue = Math.min(100, painter.fatigue + dt * 0.55);
-      awardApprenticeShiftPay(painter, dt * 0.13);
-    }
-
-    if (station.type === "easel" && painter.action === "painting") {
-      const task = taskAtStation(station.id);
-      if (!task) {
-        painter.action = "practicing";
+  function updateTasks(dt, dayDelta) {
+    for (const task of [...state.tasks]) {
+      task.deadline -= dayDelta;
+      if (task.deadline <= 0) {
+        failTask(task);
         continue;
       }
-      updatePainting(painter, task, dt);
-    }
-
-    if (station.type === "easel" && painter.action === "practicing") {
-      const task = taskAtStation(station.id);
-      if (task) {
-        painter.action = "painting";
-        updatePainting(painter, task, dt);
-      } else {
-        painter.skill = Math.min(100, painter.skill + dt * 0.035);
-        painter.fatigue = Math.min(100, painter.fatigue + dt * 0.35);
-        awardApprenticeShiftPay(painter, dt * 0.04);
-      }
-    }
-  }
-
-  for (const task of [...state.activeTasks]) {
-    if (task.progress >= 100) completeTask(task);
-  }
-}
-
-function updatePainting(painter, task, dt) {
-  if (state.paint <= 0) {
-    addLog("颜料见底，作画暂停。");
-    painter.action = "idle";
-    return;
-  }
-
-  const role = ROLE_DATA[painter.role];
-  const phase = PHASES[task.phaseIndex] || "精修";
-  const roleBonus = role.phase === phase ? 1.28 : 1;
-  const trendBonus = task.style === activeTrend() ? 1.12 : 1;
-  const fatiguePenalty = Math.max(0.25, 1 - painter.fatigue / 135);
-  const modeSpeed = painter.mode === "fast" ? 1.38 : painter.mode === "detail" ? 0.74 : 1;
-  const modeQuality = painter.mode === "fast" ? -0.018 : painter.mode === "detail" ? 0.052 : 0.018;
-  const amount = dt * (0.75 + painter.skill / 38) * roleBonus * trendBonus * fatiguePenalty * modeSpeed;
-  const paintUse = dt * (0.18 + task.difficulty / 420) * (painter.mode === "fast" ? 1.18 : 1);
-
-  task.progress = Math.min(100, task.progress + amount);
-  task.phaseIndex = Math.min(PHASES.length - 1, Math.floor(task.progress / 20));
-  task.quality = Math.max(10, Math.min(100, task.quality + amount * modeQuality + painter.skill * 0.0008));
-  task.usedPaint += paintUse;
-  state.paint = Math.max(0, state.paint - paintUse);
-  painter.fatigue = Math.min(100, painter.fatigue + dt * (painter.mode === "fast" ? 2.2 : 1.45));
-  painter.mood = Math.max(8, painter.mood - dt * 0.16);
-  painter.skill = Math.min(100, painter.skill + dt * 0.045);
-  awardApprenticeShiftPay(painter, dt * (0.2 + task.difficulty / 500));
-}
-
-function awardApprenticeShiftPay(painter, amount) {
-  if (painter.id !== APPRENTICE_PAINTER_ID) return;
-  addApprenticePay(amount);
-}
-
-function updateDeadlines(dt) {
-  const dayDelta = dt / 8;
-
-  for (const order of [...state.orders]) {
-    order.deadline -= dayDelta;
-    if (order.deadline <= 0) {
-      state.orders = state.orders.filter((item) => item.id !== order.id);
-      state.prestige = Math.max(0, state.prestige - 1);
-      addLog(order.client + "等不及，带走了订单。");
-    }
-  }
-
-  for (const task of [...state.activeTasks]) {
-    task.deadline -= dayDelta;
-    if (task.deadline <= 0) failTask(task);
-  }
-}
-
-function completeTask(task) {
-  const qualityBonus = 0.72 + task.quality / 100;
-  const reward = Math.round(task.reward * qualityBonus);
-  const prestigeGain = Math.max(1, Math.round(task.prestige * qualityBonus));
-  state.coins += reward;
-  state.prestige += prestigeGain;
-  const art = {
-    id: task.id,
-    title: task.title,
-    place: task.place,
-    style: task.style,
-    quality: Math.round(task.quality),
-    authors: state.painters
-      .filter((painter) => painter.stationId === task.stationId)
-      .map((painter) => painter.name)
-  };
-  state.artworks.unshift(art);
-  state.artworks = state.artworks.slice(0, 18);
-  state.activeTasks = state.activeTasks.filter((item) => item.id !== task.id);
-  const apprenticeHelped = state.painters.some(
-    (painter) => painter.id === APPRENTICE_PAINTER_ID && painter.stationId === task.stationId
-  );
-  if (apprenticeHelped) {
-    const bonus = Math.max(3, Math.round(reward * 0.06));
-    const apprentice = ensureApprenticeState();
-    apprentice.completedWorks += 1;
-    addApprenticePay(bonus);
-    addLog("你参与《" + task.title + "》，拿到 " + bonus + " 工钱。");
-  }
-  state.painters
-    .filter((painter) => painter.stationId === task.stationId)
-    .forEach((painter) => {
-      syncPainterAction(painter);
-      painter.mood = Math.min(100, painter.mood + 8);
-    });
-  addLog("《" + task.title + "》交付到" + task.place + "，收入 " + reward + "。");
-}
-
-function failTask(task) {
-  state.activeTasks = state.activeTasks.filter((item) => item.id !== task.id);
-  state.prestige = Math.max(0, state.prestige - Math.max(2, task.prestige));
-  state.painters
-    .filter((painter) => painter.stationId === task.stationId)
-    .forEach((painter) => {
-      syncPainterAction(painter);
-      painter.mood = Math.max(10, painter.mood - 10);
-  });
-  addLog("《" + task.title + "》错过了期限。");
-}
-
-function isOnline() {
-  return typeof WebSocket !== "undefined" && online.connected && online.socket?.readyState === WebSocket.OPEN;
-}
-
-function sendOnline(type, payload = {}) {
-  if (!isOnline()) return false;
-  online.socket.send(JSON.stringify({ type, ...payload }));
-  return true;
-}
-
-function hydrateConnectionForm() {
-  els.playerName.value = readStored("paintersGuildPlayerName", "画家" + Math.floor(10 + Math.random() * 90));
-  els.roomId.value = readStored("paintersGuildRoomId", "ATELIER");
-  els.serverUrl.value = readStored("paintersGuildServerUrl", defaultServerUrl());
-}
-
-function readStored(key, fallback) {
-  try {
-    return localStorage.getItem(key) || fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function writeStored(key, value) {
-  try {
-    localStorage.setItem(key, value);
-  } catch {
-    // Local storage can be unavailable in hardened browsers; the game still works.
-  }
-}
-
-function defaultServerUrl() {
-  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-    return "ws://localhost:8788/guild-ws";
-  }
-  return "";
-}
-
-function normalizeRoomId(value) {
-  return (
-    String(value || "ATELIER")
-      .trim()
-      .toUpperCase()
-      .replace(/[^A-Z0-9-]/g, "")
-      .slice(0, 16) || "ATELIER"
-  );
-}
-
-function normalizeSocketUrl(value) {
-  let input = String(value || "").trim();
-  if (!input) return "";
-  if (!input.includes("://")) {
-    const local = input.startsWith("localhost") || input.startsWith("127.") || input.startsWith("[::1]");
-    input = (local ? "ws://" : "wss://") + input;
-  }
-  try {
-    const url = new URL(input);
-    if (url.protocol === "http:") url.protocol = "ws:";
-    if (url.protocol === "https:") url.protocol = "wss:";
-    if (url.protocol !== "ws:" && url.protocol !== "wss:") return "";
-    if (!url.pathname || url.pathname === "/") url.pathname = "/guild-ws";
-    return url.toString();
-  } catch {
-    return "";
-  }
-}
-
-function connectOnline() {
-  if (typeof WebSocket === "undefined") {
-    setConnectionStatus("浏览器不支持 WebSocket");
-    return;
-  }
-
-  const serverUrl = normalizeSocketUrl(els.serverUrl.value);
-  const roomId = normalizeRoomId(els.roomId.value);
-  const playerName = String(els.playerName.value || "画家").trim().slice(0, 16) || "画家";
-  if (!serverUrl) {
-    setConnectionStatus("填写服务器地址");
-    return;
-  }
-
-  if (online.socket) online.socket.close();
-  writeStored("paintersGuildPlayerName", playerName);
-  writeStored("paintersGuildRoomId", roomId);
-  writeStored("paintersGuildServerUrl", serverUrl);
-
-  online.connected = false;
-  online.painterId = "";
-  online.playerName = playerName;
-  online.roomId = roomId;
-  online.status = "连接中...";
-  if (isApprenticeView()) state.viewMode = "boss";
-
-  let socket;
-  try {
-    socket = new WebSocket(serverUrl);
-  } catch {
-    setConnectionStatus("服务器地址无效");
-    return;
-  }
-  online.socket = socket;
-  socket.addEventListener("open", () => {
-    socket.send(JSON.stringify({ type: "join", roomId, name: playerName }));
-  });
-  socket.addEventListener("message", (event) => {
-    handleOnlineMessage(event.data);
-  });
-  socket.addEventListener("close", () => {
-    if (online.socket !== socket) return;
-    online.socket = null;
-    online.connected = false;
-    online.painterId = "";
-    online.status = "已断开，本地继续";
-    scheduleRender();
-  });
-  socket.addEventListener("error", () => {
-    if (online.socket === socket) setConnectionStatus("连接失败");
-  });
-  scheduleRender();
-}
-
-function disconnectOnline() {
-  const socket = online.socket;
-  online.socket = null;
-  online.connected = false;
-  online.painterId = "";
-  online.roomId = "";
-  online.status = "本地试玩";
-  if (socket && (typeof WebSocket === "undefined" || socket.readyState !== WebSocket.CLOSED)) socket.close();
-  scheduleRender();
-}
-
-function handleOnlineMessage(raw) {
-  let payload;
-  try {
-    payload = JSON.parse(raw);
-  } catch {
-    setConnectionStatus("服务器消息格式错误");
-    return;
-  }
-
-  if (payload.type === "welcome") {
-    online.connected = true;
-    online.roomId = payload.roomId;
-    online.painterId = payload.painterId;
-    applySnapshot(payload.state);
-    const painter = painterById(online.painterId);
-    setConnectionStatus("联机 " + online.roomId + " · 你是" + (painter?.name || "画家"));
-    return;
-  }
-
-  if (payload.type === "snapshot") {
-    applySnapshot(payload.state);
-    return;
-  }
-
-  if (payload.type === "error") {
-    setConnectionStatus("服务器：" + payload.message);
-  }
-}
-
-function applySnapshot(snapshot) {
-  if (!snapshot || !Array.isArray(snapshot.painters)) return;
-  const preferredPainterId = online.painterId || state.selectedPainterId;
-  Object.keys(state).forEach((key) => {
-    delete state[key];
-  });
-  Object.assign(state, snapshot);
-  if (!Array.isArray(state.players)) state.players = [];
-  if (!state.viewMode || !VIEW_MODES[state.viewMode]) state.viewMode = "boss";
-  ensureApprenticeState();
-  ensureNpcDirectorState();
-  normalizePainterSlots();
-  state.selectedPainterId = isOnline() ? preferredPainterId : state.selectedPainterId;
-  if (!painterById(state.selectedPainterId)) state.selectedPainterId = state.painters[0]?.id || "";
-  scheduleRender();
-}
-
-function setConnectionStatus(status) {
-  online.status = status;
-  scheduleRender();
-}
-
-function renderConnection() {
-  const connecting = typeof WebSocket !== "undefined" && online.socket?.readyState === WebSocket.CONNECTING;
-  const connected = isOnline();
-  const painter = online.painterId ? painterById(online.painterId) : null;
-  els.connect.disabled = connecting;
-  els.connect.textContent = connected ? "换房" : connecting ? "连接中" : "联机";
-  els.disconnect.disabled = !online.socket && !connected;
-  els.connectionStatus.textContent = connected
-    ? "联机 " + online.roomId + " · 你是" + (painter?.name || "画家")
-    : online.status;
-  els.identitySwitch.querySelectorAll("[data-view-mode]").forEach((button) => {
-    const active = state.viewMode === button.dataset.viewMode;
-    button.classList.toggle("is-active", active);
-    button.disabled = connected && button.dataset.viewMode === "apprentice";
-  });
-}
-
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, (char) => {
-    return {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[char];
-  });
-}
-
-function startPainterDrag(event, painterId) {
-  activeDragPainterId = painterId;
-  document.body.classList.add("is-dragging-painter");
-  event.dataTransfer?.setData("text/painter-id", painterId);
-  event.dataTransfer?.setData("text/plain", painterId);
-  if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
-}
-
-function endPainterDrag() {
-  activeDragPainterId = "";
-  document.body.classList.remove("is-dragging-painter");
-  document.querySelectorAll(".station.is-drop-target").forEach((station) => {
-    station.classList.remove("is-drop-target");
-  });
-}
-
-function scheduleRender() {
-  if (renderQueued) return;
-  renderQueued = true;
-  requestAnimationFrame(() => {
-    renderQueued = false;
-    render();
-  });
-}
-
-function render() {
-  document.body.dataset.viewMode = state.viewMode || "boss";
-  ensureApprenticeState();
-  renderConnection();
-  els.day.textContent = "第 " + state.day + " 天";
-  els.coin.textContent = String(Math.round(state.coins));
-  els.apprenticeCoin.textContent = String(Math.round(state.apprentice.wallet));
-  els.paint.textContent = String(Math.round(state.paint)) + "/" + state.paintMax;
-  els.prestige.textContent = String(Math.round(state.prestige));
-  els.trend.textContent = "今日流行：" + STYLE_LABELS[activeTrend()];
-  els.selectedPainter.textContent = isApprenticeView()
-    ? "我 · " + apprenticeRank()
-    : isOnline()
-    ? (selectedPainter()?.name || "--") + "（你）"
-    : selectedPainter()?.name || "--";
-  els.pause.title = state.paused ? "继续" : "暂停";
-  els.pause.setAttribute("aria-label", state.paused ? "继续" : "暂停");
-  els.speed.title = "速度 x" + state.speed;
-  els.speed.setAttribute("aria-label", "速度 x" + state.speed);
-
-  renderPainters();
-  renderApprenticePanel();
-  renderRoom();
-  renderOrders();
-  renderShop();
-  renderArtworks();
-  renderLog();
-}
-
-function renderPainters() {
-  els.painterList.innerHTML = "";
-  for (const painter of state.painters) {
-    const role = ROLE_DATA[painter.role];
-    const owner = playerForPainter(painter.id);
-    const ownerLabel =
-      painter.id === APPRENTICE_PAINTER_ID
-        ? isApprenticeView()
-          ? "你"
-          : "本地学徒"
-        : owner
-        ? owner.painterId === online.painterId
-          ? "你"
-          : owner.name
-        : isOnline()
-        ? "无人"
-        : "本地";
-    const locked = !canControlPainter(painter.id);
-    const button = document.createElement("button");
-    button.className =
-      "painter-card" +
-      (painter.id === APPRENTICE_PAINTER_ID ? " is-apprentice" : "") +
-      (painter.id === state.selectedPainterId ? " is-selected" : "") +
-      (locked ? " is-locked" : "");
-    button.type = "button";
-    button.dataset.painterId = painter.id;
-    button.draggable = !locked;
-    button.innerHTML = `
-      <span class="painter-face" style="--face-color:${role.color}">
-        ${assetImage(painterAsset(painter), "painter-face-img")}
-      </span>
-      <span>
-        <h3>${painter.name}</h3>
-        <p>${role.label} · ${actionLabel(painter)} · ${escapeHtml(ownerLabel)}</p>
-        <span class="painter-meters">
-          <span class="meter-row"><span>技艺</span><span class="meter"><span style="width:${painter.skill}%"></span></span></span>
-          <span class="meter-row"><span>疲劳</span><span class="meter is-fatigue"><span style="width:${painter.fatigue}%"></span></span></span>
-          <span class="meter-row"><span>心情</span><span class="meter"><span style="width:${painter.mood}%"></span></span></span>
-        </span>
-      </span>
-    `;
-    els.painterList.append(button);
-  }
-
-  document.querySelectorAll(".action-dock [data-mode]").forEach((button) => {
-    button.classList.toggle("is-active", selectedPainter()?.mode === button.dataset.mode);
-  });
-}
-
-function renderApprenticePanel() {
-  const painter = apprenticePainter();
-  const apprentice = ensureApprenticeState();
-  if (!painter) {
-    els.apprenticePanel.innerHTML = "";
-    return;
-  }
-  els.apprenticePanel.innerHTML = `
-    <div class="apprentice-card-head">
-      <span>${apprenticeRank(painter)}</span>
-      <b>${Math.round(apprentice.wallet)} 工钱</b>
-    </div>
-    <div class="apprentice-stats">
-      <span><b>${Math.round(painter.skill)}</b> 技艺</span>
-      <span><b>${Math.round(painter.fatigue)}</b> 疲劳</span>
-      <span><b>${apprentice.shifts}</b> 上工</span>
-      <span><b>${apprentice.completedWorks}</b> 作品</span>
-    </div>
-    <span class="meter"><span style="width:${clampStat(painter.skill)}%"></span></span>
-  `;
-}
-
-function actionLabel(painter) {
-  if (painter.action === "painting") return MODE_LABELS[painter.mode];
-  if (painter.action === "practicing") return "练习";
-  if (painter.action === "resting") return "休息";
-  if (painter.action === "mixing") return "调色";
-  if (painter.action === "studying") return "学习";
-  if (painter.action === "receiving") return "接待";
-  if (painter.action === "curating") return "布展";
-  if (painter.action === "sorting") return "整理";
-  return "待命";
-}
-
-function clampStat(value) {
-  return Math.max(0, Math.min(100, Math.round(value)));
-}
-
-function isRushOrder(order) {
-  return Boolean(order.rush) || order.deadline < RUSH_DEADLINE_DAYS;
-}
-
-function deadlineLabel(days) {
-  const safeDays = Math.max(0, Number(days) || 0);
-  if (safeDays >= MONTH_DAYS) return (safeDays / MONTH_DAYS).toFixed(1) + "个月";
-  return safeDays.toFixed(1) + "天";
-}
-
-function deadlineBadge(order) {
-  return (isRushOrder(order) ? "加急 · " : "") + deadlineLabel(order.deadline);
-}
-
-function compactDeadlineBadge(order) {
-  return (isRushOrder(order) ? "急 " : "") + deadlineLabel(order.deadline);
-}
-
-function assetPath(fileName) {
-  return ASSET_ROOT + fileName;
-}
-
-function assetImage(fileName, className) {
-  return `<img class="${className}" src="${assetPath(fileName)}" alt="" loading="lazy" decoding="async" draggable="false" />`;
-}
-
-function painterAsset(painter) {
-  return PAINTER_ASSETS[painter.id] || PAINTER_ASSETS.p1;
-}
-
-function renderRoom() {
-  els.roomGrid.innerHTML = "";
-  normalizePainterSlots();
-  const cells = new Map(state.stations.map((station) => [station.x + ":" + station.y, station]));
-  for (let y = 0; y < 3; y += 1) {
-    for (let x = 0; x < 6; x += 1) {
-      const station = cells.get(x + ":" + y);
-      const task = station.type === "easel" ? taskAtStation(station.id) : null;
-      const stationPainters = paintersAtStation(station.id);
-      const working = stationPainters.some((painter) => painter.action === "painting");
-      const slotCount = stationSlotCount(station);
-      const stationEl = document.createElement("button");
-      stationEl.type = "button";
-      stationEl.className =
-        "station is-clickable is-" +
-        station.type +
-        " floor-" +
-        y +
-        " room-" +
-        x +
-        (station.type === "empty" ? " is-empty" : "") +
-        (task ? " has-task" : "") +
-        (task && isRushOrder(task) ? " is-rush" : "") +
-        (working ? " is-working" : "") +
-        (slotCount > 1 ? " is-large-easel" : "") +
-        (slotCount && stationPainters.length >= slotCount ? " is-full" : " has-open-slot");
-      stationEl.dataset.stationId = station.id;
-      stationEl.dataset.stationType = station.type;
-      stationEl.dataset.slotCount = String(slotCount);
-      stationEl.innerHTML = stationMarkup(station, task, working);
-
-      stationPainters.forEach((painter) => {
-        const role = ROLE_DATA[painter.role];
-        const token = document.createElement("span");
-        const slotIndex = validSlotIndex(station, painter.slotIndex) ? painter.slotIndex : 0;
-        const slotOffset = (slotIndex - (slotCount - 1) / 2) * (station.type === "easel" && task ? 28 : 31);
-        token.className = "painter-token is-" + painter.action + " role-" + painter.role;
-        token.style.setProperty("--painter-color", role.color);
-        token.style.setProperty("--painter-slot-offset", slotOffset + "px");
-        token.dataset.painterId = painter.id;
-        token.dataset.slotIndex = String(slotIndex);
-        token.draggable = canControlPainter(painter.id);
-        token.title = painter.name;
-        token.innerHTML = `
-          <span class="painter-name-tag">${escapeHtml(painter.name)} · ${actionLabel(painter)}</span>
-          ${assetImage(painterAsset(painter), "painter-sprite")}
-          <span class="painter-head"></span>
-          <span class="painter-body"></span>
-          <span class="painter-arm"></span>
-          <span class="painter-legs"></span>
-          <span class="painter-brush"></span>
-          <span class="painter-stat-bars" aria-hidden="true">
-            <span class="mini-stat is-skill" style="--value:${clampStat(painter.skill)}%"></span>
-            <span class="mini-stat is-fatigue" style="--value:${clampStat(painter.fatigue)}%"></span>
-            <span class="mini-stat is-mood" style="--value:${clampStat(painter.mood)}%"></span>
-          </span>
-        `;
-        stationEl.append(token);
+      const stationPainters = paintersAtStation(state, task.stationId).filter((painter) => {
+        return painter.action === "painting" && distance(painter.x, painter.y, painter.targetX, painter.targetY) <= 10;
       });
-      els.roomGrid.append(stationEl);
-    }
-  }
-}
+      if (!stationPainters.length) continue;
 
-function stationMarkup(station, task, working = false) {
-  const subtitle = stationSubtitle(station, task);
-  const progress = task
-    ? `<span class="station-progress">
-        <span class="meter"><span style="width:${task.progress}%"></span></span>
-        <small>${PHASES[task.phaseIndex]} · 品质 ${Math.round(task.quality)}</small>
-      </span>`
-    : "";
-  const stationArt = task ? paintingMarkup(task, working) : stationAssetMarkup(station);
-  return `
-    <span class="station-label">
-      <span class="station-title"><span>${station.label}</span><b>${station.type === "easel" && task ? compactDeadlineBadge(task) : ""}</b></span>
-      <span class="station-subtitle">${subtitle}</span>
-    </span>
-    <span class="station-art">${stationArt}</span>
-    ${workSlotsMarkup(station)}
-    ${progress}
-  `;
-}
-
-function workSlotsMarkup(station) {
-  const slotCount = stationSlotCount(station);
-  if (!slotCount) return "";
-  const used = occupiedSlots(station.id);
-  const slots = Array.from({ length: slotCount }, (_, index) => {
-    return `<span class="work-slot ${used.has(index) ? "is-occupied" : ""}"></span>`;
-  }).join("");
-  return `<span class="work-slot-row" aria-hidden="true">${slots}</span>`;
-}
-
-function stationAssetMarkup(station) {
-  const iconClass = stationIconClass(station.type);
-  const baseAsset = STATION_ASSETS[station.type];
-  if (!baseAsset) return `<span class="${iconClass}" aria-hidden="true"></span>`;
-
-  const config = { ...baseAsset };
-  if (station.type === "bed" && station.id.includes("2")) {
-    config.base = "tile_0072.png";
-  }
-
-  const prop = config.prop ? assetImage(config.prop, "asset-sprite station-prop") : "";
-  const base = config.base ? assetImage(config.base, "asset-sprite station-sprite") : "";
-  return `<span class="station-asset is-${station.type}" aria-hidden="true">${prop}${base}</span>`;
-}
-
-function stationIconClass(type) {
-  return (
-    {
-      bed: "pixel-bed",
-      desk: "pixel-desk",
-      door: "pixel-door",
-      easel: "pixel-easel",
-      empty: "pixel-empty",
-      gallery: "pixel-gallery",
-      mixer: "pixel-mixer",
-      storage: "pixel-storage"
-    }[type] || "pixel-empty"
-  );
-}
-
-function clamp01(value) {
-  return Math.max(0, Math.min(1, value));
-}
-
-function paintingMarkup(task, working) {
-  const [a, b, c] = paintingPalette(task.style);
-  const progress = Math.max(0, Math.min(100, Math.round(task.progress)));
-  const visualProgress = progress <= 0 ? 0 : Math.min(100, Math.round(Math.pow(progress / 100, 0.65) * 100));
-  const fill = Math.max(0, Math.min(58, Math.round(visualProgress * 0.58)));
-  const strokeOne = Math.max(0, Math.min(42, Math.round(visualProgress * 0.42)));
-  const strokeTwo = Math.max(0, Math.min(36, Math.round(visualProgress * 0.36)));
-  const strokeThree = Math.max(0, Math.min(31, Math.round(visualProgress * 0.31)));
-  const blank = clamp01(1 - visualProgress / 16).toFixed(2);
-  const sketch = clamp01(visualProgress / 18).toFixed(2);
-  const color = clamp01((visualProgress - 9) / 32).toFixed(2);
-  const detail = clamp01((visualProgress - 46) / 30).toFixed(2);
-  const finish = clamp01((visualProgress - 78) / 18).toFixed(2);
-  const figureScale = (0.86 + clamp01((visualProgress - 12) / 56) * 0.14).toFixed(2);
-  return `
-    <span class="painting-canvas style-${task.style} ${working ? "is-working" : "is-paused"}" style="--paint-progress:${fill}px;--stroke-one:${strokeOne}px;--stroke-two:${strokeTwo}px;--stroke-three:${strokeThree}px;--blank-opacity:${blank};--sketch-opacity:${sketch};--color-opacity:${color};--detail-opacity:${detail};--finish-opacity:${finish};--figure-scale:${figureScale};--paint-a:${a};--paint-b:${b};--paint-c:${c}">
-      <span class="blank-label">空白画布</span>
-      <span class="paint-sketch"></span>
-      <span class="paint-wash"></span>
-      <span class="paint-figure"></span>
-      <span class="paint-stroke stroke-one"></span>
-      <span class="paint-stroke stroke-two"></span>
-      <span class="paint-stroke stroke-three"></span>
-      <span class="finish-glint"></span>
-      <span class="brush-sprite" aria-hidden="true"></span>
-    </span>
-  `;
-}
-
-function paintingPalette(style) {
-  return {
-    portrait: ["#bd6244", "#f4dfb8", "#2f2922"],
-    religious: ["#d8a54b", "#477da5", "#f4dfb8"],
-    landscape: ["#66854c", "#1f8f86", "#d6bd8d"],
-    poster: ["#bd6244", "#d8a54b", "#1f8f86"],
-    abstract: ["#7d5d7e", "#477da5", "#d8a54b"]
-  }[style] || ["#bd6244", "#d8a54b", "#1f8f86"];
-}
-
-function stationSubtitle(station, task) {
-  if (task) return "《" + task.title + "》";
-  if (station.type === "easel") return "等待订单";
-  if (station.type === "bed") return "恢复疲劳";
-  if (station.type === "mixer") return "补充颜料";
-  if (station.type === "desk") return "提升技艺";
-  if (station.type === "gallery") return "提高声望";
-  if (station.type === "storage") return "颜料上限 " + state.paintMax;
-  if (station.type === "door") return "客户入口";
-  return "可放家具";
-}
-
-function renderOrders() {
-  els.orderList.innerHTML = "";
-  const items = [...state.orders, ...state.activeTasks];
-  const apprenticeMode = isApprenticeView();
-  if (!items.length) {
-    const empty = document.createElement("div");
-    empty.className = "order-card";
-    empty.textContent = "暂无订单";
-    els.orderList.append(empty);
-    return;
-  }
-
-  for (const order of items) {
-    const card = document.createElement("article");
-    const rush = isRushOrder(order);
-    card.className = "order-card" + (order.status === "active" ? " is-active" : "") + (rush ? " is-rush" : "");
-    const active = order.status === "active";
-    card.innerHTML = `
-      <div class="order-head">
-        <span class="commission-thumb" style="background:${artBackground(order)}"></span>
-        <div class="order-title"><span>${order.title}</span><b>${rush ? "加急 · " : ""}${STYLE_LABELS[order.style]}</b></div>
-      </div>
-      <div class="order-meta">
-        <span>${order.client}</span>
-        <span class="${rush ? "is-rush-deadline" : ""}">${deadlineBadge(order)}</span>
-        <span>${order.reward} 金币</span>
-        <span>${order.paintCost} 颜料</span>
-      </div>
-      ${
-        active
-          ? `<div class="station-progress">
-              <span class="meter"><span style="width:${order.progress}%"></span></span>
-              <small>${PHASES[order.phaseIndex]} · ${order.place}</small>
-            </div>`
-          : `<div class="order-actions">
-              <button type="button" data-accept="${order.id}">${apprenticeMode ? "领活" : "承接"}</button>
-              <button type="button" data-decline="${order.id}">${apprenticeMode ? "跳过" : "婉拒"}</button>
-            </div>`
+      let speed = 0;
+      for (const painter of stationPainters) {
+        const mode = MODE_DATA[painter.id === "me" ? state.mode : painter.mode] || MODE_DATA.steady;
+        const phase = PHASES[task.phaseIndex] || PHASES[0];
+        const roleBonus = ROLE_DATA[painter.role]?.phase === phase ? 0.34 : 0;
+        const skillBonus = painter.skill / 130;
+        speed += (0.56 + skillBonus + roleBonus) * mode.speed;
+        task.quality = clamp(task.quality + (mode.quality + painter.skill / 6200 + roleBonus / 260) * dt, 20, 100);
+        painter.fatigue = Math.min(100, painter.fatigue + 0.55 * mode.fatigue * dt);
+        painter.skill = Math.min(100, painter.skill + 0.018 * dt);
+        if (painter.id === "me") task.playerHelped = true;
       }
-    `;
-    els.orderList.append(card);
+
+      task.progress = clamp(task.progress + speed * dt, 0, 100);
+      task.phaseIndex = Math.min(PHASES.length - 1, Math.floor(task.progress / 20));
+      if (task.progress >= 100) completeTask(task);
+    }
   }
-}
 
-function renderShop() {
-  els.shopList.innerHTML = "";
-  for (const item of SHOP_ITEMS) {
-    const el = document.createElement("article");
-    el.className = "shop-item";
-    const disabled = isApprenticeView() || state.coins < item.cost || (item.type !== "storage" && !emptyStation());
-    const iconType = item.stationType || item.type;
-    el.innerHTML = `
-      <span class="shop-icon is-${iconType}" aria-hidden="true"></span>
-      <span>
-        <h3>${item.label}</h3>
-        <p>${item.desc}</p>
-      </span>
-      <button type="button" data-buy="${item.type}" ${disabled ? "disabled" : ""}>${isApprenticeView() ? "账本" : item.cost}</button>
-    `;
-    els.shopList.append(el);
+  function completeTask(task) {
+    state.tasks = state.tasks.filter((item) => item.id !== task.id);
+    const reward = Math.round(task.pay * (0.86 + task.quality / 170));
+    state.coins += reward;
+    state.prestige = Math.min(99, state.prestige + (task.rush ? 4 : 2));
+    if (task.playerHelped) {
+      const wage = Math.round(reward * 0.12);
+      state.wage += wage;
+      addLog(state, "你参与《" + task.title + "》，拿到 " + wage + " 工钱。");
+    }
+    state.paintings.unshift({
+      id: "art-" + state.artSerial++,
+      title: task.title,
+      style: task.style,
+      quality: Math.round(task.quality)
+    });
+    state.paintings = state.paintings.slice(0, 6);
+    addLog(state, "《" + task.title + "》交付到" + task.place + "，收入 " + reward + " 金币。");
+    for (const painter of paintersAtStation(state, task.stationId)) syncPainterAction(state, painter);
   }
-}
 
-function renderArtworks() {
-  els.artCount.textContent = String(state.artworks.length);
-  els.artworkTrack.innerHTML = "";
-  if (!state.artworks.length) {
-    const empty = document.createElement("span");
-    empty.className = "station-subtitle";
-    empty.textContent = "作品会挂进小镇。";
-    els.artworkTrack.append(empty);
-    return;
+  function failTask(task) {
+    state.tasks = state.tasks.filter((item) => item.id !== task.id);
+    state.prestige = Math.max(0, state.prestige - (task.rush ? 4 : 2));
+    addLog(state, "《" + task.title + "》错过期限，工会声望下降。");
+    for (const painter of paintersAtStation(state, task.stationId)) syncPainterAction(state, painter);
   }
-  for (const art of state.artworks) {
-    const tile = document.createElement("span");
-    tile.className = "art-tile";
-    tile.title = art.title + " · " + art.place + " · 品质 " + art.quality;
-    tile.style.background = artBackground(art);
-    els.artworkTrack.append(tile);
+
+  function updateOrderDeadlines(dayDelta) {
+    for (const order of state.orders) {
+      order.deadline -= dayDelta;
+    }
+    for (const order of [...state.orders]) {
+      if (order.deadline <= 0) {
+        state.orders = state.orders.filter((item) => item.id !== order.id);
+        state.prestige = Math.max(0, state.prestige - 1);
+        addLog(state, "客户撤回了《" + order.title + "》。");
+      }
+    }
   }
-}
 
-function artBackground(art) {
-  const palettes = {
-    portrait: ["#f4dfb8", "#bd6244", "#2f2922"],
-    religious: ["#d8a54b", "#477da5", "#f4dfb8"],
-    landscape: ["#66854c", "#1f8f86", "#f4dfb8"],
-    poster: ["#bd6244", "#d8a54b", "#1f8f86"],
-    abstract: ["#7d5d7e", "#477da5", "#d8a54b"]
-  };
-  const [a, b, c] = palettes[art.style];
-  return `linear-gradient(135deg, ${a} 0 34%, ${b} 34% 62%, ${c} 62%)`;
-}
+  function updateNpcDirector(dt) {
+    state.directorTimer += dt;
+    if (state.directorTimer < 1.15) return;
+    state.directorTimer = 0;
 
-function renderLog() {
-  els.eventLog.innerHTML = state.log.map((item) => `<p>${escapeHtml(item)}</p>`).join("");
-}
+    restTiredNpcs();
+    keepPaintStocked();
+    autoAcceptGuildOrder();
+    staffTasks();
+    routineNpcWork();
+  }
 
-function bindEvents() {
-  els.connectionForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    connectOnline();
-  });
+  function npcPainters() {
+    return state.painters.filter((painter) => !painter.isPlayer);
+  }
 
-  els.disconnect.addEventListener("click", () => {
-    disconnectOnline();
-  });
+  function isBusyOnTask(painter) {
+    return stationById(state, painter.stationId)?.type === "easel" && Boolean(taskAtStation(state, painter.stationId));
+  }
 
-  els.identitySwitch.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-view-mode]");
-    if (!button) return;
-    setViewMode(button.dataset.viewMode);
-  });
+  function restTiredNpcs() {
+    for (const painter of npcPainters().sort((a, b) => b.fatigue - a.fatigue)) {
+      if (painter.fatigue < 76 || (isBusyOnTask(painter) && painter.fatigue < 92)) continue;
+      assignPainter(state, painter.id, "bed", "管事让" + painter.name + "去床边休息。");
+    }
+  }
 
-  els.painterList.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-painter-id]");
-    if (!button) return;
-    selectPainter(button.dataset.painterId);
-  });
+  function keepPaintStocked() {
+    if (state.paint > state.paintMax * 0.42 && !state.orders.some((order) => order.paintCost > state.paint)) return;
+    const mixer = npcPainters().find((painter) => painter.role === "mixer" && !isBusyOnTask(painter) && painter.fatigue < 76) || bestAvailableNpc();
+    if (mixer) assignPainter(state, mixer.id, "mixer", "管事安排" + mixer.name + "研磨颜料。");
+  }
 
-  els.painterList.addEventListener("dragstart", (event) => {
-    const button = event.target.closest("[data-painter-id]");
-    if (!button || !selectPainter(button.dataset.painterId)) {
-      event.preventDefault();
+  function autoAcceptGuildOrder() {
+    if (state.orders.length <= 1) return;
+    const free = bestFreeEasel(state, false);
+    if (!free || paintersAtStation(state, free.id).some((painter) => painter.id === "me")) return;
+    const order = [...state.orders].sort((a, b) => {
+      if (a.rush !== b.rush) return a.rush ? -1 : 1;
+      return a.deadline - b.deadline;
+    })[0];
+    if (order && state.paint >= order.paintCost) {
+      acceptOrder(state, order.id, free.id);
+      addLog(state, "管事接下《" + order.title + "》，留一张订单给你挑。");
+    }
+  }
+
+  function staffTasks() {
+    const tasks = [...state.tasks].sort((a, b) => a.deadline - b.deadline || a.progress - b.progress);
+    for (const task of tasks) {
+      const station = stationById(state, task.stationId);
+      if (!station) continue;
+      const target = task.rush || station.slots > 1 ? station.slots : 1;
+      while (paintersAtStation(state, station.id).length < target) {
+        const helper = bestNpcForTask(task);
+        if (!helper) break;
+        if (!assignPainter(state, helper.id, station.id, "管事安排" + helper.name + "协助《" + task.title + "》。")) break;
+      }
+    }
+  }
+
+  function routineNpcWork() {
+    for (const painter of npcPainters()) {
+      if (isBusyOnTask(painter) || painter.fatigue >= 74) continue;
+      let target = "";
+      if (painter.role === "social") target = "gallery";
+      else if (painter.role === "mixer" && state.paint < state.paintMax * 0.82) target = "mixer";
+      else if (painter.role === "finisher") target = "apprentice-desk";
+      else if (painter.skill < 32) target = "apprentice-desk";
+      else target = "door";
+
+      const station = stationById(state, target);
+      if (station && freeSlot(state, station, painter.id) >= 0 && painter.stationId !== station.id) {
+        assignPainter(state, painter.id, target, "管事安排" + painter.name + actionTextForStation(station) + "。");
+      }
+    }
+  }
+
+  function actionTextForStation(station) {
+    return {
+      desk: "学习",
+      door: "接待客人",
+      gallery: "布展",
+      mixer: "研磨颜料",
+      storage: "整理颜料",
+      bed: "休息"
+    }[station.type] || "待命";
+  }
+
+  function bestAvailableNpc() {
+    return npcPainters()
+      .filter((painter) => !isBusyOnTask(painter) && painter.fatigue < 76)
+      .sort((a, b) => a.fatigue - b.fatigue || b.skill - a.skill)[0];
+  }
+
+  function bestNpcForTask(task) {
+    const phase = PHASES[task.phaseIndex] || PHASES[0];
+    return npcPainters()
+      .filter((painter) => !isBusyOnTask(painter) && painter.fatigue < 88)
+      .sort((a, b) => {
+        const roleDelta = Number(ROLE_DATA[b.role]?.phase === phase) - Number(ROLE_DATA[a.role]?.phase === phase);
+        if (roleDelta) return roleDelta;
+        if (Math.abs(a.fatigue - b.fatigue) > 10) return a.fatigue - b.fatigue;
+        return b.skill - a.skill;
+      })[0];
+  }
+
+  function draw(time) {
+    ctx.clearRect(0, 0, WORLD.width, WORLD.height);
+    drawRoom();
+    for (const station of state.stations) {
+      drawStation(station, time);
+    }
+    const sortedPainters = [...state.painters].sort((a, b) => a.y - b.y);
+    for (const painter of sortedPainters) {
+      drawPainter(painter, time);
+    }
+    drawHover();
+  }
+
+  function drawRoom() {
+    ctx.fillStyle = "#233146";
+    ctx.fillRect(0, 0, WORLD.width, WORLD.height);
+    ctx.fillStyle = "#40536b";
+    ctx.fillRect(34, 42, 1032, 266);
+    ctx.fillStyle = "#294057";
+    ctx.fillRect(34, 308, 1032, 36);
+    ctx.fillStyle = "#9b6845";
+    ctx.fillRect(34, 344, 1032, 278);
+    ctx.fillStyle = "rgba(0,0,0,0.16)";
+    for (let x = 54; x < 1040; x += 42) {
+      ctx.fillRect(x, 344, 2, 278);
+    }
+    for (let y = 365; y < 620; y += 36) {
+      ctx.fillRect(34, y, 1032, 2);
+    }
+    ctx.fillStyle = "#1d2738";
+    for (let x = 34; x <= 1066; x += 172) {
+      ctx.fillRect(x, 42, 5, 580);
+    }
+    ctx.fillStyle = "#5b3929";
+    ctx.fillRect(34, 616, 1032, 20);
+    ctx.fillRect(34, 42, 1032, 10);
+    ctx.fillStyle = "rgba(255,255,255,0.08)";
+    ctx.fillRect(52, 62, 996, 42);
+    ctx.fillStyle = "rgba(218,174,105,0.13)";
+    ctx.fillRect(52, 318, 996, 12);
+  }
+
+  function drawStation(station, time) {
+    const task = station.type === "easel" ? taskAtStation(state, station.id) : null;
+    drawStationLabel(station, task);
+    if (station.type === "door") drawDoor(station);
+    if (station.type === "easel") drawEasel(station, task, time);
+    if (station.type === "desk") drawDesk(station);
+    if (station.type === "mixer") drawMixer(station, time);
+    if (station.type === "bed") drawBed(station);
+    if (station.type === "gallery") drawGallery(station);
+    if (station.type === "storage") drawStorage(station);
+    drawStationShadow(station);
+  }
+
+  function drawStationLabel(station, task) {
+    const title = task ? station.label + "  " + compactDeadline(task.deadline) : station.label;
+    const sub = task ? "《" + task.title + "》" : stationIdleText(station);
+    const x = station.x + 6;
+    const y = station.y - 35;
+    ctx.fillStyle = "rgba(29, 19, 13, 0.82)";
+    roundRect(ctx, x, y, Math.min(station.w + 10, 164), 42, 6, true);
+    ctx.fillStyle = "#f7efe1";
+    ctx.font = "800 14px system-ui, sans-serif";
+    ctx.fillText(title, x + 10, y + 17);
+    ctx.fillStyle = "#c7b9a3";
+    ctx.font = "700 11px system-ui, sans-serif";
+    ctx.fillText(sub.slice(0, 12), x + 10, y + 34);
+  }
+
+  function stationIdleText(station) {
+    return {
+      door: "接待客户",
+      easel: "等待订单",
+      desk: station.id === "apprentice-desk" ? "提升技艺" : "整理账本",
+      mixer: "研磨颜料",
+      bed: "恢复疲劳",
+      gallery: "展示作品",
+      storage: "颜料库存"
+    }[station.type] || "";
+  }
+
+  function drawStationShadow(station) {
+    ctx.fillStyle = "rgba(0,0,0,0.18)";
+    ctx.beginPath();
+    ctx.ellipse(station.x + station.w / 2, station.y + station.h - 6, station.w * 0.42, 15, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawDoor(station) {
+    ctx.fillStyle = "#2f2019";
+    ctx.fillRect(station.x + 36, station.y + 9, 50, 92);
+    ctx.fillStyle = "#8a5536";
+    ctx.fillRect(station.x + 42, station.y + 16, 38, 82);
+    ctx.fillStyle = "#d9aa4c";
+    ctx.fillRect(station.x + 69, station.y + 57, 6, 6);
+    ctx.fillStyle = "#d9aa4c";
+    ctx.fillRect(station.x + 22, station.y + 96, 78, 12);
+  }
+
+  function drawEasel(station, task, time) {
+    const cx = station.x + station.w / 2;
+    const top = station.y + 16;
+    const canvasW = station.size === "large" ? 142 : 98;
+    const canvasH = station.size === "large" ? 108 : 82;
+    ctx.strokeStyle = "#5b3929";
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(cx - canvasW / 2 + 10, top + canvasH + 8);
+    ctx.lineTo(cx - canvasW / 2 - 18, station.y + station.h - 10);
+    ctx.moveTo(cx + canvasW / 2 - 10, top + canvasH + 8);
+    ctx.lineTo(cx + canvasW / 2 + 18, station.y + station.h - 10);
+    ctx.moveTo(cx, top + canvasH);
+    ctx.lineTo(cx, station.y + station.h - 6);
+    ctx.stroke();
+    ctx.lineWidth = 1;
+    drawPaintingCanvas(cx - canvasW / 2, top, canvasW, canvasH, task, time);
+  }
+
+  function drawPaintingCanvas(x, y, w, h, task, time) {
+    ctx.fillStyle = "#f4deb0";
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = "#6c442c";
+    ctx.lineWidth = 8;
+    ctx.strokeRect(x, y, w, h);
+    ctx.lineWidth = 1;
+    if (!task) {
+      ctx.fillStyle = "rgba(255,255,255,0.38)";
+      ctx.fillRect(x + 14, y + 14, w - 28, h - 28);
       return;
     }
-    startPainterDrag(event, button.dataset.painterId);
-  });
-
-  els.painterList.addEventListener("dragend", () => {
-    endPainterDrag();
-  });
-
-  els.roomGrid.addEventListener("click", (event) => {
-    const token = event.target.closest("[data-painter-id]");
-    if (token) {
-      selectPainter(token.dataset.painterId);
-      return;
+    const p = task.progress / 100;
+    const palette = STYLES[task.style].colors;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x + 8, y + 8, w - 16, h - 16);
+    ctx.clip();
+    ctx.globalAlpha = clamp((p - 0.04) / 0.18, 0, 1);
+    ctx.strokeStyle = "#6b5745";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x + 18, y + 24);
+    ctx.lineTo(x + w - 24, y + h - 28);
+    ctx.moveTo(x + 20, y + h - 22);
+    ctx.lineTo(x + w - 18, y + 30);
+    ctx.moveTo(x + 30, y + 16);
+    ctx.lineTo(x + w - 34, y + 20 + Math.sin(time * 2) * 3);
+    ctx.stroke();
+    ctx.globalAlpha = clamp((p - 0.18) / 0.3, 0, 1);
+    ctx.fillStyle = palette[0];
+    ctx.fillRect(x + 10, y + 10, w * 0.42, h - 18);
+    ctx.fillStyle = palette[1];
+    ctx.fillRect(x + w * 0.42, y + 10, w * 0.34, h - 18);
+    ctx.fillStyle = palette[2];
+    ctx.fillRect(x + w * 0.68, y + 10, w * 0.28, h - 18);
+    ctx.globalAlpha = clamp((p - 0.5) / 0.28, 0, 1);
+    ctx.fillStyle = "rgba(255,255,255,0.44)";
+    ctx.fillRect(x + 18, y + 18, w - 36, 5);
+    ctx.fillStyle = "rgba(45,37,48,0.45)";
+    ctx.fillRect(x + 22, y + h - 28, w - 48, 5);
+    ctx.globalAlpha = clamp((p - 0.78) / 0.18, 0, 1);
+    ctx.strokeStyle = "rgba(255,255,255,0.75)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x + 18, y + 14);
+    ctx.lineTo(x + 34, y + 30);
+    ctx.moveTo(x + w - 26, y + h - 34);
+    ctx.lineTo(x + w - 12, y + h - 20);
+    ctx.stroke();
+    ctx.restore();
+    ctx.globalAlpha = 1;
+    if (paintersAtStation(state, task.stationId).some((painter) => painter.action === "painting")) {
+      ctx.fillStyle = palette[1];
+      const bx = x + 12 + ((time * 38) % Math.max(12, w - 30));
+      ctx.fillRect(bx, y + h - 14, 18, 4);
     }
-    const station = event.target.closest("[data-station-id]");
+  }
+
+  function drawDesk(station) {
+    ctx.fillStyle = "#754529";
+    ctx.fillRect(station.x + 25, station.y + 70, station.w - 50, 30);
+    ctx.fillStyle = "#b8794b";
+    ctx.fillRect(station.x + 18, station.y + 48, station.w - 36, 32);
+    ctx.fillStyle = "#f2dbad";
+    ctx.fillRect(station.x + 42, station.y + 37, 42, 28);
+    ctx.fillStyle = "#5f92c8";
+    ctx.fillRect(station.x + 92, station.y + 42, 18, 24);
+  }
+
+  function drawMixer(station, time) {
+    ctx.fillStyle = "#6b432b";
+    ctx.fillRect(station.x + 24, station.y + 65, station.w - 48, 34);
+    ctx.fillStyle = "#d4c7ae";
+    ctx.fillRect(station.x + 42, station.y + 40, 52, 34);
+    ctx.fillStyle = "#2aa198";
+    ctx.fillRect(station.x + 50, station.y + 52, 12, 12);
+    ctx.fillStyle = "#c7644b";
+    ctx.fillRect(station.x + 68, station.y + 49 + Math.sin(time * 6) * 2, 12, 14);
+    ctx.fillStyle = "#d9aa4c";
+    ctx.fillRect(station.x + 84, station.y + 54, 12, 10);
+  }
+
+  function drawBed(station) {
+    ctx.fillStyle = "#5b3929";
+    ctx.fillRect(station.x + 18, station.y + 52, station.w - 32, 48);
+    ctx.fillStyle = "#c7644b";
+    ctx.fillRect(station.x + 26, station.y + 58, station.w - 50, 34);
+    ctx.fillStyle = "#f4deb0";
+    ctx.fillRect(station.x + station.w - 58, station.y + 57, 34, 18);
+  }
+
+  function drawGallery(station) {
+    const works = state.paintings.slice(0, 3);
+    ctx.fillStyle = "#634029";
+    ctx.fillRect(station.x + 20, station.y + 26, station.w - 40, 66);
+    for (let i = 0; i < 3; i += 1) {
+      const x = station.x + 32 + i * 38;
+      const y = station.y + 38 + (i % 2) * 12;
+      const style = works[i] ? STYLES[works[i].style] : STYLES.poster;
+      ctx.fillStyle = "#f0d9aa";
+      ctx.fillRect(x, y, 28, 24);
+      ctx.fillStyle = style.colors[i % 3];
+      ctx.fillRect(x + 4, y + 4, 20, 16);
+    }
+  }
+
+  function drawStorage(station) {
+    ctx.fillStyle = "#7a5435";
+    ctx.fillRect(station.x + 38, station.y + 32, 68, 78);
+    ctx.fillStyle = "#5b3929";
+    ctx.fillRect(station.x + 42, station.y + 52, 60, 5);
+    ctx.fillRect(station.x + 42, station.y + 78, 60, 5);
+    ctx.fillStyle = "#2aa198";
+    ctx.fillRect(station.x + 50, station.y + 60, 12, 16);
+    ctx.fillStyle = "#c7644b";
+    ctx.fillRect(station.x + 68, station.y + 60, 12, 16);
+    ctx.fillStyle = "#d9aa4c";
+    ctx.fillRect(station.x + 86, station.y + 60, 12, 16);
+  }
+
+  function drawPainter(painter, time) {
+    const x = Math.round(painter.x);
+    const y = Math.round(painter.y);
+    const walkBob = painter.action === "walking" ? Math.sin(time * 14 + painter.x * 0.02) * 2 : 0;
+    const paintSwing = painter.action === "painting" ? Math.sin(time * 12 + painter.slotIndex) : 0;
+    ctx.fillStyle = "rgba(0,0,0,0.26)";
+    ctx.beginPath();
+    ctx.ellipse(x, y + 4, 22, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (painter.id === "me") {
+      ctx.strokeStyle = "rgba(217,170,76,0.92)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(x, y + 5, 27, 10, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.lineWidth = 1;
+    }
+
+    const top = y - 48 + walkBob;
+    ctx.fillStyle = "#2a1d19";
+    ctx.fillRect(x - 12, top + 40, 8, 16);
+    ctx.fillRect(x + 4, top + 40, 8, 16);
+    ctx.fillStyle = painter.shirt;
+    ctx.fillRect(x - 15, top + 24, 30, 24);
+    ctx.fillStyle = "#efb97a";
+    ctx.fillRect(x - 12, top + 12, 24, 20);
+    ctx.fillStyle = painter.hair;
+    ctx.fillRect(x - 15, top + 6, 30, 12);
+    ctx.fillRect(x - 15, top + 14, 6, 12);
+    ctx.fillRect(x + 9, top + 14, 6, 12);
+    ctx.fillStyle = "#2a1d19";
+    ctx.fillRect(x - 6, top + 21, 3, 3);
+    ctx.fillRect(x + 4, top + 21, 3, 3);
+
+    ctx.fillStyle = "#efb97a";
+    if (painter.action === "painting") {
+      ctx.fillRect(x - 23, top + 29, 12, 6);
+      ctx.fillRect(x + 10, top + 28 + paintSwing * 3, 20, 6);
+      ctx.fillStyle = "#5b3929";
+      ctx.fillRect(x + 27, top + 28 + paintSwing * 3, 13, 4);
+      ctx.fillStyle = "#d9aa4c";
+      ctx.fillRect(x + 39, top + 27 + paintSwing * 3, 5, 6);
+    } else if (painter.action === "mixing") {
+      ctx.fillRect(x - 22, top + 28, 12, 6);
+      ctx.fillRect(x + 10, top + 28, 12, 6);
+      ctx.fillStyle = "#5b3929";
+      ctx.fillRect(x + 20, top + 24 + Math.sin(time * 10) * 3, 4, 18);
+    } else {
+      ctx.fillRect(x - 22, top + 28, 12, 6);
+      ctx.fillRect(x + 10, top + 28, 12, 6);
+    }
+
+    drawMiniBars(painter, x - 25, top + 4);
+    drawNameTag(painter, x, top - 16);
+  }
+
+  function drawMiniBars(painter, x, y) {
+    const values = [
+      ["#2aa198", painter.skill],
+      ["#c7644b", painter.fatigue],
+      ["#74a35a", painter.mood]
+    ];
+    for (let i = 0; i < values.length; i += 1) {
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(x, y + i * 12, 5, 28);
+      ctx.fillStyle = values[i][0];
+      const h = Math.round((values[i][1] / 100) * 26);
+      ctx.fillRect(x + 1, y + i * 12 + 27 - h, 3, h);
+    }
+  }
+
+  function drawNameTag(painter, x, y) {
+    const text = painter.name + " · " + actionLabel(painter);
+    ctx.font = "800 12px system-ui, sans-serif";
+    const width = Math.min(96, ctx.measureText(text).width + 14);
+    ctx.fillStyle = "rgba(28,18,12,0.86)";
+    roundRect(ctx, x - width / 2, y, width, 24, 5, true);
+    ctx.fillStyle = "#f7efe1";
+    ctx.fillText(text.slice(0, 8), x - width / 2 + 7, y + 16);
+  }
+
+  function actionLabel(painter) {
+    return {
+      walking: "走动",
+      painting: painter.id === "me" ? MODE_DATA[state.mode].label : MODE_DATA[painter.mode].label,
+      waiting: "待画",
+      mixing: "调色",
+      resting: "休息",
+      studying: "学习",
+      receiving: "接待",
+      curating: "布展",
+      sorting: "整理",
+      idle: "待命"
+    }[painter.action] || "待命";
+  }
+
+  function drawHover() {
+    const station = stationById(state, hoveredStationId);
     if (!station) return;
-    assignPainterToStation(station.dataset.stationId);
-  });
+    ctx.strokeStyle = "rgba(217,170,76,0.9)";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(station.x - 6, station.y - 6, station.w + 12, station.h + 12);
+    ctx.lineWidth = 1;
+  }
 
-  els.roomGrid.addEventListener("dragstart", (event) => {
-    const token = event.target.closest(".painter-token[data-painter-id]");
-    if (!token || !selectPainter(token.dataset.painterId)) {
-      event.preventDefault();
+  function roundRect(context, x, y, width, height, radius, fill) {
+    const r = Math.min(radius, width / 2, height / 2);
+    context.beginPath();
+    context.moveTo(x + r, y);
+    context.lineTo(x + width - r, y);
+    context.quadraticCurveTo(x + width, y, x + width, y + r);
+    context.lineTo(x + width, y + height - r);
+    context.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+    context.lineTo(x + r, y + height);
+    context.quadraticCurveTo(x, y + height, x, y + height - r);
+    context.lineTo(x, y + r);
+    context.quadraticCurveTo(x, y, x + r, y);
+    if (fill) context.fill();
+    else context.stroke();
+  }
+
+  function renderUi() {
+    els.day.textContent = "第 " + state.day + " 天";
+    els.clock.textContent = formatClock(state.minute);
+    els.coins.textContent = String(Math.round(state.coins));
+    els.wage.textContent = String(Math.round(state.wage));
+    els.paint.textContent = Math.round(state.paint) + "/" + state.paintMax;
+    els.prestige.textContent = String(Math.round(state.prestige));
+    const me = painterById(state, "me");
+    els.selected.textContent = "我 · " + ROLE_DATA[me.role].label + " · " + actionLabel(me);
+
+    renderOrders();
+    renderPainters();
+    renderArt();
+    els.log.innerHTML = state.log.map((item) => `<div class="log-line">${escapeHtml(item)}</div>`).join("");
+    els.modeButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.mode === state.mode);
+    });
+  }
+
+  function renderOrders() {
+    if (!state.orders.length) {
+      els.orders.innerHTML = `<div class="order-card"><div class="order-title">暂无订单</div></div>`;
       return;
     }
-    startPainterDrag(event, token.dataset.painterId);
+    els.orders.innerHTML = state.orders
+      .map((order) => {
+        const rush = order.rush || order.deadline < 30;
+        return `
+          <article class="order-card ${rush ? "is-rush" : ""}">
+            <div class="order-top">
+              <div>
+                <div class="order-title">${escapeHtml(order.title)}</div>
+                <div class="order-meta">
+                  <span>${escapeHtml(order.client)}</span>
+                  <span>${compactDeadline(order.deadline)}</span>
+                  <span>${order.pay} 金币</span>
+                  <span>${order.paintCost} 颜料</span>
+                </div>
+              </div>
+              <div class="order-style">${rush ? "加急 · " : ""}${STYLES[order.style].label}</div>
+            </div>
+            <div class="order-actions">
+              <button type="button" data-accept-order="${order.id}">领活</button>
+              <button type="button" data-reject-order="${order.id}">跳过</button>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  function renderPainters() {
+    els.painters.innerHTML = state.painters
+      .map((painter) => {
+        return `
+          <article class="painter-card ${painter.isPlayer ? "is-player" : ""}">
+            <span class="painter-avatar" style="--avatar-shirt:${painter.shirt};--avatar-hair:${painter.hair}" aria-hidden="true"></span>
+            <div>
+              <div class="painter-top">
+                <div>
+                  <div class="painter-name">${escapeHtml(painter.name)}</div>
+                  <div class="painter-meta">${ROLE_DATA[painter.role].label} · ${actionLabel(painter)}</div>
+                </div>
+              </div>
+              <div class="meter-stack">
+                ${meterRow("技艺", painter.skill, "")}
+                ${meterRow("疲劳", painter.fatigue, "is-fatigue")}
+                ${meterRow("心情", painter.mood, "is-mood")}
+              </div>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  function meterRow(label, value, className) {
+    return `<div class="meter-row"><span>${label}</span><span class="meter ${className}"><span style="width:${clamp(value, 0, 100)}%"></span></span></div>`;
+  }
+
+  function renderArt() {
+    els.artCount.textContent = String(state.paintings.length);
+    if (!state.paintings.length) {
+      els.art.innerHTML = `<div class="art-card"><small>等待第一幅作品</small></div>`;
+      return;
+    }
+    els.art.innerHTML = state.paintings
+      .map((art) => {
+        const colors = STYLES[art.style].colors;
+        return `
+          <article class="art-card">
+            <div class="mini-art" style="--art-a:${colors[0]};--art-b:${colors[1]};--art-c:${colors[2]}"></div>
+            <small>${escapeHtml(art.title)} · ${art.quality}</small>
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  function formatClock(minute) {
+    const safe = ((Math.floor(minute) % (24 * 60)) + 24 * 60) % (24 * 60);
+    const h = Math.floor(safe / 60);
+    const m = safe % 60;
+    return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+  }
+
+  function compactDeadline(days) {
+    if (days >= 60) return (days / 30).toFixed(1) + "个月";
+    return Math.max(1, Math.ceil(days)) + "天";
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function stationFromPoint(x, y) {
+    return [...state.stations]
+      .reverse()
+      .find((station) => x >= station.x - 12 && x <= station.x + station.w + 12 && y >= station.y - 48 && y <= station.y + station.h + 22);
+  }
+
+  function canvasPoint(event) {
+    const rect = els.canvas.getBoundingClientRect();
+    return {
+      x: ((event.clientX - rect.left) / rect.width) * WORLD.width,
+      y: ((event.clientY - rect.top) / rect.height) * WORLD.height
+    };
+  }
+
+  els.canvas.addEventListener("mousemove", (event) => {
+    const point = canvasPoint(event);
+    hoveredStationId = stationFromPoint(point.x, point.y)?.id || "";
   });
 
-  els.roomGrid.addEventListener("dragover", (event) => {
-    const station = event.target.closest("[data-station-id]");
-    if (!station || station.dataset.stationType === "empty") return;
-    const stationState = stationById(station.dataset.stationId);
-    const painterId = activeDragPainterId || state.selectedPainterId;
-    if (freeSlotForStation(stationState, painterId) < 0) return;
-    event.preventDefault();
-    station.classList.add("is-drop-target");
+  els.canvas.addEventListener("mouseleave", () => {
+    hoveredStationId = "";
   });
 
-  els.roomGrid.addEventListener("dragleave", (event) => {
-    const station = event.target.closest("[data-station-id]");
-    if (station) station.classList.remove("is-drop-target");
+  els.canvas.addEventListener("click", (event) => {
+    const point = canvasPoint(event);
+    const station = stationFromPoint(point.x, point.y);
+    if (!station) return;
+    if (freeSlot(state, station, "me") < 0) {
+      addLog(state, station.label + "已经满了。");
+      return;
+    }
+    if (assignPainter(state, "me", station.id, "你前往" + station.label + "。")) {
+      const task = station.type === "easel" ? taskAtStation(state, station.id) : null;
+      if (station.type === "easel" && !task) addLog(state, station.label + "还没有挂订单。");
+    }
   });
 
-  els.roomGrid.addEventListener("drop", (event) => {
-    const station = event.target.closest("[data-station-id]");
-    endPainterDrag();
-    if (!station || station.dataset.stationType === "empty") return;
-    event.preventDefault();
-    const painterId = event.dataTransfer?.getData("text/painter-id") || state.selectedPainterId;
-    if (!selectPainter(painterId)) return;
-    assignPainterToStation(station.dataset.stationId);
+  els.orders.addEventListener("click", (event) => {
+    const accept = event.target.closest("[data-accept-order]");
+    const reject = event.target.closest("[data-reject-order]");
+    if (accept) {
+      const stationId = acceptOrder(state, accept.dataset.acceptOrder, "", "me");
+      if (stationId) {
+        const station = stationById(state, stationId);
+        assignPainter(state, "me", stationId, "你接下订单，站到" + station.label + "前作画。");
+      }
+    }
+    if (reject) rejectOrder(state, reject.dataset.rejectOrder);
+    renderUi();
   });
 
-  els.roomGrid.addEventListener("dragend", () => {
-    endPainterDrag();
+  els.modeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      state.mode = button.dataset.mode;
+      addLog(state, "你改用" + MODE_DATA[state.mode].label + "。");
+      renderUi();
+    });
   });
 
-  els.orderList.addEventListener("click", (event) => {
-    const accept = event.target.closest("[data-accept]");
-    const decline = event.target.closest("[data-decline]");
-    if (accept) acceptOrder(accept.dataset.accept);
-    if (decline) declineOrder(decline.dataset.decline);
-  });
-
-  els.shopList.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-buy]");
-    if (!button) return;
-    buyItem(button.dataset.buy);
-  });
-
-  document.querySelector(".action-dock").addEventListener("click", (event) => {
-    const modeButton = event.target.closest("[data-mode]");
-    const actionButton = event.target.closest("[data-action]");
-    if (modeButton) setSelectedMode(modeButton.dataset.mode);
-    if (actionButton?.dataset.action === "idle") setSelectedIdle();
+  document.querySelectorAll("[data-command]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const command = button.dataset.command;
+      if (command === "rest") assignPainter(state, "me", "bed", "你去床边休息。");
+      if (command === "study") assignPainter(state, "me", "apprentice-desk", "你回到学徒桌学习。");
+      if (command === "mix") assignPainter(state, "me", "mixer", "你去调色台帮忙。");
+      renderUi();
+    });
   });
 
   els.newOrder.addEventListener("click", () => {
-    if (sendOnline("new_order")) return;
-    const order = makeOrder();
+    const order = generateOrder(state, Math.random() < 0.34);
     state.orders.push(order);
-    addLog(order.client + "送来" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》。");
+    addLog(state, order.client + "送来《" + order.title + "》。");
+    renderUi();
   });
 
   els.pause.addEventListener("click", () => {
-    if (sendOnline("pause")) return;
     state.paused = !state.paused;
-    addLog(state.paused ? "画室暂停。" : "画室继续运转。");
+    els.pause.title = state.paused ? "继续" : "暂停";
   });
 
   els.speed.addEventListener("click", () => {
-    if (sendOnline("speed")) return;
     state.speed = state.speed === 1 ? 1.8 : state.speed === 1.8 ? 3 : 1;
-    addLog("时间速度 x" + state.speed + "。");
+    addLog(state, "工会节奏 x" + state.speed + "。");
+    renderUi();
   });
 
   els.reset.addEventListener("click", () => {
-    cloneFreshState();
+    state = createState();
+    renderUi();
   });
-}
 
-function loop(now) {
-  const dt = Math.min(0.08, (now - lastTime) / 1000);
-  lastTime = now;
-  if (!isOnline()) stepGame(dt);
-  if (!activeDragPainterId && now - lastAutoRender > 320) {
-    lastAutoRender = now;
-    scheduleRender();
+  function loop(now) {
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
+    if (!state.paused) step(dt);
+    draw(now / 1000);
+    uiTimer += dt;
+    if (uiTimer > 0.22) {
+      uiTimer = 0;
+      renderUi();
+    }
+    window.__paintersGuildState = state;
+    requestAnimationFrame(loop);
   }
-  requestAnimationFrame(loop);
-}
 
-hydrateConnectionForm();
-bindEvents();
-state.orders.push(makeOrder(), makeOrder());
-addLog("画室开张，第一批客户已经到了。");
-render();
-requestAnimationFrame(loop);
+  renderUi();
+  requestAnimationFrame(loop);
+})();
