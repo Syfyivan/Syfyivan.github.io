@@ -6,7 +6,7 @@
     <title>麻将局</title>
     <meta name="description" content="可和朋友联机的麻将网页桌。" />
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=20260607-guide-cache-3" />
   </head>
   <body>
     <main class="mahjong-app">
@@ -127,6 +127,14 @@
               <button class="ghost-button" type="button" id="soundButton" aria-pressed="true">提示音开</button>
               <button class="ghost-button" type="button" id="guideButton">新手指导</button>
             </div>
+            <div class="guide-coach" id="guideCoach" hidden>
+              <div class="guide-coach-copy">
+                <span class="guide-coach-step" id="guideCoachStep">新手指导</span>
+                <strong id="guideCoachTitle">开始一局</strong>
+                <p id="guideCoachText">跟着提示完成这一局。</p>
+              </div>
+              <button class="ghost-button" type="button" id="guideCoachExitButton">退出指导</button>
+            </div>
             <section class="rules-panel" id="rulesPanel" aria-label="规则">
               <button
                 class="rules-header"
@@ -226,15 +234,7 @@
           </div>
         </div>
       </div>
-      <div class="guide-coach" id="guideCoach" hidden>
-        <div class="guide-coach-copy">
-          <span class="guide-coach-step" id="guideCoachStep">新手指导</span>
-          <strong id="guideCoachTitle">开始一局</strong>
-          <p id="guideCoachText">跟着提示完成这一局。</p>
-        </div>
-        <button class="ghost-button" type="button" id="guideCoachExitButton">退出指导</button>
-      </div>
     </main>
-    <script src="./client.js"></script>
+    <script src="./client.js?v=20260607-guide-cache-3"></script>
   </body>
 </html>
