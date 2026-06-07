@@ -16,16 +16,23 @@ const ROLE_DATA = {
   sketch: { label: "速写师", phase: "构图", color: "#d8a54b" },
   finisher: { label: "精修师", phase: "精修", color: "#1f8f86" },
   mixer: { label: "调色师", phase: "上色", color: "#bd6244" },
-  social: { label: "社交画家", phase: "交付", color: "#7d5d7e" }
+  social: { label: "社交画家", phase: "交付", color: "#7d5d7e" },
+  apprentice: { label: "学徒", phase: "构图", color: "#6da7d7" }
 };
 
 const ASSET_ROOT = "./assets/kenney-tiny-dungeon/Tiles/";
+const APPRENTICE_PAINTER_ID = "me";
+const VIEW_MODES = {
+  boss: "老板",
+  apprentice: "学徒"
+};
 
 const PAINTER_ASSETS = {
   p1: "tile_0061.png",
   p2: "tile_0074.png",
   p3: "tile_0075.png",
-  p4: "tile_0060.png"
+  p4: "tile_0060.png",
+  me: "tile_0069.png"
 };
 
 const STATION_ASSETS = {
@@ -77,6 +84,7 @@ const INITIAL_STATIONS = [
   { id: "door", type: "door", label: "门口", x: 0, y: 0, slots: 1 },
   { id: "easel-1", type: "easel", label: "小画架", x: 1, y: 0, taskId: null, slots: 1, size: "small" },
   { id: "easel-2", type: "easel", label: "大画架", x: 2, y: 0, taskId: null, slots: 3, size: "large" },
+  { id: "apprentice-bench", type: "desk", label: "学徒桌", x: 3, y: 0, slots: 1 },
   { id: "mixer", type: "mixer", label: "调色台", x: 4, y: 0, slots: 1 },
   { id: "desk", type: "desk", label: "书桌", x: 5, y: 0, slots: 1 },
   { id: "bed-1", type: "bed", label: "床一", x: 0, y: 1, slots: 1 },
@@ -94,6 +102,8 @@ const RUSH_DEADLINE_DAYS = 30;
 const RUSH_ORDER_RATE = 0.28;
 
 const els = {
+  apprenticeCoin: document.getElementById("apprenticeCoinLabel"),
+  apprenticePanel: document.getElementById("apprenticePanel"),
   artCount: document.getElementById("artCountLabel"),
   artworkTrack: document.getElementById("artworkTrack"),
   coin: document.getElementById("coinLabel"),
@@ -103,6 +113,7 @@ const els = {
   day: document.getElementById("dayLabel"),
   disconnect: document.getElementById("disconnectButton"),
   eventLog: document.getElementById("eventLog"),
+  identitySwitch: document.getElementById("identitySwitch"),
   newOrder: document.getElementById("newOrderButton"),
   orderList: document.getElementById("orderList"),
   paint: document.getElementById("paintLabel"),
@@ -144,6 +155,8 @@ function createInitialState() {
     paintMax: 80,
     prestige: 8,
     selectedPainterId: "p1",
+    viewMode: "boss",
+    apprentice: createApprenticeState(),
     paused: false,
     speed: 1,
     orderTimer: 0,
@@ -153,13 +166,23 @@ function createInitialState() {
       createPainter("p1", "青岚", "sketch", "door"),
       createPainter("p2", "阿澈", "finisher", "desk"),
       createPainter("p3", "南星", "mixer", "mixer"),
-      createPainter("p4", "小满", "social", "gallery")
+      createPainter("p4", "小满", "social", "gallery"),
+      createPainter(APPRENTICE_PAINTER_ID, "我", "apprentice", "apprentice-bench")
     ],
     stations: createInitialStations(),
     orders: [],
     activeTasks: [],
     artworks: [],
     log: []
+  };
+}
+
+function createApprenticeState() {
+  return {
+    wallet: 0,
+    shifts: 0,
+    completedWorks: 0,
+    totalEarned: 0
   };
 }
 
@@ -184,14 +207,16 @@ function createInitialStations() {
 }
 
 function createPainter(id, name, role, stationId, slotIndex = 0) {
+  const startingSkill = role === "finisher" ? 17 : role === "mixer" ? 13 : role === "apprentice" ? 8 : 12;
+  const startingFatigue = role === "social" ? 10 : role === "apprentice" ? 6 : 14;
   return {
     id,
     name,
     role,
     stationId,
     slotIndex,
-    skill: role === "finisher" ? 17 : role === "mixer" ? 13 : 12,
-    fatigue: role === "social" ? 10 : 14,
+    skill: startingSkill,
+    fatigue: startingFatigue,
     mood: 72,
     mode: "steady",
     action: defaultActionForStationId(stationId)
@@ -211,6 +236,34 @@ function cloneFreshState() {
 
 function activeTrend() {
   return Object.keys(STYLE_LABELS)[state.trendIndex % Object.keys(STYLE_LABELS).length];
+}
+
+function isApprenticeView() {
+  return state.viewMode === "apprentice";
+}
+
+function ensureApprenticeState() {
+  if (!state.apprentice) state.apprentice = createApprenticeState();
+  return state.apprentice;
+}
+
+function apprenticePainter() {
+  return painterById(APPRENTICE_PAINTER_ID);
+}
+
+function apprenticeRank(painter = apprenticePainter()) {
+  const skill = painter?.skill || 0;
+  if (skill >= 70) return "准画师";
+  if (skill >= 45) return "熟练学徒";
+  if (skill >= 24) return "工坊助手";
+  return "新学徒";
+}
+
+function addApprenticePay(amount) {
+  if (amount <= 0) return;
+  const apprentice = ensureApprenticeState();
+  apprentice.wallet += amount;
+  apprentice.totalEarned += amount;
 }
 
 function addLog(message) {
@@ -275,12 +328,33 @@ function selectedPainter() {
   return painterById(state.selectedPainterId);
 }
 
+function setViewMode(mode) {
+  if (!VIEW_MODES[mode]) return;
+  if (mode === "apprentice" && isOnline()) {
+    setConnectionStatus("学徒视角先在本地试玩");
+    return;
+  }
+  state.viewMode = mode;
+  if (mode === "apprentice") {
+    state.selectedPainterId = APPRENTICE_PAINTER_ID;
+  } else if (state.selectedPainterId === APPRENTICE_PAINTER_ID) {
+    state.selectedPainterId = state.painters.find((painter) => painter.id !== APPRENTICE_PAINTER_ID)?.id || APPRENTICE_PAINTER_ID;
+  }
+  addLog("切换为" + VIEW_MODES[mode] + "视角。");
+  scheduleRender();
+}
+
 function canControlPainter(painterId) {
+  if (isApprenticeView()) return !isOnline() && painterId === APPRENTICE_PAINTER_ID;
   return !isOnline() || painterId === online.painterId;
 }
 
 function selectPainter(painterId) {
   if (!painterById(painterId)) return false;
+  if (isApprenticeView() && painterId !== APPRENTICE_PAINTER_ID) {
+    setConnectionStatus("学徒视角只能操作自己");
+    return false;
+  }
   if (!canControlPainter(painterId)) {
     setConnectionStatus("联机时只能操作你认领的画家");
     return false;
@@ -406,9 +480,11 @@ function assignPainterToStation(stationId) {
     return;
   }
 
+  const moved = painter.stationId !== station.id;
   painter.stationId = station.id;
   painter.slotIndex = slotIndex;
   syncPainterAction(painter);
+  if (moved && painter.id === APPRENTICE_PAINTER_ID) ensureApprenticeState().shifts += 1;
   addLog(painter.name + "前往" + station.label + "。");
 }
 
@@ -416,7 +492,17 @@ function acceptOrder(orderId) {
   if (sendOnline("accept_order", { orderId })) return;
   const order = state.orders.find((item) => item.id === orderId);
   if (!order) return;
-  const station = freeEasel();
+  const apprenticeMode = isApprenticeView();
+  let station = freeEasel(apprenticeMode ? APPRENTICE_PAINTER_ID : state.selectedPainterId);
+  if (apprenticeMode) {
+    const apprentice = apprenticePainter();
+    const canStandAtChosen = station ? freeSlotForStation(station, apprentice?.id) >= 0 : false;
+    if (!canStandAtChosen) {
+      station = state.stations.find(
+        (item) => item.type === "easel" && !taskAtStation(item.id) && freeSlotForStation(item, apprentice?.id) >= 0
+      );
+    }
+  }
   if (!station) {
     addLog("没有空画架，暂时接不了新活。");
     return;
@@ -429,8 +515,26 @@ function acceptOrder(orderId) {
   state.paint -= order.paintCost;
   const task = createTask(order, station.id);
   state.activeTasks.push(task);
+  if (apprenticeMode) {
+    const apprentice = apprenticePainter();
+    const slotIndex = apprentice ? freeSlotForStation(station, apprentice.id) : -1;
+    if (apprentice && slotIndex >= 0) {
+      const moved = apprentice.stationId !== station.id;
+      apprentice.stationId = station.id;
+      apprentice.slotIndex = slotIndex;
+      if (moved) ensureApprenticeState().shifts += 1;
+    }
+  }
   syncPaintersAtStation(station.id);
-  addLog("承接" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》，放到" + station.label + "。");
+  addLog(
+    (apprenticeMode ? "你领到" : "承接") +
+      (isRushOrder(order) ? "加急" : "") +
+      "《" +
+      order.title +
+      "》，放到" +
+      station.label +
+      "。"
+  );
 }
 
 function declineOrder(orderId) {
@@ -438,12 +542,20 @@ function declineOrder(orderId) {
   const order = state.orders.find((item) => item.id === orderId);
   if (!order) return;
   state.orders = state.orders.filter((item) => item.id !== orderId);
+  if (isApprenticeView()) {
+    addLog("你把《" + order.title + "》放回了柜台。");
+    return;
+  }
   state.prestige = Math.max(0, state.prestige - 1);
   addLog("婉拒了" + order.client + "的订单。");
 }
 
 function buyItem(type) {
   if (sendOnline("buy_item", { itemType: type })) return;
+  if (isApprenticeView()) {
+    addLog("学徒不能动用工坊账本。");
+    return;
+  }
   const item = SHOP_ITEMS.find((entry) => entry.type === type);
   if (!item || state.coins < item.cost) {
     addLog("金币还不够。");
@@ -543,17 +655,40 @@ function updatePainters(dt) {
       if (painter.fatigue <= 1) painter.action = "idle";
     }
 
+    if (station.type === "door" && painter.action === "receiving") {
+      const roleBonus = painter.role === "social" ? 1.35 : 1;
+      state.prestige += dt * 0.006 * roleBonus;
+      painter.fatigue = Math.min(100, painter.fatigue + dt * 0.52);
+      painter.skill = Math.min(100, painter.skill + dt * 0.02);
+      awardApprenticeShiftPay(painter, dt * 0.14);
+    }
+
     if (station.type === "mixer" && painter.action === "mixing") {
       const roleBonus = painter.role === "mixer" ? 1.45 : 1;
       state.paint = Math.min(state.paintMax, state.paint + dt * (1.8 + painter.skill / 45) * roleBonus);
       painter.fatigue = Math.min(100, painter.fatigue + dt * 1.45);
       painter.skill = Math.min(100, painter.skill + dt * 0.035);
+      awardApprenticeShiftPay(painter, dt * 0.18);
     }
 
     if (station.type === "desk" && painter.action === "studying") {
       painter.skill = Math.min(100, painter.skill + dt * 0.22);
       painter.fatigue = Math.min(100, painter.fatigue + dt * 0.8);
       painter.mood = Math.max(12, painter.mood - dt * 0.25);
+    }
+
+    if (station.type === "gallery" && painter.action === "curating") {
+      state.prestige += dt * 0.005;
+      painter.skill = Math.min(100, painter.skill + dt * 0.018);
+      painter.fatigue = Math.min(100, painter.fatigue + dt * 0.48);
+      awardApprenticeShiftPay(painter, dt * 0.12);
+    }
+
+    if (station.type === "storage" && painter.action === "sorting") {
+      state.paint = Math.min(state.paintMax, state.paint + dt * 0.32);
+      painter.skill = Math.min(100, painter.skill + dt * 0.018);
+      painter.fatigue = Math.min(100, painter.fatigue + dt * 0.55);
+      awardApprenticeShiftPay(painter, dt * 0.13);
     }
 
     if (station.type === "easel" && painter.action === "painting") {
@@ -573,6 +708,7 @@ function updatePainters(dt) {
       } else {
         painter.skill = Math.min(100, painter.skill + dt * 0.035);
         painter.fatigue = Math.min(100, painter.fatigue + dt * 0.35);
+        awardApprenticeShiftPay(painter, dt * 0.04);
       }
     }
   }
@@ -607,6 +743,12 @@ function updatePainting(painter, task, dt) {
   painter.fatigue = Math.min(100, painter.fatigue + dt * (painter.mode === "fast" ? 2.2 : 1.45));
   painter.mood = Math.max(8, painter.mood - dt * 0.16);
   painter.skill = Math.min(100, painter.skill + dt * 0.045);
+  awardApprenticeShiftPay(painter, dt * (0.2 + task.difficulty / 500));
+}
+
+function awardApprenticeShiftPay(painter, amount) {
+  if (painter.id !== APPRENTICE_PAINTER_ID) return;
+  addApprenticePay(amount);
 }
 
 function updateDeadlines(dt) {
@@ -646,6 +788,16 @@ function completeTask(task) {
   state.artworks.unshift(art);
   state.artworks = state.artworks.slice(0, 18);
   state.activeTasks = state.activeTasks.filter((item) => item.id !== task.id);
+  const apprenticeHelped = state.painters.some(
+    (painter) => painter.id === APPRENTICE_PAINTER_ID && painter.stationId === task.stationId
+  );
+  if (apprenticeHelped) {
+    const bonus = Math.max(3, Math.round(reward * 0.06));
+    const apprentice = ensureApprenticeState();
+    apprentice.completedWorks += 1;
+    addApprenticePay(bonus);
+    addLog("你参与《" + task.title + "》，拿到 " + bonus + " 工钱。");
+  }
   state.painters
     .filter((painter) => painter.stationId === task.stationId)
     .forEach((painter) => {
@@ -759,6 +911,7 @@ function connectOnline() {
   online.playerName = playerName;
   online.roomId = roomId;
   online.status = "连接中...";
+  if (isApprenticeView()) state.viewMode = "boss";
 
   let socket;
   try {
@@ -836,6 +989,8 @@ function applySnapshot(snapshot) {
   });
   Object.assign(state, snapshot);
   if (!Array.isArray(state.players)) state.players = [];
+  if (!state.viewMode || !VIEW_MODES[state.viewMode]) state.viewMode = "boss";
+  ensureApprenticeState();
   normalizePainterSlots();
   state.selectedPainterId = isOnline() ? preferredPainterId : state.selectedPainterId;
   if (!painterById(state.selectedPainterId)) state.selectedPainterId = state.painters[0]?.id || "";
@@ -857,6 +1012,11 @@ function renderConnection() {
   els.connectionStatus.textContent = connected
     ? "联机 " + online.roomId + " · 你是" + (painter?.name || "画家")
     : online.status;
+  els.identitySwitch.querySelectorAll("[data-view-mode]").forEach((button) => {
+    const active = state.viewMode === button.dataset.viewMode;
+    button.classList.toggle("is-active", active);
+    button.disabled = connected && button.dataset.viewMode === "apprentice";
+  });
 }
 
 function escapeHtml(value) {
@@ -897,13 +1057,18 @@ function scheduleRender() {
 }
 
 function render() {
+  document.body.dataset.viewMode = state.viewMode || "boss";
+  ensureApprenticeState();
   renderConnection();
   els.day.textContent = "第 " + state.day + " 天";
   els.coin.textContent = String(Math.round(state.coins));
+  els.apprenticeCoin.textContent = String(Math.round(state.apprentice.wallet));
   els.paint.textContent = String(Math.round(state.paint)) + "/" + state.paintMax;
   els.prestige.textContent = String(Math.round(state.prestige));
   els.trend.textContent = "今日流行：" + STYLE_LABELS[activeTrend()];
-  els.selectedPainter.textContent = isOnline()
+  els.selectedPainter.textContent = isApprenticeView()
+    ? "我 · " + apprenticeRank()
+    : isOnline()
     ? (selectedPainter()?.name || "--") + "（你）"
     : selectedPainter()?.name || "--";
   els.pause.title = state.paused ? "继续" : "暂停";
@@ -912,6 +1077,7 @@ function render() {
   els.speed.setAttribute("aria-label", "速度 x" + state.speed);
 
   renderPainters();
+  renderApprenticePanel();
   renderRoom();
   renderOrders();
   renderShop();
@@ -924,11 +1090,23 @@ function renderPainters() {
   for (const painter of state.painters) {
     const role = ROLE_DATA[painter.role];
     const owner = playerForPainter(painter.id);
-    const ownerLabel = owner ? (owner.painterId === online.painterId ? "你" : owner.name) : isOnline() ? "无人" : "本地";
-    const locked = isOnline() && painter.id !== online.painterId;
+    const ownerLabel =
+      painter.id === APPRENTICE_PAINTER_ID
+        ? isApprenticeView()
+          ? "你"
+          : "本地学徒"
+        : owner
+        ? owner.painterId === online.painterId
+          ? "你"
+          : owner.name
+        : isOnline()
+        ? "无人"
+        : "本地";
+    const locked = !canControlPainter(painter.id);
     const button = document.createElement("button");
     button.className =
       "painter-card" +
+      (painter.id === APPRENTICE_PAINTER_ID ? " is-apprentice" : "") +
       (painter.id === state.selectedPainterId ? " is-selected" : "") +
       (locked ? " is-locked" : "");
     button.type = "button";
@@ -954,6 +1132,28 @@ function renderPainters() {
   document.querySelectorAll(".action-dock [data-mode]").forEach((button) => {
     button.classList.toggle("is-active", selectedPainter()?.mode === button.dataset.mode);
   });
+}
+
+function renderApprenticePanel() {
+  const painter = apprenticePainter();
+  const apprentice = ensureApprenticeState();
+  if (!painter) {
+    els.apprenticePanel.innerHTML = "";
+    return;
+  }
+  els.apprenticePanel.innerHTML = `
+    <div class="apprentice-card-head">
+      <span>${apprenticeRank(painter)}</span>
+      <b>${Math.round(apprentice.wallet)} 工钱</b>
+    </div>
+    <div class="apprentice-stats">
+      <span><b>${Math.round(painter.skill)}</b> 技艺</span>
+      <span><b>${Math.round(painter.fatigue)}</b> 疲劳</span>
+      <span><b>${apprentice.shifts}</b> 上工</span>
+      <span><b>${apprentice.completedWorks}</b> 作品</span>
+    </div>
+    <span class="meter"><span style="width:${clampStat(painter.skill)}%"></span></span>
+  `;
 }
 
 function actionLabel(painter) {
@@ -1184,6 +1384,7 @@ function stationSubtitle(station, task) {
 function renderOrders() {
   els.orderList.innerHTML = "";
   const items = [...state.orders, ...state.activeTasks];
+  const apprenticeMode = isApprenticeView();
   if (!items.length) {
     const empty = document.createElement("div");
     empty.className = "order-card";
@@ -1215,8 +1416,8 @@ function renderOrders() {
               <small>${PHASES[order.phaseIndex]} · ${order.place}</small>
             </div>`
           : `<div class="order-actions">
-              <button type="button" data-accept="${order.id}">承接</button>
-              <button type="button" data-decline="${order.id}">婉拒</button>
+              <button type="button" data-accept="${order.id}">${apprenticeMode ? "领活" : "承接"}</button>
+              <button type="button" data-decline="${order.id}">${apprenticeMode ? "跳过" : "婉拒"}</button>
             </div>`
       }
     `;
@@ -1229,7 +1430,7 @@ function renderShop() {
   for (const item of SHOP_ITEMS) {
     const el = document.createElement("article");
     el.className = "shop-item";
-    const disabled = state.coins < item.cost || (item.type !== "storage" && !emptyStation());
+    const disabled = isApprenticeView() || state.coins < item.cost || (item.type !== "storage" && !emptyStation());
     const iconType = item.stationType || item.type;
     el.innerHTML = `
       <span class="shop-icon is-${iconType}" aria-hidden="true"></span>
@@ -1237,7 +1438,7 @@ function renderShop() {
         <h3>${item.label}</h3>
         <p>${item.desc}</p>
       </span>
-      <button type="button" data-buy="${item.type}" ${disabled ? "disabled" : ""}>${item.cost}</button>
+      <button type="button" data-buy="${item.type}" ${disabled ? "disabled" : ""}>${isApprenticeView() ? "账本" : item.cost}</button>
     `;
     els.shopList.append(el);
   }
@@ -1286,6 +1487,12 @@ function bindEvents() {
 
   els.disconnect.addEventListener("click", () => {
     disconnectOnline();
+  });
+
+  els.identitySwitch.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-view-mode]");
+    if (!button) return;
+    setViewMode(button.dataset.viewMode);
   });
 
   els.painterList.addEventListener("click", (event) => {

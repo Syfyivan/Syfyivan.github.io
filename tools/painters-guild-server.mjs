@@ -20,8 +20,11 @@ const ROLE_DATA = {
   sketch: { label: "速写师", phase: "构图", color: "#d8a54b" },
   finisher: { label: "精修师", phase: "精修", color: "#1f8f86" },
   mixer: { label: "调色师", phase: "上色", color: "#bd6244" },
-  social: { label: "社交画家", phase: "交付", color: "#7d5d7e" }
+  social: { label: "社交画家", phase: "交付", color: "#7d5d7e" },
+  apprentice: { label: "学徒", phase: "构图", color: "#6da7d7" }
 };
+
+const APPRENTICE_PAINTER_ID = "me";
 
 const TOWN_CLIENTS = [
   { name: "咖啡馆老板", place: "咖啡馆", taste: "poster" },
@@ -63,6 +66,7 @@ const INITIAL_STATIONS = [
   { id: "door", type: "door", label: "门口", x: 0, y: 0, slots: 1 },
   { id: "easel-1", type: "easel", label: "小画架", x: 1, y: 0, taskId: null, slots: 1, size: "small" },
   { id: "easel-2", type: "easel", label: "大画架", x: 2, y: 0, taskId: null, slots: 3, size: "large" },
+  { id: "apprentice-bench", type: "desk", label: "学徒桌", x: 3, y: 0, slots: 1 },
   { id: "mixer", type: "mixer", label: "调色台", x: 4, y: 0, slots: 1 },
   { id: "desk", type: "desk", label: "书桌", x: 5, y: 0, slots: 1 },
   { id: "bed-1", type: "bed", label: "床一", x: 0, y: 1, slots: 1 },
@@ -89,6 +93,7 @@ function createInitialState(roomId) {
     paintMax: 80,
     prestige: 8,
     selectedPainterId: "p1",
+    apprentice: createApprenticeState(),
     paused: false,
     speed: 1,
     orderTimer: 0,
@@ -98,7 +103,8 @@ function createInitialState(roomId) {
       createPainter("p1", "青岚", "sketch", "door"),
       createPainter("p2", "阿澈", "finisher", "desk"),
       createPainter("p3", "南星", "mixer", "mixer"),
-      createPainter("p4", "小满", "social", "gallery")
+      createPainter("p4", "小满", "social", "gallery"),
+      createPainter(APPRENTICE_PAINTER_ID, "我", "apprentice", "apprentice-bench")
     ],
     stations: createInitialStations(),
     orders: [],
@@ -109,6 +115,15 @@ function createInitialState(roomId) {
   state.orders.push(makeOrder(state), makeOrder(state));
   addLog(state, "联机画室开张，第一批客户已经到了。");
   return state;
+}
+
+function createApprenticeState() {
+  return {
+    wallet: 0,
+    shifts: 0,
+    completedWorks: 0,
+    totalEarned: 0
+  };
 }
 
 function createInitialStations() {
@@ -126,14 +141,16 @@ function createInitialStations() {
 }
 
 function createPainter(id, name, role, stationId, slotIndex = 0) {
+  const startingSkill = role === "finisher" ? 17 : role === "mixer" ? 13 : role === "apprentice" ? 8 : 12;
+  const startingFatigue = role === "social" ? 10 : role === "apprentice" ? 6 : 14;
   return {
     id,
     name,
     role,
     stationId,
     slotIndex,
-    skill: role === "finisher" ? 17 : role === "mixer" ? 13 : 12,
-    fatigue: role === "social" ? 10 : 14,
+    skill: startingSkill,
+    fatigue: startingFatigue,
     mood: 72,
     mode: "steady",
     action: defaultActionForStationId(stationId)
@@ -142,6 +159,18 @@ function createPainter(id, name, role, stationId, slotIndex = 0) {
 
 function activeTrend(state) {
   return Object.keys(STYLE_LABELS)[state.trendIndex % Object.keys(STYLE_LABELS).length];
+}
+
+function ensureApprenticeState(state) {
+  if (!state.apprentice) state.apprentice = createApprenticeState();
+  return state.apprentice;
+}
+
+function addApprenticePay(state, amount) {
+  if (amount <= 0) return;
+  const apprentice = ensureApprenticeState(state);
+  apprentice.wallet += amount;
+  apprentice.totalEarned += amount;
 }
 
 function addLog(state, message) {
@@ -313,22 +342,43 @@ function assignPainterToStation(state, painterId, stationId) {
   const slotIndex = freeSlotForStation(state, station, painter.id);
   if (slotIndex < 0) return addLog(state, station.label + "的点位已经站满了。");
 
+  const moved = painter.stationId !== station.id;
   painter.stationId = station.id;
   painter.slotIndex = slotIndex;
   syncPainterAction(state, painter);
+  if (moved && painter.id === APPRENTICE_PAINTER_ID) ensureApprenticeState(state).shifts += 1;
   addLog(state, painter.name + "前往" + station.label + "。");
 }
 
 function acceptOrder(state, orderId, preferredPainterId = "") {
   const order = state.orders.find((item) => item.id === orderId);
   if (!order) return;
-  const station = freeEasel(state, preferredPainterId);
+  let station = freeEasel(state, preferredPainterId);
+  if (preferredPainterId === APPRENTICE_PAINTER_ID) {
+    const apprentice = painterById(state, APPRENTICE_PAINTER_ID);
+    const canStandAtChosen = station ? freeSlotForStation(state, station, apprentice?.id) >= 0 : false;
+    if (!canStandAtChosen) {
+      station = state.stations.find(
+        (item) => item.type === "easel" && !taskAtStation(state, item.id) && freeSlotForStation(state, item, apprentice?.id) >= 0
+      );
+    }
+  }
   if (!station) return addLog(state, "没有空画架，暂时接不了新活。");
   if (state.paint < order.paintCost) return addLog(state, "颜料不足，先去调色。");
 
   state.orders = state.orders.filter((item) => item.id !== orderId);
   state.paint -= order.paintCost;
   state.activeTasks.push(createTask(order, station.id));
+  if (preferredPainterId === APPRENTICE_PAINTER_ID) {
+    const apprentice = painterById(state, APPRENTICE_PAINTER_ID);
+    const slotIndex = apprentice ? freeSlotForStation(state, station, apprentice.id) : -1;
+    if (apprentice && slotIndex >= 0) {
+      const moved = apprentice.stationId !== station.id;
+      apprentice.stationId = station.id;
+      apprentice.slotIndex = slotIndex;
+      if (moved) ensureApprenticeState(state).shifts += 1;
+    }
+  }
   syncPaintersAtStation(state, station.id);
   addLog(state, "承接" + (isRushOrder(order) ? "加急" : "") + "《" + order.title + "》，放到" + station.label + "。");
 }
@@ -430,17 +480,40 @@ function updatePainters(state, dt) {
       if (painter.fatigue <= 1) painter.action = "idle";
     }
 
+    if (station.type === "door" && painter.action === "receiving") {
+      const roleBonus = painter.role === "social" ? 1.35 : 1;
+      state.prestige += dt * 0.006 * roleBonus;
+      painter.fatigue = Math.min(100, painter.fatigue + dt * 0.52);
+      painter.skill = Math.min(100, painter.skill + dt * 0.02);
+      awardApprenticeShiftPay(state, painter, dt * 0.14);
+    }
+
     if (station.type === "mixer" && painter.action === "mixing") {
       const roleBonus = painter.role === "mixer" ? 1.45 : 1;
       state.paint = Math.min(state.paintMax, state.paint + dt * (1.8 + painter.skill / 45) * roleBonus);
       painter.fatigue = Math.min(100, painter.fatigue + dt * 1.45);
       painter.skill = Math.min(100, painter.skill + dt * 0.035);
+      awardApprenticeShiftPay(state, painter, dt * 0.18);
     }
 
     if (station.type === "desk" && painter.action === "studying") {
       painter.skill = Math.min(100, painter.skill + dt * 0.22);
       painter.fatigue = Math.min(100, painter.fatigue + dt * 0.8);
       painter.mood = Math.max(12, painter.mood - dt * 0.25);
+    }
+
+    if (station.type === "gallery" && painter.action === "curating") {
+      state.prestige += dt * 0.005;
+      painter.skill = Math.min(100, painter.skill + dt * 0.018);
+      painter.fatigue = Math.min(100, painter.fatigue + dt * 0.48);
+      awardApprenticeShiftPay(state, painter, dt * 0.12);
+    }
+
+    if (station.type === "storage" && painter.action === "sorting") {
+      state.paint = Math.min(state.paintMax, state.paint + dt * 0.32);
+      painter.skill = Math.min(100, painter.skill + dt * 0.018);
+      painter.fatigue = Math.min(100, painter.fatigue + dt * 0.55);
+      awardApprenticeShiftPay(state, painter, dt * 0.13);
     }
 
     if (station.type === "easel" && painter.action === "painting") {
@@ -460,6 +533,7 @@ function updatePainters(state, dt) {
       } else {
         painter.skill = Math.min(100, painter.skill + dt * 0.035);
         painter.fatigue = Math.min(100, painter.fatigue + dt * 0.35);
+        awardApprenticeShiftPay(state, painter, dt * 0.04);
       }
     }
   }
@@ -494,6 +568,12 @@ function updatePainting(state, painter, task, dt) {
   painter.fatigue = Math.min(100, painter.fatigue + dt * (painter.mode === "fast" ? 2.2 : 1.45));
   painter.mood = Math.max(8, painter.mood - dt * 0.16);
   painter.skill = Math.min(100, painter.skill + dt * 0.045);
+  awardApprenticeShiftPay(state, painter, dt * (0.2 + task.difficulty / 500));
+}
+
+function awardApprenticeShiftPay(state, painter, amount) {
+  if (painter.id !== APPRENTICE_PAINTER_ID) return;
+  addApprenticePay(state, amount);
 }
 
 function updateDeadlines(state, dt) {
@@ -530,6 +610,16 @@ function completeTask(state, task) {
   });
   state.artworks = state.artworks.slice(0, 18);
   state.activeTasks = state.activeTasks.filter((item) => item.id !== task.id);
+  const apprenticeHelped = state.painters.some(
+    (painter) => painter.id === APPRENTICE_PAINTER_ID && painter.stationId === task.stationId
+  );
+  if (apprenticeHelped) {
+    const bonus = Math.max(3, Math.round(reward * 0.06));
+    const apprentice = ensureApprenticeState(state);
+    apprentice.completedWorks += 1;
+    addApprenticePay(state, bonus);
+    addLog(state, "你参与《" + task.title + "》，拿到 " + bonus + " 工钱。");
+  }
   state.painters
     .filter((painter) => painter.stationId === task.stationId)
     .forEach((painter) => {
@@ -561,6 +651,7 @@ function createRoom(roomId) {
 }
 
 function serializeRoom(room) {
+  ensureApprenticeState(room.state);
   normalizePainterSlots(room.state);
   room.state.players = [...room.clients]
     .filter((client) => client.name && client.painterId)
