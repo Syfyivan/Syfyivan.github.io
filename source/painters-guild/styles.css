@@ -611,10 +611,14 @@ body[data-view-mode="apprentice"] .painter-card:not(.is-apprentice) {
 .station.is-easel.has-task .painter-token {
   left: calc(50% - 17px + var(--painter-slot-offset));
   right: auto;
-  bottom: 2px;
+  bottom: 34px;
   z-index: 9;
-  transform: scale(0.68);
+  transform: scale(0.88);
   transform-origin: center bottom;
+}
+
+.station.is-large-easel.has-task .painter-token {
+  bottom: 38px;
 }
 
 .station.is-easel.has-task .painter-token.is-painting {
@@ -626,9 +630,9 @@ body[data-view-mode="apprentice"] .painter-card:not(.is-apprentice) {
 }
 
 .station.is-easel.has-task .painter-stat-bars {
-  left: -7px;
-  top: 7px;
-  transform: scale(0.68);
+  left: -8px;
+  top: 3px;
+  transform: scale(0.78);
   transform-origin: left top;
 }
 
@@ -1614,11 +1618,11 @@ body[data-view-mode="apprentice"] .apprentice-card {
 }
 
 .station.is-easel.has-task .work-slot-row {
-  margin-top: -12px;
+  display: none;
 }
 
 .station.is-large-easel.has-task .work-slot-row {
-  margin-top: -6px;
+  display: none;
 }
 
 .station-progress {

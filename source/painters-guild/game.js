@@ -28,11 +28,11 @@ const VIEW_MODES = {
 };
 
 const PAINTER_ASSETS = {
-  p1: "tile_0061.png",
-  p2: "tile_0074.png",
-  p3: "tile_0075.png",
-  p4: "tile_0060.png",
-  me: "tile_0069.png"
+  p1: "tile_0112.png",
+  p2: "tile_0098.png",
+  p3: "tile_0099.png",
+  p4: "tile_0084.png",
+  me: "tile_0088.png"
 };
 
 const STATION_ASSETS = {
