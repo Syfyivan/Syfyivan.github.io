@@ -167,6 +167,70 @@ button:disabled {
   border-top: 1px solid var(--line);
 }
 
+.platform-guide {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(240px, 0.8fr) minmax(420px, 1.4fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.platform-guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.platform-guide-header strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.platform-badge {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  color: #21180b;
+  background: var(--gold);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.platform-guide-steps {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.platform-guide-steps p {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 10px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.platform-guide-steps strong {
+  color: var(--text);
+}
+
+.platform-guide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 label {
   display: grid;
   gap: 6px;
@@ -291,6 +355,20 @@ input:focus {
 .ghost-button,
 .action-button {
   padding: 0 14px;
+}
+
+a.primary-button,
+a.ghost-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  color: #21180b;
+  text-decoration: none;
+}
+
+a.ghost-button {
+  color: var(--text);
 }
 
 .icon-action {
@@ -1795,8 +1873,13 @@ button.guide-target {
   .lobby-panel,
   .join-form,
   .invite-panel,
+  .platform-guide,
   .game-layout {
     grid-template-columns: 1fr;
+  }
+
+  .platform-guide-actions {
+    justify-content: flex-start;
   }
 
   .game-layout {
@@ -1849,6 +1932,20 @@ button.guide-target {
 
   .status-strip {
     justify-content: flex-start;
+  }
+
+  .platform-guide {
+    order: -1;
+  }
+
+  .platform-guide-steps p {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .platform-guide-actions {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .mahjong-table {
