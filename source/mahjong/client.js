@@ -630,6 +630,12 @@
     });
   }
 
+  function enabledClaimButton() {
+    return Array.from(claimBar.querySelectorAll("button")).find(function (button) {
+      return !button.disabled;
+    });
+  }
+
   function firstEnabledHandTile() {
     return Array.from(handRow.querySelectorAll(".tile")).find(function (tile) {
       return !tile.disabled;
@@ -707,7 +713,7 @@
         "claim",
         "响应别人打出的牌",
         "这里会出现吃、碰、杠、胡。想要就点对应按钮，不想要就点“过”。",
-        claimBar
+        enabledClaimButton() || claimBar
       );
     }
 
@@ -716,7 +722,7 @@
         "peek-bao",
         "上听后看宝",
         "你已经上听了。点“看宝”查看宝牌；看宝后锁定牌局，只能摸什么打什么，摸到宝牌或幺鸡可摸宝胡。",
-        baoTray
+        enabledActionButton("看宝") || baoTray.querySelector(".bao-peek-button") || baoTray
       );
     }
 
@@ -744,7 +750,7 @@
         "self-kong",
         "可以杠",
         "你手里有可杠的牌。想杠就点“杠”，杠后会补摸一张。",
-        actionRow
+        enabledActionButton("杠") || actionRow
       );
     }
     if (view.canDraw) {
@@ -797,7 +803,7 @@
     guideCoachText.textContent = step.text;
 
     clearGuideTargets();
-    if (step.target && !step.target.hidden) {
+    if (step.target && step.target.classList && !step.target.hidden) {
       step.target.classList.add("guide-target");
     }
     if (state.guide.currentKey !== step.key) {
@@ -807,8 +813,9 @@
   }
 
   function updateSoundButton() {
-    soundButton.textContent = state.soundEnabled ? "声音开" : "声音关";
+    soundButton.textContent = state.soundEnabled ? "提示音开" : "提示音关";
     soundButton.setAttribute("aria-pressed", state.soundEnabled ? "true" : "false");
+    soundButton.title = state.soundEnabled ? "轮到你、可响应、看宝和结算时会播放提示音" : "点击开启回合提示音";
   }
 
   function setSoundEnabled(enabled) {
@@ -919,6 +926,7 @@
     if (selfTurn && state.lastSignals.turn !== turnSignal) {
       playTone("turn");
       pulseElement(gamePanel, "attention-pulse");
+      pulseElement(soundButton, "sound-pulse");
     }
     if (claimSignal && state.lastSignals.claim !== claimSignal) {
       playTone("claim");
