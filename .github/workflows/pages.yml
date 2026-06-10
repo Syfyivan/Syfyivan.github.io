@@ -9,11 +9,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: '18'
+          package-manager-cache: false
       - name: Install Dependencies
         run: |
           rm -rf package-lock.json yarn.lock node_modules
@@ -22,7 +23,7 @@ jobs:
       - name: Build Hexo
         run: npx hexo generate
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./public
 
@@ -38,4 +39,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
