@@ -232,6 +232,11 @@ h2 {
   cursor: crosshair;
 }
 
+#guildCanvas:focus-visible {
+  outline: 3px solid rgba(217, 170, 76, 0.78);
+  outline-offset: -6px;
+}
+
 .mode-dock {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));

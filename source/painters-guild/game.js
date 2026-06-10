@@ -1,5 +1,7 @@
 (() => {
   const WORLD = { width: 1100, height: 680 };
+  const PLAYER_BOUNDS = { minX: 72, maxX: 1030, minY: 236, maxY: 590 };
+  const INTERACT_DISTANCE = 128;
   const PHASES = ["构图", "打底", "上色", "精修", "装裱"];
   const STYLES = {
     portrait: { label: "肖像", colors: ["#b95b49", "#f0c889", "#2d2530"] },
@@ -84,6 +86,7 @@
   let uiTimer = 0;
   let hoveredStationId = "";
   let state = createState();
+  const movementKeys = new Set();
 
   function createPainter(id, name, role, shirt, hair, stationId, skill, isPlayer = false) {
     return {
@@ -390,6 +393,10 @@
 
   function updatePainters(dt) {
     for (const painter of state.painters) {
+      if (painter.isPlayer && updateManualMovement(painter, dt)) {
+        continue;
+      }
+
       const dx = painter.targetX - painter.x;
       const dy = painter.targetY - painter.y;
       const dist = Math.hypot(dx, dy);
@@ -423,6 +430,28 @@
         painter.mood = Math.max(15, painter.mood - 0.18 * dt);
       }
     }
+  }
+
+  function updateManualMovement(painter, dt) {
+    const left = movementKeys.has("KeyA");
+    const right = movementKeys.has("KeyD");
+    const up = movementKeys.has("KeyW");
+    const down = movementKeys.has("KeyS");
+    const xAxis = Number(right) - Number(left);
+    const yAxis = Number(down) - Number(up);
+    if (!xAxis && !yAxis) return false;
+
+    const magnitude = Math.hypot(xAxis, yAxis) || 1;
+    const speed = 190;
+    painter.stationId = "";
+    painter.targetStationId = "";
+    painter.slotIndex = -1;
+    painter.x = clamp(painter.x + (xAxis / magnitude) * speed * dt, PLAYER_BOUNDS.minX, PLAYER_BOUNDS.maxX);
+    painter.y = clamp(painter.y + (yAxis / magnitude) * speed * dt, PLAYER_BOUNDS.minY, PLAYER_BOUNDS.maxY);
+    painter.targetX = painter.x;
+    painter.targetY = painter.y;
+    painter.action = "walking";
+    return true;
   }
 
   function updateTasks(dt, dayDelta) {
@@ -942,7 +971,7 @@
   }
 
   function drawHover() {
-    const station = stationById(state, hoveredStationId);
+    const station = stationById(state, hoveredStationId) || nearestStationToPlayer(INTERACT_DISTANCE);
     if (!station) return;
     ctx.strokeStyle = "rgba(217,170,76,0.9)";
     ctx.lineWidth = 3;
@@ -1092,6 +1121,71 @@
       .find((station) => x >= station.x - 12 && x <= station.x + station.w + 12 && y >= station.y - 48 && y <= station.y + station.h + 22);
   }
 
+  function stationActionPoint(station) {
+    if (station.type === "easel") {
+      return { x: station.x + station.w / 2, y: station.y + station.h + 8 };
+    }
+    if (station.type === "door") return { x: station.x + station.w / 2 + 10, y: station.y + station.h - 18 };
+    if (station.type === "gallery") return { x: station.x + station.w / 2 + 34, y: station.y + station.h - 18 };
+    if (station.type === "storage") return { x: station.x + station.w / 2 - 28, y: station.y + station.h - 18 };
+    return { x: station.x + station.w / 2, y: station.y + station.h - 18 };
+  }
+
+  function distanceToStation(station) {
+    const me = painterById(state, "me");
+    const point = stationActionPoint(station);
+    return distance(me.x, me.y, point.x, point.y);
+  }
+
+  function nearestStationToPlayer(maxDistance = Infinity) {
+    return [...state.stations]
+      .map((station) => ({ station, distance: distanceToStation(station) }))
+      .filter((item) => item.distance <= maxDistance)
+      .sort((a, b) => a.distance - b.distance)[0]?.station || null;
+  }
+
+  function bestPlayerOrder() {
+    return [...state.orders].sort((a, b) => {
+      if (a.rush !== b.rush) return a.rush ? -1 : 1;
+      return a.deadline - b.deadline;
+    })[0] || null;
+  }
+
+  function interactWithStation(station, options = {}) {
+    if (!station) {
+      addLog(state, "附近没有可操作的工位。");
+      return false;
+    }
+
+    if (!options.allowDistant && distanceToStation(station) > INTERACT_DISTANCE) {
+      addLog(state, "靠近" + station.label + "再操作。");
+      return false;
+    }
+
+    if (freeSlot(state, station, "me") < 0) {
+      addLog(state, station.label + "已经满了。");
+      return false;
+    }
+
+    if (station.type === "easel" && !taskAtStation(state, station.id)) {
+      const order = bestPlayerOrder();
+      if (!order) {
+        addLog(state, station.label + "还没有可挂的订单。");
+        return assignPainter(state, "me", station.id, "你站到" + station.label + "前等待订单。");
+      }
+      const stationId = acceptOrder(state, order.id, station.id);
+      if (!stationId) return false;
+    }
+
+    if (station.type === "door" && state.orders.length < 4) {
+      const order = generateOrder(state);
+      state.orders.push(order);
+      addLog(state, "你接待了" + order.client + "，收到《" + order.title + "》。");
+    }
+
+    return assignPainter(state, "me", station.id, "你操作" + station.label + "。");
+  }
+
   function canvasPoint(event) {
     const rect = els.canvas.getBoundingClientRect();
     return {
@@ -1110,6 +1204,7 @@
   });
 
   els.canvas.addEventListener("click", (event) => {
+    els.canvas.focus();
     const point = canvasPoint(event);
     const station = stationFromPoint(point.x, point.y);
     if (!station) return;
@@ -1121,6 +1216,42 @@
       const task = station.type === "easel" ? taskAtStation(state, station.id) : null;
       if (station.type === "easel" && !task) addLog(state, station.label + "还没有挂订单。");
     }
+  });
+
+  els.canvas.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+    els.canvas.focus();
+    const point = canvasPoint(event);
+    const pointedStation = stationFromPoint(point.x, point.y);
+    const station = pointedStation || nearestStationToPlayer(INTERACT_DISTANCE);
+    interactWithStation(station, { allowDistant: Boolean(pointedStation) });
+    renderUi();
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    if (["KeyW", "KeyA", "KeyS", "KeyD"].includes(event.code)) {
+      movementKeys.add(event.code);
+      event.preventDefault();
+      return;
+    }
+    if (event.code === "KeyX" && !event.repeat) {
+      const station = hoveredStationId ? stationById(state, hoveredStationId) : nearestStationToPlayer(INTERACT_DISTANCE);
+      interactWithStation(station, { allowDistant: false });
+      renderUi();
+      event.preventDefault();
+    }
+  });
+
+  window.addEventListener("keyup", (event) => {
+    if (["KeyW", "KeyA", "KeyS", "KeyD"].includes(event.code)) {
+      movementKeys.delete(event.code);
+      event.preventDefault();
+    }
+  });
+
+  window.addEventListener("blur", () => {
+    movementKeys.clear();
   });
 
   els.orders.addEventListener("click", (event) => {
@@ -1174,6 +1305,7 @@
   });
 
   els.reset.addEventListener("click", () => {
+    movementKeys.clear();
     state = createState();
     renderUi();
   });
