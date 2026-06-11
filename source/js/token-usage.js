@@ -74,11 +74,15 @@
       '<div class="token-usage__periods" data-role="periods"></div>' +
       '<div class="token-usage__grid" data-role="grid"></div>';
 
-    // Insert at the top of the main content column (before the post cards), never into the banner.
+    // Insert inside the main content column, never into the banner.
     if (boardCol) {
+      var homeShowcase = boardCol.querySelector(".home-showcase") || null;
+      var paginator = boardCol.querySelector(".pagination") || null;
       var firstCard = boardCol.querySelector(".index-card") || null;
-      if (firstCard && firstCard.parentNode) {
-        firstCard.parentNode.insertBefore(box, firstCard.nextSibling);
+      if (homeShowcase && paginator && paginator.parentNode) {
+        paginator.parentNode.insertBefore(box, paginator.nextSibling);
+      } else if (firstCard && firstCard.parentNode) {
+        firstCard.parentNode.insertBefore(box, firstCard);
       } else {
         boardCol.insertBefore(box, boardCol.firstChild);
       }
