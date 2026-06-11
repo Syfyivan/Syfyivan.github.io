@@ -192,16 +192,16 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>2</strong>
+        <strong>3</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
-        <strong>10</strong>
-        <span>服务端学习模块</span>
+        <strong>24</strong>
+        <span>课程学习模块</span>
       </div>
       <div class="course-stat">
         <strong>7</strong>
-        <span>AI Town 模块规划</span>
+        <span>计网与代理模块</span>
       </div>
     </div>
   </section>
@@ -223,6 +223,15 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
       <div class="course-card-footer">
         <span>适合：想系统理解多 Agent 工程底座的人</span>
         <a class="course-link" href="/courses/ai-town/">进入课程</a>
+      </div>
+    </article>
+    <article class="course-card">
+      <span class="course-badge">进行中</span>
+      <h3>计网与代理工具学习路线</h3>
+      <p>从一次网页请求出发，顺着 DNS、TCP/TLS/HTTP、系统代理、TUN、规则分流、策略组和排障清单，把代理工具背后的网络问题讲清楚。</p>
+      <div class="course-card-footer">
+        <span>适合：想把代理工具和计网基础连起来的人</span>
+        <a class="course-link" href="/courses/network-proxy/">进入课程</a>
       </div>
     </article>
     <article class="course-card">
