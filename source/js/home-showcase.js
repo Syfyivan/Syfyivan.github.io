@@ -123,6 +123,120 @@
 
     boardCol.insertBefore(showcase, firstCard);
     boardCol.insertBefore(writingHead, firstCard);
+
+    buildVillage();
+  }
+
+  function buildVillage() {
+    var banner = document.querySelector(".banner");
+    if (!banner || banner.querySelector(".village")) return;
+
+    var village = document.createElement("div");
+    village.className = "village";
+    village.setAttribute("aria-hidden", "true");
+    village.innerHTML =
+      '<div class="village__sun"></div>' +
+      '<div class="village__cloud village__cloud--a"></div>' +
+      '<div class="village__cloud village__cloud--b"></div>' +
+      '<div class="village__ground"></div>' +
+      '<div class="village__fence"></div>' +
+      '<div class="village__tree village__tree--big village__tree--l"></div>' +
+      '<div class="village__tree village__tree--mid village__tree--l2"></div>' +
+      '<div class="village__house"></div>' +
+      '<div class="village__tree village__tree--big village__tree--r"></div>' +
+      '<div class="village__tree village__tree--mid village__tree--r2"></div>' +
+      '<div class="village__chicken village__chicken--a"></div>' +
+      '<div class="village__chicken village__chicken--b"></div>' +
+      '<div class="village__walker"></div>';
+    banner.appendChild(village);
+
+    var bannerText = banner.querySelector(".banner-text");
+    if (bannerText && !bannerText.querySelector(".home-start")) {
+      var start = document.createElement("div");
+      start.className = "home-start";
+      start.innerHTML =
+        '<a class="home-start__btn home-start__btn--primary" href="/projects/"><span aria-hidden="true">▶</span> 进入项目工坊</a>' +
+        '<a class="home-start__btn" href="#board">先逛逛文章 <span aria-hidden="true">▼</span></a>';
+      bannerText.appendChild(start);
+    }
+
+    startPetals(banner);
+  }
+
+  function startPetals(banner) {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    var canvas = document.createElement("canvas");
+    canvas.className = "village__petals";
+    banner.appendChild(canvas);
+    var ctx = canvas.getContext("2d");
+    var petals = [];
+    var COUNT = 28;
+
+    function isDark() {
+      return document.documentElement.getAttribute("data-user-color-scheme") === "dark";
+    }
+
+    function resize() {
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = banner.clientWidth * dpr;
+      canvas.height = banner.clientHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function spawn(randomY) {
+      return {
+        x: Math.random() * banner.clientWidth,
+        y: randomY ? Math.random() * banner.clientHeight : -12,
+        size: 4 + Math.random() * 5,
+        fall: 0.35 + Math.random() * 0.65,
+        drift: 0.4 + Math.random() * 0.7,
+        phase: Math.random() * Math.PI * 2,
+        spin: Math.random() * Math.PI * 2,
+        spinSpeed: 0.01 + Math.random() * 0.025,
+      };
+    }
+
+    for (var i = 0; i < COUNT; i += 1) petals.push(spawn(true));
+
+    function tick() {
+      if (document.hidden) {
+        requestAnimationFrame(tick);
+        return;
+      }
+      var w = banner.clientWidth;
+      var h = banner.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+      var dark = isDark();
+      for (var i = 0; i < petals.length; i += 1) {
+        var p = petals[i];
+        p.phase += 0.012;
+        p.spin += p.spinSpeed;
+        p.y += p.fall;
+        p.x += Math.sin(p.phase) * p.drift;
+        if (p.y > h + 14 || p.x < -20 || p.x > w + 20) petals[i] = p = spawn(false);
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        if (dark) {
+          ctx.fillStyle = "rgba(240, 246, 255, 0.85)";
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size * 0.45, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.rotate(p.spin);
+          ctx.fillStyle = "rgba(255, 170, 192, 0.82)";
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size, p.size * 0.62, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+      requestAnimationFrame(tick);
+    }
+
+    resize();
+    window.addEventListener("resize", resize);
+    requestAnimationFrame(tick);
   }
 
   if (document.readyState === "loading") {
