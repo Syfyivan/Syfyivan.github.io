@@ -6,15 +6,15 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
 
 <style>
 .course-page {
-  --course-ink: #16202a;
-  --course-muted: #607180;
-  --course-line: rgba(22, 32, 42, 0.12);
+  --course-ink: #1d2127;
+  --course-muted: #69727d;
+  --course-line: rgba(29, 33, 39, 0.12);
   --course-panel: #ffffff;
-  --course-wash: #f5f8fa;
-  --course-teal: #0f766e;
-  --course-coral: #c75b42;
-  --course-gold: #b78224;
-  --course-blue: #315f88;
+  --course-wash: #f4f5f3;
+  --course-teal: #3f5d7e;
+  --course-coral: #b73a2c;
+  --course-gold: #69727d;
+  --course-blue: #3f5d7e;
   color: var(--course-ink);
 }
 
@@ -29,7 +29,7 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
   align-items: end;
   padding: 34px;
   border: 1px solid var(--course-line);
-  border-radius: 8px;
+  border-radius: 3px;
   background:
     linear-gradient(135deg, rgba(15, 118, 110, 0.1), rgba(49, 95, 136, 0.08)),
     var(--course-panel);
@@ -71,7 +71,7 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
 .course-stat {
   padding: 16px;
   border: 1px solid var(--course-line);
-  border-radius: 8px;
+  border-radius: 3px;
   background: rgba(255, 255, 255, 0.72);
 }
 
@@ -100,7 +100,7 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
   min-height: 230px;
   padding: 22px;
   border: 1px solid var(--course-line);
-  border-radius: 8px;
+  border-radius: 3px;
   background: var(--course-panel);
   box-shadow: 0 14px 34px rgba(22, 32, 42, 0.08);
 }
@@ -143,7 +143,7 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
   min-height: 38px;
   padding: 8px 13px;
   border: 1px solid rgba(15, 118, 110, 0.22);
-  border-radius: 8px;
+  border-radius: 3px;
   color: var(--course-teal);
   font-weight: 700;
   text-decoration: none !important;
@@ -158,7 +158,7 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
   margin-top: 20px;
   padding: 18px;
   border-left: 4px solid var(--course-coral);
-  border-radius: 8px;
+  border-radius: 3px;
   background: var(--course-wash);
 }
 

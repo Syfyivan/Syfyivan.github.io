@@ -121,7 +121,7 @@ fun_features:
   progressbar:
     enable: true
     height_px: 3
-    color: "#29d"
+    color: "#b73a2c"
     # See: https://github.com/rstacruz/nprogress
     options: { showSpinner: false, trickleSpeed: 100 }
 
@@ -140,19 +140,19 @@ dark_mode:
 color:
   # body 背景色
   # Color of body background
-  body_bg_color: "#f6f4ef"
+  body_bg_color: "#f4f5f3"
   # 暗色模式下的 body 背景色，下同
   # Color in dark mode, the same below
   body_bg_color_dark: "#181c27"
 
   # 顶部菜单背景色
   # Color of navigation bar background
-  navbar_bg_color: "#f7f7f3"
+  navbar_bg_color: "#f6f7f5"
   navbar_bg_color_dark: "#111923"
 
   # 顶部菜单字体色
   # Color of navigation bar text
-  navbar_text_color: "#1c2524"
+  navbar_text_color: "#1d2127"
   navbar_text_color_dark: "#d0d0d0"
 
   # 副标题字体色
@@ -162,38 +162,38 @@ color:
 
   # 全局字体色
   # Color of global text
-  text_color: "#25302f"
+  text_color: "#2a2f36"
   text_color_dark: "#c4c6c9"
 
   # 全局次级字体色（摘要、简介等位置）
   # Color of global secondary text (excerpt, introduction, etc.)
-  sec_text_color: "#687874"
+  sec_text_color: "#69727d"
   sec_text_color_dark: "#a7a9ad"
 
   # 主面板背景色
   # Color of main board
-  board_color: "#fff"
+  board_color: "#fdfdfc"
   board_color_dark: "#252d38"
 
   # 文章正文字体色
   # Color of post text
-  post_text_color: "#273331"
+  post_text_color: "#2a2f36"
   post_text_color_dark: "#c4c6c9"
 
   # 文章正文字体色（h1 h2 h3...）
   # Color of Article heading (h1 h2 h3...)
-  post_heading_color: "#182321"
+  post_heading_color: "#1d2127"
   post_heading_color_dark: "#c4c6c9"
 
   # 文章超链接字体色
   # Color of post link
-  post_link_color: "#315f87"
-  post_link_color_dark: "#1589e9"
+  post_link_color: "#3f5d7e"
+  post_link_color_dark: "#8fb6dd"
 
   # 超链接悬浮时字体色
   # Color of link when hovering
-  link_hover_color: "#14736a"
-  link_hover_color_dark: "#79d4c8"
+  link_hover_color: "#b73a2c"
+  link_hover_color_dark: "#e89180"
 
   # 超链接悬浮背景色
   # Color of link background when hovering
@@ -241,7 +241,7 @@ custom_js:
 # The usage is the same as custom_js
 custom_css:
   - /css/token-usage.css?v=20260606-1.css
-  - /css/site-polish.css?v=20260612-1.css
+  - /css/site-polish.css?v=20260612-2.css
 
 # 网页访问统计
 # Analysis of website visitors

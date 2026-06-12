@@ -6,18 +6,18 @@ description: "把项目摊在工作台上：自己写的项目每个一张工单
 
 <style>
 .workshop-page {
-  --ws-ink: #172120;
-  --ws-text: #273331;
-  --ws-muted: #657673;
-  --ws-line: rgba(26, 37, 35, 0.12);
-  --ws-panel: #fffefa;
-  --ws-teal: #13796f;
-  --ws-rust: #a85f4d;
-  --ws-blue: #315f87;
-  --ws-amber: #b7822d;
-  --ws-violet: #6857a8;
-  --ws-green: #1f7f57;
-  --ws-radius: 8px;
+  --ws-ink: #1d2127;
+  --ws-text: #2a2f36;
+  --ws-muted: #69727d;
+  --ws-line: rgba(29, 33, 39, 0.12);
+  --ws-panel: #fdfdfc;
+  --ws-teal: #b73a2c;
+  --ws-rust: #b73a2c;
+  --ws-blue: #3f5d7e;
+  --ws-amber: #3f5d7e;
+  --ws-violet: #3f5d7e;
+  --ws-green: #3f5d7e;
+  --ws-radius: 3px;
   color: var(--ws-text);
 }
 
@@ -35,8 +35,8 @@ description: "把项目摊在工作台上：自己写的项目每个一张工单
   border: 1px solid var(--ws-line);
   border-radius: var(--ws-radius);
   background:
-    radial-gradient(rgba(19, 121, 111, 0.16) 1px, transparent 1px),
-    linear-gradient(135deg, rgba(19, 121, 111, 0.07), rgba(49, 95, 135, 0.06)),
+    radial-gradient(rgba(183, 58, 44, 0.12) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(183, 58, 44, 0.05), rgba(63, 93, 126, 0.06)),
     var(--ws-panel);
   background-size: 22px 22px, auto, auto;
   overflow: hidden;
@@ -64,7 +64,7 @@ description: "把项目摊在工作台上：自己写的项目每个一张工单
 .ws-hero h1 {
   margin: 0 0 12px;
   color: var(--ws-ink);
-  font-family: Georgia, "Times New Roman", "Songti SC", "STSong", serif;
+  font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
   font-size: clamp(2.1rem, 4.4vw, 3.3rem);
   font-weight: 780;
   line-height: 1.1;
@@ -93,7 +93,7 @@ description: "把项目摊在工作台上：自己写的项目每个一张工单
 .ws-stat strong {
   display: block;
   color: var(--ws-ink);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
   font-size: 1.7rem;
   font-weight: 780;
   line-height: 1.1;
@@ -116,7 +116,7 @@ description: "把项目摊在工作台上：自己写的项目每个一张工单
   padding: 0 !important;
   border: 0 !important;
   color: var(--ws-ink);
-  font-family: Georgia, "Times New Roman", "Songti SC", "STSong", serif;
+  font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
   font-size: 1.45rem;
   font-weight: 780;
 }
@@ -145,8 +145,8 @@ description: "把项目摊在工作台上：自己写的项目每个一张工单
   border: 1px solid var(--ws-line);
   border-radius: var(--ws-radius);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 253, 248, 0.9));
-  box-shadow: 0 12px 30px rgba(24, 35, 33, 0.07);
+    #fdfdfc;
+  box-shadow: 0 1px 2px rgba(29, 33, 39, 0.04), 0 4px 10px rgba(29, 33, 39, 0.04);
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
   overflow: hidden;
 }
@@ -161,8 +161,8 @@ description: "把项目摊在工作台上：自己写的项目每个一张工单
 }
 
 .ws-card:hover {
-  border-color: color-mix(in srgb, var(--ws-accent) 40%, rgba(24, 35, 33, 0.12));
-  box-shadow: 0 20px 44px rgba(24, 35, 33, 0.12);
+  border-color: color-mix(in srgb, var(--ws-accent) 40%, rgba(29, 33, 39, 0.14));
+  box-shadow: 0 2px 6px rgba(29, 33, 39, 0.08);
   transform: translateY(-3px);
 }
 
@@ -204,7 +204,7 @@ description: "把项目摊在工作台上：自己写的项目每个一张工单
 
 .ws-tag--study {
   color: var(--ws-muted);
-  border: 1px dashed rgba(26, 37, 35, 0.3);
+  border: 1px dashed rgba(29, 33, 39, 0.34);
   background: transparent;
 }
 
@@ -219,7 +219,7 @@ description: "把项目摊在工作台上：自己写的项目每个一张工单
 .ws-card h3 {
   margin: 0 0 4px;
   color: var(--ws-ink);
-  font-family: Georgia, "Times New Roman", "Songti SC", "STSong", serif;
+  font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
   font-size: 1.5rem;
   font-weight: 780;
   line-height: 1.25;
@@ -228,7 +228,7 @@ description: "把项目摊在工作台上：自己写的项目每个一张工单
 .ws-card-sub {
   margin: 0 0 14px;
   color: var(--ws-muted);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
   font-size: 0.98rem;
 }
 
@@ -294,7 +294,7 @@ description: "把项目摊在工作台上：自己写的项目每个一张工单
 .ws-note {
   margin-top: 30px;
   padding: 24px 28px;
-  border: 1px dashed rgba(26, 37, 35, 0.22);
+  border: 1px dashed rgba(29, 33, 39, 0.24);
   border-radius: var(--ws-radius);
   background: rgba(255, 255, 255, 0.6);
 }
@@ -304,7 +304,7 @@ description: "把项目摊在工作台上：自己写的项目每个一张工单
   padding: 0 !important;
   border: 0 !important;
   color: var(--ws-ink);
-  font-family: Georgia, "Times New Roman", "Songti SC", "STSong", serif;
+  font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
   font-size: 1.2rem;
 }
 
@@ -325,18 +325,18 @@ html[data-user-color-scheme="dark"] .workshop-page {
   --ws-muted: rgba(224, 233, 242, 0.72);
   --ws-line: rgba(255, 255, 255, 0.12);
   --ws-panel: rgba(22, 31, 41, 0.9);
-  --ws-teal: #79d4c8;
-  --ws-rust: #e0907a;
-  --ws-blue: #7fb3dd;
-  --ws-amber: #ddb168;
-  --ws-violet: #a99add;
-  --ws-green: #7cc9a4;
+  --ws-teal: #e89180;
+  --ws-rust: #e89180;
+  --ws-blue: #8fb6dd;
+  --ws-amber: #8fb6dd;
+  --ws-violet: #8fb6dd;
+  --ws-green: #8fb6dd;
 }
 
 html[data-user-color-scheme="dark"] .workshop-page .ws-hero {
   background:
-    radial-gradient(rgba(121, 212, 200, 0.13) 1px, transparent 1px),
-    linear-gradient(135deg, rgba(121, 212, 200, 0.06), rgba(127, 179, 221, 0.06)),
+    radial-gradient(rgba(232, 145, 128, 0.1) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(232, 145, 128, 0.05), rgba(143, 182, 221, 0.06)),
     var(--ws-panel);
   background-size: 22px 22px, auto, auto;
 }
