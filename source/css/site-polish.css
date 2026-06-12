@@ -2070,3 +2070,17 @@ body:has(.home-showcase) .header-inner {
     min-height: 520px !important;
   }
 }
+
+/* Fluid wraps #board in a 1140px bootstrap container; on home the board is
+   wider than that, which breaks margin:auto centering — release the cap */
+body:has(.home-showcase) main > .container {
+  max-width: none;
+  width: 100%;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+body:has(.home-showcase) #board > .container {
+  max-width: none;
+  width: 100%;
+}
