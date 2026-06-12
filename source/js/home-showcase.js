@@ -179,6 +179,7 @@
       '<div class="village__cloud village__cloud--a" aria-hidden="true"></div>' +
       '<div class="village__cloud village__cloud--b" aria-hidden="true"></div>' +
       '<div class="village__ground" aria-hidden="true"></div>' +
+      '<div class="village__path" aria-hidden="true"></div>' +
       '<div class="village__fence" aria-hidden="true"></div>' +
       '<div class="village__tree village__tree--big village__tree--l" aria-hidden="true"></div>' +
       '<div class="village__tree village__tree--mid village__tree--l2" aria-hidden="true"></div>' +
@@ -201,6 +202,142 @@
     }
 
     startPetals(banner);
+    initPlayer(banner, village);
+  }
+
+  function initPlayer(banner, village) {
+    var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    if (coarse || banner.clientWidth < 720) return;
+
+    var player = document.createElement("div");
+    player.className = "village__player";
+    player.setAttribute("aria-hidden", "true");
+    village.appendChild(player);
+
+    var hint = document.createElement("div");
+    hint.className = "player-hint";
+    hint.innerHTML =
+      '<span class="player-hint__keys"><b>W</b><b>A</b><b>S</b><b>D</b></span> 控制小人走动，走进房门进入板块';
+    banner.appendChild(hint);
+
+    var SIZE = 64;
+    var SPEED = 2.7;
+    var x = banner.clientWidth / 2 - SIZE / 2 + 4;
+    var yBottom = 44;
+    var dirRow = 0;        // walk.png rows: 0 down, 1 up, 2 side
+    var flip = false;
+    var frame = 0;
+    var frameClock = 0;
+    var keys = {};
+    var doors = [];
+    var leaving = false;
+    var moved = false;
+
+    var KEYMAP = {
+      KeyW: "up", ArrowUp: "up",
+      KeyS: "down", ArrowDown: "down",
+      KeyA: "left", ArrowLeft: "left",
+      KeyD: "right", ArrowRight: "right",
+    };
+
+    function groundHeight() {
+      var g = village.querySelector(".village__ground");
+      return g ? g.clientHeight : 320;
+    }
+
+    function computeDoors() {
+      doors = [];
+      var bannerRect = banner.getBoundingClientRect();
+      var lots = village.querySelectorAll(".town-lot");
+      for (var i = 0; i < lots.length; i += 1) {
+        var r = lots[i].getBoundingClientRect();
+        doors.push({
+          href: lots[i].getAttribute("href"),
+          x1: r.left - bannerRect.left + r.width * 0.3,
+          x2: r.left - bannerRect.left + r.width * 0.7,
+          y1: r.bottom - bannerRect.top - 10,
+          y2: r.bottom - bannerRect.top + 20,
+          el: lots[i],
+        });
+      }
+    }
+
+    function bannerVisible() {
+      var r = banner.getBoundingClientRect();
+      return r.bottom > 160 && r.top < window.innerHeight * 0.5;
+    }
+
+    function onKey(down) {
+      return function (e) {
+        var dir = KEYMAP[e.code];
+        if (!dir) return;
+        if (!bannerVisible()) return;
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        var t = e.target;
+        if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+        e.preventDefault();
+        keys[dir] = down;
+        if (down && !moved) {
+          moved = true;
+          hint.classList.add("player-hint--fade");
+        }
+      };
+    }
+
+    function render() {
+      player.style.transform = "translate(" + Math.round(x) + "px, " + -Math.round(yBottom) + "px)" + (flip ? " scaleX(-1)" : "");
+      player.style.backgroundPosition = -(frame * SIZE) + "px " + -(dirRow * SIZE) + "px";
+    }
+
+    function tick(now) {
+      if (leaving) return;
+      var dx = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
+      var dy = (keys.up ? 1 : 0) - (keys.down ? 1 : 0);
+      var moving = dx !== 0 || dy !== 0;
+
+      if (moving) {
+        if (dx !== 0) { dirRow = 2; flip = dx < 0; }
+        else { dirRow = dy > 0 ? 1 : 0; }
+        var norm = dx !== 0 && dy !== 0 ? 0.7071 : 1;
+        x += dx * SPEED * norm;
+        yBottom += dy * SPEED * norm;
+        x = Math.max(-8, Math.min(banner.clientWidth - SIZE + 8, x));
+        yBottom = Math.max(2, Math.min(groundHeight() - 26, yBottom));
+
+        if (now - frameClock > 110) {
+          frame = (frame + 1) % 6;
+          frameClock = now;
+        }
+
+        var footX = x + SIZE / 2;
+        var footY = banner.clientHeight - yBottom - 4;
+        for (var i = 0; i < doors.length; i += 1) {
+          var d = doors[i];
+          if (footX > d.x1 && footX < d.x2 && footY > d.y1 && footY < d.y2) {
+            leaving = true;
+            d.el.classList.add("town-lot--entering");
+            player.classList.add("village__player--enter");
+            setTimeout(function (href) {
+              return function () { window.location.assign(href); };
+            }(d.href), 320);
+            render();
+            return;
+          }
+        }
+      } else {
+        frame = 0;
+      }
+
+      render();
+      requestAnimationFrame(tick);
+    }
+
+    computeDoors();
+    render();
+    window.addEventListener("resize", computeDoors);
+    document.addEventListener("keydown", onKey(true));
+    document.addEventListener("keyup", onKey(false));
+    requestAnimationFrame(tick);
   }
 
   function startPetals(banner) {

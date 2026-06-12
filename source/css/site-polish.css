@@ -1742,8 +1742,7 @@ body:has(.home-showcase) .banner {
 .village__ground {
   inset: auto 0 0 0;
   height: 96px;
-  background: url("/img/village/grass.png") repeat;
-  background-size: 48px 48px;
+  background: url("/img/village/grass-3x.png") repeat;
   border-top: 4px solid rgba(63, 110, 50, 0.55);
 }
 
@@ -2106,7 +2105,7 @@ body:has(.home-showcase) #subtitle::after {
 .village__well {
   position: absolute;
   bottom: 80px;
-  left: 48%;
+  left: 42%;
   width: 56px;
   height: 76px;
   background: url("/img/village/well.png") no-repeat;
@@ -2723,5 +2722,128 @@ html[data-user-color-scheme="dark"] body:has(.home-showcase) .home-layout > .tok
   body:has(.home-showcase) #board {
     border-width: 7px;
     outline-width: 3px;
+  }
+}
+
+/* —— 贯通的小路 + 可操控的小人 —— */
+
+.village__path {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 192px;
+  height: 300px;
+  margin-left: -96px;
+  background: url("/img/village/path-hero.png") no-repeat center bottom;
+}
+
+html[data-user-color-scheme="dark"] .village__ground {
+  background-image: url("/img/village/grass-night-3x.png");
+  border-top-color: rgba(20, 28, 48, 0.8);
+  filter: none;
+}
+
+html[data-user-color-scheme="dark"] .village__path {
+  filter: brightness(0.6) saturate(0.8);
+}
+
+.village__player {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 64px;
+  height: 64px;
+  background: url("/img/village/player.png") no-repeat;
+  background-size: 384px 192px;
+  image-rendering: pixelated;
+  z-index: 3;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.village__player--enter {
+  animation: player-enter 0.32s ease forwards;
+}
+
+@keyframes player-enter {
+  to {
+    opacity: 0;
+  }
+}
+
+html[data-user-color-scheme="dark"] .village__player {
+  filter: brightness(0.78);
+}
+
+.town-lot--entering .town-lot__house {
+  transform: translateY(-7px);
+}
+
+.town-lot--entering .town-lot__sign {
+  color: #ffffff;
+  background: #b73a2c;
+  border-color: #5e1a10;
+  box-shadow: 0 3px 0 #5e1a10;
+}
+
+.player-hint {
+  position: absolute;
+  top: 252px;
+  left: 50%;
+  z-index: 4;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border: 2px solid rgba(43, 51, 64, 0.5);
+  border-radius: 999px;
+  color: #2b3340;
+  background: rgba(255, 254, 251, 0.85);
+  font-size: 0.86rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+.player-hint--fade {
+  opacity: 0;
+}
+
+.player-hint__keys {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.player-hint__keys b {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 23px;
+  border: 2px solid #2b3340;
+  border-bottom-width: 4px;
+  border-radius: 5px;
+  background: #ffffff;
+  font-size: 12px;
+  line-height: 1;
+}
+
+html[data-user-color-scheme="dark"] .player-hint {
+  border-color: rgba(243, 246, 251, 0.4);
+  color: #f3f6fb;
+  background: rgba(20, 28, 46, 0.8);
+}
+
+html[data-user-color-scheme="dark"] .player-hint__keys b {
+  border-color: #f3f6fb;
+  color: #1a2238;
+  background: #f3f6fb;
+}
+
+@media (max-width: 991.98px) {
+  .player-hint {
+    display: none;
   }
 }
