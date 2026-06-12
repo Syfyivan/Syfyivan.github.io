@@ -188,8 +188,7 @@
       '<nav class="town" aria-label="小镇导航">' + lots + "</nav>" +
       '<div class="village__well" aria-hidden="true"></div>' +
       '<div class="village__chicken village__chicken--a" aria-hidden="true"></div>' +
-      '<div class="village__chicken village__chicken--b" aria-hidden="true"></div>' +
-      '<div class="village__walker" aria-hidden="true"></div>';
+      '<div class="village__chicken village__chicken--b" aria-hidden="true"></div>';
     banner.appendChild(village);
 
     var bannerText = banner.querySelector(".banner-text");
@@ -230,6 +229,8 @@
     var frameClock = 0;
     var keys = {};
     var doors = [];
+    var backLine = 0;
+    var frontLine = 0;
     var leaving = false;
     var moved = false;
 
@@ -247,16 +248,24 @@
 
     function computeDoors() {
       doors = [];
+      backLine = 0;
+      frontLine = 0;
       var bannerRect = banner.getBoundingClientRect();
       var lots = village.querySelectorAll(".town-lot");
       for (var i = 0; i < lots.length; i += 1) {
         var r = lots[i].getBoundingClientRect();
+        var foot = r.bottom - bannerRect.top;
+        if (lots[i].classList.contains("town-lot--back")) {
+          backLine = Math.max(backLine, foot);
+        } else {
+          frontLine = Math.max(frontLine, foot);
+        }
         doors.push({
           href: lots[i].getAttribute("href"),
           x1: r.left - bannerRect.left + r.width * 0.3,
           x2: r.left - bannerRect.left + r.width * 0.7,
-          y1: r.bottom - bannerRect.top - 10,
-          y2: r.bottom - bannerRect.top + 20,
+          y1: foot - 10,
+          y2: foot + 20,
           el: lots[i],
         });
       }
@@ -287,6 +296,9 @@
     function render() {
       player.style.transform = "translate(" + Math.round(x) + "px, " + -Math.round(yBottom) + "px)" + (flip ? " scaleX(-1)" : "");
       player.style.backgroundPosition = -(frame * SIZE) + "px " + -(dirRow * SIZE) + "px";
+      // y-sort: lower on screen = in front
+      var footY = banner.clientHeight - yBottom - 4;
+      player.style.zIndex = footY > frontLine - 14 ? 5 : footY > backLine - 14 ? 3 : 1;
     }
 
     function tick(now) {

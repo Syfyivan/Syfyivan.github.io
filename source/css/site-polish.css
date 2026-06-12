@@ -1689,9 +1689,6 @@ body:has(.home-showcase) .banner {
 }
 
 .village__chicken,
-.village__walker {
-  background-repeat: no-repeat;
-}
 
 .village__sun {
   display: none;
@@ -1776,6 +1773,7 @@ body:has(.home-showcase) .banner {
 .village__tree--r2 { right: 19%; }
 
 .village__chicken {
+  z-index: 3;
   bottom: 14px;
   width: 48px;
   height: 48px;
@@ -1801,33 +1799,8 @@ body:has(.home-showcase) .banner {
   }
 }
 
-.village__walker {
-  bottom: 4px;
-  left: 0;
-  width: 96px;
-  height: 96px;
-  background-image: url("/img/village/walk.png");
-  background-size: 576px 288px;
-  background-position: 0 -192px;
-  animation:
-    walker-step 0.72s steps(6) infinite,
-    walker-across 46s linear infinite;
-}
 
-@keyframes walker-step {
-  to {
-    background-position: -576px -192px;
-  }
-}
 
-@keyframes walker-across {
-  from {
-    transform: translateX(-120px);
-  }
-  to {
-    transform: translateX(calc(100vw + 120px));
-  }
-}
 
 body:has(.home-showcase) #subtitle {
   display: block;
@@ -1926,9 +1899,6 @@ html[data-user-color-scheme="dark"] .village__ground,
 html[data-user-color-scheme="dark"] .village__fence,
 html[data-user-color-scheme="dark"] .village__tree,
 html[data-user-color-scheme="dark"] .village__chicken,
-html[data-user-color-scheme="dark"] .village__walker {
-  filter: brightness(0.72) saturate(0.86);
-}
 
 html[data-user-color-scheme="dark"] body:has(.home-showcase) #subtitle {
   color: #f3f6fb;
@@ -2001,30 +1971,13 @@ html[data-user-color-scheme="dark"] .home-start__btn--primary {
     display: none;
   }
 
-  .village__walker {
-    width: 64px;
-    height: 64px;
-    background-size: 384px 192px;
-    background-position: 0 -128px;
-  }
 
-  @keyframes walker-step {
-    to {
-      background-position: -384px -128px;
-    }
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .village__cloud,
   .village__chicken,
-  .village__walker {
-    animation: none !important;
-  }
 
-  .village__walker {
-    left: 12%;
-  }
 }
 
 /* home hero heights win over generic page rules (file-end override) */
@@ -2104,6 +2057,7 @@ body:has(.home-showcase) #subtitle::after {
 
 .village__well {
   position: absolute;
+  z-index: 3;
   bottom: 80px;
   left: 42%;
   width: 56px;
@@ -2115,7 +2069,6 @@ body:has(.home-showcase) #subtitle::after {
 
 .village__chicken--a { left: 44%; bottom: 150px; }
 .village__chicken--b { left: 62%; bottom: 200px; }
-.village__walker { bottom: 10px; }
 
 .town {
   position: absolute;
@@ -2130,8 +2083,8 @@ body:has(.home-showcase) #subtitle::after {
   text-decoration: none !important;
 }
 
-.town-lot--back { z-index: 1; }
-.town-lot--front { z-index: 2; }
+.town-lot--back { z-index: 2; }
+.town-lot--front { z-index: 4; }
 .town-lot:hover, .town-lot:focus { z-index: 6; }
 
 .town-lot__house {
