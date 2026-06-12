@@ -104,6 +104,14 @@
         "</div>" +
         '<p class="home-showcase__intro">长期维护的小项目都放在这里，保留简短索引和公开地址。</p>' +
       "</div>" +
+      '<a class="home-workshop-banner" href="/projects/">' +
+        '<div class="home-workshop-banner__text">' +
+          '<p class="home-kicker">PROJECT WORKSHOP</p>' +
+          '<h3>项目工坊：每个项目一张工单，配一篇拆解教程</h3>' +
+          '<p class="home-workshop-banner__desc">EPUB 阅读器、实时德扑、飞书 × Codex、自动化管线……自研项目和源码学习笔记，拆给你看怎么做。</p>' +
+        "</div>" +
+        '<span class="home-workshop-banner__cta"><span>进入工坊</span><span aria-hidden="true">→</span></span>' +
+      "</a>" +
       '<div class="home-showcase__projects">' + renderProjects() + "</div>";
 
     var writingHead = document.createElement("section");
