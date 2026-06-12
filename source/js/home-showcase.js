@@ -125,6 +125,21 @@
     boardCol.insertBefore(writingHead, firstCard);
 
     buildVillage();
+    buildMeadow();
+  }
+
+  function buildMeadow() {
+    var main = document.querySelector("main");
+    if (!main || main.querySelector(".meadow")) return;
+
+    var meadow = document.createElement("section");
+    meadow.className = "meadow";
+    meadow.innerHTML =
+      '<div class="meadow__deco" aria-hidden="true"></div>' +
+      '<div class="meadow__horse" aria-hidden="true"></div>' +
+      '<div class="meadow__cow" aria-hidden="true"></div>' +
+      '<div class="meadow__duck" aria-hidden="true"></div>';
+    main.insertBefore(meadow, main.firstElementChild);
   }
 
   var TOWN = [
