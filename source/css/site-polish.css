@@ -2106,7 +2106,7 @@ body:has(.home-showcase) #subtitle::after {
 .town-lot--workshop { left: 30%;   bottom: 232px; width: 480px; height: 294px; }
 .town-lot--wizard   { left: 86.5%; bottom: 232px; width: 120px; height: 270px; }
 .town-lot--about    { left: 16.5%; bottom: 48px;  width: 190px; height: 208px; }
-.town-lot--news     { left: 4%;    bottom: 48px;  width: 87px;  height: 105px; }
+.town-lot--news     { left: 11%;   bottom: 48px;  width: 87px;  height: 105px; }
 .town-lot--painters { left: 30%;   bottom: 48px;  width: 160px; height: 240px; }
 .town-lot--archive  { left: 56%;   bottom: 48px;  width: 188px; height: 226px; }
 .town-lot--mahjong  { left: 70%;   bottom: 48px;  width: 348px; height: 246px; }
@@ -2799,4 +2799,35 @@ html[data-user-color-scheme="dark"] .player-hint__keys b {
   .player-hint {
     display: none;
   }
+}
+
+/* —— AI 小镇巴士入口 —— */
+
+.town-lot--aitown { left: 0.5%; bottom: 6px; width: 120px; height: 68px; }
+.town-lot--aitown .town-lot__house {
+  background-image: url("/img/village/bus.png");
+}
+
+/* bus sign sits above the roof, not below */
+.town-lot--aitown .town-lot__sign {
+  top: -34px;
+  bottom: auto;
+}
+
+.town-lot--aitown .town-lot__sign::after {
+  content: " ↗";
+  font-size: 0.85em;
+}
+
+@media (max-width: 1199.98px) {
+  .town-lot--aitown { left: 0.5%; bottom: 6px; width: 104px; height: 59px; }
+  .town-lot--about    { left: 9.5%;  bottom: 64px;  width: 142px; height: 156px; }
+}
+
+@media (max-width: 991.98px) {
+  .town-lot--aitown { left: 52%; bottom: 70px; width: 104px; height: 59px; }
+}
+
+@media (max-width: 575.98px) {
+  .town-lot--aitown { left: 60%; bottom: 60px; width: 92px; height: 52px; }
 }

@@ -142,10 +142,14 @@
     main.insertBefore(meadow, main.firstElementChild);
   }
 
+  // AI 小镇上线后把这里换成它的访问地址即可（例如 https://town.xxx.com/）
+  var AI_TOWN_URL = "/courses/ai-town/";
+
   var TOWN = [
     { key: "school", name: "课程", desc: "把文章串成可连续学习的课程", href: "/courses/", row: "back", pet: "sheep" },
     { key: "workshop", name: "项目工坊", desc: "每个项目一张工单，配拆解教程", href: "/projects/", row: "back", pet: null },
     { key: "wizard", name: "AI 视觉", desc: "AI 视觉浏览器的魔法画册", href: "/flipbook/", row: "back", pet: "butterfly" },
+    { key: "aitown", name: "AI 小镇", desc: "坐巴士去 AI 小镇逛逛", href: AI_TOWN_URL, row: "front", pet: null, bus: true },
     { key: "about", name: "关于我", desc: "村长一凡住在这里", href: "/about/", row: "front", pet: "babychick", smoke: true },
     { key: "news", name: "晨读", desc: "每天早上的技术晨报", href: "/morning-read/", row: "front", pet: "duck" },
     { key: "painters", name: "画室", desc: "协作像素画室", href: "/painters-guild/", row: "front", pet: "fox" },
@@ -153,9 +157,14 @@
     { key: "mahjong", name: "麻将", desc: "在线麻将小游戏", href: "/mahjong/", row: "front", pet: null },
   ];
 
+  function isExternal(href) {
+    return /^https?:\/\//.test(href);
+  }
+
   function townLot(lot) {
+    var tgt = isExternal(lot.href) ? '" target="_blank" rel="noopener"' : '"';
     return (
-      '<a class="town-lot town-lot--' + lot.key + ' town-lot--' + lot.row + '" href="' + lot.href + '" aria-label="' + escapeHtml(lot.name) + '：' + escapeHtml(lot.desc) + '">' +
+      '<a class="town-lot town-lot--' + lot.key + ' town-lot--' + lot.row + '" href="' + lot.href + tgt + ' aria-label="' + escapeHtml(lot.name) + '：' + escapeHtml(lot.desc) + '">' +
         '<span class="town-lot__bubble">' + escapeHtml(lot.desc) + "</span>" +
         (lot.smoke ? '<span class="town-lot__smoke"></span>' : "") +
         '<span class="town-lot__house"></span>' +
@@ -233,6 +242,7 @@
     var frontLine = 0;
     var leaving = false;
     var moved = false;
+    var armed = true;
 
     var KEYMAP = {
       KeyW: "up", ArrowUp: "up",
@@ -262,6 +272,7 @@
         }
         doors.push({
           href: lots[i].getAttribute("href"),
+          external: lots[i].target === "_blank",
           x1: r.left - bannerRect.left + r.width * 0.3,
           x2: r.left - bannerRect.left + r.width * 0.7,
           y1: foot - 10,
@@ -323,11 +334,23 @@
 
         var footX = x + SIZE / 2;
         var footY = banner.clientHeight - yBottom - 4;
+        var inAnyDoor = false;
         for (var i = 0; i < doors.length; i += 1) {
           var d = doors[i];
           if (footX > d.x1 && footX < d.x2 && footY > d.y1 && footY < d.y2) {
-            leaving = true;
+            inAnyDoor = true;
+            if (!armed) break;
+            armed = false;
             d.el.classList.add("town-lot--entering");
+            if (d.external) {
+              // bus to AI Town: open in a new tab, keep the player in the village
+              window.open(d.href, "_blank", "noopener");
+              (function (el) {
+                setTimeout(function () { el.classList.remove("town-lot--entering"); }, 600);
+              })(d.el);
+              break;
+            }
+            leaving = true;
             player.classList.add("village__player--enter");
             setTimeout(function (href) {
               return function () { window.location.assign(href); };
@@ -336,6 +359,7 @@
             return;
           }
         }
+        if (!inAnyDoor) armed = true;
       } else {
         frame = 0;
       }
