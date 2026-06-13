@@ -2685,7 +2685,7 @@ html[data-user-color-scheme="dark"] body:has(.home-showcase) .home-layout > .tok
   bottom: 0;
   left: 50%;
   width: 192px;
-  height: 300px;
+  height: 312px;
   margin-left: -96px;
   background: url("/img/village/path-hero.png") no-repeat center bottom;
 }
