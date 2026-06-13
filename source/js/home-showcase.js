@@ -302,10 +302,12 @@
     function meadowZones() {
       if (!meadow) return { pond: null, picnic: null };
       var ox = meadow.clientWidth / 2 - 840;
+      var water = { x1: ox + 138, x2: ox + 430, y1: 222, y2: 392 };
       return {
-        // the pond water is solid; you fish from the bank ringing it
-        water: { x1: ox + 138, x2: ox + 430, y1: 222, y2: 392 },
-        pond: { x1: ox + 110, x2: ox + 458, y1: 360, y2: 438, fxX: ox + 284, fxY: 330 },
+        // the pond water is solid; the fishing zone is the bank ringing it,
+        // so you can fish from any side and the rod follows your facing
+        water: water,
+        pond: { x1: water.x1 - 44, x2: water.x2 + 44, y1: water.y1 - 44, y2: water.y2 + 44 },
         picnic: { x1: ox + 910, x2: ox + 1060, y1: 372, y2: 500 },
       };
     }
@@ -383,19 +385,31 @@
     function startFishing(zonePond) {
       fishing = true;
       keys = {};
-      dirRow = 0; // face down toward the water
+      // cast in whatever direction the player is currently facing
+      var vx = 0, vy = 0;
+      if (dirRow === 2) vx = flip ? -1 : 1;
+      else vy = dirRow === 1 ? -1 : 1;
       renderMeadow();
-      var line = spawnFx("meadow-fish__line", mx + SIZE / 2 - 1, my + 30);
-      var lineH = Math.max(28, zonePond.fxY - (my + 38));
-      if (line) line.style.height = lineH + "px";
-      var splash = spawnFx("meadow-fish__splash", zonePond.fxX - 32, zonePond.fxY - 16);
+
+      var castDist = 66;
+      var handX = mx + SIZE / 2, handY = my + 32;
+      var floatX = handX + vx * castDist, floatY = handY + vy * castDist;
+
+      var line = spawnFx("meadow-fish__line", 0, 0);
+      if (line) {
+        line.style.left = handX + "px";
+        line.style.top = handY + "px";
+        line.style.width = castDist + "px";
+        line.style.transform = "rotate(" + (Math.atan2(vy, vx) * 180 / Math.PI) + "deg)";
+      }
+      var splash = spawnFx("meadow-fish__splash", floatX - 32, floatY - 16);
       prompt.className = "meadow-prompt meadow-prompt--show meadow-prompt--wait";
       prompt.textContent = "抛竿中…";
       positionPrompt();
       setTimeout(function () {
         if (line) line.remove();
         if (splash) splash.remove();
-        var fishEl = spawnFx("meadow-fish__catch", mx + SIZE / 2 - 24, my - 14, 1500);
+        spawnFx("meadow-fish__catch", mx + SIZE / 2 - 24, my - 14, 1500);
         for (var i = 0; i < 5; i += 1) {
           (function (k) {
             spawnFx("meadow-sparkle", mx + 12 + k * 9, my - 6 - (k % 2) * 8, 700);
@@ -551,6 +565,21 @@
       else updateMeadow(now, dx, dy);
       requestAnimationFrame(tick);
     }
+
+    // Coming back via the browser's back button restores the page from
+    // bfcache with `leaving` still true and the animation loop stopped —
+    // the player would be frozen mid-exit. Reset and restart on return.
+    window.addEventListener("pageshow", function () {
+      if (!leaving) return;
+      leaving = false;
+      armed = false; // re-arm only after the player steps off the door
+      keys = {};
+      fishing = false;
+      player.classList.remove("village__player--enter");
+      var ent = document.querySelector(".town-lot--entering");
+      if (ent) ent.classList.remove("town-lot--entering");
+      requestAnimationFrame(tick);
+    });
 
     computeDoors();
     renderHero();
