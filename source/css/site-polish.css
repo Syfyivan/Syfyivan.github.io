@@ -2831,3 +2831,116 @@ html[data-user-color-scheme="dark"] .player-hint__keys b {
 @media (max-width: 575.98px) {
   .town-lot--aitown { left: 60%; bottom: 60px; width: 92px; height: 52px; }
 }
+
+/* —— 草场互动：钓鱼 / 野餐 / 花瓣 —— */
+
+.meadow__fx {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+}
+
+.meadow__fx > * {
+  position: absolute;
+  image-rendering: pixelated;
+}
+
+.meadow-fish__line {
+  width: 2px;
+  background: rgba(60, 44, 24, 0.85);
+  transform-origin: top center;
+  animation: fish-cast 0.25s ease;
+}
+
+@keyframes fish-cast {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+.meadow-fish__splash {
+  width: 64px;
+  height: 32px;
+  background: url("/img/village/splash.png") no-repeat;
+  background-size: 256px 64px;
+  animation: fish-splash 0.5s steps(4) infinite;
+}
+
+@keyframes fish-splash {
+  to { background-position: -256px 0; }
+}
+
+.meadow-fish__catch {
+  width: 48px;
+  height: 48px;
+  background: url("/img/village/fish.png") no-repeat;
+  background-size: 48px 48px;
+  animation: fish-catch 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fish-catch {
+  0% { transform: translateY(14px) scale(0.4); opacity: 0; }
+  30% { transform: translateY(-10px) scale(1.1); opacity: 1; }
+  70% { transform: translateY(-12px) scale(1); opacity: 1; }
+  100% { transform: translateY(-26px) scale(0.95); opacity: 0; }
+}
+
+.meadow-sparkle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff7d6 0 40%, rgba(255, 235, 150, 0.6) 60%, transparent 70%);
+  animation: meadow-sparkle 0.7s ease-out forwards;
+}
+
+.meadow-sparkle--petal {
+  background: radial-gradient(circle, rgba(255, 170, 192, 0.95) 0 50%, rgba(255, 170, 192, 0) 70%);
+}
+
+@keyframes meadow-sparkle {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  35% { transform: translateY(-8px) scale(1); opacity: 1; }
+  100% { transform: translateY(-18px) scale(0.7); opacity: 0; }
+}
+
+.meadow-prompt {
+  position: absolute;
+  z-index: 8;
+  transform: translate(-50%, -100%);
+  padding: 4px 11px;
+  border: 2px solid #2b3340;
+  border-radius: 999px;
+  color: #2b3340;
+  background: rgba(255, 254, 251, 0.92);
+  box-shadow: 0 3px 0 rgba(43, 51, 64, 0.85);
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+.meadow-prompt--show {
+  opacity: 1;
+}
+
+.meadow-prompt--rest {
+  border-color: #b7822d;
+  color: #8a5a16;
+}
+
+.meadow-prompt--wait {
+  border-color: #315f87;
+  color: #315f87;
+}
+
+html[data-user-color-scheme="dark"] .meadow-prompt {
+  border-color: #0e1420;
+  color: #1a2238;
+  background: rgba(243, 246, 251, 0.94);
+}
+
+html[data-user-color-scheme="dark"] .meadow__fx {
+  filter: brightness(0.85);
+}

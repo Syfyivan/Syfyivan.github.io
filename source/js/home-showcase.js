@@ -124,8 +124,8 @@
     boardCol.insertBefore(showcase, firstCard);
     boardCol.insertBefore(writingHead, firstCard);
 
-    buildVillage();
     buildMeadow();
+    buildVillage();
   }
 
   function buildMeadow() {
@@ -138,7 +138,8 @@
       '<div class="meadow__deco" aria-hidden="true"></div>' +
       '<div class="meadow__horse" aria-hidden="true"></div>' +
       '<div class="meadow__cow" aria-hidden="true"></div>' +
-      '<div class="meadow__duck" aria-hidden="true"></div>';
+      '<div class="meadow__duck" aria-hidden="true"></div>' +
+      '<div class="meadow__fx" aria-hidden="true"></div>';
     main.insertBefore(meadow, main.firstElementChild);
   }
 
@@ -217,22 +218,34 @@
     var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
     if (coarse || banner.clientWidth < 720) return;
 
+    var meadow = document.querySelector(".meadow");
+    var fx = meadow ? meadow.querySelector(".meadow__fx") : null;
+
     var player = document.createElement("div");
     player.className = "village__player";
     player.setAttribute("aria-hidden", "true");
     village.appendChild(player);
 
+    var prompt = document.createElement("div");
+    prompt.className = "meadow-prompt";
+    if (meadow) meadow.appendChild(prompt);
+
     var hint = document.createElement("div");
     hint.className = "player-hint";
     hint.innerHTML =
-      '<span class="player-hint__keys"><b>W</b><b>A</b><b>S</b><b>D</b></span> 控制小人走动，走进房门进入板块';
+      '<span class="player-hint__keys"><b>W</b><b>A</b><b>S</b><b>D</b></span> 控制小人走动，走进房门进板块，沿小路往下到河边';
     banner.appendChild(hint);
 
     var SIZE = 64;
     var SPEED = 2.7;
+    var zone = "hero";
+    // hero coordinates: x = left in banner, yBottom = distance from banner bottom
     var x = banner.clientWidth / 2 - SIZE / 2 + 4;
     var yBottom = 44;
-    var dirRow = 0;        // walk.png rows: 0 down, 1 up, 2 side
+    // meadow coordinates: mx = left, my = top in the meadow
+    var mx = 0;
+    var my = 0;
+    var dirRow = 0;        // 0 down, 1 up, 2 side
     var flip = false;
     var frame = 0;
     var frameClock = 0;
@@ -243,6 +256,9 @@
     var leaving = false;
     var moved = false;
     var armed = true;
+    var fishing = false;
+    var fishCool = 0;
+    var puffClock = 0;
 
     var KEYMAP = {
       KeyW: "up", ArrowUp: "up",
@@ -282,21 +298,40 @@
       }
     }
 
-    function bannerVisible() {
-      var r = banner.getBoundingClientRect();
-      return r.bottom > 160 && r.top < window.innerHeight * 0.5;
+    // pond and picnic zones in meadow-local coordinates (deco is 1680 wide, centered)
+    function meadowZones() {
+      if (!meadow) return { pond: null, picnic: null };
+      var ox = meadow.clientWidth / 2 - 840;
+      return {
+        // the pond water is solid; you fish from the bank ringing it
+        water: { x1: ox + 138, x2: ox + 430, y1: 222, y2: 392 },
+        pond: { x1: ox + 110, x2: ox + 458, y1: 360, y2: 438, fxX: ox + 284, fxY: 330 },
+        picnic: { x1: ox + 910, x2: ox + 1060, y1: 372, y2: 500 },
+      };
+    }
+
+    function inZone(z, fx2, fy2) {
+      return z && fx2 > z.x1 && fx2 < z.x2 && fy2 > z.y1 && fy2 < z.y2;
+    }
+
+    function worldVisible() {
+      var top = banner.getBoundingClientRect().top;
+      var bottom = meadow ? meadow.getBoundingClientRect().bottom : banner.getBoundingClientRect().bottom;
+      return bottom > 160 && top < window.innerHeight - 120;
     }
 
     function onKey(down) {
       return function (e) {
         var dir = KEYMAP[e.code];
-        if (!dir) return;
-        if (!bannerVisible()) return;
+        var isAction = e.code === "Space" || e.code === "KeyE" || e.code === "Enter";
+        if (!dir && !isAction) return;
+        if (!worldVisible()) return;
         if (e.metaKey || e.ctrlKey || e.altKey) return;
         var t = e.target;
         if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
         e.preventDefault();
-        keys[dir] = down;
+        if (dir) keys[dir] = down;
+        if (isAction) keys.action = down;
         if (down && !moved) {
           moved = true;
           hint.classList.add("player-hint--fade");
@@ -304,20 +339,88 @@
       };
     }
 
-    function render() {
+    function setZone(next) {
+      zone = next;
+      if (next === "meadow") {
+        meadow.appendChild(player);
+        player.style.bottom = "auto";
+        player.style.top = "0";
+        player.style.zIndex = 6;
+        var top = meadow.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({ top: top - 110, behavior: "smooth" });
+      } else {
+        village.appendChild(player);
+        player.style.top = "auto";
+        player.style.bottom = "0";
+        var btop = banner.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({ top: btop + banner.clientHeight - window.innerHeight + 80, behavior: "smooth" });
+      }
+    }
+
+    function renderHero() {
       player.style.transform = "translate(" + Math.round(x) + "px, " + -Math.round(yBottom) + "px)" + (flip ? " scaleX(-1)" : "");
       player.style.backgroundPosition = -(frame * SIZE) + "px " + -(dirRow * SIZE) + "px";
-      // y-sort: lower on screen = in front
       var footY = banner.clientHeight - yBottom - 4;
       player.style.zIndex = footY > frontLine - 14 ? 5 : footY > backLine - 14 ? 3 : 1;
     }
 
-    function tick(now) {
-      if (leaving) return;
-      var dx = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
-      var dy = (keys.up ? 1 : 0) - (keys.down ? 1 : 0);
-      var moving = dx !== 0 || dy !== 0;
+    function renderMeadow() {
+      player.style.transform = "translate(" + Math.round(mx) + "px, " + Math.round(my) + "px)" + (flip ? " scaleX(-1)" : "");
+      player.style.backgroundPosition = -(frame * SIZE) + "px " + -(dirRow * SIZE) + "px";
+    }
 
+    function spawnFx(cls, lx, ly, life) {
+      if (!fx) return null;
+      var el = document.createElement("div");
+      el.className = cls;
+      el.style.left = lx + "px";
+      el.style.top = ly + "px";
+      fx.appendChild(el);
+      if (life) setTimeout(function () { el.remove(); }, life);
+      return el;
+    }
+
+    function startFishing(zonePond) {
+      fishing = true;
+      keys = {};
+      dirRow = 0; // face down toward the water
+      renderMeadow();
+      var line = spawnFx("meadow-fish__line", mx + SIZE / 2 - 1, my + 30);
+      var lineH = Math.max(28, zonePond.fxY - (my + 38));
+      if (line) line.style.height = lineH + "px";
+      var splash = spawnFx("meadow-fish__splash", zonePond.fxX - 32, zonePond.fxY - 16);
+      prompt.className = "meadow-prompt meadow-prompt--show meadow-prompt--wait";
+      prompt.textContent = "抛竿中…";
+      positionPrompt();
+      setTimeout(function () {
+        if (line) line.remove();
+        if (splash) splash.remove();
+        var fishEl = spawnFx("meadow-fish__catch", mx + SIZE / 2 - 24, my - 14, 1500);
+        for (var i = 0; i < 5; i += 1) {
+          (function (k) {
+            spawnFx("meadow-sparkle", mx + 12 + k * 9, my - 6 - (k % 2) * 8, 700);
+          })(i);
+        }
+        prompt.textContent = "🎣 钓到一条鱼！";
+        setTimeout(function () {
+          fishing = false;
+          fishCool = nowTs() + 1200;
+          prompt.className = "meadow-prompt";
+        }, 1100);
+      }, 1100);
+    }
+
+    function positionPrompt() {
+      prompt.style.left = Math.round(mx + SIZE / 2) + "px";
+      prompt.style.top = Math.round(my - 8) + "px";
+    }
+
+    function nowTs() {
+      return (window.performance && performance.now()) ? performance.now() : +new Date();
+    }
+
+    function updateHero(now, dx, dy) {
+      var moving = dx !== 0 || dy !== 0;
       if (moving) {
         if (dx !== 0) { dirRow = 2; flip = dx < 0; }
         else { dirRow = dy > 0 ? 1 : 0; }
@@ -327,13 +430,20 @@
         x = Math.max(-8, Math.min(banner.clientWidth - SIZE + 8, x));
         yBottom = Math.max(2, Math.min(groundHeight() - 26, yBottom));
 
-        if (now - frameClock > 110) {
-          frame = (frame + 1) % 6;
-          frameClock = now;
-        }
+        if (now - frameClock > 110) { frame = (frame + 1) % 6; frameClock = now; }
 
         var footX = x + SIZE / 2;
         var footY = banner.clientHeight - yBottom - 4;
+
+        // descend onto the meadow path (walking down = dy < 0)
+        if (meadow && dy < 0 && yBottom <= 2 && Math.abs(footX - banner.clientWidth / 2) < 100) {
+          mx = meadow.clientWidth / 2 - SIZE / 2;
+          my = 2;
+          dirRow = 0;
+          setZone("meadow");
+          return;
+        }
+
         var inAnyDoor = false;
         for (var i = 0; i < doors.length; i += 1) {
           var d = doors[i];
@@ -343,19 +453,14 @@
             armed = false;
             d.el.classList.add("town-lot--entering");
             if (d.external) {
-              // bus to AI Town: open in a new tab, keep the player in the village
               window.open(d.href, "_blank", "noopener");
-              (function (el) {
-                setTimeout(function () { el.classList.remove("town-lot--entering"); }, 600);
-              })(d.el);
+              (function (el) { setTimeout(function () { el.classList.remove("town-lot--entering"); }, 600); })(d.el);
               break;
             }
             leaving = true;
             player.classList.add("village__player--enter");
-            setTimeout(function (href) {
-              return function () { window.location.assign(href); };
-            }(d.href), 320);
-            render();
+            setTimeout(function (href) { return function () { window.location.assign(href); }; }(d.href), 320);
+            renderHero();
             return;
           }
         }
@@ -363,13 +468,92 @@
       } else {
         frame = 0;
       }
+      renderHero();
+    }
 
-      render();
+    function updateMeadow(now, dx, dy) {
+      var zones = meadowZones();
+      var fxX = mx + SIZE / 2;
+      var fyY = my + SIZE - 8;
+      var atPond = inZone(zones.pond, fxX, fyY);
+      var atPicnic = inZone(zones.picnic, fxX, fyY);
+
+      if (fishing) { renderMeadow(); return; }
+
+      if (keys.action && atPond && now > fishCool) {
+        keys.action = false;
+        startFishing(zones.pond);
+        return;
+      }
+
+      var moving = dx !== 0 || dy !== 0;
+      if (moving) {
+        if (dx !== 0) { dirRow = 2; flip = dx < 0; }
+        else { dirRow = dy > 0 ? 1 : 0; }
+        var norm = dx !== 0 && dy !== 0 ? 0.7071 : 1;
+        var prevX = mx, prevY = my;
+        mx += dx * SPEED * norm;
+        my -= dy * SPEED * norm; // meadow is top-anchored: up (dy>0) decreases my
+        mx = Math.max(-6, Math.min(meadow.clientWidth - SIZE + 6, mx));
+        my = Math.max(-2, Math.min(meadow.clientHeight - SIZE - 6, my));
+
+        // the pond water is solid — block the foot from entering it (axis-wise)
+        if (zones.water) {
+          var ftX = mx + SIZE / 2, ftY = my + SIZE - 8;
+          if (ftX > zones.water.x1 && ftX < zones.water.x2 && ftY > zones.water.y1 && ftY < zones.water.y2) {
+            var ftXprev = prevX + SIZE / 2;
+            if (!(ftXprev > zones.water.x1 && ftXprev < zones.water.x2)) mx = prevX;
+            else my = prevY;
+          }
+        }
+
+        if (now - frameClock > 110) { frame = (frame + 1) % 6; frameClock = now; }
+
+        // climb back up to the town (walking up = dy > 0)
+        if (dy > 0 && my <= 0 && Math.abs(fxX - meadow.clientWidth / 2) < 110) {
+          x = banner.clientWidth / 2 - SIZE / 2 + 4;
+          yBottom = 6;
+          dirRow = 1;
+          setZone("hero");
+          return;
+        }
+
+        // grass / petal puffs while wandering
+        if (now - puffClock > 360) {
+          puffClock = now;
+          spawnFx("meadow-sparkle meadow-sparkle--petal", mx + 18 + (frame % 3) * 8, my + SIZE - 18, 650);
+        }
+      } else {
+        frame = 0;
+      }
+
+      // contextual prompt
+      if (atPond && now > fishCool) {
+        prompt.className = "meadow-prompt meadow-prompt--show";
+        prompt.textContent = "按 空格 钓鱼";
+        positionPrompt();
+      } else if (atPicnic) {
+        prompt.className = "meadow-prompt meadow-prompt--show meadow-prompt--rest";
+        prompt.textContent = "♪ 在野餐垫上歇会儿";
+        positionPrompt();
+      } else {
+        prompt.className = "meadow-prompt";
+      }
+
+      renderMeadow();
+    }
+
+    function tick(now) {
+      if (leaving) { return; }
+      var dx = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
+      var dy = (keys.up ? 1 : 0) - (keys.down ? 1 : 0);
+      if (zone === "hero") updateHero(now, dx, dy);
+      else updateMeadow(now, dx, dy);
       requestAnimationFrame(tick);
     }
 
     computeDoors();
-    render();
+    renderHero();
     window.addEventListener("resize", computeDoors);
     document.addEventListener("keydown", onKey(true));
     document.addEventListener("keyup", onKey(false));
