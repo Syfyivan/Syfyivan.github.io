@@ -143,8 +143,8 @@
     main.insertBefore(meadow, main.firstElementChild);
   }
 
-  // AI 小镇上线后把这里换成它的访问地址即可（例如 https://town.xxx.com/）
-  var AI_TOWN_URL = "/courses/ai-town/";
+  // 巴士入口指向 AI 小镇项目首页；等 AI Town 应用部署上线后换成它的访问地址即可
+  var AI_TOWN_URL = "https://github.com/Syfyivan/ai-town";
 
   var TOWN = [
     { key: "school", name: "课程", desc: "把文章串成可连续学习的课程", href: "/courses/", row: "back", pet: "sheep" },
