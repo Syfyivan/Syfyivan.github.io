@@ -143,8 +143,9 @@
     main.insertBefore(meadow, main.firstElementChild);
   }
 
-  // 巴士入口指向 AI 小镇项目首页；等 AI Town 应用部署上线后换成它的访问地址即可
-  var AI_TOWN_URL = "https://github.com/Syfyivan/ai-town";
+  // 巴士入口指向已部署的 AI 小镇（溪山镇）首页。注意：10.37.87.203 是内网地址，
+  // 仅在字节内网可访问；公网访客点击会连不上。换成公网地址后此处替换即可。
+  var AI_TOWN_URL = "http://10.37.87.203:5173/ai-town/";
 
   var TOWN = [
     { key: "school", name: "课程", desc: "把文章串成可连续学习的课程", href: "/courses/", row: "back", pet: "sheep" },
