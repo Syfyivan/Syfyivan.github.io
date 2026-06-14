@@ -217,9 +217,9 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
       </div>
     </article>
     <article class="course-card">
-      <span class="course-badge">进行中</span>
+      <span class="course-badge">11 讲全</span>
       <h3>AI Town：Agent 基础设施课程</h3>
-      <p>从像素小镇背后的 runtime 入手，学习 Convex 调度、单线程 step、历史回放、异步 LLM operation、记忆摘要和向量检索。</p>
+      <p>从像素小镇背后的 runtime 入手，11 讲对照源码深拆：Convex 调度、单线程 step、历史回放、异步 LLM、记忆向量检索、迁移实践，加上寻路、对话社交、前端渲染和部署实操。</p>
       <div class="course-card-footer">
         <span>适合：想系统理解多 Agent 工程底座的人</span>
         <a class="course-link" href="/courses/ai-town/">进入课程</a>

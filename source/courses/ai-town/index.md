@@ -218,7 +218,7 @@ description: "从 AI Town 学习 Convex 调度、单线程世界模拟、异步 
       </div>
       <div>
         <strong>当前状态</strong>
-        <p>课程目录已建立，7 篇文章全部发布：1 篇总览 + 6 篇子系统深入。</p>
+        <p>课程目录已建立，11 篇文章全部发布：1 篇总览 + 10 篇子系统深入（含寻路、对话社交、前端渲染、部署实操）。</p>
       </div>
     </div>
   </section>
@@ -286,6 +286,42 @@ description: "从 AI Town 学习 Convex 调度、单线程世界模拟、异步 
         <p>把这套 runtime 思路迁移到客服、协作工具、游戏 NPC、工作流 Agent 和知识库助手。</p>
       </div>
       <a class="lesson-link" href="/2026/06/14/ai-town-migration-to-agent-product/">阅读文章</a>
+    </article>
+    <article class="lesson-card">
+      <span class="lesson-number">08</span>
+      <div>
+        <span class="lesson-state is-live">已发布</span>
+        <h3>A* 寻路与移动：在网格世界里走路</h3>
+        <p>网格 A* + 曼哈顿启发式 + 最小堆，blocked 动态避障、路径过期退避，再接回历史回放。</p>
+      </div>
+      <a class="lesson-link" href="/2026/06/14/ai-town-pathfinding-movement/">阅读文章</a>
+    </article>
+    <article class="lesson-card">
+      <span class="lesson-number">09</span>
+      <div>
+        <span class="lesson-state is-live">已发布</span>
+        <h3>对话与社交状态机：Agent 怎么开始和结束一次对话</h3>
+        <p>LLM 之外那套社交机制：邀请→走近→参与→离开的状态流转，排他与两层冷却防黏。</p>
+      </div>
+      <a class="lesson-link" href="/2026/06/14/ai-town-conversation-social/">阅读文章</a>
+    </article>
+    <article class="lesson-card">
+      <span class="lesson-number">10</span>
+      <div>
+        <span class="lesson-state is-live">已发布</span>
+        <h3>前端渲染：PixiJS 怎么把世界画成平滑画面</h3>
+        <p>瓦片地图、精灵动画、可缩放视口，再把第 4 讲的回放插值接到精灵位置上。</p>
+      </div>
+      <a class="lesson-link" href="/2026/06/14/ai-town-frontend-rendering/">阅读文章</a>
+    </article>
+    <article class="lesson-card">
+      <span class="lesson-number">11</span>
+      <div>
+        <span class="lesson-state is-live">已发布</span>
+        <h3>跑起来 &amp; 部署你自己的 AI 小镇</h3>
+        <p>后端 + 前端 + LLM 三件套：本地最快跑通、三个端口职责、对外公网部署与常见坑。</p>
+      </div>
+      <a class="lesson-link" href="/2026/06/14/ai-town-deploy-your-own/">阅读文章</a>
     </article>
   </section>
   <h2 class="track-section-title">知识地图</h2>
