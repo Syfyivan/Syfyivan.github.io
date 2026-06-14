@@ -196,11 +196,11 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
         <span>已建课程</span>
       </div>
       <div class="course-stat">
-        <strong>24</strong>
+        <strong>28</strong>
         <span>课程学习模块</span>
       </div>
       <div class="course-stat">
-        <strong>7</strong>
+        <strong>11</strong>
         <span>计网与代理模块</span>
       </div>
     </div>

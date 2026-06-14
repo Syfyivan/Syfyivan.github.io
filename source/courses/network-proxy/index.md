@@ -258,6 +258,38 @@ html[data-user-color-scheme="dark"] .net-card {
     <article class="net-card">
       <span class="net-number">07</span>
       <div>
+        <h3>TLS 与 SNI：握手阶段到底发生了什么</h3>
+        <p>把握手拆成身份、密钥、参数三件事，再看 SNI 为什么明文、证书校验为什么失败。</p>
+      </div>
+      <a class="net-link" href="/2026/06/13/network-proxy-tls-sni/">阅读文章</a>
+    </article>
+    <article class="net-card">
+      <span class="net-number">08</span>
+      <div>
+        <h3>IPv6、双栈与 Happy Eyeballs</h3>
+        <p>双栈和 Happy Eyeballs 让 IPv6 安静地绕过规则直连，这是“代理像没生效”的常见根因。</p>
+      </div>
+      <a class="net-link" href="/2026/06/13/network-proxy-ipv6-happy-eyeballs/">阅读文章</a>
+    </article>
+    <article class="net-card">
+      <span class="net-number">09</span>
+      <div>
+        <h3>QUIC 和 HTTP/3：为什么要单独对待 UDP</h3>
+        <p>QUIC 跑在 UDP 上，只接管 TCP 的代理会让它逃逸或被迫回退，慢和漏都从这里来。</p>
+      </div>
+      <a class="net-link" href="/2026/06/13/network-proxy-quic-http3/">阅读文章</a>
+    </article>
+    <article class="net-card">
+      <span class="net-number">10</span>
+      <div>
+        <h3>抓包实战：tcpdump、Wireshark 和 mitmproxy</h3>
+        <p>先选对层级再抓：元数据、解密内容、分流决策各看各的工具，证据齐了再改配置。</p>
+      </div>
+      <a class="net-link" href="/2026/06/13/network-proxy-packet-capture/">阅读文章</a>
+    </article>
+    <article class="net-card">
+      <span class="net-number">11</span>
+      <div>
         <h3>Surge 和免费代理工具的差别</h3>
         <p>把流量接管、DNS、规则、策略、MITM、脚本和产品化集成放在一起比较。</p>
       </div>
