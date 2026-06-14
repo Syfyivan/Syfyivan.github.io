@@ -218,7 +218,7 @@ description: "从 AI Town 学习 Convex 调度、单线程世界模拟、异步 
       </div>
       <div>
         <strong>当前状态</strong>
-        <p>课程目录已建立，第一篇总览文章已发布。</p>
+        <p>课程目录已建立，7 篇文章全部发布：1 篇总览 + 6 篇子系统深入。</p>
       </div>
     </div>
   </section>
@@ -236,50 +236,56 @@ description: "从 AI Town 学习 Convex 调度、单线程世界模拟、异步 
     <article class="lesson-card">
       <span class="lesson-number">02</span>
       <div>
-        <span class="lesson-state">待写</span>
+        <span class="lesson-state is-live">已发布</span>
         <h3>Convex 调度：让世界可靠续跑</h3>
         <p>拆解 query、mutation、action、scheduler 的边界，以及为什么不要用常驻 while loop 驱动 Agent 世界。</p>
       </div>
+      <a class="lesson-link" href="/2026/06/14/ai-town-convex-scheduling/">阅读文章</a>
     </article>
     <article class="lesson-card">
       <span class="lesson-number">03</span>
       <div>
-        <span class="lesson-state">待写</span>
+        <span class="lesson-state is-live">已发布</span>
         <h3>单线程 Step：把 World 设计成 Actor</h3>
         <p>学习 input queue、generation、diff save 如何让多来源输入保持串行、可恢复、可调试。</p>
       </div>
+      <a class="lesson-link" href="/2026/06/14/ai-town-single-thread-engine/">阅读文章</a>
     </article>
     <article class="lesson-card">
       <span class="lesson-number">04</span>
       <div>
-        <span class="lesson-state">待写</span>
+        <span class="lesson-state is-live">已发布</span>
         <h3>历史回放：低频写库，高频渲染</h3>
         <p>理解 server authoritative state、historical buffer、client replay 如何共同支撑平滑实时体验。</p>
       </div>
+      <a class="lesson-link" href="/2026/06/14/ai-town-historical-replay/">阅读文章</a>
     </article>
     <article class="lesson-card">
       <span class="lesson-number">05</span>
       <div>
-        <span class="lesson-state">待写</span>
+        <span class="lesson-state is-live">已发布</span>
         <h3>异步 LLM Operation：慢思考不要阻塞主循环</h3>
         <p>拆解 Agent.tick、startOperation、internalAction、结果回流 input 的边界设计。</p>
       </div>
+      <a class="lesson-link" href="/2026/06/14/ai-town-async-llm-operations/">阅读文章</a>
     </article>
     <article class="lesson-card">
       <span class="lesson-number">06</span>
       <div>
-        <span class="lesson-state">待写</span>
+        <span class="lesson-state is-live">已发布</span>
         <h3>记忆向量检索：从事件到 Prompt 注入</h3>
         <p>学习 summary、embedding cache、vector search、top-k 召回、记忆污染控制这些长期上下文问题。</p>
       </div>
+      <a class="lesson-link" href="/2026/06/14/ai-town-memory-vector-retrieval/">阅读文章</a>
     </article>
     <article class="lesson-card">
       <span class="lesson-number">07</span>
       <div>
-        <span class="lesson-state">待写</span>
+        <span class="lesson-state is-live">已发布</span>
         <h3>迁移实践：从 AI Town 到真实 Agent 产品</h3>
         <p>把这套 runtime 思路迁移到客服、协作工具、游戏 NPC、工作流 Agent 和知识库助手。</p>
       </div>
+      <a class="lesson-link" href="/2026/06/14/ai-town-migration-to-agent-product/">阅读文章</a>
     </article>
   </section>
   <h2 class="track-section-title">知识地图</h2>
