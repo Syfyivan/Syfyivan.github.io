@@ -192,16 +192,16 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>3</strong>
+        <strong>4</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
-        <strong>28</strong>
+        <strong>36</strong>
         <span>课程学习模块</span>
       </div>
       <div class="course-stat">
-        <strong>11</strong>
-        <span>计网与代理模块</span>
+        <strong>8</strong>
+        <span>多 Agent 编排模块</span>
       </div>
     </div>
   </section>
@@ -232,6 +232,15 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
       <div class="course-card-footer">
         <span>适合：想把代理工具和计网基础连起来的人</span>
         <a class="course-link" href="/courses/network-proxy/">进入课程</a>
+      </div>
+    </article>
+    <article class="course-card">
+      <span class="course-badge">8 讲全</span>
+      <h3>多 Agent 编排实战</h3>
+      <p>从一张跑着 60 个 agent 的代码审查截图出发：上下文瓶颈、八种编排模式、上下文隔离、对抗式验证、成本边界，再到在 Claude Code 里怎么落地。</p>
+      <div class="course-card-footer">
+        <span>适合：想搞懂“同时开很多 agent”怎么做、值不值的人</span>
+        <a class="course-link" href="/courses/multi-agent-orchestration/">进入课程</a>
       </div>
     </article>
     <article class="course-card">
