@@ -509,6 +509,7 @@ html[data-user-color-scheme="dark"] .workshop-page .ws-read:focus {
       </div>
       <div class="ws-card-foot">
         <a class="ws-read" href="/2026/06/12/project-workshop-lark-codex-bridge/">阅读拆解 →</a>
+        <a class="ws-read" href="https://bridge-task-viewer-syf.gf-preview.bytedance.net" target="_blank" rel="noopener">打开 Viewer ↗</a>
       </div>
     </article>
   </div>

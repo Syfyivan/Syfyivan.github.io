@@ -21,6 +21,16 @@
       displayUrl: "syfyivan.github.io/#token-usage",
     },
     {
+      tone: "blue",
+      label: "桥接器控制面",
+      title: "Bridge Viewer",
+      subtitle: "Task Session Viewer",
+      desc: "飞书机器人任务进度的可视化入口，用 Goofy Preview 分享给内网同事查看。",
+      url: "https://bridge-task-viewer-syf.gf-preview.bytedance.net",
+      displayUrl: "bridge-task-viewer-syf.gf-preview.bytedance.net",
+      external: true,
+    },
+    {
       tone: "green",
       label: "独立游戏站",
       title: "游戏入口",
@@ -54,6 +64,7 @@
   }
 
   function projectCard(project) {
+    var linkAttrs = project.external ? ' target="_blank" rel="noopener"' : "";
     return (
       '<article class="home-project-card home-project-card--' + escapeHtml(project.tone) + '">' +
         '<div class="home-project-card__top">' +
@@ -67,7 +78,7 @@
         "</div>" +
         '<div class="home-project-card__bottom">' +
           '<span class="home-project-card__url">' + escapeHtml(project.displayUrl) + "</span>" +
-          '<a class="home-project-card__button" href="' + escapeHtml(project.url) + '" aria-label="打开 ' + escapeHtml(project.title) + '">' +
+          '<a class="home-project-card__button" href="' + escapeHtml(project.url) + '"' + linkAttrs + ' aria-label="打开 ' + escapeHtml(project.title) + '">' +
             '<span>打开网站</span><span aria-hidden="true">↗</span>' +
           "</a>" +
         "</div>" +
