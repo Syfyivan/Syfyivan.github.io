@@ -236,13 +236,13 @@ font:
 custom_js:
   - /js/home-showcase.js?v=20260614-2.js
   - /js/token-usage.js?v=20260606-1.js
-  - /js/post-heading-hash.js?v=20260617-1.js
+  - /js/post-heading-hash.js?v=20260617-2.js
 
 # 指定自定义 .css 文件路径，用法和 custom_js 相同
 # The usage is the same as custom_js
 custom_css:
   - /css/token-usage.css?v=20260606-1.css
-  - /css/site-polish.css?v=20260617-1.css
+  - /css/site-polish.css?v=20260617-2.css
 
 # 网页访问统计
 # Analysis of website visitors

@@ -534,6 +534,30 @@ body:has(.markdown-body) #board {
   box-shadow: var(--yf-shadow-soft);
 }
 
+#toc .toc-body {
+  max-height: min(68vh, calc(100vh - 180px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+  scrollbar-color: rgba(38, 49, 61, 0.24) transparent;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+#toc .toc-body::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+}
+
+#toc .toc-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#toc .toc-body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(38, 49, 61, 0.22);
+}
+
 .toc-header {
   color: var(--yf-ink);
   font-size: 1rem;
