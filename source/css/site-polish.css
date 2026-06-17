@@ -188,13 +188,15 @@ body:has(.index-card) #subtitle::after {
 
 body:has(.markdown-body) #subtitle {
   display: block;
-  max-width: 800px;
+  max-width: min(800px, calc(100vw - 32px));
   margin-left: auto;
   margin-right: auto;
   color: #ffffff;
   font-size: clamp(1.68rem, 3.6vw, 2.65rem);
   font-weight: 760;
   line-height: 1.15;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .typed-cursor {
@@ -545,6 +547,63 @@ body:has(.markdown-body) #board {
 .tocbot-link:hover,
 .tocbot-active-link {
   color: var(--yf-teal);
+}
+
+@media (min-width: 992px) {
+  body:has(.post-content .markdown-body) main > .container-fluid.nopadding-x > .row.nomargin-x {
+    display: grid;
+    grid-template-columns: minmax(48px, 160px) minmax(0, 1030px) minmax(260px, 300px);
+    column-gap: 24px;
+    align-items: start;
+    width: calc(100vw - 48px);
+    margin-right: auto !important;
+    margin-left: auto !important;
+  }
+
+  body:has(.post-content .markdown-body) main > .container-fluid.nopadding-x > .row.nomargin-x > .side-col,
+  body:has(.post-content .markdown-body) main > .container-fluid.nopadding-x > .row.nomargin-x > .col-lg-8 {
+    flex: none;
+    width: auto;
+    max-width: none;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  body:has(.post-content .markdown-body) #board {
+    width: 100%;
+  }
+
+  body:has(.post-content .markdown-body) .side-col .sidebar {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  body:has(.post-content .markdown-body) #toc {
+    width: 100%;
+  }
+}
+
+@media (min-width: 1400px) {
+  body:has(.post-content .markdown-body) main > .container-fluid.nopadding-x > .row.nomargin-x {
+    grid-template-columns: 180px minmax(0, 1030px) 320px;
+    column-gap: 30px;
+    width: min(calc(100vw - 64px), 1880px);
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  body:has(.post-content .markdown-body) main > .container-fluid.nopadding-x > .row.nomargin-x {
+    grid-template-columns: minmax(24px, 80px) minmax(0, 1fr) minmax(220px, 260px);
+    column-gap: 20px;
+    width: calc(100vw - 32px);
+  }
+
+  body:has(.post-content .markdown-body) .post-content,
+  body:has(.post-content .markdown-body) .post-custom {
+    padding-right: 36px;
+    padding-left: 36px;
+  }
 }
 
 .list-group,
@@ -1468,7 +1527,18 @@ html[data-user-color-scheme="dark"] body .home-layout > .index-card::after {
 
   body:has(.markdown-body) .header-inner {
     height: 26vh !important;
-    min-height: 205px;
+    min-height: 225px;
+  }
+
+  body:has(.markdown-body) .banner-text {
+    width: calc(100vw - 24px);
+  }
+
+  body:has(.markdown-body) #subtitle {
+    max-width: 100%;
+    font-size: clamp(1.24rem, 6vw, 1.48rem);
+    line-height: 1.22;
+    word-break: break-all;
   }
 
   body:has(.list-group) .header-inner,

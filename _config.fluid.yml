@@ -241,7 +241,7 @@ custom_js:
 # The usage is the same as custom_js
 custom_css:
   - /css/token-usage.css?v=20260606-1.css
-  - /css/site-polish.css?v=20260613-9.css
+  - /css/site-polish.css?v=20260617-1.css
 
 # 网页访问统计
 # Analysis of website visitors
