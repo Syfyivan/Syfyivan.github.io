@@ -204,6 +204,50 @@ description: "从 AI 导论、机器学习、LLM、MCP、Skills、Agent Loop、�
   line-height: 1.45;
 }
 
+.aaf-blueprint-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.aaf-blueprint {
+  padding: 18px;
+  border: 1px solid var(--aaf-line);
+  border-radius: 4px;
+  background: var(--aaf-panel);
+  box-shadow: 0 10px 24px rgba(22, 32, 42, 0.05);
+}
+
+.aaf-blueprint h3 {
+  margin: 0 0 10px;
+  color: var(--aaf-ink);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.aaf-chapter-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aaf-chapter-list li {
+  padding: 10px 12px;
+  border: 1px solid var(--aaf-line);
+  border-radius: 4px;
+  background: var(--aaf-wash);
+  color: var(--aaf-muted);
+  line-height: 1.65;
+}
+
+.aaf-chapter-list strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--aaf-blue);
+}
+
 .aaf-module-meta {
   display: grid;
   justify-items: end;
@@ -326,7 +370,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
 
   .aaf-link-grid,
   .aaf-principle-grid,
-  .aaf-source-grid {
+  .aaf-source-grid,
+  .aaf-chapter-list {
     grid-template-columns: 1fr;
   }
 }
@@ -575,6 +620,160 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         <span class="aaf-badge is-ready">概览已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-12-product-mlops/">阅读第十二讲</a>
       </div>
+    </article>
+  </section>
+
+  <section class="aaf-section-head">
+    <div>
+      <h2>章节与小节蓝图</h2>
+      <p>下面是我按完整学习链路设计的课程骨架。这里先放章节设计，不放空链接；等某个章节真正写成文章后，再把对应小节升级成可点击入口。</p>
+    </div>
+    <span class="aaf-count">12 讲 · 72 章</span>
+  </section>
+
+  <section class="aaf-blueprint-grid" aria-label="AI 与 Agent 大寓言课章节蓝图">
+    <article class="aaf-blueprint">
+      <h3>01 会学习的木偶：AI 导论与发展史</h3>
+      <ul class="aaf-chapter-list">
+        <li><strong>01.1 AI 到底是什么</strong>规则程序 · 统计模型 · 生成式系统</li>
+        <li><strong>01.2 三条历史主线</strong>符号主义 · 连接主义 · 概率统计</li>
+        <li><strong>01.3 从专家系统到深度学习</strong>知识工程 · 数据驱动 · 算力拐点</li>
+        <li><strong>01.4 生成式 AI 的位置</strong>语言模型 · 扩散模型 · 多模态模型</li>
+        <li><strong>01.5 Agent 为什么重新变热</strong>工具使用 · 长任务 · 环境反馈</li>
+        <li><strong>01.6 读 AI 新闻的方法</strong>区分模型、产品、论文、融资和基准测试</li>
+      </ul>
+    </article>
+
+    <article class="aaf-blueprint">
+      <h3>02 会分类的农夫：数据、特征与机器学习</h3>
+      <ul class="aaf-chapter-list">
+        <li><strong>02.1 数据从哪里来</strong>样本 · 标签 · 数据泄漏 · 数据权利</li>
+        <li><strong>02.2 学习任务类型</strong>监督学习 · 无监督学习 · 强化学习</li>
+        <li><strong>02.3 训练与推理</strong>损失函数 · 优化 · 参数 · 推理成本</li>
+        <li><strong>02.4 泛化与过拟合</strong>训练集 · 验证集 · 测试集 · 分布漂移</li>
+        <li><strong>02.5 指标怎么骗人</strong>准确率 · 召回率 · AUC · 校准 · 业务指标</li>
+        <li><strong>02.6 从模型到系统</strong>特征流水线 · 线上服务 · 监控 · 反馈闭环</li>
+      </ul>
+    </article>
+
+    <article class="aaf-blueprint">
+      <h3>03 会说话的图书馆：深度学习与大模型</h3>
+      <ul class="aaf-chapter-list">
+        <li><strong>03.1 神经网络直觉</strong>层 · 激活 · 反向传播 · 表征</li>
+        <li><strong>03.2 Transformer 为什么关键</strong>注意力 · 位置编码 · 并行训练</li>
+        <li><strong>03.3 Token 与向量</strong>分词 · embedding · 语义空间 · 相似度</li>
+        <li><strong>03.4 预训练、微调与对齐</strong>自监督 · SFT · RLHF/RLAIF · 指令跟随</li>
+        <li><strong>03.5 上下文窗口与长文本</strong>窗口限制 · attention 成本 · 长上下文误区</li>
+        <li><strong>03.6 模型能力边界</strong>幻觉 · 组合泛化 · 推理不稳定 · 评测偏差</li>
+      </ul>
+    </article>
+
+    <article class="aaf-blueprint">
+      <h3>04 会查档案的书记：提示词、上下文与 RAG</h3>
+      <ul class="aaf-chapter-list">
+        <li><strong>04.1 Prompt 是任务接口</strong>角色 · 目标 · 约束 · 输出格式</li>
+        <li><strong>04.2 Context Engineering</strong>上下文选择 · 顺序 · 噪声 · 预算</li>
+        <li><strong>04.3 RAG 基础链路</strong>切分 · 向量化 · 检索 · 重排 · 生成</li>
+        <li><strong>04.4 引用与可核验回答</strong>来源 · 摘要边界 · 证据覆盖 · 反查</li>
+        <li><strong>04.5 记忆不是 RAG 的别名</strong>短期上下文 · 长期偏好 · 组织知识</li>
+        <li><strong>04.6 常见失败模式</strong>召回漏掉 · 错文档命中 · 上下文污染 · 过度自信</li>
+      </ul>
+    </article>
+
+    <article class="aaf-blueprint">
+      <h3>05 会借工具的学徒：工具、MCP 与 Skill</h3>
+      <ul class="aaf-chapter-list">
+        <li><strong>05.1 Tool Calling 基础</strong>工具定义 · 参数 schema · tool result</li>
+        <li><strong>05.2 MCP 的位置</strong>客户端 · 服务器 · tools · resources · prompts</li>
+        <li><strong>05.3 Skill 是按需能力包</strong>SKILL.md · progressive disclosure · scripts</li>
+        <li><strong>05.4 工具契约质量</strong>何时使用 · 何时不用 · 错误语义 · 示例</li>
+        <li><strong>05.5 权限与沙箱</strong>只读/写入 · 密钥边界 · 审批 · 审计</li>
+        <li><strong>05.6 工具生态设计</strong>工具太多怎么办 · 召回 · 分组 · 版本治理</li>
+      </ul>
+    </article>
+
+    <article class="aaf-blueprint">
+      <h3>06 会自己绕圈的工坊：Agent Loop 与 Harness</h3>
+      <ul class="aaf-chapter-list">
+        <li><strong>06.1 Loop 与 ReAct</strong>观察 · 行动 · 结果回填 · 停止条件</li>
+        <li><strong>06.2 Harness 分层</strong>模型外壳 · 工具 · 上下文 · 会话 · 观测</li>
+        <li><strong>06.3 编排与 Workflow</strong>固定流程 · 动态计划 · 人类在环</li>
+        <li><strong>06.4 上下文搬运</strong>offloading · compaction · prompt caching</li>
+        <li><strong>06.5 记忆与文件系统</strong>Company Brain · AgentFS · 持久状态</li>
+        <li><strong>06.6 长程自治</strong>middleware · 子代理 · 运行时文档 · Install.md</li>
+      </ul>
+    </article>
+
+    <article class="aaf-blueprint">
+      <h3>07 会把灵感变蓝图的工匠：vibe coding 与 SDD</h3>
+      <ul class="aaf-chapter-list">
+        <li><strong>07.1 Vibe Coding 的价值</strong>探索 · 快速反馈 · 原型 · 边界</li>
+        <li><strong>07.2 SDD 的基本链路</strong>spec · plan · tasks · implementation · review</li>
+        <li><strong>07.3 需求怎么写给 Agent</strong>用户故事 · 验收标准 · 非目标 · 约束</li>
+        <li><strong>07.4 从 PRD 到测试</strong>行为样例 · 边界条件 · 回归集 · 可验证完成</li>
+        <li><strong>07.5 人机协作节奏</strong>探索模式 · 施工模式 · 审查模式 · 回滚</li>
+        <li><strong>07.6 何时别用 SDD</strong>过早规范化 · 伪精确 · 文档漂移 · 小任务成本</li>
+      </ul>
+    </article>
+
+    <article class="aaf-blueprint">
+      <h3>08 会验收的裁判：评测、观测与回归</h3>
+      <ul class="aaf-chapter-list">
+        <li><strong>08.1 为什么演示不算评测</strong>样例偏差 · cherry-pick · 回归风险</li>
+        <li><strong>08.2 LLM 评测基础</strong>准确性 · 相关性 · 格式 · 鲁棒性</li>
+        <li><strong>08.3 Agent 任务级 eval</strong>轨迹 · 工具调用 · 完成率 · 成本/延迟</li>
+        <li><strong>08.4 Trace 与回放</strong>span · tool call · handoff · replay · failure taxonomy</li>
+        <li><strong>08.5 人工评审与 LLM-as-judge</strong>rubric · 一致性 · 偏差 · 抽检</li>
+        <li><strong>08.6 线上监控</strong>质量漂移 · 安全事件 · 预算告警 · 用户反馈闭环</li>
+      </ul>
+    </article>
+
+    <article class="aaf-blueprint">
+      <h3>09 会守城的门卫：安全、隐私与治理</h3>
+      <ul class="aaf-chapter-list">
+        <li><strong>09.1 Prompt Injection</strong>直接注入 · 间接注入 · 工具输出投毒</li>
+        <li><strong>09.2 数据与隐私</strong>PII · 密钥 · 日志 · 数据最小化</li>
+        <li><strong>09.3 权限和工具安全</strong>最小权限 · 审批 · 沙箱 · 回滚</li>
+        <li><strong>09.4 版权与来源</strong>训练数据争议 · 输出相似性 · 引用 · 许可</li>
+        <li><strong>09.5 偏见、公平与透明</strong>代表性 · 解释 · 申诉 · 审计</li>
+        <li><strong>09.6 治理框架</strong>NIST AI RMF · OWASP LLM Top 10 · 内部政策落地</li>
+      </ul>
+    </article>
+
+    <article class="aaf-blueprint">
+      <h3>10 会看会听的旅人：多模态与计算机使用</h3>
+      <ul class="aaf-chapter-list">
+        <li><strong>10.1 视觉模型基础</strong>图像理解 · OCR · grounding · 空间关系</li>
+        <li><strong>10.2 音频与语音</strong>ASR · TTS · 音频事件 · 实时交互</li>
+        <li><strong>10.3 多模态 RAG</strong>图片/视频切片 · embedding · 引用 · 证据展示</li>
+        <li><strong>10.4 Computer Use</strong>屏幕观察 · 点击/输入 · 状态恢复 · 人类确认</li>
+        <li><strong>10.5 UI Agent 的失败模式</strong>坐标漂移 · 弹窗 · 隐藏状态 · 可访问性</li>
+        <li><strong>10.6 体验设计</strong>可见进度 · 接管权 · 纠错 · 信任边界</li>
+      </ul>
+    </article>
+
+    <article class="aaf-blueprint">
+      <h3>11 会分工的城邦：多 Agent 与 AI 工程</h3>
+      <ul class="aaf-chapter-list">
+        <li><strong>11.1 为什么要多 Agent</strong>分工 · 隔离 · 并行 · 专家角色</li>
+        <li><strong>11.2 编排模式</strong>leader-worker · debate · critic · map-reduce · handoff</li>
+        <li><strong>11.3 上下文隔离</strong>子任务边界 · 文件所有权 · 汇总协议 · 防污染</li>
+        <li><strong>11.4 对抗式验证</strong>reviewer · verifier · red team · consensus</li>
+        <li><strong>11.5 成本和延迟</strong>并行收益 · 交互开销 · token 预算 · 失败重跑</li>
+        <li><strong>11.6 团队工程协议</strong>任务切分 · 状态同步 · 冲突处理 · 交付证据</li>
+      </ul>
+    </article>
+
+    <article class="aaf-blueprint">
+      <h3>12 会开店的城镇：产品化、MLOps 与 AI 基础设施</h3>
+      <ul class="aaf-chapter-list">
+        <li><strong>12.1 从 demo 到产品</strong>用户场景 · 可靠性 · 成本 · SLA</li>
+        <li><strong>12.2 LLMOps / MLOps</strong>版本 · 数据 · prompt · 模型 · 回滚</li>
+        <li><strong>12.3 部署与运行时</strong>队列 · 工作流 · 沙箱 · 会话 · 存储</li>
+        <li><strong>12.4 观测和成本治理</strong>trace · 指标 · 预算 · 缓存 · 限流</li>
+        <li><strong>12.5 团队流程</strong>权限 · 审批 · 值班 · 事故复盘 · 知识库</li>
+        <li><strong>12.6 项目案例</strong>AI Town · Agent runtime · 长期记忆 · 前端状态同步</li>
+      </ul>
     </article>
   </section>
 
