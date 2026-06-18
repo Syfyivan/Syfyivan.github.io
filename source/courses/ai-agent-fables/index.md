@@ -365,7 +365,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
   <section class="aaf-section-head">
     <div>
       <h2>总学习地图</h2>
-      <p>之前的 6 部主线只能算第一版骨架，容易漏掉数据/机器学习、评测、安全治理、多模态和产品化等大块知识。这里改成 12 个知识板块：先按初学者顺序建立主线，再把每块写成可以独立阅读的寓言课。</p>
+      <p>之前的 6 部主线只能算第一版骨架，容易漏掉数据/机器学习、评测、安全治理、多模态和产品化等大块知识。这里改成 12 个知识板块：先按初学者顺序建立主线。当前多数板块只有概览文章，不能代表该板块已经完整；后续会像第 06 讲一样继续拆成章节和小节。</p>
     </div>
     <span class="aaf-count">12 个板块</span>
   </section>
@@ -384,7 +384,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已写</span>
+        <span class="aaf-badge is-ready">概览已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-01-ai-history/">阅读第一讲</a>
       </div>
     </article>
@@ -401,7 +401,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已写</span>
+        <span class="aaf-badge is-ready">概览已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-02-machine-learning/">阅读第二讲</a>
       </div>
     </article>
@@ -418,7 +418,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已写</span>
+        <span class="aaf-badge is-ready">概览已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-03-foundation-models/">阅读第三讲</a>
       </div>
     </article>
@@ -435,7 +435,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已写</span>
+        <span class="aaf-badge is-ready">概览已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-04-rag-context/">阅读第四讲</a>
       </div>
     </article>
@@ -452,7 +452,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已写</span>
+        <span class="aaf-badge is-ready">概览已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-05-tools-mcp-skill/">阅读第五讲</a>
       </div>
     </article>
@@ -469,7 +469,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已写</span>
+        <span class="aaf-badge is-ready">章节已展开</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-06-agent-loop/">阅读第六讲</a>
         <a class="aaf-link" href="/courses/agent-harness-fables/">章节目录</a>
       </div>
@@ -487,7 +487,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已写</span>
+        <span class="aaf-badge is-ready">概览已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-07-vibe-sdd/">阅读第七讲</a>
       </div>
     </article>
@@ -504,7 +504,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已写</span>
+        <span class="aaf-badge is-ready">概览已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-08-evals-observability/">阅读第八讲</a>
       </div>
     </article>
@@ -521,7 +521,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已写</span>
+        <span class="aaf-badge is-ready">概览已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-09-safety-governance/">阅读第九讲</a>
       </div>
     </article>
@@ -538,7 +538,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已写</span>
+        <span class="aaf-badge is-ready">概览已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-10-multimodal-computer-use/">阅读第十讲</a>
       </div>
     </article>
@@ -555,7 +555,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已写</span>
+        <span class="aaf-badge is-ready">概览已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-11-multi-agent-engineering/">阅读第十一讲</a>
       </div>
     </article>
@@ -572,7 +572,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已写</span>
+        <span class="aaf-badge is-ready">概览已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-12-product-mlops/">阅读第十二讲</a>
       </div>
     </article>
@@ -581,7 +581,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
   <section class="aaf-section-head">
     <div>
       <h2>已有模块入口</h2>
-      <p>12 讲主线已经可以顺序阅读。下面这些是更深入的专题入口，适合在读完对应主线章节后继续展开。</p>
+      <p>12 讲主线目前是概览层，可以顺序建立地图；真正的完整课程需要在每讲下面继续展开章节。下面这些是已经展开或已经有专题资料的入口，适合在读完对应主线章节后继续下钻。</p>
     </div>
   </section>
 
