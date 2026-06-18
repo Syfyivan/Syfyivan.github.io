@@ -1,0 +1,132 @@
+---
+layout: false
+---
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>写作台 - 一凡的博客</title>
+  <meta name="description" content="本地优先的博客文章编辑器：可视化编辑、Markdown 预览、导入文章、导出 Markdown 和 HTML。">
+  <link rel="stylesheet" href="/editor/styles.css">
+</head>
+<body>
+  <header class="editor-topbar">
+    <a class="brand-link" href="/" aria-label="回到博客首页">
+      <span class="brand-mark">文</span>
+      <span>
+        <strong>一凡写作台</strong>
+        <small>local-first article editor</small>
+      </span>
+    </a>
+    <nav class="top-actions" aria-label="编辑器操作">
+      <a href="/courses/agent-harness-fables/">Harness 寓言课</a>
+      <a href="/courses/">课程</a>
+      <a href="/projects/">项目工坊</a>
+    </nav>
+  </header>
+
+  <main class="editor-page">
+    <section class="editor-hero" aria-labelledby="editor-title">
+      <div>
+        <p class="eyebrow">Writing Bench</p>
+        <h1 id="editor-title">把文章放在工作台上编辑</h1>
+        <p>这是静态博客里的本地编辑器。它能读取同站文章、可视化改正文、同步 Markdown、保存浏览器草稿，并导出可以放回 Hexo 的 Markdown 文件。</p>
+      </div>
+      <aside class="publish-note" aria-label="保存说明">
+        <strong>保存边界</strong>
+        <p>GitHub Pages 不能直接写回仓库。这里的“保存”是浏览器本地草稿；发布仍需要把导出的 Markdown 放进仓库后构建部署。</p>
+      </aside>
+    </section>
+
+    <section class="import-strip" aria-label="导入文章">
+      <label for="article-url">读取同站文章</label>
+      <input id="article-url" type="url" placeholder="例如 /2026/06/18/agent-harness-fables-01-loop/">
+      <button id="import-article" type="button">读取</button>
+      <button id="load-sample" type="button">示例</button>
+      <p id="status-line" role="status" aria-live="polite">准备就绪</p>
+    </section>
+
+    <section class="meta-grid" aria-label="文章元数据">
+      <label>
+        <span>标题</span>
+        <input id="post-title" type="text" value="新文章草稿">
+      </label>
+      <label>
+        <span>文件名</span>
+        <input id="post-slug" type="text" value="new-post-draft">
+      </label>
+      <label>
+        <span>分类</span>
+        <input id="post-category" type="text" value="写作">
+      </label>
+      <label>
+        <span>标签</span>
+        <input id="post-tags" type="text" value="博客, 编辑器">
+      </label>
+    </section>
+
+    <section class="bench-layout" aria-label="文章编辑区">
+      <article class="editor-panel">
+        <div class="panel-head">
+          <div>
+            <p class="panel-kicker">Source</p>
+            <h2>正文</h2>
+          </div>
+          <div class="mode-tabs" role="tablist" aria-label="编辑模式">
+            <button class="is-active" id="visual-tab" type="button" role="tab" aria-selected="true">可视化</button>
+            <button id="markdown-tab" type="button" role="tab" aria-selected="false">Markdown</button>
+          </div>
+        </div>
+
+        <div class="format-toolbar" aria-label="格式工具">
+          <button data-command="h2" type="button" title="二级标题">H2</button>
+          <button data-command="h3" type="button" title="三级标题">H3</button>
+          <button data-command="bold" type="button" title="加粗"><strong>B</strong></button>
+          <button data-command="italic" type="button" title="斜体"><em>I</em></button>
+          <button data-command="quote" type="button" title="引用">“”</button>
+          <button data-command="ul" type="button" title="无序列表">•</button>
+          <button data-command="ol" type="button" title="有序列表">1.</button>
+          <button data-command="code" type="button" title="行内代码">&lt;/&gt;</button>
+          <button data-command="link" type="button" title="链接">↗</button>
+        </div>
+
+        <div class="surface-wrap">
+          <div id="visual-editor" class="visual-editor" contenteditable="true" spellcheck="true" aria-label="可视化正文编辑器"></div>
+          <textarea id="markdown-editor" class="markdown-editor" aria-label="Markdown 正文编辑器"></textarea>
+        </div>
+      </article>
+
+      <aside class="preview-panel">
+        <div class="panel-head">
+          <div>
+            <p class="panel-kicker">Preview</p>
+            <h2>预览与导出</h2>
+          </div>
+          <div class="draft-tools">
+            <select id="draft-list" aria-label="本地草稿列表"></select>
+            <button id="load-draft" type="button">读取草稿</button>
+          </div>
+        </div>
+
+        <div class="metrics" aria-label="文章统计">
+          <span><strong id="word-count">0</strong> 字</span>
+          <span><strong id="heading-count">0</strong> 个标题</span>
+          <span><strong id="reading-time">1</strong> 分钟</span>
+        </div>
+
+        <article id="preview" class="preview-surface" aria-label="文章预览"></article>
+
+        <div class="export-bar" aria-label="导出操作">
+          <button id="save-draft" type="button">保存草稿</button>
+          <button id="copy-markdown" type="button">复制 Markdown</button>
+          <button id="download-md" type="button">导出 .md</button>
+          <button id="download-html" type="button">导出 .html</button>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="/editor/app.js"></script>
+</body>
+</html>
