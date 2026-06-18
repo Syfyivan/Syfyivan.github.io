@@ -192,11 +192,11 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>4</strong>
+        <strong>5</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
-        <strong>36</strong>
+        <strong>48</strong>
         <span>课程学习模块</span>
       </div>
       <div class="course-stat">
@@ -241,6 +241,15 @@ description: "把零散技术文章整理成可连续学习的课程路径。"
       <div class="course-card-footer">
         <span>适合：想搞懂“同时开很多 agent”怎么做、值不值的人</span>
         <a class="course-link" href="/courses/multi-agent-orchestration/">进入课程</a>
+      </div>
+    </article>
+    <article class="course-card">
+      <span class="course-badge">12 讲全</span>
+      <h3>Agent Harness 寓言课</h3>
+      <p>从 Harness 101 系列文章出发，用 12 个小故事讲清 Agent Loop、工具契约、上下文搬运、记忆、编排、虚拟文件系统和面向 Agent 的文档。</p>
+      <div class="course-card-footer">
+        <span>适合：想先听懂概念，再看懂 Agent 工程的人</span>
+        <a class="course-link" href="/courses/agent-harness-fables/">进入课程</a>
       </div>
     </article>
     <article class="course-card">
