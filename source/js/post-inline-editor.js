@@ -2,7 +2,7 @@
   "use strict";
 
   var article = document.querySelector(".markdown-body");
-  if (!article || document.querySelector(".yf-post-editbar")) {
+  if (!article || document.querySelector(".yf-post-editbar") || !isAuthorMode()) {
     return;
   }
 
@@ -21,6 +21,11 @@
 
   var editor = null;
   var syncLock = false;
+
+  function isAuthorMode() {
+    var host = window.location.hostname;
+    return host === "localhost" || host === "127.0.0.1" || host === "::1";
+  }
 
   function cleanTitle(value) {
     return String(value || "文章草稿").replace(/\s+-\s+一凡的博客\s*$/, "").trim();
@@ -297,13 +302,14 @@
   function buildBar() {
     var postContent = article.closest(".post-content") || article.parentElement;
     var bar = document.createElement("div");
+    var currentPath = window.location.pathname + window.location.search + window.location.hash;
+    var editHref = "/editor/?from=" + encodeURIComponent(currentPath);
     bar.className = "yf-post-editbar";
     bar.innerHTML = [
-      '<button class="yf-edit-action" type="button">编辑本文</button>',
+      '<a class="yf-edit-action" href="' + escapeAttribute(editHref) + '">编辑本文</a>',
       '<a class="yf-new-action" href="/editor/">写新文章</a>'
     ].join("");
     postContent.parentElement.insertBefore(bar, postContent);
-    bar.querySelector(".yf-edit-action").addEventListener("click", openEditor);
   }
 
   function buildEditor() {
@@ -525,7 +531,7 @@
       markdown: editor.markdown.value,
       savedAt: new Date().toISOString()
     }));
-    setStatus("已保存到当前浏览器");
+    setStatus("已保存到当前浏览器本地草稿");
   }
 
   function applyToPage() {

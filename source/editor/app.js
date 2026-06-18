@@ -47,6 +47,50 @@
     "如果要继续完善课程，可以把每一讲都拆成 `故事 -> 道理 -> 工程做法 -> 练习` 四段。"
   ].join("\n");
 
+  var returnTo = parseReturnTarget();
+
+  if (!isAuthorMode()) {
+    renderLockedEditor();
+    return;
+  }
+
+  function isAuthorMode() {
+    var host = window.location.hostname;
+    return host === "localhost" || host === "127.0.0.1" || host === "::1";
+  }
+
+  function parseReturnTarget() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var raw = params.get("from") || params.get("returnTo") || "";
+      if (!raw) {
+        return "";
+      }
+      var target = new URL(raw, window.location.origin);
+      if (target.origin !== window.location.origin) {
+        return "";
+      }
+      return target.pathname + target.search + target.hash;
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function renderLockedEditor() {
+    var page = document.querySelector(".editor-page");
+    if (!page) {
+      return;
+    }
+    page.innerHTML = [
+      '<section class="editor-locked" aria-labelledby="locked-title">',
+      '  <p class="eyebrow">Local draft mode</p>',
+      '  <h1 id="locked-title">公开站点不开放编辑器</h1>',
+      '  <p>这是静态博客。为了避免把前端开关误当成作者权限，线上页面不会开放编辑和草稿保存；请在本地运行博客后编辑，真正发布仍然需要仓库写权限和部署流程。</p>',
+      '  <a href="/">返回博客首页</a>',
+      "</section>"
+    ].join("");
+  }
+
   function nowText() {
     var date = new Date();
     var pad = function (value) {
@@ -69,6 +113,42 @@
 
   function setStatus(message) {
     els.status.textContent = message;
+  }
+
+  function showSaveNotice(message) {
+    var notice = document.querySelector(".save-return-notice");
+    var count = 3;
+    if (!notice) {
+      notice = document.createElement("div");
+      notice.className = "save-return-notice";
+      notice.setAttribute("role", "status");
+      notice.setAttribute("aria-live", "polite");
+      document.body.appendChild(notice);
+    }
+
+    function paint() {
+      notice.innerHTML = [
+        "<strong>保存成功</strong>",
+        "<p>",
+        escapeHtml(message),
+        "</p>",
+        returnTo ? "<span>" + count + " 秒后返回原文章</span>" : ""
+      ].join("");
+    }
+
+    paint();
+    if (!returnTo) {
+      return;
+    }
+    var timer = window.setInterval(function () {
+      count -= 1;
+      if (count <= 0) {
+        window.clearInterval(timer);
+        window.location.href = returnTo;
+        return;
+      }
+      paint();
+    }, 1000);
   }
 
   function debounce(fn, delay) {
@@ -514,6 +594,7 @@
     localStorage.setItem(AUTO_KEY, draftPayload());
     listDrafts();
     setStatus("已保存到浏览器本地草稿");
+    showSaveNotice("草稿已保存到当前浏览器；静态站不会直接写回线上仓库。");
   }
 
   var autosave = debounce(function () {
@@ -662,6 +743,11 @@
   function init() {
     bindEvents();
     listDrafts();
+    if (returnTo) {
+      els.articleUrl.value = returnTo;
+      importArticle();
+      return;
+    }
     var autosaved = localStorage.getItem(AUTO_KEY);
     if (autosaved) {
       try {

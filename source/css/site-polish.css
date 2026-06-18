@@ -603,8 +603,31 @@ body:has(.markdown-body) #board {
     padding-left: 0 !important;
   }
 
+  body:has(.post-content .markdown-body) main > .container-fluid.nopadding-x > .row.nomargin-x > .side-col:has(#toc) {
+    position: sticky;
+    top: 86px;
+    align-self: start;
+    max-height: calc(100vh - 104px);
+    overflow: visible;
+  }
+
+  body:has(.post-content .markdown-body) .side-col:has(#toc) .sidebar {
+    top: auto;
+    padding-top: 0;
+  }
+
   body:has(.post-content .markdown-body) #toc {
+    display: flex;
+    flex-direction: column;
     width: 100%;
+    max-height: calc(100vh - 104px);
+  }
+
+  body:has(.post-content .markdown-body) #toc .toc-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
   }
 }
 

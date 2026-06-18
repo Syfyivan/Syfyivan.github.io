@@ -238,13 +238,14 @@ custom_js:
   - /js/token-usage.js?v=20260606-1.js
   - /js/post-heading-hash.js?v=20260617-2.js
   - /js/post-affiliation.js?v=20260618-2.js
-  - /js/post-inline-editor.js?v=20260618-1.js
+  - /js/post-toc.js?v=20260618-2.js
+  - /js/post-inline-editor.js?v=20260618-2.js
 
 # 指定自定义 .css 文件路径，用法和 custom_js 相同
 # The usage is the same as custom_js
 custom_css:
   - /css/token-usage.css?v=20260606-1.css
-  - /css/site-polish.css?v=20260617-2.css
+  - /css/site-polish.css?v=20260618-2.css
   - /css/post-affiliation.css?v=20260618-1.css
   - /css/post-inline-editor.css?v=20260618-1.css
 
