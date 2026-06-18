@@ -380,7 +380,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <div class="course-category-head">
       <div>
         <h2>AI 与 Agent</h2>
-        <p>先从 AI 导论和发展史讲起，再进入 LLM、MCP、Skill、Agent Loop、Harness、vibe coding、SDD、多 Agent 编排和 AI Town 工程底座。</p>
+        <p>先从 AI 导论、数据与机器学习讲起，再进入 LLM、RAG、MCP、Skill、Agent Loop、vibe coding、SDD、评测、安全治理、多模态、多 Agent 和产品化工程。</p>
       </div>
       <span class="course-category-count">4 项</span>
     </div>
@@ -388,7 +388,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
       <article class="course-card">
         <span class="course-badge is-ai">总目录</span>
         <h3>AI 与 Agent 大寓言课</h3>
-        <p>从“人工智能是什么”开始，用一整套寓言把 AI 发展史、机器学习、深度学习、大模型、MCP、Skill、工具调用、Agent Loop、Harness、vibe coding、SDD 和多 Agent 工程串起来。</p>
+        <p>从“人工智能是什么”开始，用一整套寓言把 AI 发展史、机器学习、深度学习、大模型、RAG、MCP、Skill、Agent Loop、评测、安全治理、vibe coding、SDD 和多 Agent 工程串起来。</p>
         <div class="course-card-footer">
           <span>适合：想从 AI 基础一路学到 Agent 工程的人</span>
           <a class="course-link" href="/courses/ai-agent-fables/">进入总目录</a>
