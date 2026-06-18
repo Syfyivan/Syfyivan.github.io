@@ -42,7 +42,7 @@ JS 模板：本地 200
 不是“模板是不是 200”，而是“页面实际用到的每一个资源是不是走了预期通道”。
 ```
 
-## 2. 拉真机页面：App.openPage 不一定可用
+## 2. 拉真机页面：先确认要打哪个 session
 
 Lynx DevTool 里有两类能力容易混在一起：
 
@@ -51,31 +51,38 @@ App.openPage  / open：让宿主打开一个新页面；
 Page.reload：让已有 Lynx session 重新加载一个 template URL。
 ```
 
-如果宿主支持 `App.openPage`，这当然最省事。但这次遇到的开发版宿主直接返回 `not implemented`。这时继续反复调 `open` 没意义，要换思路。
+如果宿主支持 `App.openPage`，这当然最省事。但这次遇到的开发版宿主直接返回 `not implemented`。这时继续反复调 `open` 没意义。
 
-最终可用的路径是：
+另一个容易误判的路径，是在业务页面 session 或隔离上下文里 `Runtime.evaluate`，然后去找 `multiApps["0"].NativeModules.bridge`。这类上下文通常够不到 service 里的 bridge，结果就是调不到 `readingOpen`，页面自然拉不起来。
+
+这次真正可用的路径只有一条：
 
 ```text
-1. 找到常驻的 Lynx service session。
-2. 在这个 session 里用 Runtime.evaluate 拿 NativeModules.bridge。
-3. 调 readingOpen，把 dragon/lynxview scheme 交给宿主。
-4. 等新的业务页面 session 出现。
+1. list-sessions，确认 session 1 是 lynx-service 常驻页；
+2. 对 session 1 发 CDP Runtime.evaluate；
+3. 在 service context 里调 readingOpen；
+4. readingOpen 参数包成 { data: { url } }；
+5. 等新业务页面 session 出现，再对新 session 做 Page.reload。
 ```
 
-这里有两个细节很容易踩坑。
+命令形态可以固定成这样：
 
-第一，`multiApps["0"]` 不是铁律。真实运行时的 key 可能变成别的数字，不能写死。更稳的写法是先取 `Object.keys(multiApps)`，再从当前可用 app 上拿 `NativeModules.bridge`。
+```bash
+SCHEME='dragon1967://lynxview?...&url=sslocal%3A%2F%2Flynxview%3F__dev%3D1%26enable_canvas%3D1%26surl%3Dhttp%253A%252F%252F<dev-host>%253A4459%252Fgame-invasion-card%252Ftemplate.js%253Fmock%253D1'
 
-第二，裸调 bridge 时参数形态要和当前宿主协议匹配。有些 JSB 直接吃 `{ url }`，有些返回的是协议错误，需要包成：
+EXPR="multiApps[\"0\"].NativeModules.bridge.call(\"readingOpen\",{data:{url:\"$SCHEME\"}},function(r){})"
 
-```js
-{
-  protocolVersion: "1.1.0",
-  data: { url }
-}
+node /path/to/lynx-devtool/scripts/index.mjs cdp -s 1 -m Runtime.evaluate \
+  "{\"expression\":$(python3 -c 'import json,sys;print(json.dumps(sys.argv[1]))' "$EXPR")}"
 ```
 
-如果回调里出现类似 `missing url`，不要只盯着 URL 字符串本身，先确认参数是不是被宿主协议层拆对了。
+几个判断边界要分清：
+
+```text
+App.openPage 返回 not implemented：宿主能力不支持，换 service readingOpen。
+业务页面 session 里 bridge undefined：context 打错了，去 session 1。
+九宫格图片空白只剩文字：资源 404 / 资源模式问题，和拉页方式不是一类问题。
+```
 
 ## 3. Page.reload 成功，不等于 list-sessions 里的 URL 会变
 
