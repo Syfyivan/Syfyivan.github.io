@@ -237,12 +237,14 @@ custom_js:
   - /js/home-showcase.js?v=20260614-2.js
   - /js/token-usage.js?v=20260606-1.js
   - /js/post-heading-hash.js?v=20260617-2.js
+  - /js/post-inline-editor.js?v=20260618-1.js
 
 # 指定自定义 .css 文件路径，用法和 custom_js 相同
 # The usage is the same as custom_js
 custom_css:
   - /css/token-usage.css?v=20260606-1.css
   - /css/site-polish.css?v=20260617-2.css
+  - /css/post-inline-editor.css?v=20260618-1.css
 
 # 网页访问统计
 # Analysis of website visitors
@@ -392,7 +394,7 @@ navbar:
     - { key: "tag", link: "/tags/", icon: "iconfont icon-tags-fill" }
     - { key: "projects", name: "项目工坊", link: "/projects/", icon: "iconfont icon-code" }
     - { key: "courses", name: "课程", link: "/courses/", icon: "iconfont icon-articles" }
-    - { key: "editor", name: "写作台", link: "/editor/", icon: "iconfont icon-edit" }
+    - { key: "editor", name: "写文章", link: "/editor/", icon: "iconfont icon-edit" }
     - key: "works"
       name: "作品"
       icon: "iconfont icon-image"

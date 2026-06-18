@@ -1,0 +1,389 @@
+.yf-post-editbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  width: min(820px, calc(100vw - 32px));
+  margin: -18px auto 18px;
+}
+
+.yf-post-editbar button,
+.yf-post-editbar a,
+.yf-inline-editor button,
+.yf-inline-editor input,
+.yf-inline-editor textarea {
+  font: inherit;
+  letter-spacing: 0;
+}
+
+.yf-edit-action,
+.yf-new-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid rgba(29, 33, 39, 0.14);
+  border-radius: 3px;
+  color: #1d2127;
+  background: #fdfdfc;
+  font-weight: 720;
+  text-decoration: none !important;
+  box-shadow: 0 6px 18px rgba(29, 33, 39, 0.07);
+  cursor: pointer;
+}
+
+.yf-edit-action:hover,
+.yf-edit-action:focus,
+.yf-new-action:hover,
+.yf-new-action:focus {
+  border-color: #3f5d7e;
+  color: #fff !important;
+  background: #3f5d7e;
+}
+
+.yf-inline-editor[hidden] {
+  display: none !important;
+}
+
+.yf-inline-editor {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.62fr);
+  gap: 0;
+  color: #2a2f36;
+  background: rgba(11, 16, 22, 0.48);
+  backdrop-filter: blur(8px);
+}
+
+.yf-inline-editor-shell {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto;
+  min-width: 0;
+  min-height: 100vh;
+  background: #fdfdfc;
+}
+
+.yf-inline-editor-side {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-width: 0;
+  min-height: 100vh;
+  border-left: 1px solid rgba(29, 33, 39, 0.12);
+  background: #f4f5f3;
+}
+
+.yf-inline-editor-head,
+.yf-inline-editor-meta,
+.yf-inline-editor-toolbar,
+.yf-inline-editor-foot,
+.yf-inline-preview-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(29, 33, 39, 0.12);
+}
+
+.yf-inline-editor-head {
+  justify-content: space-between;
+  background:
+    linear-gradient(135deg, rgba(183, 58, 44, 0.08), rgba(63, 93, 126, 0.08)),
+    #fdfdfc;
+}
+
+.yf-inline-editor-title {
+  min-width: min(440px, 100%);
+}
+
+.yf-inline-editor-title p {
+  margin: 0 0 4px;
+  color: #b73a2c;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.yf-inline-editor-title h2 {
+  margin: 0;
+  color: #1d2127;
+  font-size: 22px;
+  line-height: 1.25;
+}
+
+.yf-inline-editor-head button,
+.yf-inline-editor-toolbar button,
+.yf-inline-editor-foot button {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(29, 33, 39, 0.14);
+  border-radius: 3px;
+  color: #1d2127;
+  background: #fff;
+  font-weight: 720;
+  cursor: pointer;
+}
+
+.yf-inline-editor-head button:hover,
+.yf-inline-editor-toolbar button:hover,
+.yf-inline-editor-foot button:hover,
+.yf-inline-editor-head button:focus,
+.yf-inline-editor-toolbar button:focus,
+.yf-inline-editor-foot button:focus {
+  border-color: #3f5d7e;
+  color: #fff;
+  background: #3f5d7e;
+}
+
+.yf-inline-editor-head .yf-close-editor {
+  color: #fff;
+  background: #1d2127;
+}
+
+.yf-inline-editor-meta {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(140px, 0.55fr) minmax(160px, 0.75fr) minmax(160px, 0.75fr);
+  background: #fff;
+}
+
+.yf-inline-editor-meta label {
+  display: grid;
+  gap: 5px;
+  color: #69727d;
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.yf-inline-editor-meta input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid rgba(29, 33, 39, 0.14);
+  border-radius: 3px;
+  color: #1d2127;
+  background: #fff;
+}
+
+.yf-inline-editor-toolbar {
+  background: rgba(244, 245, 243, 0.8);
+}
+
+.yf-inline-editor-toolbar .is-active {
+  color: #fff;
+  background: #1d2127;
+}
+
+.yf-inline-surface {
+  position: relative;
+  min-height: 0;
+}
+
+.yf-inline-visual,
+.yf-inline-markdown {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 28px;
+  border: 0;
+  overflow: auto;
+}
+
+.yf-inline-visual {
+  color: #2a2f36;
+  background: #fff;
+  font-size: 17px;
+  line-height: 1.85;
+}
+
+.yf-inline-markdown {
+  display: none;
+  color: #f6f8fb;
+  background: #20242b;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 15px;
+  line-height: 1.75;
+  resize: none;
+}
+
+.yf-inline-surface.is-markdown .yf-inline-visual {
+  display: none;
+}
+
+.yf-inline-surface.is-markdown .yf-inline-markdown {
+  display: block;
+}
+
+.yf-inline-visual h1,
+.yf-inline-visual h2,
+.yf-inline-visual h3,
+.yf-inline-preview h1,
+.yf-inline-preview h2,
+.yf-inline-preview h3 {
+  color: #1d2127;
+  line-height: 1.35;
+}
+
+.yf-inline-visual h2,
+.yf-inline-preview h2 {
+  margin: 1.35em 0 0.55em;
+  padding-top: 0.4em;
+  border-top: 1px solid rgba(29, 33, 39, 0.12);
+}
+
+.yf-inline-visual blockquote,
+.yf-inline-preview blockquote {
+  margin: 1em 0;
+  padding: 8px 16px;
+  border-left: 4px solid #3f5d7e;
+  background: rgba(63, 93, 126, 0.08);
+}
+
+.yf-inline-visual code,
+.yf-inline-preview code {
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #b73a2c;
+  background: rgba(183, 58, 44, 0.08);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.9em;
+}
+
+.yf-inline-preview-head {
+  justify-content: space-between;
+  background: #fff;
+}
+
+.yf-inline-preview-head p {
+  margin: 0;
+  color: #b73a2c;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.yf-inline-preview-head strong {
+  color: #1d2127;
+  font-size: 18px;
+}
+
+.yf-inline-preview {
+  padding: 24px;
+  background: #fdfdfc;
+  overflow: auto;
+}
+
+.yf-inline-preview h1 {
+  margin-top: 0;
+  font-size: 32px;
+}
+
+.yf-inline-editor-foot {
+  border-top: 1px solid rgba(29, 33, 39, 0.12);
+  border-bottom: 0;
+  background: #fff;
+}
+
+.yf-inline-editor-foot .yf-primary {
+  color: #fff;
+  border-color: #2f765f;
+  background: #2f765f;
+}
+
+.yf-inline-status {
+  margin-left: auto;
+  color: #69727d;
+  font-size: 13px;
+}
+
+body.yf-inline-editor-open {
+  overflow: hidden;
+}
+
+html[data-user-color-scheme="dark"] .yf-edit-action,
+html[data-user-color-scheme="dark"] .yf-new-action {
+  color: #f6f8fb;
+  border-color: rgba(255, 255, 255, 0.14);
+  background: #252d38;
+}
+
+html[data-user-color-scheme="dark"] .yf-inline-editor-shell,
+html[data-user-color-scheme="dark"] .yf-inline-editor-head,
+html[data-user-color-scheme="dark"] .yf-inline-editor-meta,
+html[data-user-color-scheme="dark"] .yf-inline-editor-foot,
+html[data-user-color-scheme="dark"] .yf-inline-preview-head,
+html[data-user-color-scheme="dark"] .yf-inline-editor-head button,
+html[data-user-color-scheme="dark"] .yf-inline-editor-toolbar button,
+html[data-user-color-scheme="dark"] .yf-inline-editor-foot button,
+html[data-user-color-scheme="dark"] .yf-inline-editor-meta input {
+  color: #f6f8fb;
+  background: #252d38;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+html[data-user-color-scheme="dark"] .yf-inline-editor-side,
+html[data-user-color-scheme="dark"] .yf-inline-preview,
+html[data-user-color-scheme="dark"] .yf-inline-visual {
+  color: #c4c6c9;
+  background: #181c27;
+}
+
+html[data-user-color-scheme="dark"] .yf-inline-editor-title h2,
+html[data-user-color-scheme="dark"] .yf-inline-preview-head strong,
+html[data-user-color-scheme="dark"] .yf-inline-visual h1,
+html[data-user-color-scheme="dark"] .yf-inline-visual h2,
+html[data-user-color-scheme="dark"] .yf-inline-visual h3,
+html[data-user-color-scheme="dark"] .yf-inline-preview h1,
+html[data-user-color-scheme="dark"] .yf-inline-preview h2,
+html[data-user-color-scheme="dark"] .yf-inline-preview h3 {
+  color: #f6f8fb;
+}
+
+@media (max-width: 980px) {
+  .yf-inline-editor {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+
+  .yf-inline-editor-shell,
+  .yf-inline-editor-side {
+    min-height: auto;
+  }
+
+  .yf-inline-editor-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .yf-inline-visual,
+  .yf-inline-markdown {
+    min-height: 55vh;
+  }
+
+  .yf-inline-preview {
+    max-height: 50vh;
+  }
+}
+
+@media (max-width: 620px) {
+  .yf-post-editbar {
+    justify-content: flex-start;
+    margin-top: 0;
+  }
+
+  .yf-inline-editor-head,
+  .yf-inline-editor-toolbar,
+  .yf-inline-editor-foot,
+  .yf-inline-preview-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .yf-inline-status {
+    margin-left: 0;
+  }
+}
