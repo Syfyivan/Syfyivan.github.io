@@ -365,7 +365,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
   <section class="aaf-section-head">
     <div>
       <h2>总学习地图</h2>
-      <p>之前的 6 部主线只能算第一版骨架，容易漏掉数据/机器学习、评测、安全治理、多模态和产品化等大块知识。这里改成 12 个知识板块：先完整列图，再逐步把每块写成寓言课。</p>
+      <p>之前的 6 部主线只能算第一版骨架，容易漏掉数据/机器学习、评测、安全治理、多模态和产品化等大块知识。这里改成 12 个知识板块：先按初学者顺序建立主线，再把每块写成可以独立阅读的寓言课。</p>
     </div>
     <span class="aaf-count">12 个板块</span>
   </section>
@@ -384,7 +384,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-next">优先补课</span>
+        <span class="aaf-badge is-ready">已写</span>
+        <a class="aaf-link" href="/2026/06/18/ai-agent-fables-01-ai-history/">阅读第一讲</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -400,7 +401,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-next">优先补课</span>
+        <span class="aaf-badge is-ready">已写</span>
+        <a class="aaf-link" href="/2026/06/18/ai-agent-fables-02-machine-learning/">阅读第二讲</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -416,7 +418,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-next">优先补课</span>
+        <span class="aaf-badge is-ready">已写</span>
+        <a class="aaf-link" href="/2026/06/18/ai-agent-fables-03-foundation-models/">阅读第三讲</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -432,7 +435,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-next">优先补课</span>
+        <span class="aaf-badge is-ready">已写</span>
+        <a class="aaf-link" href="/2026/06/18/ai-agent-fables-04-rag-context/">阅读第四讲</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -448,14 +452,15 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-next">优先补课</span>
+        <span class="aaf-badge is-ready">已写</span>
+        <a class="aaf-link" href="/2026/06/18/ai-agent-fables-05-tools-mcp-skill/">阅读第五讲</a>
       </div>
     </article>
     <article class="aaf-module">
       <span class="aaf-number">06</span>
       <div>
         <h3>会自己绕圈的工坊：Agent Loop 与 Harness</h3>
-        <p>这里进入已经写好的寓言课：Agent Loop、ReAct、工具契约、上下文搬运、记忆、虚拟文件系统、运行时提醒和面向 Agent 的文档。</p>
+        <p>这里讲 Agent Loop、ReAct、工具契约、上下文搬运、运行时提醒和面向 Agent 的文档。先理解“循环怎么被管住”，再读更深入的 Harness 课程。</p>
         <ul>
           <li>Agent Loop</li>
           <li>ReAct</li>
@@ -464,8 +469,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">12 讲已建</span>
-        <a class="aaf-link" href="/courses/agent-harness-fables/">进入第六部</a>
+        <span class="aaf-badge is-ready">已写</span>
+        <a class="aaf-link" href="/2026/06/18/ai-agent-fables-06-agent-loop/">阅读第六讲</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -481,7 +486,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-next">优先补课</span>
+        <span class="aaf-badge is-ready">已写</span>
+        <a class="aaf-link" href="/2026/06/18/ai-agent-fables-07-vibe-sdd/">阅读第七讲</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -497,7 +503,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-next">优先补课</span>
+        <span class="aaf-badge is-ready">已写</span>
+        <a class="aaf-link" href="/2026/06/18/ai-agent-fables-08-evals-observability/">阅读第八讲</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -513,7 +520,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-next">优先补课</span>
+        <span class="aaf-badge is-ready">已写</span>
+        <a class="aaf-link" href="/2026/06/18/ai-agent-fables-09-safety-governance/">阅读第九讲</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -529,7 +537,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-next">优先补课</span>
+        <span class="aaf-badge is-ready">已写</span>
+        <a class="aaf-link" href="/2026/06/18/ai-agent-fables-10-multimodal-computer-use/">阅读第十讲</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -545,8 +554,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已有课程</span>
-        <a class="aaf-link" href="/courses/multi-agent-orchestration/">进入第十一部</a>
+        <span class="aaf-badge is-ready">已写</span>
+        <a class="aaf-link" href="/2026/06/18/ai-agent-fables-11-multi-agent-engineering/">阅读第十一讲</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -562,8 +571,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">已有课程</span>
-        <a class="aaf-link" href="/courses/ai-town/">进入第十二部</a>
+        <span class="aaf-badge is-ready">已写</span>
+        <a class="aaf-link" href="/2026/06/18/ai-agent-fables-12-product-mlops/">阅读第十二讲</a>
       </div>
     </article>
   </section>
@@ -571,7 +580,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
   <section class="aaf-section-head">
     <div>
       <h2>已有模块入口</h2>
-      <p>基础寓言会逐步补上；现在可以先从已建模块进入，读的时候把它们理解成后半段课程。</p>
+      <p>12 讲主线已经可以顺序阅读。下面这些是更深入的专题入口，适合在读完对应主线章节后继续展开。</p>
     </div>
   </section>
 
@@ -640,7 +649,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-source">
       <strong>MCP Specification</strong>
       <p>用来核验 MCP 的主机、客户端、服务器、工具和上下文协议边界。</p>
-      <a class="aaf-link" href="https://modelcontextprotocol.io/specification/2025-06-18" target="_blank" rel="noopener">查看资料</a>
+      <a class="aaf-link" href="https://modelcontextprotocol.io/specification/2025-11-25" target="_blank" rel="noopener">查看资料</a>
     </article>
     <article class="aaf-source">
       <strong>Anthropic Agent Skills</strong>
@@ -678,6 +687,11 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
       <a class="aaf-link" href="https://developers.openai.com/api/docs/guides/evaluation-best-practices" target="_blank" rel="noopener">查看资料</a>
     </article>
     <article class="aaf-source">
+      <strong>OpenAI Agent Evals</strong>
+      <p>用来核验 traces、graders、datasets 和 eval runs 如何组成 Agent 质量闭环。</p>
+      <a class="aaf-link" href="https://developers.openai.com/api/docs/guides/agent-evals" target="_blank" rel="noopener">查看资料</a>
+    </article>
+    <article class="aaf-source">
       <strong>NIST AI RMF</strong>
       <p>用来校准 AI 风险管理、可信度、治理、内容来源、测试和事故披露这些安全治理主题。</p>
       <a class="aaf-link" href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener">查看资料</a>
@@ -685,16 +699,26 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-source">
       <strong>OWASP Top 10 for LLM Applications</strong>
       <p>用来核验 prompt injection、输出处理、供应链、数据投毒、越权代理等 LLM 应用安全风险。</p>
-      <a class="aaf-link" href="https://owasp.org/www-project-top-10-for-large-language-model-applications/" target="_blank" rel="noopener">查看资料</a>
+      <a class="aaf-link" href="https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/" target="_blank" rel="noopener">查看资料</a>
+    </article>
+    <article class="aaf-source">
+      <strong>Computer Use</strong>
+      <p>用来核验模型通过截图和界面动作操作软件时，隔离环境、权限和人工确认的边界。</p>
+      <a class="aaf-link" href="https://developers.openai.com/api/docs/guides/tools-computer-use" target="_blank" rel="noopener">查看资料</a>
+    </article>
+    <article class="aaf-source">
+      <strong>Google Cloud MLOps</strong>
+      <p>用来核验从实验到生产时，CI、CD、持续训练、部署、监控和基础设施之间的关系。</p>
+      <a class="aaf-link" href="https://docs.cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning" target="_blank" rel="noopener">查看资料</a>
     </article>
     <article class="aaf-source">
       <strong>ReAct 与 Agent Loop</strong>
       <p>用来解释“思考、行动、观察”为什么会成为 Agent 教学里的核心循环。</p>
-      <a class="aaf-link" href="/courses/agent-harness-fables/">从 Harness 课读起</a>
+      <a class="aaf-link" href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener">查看资料</a>
     </article>
   </section>
 
   <section class="aaf-note">
-    <p>准确性说明：这个页面是课程地图，不是已完成课程清单。标成“已有课程”的模块已有入口；标成“优先补课”的模块说明它是知识链路里的必要板块，但还需要继续写成具体寓言课。以后新增文章会先对照这张覆盖表，避免因为某个热词流行就把路线图写偏。</p>
+    <p>准确性说明：这个页面是课程地图，也是当前 12 讲入门寓言课的总入口。后续继续完善时，会先对照这张覆盖表和公开资料锚点，再补充更深入的专题文章，避免因为某个热词流行就把路线图写偏。</p>
   </section>
 </div>

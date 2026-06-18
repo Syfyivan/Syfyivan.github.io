@@ -64,7 +64,7 @@
         ]
       };
     }
-    if (path.indexOf("/courses/") === 0 || includesAny(haystack, ["agent-harness-fables", "agent harness 寓言课", "multi-agent", "ai-town", "go-server", "network-proxy", "服务端学习", "计网与代理"])) {
+    if (path.indexOf("/courses/") === 0 || includesAny(haystack, ["ai-agent-fables", "ai 与 agent 大寓言课", "agent-harness-fables", "agent harness 寓言课", "multi-agent", "ai-town", "go-server", "network-proxy", "服务端学习", "计网与代理"])) {
       return courseInfo(haystack);
     }
     if (path.indexOf("/flipbook/") === 0 || path.indexOf("/mahjong/") === 0 || path.indexOf("/painters-guild/") === 0) {
@@ -117,6 +117,16 @@
   }
 
   function courseInfo(haystack) {
+    if (includesAny(haystack, ["ai-agent-fables", "ai 与 agent 大寓言课"])) {
+      return {
+        navHref: "/courses/",
+        path: [
+          { label: "课程", href: "/courses/" },
+          { label: "AI 与 Agent", href: "/courses/#ai" },
+          { label: "AI 与 Agent 大寓言课", href: "/courses/ai-agent-fables/" }
+        ]
+      };
+    }
     if (includesAny(haystack, ["agent-harness-fables", "agent harness 寓言课"])) {
       return {
         navHref: "/courses/",
