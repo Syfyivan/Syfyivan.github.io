@@ -1,87 +1,120 @@
 ---
-title: "Agent Harness 寓言课 10：工具棚里的十把工具"
-date: 2026-06-18 11:29:00
-description: "用工具棚解释 Coding Agent 常用工具的分类、裁剪、边界和安全用法。"
+title: "AI 与 Agent 大寓言课 06.09：工具棚里的常用器件一览"
+date: 2026-06-18 15:11:00
+description: "用工具棚解释 WebSearch、WebFetch、Glob、Grep、Read、Write、Edit、Bash 的分组、组合和安全边界。"
 tags: [AI Agent, Claude Code, Tools, MCP, 寓言课]
-categories: [技术笔记, Agent Harness 寓言课]
+categories: [技术笔记, AI 与 Agent 大寓言课, Agent Loop 与 Harness]
 ---
 
-木匠师傅有个工具棚。新学徒一进门，看见锯子、刨子、尺子、墨斗、锤子、钻子，吓得说：“我要把每把工具的型号都背下来吗？”
+木匠师傅有个满是家伙什的棚子。新学徒一进门，看见锯子、刨子、尺子、墨斗、锤子、钻子，立刻头大：难道每一把都要先背型号吗？
 
-师傅说：“不用。你先分清四类。”
+师傅说不用。先分清四类就够了：找东西的，看东西的，改东西的，跑东西的。
 
-```text
-找东西的
-看东西的
-改东西的
-跑东西的
+学徒按这四类去拿，慢慢发现顺手比花哨更重要。器件不在多，关键是别拿错，更别把柜门一次性全打开。
+
+## 概念揭晓
+
+这篇讲的是 Claude Code / Managed Agent 这类运行时里常见的工具分组：`WebSearch`、`WebFetch`、`Glob`、`Grep`、`Read`、`Write`、`Edit`、`Bash`。故事里的工具棚就是工具集，师傅写的规矩就是权限边界，学徒的拿取顺序就是组合模式。
+
+## 本章目录
+
+- 工具先分组：别先背名字，先记用途
+- WebSearch / WebFetch：先找再读
+- Glob / Grep / Read：先定位，再展开
+- Write / Edit / Bash：改动和执行怎么分
+- 组合模式与安全边界：常见流水线怎么搭
+- 与 Text Editor Tool 的区别：文件栈和编辑栈不是一回事
+- 原文对应：这篇覆盖了 Feishu 原文哪些大段落
+- 公开资料：用一手资料校准权限和行为
+
+## 工具先分组
+
+最实用的分法不是按产品名，而是按动作。
+
+| 类别 | 工具 | 作用 |
+| --- | --- | --- |
+| 找东西 | `WebSearch`、`Glob`、`Grep` | 发现候选页面、文件或文本位置 |
+| 看东西 | `WebFetch`、`Read` | 展开页面内容或文件内容 |
+| 改东西 | `Write`、`Edit` | 新建、覆写或精确修改 |
+| 跑东西 | `Bash` | 执行命令、测试、构建和脚本 |
+
+原文的核心判断很简单：低风险动作尽量轻，重动作要能审计，执行动作要落在受控环境里。
+
+## WebSearch / WebFetch
+
+`WebSearch` 的作用是找候选，不是直接下结论。它更适合当前信息、最新文档、价格变化、接口改动这一类会漂移的事实。
+
+`WebFetch` 的作用是把已经找到的页面展开读完。实际使用里，通常是先搜到 URL，再抓全文。这样能避免盲抓，也能把“找”和“读”分开。
+
+一个稳妥的节奏是：
+
+1. 先 `WebSearch`。
+2. 再挑一个或几个候选 URL。
+3. 只对真正需要的页面做 `WebFetch`。
+
+## Glob / Grep / Read
+
+这三个更像代码库里的侦察兵。
+
+- `Glob` 负责按路径模式找文件。
+- `Grep` 负责按正则找内容。
+- `Read` 负责按具体路径和范围看文件。
+
+它们的顺序通常也是从粗到细：先 `Glob` 定位文件，再 `Grep` 找关键字，最后 `Read` 看上下文。这样比一上来就把整个仓库拖进来轻得多。
+
+## Write / Edit / Bash
+
+这三个动作决定了系统最终会不会真的改变世界。
+
+- `Write` 用于创建新文件或完整覆写。
+- `Edit` 用于精准替换已有内容。
+- `Bash` 用于跑命令、验证、构建和调用脚本。
+
+最重要的一条经验是：已有文件先读再改，命令和目录切换要在同一次 shell 里完成。
+
+```bash
+cd /project && npm run build
 ```
 
-背型号不重要，知道什么时候拿哪一类才重要。
+如果把 `cd` 和后续命令拆成两次，第二次就不一定还在同一个工作目录里。
 
-## 故事里的机制
+## 组合模式与安全边界
 
-Coding Agent 的常用工具也可以这么分。
+工具少并不代表能力弱，真正的效率来自组合。
 
-找东西：
+- `WebSearch -> WebFetch`：找当前资料，再深读页面。
+- `Glob -> Grep -> Read`：先缩小范围，再看具体内容。
+- `Read -> Edit -> Bash`：先确认现状，再改，再验。
+- `WebFetch -> Write`：把外部资料整理成新稿。
 
-- `glob`：按路径模式找文件。
-- `grep`：按内容找文本。
-- `web_search`：找公开网页或资料入口。
+安全边界也跟着组合模式一起走：
 
-看东西：
+- `Read`、`Glob`、`Grep` 通常属于低风险动作。
+- `Write`、`Edit`、`Bash` 属于会改变状态的动作，要能被权限系统和审计接住。
+- 涉及外部网络或真实副作用的动作，不应该像普通文本补全那样随手放行。
 
-- `read_file`：读文件片段。
-- `web_fetch`：抓网页内容。
-- `view_image`：看图。
+## 与 Text Editor Tool 的区别
 
-改东西：
+原文还专门区分了文件工具栈和 Messages API 里的 Text Editor Tool。
 
-- `apply_patch`：改文件。
-- 写文档、生成报告、输出 artifact。
+它们看起来都和“编辑”有关，但关注点不同：
 
-跑东西：
+- Text Editor Tool 更像对单个编辑动作的窄接口。
+- `Read` / `Write` / `Edit` / `Bash` 这一套更像完整文件工作流的一部分。
 
-- `bash` 或 shell：执行命令。
-- 测试、构建、启动服务。
+如果任务本身就是“读一批文件、改一处、跑一遍验证”，文件栈更自然；如果任务只是局部文本编辑，窄编辑器会更轻。
 
-还有两类更高阶：`todo` 这类状态工具，以及 `subagent` 这类上下文隔离工具。
+## 原文对应
 
-## 工具越多越好吗
-
-不一定。工具太多会让模型每一轮都背着厚厚的工具说明，选择也更难。
-
-好的 Harness 会裁剪工具。只给当前任务需要的工具，或者用 MCP / tool search / skill discovery 之类机制按需发现。MCP 的价值不只是“接更多工具”，更是把工具暴露方式标准化。
-
-工具棚越大，标签越重要；标签越差，学徒越容易拿错。
-
-## 安全边界在哪里
-
-找和看通常风险较低，改和跑风险较高。
-
-所以工程上常见做法是：
-
-- 读操作默认允许。
-- 写操作用 patch，便于审计。
-- 命令执行放在沙箱或受控工作区。
-- 涉及真实外部系统的动作加审批。
-- secrets 不进 prompt，不写入生成文件。
-
-OpenAI 的 sandbox 文档把 harness 与 compute 拆开，也是在强调这个边界：控制面负责审批、路由、恢复；执行面负责真实文件和命令。
-
-## 今天的练习
-
-给你的 Agent 工具棚画一张四象限表：
-
-```text
-找东西 / 看东西
-改东西 / 跑东西
-```
-
-每个工具填进去，再标出哪些需要审批。你会很快看出风险主要集中在哪里。
+- 背景 / 工具全览：Managed Agent 和 `agent_toolset_20260401`
+- WebSearch / WebFetch / Glob / Grep / Read / Write / Edit / Bash：八个内置工具的角色说明
+- 工具组合模式：搜索、读取、修改、执行如何串起来
+- 与 Messages API Text Editor Tool 的区别 / 小结：文件栈和窄编辑器的边界
 
 ## 公开资料
 
-- [Tools - Model Context Protocol](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
-- [Sandbox Agents - OpenAI API](https://developers.openai.com/api/docs/guides/agents/sandboxes)
-- [Subagents in the SDK - Claude Code Docs](https://code.claude.com/docs/en/agent-sdk/subagents)
+- [Tools reference - Claude Code Docs](https://code.claude.com/docs/en/tools-reference)
+- [Configure permissions - Claude Code Docs](https://code.claude.com/docs/en/permissions)
+- [Agent SDK overview - Claude Code Docs](https://code.claude.com/docs/en/agent-sdk/overview)
+- [Code execution tool - Claude API Docs](https://docs.claude.com/en/docs/agents-and-tools/tool-use/code-execution-tool)
+- [Writing effective tools for agents — with agents - Anthropic](https://www.anthropic.com/engineering/writing-tools-for-agents)

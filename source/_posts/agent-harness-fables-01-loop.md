@@ -1,9 +1,9 @@
 ---
-title: "Agent Harness 寓言课 01：磨坊的水车为什么会自己转"
+title: "AI 与 Agent 大寓言课 06.01：磨坊的水车为什么会自己转"
 date: 2026-06-18 11:20:00
-description: "用磨坊水车的故事理解 ReAct Loop、Harness 分层、单轮/多轮工具调用、Plan-then-Act、Coding Agent、Offloading 与 Skill。"
+description: "第六讲 Agent Loop 与 Harness 的第一章：从 ReAct Loop 讲起，理解循环、工具、规划、上下文搬运和 Skill。"
 tags: [AI Agent, Agent Harness, ReAct, 寓言课]
-categories: [技术笔记, Agent Harness 寓言课]
+categories: [技术笔记, AI 与 Agent 大寓言课, Agent Loop 与 Harness]
 ---
 
 村口有一座磨坊。最早的时候，磨坊主每来一袋麦子，就亲手开闸、看水、推磨、装袋。一天只能磨几袋，人也累得不行。
@@ -14,7 +14,9 @@ categories: [技术笔记, Agent Harness 寓言课]
 
 磨坊主摇头：“不是成精，是我把重复动作做成了循环。水车会转，闸门会控，铃铛会报，账本会记；少了哪一件，它都不是一座能长期运转的磨坊。”
 
-## 这一讲要学什么
+> 所属路径：AI 与 Agent 大寓言课 / 第 06 讲：会自己绕圈的工坊 / Harness 101 / 06.01 从 ReAct Loop 讲起
+
+## 概念揭晓
 
 这篇不是只讲一个比喻。寓言只是入口，真正要带走的是 Agent Harness 的第一张结构图。
 
@@ -31,6 +33,19 @@ categories: [技术笔记, Agent Harness 寓言课]
 所以，Harness 不是“模型外面随便套一层壳”。它是一套让模型能持续行动、受控行动、可观察行动的工程外骨骼。
 
 学习顺序也按这张图来：先懂 Loop，再懂 Tool；工具一多就要懂 Context；任务一长就要懂 Session；单个 Agent 不够就要懂 Orchestrator；能力爆炸后再看 Plugin、Hooks 和 Skills；最后用 trace 和 eval 检查它是不是真的变好了。
+
+## 本章目录
+
+- 故事里的机制：水车对应 Agent Loop，铃铛对应运行时反馈。
+- 最小 Loop 长什么样：一次模型调用、工具执行和停止条件。
+- 单轮 ReAct：从天气预报看 Reason、Act、Observe。
+- 并行工具调用：同一轮里为什么可以挂多个水桶。
+- 多轮 Loop：Deep Research 这类任务为什么要反复观察。
+- Plan-then-Act：给循环加施工图和 todo 检查点。
+- Coding Agent：换上文件、命令和补丁工具之后，循环怎样变成代码工坊。
+- Context Layer：上下文为什么会堵住，什么时候要搬运或压缩。
+- Skill：能力太多时如何按需加载，而不是全部塞进提示词。
+- 观测与评测：为什么只看一次成功是不够的。
 
 ## 故事里的机制
 
@@ -315,6 +330,19 @@ Harness 至少要留下三类证据：
 10. 怎么记录 trace，并用 eval 防止下一版退步？
 
 这十个答案加起来，才是这座磨坊真正的水路图。
+
+## 原文对应
+
+这篇覆盖了 Feishu 原文《Harness 101：从 ReAct Loop 讲起》的这些大段：
+
+- “Harness 的本体”：把模型之外的运行层拆成循环、工具、上下文、会话、编排、插件和观测。
+- “Agent Loop 的本体”：说明一次模型调用和可持续行动之间的差别。
+- “单轮 ReAct Loop”：用天气预报例子讲工具调用、工具结果回填和停止条件。
+- “多轮 Loop：Deep Research”：说明长任务为什么需要多轮观察和继续决策。
+- “Plan-then-Act”：用 `write_todos` 讲显式计划、briefing 和每步 nudge。
+- “Coding Agent”：把工具换成文件、命令和补丁后，循环怎样变成代码修复流程。
+- “Offloading”：讲上下文装不下时为什么要搬运、压缩和引用。
+- “Skill”：讲能力如何按需组织，而不是全部塞进启动上下文。
 
 ## 公开资料
 

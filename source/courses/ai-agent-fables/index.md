@@ -460,7 +460,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
       <span class="aaf-number">06</span>
       <div>
         <h3>会自己绕圈的工坊：Agent Loop 与 Harness</h3>
-        <p>这里讲 Agent Loop、ReAct、工具契约、上下文搬运、运行时提醒和面向 Agent 的文档。先理解“循环怎么被管住”，再读更深入的 Harness 课程。</p>
+        <p>这里讲 Agent Loop、ReAct、工具契约、上下文搬运、运行时提醒和面向 Agent 的文档。先读概览，再进入第六讲下面的 Harness 101 多章节目录。</p>
         <ul>
           <li>Agent Loop</li>
           <li>ReAct</li>
@@ -471,6 +471,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
       <div class="aaf-module-meta">
         <span class="aaf-badge is-ready">已写</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-06-agent-loop/">阅读第六讲</a>
+        <a class="aaf-link" href="/courses/agent-harness-fables/">章节目录</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -586,8 +587,8 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
 
   <section class="aaf-link-grid" aria-label="已有 AI 课程入口">
     <article class="aaf-link-card">
-      <strong>Agent Harness 寓言课</strong>
-      <p>第六部。用 12 个故事讲 Agent Loop、工具、上下文、记忆和运行时外壳。</p>
+      <strong>第六讲：Agent Loop 与 Harness</strong>
+      <p>第六讲下面的专题目录。把 Feishu《Harness 101》拆成 12 篇章节文章，再补一个 ReAct 与工具调用小节。</p>
       <a class="aaf-link" href="/courses/agent-harness-fables/">进入课程</a>
     </article>
     <article class="aaf-link-card">

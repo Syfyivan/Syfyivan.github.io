@@ -1,70 +1,117 @@
 ---
-title: "Agent Harness 寓言课 08：三种行囊整理法"
+title: "AI 与 Agent 大寓言课 06.07：三层行囊整理术"
 date: 2026-06-18 11:27:00
-description: "用旅人整理行囊解释热路径清理、阶段性压缩和交接重启三种上下文治理策略。"
-tags: [AI Agent, Context Engineering, Compaction, Claude Code, 寓言课]
-categories: [技术笔记, Agent Harness 寓言课]
+description: "把 Harness 101：Claude Code 的三种上下文压缩与 Microcompact 的秘密改写成第六讲下的章节文章。"
+tags: [技术笔记, AI 与 Agent 大寓言课, Agent Loop 与 Harness, Compaction, Claude Code]
+categories: [技术笔记, AI 与 Agent 大寓言课, Agent Loop 与 Harness]
 ---
 
-旅人穿越沙漠，有三种整理行囊的办法。
+旅人穿过沙地，身上带着三只袋子。
 
-第一种，每走一段就扔掉空水袋和碎纸。这很轻，几乎不影响赶路。
+第一只袋子专装每天都要掏的水和干粮，空了就顺手扔掉；第二只袋子装路上的见闻，晚上扎营时会抄成一页短札；第三只袋子则放极少用到的旧地图和交接信，只有远路未尽时才会重新打开。
 
-第二种，傍晚扎营时，把白天见闻写成一页日记，旧草稿烧掉。这能省空间，但细节会丢。
+三只袋子都在“整理”，可整理的力度、时机和代价完全不同。有人只想减重，有人想保留沿途故事，还有人想为下一段路留下一个能继续走的开头。
 
-第三种，旅程太长时，把关键地图、未完成事项和风险写成交接信，交给下一支队伍重新出发。
+## 概念揭晓
 
-三种办法都叫“整理”，但代价完全不同。
+这篇对应的是 [Harness 101：Claude Code 的三种上下文压缩与 Microcompact 的秘密](https://my.feishu.cn/wiki/YSlhwnb5pia6q6kGnU0ckXSZnWe)。
 
-## 故事里的机制
+先把边界说清楚：Anthropic 和 Claude Code 的公开文档可以确认，系统会在接近窗口上限时做 compaction，也可以做 prompt caching；但原文里关于 `Microcompact`、`autocompact`、`fullcompact`、`cache_edits`、Layer 1 / Layer 2 的细节，主要来自原文作者对代码与运行行为的观察和工程模式推断，不应写成官方公开规范。
 
-长任务里的上下文治理，也可以分三层：
+## 本章目录
 
-1. 热路径清理：每次调用前，把明显不再需要的旧工具结果、冗余输出、重复消息清掉或折叠。
-2. 阶段性压缩：任务进行到一个阶段，把历史压成摘要，保留决策、未解问题和最近关键文件。
-3. 交接重启：当前上下文已经太乱，写一份 handoff，让新会话从清洁状态继续。
+- 三层级联不是三个并列按钮
+- 为什么 Microcompact 跑在最热路径
+- 白名单只动可回收的内容
+- cache_edits 为什么能保住缓存前缀
+- Layer 1 热路径与 Layer 2 冷启动
+- 阈值、预算与重启的关系
+- 原文对应
+- 公开资料
 
-原始材料里讨论了 Claude Code 的多层压缩和 microcompact。公开资料里能稳定确认的部分是：Anthropic 已经把 compaction 作为长任务上下文工程的核心手段，并强调选择保留什么、丢弃什么会影响后续表现。
+## 三层级联不是三个并列按钮
 
-不要把所有细节都当成通用标准。更可靠的学习方式是记住这三类策略：轻清理、摘要、重启交接。
+原文最重要的结构判断，是把 `Microcompact`、`autocompact` 和 `fullcompact` 看成一条按成本排序的级联，而不是三个可随意切换的选项。
 
-## 为什么压缩会伤人
+| 模式 | 原文里的角色 | 成本特征 |
+| --- | --- | --- |
+| `Microcompact` | 每次请求前先做本地整理 | 最便宜，几乎不花模型推理成本 |
+| `autocompact` | 接近阈值时做自动摘要 | 需要 LLM，但仍比完全重构便宜 |
+| `fullcompact` | 前两层都不够时的兜底 | 最贵，往往需要完整摘要调用 |
 
-摘要不是魔法。摘要会丢掉未来才显得重要的细节。
+这条级联背后的哲学很简单：能晚就晚，能便宜就别贵，能本地解决就别上升到更重的层。
 
-比如旅人在日记里写“上午遇到两口井”，却没写第一口井旁边有毒草。第二天队伍走回第一口井时，危险信息已经丢了。
+## 为什么 Microcompact 跑在最热路径
 
-Agent 也是一样。压缩时看似无关的错误日志、路径、用户偏好，后面可能变关键。因此压缩提示词要经过真实 trace 调优，不能只写一句“总结一下前文”。
+原文作者的观察是，`Microcompact` 不是等到窗口快满才动手，而是每次请求前都扫一遍历史。
 
-## 为什么有时要重启
+这件事之所以成立，靠的是两条约束。第一条是它不调用模型，只按规则筛选，所以可以挂在最热路径上反复跑。第二条是它只改会话里已经可回收的痕迹，不碰用户输入和正常回答的语义骨架。
 
-如果行囊里全是潮湿纸张、重复地图、过时路标，继续整理可能不如重新打包。
+这里有一个很关键的公开边界也能对上：官方文档已经确认，Claude Code 会在接近限制时整理历史，且可以通过 `/compact` 和 compaction instructions 控制保留内容。原文的 `Microcompact` 更像是这条公开能力在内部实现上的更细颗粒版本。后者属于作者观察，不是官方对外说明。
 
-长程 Agent 任务里，重启并不等于失败。只要 handoff 写清楚：
+## 白名单只动可回收的内容
 
-- 当前目标。
-- 已完成事项。
-- 关键证据。
-- 重要决策。
-- 未解决问题。
-- 下一步建议。
+原文把可整理的 tool result 限得很窄，只保留一组白名单工具。这不是偷懒，而是为了保证可回收的内容尽量幂等、尽量可重取。
 
-新会话反而可能更稳。
+| 工具类型 | 原文里的处理倾向 | 说明 |
+| --- | --- | --- |
+| `Bash` / `WebFetch` | 优先外置或后续改写 | 输出通常大，而且一次性价值高 |
+| `Read` / `Grep` / `Glob` | 可在后续改写成引用 | 数据源本身可再取 |
+| `FileEdit` / `FileWrite` | 只保留必要痕迹 | 结果往往只是“写好了”或“改好了” |
+| 自定义工具 / MCP 工具 | 默认不动 | 作者认为难以保证安全回收 |
 
-## 今天的练习
+这组白名单说明一件事：整理不是见大就压，而是只动“未来还能更便宜拿回来的那份”。
 
-给任何一个长任务写一份交接信，限制 300 字。写完检查它是否回答了三件事：
+## cache_edits 为什么能保住缓存前缀
 
-```text
-现在做到哪里
-为什么走到这里
-下一步最该做什么
-```
+这部分是原文里最偏工程实现的地方，也最需要标清楚来源：`cache_edits` 不是 Anthropic 官方公开文档里通用可见的抽象，而是原文作者根据 Claude Code 的行为和代码细节做出的工程拆解。
 
-如果这三件事说不清，说明你的上下文本来就没有被治理好。
+原文的核心判断是：如果直接改 `messages`，缓存前缀就会被打碎；如果只在服务端 cache 层把指定位置挖空，前缀还能保住。于是整理动作既发生了，缓存命中也没丢。
+
+| 做法 | 结果 |
+| --- | --- |
+| 直接改历史消息 | 前缀变了，缓存命中容易失效 |
+| 通过 `cache_edits` 做服务端挖空 | 本地历史不动，前缀可以继续命中 |
+
+官方公开文档能确认的，是 prompt caching 的存在，以及 cache read 的价格折扣和 5 分钟写缓存窗口；原文作者在此基础上进一步推断了 `cache_edits` 这类“删掉旧痕迹但不打碎前缀”的工程做法。
+
+## Layer 1 热路径与 Layer 2 冷启动
+
+原文又把 `Microcompact` 拆成两条执行路径。
+
+Layer 1 是热路径，发生在每次请求前，配合 `cache_edits` 做服务端整理。这条路径面向高频、低成本、尽量不破缓存前缀的场景。
+
+Layer 2 是冷启动路径，发生在长时间离线之后再回来。原文认为，当空档足够长，服务端缓存本来就大概率失效，此时不必再执着于只改服务端视图，直接改写本地历史反而更简单。这里还会顺带清掉一些历史里的思维痕迹，原文里引用了 `clear_thinking_20251015` 这样的 context editing 机制来支撑这一点。
+
+这条分法的本质，是把“热的时候保缓存”和“冷的时候重整历史”分开处理。
+
+## 阈值、预算与重启的关系
+
+原文不把 compaction 讲成一个单点开关，而是讲成预算管理。
+
+官方文档说明，Claude 的 compaction 是在接近窗口上限时做摘要；prompt caching 则给重复前缀提供了明显折扣。原文作者据此给出自己的工程判断：整理太早会浪费缓存红利，整理太晚会挤掉后续输出与压缩调用本身的空间。
+
+所以更稳妥的策略通常是三层：
+
+1. 先做轻量整理，清掉明显没用的痕迹。
+2. 再做局部摘要，把旧内容压成可继续工作的形式。
+3. 最后才考虑重启式交接，让下一段路从更干净的状态开始。
+
+这也解释了为什么原文并不迷信“始终保留原文”。在长任务里，真正重要的是让后续步骤继续往前走。
+
+## 原文对应
+
+这篇章节覆盖了源文 `/tmp/harness-wiki/07.md` 的这些大段落：
+
+- `# 前言`
+- `# 三层级联`
+- `# 反常识：Microcompact 跑在每一次 API 调用之前`
+- `# cache_edits：服务器端的隐形橡皮擦`
+- `# 主线限定与冷启动：Layer 1 vs Layer 2`
+- `# 结语`
 
 ## 公开资料
 
-- [Effective context engineering for AI agents - Anthropic](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
-- [Compaction - Claude API Docs](https://platform.claude.com/docs/en/build-with-claude/compaction)
-- [Explore the context window - Claude Code Docs](https://code.claude.com/docs/en/context-window)
+- [Context windows - Claude API Docs](https://docs.anthropic.com/en/docs/build-with-claude/context-windows)
+- [Prompt caching - Claude API Docs](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
+- [How Claude Code uses prompt caching - Claude Code Docs](https://code.claude.com/docs/en/prompt-caching)

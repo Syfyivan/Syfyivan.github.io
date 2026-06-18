@@ -1,9 +1,9 @@
 ---
-title: "Agent Harness 寓言课 02：送信人和回音井"
+title: "AI 与 Agent 大寓言课 06.S1：送信人和回音井"
 date: 2026-06-18 11:21:00
-description: "用送信人、工具契约和回音井解释 ReAct Loop 与 tool calling 的完整闭环。"
+description: "第六讲补充小节：用送信人、工具契约和回音井解释 ReAct Loop 与 tool calling 的完整闭环。"
 tags: [AI Agent, ReAct, Tool Calling, 寓言课]
-categories: [技术笔记, Agent Harness 寓言课]
+categories: [技术笔记, AI 与 Agent 大寓言课, Agent Loop 与 Harness]
 ---
 
 小镇有个送信人，名叫阿闻。镇长问他：“山那边今天会下雨吗？”
@@ -20,7 +20,9 @@ categories: [技术笔记, Agent Harness 寓言课]
 
 阿闻先查天气，再查路况，再查摊位记录。每拿到一张回信，他都重新判断下一步要问什么。
 
-## 故事里的机制
+> 所属路径：AI 与 Agent 大寓言课 / 第 06 讲：会自己绕圈的工坊 / 补充小节 / ReAct 与 Tool Calling
+
+## 概念揭晓
 
 回音井就是工具。阿闻不是天气专家，但他知道什么时候该查天气、查哪个地方、查完怎么解释。
 
@@ -38,6 +40,13 @@ Harness 执行工具
 ```
 
 OpenAI 的 function calling 文档把这件事拆得很清楚：模型可以生成工具调用，应用侧执行代码，再把工具输出交还给模型。模型不是直接控制世界，它是在写一张“请执行这个动作”的单子。
+
+## 本章目录
+
+- 单轮、并行、多轮：三种常见工具调用节奏。
+- 工具契约：为什么工具说明比工具名字更重要。
+- 调试方法：从 transcript 看模型为什么会选错工具。
+- 小练习：删掉工具名，只靠描述判断工具能不能被正确使用。
 
 ## 单轮、并行、多轮
 
