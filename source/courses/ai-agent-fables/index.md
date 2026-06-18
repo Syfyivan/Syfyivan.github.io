@@ -169,6 +169,7 @@ description: "从人工智能导论讲到 LLM、MCP、Skills、Agent Loop、Harn
 .aaf-module:nth-child(3) .aaf-number { background: var(--aaf-green); }
 .aaf-module:nth-child(4) .aaf-number { background: var(--aaf-amber); }
 .aaf-module:nth-child(5) .aaf-number { background: #6d557e; }
+.aaf-module:nth-child(6) .aaf-number { background: #6b5b2f; }
 
 .aaf-module h3 {
   margin: 0 0 8px;
@@ -346,7 +347,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <div>
       <span class="aaf-kicker">AI Agent Fables</span>
       <h2>从第一盏灯，讲到会自己找工具的工匠</h2>
-      <p>这是一套从零开始的 AI 与 Agent 寓言课。前半段先把人工智能导论、发展史、机器学习、深度学习、Transformer 和大模型讲明白；后半段再进入工具调用、MCP、Skill、记忆、Agent Loop、Harness、多 Agent 编排和 AI 产品工程。</p>
+      <p>这是一套从零开始的 AI 与 Agent 寓言课。前半段先把人工智能导论、发展史、机器学习、深度学习、Transformer 和大模型讲明白；后半段再进入工具调用、MCP、Skill、记忆、Agent Loop、Harness、vibe coding、SDD、多 Agent 编排和 AI 产品工程。</p>
     </div>
     <ul class="aaf-hero-list" aria-label="课程学习原则">
       <li>每一讲先讲寓言，再落到真实机制。</li>
@@ -358,9 +359,9 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
   <section class="aaf-section-head">
     <div>
       <h2>总学习地图</h2>
-      <p>它不是又加一个并列课程，而是 AI 方向的总目录。已有的 Harness、多 Agent 和 AI Town 会放到后面的模块里，前面补上基础和历史。</p>
+      <p>它不是又加一个并列课程，而是 AI 方向的总目录。已有的 Harness、多 Agent 和 AI Town 会放到后面的模块里，前面补上基础、历史和 AI 编程方法论。</p>
     </div>
-    <span class="aaf-count">5 部主线</span>
+    <span class="aaf-count">6 部主线</span>
   </section>
 
   <section class="aaf-module-list" aria-label="AI 与 Agent 大寓言课目录">
@@ -432,6 +433,22 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-module">
       <span class="aaf-number">05</span>
       <div>
+        <h3>会把灵感变蓝图的工匠：vibe coding 与 SDD</h3>
+        <p>把“先凭感觉把东西跑起来”和“先写规格再让 Agent 施工”放在同一张地图里讲清楚：vibe coding 适合探索，Spec-Driven Development 适合把需求、验收、计划和实现连成可追踪流程。</p>
+        <ul>
+          <li>Vibe Coding</li>
+          <li>Spec-Driven Development</li>
+          <li>验收标准</li>
+          <li>测试与评审</li>
+        </ul>
+      </div>
+      <div class="aaf-module-meta">
+        <span class="aaf-badge is-next">优先补课</span>
+      </div>
+    </article>
+    <article class="aaf-module">
+      <span class="aaf-number">06</span>
+      <div>
         <h3>会分工的城邦：多 Agent 与 AI 工程</h3>
         <p>单个工匠能干活以后，再讲一群工匠怎么分工、怎么隔离上下文、怎么做回放、评测、部署和产品化。</p>
         <ul>
@@ -462,12 +479,12 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     </article>
     <article class="aaf-link-card">
       <strong>多 Agent 编排实战</strong>
-      <p>第五部的一部分。讲多个 Agent 怎么分工、隔离上下文、对抗验证和控制成本。</p>
+      <p>第六部的一部分。讲多个 Agent 怎么分工、隔离上下文、对抗验证和控制成本。</p>
       <a class="aaf-link" href="/courses/multi-agent-orchestration/">进入课程</a>
     </article>
     <article class="aaf-link-card">
       <strong>AI Town：Agent 基础设施</strong>
-      <p>第五部的一部分。用 AI Town 源码讲 runtime、调度、回放、记忆和前端渲染。</p>
+      <p>第六部的一部分。用 AI Town 源码讲 runtime、调度、回放、记忆和前端渲染。</p>
       <a class="aaf-link" href="/courses/ai-town/">进入课程</a>
     </article>
   </section>
@@ -486,7 +503,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     </article>
     <article class="aaf-principle">
       <strong>错误可见</strong>
-      <p>每一讲都要写一个常见误解，例如把 MCP 当工具本身、把 Skill 当插件、把 Agent 当模型。</p>
+      <p>每一讲都要写一个常见误解，例如把 MCP 当工具本身、把 Skill 当插件、把 Agent 当模型、把 vibe coding 当生产流程、把 SDD 当文档堆。</p>
     </article>
     <article class="aaf-principle">
       <strong>练习落地</strong>
@@ -522,6 +539,21 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
       <a class="aaf-link" href="https://developers.openai.com/api/docs/guides/agents" target="_blank" rel="noopener">查看资料</a>
     </article>
     <article class="aaf-source">
+      <strong>Vibe Coding 原始讨论</strong>
+      <p>用来讲清楚 vibe coding 的边界：它更像快速探索和自然语言驱动的原型阶段，不等于不用理解代码。</p>
+      <a class="aaf-link" href="https://simonwillison.net/2025/Mar/19/vibe-coding/" target="_blank" rel="noopener">查看资料</a>
+    </article>
+    <article class="aaf-source">
+      <strong>GitHub Spec Kit</strong>
+      <p>用来核验 SDD 在 AI 编程里的核心：先定义要构建什么，再把规格、计划、任务和实现连起来。</p>
+      <a class="aaf-link" href="https://github.github.com/spec-kit/" target="_blank" rel="noopener">查看资料</a>
+    </article>
+    <article class="aaf-source">
+      <strong>Kiro Specs</strong>
+      <p>用来对照规格如何变成需求、设计、任务和进度跟踪，而不是只写一份没人维护的文档。</p>
+      <a class="aaf-link" href="https://kiro.dev/docs/specs/" target="_blank" rel="noopener">查看资料</a>
+    </article>
+    <article class="aaf-source">
       <strong>ReAct 与 Agent Loop</strong>
       <p>用来解释“思考、行动、观察”为什么会成为 Agent 教学里的核心循环。</p>
       <a class="aaf-link" href="/courses/agent-harness-fables/">从 Harness 课读起</a>
@@ -529,6 +561,6 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
   </section>
 
   <section class="aaf-note">
-    <p>排版策略：课程首页只展示大类和关键入口；AI 大寓言课内部再展示五部主线。这样以后继续补 MCP、Skill、LLM 基础和发展史时，不会把主课程页撑成一长串并列目录。</p>
+    <p>排版策略：课程首页只展示大类和关键入口；AI 大寓言课内部再展示六部主线。这样以后继续补 MCP、Skill、vibe coding、SDD、LLM 基础和发展史时，不会把主课程页撑成一长串并列目录。</p>
   </section>
 </div>
