@@ -335,7 +335,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>5</strong>
+        <strong>6</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
@@ -343,7 +343,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <span>内容大类</span>
       </div>
       <div class="course-stat">
-        <strong>48</strong>
+        <strong>50+</strong>
         <span>课程学习模块</span>
       </div>
     </div>
@@ -353,8 +353,8 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <a class="course-category-card is-ai" href="#ai">
       <span>AI</span>
       <strong>AI 与 Agent</strong>
-      <p>Agent 工程、上下文、编排、工具和 AI 基础设施。</p>
-      <small>4 个方向</small>
+      <p>从 AI 基础、发展史、LLM、MCP、Skill 一路讲到 Agent 工程。</p>
+      <small>大寓言课</small>
     </a>
     <a class="course-category-card is-backend" href="#backend">
       <span>Backend</span>
@@ -380,11 +380,20 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <div class="course-category-head">
       <div>
         <h2>AI 与 Agent</h2>
-        <p>从 Agent Loop、工具契约、上下文搬运，到多 Agent 编排和 AI Town 这种工程底座。</p>
+        <p>先从 AI 导论和发展史讲起，再进入 LLM、MCP、Skill、Agent Loop、Harness、多 Agent 编排和 AI Town 工程底座。</p>
       </div>
       <span class="course-category-count">4 项</span>
     </div>
     <div class="course-grid">
+      <article class="course-card">
+        <span class="course-badge is-ai">总目录</span>
+        <h3>AI 与 Agent 大寓言课</h3>
+        <p>从“人工智能是什么”开始，用一整套寓言把 AI 发展史、机器学习、深度学习、大模型、MCP、Skill、工具调用、Agent Loop、Harness 和多 Agent 工程串起来。</p>
+        <div class="course-card-footer">
+          <span>适合：想从 AI 基础一路学到 Agent 工程的人</span>
+          <a class="course-link" href="/courses/ai-agent-fables/">进入总目录</a>
+        </div>
+      </article>
       <article class="course-card">
         <span class="course-badge is-ai">11 讲全</span>
         <h3>AI Town：Agent 基础设施课程</h3>
@@ -404,18 +413,9 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         </div>
       </article>
       <article class="course-card">
-        <span class="course-badge is-ai">12 讲全</span>
-        <h3>Agent Harness 寓言课</h3>
-        <p>从 Harness 101 系列文章出发，用 12 个小故事讲清 Agent Loop、工具契约、上下文搬运、记忆、编排、虚拟文件系统和面向 Agent 的文档。</p>
-        <div class="course-card-footer">
-          <span>适合：想先听懂概念，再看懂 Agent 工程的人</span>
-          <a class="course-link" href="/courses/agent-harness-fables/">进入课程</a>
-        </div>
-      </article>
-      <article class="course-card">
         <span class="course-badge is-planned">规划中</span>
         <h3>AI 工程产品化</h3>
-        <p>后续会把 AI 视觉浏览器、部署实践、多 Agent 协作模式等文章整理成更完整的产品化学习路径。</p>
+        <p>后续会把 AI 视觉浏览器、部署实践、评测回放、多 Agent 协作模式等文章整理成更完整的产品化学习路径。</p>
         <div class="course-card-footer">
           <span>状态：等待内容沉淀</span>
         </div>

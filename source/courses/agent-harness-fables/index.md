@@ -37,6 +37,19 @@ description: "把 Harness 101 的机制拆成 12 个寓言故事：循环、工�
   font-size: 13px;
   font-weight: 700;
 }
+.ahf-parent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--ahf-line);
+}
+.ahf-parent span {
+  color: var(--ahf-muted);
+  font-weight: 700;
+}
 .ahf-hero h2 { margin: 0 0 14px; font-size: 31px; line-height: 1.25; letter-spacing: 0; }
 .ahf-hero p,
 .ahf-note p,
@@ -130,6 +143,10 @@ html[data-user-color-scheme="dark"] .ahf-card { background: var(--ahf-panel); }
     <span class="ahf-kicker">Agent Harness Fables</span>
     <h2>先听懂故事，再看懂 Agent 外壳</h2>
     <p>这门课从 Harness 101 系列文章出发，再用 ReAct 论文、Anthropic、OpenAI、MCP、Plan 9 等公开资料交叉补证。每一讲先讲一个寓言，再落回机制、误区和练习，目标是让非框架作者也能听懂 Agent Harness 为什么重要。</p>
+    <div class="ahf-parent">
+      <span>这是 AI 与 Agent 大寓言课的第四部。</span>
+      <a class="ahf-link" href="/courses/ai-agent-fables/">返回总目录</a>
+    </div>
   </section>
   <section class="ahf-note">
     <p>边界说明：课程不会搬运原始材料，而是按“寓言 + 机制 + 公开资料”的方式重写。涉及具体产品内部实现时，只采用公开文档可核验的表述；不可公开确认的细节只抽象为通用工程模式。</p>
