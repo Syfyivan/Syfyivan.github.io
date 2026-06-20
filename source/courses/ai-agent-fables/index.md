@@ -465,8 +465,9 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">概览已写</span>
+        <span class="aaf-badge is-ready">章节已展开</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-03-foundation-models/">阅读第三讲</a>
+        <a class="aaf-link" href="/courses/ai-agent-fables-03/">章节目录</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -661,12 +662,12 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-blueprint">
       <h3>03 会说话的图书馆：深度学习与大模型</h3>
       <ul class="aaf-chapter-list">
-        <li><strong>03.1 神经网络直觉</strong>层 · 激活 · 反向传播 · 表征</li>
-        <li><strong>03.2 Transformer 为什么关键</strong>注意力 · 位置编码 · 并行训练</li>
-        <li><strong>03.3 Token 与向量</strong>分词 · embedding · 语义空间 · 相似度</li>
-        <li><strong>03.4 预训练、微调与对齐</strong>自监督 · SFT · RLHF/RLAIF · 指令跟随</li>
-        <li><strong>03.5 上下文窗口与长文本</strong>窗口限制 · attention 成本 · 长上下文误区</li>
-        <li><strong>03.6 模型能力边界</strong>幻觉 · 组合泛化 · 推理不稳定 · 评测偏差</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-03-ch1-neural-network-intuition/">03.1 神经网络直觉</a></strong>层 · 激活 · 反向传播 · 表征</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-03-ch2-transformer-attention/">03.2 Transformer 为什么关键</a></strong>注意力 · 位置编码 · 并行训练</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-03-ch3-tokens-embeddings/">03.3 Token 与向量</a></strong>分词 · embedding · 语义空间 · 相似度</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-03-ch4-pretrain-finetune-align/">03.4 预训练、微调与对齐</a></strong>自监督 · SFT · RLHF/RLAIF · 指令跟随</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-03-ch5-context-window/">03.5 上下文窗口与长文本</a></strong>窗口限制 · attention 成本 · 长上下文误区</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-03-ch6-capability-limits/">03.6 模型能力边界</a></strong>幻觉 · 组合泛化 · 推理不稳定 · 评测偏差</li>
       </ul>
     </article>
 
