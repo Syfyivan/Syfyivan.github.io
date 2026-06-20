@@ -335,11 +335,11 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>6</strong>
+        <strong>7</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
-        <strong>4</strong>
+        <strong>5</strong>
         <span>内容大类</span>
       </div>
       <div class="course-stat">
@@ -361,6 +361,12 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
       <strong>服务端与网络</strong>
       <p>Go 服务端、请求链路、数据库、中间件、代理和计网。</p>
       <small>2 门课程</small>
+    </a>
+    <a class="course-category-card is-client" href="#quality">
+      <span>Quality</span>
+      <strong>软件工程与质量</strong>
+      <p>软件质量保证与测试：质量、缺陷、度量、评审、标准、设计与编程。</p>
+      <small>大寓言课</small>
     </a>
     <a class="course-category-card is-client" href="#client">
       <span>Client</span>
@@ -418,6 +424,27 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <p>后续会把 AI 视觉浏览器、部署实践、评测回放、多 Agent 协作模式等文章整理成更完整的产品化学习路径。</p>
         <div class="course-card-footer">
           <span>状态：等待内容沉淀</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="course-category" id="quality">
+    <div class="course-category-head">
+      <div>
+        <h2>软件工程与质量</h2>
+        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量与高质量编程。</p>
+      </div>
+      <span class="course-category-count">1 门</span>
+    </div>
+    <div class="course-grid">
+      <article class="course-card">
+        <span class="course-badge is-client">10 讲全</span>
+        <h3>软件质量与测试大寓言课</h3>
+        <p>把大学《软件质量保证与测试》九章理论 + 绪论，改写成「榫卯镇·老周家具坊」一套寓言：学徒小磊从「为什么要有人挑毛病」一路学到「一榫一卯怎么讲究」。每讲都配一段贴合课件原话的「背诵版」，理念讲懂、原话背牢，零基础也能应付期末。</p>
+        <div class="course-card-footer">
+          <span>适合：软件质量保证与测试课的复习者、想入门软件工程质量的人</span>
+          <a class="course-link" href="/courses/software-quality-fables/">进入课程</a>
         </div>
       </article>
     </div>
