@@ -537,8 +537,9 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">概览已写</span>
+        <span class="aaf-badge is-ready">章节已展开</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-07-vibe-sdd/">阅读第七讲</a>
+        <a class="aaf-link" href="/courses/ai-agent-fables-07/">章节目录</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -712,12 +713,12 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-blueprint">
       <h3>07 会把灵感变蓝图的工匠：vibe coding 与 SDD</h3>
       <ul class="aaf-chapter-list">
-        <li><strong>07.1 Vibe Coding 的价值</strong>探索 · 快速反馈 · 原型 · 边界</li>
-        <li><strong>07.2 SDD 的基本链路</strong>spec · plan · tasks · implementation · review</li>
-        <li><strong>07.3 需求怎么写给 Agent</strong>用户故事 · 验收标准 · 非目标 · 约束</li>
-        <li><strong>07.4 从 PRD 到测试</strong>行为样例 · 边界条件 · 回归集 · 可验证完成</li>
-        <li><strong>07.5 人机协作节奏</strong>探索模式 · 施工模式 · 审查模式 · 回滚</li>
-        <li><strong>07.6 何时别用 SDD</strong>过早规范化 · 伪精确 · 文档漂移 · 小任务成本</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-07-ch1-vibe-coding/">07.1 Vibe Coding 的价值</a></strong>探索 · 快速反馈 · 原型 · 边界</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-07-ch2-sdd-pipeline/">07.2 SDD 的基本链路</a></strong>spec · plan · tasks · implementation · review</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-07-ch3-writing-requirements/">07.3 需求怎么写给 Agent</a></strong>用户故事 · 验收标准 · 非目标 · 约束</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-07-ch4-prd-to-tests/">07.4 从 PRD 到测试</a></strong>行为样例 · 边界条件 · 回归集 · 可验证完成</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-07-ch5-collaboration-modes/">07.5 人机协作节奏</a></strong>探索模式 · 施工模式 · 审查模式 · 回滚</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-07-ch6-when-not-sdd/">07.6 何时别用 SDD</a></strong>过早规范化 · 伪精确 · 文档漂移 · 小任务成本</li>
       </ul>
     </article>
 
