@@ -429,8 +429,9 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">概览已写</span>
+        <span class="aaf-badge is-ready">章节已展开</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-01-ai-history/">阅读第一讲</a>
+        <a class="aaf-link" href="/courses/ai-agent-fables-01/">章节目录</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -635,12 +636,12 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-blueprint">
       <h3>01 会学习的木偶：AI 导论与发展史</h3>
       <ul class="aaf-chapter-list">
-        <li><strong>01.1 AI 到底是什么</strong>规则程序 · 统计模型 · 生成式系统</li>
-        <li><strong>01.2 三条历史主线</strong>符号主义 · 连接主义 · 概率统计</li>
-        <li><strong>01.3 从专家系统到深度学习</strong>知识工程 · 数据驱动 · 算力拐点</li>
-        <li><strong>01.4 生成式 AI 的位置</strong>语言模型 · 扩散模型 · 多模态模型</li>
-        <li><strong>01.5 Agent 为什么重新变热</strong>工具使用 · 长任务 · 环境反馈</li>
-        <li><strong>01.6 读 AI 新闻的方法</strong>区分模型、产品、论文、融资和基准测试</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-01-ch1-what-is-ai/">01.1 AI 到底是什么</a></strong>规则程序 · 统计模型 · 生成式系统</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-01-ch2-three-traditions/">01.2 三条历史主线</a></strong>符号主义 · 连接主义 · 概率统计</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-01-ch3-expert-to-deep-learning/">01.3 从专家系统到深度学习</a></strong>知识工程 · 数据驱动 · 算力拐点</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-01-ch4-generative-ai/">01.4 生成式 AI 的位置</a></strong>语言模型 · 扩散模型 · 多模态模型</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-01-ch5-why-agents/">01.5 Agent 为什么重新变热</a></strong>工具使用 · 长任务 · 环境反馈</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-01-ch6-reading-ai-news/">01.6 读 AI 新闻的方法</a></strong>区分模型、产品、论文、融资和基准测试</li>
       </ul>
     </article>
 
