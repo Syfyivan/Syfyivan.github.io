@@ -171,12 +171,12 @@ html[data-user-color-scheme="dark"] .ahf-card { background: var(--ahf-panel); }
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.1</span>
-      <div><small>AI 到底是什么</small><h3>阿木认识镇口的三盏灯</h3><p>点灯人带阿木认识规矩灯、记牌灯、图书馆灯，分清规则程序、统计模型和生成式系统。</p></div>
+      <div><small>AI 到底是什么</small><h3>阿木认识镇口的三盏灯</h3><p>点灯人带阿木认识按死规矩走的灯、会记账的灯、图书馆大灯，分清规则程序、统计模型和生成式系统。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch1-what-is-ai/">阅读</a>
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.2</span>
-      <div><small>三条历史主线</small><h3>镇上的三家灯坊</h3><p>阿木走访规矩坊、神经坊、概率坊，看清符号主义、连接主义和概率统计，理解大模型是三线混血。</p></div>
+      <div><small>三条历史主线</small><h3>镇上的三家造灯作坊</h3><p>阿木走访三家造灯作坊（写死规矩、让学徒传话、只报概率），看清符号主义、连接主义和概率统计，理解大模型是三线混血。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch2-three-traditions/">阅读</a>
     </article>
     <article class="ahf-card">
