@@ -410,7 +410,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
   <section class="aaf-section-head">
     <div>
       <h2>总学习地图</h2>
-      <p>之前的 6 部主线只能算第一版骨架，容易漏掉数据/机器学习、评测、安全治理、多模态和产品化等大块知识。这里改成 12 个知识板块：先按初学者顺序建立主线。当前多数板块只有概览文章，不能代表该板块已经完整；后续会像第 06 讲一样继续拆成章节和小节。</p>
+      <p>之前的 6 部主线只能算第一版骨架，容易漏掉数据/机器学习、评测、安全治理、多模态和产品化等大块知识。这里改成 12 个知识板块：按初学者顺序建立主线。如今 12 讲已全部展开成章节——每讲都在一个自洽的寓言世界里，从概览一路拆到 6 个章节，可点开下面任意一讲的“章节目录”直接读。</p>
     </div>
     <span class="aaf-count">12 个板块</span>
   </section>
@@ -627,8 +627,9 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">概览已写</span>
+        <span class="aaf-badge is-ready">章节已展开</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-12-product-mlops/">阅读第十二讲</a>
+        <a class="aaf-link" href="/courses/ai-agent-fables-12/">章节目录</a>
       </div>
     </article>
   </section>
@@ -636,7 +637,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
   <section class="aaf-section-head">
     <div>
       <h2>章节与小节蓝图</h2>
-      <p>下面是我按完整学习链路设计的课程骨架。这里先放章节设计，不放空链接；等某个章节真正写成文章后，再把对应小节升级成可点击入口。</p>
+      <p>下面是按完整学习链路设计的课程骨架。12 讲 72 章已全部写成文章，每个小节标题都是可点击的入口——点进去就是对应章节的正文。</p>
     </div>
     <span class="aaf-count">12 讲 · 72 章</span>
   </section>
@@ -777,12 +778,12 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-blueprint">
       <h3>12 会开店的城镇：产品化、MLOps 与 AI 基础设施</h3>
       <ul class="aaf-chapter-list">
-        <li><strong>12.1 从 demo 到产品</strong>用户场景 · 可靠性 · 成本 · SLA</li>
-        <li><strong>12.2 LLMOps / MLOps</strong>版本 · 数据 · prompt · 模型 · 回滚</li>
-        <li><strong>12.3 部署与运行时</strong>队列 · 工作流 · 沙箱 · 会话 · 存储</li>
-        <li><strong>12.4 观测和成本治理</strong>trace · 指标 · 预算 · 缓存 · 限流</li>
-        <li><strong>12.5 团队流程</strong>权限 · 审批 · 值班 · 事故复盘 · 知识库</li>
-        <li><strong>12.6 项目案例</strong>AI Town · Agent runtime · 长期记忆 · 前端状态同步</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-12-ch1-demo-to-product/">12.1 从 demo 到产品</a></strong>用户场景 · 可靠性 · 成本 · SLA</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-12-ch2-llmops/">12.2 LLMOps / MLOps</a></strong>版本 · 数据 · prompt · 模型 · 回滚</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-12-ch3-deployment-runtime/">12.3 部署与运行时</a></strong>队列 · 工作流 · 沙箱 · 会话 · 存储</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-12-ch4-observability-cost/">12.4 观测和成本治理</a></strong>trace · 指标 · 预算 · 缓存 · 限流</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-12-ch5-team-process/">12.5 团队流程</a></strong>权限 · 审批 · 值班 · 事故复盘 · 知识库</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-12-ch6-case-study/">12.6 项目案例</a></strong>AI Town · Agent runtime · 长期记忆 · 前端状态同步</li>
       </ul>
     </article>
   </section>
@@ -790,7 +791,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
   <section class="aaf-section-head">
     <div>
       <h2>已有模块入口</h2>
-      <p>12 讲主线目前是概览层，可以顺序建立地图；真正的完整课程需要在每讲下面继续展开章节。下面这些是已经展开或已经有专题资料的入口，适合在读完对应主线章节后继续下钻。</p>
+      <p>12 讲都已展开成章节（点上面每讲的“章节目录”即可进入）。下面这几个是有额外专题资料、适合继续下钻的入口。</p>
     </div>
   </section>
 
@@ -929,6 +930,6 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
   </section>
 
   <section class="aaf-note">
-    <p>准确性说明：这个页面是课程地图，也是当前 12 讲入门寓言课的总入口。后续继续完善时，会先对照这张覆盖表和公开资料锚点，再补充更深入的专题文章，避免因为某个热词流行就把路线图写偏。</p>
+    <p>准确性说明：这个页面是课程地图，也是 12 讲入门寓言课的总入口。12 讲 72 章已全部写成文章，每讲一个自洽的寓言世界、概念对照真实术语、并附公开资料锚点。涉及现代概念（MCP、Skill、评测、安全治理、MLOps 等）均以官方文档与一手来源为准；个别尚在演进或有争议的话题（如训练数据版权）已如实标注，不写成定论。</p>
   </section>
 </div>
