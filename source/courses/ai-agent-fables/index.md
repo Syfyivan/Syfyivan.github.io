@@ -573,8 +573,9 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">概览已写</span>
+        <span class="aaf-badge is-ready">章节已展开</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-09-safety-governance/">阅读第九讲</a>
+        <a class="aaf-link" href="/courses/ai-agent-fables-09/">章节目录</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -738,12 +739,12 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-blueprint">
       <h3>09 会守城的门卫：安全、隐私与治理</h3>
       <ul class="aaf-chapter-list">
-        <li><strong>09.1 Prompt Injection</strong>直接注入 · 间接注入 · 工具输出投毒</li>
-        <li><strong>09.2 数据与隐私</strong>PII · 密钥 · 日志 · 数据最小化</li>
-        <li><strong>09.3 权限和工具安全</strong>最小权限 · 审批 · 沙箱 · 回滚</li>
-        <li><strong>09.4 版权与来源</strong>训练数据争议 · 输出相似性 · 引用 · 许可</li>
-        <li><strong>09.5 偏见、公平与透明</strong>代表性 · 解释 · 申诉 · 审计</li>
-        <li><strong>09.6 治理框架</strong>NIST AI RMF · OWASP LLM Top 10 · 内部政策落地</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-09-ch1-prompt-injection/">09.1 Prompt Injection</a></strong>直接注入 · 间接注入 · 工具输出投毒</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-09-ch2-data-privacy/">09.2 数据与隐私</a></strong>PII · 密钥 · 日志 · 数据最小化</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-09-ch3-permissions-tool-safety/">09.3 权限和工具安全</a></strong>最小权限 · 审批 · 沙箱 · 回滚</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-09-ch4-copyright-provenance/">09.4 版权与来源</a></strong>训练数据争议 · 输出相似性 · 引用 · 许可</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-09-ch5-bias-fairness/">09.5 偏见、公平与透明</a></strong>代表性 · 解释 · 申诉 · 审计</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-09-ch6-governance/">09.6 治理框架</a></strong>NIST AI RMF · OWASP LLM Top 10 · 内部政策落地</li>
       </ul>
     </article>
 
