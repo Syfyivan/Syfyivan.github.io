@@ -609,8 +609,9 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">概览已写</span>
+        <span class="aaf-badge is-ready">章节已展开</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-11-multi-agent-engineering/">阅读第十一讲</a>
+        <a class="aaf-link" href="/courses/ai-agent-fables-11/">章节目录</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -764,12 +765,12 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-blueprint">
       <h3>11 会分工的城邦：多 Agent 与 AI 工程</h3>
       <ul class="aaf-chapter-list">
-        <li><strong>11.1 为什么要多 Agent</strong>分工 · 隔离 · 并行 · 专家角色</li>
-        <li><strong>11.2 编排模式</strong>leader-worker · debate · critic · map-reduce · handoff</li>
-        <li><strong>11.3 上下文隔离</strong>子任务边界 · 文件所有权 · 汇总协议 · 防污染</li>
-        <li><strong>11.4 对抗式验证</strong>reviewer · verifier · red team · consensus</li>
-        <li><strong>11.5 成本和延迟</strong>并行收益 · 交互开销 · token 预算 · 失败重跑</li>
-        <li><strong>11.6 团队工程协议</strong>任务切分 · 状态同步 · 冲突处理 · 交付证据</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-11-ch1-why-multi-agent/">11.1 为什么要多 Agent</a></strong>分工 · 隔离 · 并行 · 专家角色</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-11-ch2-orchestration-patterns/">11.2 编排模式</a></strong>leader-worker · debate · critic · map-reduce · handoff</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-11-ch3-context-isolation/">11.3 上下文隔离</a></strong>子任务边界 · 文件所有权 · 汇总协议 · 防污染</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-11-ch4-adversarial-verification/">11.4 对抗式验证</a></strong>reviewer · verifier · red team · consensus</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-11-ch5-cost-latency/">11.5 成本和延迟</a></strong>并行收益 · 交互开销 · token 预算 · 失败重跑</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-11-ch6-team-protocols/">11.6 团队工程协议</a></strong>任务切分 · 状态同步 · 冲突处理 · 交付证据</li>
       </ul>
     </article>
 
