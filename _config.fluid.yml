@@ -240,6 +240,7 @@ custom_js:
   - /js/post-affiliation.js?v=20260618-2.js
   - /js/post-toc.js?v=20260618-2.js
   - /js/post-inline-editor.js?v=20260618-2.js
+  - /js/course-banner.js?v=20260621-1.js
 
 # 指定自定义 .css 文件路径，用法和 custom_js 相同
 # The usage is the same as custom_js
@@ -248,6 +249,7 @@ custom_css:
   - /css/site-polish.css?v=20260618-2.css
   - /css/post-affiliation.css?v=20260618-1.css
   - /css/post-inline-editor.css?v=20260618-1.css
+  - /css/course-banner.css?v=20260621-1.css
 
 # 网页访问统计
 # Analysis of website visitors
@@ -596,7 +598,7 @@ index:
 #---------------------------
 post:
   banner_img: /img/blog-hero.jpg
-  banner_img_height: 50
+  banner_img_height: 62
   banner_mask_alpha: 0.34
 
   # 文章在首页的默认封面图，当没有指定 index_img 时会使用该图片，若两者都为空则不显示任何图片
