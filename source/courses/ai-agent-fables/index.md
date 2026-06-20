@@ -483,8 +483,9 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">概览已写</span>
+        <span class="aaf-badge is-ready">章节已展开</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-04-rag-context/">阅读第四讲</a>
+        <a class="aaf-link" href="/courses/ai-agent-fables-04/">章节目录</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -674,12 +675,12 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-blueprint">
       <h3>04 会查档案的书记：提示词、上下文与 RAG</h3>
       <ul class="aaf-chapter-list">
-        <li><strong>04.1 Prompt 是任务接口</strong>角色 · 目标 · 约束 · 输出格式</li>
-        <li><strong>04.2 Context Engineering</strong>上下文选择 · 顺序 · 噪声 · 预算</li>
-        <li><strong>04.3 RAG 基础链路</strong>切分 · 向量化 · 检索 · 重排 · 生成</li>
-        <li><strong>04.4 引用与可核验回答</strong>来源 · 摘要边界 · 证据覆盖 · 反查</li>
-        <li><strong>04.5 记忆不是 RAG 的别名</strong>短期上下文 · 长期偏好 · 组织知识</li>
-        <li><strong>04.6 常见失败模式</strong>召回漏掉 · 错文档命中 · 上下文污染 · 过度自信</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-04-ch1-prompt-as-interface/">04.1 Prompt 是任务接口</a></strong>角色 · 目标 · 约束 · 输出格式</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-04-ch2-context-engineering/">04.2 Context Engineering</a></strong>上下文选择 · 顺序 · 噪声 · 预算</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-04-ch3-rag-pipeline/">04.3 RAG 基础链路</a></strong>切分 · 向量化 · 检索 · 重排 · 生成</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-04-ch4-citations-verifiable/">04.4 引用与可核验回答</a></strong>来源 · 摘要边界 · 证据覆盖 · 反查</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-04-ch5-memory-vs-rag/">04.5 记忆不是 RAG 的别名</a></strong>短期上下文 · 长期偏好 · 组织知识</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-04-ch6-failure-modes/">04.6 常见失败模式</a></strong>召回漏掉 · 错文档命中 · 上下文污染 · 过度自信</li>
       </ul>
     </article>
 
