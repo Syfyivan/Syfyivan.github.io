@@ -555,8 +555,9 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">概览已写</span>
+        <span class="aaf-badge is-ready">章节已展开</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-08-evals-observability/">阅读第八讲</a>
+        <a class="aaf-link" href="/courses/ai-agent-fables-08/">章节目录</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -725,12 +726,12 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-blueprint">
       <h3>08 会验收的裁判：评测、观测与回归</h3>
       <ul class="aaf-chapter-list">
-        <li><strong>08.1 为什么演示不算评测</strong>样例偏差 · cherry-pick · 回归风险</li>
-        <li><strong>08.2 LLM 评测基础</strong>准确性 · 相关性 · 格式 · 鲁棒性</li>
-        <li><strong>08.3 Agent 任务级 eval</strong>轨迹 · 工具调用 · 完成率 · 成本/延迟</li>
-        <li><strong>08.4 Trace 与回放</strong>span · tool call · handoff · replay · failure taxonomy</li>
-        <li><strong>08.5 人工评审与 LLM-as-judge</strong>rubric · 一致性 · 偏差 · 抽检</li>
-        <li><strong>08.6 线上监控</strong>质量漂移 · 安全事件 · 预算告警 · 用户反馈闭环</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-08-ch1-demo-is-not-eval/">08.1 为什么演示不算评测</a></strong>样例偏差 · cherry-pick · 回归风险</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-08-ch2-llm-eval-basics/">08.2 LLM 评测基础</a></strong>准确性 · 相关性 · 格式 · 鲁棒性</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-08-ch3-agent-eval/">08.3 Agent 任务级 eval</a></strong>轨迹 · 工具调用 · 完成率 · 成本/延迟</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-08-ch4-trace-replay/">08.4 Trace 与回放</a></strong>span · tool call · handoff · replay · failure taxonomy</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-08-ch5-human-and-llm-judge/">08.5 人工评审与 LLM-as-judge</a></strong>rubric · 一致性 · 偏差 · 抽检</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-08-ch6-production-monitoring/">08.6 线上监控</a></strong>质量漂移 · 安全事件 · 预算告警 · 用户反馈闭环</li>
       </ul>
     </article>
 
