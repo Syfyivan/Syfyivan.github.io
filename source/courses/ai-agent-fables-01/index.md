@@ -159,6 +159,9 @@ html[data-user-color-scheme="dark"] .ahf-card { background: var(--ahf-panel); }
   <section class="ahf-note">
     <p>层级说明：大课程的“讲”是学习等级；第 01 讲下面拆成 6 个章节。这一页把这 6 章按学习顺序排好，建议先读概览，再顺着 01.1 到 01.6 往下走。</p>
   </section>
+  <section class="ahf-note">
+    <p>本讲脉络（一条故事线）：小木偶阿木在木偶镇里——先<strong>认得镇口三盏灯</strong>（01.1）→ 去看<strong>造灯的三家坊</strong>（01.2）→ 看懂<strong>规则册撞墙、深度学习接棒</strong>（01.3）→ 见证<strong>图书馆大灯亮起</strong>（01.4）→ 被<strong>装上腿学会跑腿</strong>（01.5）→ 在<strong>集市口学会分辨吆喝</strong>（01.6）。每章开头承上、结尾启下，连着读最顺。</p>
+  </section>
   <h2 class="ahf-section-title">第 01 讲学习路径</h2>
   <section class="ahf-list" aria-label="第一讲章节目录">
     <article class="ahf-card">
@@ -168,32 +171,32 @@ html[data-user-color-scheme="dark"] .ahf-card { background: var(--ahf-panel); }
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.1</span>
-      <div><small>AI 到底是什么</small><h3>会认路的三盏灯</h3><p>用三盏灯区分规则程序、统计模型和生成式系统，弄清“会说话”为什么不等于“知道事实”。</p></div>
+      <div><small>AI 到底是什么</small><h3>阿木认识镇口的三盏灯</h3><p>种灯人带阿木认识规矩灯、记牌灯、图书馆灯，分清规则程序、统计模型和生成式系统。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch1-what-is-ai/">阅读</a>
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.2</span>
-      <div><small>三条历史主线</small><h3>三个学派的木匠铺</h3><p>用三家木匠铺讲清符号主义、连接主义和概率统计，理解大模型是三线混血。</p></div>
+      <div><small>三条历史主线</small><h3>镇上的三家灯坊</h3><p>阿木走访规矩坊、神经坊、概率坊，看清符号主义、连接主义和概率统计，理解大模型是三线混血。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch2-three-traditions/">阅读</a>
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.3</span>
-      <div><small>从专家系统到深度学习</small><h3>抄满规矩的老药铺</h3><p>从知识工程的瓶颈讲到数据、算力、算法三件事如何让深度学习在 2012 年起飞。</p></div>
+      <div><small>从专家系统到深度学习</small><h3>撞墙的厚册子</h3><p>阿木在镇医馆看到规则册撞墙，再看后院如何用数据、算力、算法让深度学习在 2012 年起飞。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch3-expert-to-deep-learning/">阅读</a>
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.4</span>
-      <div><small>生成式 AI 的位置</small><h3>会续写的说书人</h3><p>用说书人、画师和通译区分语言模型、扩散模型和多模态，把生成式 AI 放回大地图。</p></div>
+      <div><small>生成式 AI 的位置</small><h3>图书馆大灯亮了</h3><p>大灯亮起，灯下三个手艺人会续写、会作画、会通译，区分语言模型、扩散模型和多模态。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch4-generative-ai/">阅读</a>
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.5</span>
-      <div><small>Agent 为什么重新变热</small><h3>会跑腿的学徒回来了</h3><p>用会跑腿的学徒讲清工具使用、长任务和环境反馈，理解 Agent 不是“更聪明的模型”。</p></div>
+      <div><small>Agent 为什么重新变热</small><h3>给图书馆大灯装上腿</h3><p>种灯人给会说话的灯配上腿、账本和循环，阿木学会跑腿，理解 Agent 不是“更聪明的灯”。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch5-why-agents/">阅读</a>
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.6</span>
-      <div><small>读 AI 新闻的方法</small><h3>集市上的五种叫卖声</h3><p>用集市叫卖学会区分模型、产品、论文、融资和基准测试，建立读 AI 新闻的信息素养。</p></div>
+      <div><small>读 AI 新闻的方法</small><h3>集市口的五种叫卖</h3><p>阿木在集市学会区分模型、产品、论文、融资和基准，建立读 AI 新闻的信息素养，给第一讲收尾。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch6-reading-ai-news/">阅读</a>
     </article>
   </section>
