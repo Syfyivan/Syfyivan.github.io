@@ -501,8 +501,9 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">概览已写</span>
+        <span class="aaf-badge is-ready">章节已展开</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-05-tools-mcp-skill/">阅读第五讲</a>
+        <a class="aaf-link" href="/courses/ai-agent-fables-05/">章节目录</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -687,12 +688,12 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-blueprint">
       <h3>05 会借工具的学徒：工具、MCP 与 Skill</h3>
       <ul class="aaf-chapter-list">
-        <li><strong>05.1 Tool Calling 基础</strong>工具定义 · 参数 schema · tool result</li>
-        <li><strong>05.2 MCP 的位置</strong>客户端 · 服务器 · tools · resources · prompts</li>
-        <li><strong>05.3 Skill 是按需能力包</strong>SKILL.md · progressive disclosure · scripts</li>
-        <li><strong>05.4 工具契约质量</strong>何时使用 · 何时不用 · 错误语义 · 示例</li>
-        <li><strong>05.5 权限与沙箱</strong>只读/写入 · 密钥边界 · 审批 · 审计</li>
-        <li><strong>05.6 工具生态设计</strong>工具太多怎么办 · 召回 · 分组 · 版本治理</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-05-ch1-tool-calling/">05.1 Tool Calling 基础</a></strong>工具定义 · 参数 schema · tool result</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-05-ch2-mcp/">05.2 MCP 的位置</a></strong>客户端 · 服务器 · tools · resources · prompts</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-05-ch3-skills/">05.3 Skill 是按需能力包</a></strong>SKILL.md · progressive disclosure · scripts</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-05-ch4-tool-contracts/">05.4 工具契约质量</a></strong>何时使用 · 何时不用 · 错误语义 · 示例</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-05-ch5-permissions-sandbox/">05.5 权限与沙箱</a></strong>只读/写入 · 密钥边界 · 审批 · 审计</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-05-ch6-tool-ecosystem/">05.6 工具生态设计</a></strong>工具太多怎么办 · 召回 · 分组 · 版本治理</li>
       </ul>
     </article>
 
