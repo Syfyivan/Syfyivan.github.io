@@ -591,8 +591,9 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">概览已写</span>
+        <span class="aaf-badge is-ready">章节已展开</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-10-multimodal-computer-use/">阅读第十讲</a>
+        <a class="aaf-link" href="/courses/ai-agent-fables-10/">章节目录</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -751,12 +752,12 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-blueprint">
       <h3>10 会看会听的旅人：多模态与计算机使用</h3>
       <ul class="aaf-chapter-list">
-        <li><strong>10.1 视觉模型基础</strong>图像理解 · OCR · grounding · 空间关系</li>
-        <li><strong>10.2 音频与语音</strong>ASR · TTS · 音频事件 · 实时交互</li>
-        <li><strong>10.3 多模态 RAG</strong>图片/视频切片 · embedding · 引用 · 证据展示</li>
-        <li><strong>10.4 Computer Use</strong>屏幕观察 · 点击/输入 · 状态恢复 · 人类确认</li>
-        <li><strong>10.5 UI Agent 的失败模式</strong>坐标漂移 · 弹窗 · 隐藏状态 · 可访问性</li>
-        <li><strong>10.6 体验设计</strong>可见进度 · 接管权 · 纠错 · 信任边界</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-10-ch1-vision/">10.1 视觉模型基础</a></strong>图像理解 · OCR · grounding · 空间关系</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-10-ch2-audio-speech/">10.2 音频与语音</a></strong>ASR · TTS · 音频事件 · 实时交互</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-10-ch3-multimodal-rag/">10.3 多模态 RAG</a></strong>图片/视频切片 · embedding · 引用 · 证据展示</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-10-ch4-computer-use/">10.4 Computer Use</a></strong>屏幕观察 · 点击/输入 · 状态恢复 · 人类确认</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-10-ch5-ui-agent-failures/">10.5 UI Agent 的失败模式</a></strong>坐标漂移 · 弹窗 · 隐藏状态 · 可访问性</li>
+        <li><strong><a href="/2026/06/21/ai-agent-fables-10-ch6-experience-design/">10.6 体验设计</a></strong>可见进度 · 接管权 · 纠错 · 信任边界</li>
       </ul>
     </article>
 
