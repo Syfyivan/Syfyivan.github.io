@@ -397,7 +397,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
   <section class="aaf-hero">
     <div>
       <span class="aaf-kicker">AI Agent Fables</span>
-      <h2>从第一盏灯，讲到会自己找工具的工匠</h2>
+      <h2>从第一张菜谱，讲到会自己找工具的工匠</h2>
       <p>这是一套从零开始的 AI 与 Agent 寓言课路线图。它不会假装一页目录就等于完整课程，而是先把必须覆盖的知识板块列清楚：AI 导论、机器学习、深度学习、LLM、RAG、MCP、Skill、Agent Loop、AI 编程方法、评测、安全治理、多模态、多 Agent 和产品化工程。</p>
     </div>
     <ul class="aaf-hero-list" aria-label="课程学习原则">
@@ -419,7 +419,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-module">
       <span class="aaf-number">01</span>
       <div>
-        <h3>会学习的木偶：AI 导论与发展史</h3>
+        <h3>会学手艺的小厨子：AI 导论与发展史</h3>
         <p>从“机器能不能学会规则之外的东西”讲起，先把 AI、机器学习、深度学习、生成式 AI、Agent 这些词放到一张历史地图里。</p>
         <ul>
           <li>AI 是什么</li>
@@ -634,7 +634,7 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
 
   <section class="aaf-blueprint-grid" aria-label="AI 与 Agent 大寓言课章节蓝图">
     <article class="aaf-blueprint">
-      <h3>01 会学习的木偶：AI 导论与发展史</h3>
+      <h3>01 会学手艺的小厨子：AI 导论与发展史</h3>
       <ul class="aaf-chapter-list">
         <li><strong><a href="/2026/06/20/ai-agent-fables-01-ch1-what-is-ai/">01.1 AI 到底是什么</a></strong>规则程序 · 统计模型 · 生成式系统</li>
         <li><strong><a href="/2026/06/20/ai-agent-fables-01-ch2-three-traditions/">01.2 三条历史主线</a></strong>符号主义 · 连接主义 · 概率统计</li>

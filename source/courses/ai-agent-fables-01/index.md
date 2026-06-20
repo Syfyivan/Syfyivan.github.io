@@ -1,5 +1,5 @@
 ---
-title: "AI 与 Agent 大寓言课 01：会学习的木偶 章节目录"
+title: "AI 与 Agent 大寓言课 01：会学手艺的小厨子 章节目录"
 date: 2026-06-20 11:00:00
 description: "AI 与 Agent 大寓言课第 01 讲的专题目录：从 AI 是什么、三条历史主线、专家系统到深度学习、生成式 AI 的位置、Agent 复兴，到读 AI 新闻的方法。"
 ---
@@ -148,8 +148,8 @@ html[data-user-color-scheme="dark"] .ahf-card { background: var(--ahf-panel); }
 <div class="ahf-track">
   <section class="ahf-hero">
     <span class="ahf-kicker">AI Agent Fables / Lesson 01</span>
-    <h2>会学习的木偶：AI 导论与发展史</h2>
-    <p>这是 AI 与 Agent 大寓言课第 01 讲的章节目录。第 01 讲先用一篇概览文章把 AI、机器学习、生成式 AI 和 Agent 放进同一条历史路，再把这条路拆成 6 个章节：每章先用寓言建立直觉，再回到准确定义、历史脉络、常见误区和一个可动手的小练习。</p>
+    <h2>会学手艺的小厨子：AI 导论与发展史</h2>
+    <p>这是 AI 与 Agent 大寓言课第 01 讲的章节目录。第 01 讲先用一篇概览文章把 AI、机器学习、生成式 AI 和 Agent 放进同一条历史路，再把这条路拆成 6 个章节：每章先用同一个后厨里的寓言建立直觉，再回到准确定义、历史脉络、常见误区和一个可动手的小练习。</p>
     <div class="ahf-parent">
       <span>上层目录：AI 与 Agent 大寓言课 / 第 01 讲</span>
       <a class="ahf-link" href="/courses/ai-agent-fables/">返回总目录</a>
@@ -160,43 +160,43 @@ html[data-user-color-scheme="dark"] .ahf-card { background: var(--ahf-panel); }
     <p>层级说明：大课程的“讲”是学习等级；第 01 讲下面拆成 6 个章节。这一页把这 6 章按学习顺序排好，建议先读概览，再顺着 01.1 到 01.6 往下走。</p>
   </section>
   <section class="ahf-note">
-    <p>本讲脉络（一条故事线）：小木偶阿木在木偶镇里——先<strong>认得镇口三盏灯</strong>（01.1）→ 去看<strong>造灯的三家坊</strong>（01.2）→ 看懂<strong>规则册撞墙、深度学习接棒</strong>（01.3）→ 见证<strong>图书馆大灯亮起</strong>（01.4）→ 被<strong>装上腿学会跑腿</strong>（01.5）→ 在<strong>集市口学会分辨吆喝</strong>（01.6）。每章开头承上、结尾启下，连着读最顺。</p>
+    <p>本讲脉络（一条故事线）：学徒小满在同一间后厨里——先<strong>认清三位厨子</strong>（01.1）→ 走访<strong>三家厨艺流派</strong>（01.2）→ 看懂<strong>祖传菜谱撞墙、深度学习接棒</strong>（01.3）→ 见识<strong>会报菜的厨子</strong>（01.4）→ 给他配上腿<strong>办成一桌席</strong>（01.5）→ 在<strong>集市口学会分辨吆喝</strong>（01.6）。师傅老厨子贯穿全程，每章开头承上、结尾启下，连着读最顺。</p>
   </section>
   <h2 class="ahf-section-title">第 01 讲学习路径</h2>
   <section class="ahf-list" aria-label="第一讲章节目录">
     <article class="ahf-card">
       <span class="ahf-number">01.0</span>
-      <div><small>概览</small><h3>木偶镇的第一盏灯</h3><p>用三段寓言把人工智能、机器学习、生成式 AI 和 Agent 放到同一条历史路上的位置。</p></div>
+      <div><small>概览</small><h3>后厨里的第一张菜谱</h3><p>用三段后厨寓言把人工智能、机器学习、生成式 AI 和 Agent 放到同一条历史路上的位置。</p></div>
       <a class="ahf-link" href="/2026/06/18/ai-agent-fables-01-ai-history/">阅读</a>
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.1</span>
-      <div><small>AI 到底是什么</small><h3>阿木认识镇口的三盏灯</h3><p>点灯人带阿木认识按死规矩走的灯、会记账的灯、图书馆大灯，分清规则程序、统计模型和生成式系统。</p></div>
+      <div><small>AI 到底是什么</small><h3>后厨里的三种厨子</h3><p>师傅让小满认清照菜谱卡的、靠尝味的、会报菜的三位厨子，分清规则程序、统计模型和生成式系统。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch1-what-is-ai/">阅读</a>
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.2</span>
-      <div><small>三条历史主线</small><h3>镇上的三家造灯作坊</h3><p>阿木走访三家造灯作坊（写死规矩、让学徒传话、只报概率），看清符号主义、连接主义和概率统计，理解大模型是三线混血。</p></div>
+      <div><small>三条历史主线</small><h3>镇上的三家厨艺流派</h3><p>小满走访三家流派（写死规矩、让学徒尝、只报概率），看清符号主义、连接主义和概率统计，理解大模型是三线混血。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch2-three-traditions/">阅读</a>
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.3</span>
-      <div><small>从专家系统到深度学习</small><h3>撞墙的厚册子</h3><p>阿木在镇医馆看到规则册撞墙，再看后院如何用数据、算力、算法让深度学习在 2012 年起飞。</p></div>
+      <div><small>从专家系统到深度学习</small><h3>越写越厚的祖传菜谱</h3><p>小满看祖传菜谱撞墙，再看另一头如何用数据、算力、算法让深度学习在 2012 年起飞。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch3-expert-to-deep-learning/">阅读</a>
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.4</span>
-      <div><small>生成式 AI 的位置</small><h3>图书馆大灯亮了</h3><p>大灯亮起，灯下三个手艺人会续写、会作画、会通译，区分语言模型、扩散模型和多模态。</p></div>
+      <div><small>生成式 AI 的位置</small><h3>会报菜的厨子</h3><p>后厨里会报菜、会裱花、会尝说互通的三个厨子，区分语言模型、扩散模型和多模态。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch4-generative-ai/">阅读</a>
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.5</span>
-      <div><small>Agent 为什么重新变热</small><h3>给图书馆大灯装上腿</h3><p>点灯人给会说话的灯配上腿、账本和循环，阿木学会跑腿，理解 Agent 不是“更聪明的灯”。</p></div>
+      <div><small>Agent 为什么重新变热</small><h3>让会报菜的厨子去办一桌席</h3><p>师傅给会报菜的厨子配上采买、尝味和返工，小满当腿，理解 Agent 不是“更会报菜的厨子”。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch5-why-agents/">阅读</a>
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.6</span>
-      <div><small>读 AI 新闻的方法</small><h3>集市口的五种叫卖</h3><p>阿木在集市学会区分模型、产品、论文、融资和基准，建立读 AI 新闻的信息素养，给第一讲收尾。</p></div>
+      <div><small>读 AI 新闻的方法</small><h3>集市口的五种叫卖</h3><p>小满在集市学会区分模型、产品、论文、融资和基准，建立读 AI 新闻的信息素养，给第一讲收尾。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch6-reading-ai-news/">阅读</a>
     </article>
   </section>
