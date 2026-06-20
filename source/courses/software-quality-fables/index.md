@@ -160,6 +160,9 @@ html[data-user-color-scheme="dark"] .sqf-card { background: var(--sqf-panel); }
     <p>每一讲都是「双轨」：前半用<strong>家具坊寓言</strong>把概念讲到小白也懂；后半给一段 <strong>📌 课件原文 · 标准知识点（背诵版）</strong>，尽量贴合课件原话、按考点分条，考前直接背这一节即可。理念讲懂、原话背牢，两头都不耽误。</p>
   </section>
   <section class="sqf-note">
+    <p>这门课有<strong>两个板块</strong>：本页是<strong>寓言版·家具坊</strong>；还有一版<a href="/courses/software-quality-xianxia/">修仙版·质道九境</a>，把同一套考点讲成女弟子青萝在灵枢宗修行。知识点同源、风格迥异，每讲互相对照链接，挑顺眼的读，或两版对读看哪种更记得住。</p>
+  </section>
+  <section class="sqf-note">
     <p>主线（一条故事线）：小磊进门见识<strong>为什么要把关</strong>（00）→ 弄懂<strong>什么算好</strong>（01）→ 明白<strong>软件和硬件不一样</strong>（02）→ 看清<strong>整座作坊的体系</strong>（03）→ 学会<strong>用尺子量手艺</strong>（04）→ 搞清<strong>行规和等级</strong>（05）→ 参加<strong>出货前的会审</strong>（06）→ 搭起<strong>把关的班子</strong>（07）→ 回到<strong>先把图纸画好</strong>（08）→ 收在<strong>一榫一卯的手上规矩</strong>（09）。</p>
   </section>
   <h2 class="sqf-section-title">章节学习路径</h2>

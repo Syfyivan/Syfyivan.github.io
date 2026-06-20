@@ -366,7 +366,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
       <span>Quality</span>
       <strong>软件工程与质量</strong>
       <p>软件质量保证与测试：质量、缺陷、度量、评审、标准、设计与编程。</p>
-      <small>大寓言课</small>
+      <small>寓言版 + 修仙版</small>
     </a>
     <a class="course-category-card is-client" href="#client">
       <span>Client</span>
@@ -433,18 +433,36 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <div class="course-category-head">
       <div>
         <h2>软件工程与质量</h2>
-        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量与高质量编程。</p>
+        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量与高质量编程。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——知识点同源、风格不同，可挑一种读，也可两版对读比较哪种更记得住。</p>
       </div>
-      <span class="course-category-count">1 门</span>
+      <span class="course-category-count">1 门 · 2 版</span>
     </div>
     <div class="course-grid">
       <article class="course-card">
-        <span class="course-badge is-client">10 讲全</span>
-        <h3>软件质量与测试大寓言课</h3>
-        <p>把大学《软件质量保证与测试》九章理论 + 绪论，改写成「榫卯镇·老周家具坊」一套寓言：学徒小磊从「为什么要有人挑毛病」一路学到「一榫一卯怎么讲究」。每讲都配一段贴合课件原话的「背诵版」，理念讲懂、原话背牢，零基础也能应付期末。</p>
+        <span class="course-badge is-client">板块 A · 寓言版 · 10 讲</span>
+        <h3>软件质量与测试大寓言课（家具坊）</h3>
+        <p>把《软件质量保证与测试》九章 + 绪论改写成「榫卯镇·老周家具坊」：学徒小磊从「为什么要有人挑毛病」学到「一榫一卯怎么讲究」。每讲配一段贴合课件原话的「背诵版」，理念讲懂、原话背牢。</p>
         <div class="course-card-footer">
-          <span>适合：软件质量保证与测试课的复习者、想入门软件工程质量的人</span>
-          <a class="course-link" href="/courses/software-quality-fables/">进入课程</a>
+          <span>风格：温和生活化的工匠寓言 + 背诵版</span>
+          <a class="course-link" href="/courses/software-quality-fables/">进入寓言版</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge is-ai">板块 B · 修仙版 · 10 讲</span>
+        <h3>质道九境（灵枢宗 · 修仙版）</h3>
+        <p>同一套考点的第二种讲法：女弟子青萝在灵枢宗修「质道九境」。正式术语原样入文、不造黑话，每讲按「故事→术语→概念正解→场景映射→考点卡→小试炼→易错点」七段展开。</p>
+        <div class="course-card-footer">
+          <span>风格：有冲突有节奏的修仙叙事 + 七段考点结构</span>
+          <a class="course-link" href="/courses/software-quality-xianxia/">进入修仙版</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge is-project">对比</span>
+        <h3>两种讲法对比：寓言 vs 修仙</h3>
+        <p>同一门课、两套外壳，到底哪种更适合零基础入门、哪种更适合考前突击？这篇把两版逐项放在一起比：可读性、记忆点、术语贴合度、考试可迁移性，给出选读建议。</p>
+        <div class="course-card-footer">
+          <span>适合：纠结读哪一版、或想两版对读的人</span>
+          <a class="course-link" href="/2026/06/20/software-quality-two-styles-compare/">看对比</a>
         </div>
       </article>
     </div>
