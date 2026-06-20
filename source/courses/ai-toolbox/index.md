@@ -1,7 +1,7 @@
 ---
 title: "AI 工具实操手册"
 date: 2026-06-21 18:30:00
-description: "用好 AI、订阅海外 AI 服务时绕不开的那些配套工具的实操手册：海外手机号、海外支付、订阅报销、科学上网等，每篇都能照着上手。"
+description: "用好 AI、订阅海外 AI 服务时绕不开的那些配套工具的实操手册：海外手机号、海外支付、网络与 IP 等，每篇都能照着上手。"
 ---
 
 <style>
@@ -159,19 +159,19 @@ html[data-user-color-scheme="dark"] .ahf-card { background: var(--ahf-panel); }
       <div><small>海外手机号</small><h3>eSIM 与长期海外手机号</h3><p>搞清 eSIM、可编程白卡、写卡器三条路，对比爱沙尼亚/美国/英国/德国/香港等长期号码渠道，解决注册海外 AI 服务要境外号的问题。</p></div>
       <a class="ahf-link" href="/2026/06/21/ai-toolbox-01-esim-overseas-number/">阅读</a>
     </article>
-    <article class="ahf-card is-soon">
+    <article class="ahf-card">
       <span class="ahf-number">02</span>
-      <div><small>海外支付</small><h3>大陆卡付海外订阅</h3><p>大陆 VISA/Master、银联、PayPal 国区与特供版的区别，订阅 AI 服务的支付与避坑。</p></div>
-      <span class="ahf-tag">筹备中</span>
+      <div><small>海外支付</small><h3>大陆卡怎么付海外 AI 订阅</h3><p>官网直接绑卡、App Store/Google Play 礼品卡充值、虚拟卡/U 卡，以及发卡地区校验、黑卡、PayPal 区分等避坑点。</p></div>
+      <a class="ahf-link" href="/2026/06/21/ai-toolbox-02-overseas-payment/">阅读</a>
     </article>
-    <article class="ahf-card is-soon">
+    <article class="ahf-card">
       <span class="ahf-number">03</span>
-      <div><small>订阅与报销</small><h3>AI 订阅的合规报销姿势</h3><p>ChatGPT / Claude / Codex 等订阅充值与报销的常见做法与注意事项。</p></div>
-      <span class="ahf-tag">筹备中</span>
+      <div><small>网络与 IP</small><h3>稳定访问海外 AI 服务</h3><p>为什么 IP 也影响账号安危：IP 纯净度、住宅与机房 IP、地区一致性、查 IP 与账号隔离（概念科普，合规优先）。</p></div>
+      <a class="ahf-link" href="/2026/06/21/ai-toolbox-03-network-access/">阅读</a>
     </article>
     <article class="ahf-card is-soon">
       <span class="ahf-number">04</span>
-      <div><small>网络</small><h3>稳定访问海外 AI 服务</h3><p>几种正规姿势的对比，以及 IP 归属与账号风控的关系。</p></div>
+      <div><small>持续增补</small><h3>更多配套工具</h3><p>账号安全与隔离、设备/机型选择、海外 AI 产品体验等相关知识，按需继续补。</p></div>
       <span class="ahf-tag">筹备中</span>
     </article>
   </section>
