@@ -171,7 +171,7 @@ html[data-user-color-scheme="dark"] .ahf-card { background: var(--ahf-panel); }
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.1</span>
-      <div><small>AI 到底是什么</small><h3>阿木认识镇口的三盏灯</h3><p>种灯人带阿木认识规矩灯、记牌灯、图书馆灯，分清规则程序、统计模型和生成式系统。</p></div>
+      <div><small>AI 到底是什么</small><h3>阿木认识镇口的三盏灯</h3><p>点灯人带阿木认识规矩灯、记牌灯、图书馆灯，分清规则程序、统计模型和生成式系统。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch1-what-is-ai/">阅读</a>
     </article>
     <article class="ahf-card">
@@ -191,7 +191,7 @@ html[data-user-color-scheme="dark"] .ahf-card { background: var(--ahf-panel); }
     </article>
     <article class="ahf-card">
       <span class="ahf-number">01.5</span>
-      <div><small>Agent 为什么重新变热</small><h3>给图书馆大灯装上腿</h3><p>种灯人给会说话的灯配上腿、账本和循环，阿木学会跑腿，理解 Agent 不是“更聪明的灯”。</p></div>
+      <div><small>Agent 为什么重新变热</small><h3>给图书馆大灯装上腿</h3><p>点灯人给会说话的灯配上腿、账本和循环，阿木学会跑腿，理解 Agent 不是“更聪明的灯”。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-01-ch5-why-agents/">阅读</a>
     </article>
     <article class="ahf-card">
