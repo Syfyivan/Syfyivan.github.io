@@ -447,8 +447,9 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
         </ul>
       </div>
       <div class="aaf-module-meta">
-        <span class="aaf-badge is-ready">概览已写</span>
+        <span class="aaf-badge is-ready">章节已展开</span>
         <a class="aaf-link" href="/2026/06/18/ai-agent-fables-02-machine-learning/">阅读第二讲</a>
+        <a class="aaf-link" href="/courses/ai-agent-fables-02/">章节目录</a>
       </div>
     </article>
     <article class="aaf-module">
@@ -648,12 +649,12 @@ html[data-user-color-scheme="dark"] .aaf-hero-list li {
     <article class="aaf-blueprint">
       <h3>02 会分类的农夫：数据、特征与机器学习</h3>
       <ul class="aaf-chapter-list">
-        <li><strong>02.1 数据从哪里来</strong>样本 · 标签 · 数据泄漏 · 数据权利</li>
-        <li><strong>02.2 学习任务类型</strong>监督学习 · 无监督学习 · 强化学习</li>
-        <li><strong>02.3 训练与推理</strong>损失函数 · 优化 · 参数 · 推理成本</li>
-        <li><strong>02.4 泛化与过拟合</strong>训练集 · 验证集 · 测试集 · 分布漂移</li>
-        <li><strong>02.5 指标怎么骗人</strong>准确率 · 召回率 · AUC · 校准 · 业务指标</li>
-        <li><strong>02.6 从模型到系统</strong>特征流水线 · 线上服务 · 监控 · 反馈闭环</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-02-ch1-where-data-comes-from/">02.1 数据从哪里来</a></strong>样本 · 标签 · 数据泄漏 · 数据权利</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-02-ch2-learning-types/">02.2 学习任务类型</a></strong>监督学习 · 无监督学习 · 强化学习</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-02-ch3-training-inference/">02.3 训练与推理</a></strong>损失函数 · 优化 · 参数 · 推理成本</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-02-ch4-generalization-overfitting/">02.4 泛化与过拟合</a></strong>训练集 · 验证集 · 测试集 · 分布漂移</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-02-ch5-metrics/">02.5 指标怎么骗人</a></strong>准确率 · 召回率 · AUC · 校准 · 业务指标</li>
+        <li><strong><a href="/2026/06/20/ai-agent-fables-02-ch6-model-to-system/">02.6 从模型到系统</a></strong>特征流水线 · 线上服务 · 监控 · 反馈闭环</li>
       </ul>
     </article>
 
