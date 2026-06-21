@@ -335,7 +335,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>7</strong>
+        <strong>8</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
@@ -353,8 +353,8 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <a class="course-category-card is-ai" href="#ai">
       <span>AI</span>
       <strong>AI 与 Agent</strong>
-      <p>从 AI 基础、发展史、LLM、MCP、Skill 一路讲到 Agent 工程。</p>
-      <small>大寓言课</small>
+      <p>从 AI 基础、发展史、LLM、MCP、Skill 一路讲到 Agent 工程，外加配套工具实操手册。</p>
+      <small>大寓言课 + 实操手册</small>
     </a>
     <a class="course-category-card is-backend" href="#backend">
       <span>Backend</span>
@@ -388,16 +388,25 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>AI 与 Agent</h2>
         <p>先从 AI 导论、数据与机器学习讲起，再进入 LLM、RAG、MCP、Skill、Agent Loop、vibe coding、SDD、评测、安全治理、多模态、多 Agent 和产品化工程。</p>
       </div>
-      <span class="course-category-count">4 项</span>
+      <span class="course-category-count">5 项</span>
     </div>
     <div class="course-grid">
       <article class="course-card">
-        <span class="course-badge is-ai">总目录</span>
+        <span class="course-badge is-ai">总目录 · 12 讲全</span>
         <h3>AI 与 Agent 大寓言课</h3>
-        <p>从“人工智能是什么”开始，用一整套寓言把 AI 发展史、机器学习、深度学习、大模型、RAG、MCP、Skill、Agent Loop、评测、安全治理、vibe coding、SDD 和多 Agent 工程串起来。</p>
+        <p>从“人工智能是什么”开始，用一整套寓言把 AI 发展史、机器学习、深度学习、大模型、RAG、MCP、Skill、Agent Loop、评测、安全治理、vibe coding、SDD 和多 Agent 工程串起来。12 讲 72 章已全部展开。</p>
         <div class="course-card-footer">
           <span>适合：想从 AI 基础一路学到 Agent 工程的人</span>
           <a class="course-link" href="/courses/ai-agent-fables/">进入总目录</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge is-ai">实操手册 · 4 篇</span>
+        <h3>AI 工具实操手册</h3>
+        <p>用 AI、订阅海外 AI 服务时绕不开的配套工具实操：海外手机号（eSIM）、海外支付、网络与 IP、账号安全与隔离。号→钱→网→守号，每篇都能照着上手。</p>
+        <div class="course-card-footer">
+          <span>适合：想搞定“拥有并用好一个海外 AI 账号”的人</span>
+          <a class="course-link" href="/courses/ai-toolbox/">进入手册</a>
         </div>
       </article>
       <article class="course-card">

@@ -174,9 +174,14 @@ html[data-user-color-scheme="dark"] .ahf-card { background: var(--ahf-panel); }
       <div><small>账号安全</small><h3>守住来之不易的海外 AI 账号</h3><p>三层隔离、强认证（2FA 与 Passkey）、邮箱与支付信息保护、备份与封号应对——一篇账号安全清单。</p></div>
       <a class="ahf-link" href="/2026/06/21/ai-toolbox-04-account-safety/">阅读</a>
     </article>
-    <article class="ahf-card is-soon">
+    <article class="ahf-card">
       <span class="ahf-number">05</span>
-      <div><small>持续增补</small><h3>更多配套工具</h3><p>设备/机型选择、海外 AI 产品体验、模型选型等相关知识，按需继续补。</p></div>
+      <div><small>设备选择</small><h3>跑通这套，用什么手机最省心</h3><p>外版机、国行安卓+白卡、国行 iPhone+写卡器、蓝牙写卡、安卓代写、云真机——按你的设备和预算挑一条最省心的路。</p></div>
+      <a class="ahf-link" href="/2026/06/21/ai-toolbox-05-device-choice/">阅读</a>
+    </article>
+    <article class="ahf-card is-soon">
+      <span class="ahf-number">06</span>
+      <div><small>持续增补</small><h3>更多配套工具</h3><p>海外 AI 产品体验、模型选型等相关知识，按需继续补。</p></div>
       <span class="ahf-tag">筹备中</span>
     </article>
   </section>
