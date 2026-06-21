@@ -245,7 +245,7 @@ custom_js:
 # The usage is the same as custom_js
 custom_css:
   - /css/token-usage.css?v=20260606-1.css
-  - /css/site-polish.css?v=20260618-2.css
+  - /css/site-polish.css?v=20260621-1.css
   - /css/post-affiliation.css?v=20260618-1.css
   - /css/post-inline-editor.css?v=20260618-1.css
 
