@@ -278,6 +278,15 @@ categories: [升学指南]
 | **适不适合考公** | **比大多数工科更适合**。网信办、公安网安、各级政府数据局/大数据中心、银行/电网科技岗都招计算机。岗位数量在工科里算多的。 |
 | **女生友好度** | ⭐⭐⭐⭐⭐ 非常友好，女程序员/产品/测试/数据岗很多，无现场作业。 |
 
+<details><summary>📎 上面这段「就业现实（AI 冲击/寒冬/学历通胀）」的来源（点开看）</summary>
+<ul>
+<li>大厂 2026 校招扩招、增量在 AI 岗：<a href="https://technode.com/2025/08/07/chinas-tech-giants-kick-off-2026-grad-hiring-drive-early-ai-roles-in-high-demand/" target="_blank" rel="noopener">TechNode</a>、<a href="https://www.globaltimes.cn/page/202508/1340170.shtml" target="_blank" rel="noopener">环球时报</a></li>
+<li>AI 压缩初级码农（实证）：<a href="https://digitaleconomy.stanford.edu/publication/canaries-in-the-coal-mine-six-facts-about-the-recent-employment-effects-of-artificial-intelligence/" target="_blank" rel="noopener">斯坦福数字经济实验室</a>、<a href="https://fortune.com/2025/03/17/computer-programming-jobs-lowest-1980-ai/" target="_blank" rel="noopener">Fortune</a>、<a href="https://news.qq.com/rain/a/20251024A04H0G00" target="_blank" rel="noopener">腾讯研发大数据报告</a></li>
+<li>学历通胀、报志愿建议：<a href="https://xz.chsi.com.cn/xz/zyts/202504/20250424/2293378315.html" target="_blank" rel="noopener">学信网</a>、<a href="https://www.news.cn/fortune/20250703/39c94a3943cf4ef08b73fc32430031eb/c.html" target="_blank" rel="noopener">新华网</a></li>
+</ul>
+<p style="font-size:0.85em;color:#888;margin:0">均为 2025–2026 公开信息；"AI 取代程序员"多为趋势预测，已注明谨慎看待。</p>
+</details>
+
 **分数与对口院校**（下面只是**代表例子**，<strong>完整逐校名单见 [附录② 计算机类](/2026/06/21/gaokao-major-guide-liaoning-appendix-2-computer/)（官方 376 所全列）</strong>）：
 - **660+**：哈工大本部、北航、同济、华科计算机/AI。
 - **640–655**：电子科大、北邮、西电王牌、华南理工、东南，**哈工大威海（AI 领军班 652，性价比之选）**、吉大唐敖庆班、中南、湖大计算机。
@@ -382,6 +391,17 @@ categories: [升学指南]
 4. **越老越吃香、极稳定，但回报极度后置**：一旦熬出来，职业稳定性、社会地位、抗失业能力是所有专业里最强的之一；但**前 8–11 年（读研读博+规培）收入低、强度高**——规培国家补助仅 3 万/年，三四线规培生月薪常只有 4000–6000。
 5. **三件正在发生的事，把"医生=稳定高薪体面"的老叙事改写了（2025–2026 最新）**：① **反腐常态化**（2025 年全国 119 位医院"一把手"落马），药品/耗材回扣等灰色收入被持续清除；② **医保 DRG/DIP 控费**覆盖约 95% 病种，医院"做得多不一定赚得多"，医生收入快速增长空间被压缩；③ **门槛通胀**——三甲临床**博士已是事实最低门槛**，硕士只是入门票，有"1 个编制 400 博士抢"的报道，2021–2023 届医学生未就业率逐年上升。网上甚至出现"**91% 受访医生不会再学医**""**临床死于 2025**"的讨论（有情绪和样本偏差，作趋势参考）。**学医不是坑，但它奖励能熬过 30 岁前低薪长跑、家庭有支撑、真心愿意终身学习的人；惩罚"图轻松/图快回报/分数刚够随便填"的人。**
 
+<details><summary>📎 上面「医学就业现实（反腐 / 控费 / 博士门槛 / 规培低薪）+ 网上"91% 不会再学医""临床死于 2025"」的来源（点开看）</summary>
+<ul>
+<li>医疗反腐常态化、2025 年 119 位医院"一把手"落马：<a href="https://www.pharnexcloud.com/zixun/sx_111048" target="_blank" rel="noopener">摩熵医药</a>、<a href="https://www.cn-healthcare.com/articlewm/20250616/content-1652053.html" target="_blank" rel="noopener">健康界（14 部委整治）</a></li>
+<li>医保 DRG/DIP 控费压收入：<a href="https://www.cn-healthcare.com/articlewm/20250725/content-1654478.html" target="_blank" rel="noopener">健康界</a></li>
+<li>博士门槛、硕士就业难、规培月薪 4000–6000：<a href="https://m.thepaper.cn/newsDetail_forward_29937140" target="_blank" rel="noopener">澎湃《医学生就业现状》</a>、<a href="https://view.inews.qq.com/a/20251011A016ZC00" target="_blank" rel="noopener">规培生收入</a></li>
+<li>"91% 受访医生不会再学医"（网上调查）：<a href="https://www.medsci.cn/article/show_article.do?id=c9209382832b" target="_blank" rel="noopener">MedSci</a>；"临床死于 2025"（网络讨论）：<a href="https://www.zhihu.com/question/1969346913871570819" target="_blank" rel="noopener">知乎</a></li>
+<li>口腔种植集采降温：<a href="https://www.21jingji.com/article/20250513/herald/50e479354db947758cc68334b820516b.html" target="_blank" rel="noopener">21 经济网</a>；儿科劝退：<a href="https://news.qq.com/rain/a/20250406A01BZR00" target="_blank" rel="noopener">腾讯新闻</a>；护理待遇：<a href="https://www.xhby.net/content/s663eb3b4e4b0b88db5c45b8a.html" target="_blank" rel="noopener">新华日报</a>；医药代表/集采：<a href="https://www.pharnexcloud.com/zixun/zc_2778" target="_blank" rel="noopener">摩熵医药</a></li>
+</ul>
+<p style="font-size:0.85em;color:#888;margin:0">"91% 不会再学医""临床死于 2025"等来自媒体/调查/网络讨论，有情绪和样本偏差，作趋势参考；反腐 / DRG / 规培等政策类出处更硬。</p>
+</details>
+
 ### 4.1 临床医学（5+3 / 5 年）
 
 - **学什么 / 干什么**：系统学解剖、生理、病理、内外妇儿等，**目标是当医生**。
@@ -467,6 +487,15 @@ categories: [升学指南]
 | **外语 / 汉语言文学 / 新闻传播** | 语言、文字、媒体 | 看方向 | 汉语言**考公王牌**（岗位极多）；外语一般 | 偏文，你物化生报这些有点“浪费理科优势”，了解即可 |
 
 ---
+
+<details><summary>📎 上面「金融降薪 / 法学红牌 / 师范少子化 / 土木下行」的来源（点开看）</summary>
+<ul>
+<li>金融降薪、限薪常态化：<a href="http://www.eeo.com.cn/2025/0402/719754.shtml" target="_blank" rel="noopener">经济观察网</a></li>
+<li>法学连年红牌、法考通过率、考公竞争：<a href="https://www.eol.cn/news/yaowen/202506/t20250630_2678129.shtml" target="_blank" rel="noopener">中国教育在线</a></li>
+<li>出生人口腰斩（师范少子化底层数据）：<a href="https://www.stats.gov.cn/sj/zxfb/202502/t20250228_1958817.html" target="_blank" rel="noopener">国家统计局公报</a></li>
+<li>土木 / 房地产投资下行：<a href="https://www.stats.gov.cn/sj/zxfbhjd/202601/t20260119_1962324.html" target="_blank" rel="noopener">国家统计局</a></li>
+</ul>
+</details>
 
 ## 七、考研 / 保研，到底是怎么回事？（科普）
 
