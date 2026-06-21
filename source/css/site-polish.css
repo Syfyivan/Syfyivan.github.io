@@ -118,24 +118,15 @@ a {
   overflow: hidden;
 }
 
-body:has(.index-card) .header-inner {
-  height: 46vh !important;
-  min-height: 330px;
-  max-height: 500px;
-}
-
-body:has(.markdown-body) .header-inner {
-  height: 27vh !important;
-  min-height: 220px;
-  max-height: 340px;
-}
-
+/* 统一所有带照片头图页面的高度（首页 .home-showcase 互动头图除外，单独保留） */
+body:has(.index-card) .header-inner,
+body:has(.markdown-body) .header-inner,
 body:has(.list-group) .header-inner,
 body:has(.category-list) .header-inner,
 body:has(.tagcloud) .header-inner {
-  height: 30vh !important;
-  min-height: 230px;
-  max-height: 360px;
+  height: 64vh !important;
+  min-height: 420px;
+  max-height: 700px;
 }
 
 .banner {
@@ -1537,9 +1528,13 @@ html[data-user-color-scheme="dark"] body .home-layout > .index-card::after {
     scroll-padding-top: 72px;
   }
 
-  body:has(.index-card) .header-inner {
-    height: 40vh !important;
-    min-height: 280px;
+  body:has(.index-card) .header-inner,
+  body:has(.markdown-body) .header-inner,
+  body:has(.list-group) .header-inner,
+  body:has(.category-list) .header-inner,
+  body:has(.tagcloud) .header-inner {
+    height: 46vh !important;
+    min-height: 320px;
   }
 
   body:has(.home-showcase) .header-inner {
@@ -1572,11 +1567,6 @@ html[data-user-color-scheme="dark"] body .home-layout > .index-card::after {
     font-size: 0.92rem;
   }
 
-  body:has(.markdown-body) .header-inner {
-    height: 26vh !important;
-    min-height: 225px;
-  }
-
   body:has(.markdown-body) .banner-text {
     width: calc(100vw - 24px);
   }
@@ -1588,12 +1578,6 @@ html[data-user-color-scheme="dark"] body .home-layout > .index-card::after {
     word-break: break-all;
   }
 
-  body:has(.list-group) .header-inner,
-  body:has(.category-list) .header-inner,
-  body:has(.tagcloud) .header-inner {
-    height: 28vh !important;
-    min-height: 215px;
-  }
 
   body:has(.index-card) #board,
   body:has(.markdown-body) #board,
