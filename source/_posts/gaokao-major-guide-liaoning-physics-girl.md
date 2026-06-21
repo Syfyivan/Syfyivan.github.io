@@ -130,6 +130,7 @@ categories: [升学指南]
 | [附录⑦ 药学类](/2026/06/21/gaokao-major-guide-liaoning-appendix-7-pharmacy/) | 药学/临床药学/中药学 | 52 |
 | [附录⑧ 预防/基础/中医](/2026/06/21/gaokao-major-guide-liaoning-appendix-8-prevention-tcm/) | 预防医学/基础医学/中医学 | 47 |
 | [附录⑨ 提前批 + 捡漏名校](/2026/06/21/gaokao-major-guide-liaoning-appendix-9-early-batch/) | 军校/公安/公费师范/定向医学 + 校线低但好专业在区间的名校 | — |
+| [附录⑩ 外省能冲的工科 985/211](/2026/06/21/gaokao-major-guide-liaoning-appendix-10-out-province-engineering/) | **按 600 分/630 分两档**，外省工科院校王牌专业+分数+位次+保研率+城市 | 50+ 校 |
 
 > 用法：先在主篇定位"想读什么专业、大概什么层次"，再去对应附录查"这个分能选哪些学校的这个专业"。**全部 2025 参考值，出分后对位次、以官方为准。**
 
