@@ -564,6 +564,17 @@ body:has(.markdown-body) #board {
   color: var(--yf-teal);
 }
 
+/* TOC 折叠箭头：expand_all 下目录本就全部展开，这些 › 箭头无实际作用；
+   占位箭头（无子标题的项）点击还展不出任何东西，且其宽度让"有箭头/无箭头"
+   的项左右错位（看起来像五、六被缩进成子集）。直接隐藏，让各级目录按层级整齐对齐。 */
+#toc .toc-toggle,
+#toc .toc-toggle-placeholder {
+  display: none !important;
+}
+#toc .toc-list-item {
+  padding-left: 0 !important;
+}
+
 @media (min-width: 992px) {
   body:has(.post-content .markdown-body) main > .container-fluid.nopadding-x > .row.nomargin-x {
     display: grid;
