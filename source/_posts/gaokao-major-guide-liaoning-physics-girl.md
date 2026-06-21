@@ -131,7 +131,9 @@ categories: [升学指南]
 | [附录⑧ 预防/基础/中医](/2026/06/21/gaokao-major-guide-liaoning-appendix-8-prevention-tcm/) | 预防医学/基础医学/中医学 | 47 |
 | [附录⑨ 提前批 + 捡漏名校](/2026/06/21/gaokao-major-guide-liaoning-appendix-9-early-batch/) | 军校/公安/公费师范/定向医学 + 校线低但好专业在区间的名校 | — |
 | [附录⑩ 外省能冲的工科 985/211](/2026/06/21/gaokao-major-guide-liaoning-appendix-10-out-province-engineering/) | **按 600 分/630 分两档**，外省工科院校王牌专业+分数+位次+保研率+城市 | 50+ 校 |
-| [附录⑪ 重点院校·完整专业分数线](/2026/06/21/gaokao-major-guide-liaoning-appendix-11-school-full-majors/) | **按"学校"整理**：每校全部专业/分班完整列出+分数+位次（先收大工/东大，外省陆续补） | 持续补充 |
+| [附录⑪ 大工/东大·完整专业](/2026/06/21/gaokao-major-guide-liaoning-appendix-11-school-full-majors/) | **按"学校"整理**：大连理工/东北大学（含异地校区）全部专业/分班+分数+位次 | 4 单位 |
+| [附录⑫ 外省985/顶尖211·完整专业](/2026/06/21/gaokao-major-guide-liaoning-appendix-12-out-province-985-full/) | 重大/湖大/中南/农大/海大/西电/北邮/哈工程/北交/华电/北科/西南交大/南理工/苏大/武理工/深大 每校全专业 | 17 校 |
+| [附录⑬ 外省211/双非·完整专业](/2026/06/21/gaokao-major-guide-liaoning-appendix-13-out-province-211-full/) | 矿大/中石油/安大/江南/太理/郑大/云大/海大/广西大/南邮/杭电/东北电力/重邮/燕大/浙工大/长理工/西邮/哈理工 每校全专业 | 20 校 |
 
 > 用法：先在主篇定位"想读什么专业、大概什么层次"，再去对应附录查"这个分能选哪些学校的这个专业"。**全部 2025 参考值，出分后对位次、以官方为准。**
 
