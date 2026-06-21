@@ -335,7 +335,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>8</strong>
+        <strong>9</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
@@ -388,7 +388,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>AI 与 Agent</h2>
         <p>先从 AI 导论、数据与机器学习讲起，再进入 LLM、RAG、MCP、Skill、Agent Loop、vibe coding、SDD、评测、安全治理、多模态、多 Agent 和产品化工程。</p>
       </div>
-      <span class="course-category-count">5 项</span>
+      <span class="course-category-count">6 项</span>
     </div>
     <div class="course-grid">
       <article class="course-card">
@@ -425,6 +425,15 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <div class="course-card-footer">
           <span>适合：想搞懂“同时开很多 agent”怎么做、值不值的人</span>
           <a class="course-link" href="/courses/multi-agent-orchestration/">进入课程</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge is-ai">源码逐行 · 连载中</span>
+        <h3>Open Agent SDK 源码逐行精讲</h3>
+        <p>把 38 万行、2115 个文件的 Open Agent SDK（完整 Claude Code 引擎的开源镜像）按依赖顺序逐文件逐行拆开。读它约等于读 Claude Code 本体。两种学法：核心路线只走主干，全量路线一个文件不落，博客上 Tab 切换。</p>
+        <div class="course-card-footer">
+          <span>适合：想真正读懂一台工业级 Agent 引擎怎么实现的人</span>
+          <a class="course-link" href="/courses/open-agent-sdk/">进入课程</a>
         </div>
       </article>
       <article class="course-card">
