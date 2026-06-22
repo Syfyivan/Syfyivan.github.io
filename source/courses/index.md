@@ -505,7 +505,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         </div>
       </article>
       <article class="course-card">
-        <span class="course-badge">14 讲 · 规划中</span>
+        <span class="course-badge">14 讲 · 已完成</span>
         <h3>Go 精进路线</h3>
         <p>跳过 Hello World，从心智模型切入：接口、goroutine、channel、context、泛型、标准库……每讲对准一个让 Go 程序员产生质变的核心机制，最后两讲写完整实战项目（CLI + HTTP 服务）。</p>
         <div class="course-card-footer">
@@ -535,7 +535,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     </div>
     <div class=”course-grid”>
       <article class=”course-card”>
-        <span class=”course-badge is-client”>16 讲 · 规划中</span>
+        <span class=”course-badge is-client”>16 讲 · 已完成</span>
         <h3>Swift 从零路线</h3>
         <p>不预设任何编程背景，从 let/var 开始，走过 Optional、Protocol、async/await，直到 SwiftUI 写完整 App。每讲配 Xcode Playground 可运行代码，16 讲覆盖现代 Swift 6 全貌。</p>
         <div class=”course-card-footer”>
