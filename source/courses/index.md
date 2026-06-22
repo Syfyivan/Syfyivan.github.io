@@ -335,7 +335,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>9</strong>
+        <strong>11</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
@@ -343,7 +343,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <span>内容大类</span>
       </div>
       <div class="course-stat">
-        <strong>50+</strong>
+        <strong>80+</strong>
         <span>课程学习模块</span>
       </div>
     </div>
@@ -492,7 +492,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>服务端与网络</h2>
         <p>把“一个请求怎么跑起来”和“网络代理为什么这样工作”放在同一类，方便顺着工程链路学。</p>
       </div>
-      <span class="course-category-count">2 门</span>
+      <span class="course-category-count">3 门</span>
     </div>
     <div class="course-grid">
       <article class="course-card">
@@ -502,6 +502,15 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <div class="course-card-footer">
           <span>适合：想把后端知识串成一条线的人</span>
           <a class="course-link" href="/courses/server-side/">进入课程</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge">14 讲 · 规划中</span>
+        <h3>Go 精进路线</h3>
+        <p>跳过 Hello World，从心智模型切入：接口、goroutine、channel、context、泛型、标准库……每讲对准一个让 Go 程序员产生质变的核心机制，最后两讲写完整实战项目（CLI + HTTP 服务）。</p>
+        <div class="course-card-footer">
+          <span>起点：有一点基础 → 目标：真正精通</span>
+          <a class="course-link" href="/courses/learn-go/">进入课程</a>
         </div>
       </article>
       <article class="course-card">
@@ -522,10 +531,21 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>前端与客户端</h2>
         <p>这里会放前端工程、Lynx、React、客户端调试、跨端和移动端相关课程，避免它们被 AI 或项目文章淹没。</p>
       </div>
-      <span class="course-category-count">规划中</span>
+      <span class=”course-category-count”>1 门 + 规划</span>
     </div>
-    <div class="course-empty">
-      <p>当前还没有独立课程页。已有的 Lynx、前端调试、ReactLynx、Canvas、动效文章会先继续沉淀，后面整理成一条“前端与客户端工程路线”。</p>
+    <div class=”course-grid”>
+      <article class=”course-card”>
+        <span class=”course-badge is-client”>16 讲 · 规划中</span>
+        <h3>Swift 从零路线</h3>
+        <p>不预设任何编程背景，从 let/var 开始，走过 Optional、Protocol、async/await，直到 SwiftUI 写完整 App。每讲配 Xcode Playground 可运行代码，16 讲覆盖现代 Swift 6 全貌。</p>
+        <div class=”course-card-footer”>
+          <span>起点：零基础 → 目标：独立写 SwiftUI App</span>
+          <a class=”course-link” href=”/courses/learn-swift/”>进入课程</a>
+        </div>
+      </article>
+      <div class=”course-empty” style=”align-self:start”>
+        <p>已有的 Lynx、前端调试、ReactLynx、Canvas、动效文章会先继续沉淀，后面整理成一条”前端与客户端工程路线”。</p>
+      </div>
     </div>
   </section>
 
