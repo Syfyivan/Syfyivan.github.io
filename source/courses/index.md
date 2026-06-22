@@ -335,7 +335,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>11</strong>
+        <strong>12</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
@@ -388,7 +388,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>AI 与 Agent</h2>
         <p>先从 AI 导论、数据与机器学习讲起，再进入 LLM、RAG、MCP、Skill、Agent Loop、vibe coding、SDD、评测、安全治理、多模态、多 Agent 和产品化工程。</p>
       </div>
-      <span class="course-category-count">6 项</span>
+      <span class="course-category-count">7 项</span>
     </div>
     <div class="course-grid">
       <article class="course-card">
@@ -434,6 +434,15 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <div class="course-card-footer">
           <span>适合：想真正读懂一台工业级 Agent 引擎怎么实现的人</span>
           <a class="course-link" href="/courses/open-agent-sdk/">进入课程</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge is-ai">源码逐行 · 连载中</span>
+        <h3>LangChain.js 源码逐行精讲</h3>
+        <p>逐行拆开 @langchain/core 引擎（257 个文件、约 5 万行 TS）——LangChain 的“语法”本体。从 Runnable/LCEL 一路读到提示、模型、解析、工具、回调追踪与检索，整季锁定 commit 行号不漂。两种学法：核心路线 38 讲走 LCEL 主干，全量路线连外围包一个文件不落。</p>
+        <div class="course-card-footer">
+          <span>适合：想真正读懂 LangChain 引擎怎么实现的人</span>
+          <a class="course-link" href="/courses/langchainjs/">进入课程</a>
         </div>
       </article>
       <article class="course-card">
