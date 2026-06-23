@@ -154,6 +154,7 @@ html[data-user-color-scheme="dark"] .sqf-card { background: var(--sqf-panel); }
       <span>面向：零基础初学者 + 期末闭卷复习</span>
       <a class="sqf-link" href="/courses/">返回课程总目录</a>
       <a class="sqf-link" href="/2026/06/20/software-quality-fables-00-why-quality/">从第 00 讲读起</a>
+      <a class="sqf-link" href="/courses/software-quality-exercises/">刷习题页</a>
     </div>
   </section>
   <section class="sqf-note">
@@ -164,6 +165,9 @@ html[data-user-color-scheme="dark"] .sqf-card { background: var(--sqf-panel); }
   </section>
   <section class="sqf-note">
     <p>这门课有<strong>两个板块</strong>：本页是<strong>寓言版·家具坊</strong>；还有一版<a href="/courses/software-quality-xianxia/">修仙版·质道九境</a>，把同一套考点讲成女弟子青萝在灵枢宗修行。知识点同源、风格迥异，每讲互相对照链接，挑顺眼的读，或两版对读看哪种更记得住。</p>
+  </section>
+  <section class="sqf-note">
+    <p>新增了<a href="/courses/software-quality-exercises/">课堂练习题库</a>：按云班课练习范围、互评题、本课程九章考点和软件测试章节整理，判断、选择、填空、简答、设计题集中放在一页，答案默认折叠，适合考前连续刷题。</p>
   </section>
   <section class="sqf-note">
     <p>主线（一条故事线）：小磊进门见识<strong>为什么要把关</strong>（00）→ 弄懂<strong>什么算好</strong>（01）→ 明白<strong>软件和硬件不一样</strong>（02）→ 看清<strong>整座作坊的体系</strong>（03）→ 学会<strong>用尺子量手艺</strong>（04）→ 搞清<strong>行规和等级</strong>（05）→ 参加<strong>出货前的会审</strong>（06）→ 搭起<strong>把关的班子</strong>（07）→ 回到<strong>先把图纸画好</strong>（08）→ 收在<strong>一榫一卯的手上规矩</strong>（09）。</p>

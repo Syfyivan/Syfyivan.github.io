@@ -155,6 +155,7 @@ html[data-user-color-scheme="dark"] .sqx-card { background: var(--sqx-panel); }
       <a class="sqx-link" href="/courses/">返回课程总目录</a>
       <a class="sqx-link" href="/courses/software-quality-fables/">换成寓言版</a>
       <a class="sqx-link" href="/2026/06/20/software-quality-xianxia-00-why-quality/">从引子读起</a>
+      <a class="sqx-link" href="/courses/software-quality-exercises/">刷习题页</a>
     </div>
   </section>
   <section class="sqx-note">
@@ -162,6 +163,9 @@ html[data-user-color-scheme="dark"] .sqx-card { background: var(--sqx-panel); }
   </section>
   <section class="sqx-note">
     <p><strong>考试边界：</strong>本目录下 00-09 讲的正式考点只以本地资料 <code>/Users/大三下学习资料/软件测试/复习资料</code> 为边界；其中 00-09 分别对应 <code>理论0</code> 到 <code>理论9</code> 的 PPT/PDF。修仙故事、场景映射和小试炼只作辅助理解，闭卷答题以 PPT 原词、复习资料和往年题为准。</p>
+  </section>
+  <section class="sqx-note">
+    <p>新增了<a href="/courses/software-quality-exercises/">课堂练习题库</a>作为修仙版的小测入口：按互评题、00 引子到 09 炼码境和软件测试、白盒、黑盒、集成、系统、验收测试分组，题干常显、答案折叠。先独立做题，再回到对应境界复盘术语和考点卡。</p>
   </section>
   <section class="sqx-note">
     <p>这一版与<a href="/courses/software-quality-fables/">寓言版·家具坊</a>是<strong>同一门课的两个板块</strong>：知识点同源、各自独立成篇、风格迥异。两版每讲都互相对照链接，方便你挑顺眼的那种讲法，或两版对读、看哪种更记得住。</p>

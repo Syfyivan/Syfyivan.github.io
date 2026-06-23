@@ -365,8 +365,8 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <a class="course-category-card is-client" href="#quality">
       <span>Quality</span>
       <strong>软件工程与质量</strong>
-      <p>软件质量保证与测试：质量、缺陷、度量、评审、标准、设计、编程与期末复习。</p>
-      <small>寓言版 + 修仙版 + 复习网络</small>
+      <p>软件质量保证与测试：质量、缺陷、度量、评审、标准、设计、编程、课堂练习与期末复习。</p>
+      <small>寓言版 + 修仙版 + 题库 + 复习网络</small>
     </a>
     <a class="course-category-card is-client" href="#client">
       <span>Client</span>
@@ -460,9 +460,9 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <div class="course-category-head">
       <div>
         <h2>软件工程与质量</h2>
-        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量与高质量编程。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——再配一页期末复习网络，把 PPT、往年题、互评题线索和大题模板串起来。</p>
+        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量、高质量编程、白盒/黑盒、集成、系统与验收测试。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——再配课堂练习题库和期末复习网络：一个适合连续刷题，一个用来把 PPT、往年题、互评题线索和大题模板串起来。</p>
       </div>
-      <span class="course-category-count">1 门 · 2 版 · 复习网络</span>
+      <span class="course-category-count">1 门 · 2 版 · 2 复习入口</span>
     </div>
     <div class="course-grid">
       <article class="course-card">
@@ -481,6 +481,15 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <div class="course-card-footer">
           <span>风格：有冲突有节奏的修仙叙事 + 七段考点结构</span>
           <a class="course-link" href="/courses/software-quality-xianxia/">进入修仙版</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge is-project">课堂练习 · 97 题</span>
+        <h3>软件质量与测试课堂练习题库</h3>
+        <p>把云班课练习范围、课后练习、互评简答题和学长 CSDN 题库覆盖面集中成一页：质量保证理论到软件测试实践分组，判断、选择、填空、简答、设计题都有，答案默认折叠。适合先做题，再回到寓言版或修仙版复盘。</p>
+        <div class="course-card-footer">
+          <span>用法：先刷题，再按错题回看对应章节</span>
+          <a class="course-link" href="/courses/software-quality-exercises/">进入题库</a>
         </div>
       </article>
       <article class="course-card">
