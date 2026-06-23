@@ -219,6 +219,26 @@ description: "《软件质量保证与测试》期末复习总页：覆盖 PPT 0
   font-size: 19px;
   letter-spacing: 0;
 }
+.sqr-detail-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 34px;
+  margin: 0 0 12px;
+  padding: 7px 11px;
+  border: 1px solid rgba(47, 111, 94, 0.3);
+  border-radius: 8px;
+  color: var(--sqr-green);
+  font-size: 14px;
+  font-weight: 780;
+  text-decoration: none !important;
+}
+.sqr-detail-link:hover,
+.sqr-detail-link:focus {
+  color: #ffffff;
+  background: var(--sqr-green);
+}
 .sqr-kp-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -593,10 +613,11 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
   </div>
 
   <h2 id="detailed-index" class="sqr-section-title">四、0-15 章详细目录：复习时就按这个检查</h2>
-  <section class="sqr-note"><p><strong>用法：</strong>这一块不是概览，而是检查清单。每一章都按“概念、分类、公式/流程、易错题型”列细。你复习时可以从左侧目录跳到对应章节，逐条问自己会不会解释、会不会判断、会不会写成简答。</p></section>
+  <section class="sqr-note"><p><strong>用法：</strong>这一块不是概览，而是检查清单。每一章都按“概念、分类、公式/流程、易错题型”列细。主页面适合快速总览和刷题；如果某章不会，就点卡片里的“进入本章完整讲解”，进入二级章节页从零补完整知识。</p></section>
   <section class="sqr-detail-list" aria-label="0 到 15 章详细知识点目录">
     <article class="sqr-detail-card" id="detail-00">
       <div class="sqr-detail-head"><span>00</span><h3>绪论：考试范围、课程结构、题源优先级</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-00/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>课程主线：软件质量保证 24 学时 + 软件测试基本理论 8 学时。</li>
         <li>期末题型：判断、选择、填空、简答、设计。</li>
@@ -608,6 +629,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-01">
       <div class="sqr-detail-head"><span>01</span><h3>质量：质量定义、客户关系、质量观点、质量发展</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-01/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>质量定义：一组固有特性满足要求的程度。</li>
         <li>要求包括明示需求、暗示需求、客户和其他相关方要求。</li>
@@ -623,6 +645,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-02">
       <div class="sqr-detail-head"><span>02</span><h3>软件质量：软件特点、软件过程、缺陷、质量模型</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-02/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>软件特点：无形、复杂、易变、难度量、不会物理磨损。</li>
         <li>软件质量控制难点：缺陷多来自需求、设计、编码和配置，不是制造阶段复制误差。</li>
@@ -641,6 +664,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-03">
       <div class="sqr-detail-head"><span>03</span><h3>软件质量工程体系：质量体系、质量因素、质量成本</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-03/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>建立质量管理体系：确定质量方针和目标、过程和职责、资源、测量和改进方法。</li>
         <li>质量工程体系构成：质量计划、组织、协调、控制、反馈与调控。</li>
@@ -660,6 +684,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-04">
       <div class="sqr-detail-head"><span>04</span><h3>软件质量度量：测量、度量、指标、尺度、复杂度</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-04/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>测量：按照规则给属性赋值。</li>
         <li>度量：对软件产品、过程或项目进行范围较广的测度。</li>
@@ -679,6 +704,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-05">
       <div class="sqr-detail-head"><span>05</span><h3>软件质量标准：标准层次、ISO、IEEE、CMM/CMMI</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-05/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>标准层次：国际标准、国家标准、行业标准、企业标准。</li>
         <li>国际标准：由国际机构制定和公布，如 ISO。</li>
@@ -697,6 +723,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-06">
       <div class="sqr-detail-head"><span>06</span><h3>软件评审：为什么评审、评审类型、走查与审查</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-06/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>评审目的：尽早发现需求、设计、代码、测试文档中的缺陷。</li>
         <li>成本角度：缺陷越晚发现，修复成本越高。</li>
@@ -715,6 +742,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-07">
       <div class="sqr-detail-head"><span>07</span><h3>SQA 组织活动：组织结构、角色职责、SQA 活动</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-07/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>软件质量管理组织：测试部门、软件工程过程组、过程改进网络、质量保证协会等。</li>
         <li>SQA 组织不必照搬标准，应以企业目标为前提。</li>
@@ -732,6 +760,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-08">
       <div class="sqr-detail-head"><span>08</span><h3>提高软件设计质量：设计目标、评价标准、原则、架构</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-08/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>软件设计：把软件需求转换为软件表示的过程。</li>
         <li>高层次设计：把需求转化为数据结构和软件系统结构。</li>
@@ -750,6 +779,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-09">
       <div class="sqr-detail-head"><span>09</span><h3>高质量编程：命名、版式、函数、表达式、内存</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-09/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>命名：标识符应清晰、统一，必要时使用前缀避免库冲突。</li>
         <li>头文件：标准库用 &lt;filename.h&gt;，非标准库用 "filename.h"。</li>
@@ -769,6 +799,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-10">
       <div class="sqr-detail-head"><span>10</span><h3>软件测试：目标、原则、过程、用例、调试</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-10/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>软件测试定义：为了发现错误而执行程序的过程。</li>
         <li>测试内容：需求、设计、代码、文档、数据、运行环境都可能成为测试对象。</li>
@@ -788,6 +819,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-11">
       <div class="sqr-detail-head"><span>11</span><h3>白盒测试：覆盖准则、控制流、数据流、基本路径</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-11/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>白盒测试也称结构测试或逻辑驱动测试。</li>
         <li>白盒依据程序内部逻辑结构设计或选择测试用例。</li>
@@ -808,6 +840,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-12">
       <div class="sqr-detail-head"><span>12</span><h3>黑盒测试：等价类、边界值、判定表、场景和状态</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-12/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>黑盒测试也称功能测试，主要依据规格说明和用户行为。</li>
         <li>黑盒不考虑程序内部逻辑结构，重点看输入输出和功能表现。</li>
@@ -827,6 +860,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-13">
       <div class="sqr-detail-head"><span>13</span><h3>集成测试：接口、策略、桩模块、驱动模块</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-13/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>集成测试也叫组装测试或联合测试。</li>
         <li>位置：单元测试之后，系统测试之前。</li>
@@ -844,6 +878,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-14">
       <div class="sqr-detail-head"><span>14</span><h3>系统测试：完整系统、功能、性能、安全、恢复</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-14/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>系统测试把已集成软件与硬件、外设、支撑软件、数据、人员放到接近真实环境检验。</li>
         <li>目标：确认完整系统是否满足系统规格说明。</li>
@@ -861,6 +896,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
     <article class="sqr-detail-card" id="detail-15">
       <div class="sqr-detail-head"><span>15</span><h3>验收测试：交付前确认、用户参与、Alpha/Beta</h3></div>
+      <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-15/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>验收测试是部署或交付前的最后一类确认/技术测试。</li>
         <li>目的：确保软件满足合同、需求规格说明、业务目标和验收标准。</li>
