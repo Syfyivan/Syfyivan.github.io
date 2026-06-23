@@ -311,9 +311,10 @@ html[data-user-color-scheme="dark"] .sqd-code {
     <div>
       <span class="sqd-kicker">Design Questions / 设计题专项</span>
       <h2>大题不是靠背，是靠一套可重复的做题流程</h2>
-      <p>已核验的 A 卷和 2024 回忆都指向同一件事：设计题分值高，题面会换，但套路稳定。你不需要先学会所有测试理论，只要先掌握四类动作：划分输入、取边界、画控制流/状态图、把路径变成测试用例。C 卷和 2025 图片还没有 OCR/人工逐条核验，不能拿来硬写结论。</p>
+      <p>已核验的 A 卷、2024 回忆和 2025 图片回忆都指向同一件事：代码类设计题分值高，题面会换，但套路稳定。你不需要先学会所有测试理论，只要先掌握四类动作：划分输入、取边界、画控制流/状态图、把路径变成测试用例。回忆材料只能说明考试风格，不能当老师官方答案。</p>
       <div class="sqd-actions">
         <a class="sqd-link" href="/courses/software-quality-review-network/">返回复习网络</a>
+        <a class="sqd-link" href="#paper-a-final">A 卷最后题</a>
         <a class="sqd-link" href="#equivalence">等价类</a>
         <a class="sqd-link" href="#flow">基本路径</a>
         <a class="sqd-link" href="#state">状态图</a>
@@ -321,7 +322,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
       </div>
     </div>
     <div class="sqd-stat-grid" aria-label="设计题重点">
-      <div class="sqd-stat"><strong>46+</strong><span>A 卷设计题 46 分，2024 回忆也显示大题必须单独练。</span></div>
+      <div class="sqd-stat"><strong>46+</strong><span>A 卷设计题 46 分，2025 回忆中的代码设计题也达到 40 分。</span></div>
       <div class="sqd-stat"><strong>2 类</strong><span>黑盒输入设计 + 白盒/状态路径设计，是最核心的两类。</span></div>
       <div class="sqd-stat"><strong>4 步</strong><span>建模、编号、覆盖、写用例，按步骤给分。</span></div>
       <div class="sqd-stat"><strong>表格</strong><span>卷面写成表，比散文式答案稳得多。</span></div>
@@ -333,6 +334,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
   </section>
 
   <nav class="sqd-nav" aria-label="页内导航">
+    <a class="sqd-chip" href="#paper-a-final">A 卷最后题</a>
     <a class="sqd-chip" href="#what">考什么</a>
     <a class="sqd-chip" href="#equivalence">等价类</a>
     <a class="sqd-chip" href="#boundary">边界值</a>
@@ -342,7 +344,168 @@ html[data-user-color-scheme="dark"] .sqd-code {
     <a class="sqd-chip" href="#practice">训练顺序</a>
   </nav>
 
-  <h2 id="what" class="sqd-section-title">一、设计题到底考什么</h2>
+  <h2 id="paper-a-final" class="sqd-section-title">一、A 卷最后小题：从零做完路径覆盖题</h2>
+  <section class="sqd-note">
+    <p><strong>来源说明：</strong>本块来自往年 A 卷 PDF 第 6 页的最后一道 C 程序小题，不是合成题。2024 回忆的最后大题是中缀转后缀代码的控制流图、环路复杂度、基本路径和测试用例；2025 图片回忆的大题二也是给代码，要求控制流图、复杂度、基本路径和测试用例。因此先学会这道简单版，再做 2024/2025 的复杂代码版。</p>
+  </section>
+  <div class="sqd-grid">
+    <article class="sqd-card">
+      <span class="sqd-badge hot">原题核心</span>
+      <h3>题面给的代码</h3>
+      <pre class="sqd-code">int main(int x, y, z)
+{
+  int n = 1;
+  if ((x &gt; 0 || y &lt; 0))
+    n = n + x;
+  else
+    n = n + y;
+  if (z &gt; 0)
+    n = n + z;
+  return n;
+}</pre>
+      <p style="margin-top:10px">题目要求：画程序流程图，设计语句覆盖测试用例，设计路径覆盖测试用例。它考的不是 C 语言细节，而是能不能让输入控制程序走不同路线。</p>
+    </article>
+    <article class="sqd-card">
+      <span class="sqd-badge core">从零理解</span>
+      <h3>先懂四个词</h3>
+      <ul class="sqd-list">
+        <li><strong>语句：</strong>会被执行的一行代码，例如 <code>n=n+x</code>。</li>
+        <li><strong>判定：</strong>会分叉的地方，例如 <code>if</code>。</li>
+        <li><strong>路径：</strong>从函数开始到 <code>return</code> 的一条完整走法。</li>
+        <li><strong>测试用例：</strong>给一组 <code>x,y,z</code>，让程序按你想要的路径走。</li>
+      </ul>
+    </article>
+  </div>
+  <div class="sqd-table-wrap" style="margin-top:14px">
+    <table class="sqd-table">
+      <thead>
+        <tr>
+          <th>判定</th>
+          <th>为真时</th>
+          <th>为假时</th>
+          <th>好用的例子</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>D1：<code>x&gt;0 || y&lt;0</code></td>
+          <td><code>x&gt;0</code> 或 <code>y&lt;0</code> 有一个成立就真，走 <code>n=n+x</code>。</td>
+          <td>必须同时满足 <code>x&lt;=0</code> 且 <code>y&gt;=0</code>，走 <code>n=n+y</code>。</td>
+          <td>真：x=1,y=0；假：x=0,y=0。</td>
+        </tr>
+        <tr>
+          <td>D2：<code>z&gt;0</code></td>
+          <td>走 <code>n=n+z</code>。</td>
+          <td>跳过 <code>n=n+z</code>，直接 <code>return</code>。</td>
+          <td>真：z=1；假：z=0。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sqd-grid" style="margin-top:14px">
+    <article class="sqd-card">
+      <span class="sqd-badge apply">流程图</span>
+      <h3>卷面怎么画</h3>
+      <pre class="sqd-code">开始
+  |
+n = 1
+  |
+D1: x&gt;0 || y&lt;0 ?
+  |真              |假
+n = n + x       n = n + y
+  |                |
+  +------&gt; D2: z&gt;0 ?
+             |真        |假
+          n = n + z     |
+             |          |
+          return n &lt;----+
+             |
+            结束</pre>
+      <p style="margin-top:10px">考试画图可以更简洁：方框写处理语句，菱形写 if 条件，箭头标“真/假”。</p>
+    </article>
+    <article class="sqd-card">
+      <span class="sqd-badge core">复杂度</span>
+      <h3>基本路径和路径覆盖不要混</h3>
+      <p>这段程序有 2 个判定节点，所以环路复杂度 <code>V(G)=2+1=3</code>。如果题目问“基本路径”，通常写 3 条独立路径；但 A 卷最后小题问的是“路径覆盖”，要覆盖所有完整可行路径，所以两个 if 的真假组合一共有 4 条。</p>
+      <section class="sqd-note" style="margin-top:10px">
+        <p><strong>记法：</strong>基本路径看 <code>V(G)</code>；路径覆盖看所有可行的完整走法。遇到循环时路径可能很多，考试通常会指定基本路径或给出覆盖要求。</p>
+      </section>
+    </article>
+  </div>
+  <h3 class="sqd-section-title" style="font-size:22px">A 卷最后题参考写法：语句覆盖</h3>
+  <section class="sqd-note">
+    <p>语句覆盖的目标是让每条可执行语句至少执行一次。因为 <code>n=n+x</code> 和 <code>n=n+y</code> 在 if/else 两边，一组输入不可能同时走到，所以至少需要 2 组输入。</p>
+  </section>
+  <div class="sqd-table-wrap">
+    <table class="sqd-table">
+      <thead>
+        <tr>
+          <th>用例</th>
+          <th>输入 x,y,z</th>
+          <th>走法</th>
+          <th>返回值</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>T1</td>
+          <td>x=1, y=0, z=1</td>
+          <td>D1 真，执行 <code>n=n+x</code>；D2 真，执行 <code>n=n+z</code>。</td>
+          <td>3</td>
+        </tr>
+        <tr>
+          <td>T2</td>
+          <td>x=0, y=0, z=0</td>
+          <td>D1 假，执行 <code>n=n+y</code>；D2 假，直接返回。</td>
+          <td>1</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <h3 class="sqd-section-title" style="font-size:22px">A 卷最后题参考写法：路径覆盖</h3>
+  <div class="sqd-table-wrap">
+    <table class="sqd-table">
+      <thead>
+        <tr>
+          <th>路径</th>
+          <th>条件组合</th>
+          <th>输入 x,y,z</th>
+          <th>返回值</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>P1</td>
+          <td>D1 真，D2 真</td>
+          <td>x=1, y=0, z=1</td>
+          <td>3</td>
+        </tr>
+        <tr>
+          <td>P2</td>
+          <td>D1 真，D2 假</td>
+          <td>x=1, y=0, z=0</td>
+          <td>2</td>
+        </tr>
+        <tr>
+          <td>P3</td>
+          <td>D1 假，D2 真</td>
+          <td>x=0, y=0, z=1</td>
+          <td>2</td>
+        </tr>
+        <tr>
+          <td>P4</td>
+          <td>D1 假，D2 假</td>
+          <td>x=0, y=0, z=0</td>
+          <td>1</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <section class="sqd-note">
+    <p><strong>卷面保底句：</strong>设 D1 为 <code>x&gt;0 || y&lt;0</code>，D2 为 <code>z&gt;0</code>。语句覆盖需覆盖初始化、then 分支、else 分支、第二个 if 的 then 分支和 return；路径覆盖需覆盖 D1/D2 的四种真假组合。</p>
+  </section>
+
+  <h2 id="what" class="sqd-section-title">二、设计题到底考什么</h2>
   <div class="sqd-table-wrap">
     <table class="sqd-table">
       <thead>
@@ -388,7 +551,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
     </table>
   </div>
 
-  <h2 id="equivalence" class="sqd-section-title">二、等价类划分：把无限输入变成几类输入</h2>
+  <h2 id="equivalence" class="sqd-section-title">三、等价类划分：把无限输入变成几类输入</h2>
   <div class="sqd-grid">
     <article class="sqd-card">
       <span class="sqd-badge hot">从零理解</span>
@@ -411,7 +574,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
     </article>
   </div>
 
-  <h2 class="sqd-section-title">三、等价类示范：编号格式题怎么写</h2>
+  <h2 class="sqd-section-title">四、等价类示范：编号格式题怎么写</h2>
   <section class="sqd-note">
     <p>下面是一个和往年题同型的练习题，不逐字复现原题。题面：某系统要求输入 8 位资源编号，第 1 位表示类别，只能是 1-6；第 2-3 位表示区域，只能是 01-12；第 4-8 位表示序号，只能是 00001-99999，整体必须全为数字。</p>
   </section>
@@ -484,7 +647,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
     </table>
   </div>
 
-  <h2 id="boundary" class="sqd-section-title">四、边界值分析：老师最爱看你有没有贴边</h2>
+  <h2 id="boundary" class="sqd-section-title">五、边界值分析：老师最爱看你有没有贴边</h2>
   <div class="sqd-grid">
     <article class="sqd-card">
       <span class="sqd-badge hot">口诀</span>
@@ -498,7 +661,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
     </article>
   </div>
 
-  <h2 id="flow" class="sqd-section-title">五、控制流图：把代码变成节点和边</h2>
+  <h2 id="flow" class="sqd-section-title">六、控制流图：把代码变成节点和边</h2>
   <div class="sqd-grid">
     <article class="sqd-card">
       <span class="sqd-badge hot">从零理解</span>
@@ -526,7 +689,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
     </article>
   </div>
 
-  <h2 class="sqd-section-title">六、环路复杂度：三种算法要能互相校验</h2>
+  <h2 class="sqd-section-title">七、环路复杂度：三种算法要能互相校验</h2>
   <div class="sqd-table-wrap">
     <table class="sqd-table">
       <thead>
@@ -556,7 +719,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
     </table>
   </div>
 
-  <h2 id="path" class="sqd-section-title">七、基本路径测试：路径和用例要一一对应</h2>
+  <h2 id="path" class="sqd-section-title">八、基本路径测试：路径和用例要一一对应</h2>
   <section class="sqd-note">
     <p><strong>核心标准：</strong>基本路径数通常等于环路复杂度。每条新路径都应该至少引入一条前面没覆盖过的新边。不要列一堆重复路径，也不要只列路径不写输入。</p>
   </section>
@@ -596,7 +759,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
     <p>如果老师要求路径覆盖而不是基本路径覆盖，要继续补 P4：第一个 if 假、第二个 if 假。基本路径测试通常只要求 V(G) 条独立路径；路径覆盖则要覆盖所有可行路径。</p>
   </section>
 
-  <h2 id="state" class="sqd-section-title">八、状态图题：先找“状态”，再找“触发条件”</h2>
+  <h2 id="state" class="sqd-section-title">九、状态图题：先找“状态”，再找“触发条件”</h2>
   <div class="sqd-grid">
     <article class="sqd-card">
       <span class="sqd-badge hot">最常见误区</span>
@@ -635,14 +798,14 @@ html[data-user-color-scheme="dark"] .sqd-code {
     </table>
   </div>
 
-  <h2 class="sqd-section-title">九、卷面模板：直接照这个顺序写</h2>
+  <h2 class="sqd-section-title">十、卷面模板：直接照这个顺序写</h2>
   <div class="sqd-grid three">
     <article class="sqd-mini"><h4>输入类大题</h4><p>规则拆分表 -> 等价类表 -> 边界值表 -> 测试用例表。每张表都写编号，方便老师按点给分。</p></article>
     <article class="sqd-mini"><h4>代码类大题</h4><p>语句编号 -> 控制流图 -> 复杂度三算法 -> 基本路径表 -> 测试用例表。</p></article>
     <article class="sqd-mini"><h4>状态类大题</h4><p>状态表 -> 条件/事件表 -> 状态转换图 -> 复杂度或路径 -> 测试用例表。</p></article>
   </div>
 
-  <h2 id="practice" class="sqd-section-title">十、零基础训练顺序：不要一上来做整套卷</h2>
+  <h2 id="practice" class="sqd-section-title">十一、零基础训练顺序：不要一上来做整套卷</h2>
   <div class="sqd-table-wrap">
     <table class="sqd-table">
       <thead>
@@ -688,7 +851,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
     </table>
   </div>
 
-  <h2 class="sqd-section-title">十一、最容易扣分的 10 个点</h2>
+  <h2 class="sqd-section-title">十二、最容易扣分的 10 个点</h2>
   <div class="sqd-grid">
     <article class="sqd-card">
       <span class="sqd-badge hot">输入设计题</span>

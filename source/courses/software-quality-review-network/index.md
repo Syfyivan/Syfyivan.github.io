@@ -499,7 +499,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     <div>
       <span class="sqr-kicker">Software Quality Final Review / 一页通关版</span>
       <h2>这页做总复习网络：知识体系、往年题、大题模板、云班课真题入口</h2>
-      <p>这版已经把题源边界重新梳理：知识体系来自本地 PPT、复习讲义、往年 A 卷和 2024 回忆；云班课已登录导出 23 道互评简答参考答案、23 个课上/课后 QUIZ 共 428 道题。主页面只做复习网络和入口，具体题目统一放到已核题库页，避免再混入无来源合成题。</p>
+      <p>这版已经把题源边界重新梳理：知识体系来自本地 PPT、复习讲义、往年 A 卷、2024 回忆和 2025 图片回忆；云班课已登录导出 23 道互评简答参考答案、23 个课上/课后 QUIZ 共 428 道题。主页面只做复习网络和入口，具体题目统一放到已核题库页，避免再混入无来源合成题。</p>
       <div class="sqr-actions">
         <a class="sqr-link" href="#knowledge">知识体系</a>
         <a class="sqr-link" href="#past-papers">往年题</a>
@@ -510,14 +510,14 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </div>
     <div class="sqr-score" aria-label="复习覆盖统计">
       <div><strong>0-15</strong><span>PPT 0-9 + 测试基本理论 10-15，覆盖期末知识体系。</span></div>
-      <div><strong>已核</strong><span>PPT、复习讲义、A 卷、2024 回忆、云班课互评题和 428 道 QUIZ 题。</span></div>
-      <div><strong>待核</strong><span>1 个云班课未公布活动、C 卷 OCR、2025 图片 OCR。</span></div>
-      <div><strong>大题</strong><span>A 卷、2024 回忆已经支持等价类、状态图、控制流图和基本路径方向。</span></div>
+      <div><strong>已核</strong><span>PPT、复习讲义、A 卷、2024 回忆、2025 图片回忆、云班课互评题和 428 道 QUIZ 题。</span></div>
+      <div><strong>待核</strong><span>1 个云班课未公布活动、C 卷 OCR。</span></div>
+      <div><strong>大题</strong><span>A 卷、2024 和 2025 回忆都指向等价类、控制流图、复杂度、基本路径和测试用例。</span></div>
     </div>
   </section>
 
   <section class="sqr-note">
-    <p><strong>资料边界：</strong>之前混入过没有来源的合成题，已经删除出主复习页。当前可信状态是：PPT、复习讲义、A 卷 PDF、2024 回忆、云班课 23 道互评简答和 428 道 QUIZ 题已经有来源；“测试相关未分类习题”接口显示老师暂未公布答案，C 卷和 2025 图片仍需 OCR/人工核验。</p>
+    <p><strong>资料边界：</strong>之前混入过没有来源的合成题，已经删除出主复习页。当前可信状态是：PPT、复习讲义、A 卷 PDF、2024 回忆、2025 图片回忆、云班课 23 道互评简答和 428 道 QUIZ 题已经有来源；“测试相关未分类习题”接口显示老师暂未公布答案，C 卷仍需 OCR/人工核验。2024/2025 都是回忆材料，只用于判断复习方向，不当作老师官方答案。</p>
   </section>
 
   <nav class="sqr-nav" aria-label="页内导航">
@@ -594,7 +594,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
         <tr><td>A 卷</td><td>判断 15、选择 20、填空 10、简答 9、设计 46。设计题含状态图、控制流图、环路复杂度、独立路径、语句/路径覆盖。</td><td>用于“往年题”和“大题模板”。</td><td>老卷题面不必死背，步骤必须会。</td></tr>
         <tr><td>C 卷</td><td>RAR 中存在 C 卷 PDF，但当前文本抽取为空，尚未 OCR 或人工逐页核验。</td><td>暂不作为已读原题来源。</td><td>完成 OCR/人工核对后再补题型和分值。</td></tr>
         <tr><td>2024 考试回忆</td><td>客观题来自云班课；简答含评审、客户与质量、质量费用、测试原则、发布后 bug；大题含命名格式等价类和中缀转后缀基本路径。</td><td>用于当前风格判断和大题训练。</td><td>选择可能单选/多选不标明，刷题时要按不定项准备。</td></tr>
-        <tr><td>2025 考试回忆</td><td>本地有图片文件，但当前未完成 OCR 逐条核验。</td><td>暂不作为已读原题来源。</td><td>必须 OCR/人工校对后才能写入具体题型结论。</td></tr>
+        <tr><td>2025 考试回忆</td><td>图片已人工读出题型：判断 5 分、选择 15 分、填空 8 分、简答 24 分、大题 48 分；大题含 8 位图书编号等价类和链表排序代码设计。</td><td>用于强化大题训练顺序，尤其是代码类控制流图、复杂度、基本路径和测试用例。</td><td>仍属于学生回忆材料，不当作老师官方答案；客观题细项不逐题展开。</td></tr>
         <tr><td>Excel 和大作业查重资料</td><td>Excel 是辽宁招生投档表或损坏文件；大作业/查重资料不属于期末闭卷理论题源。</td><td>排除。</td><td>不混进复习范围，避免浪费时间。</td></tr>
       </tbody>
     </table>
@@ -608,7 +608,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
         <tr><td>A 卷</td><td>判断 15 分，选择 20 分，填空 10 分。覆盖 SQA、质量预测、缺陷、测试目的、覆盖强弱等。</td><td>耦合/内聚排序；基本测量原则；ISO、McCall、Boehm 质量模型评价。</td><td>工厂查询系统状态图、控制流图、环路复杂度、独立路径；简单 C 程序流程图、语句覆盖、路径覆盖。</td><td>白盒与状态图是大题核心，简答偏 PPT 原话。</td></tr>
         <tr><td>C 卷</td><td>待 OCR/人工核验。</td><td>待核验。</td><td>待核验。</td><td>扫描 PDF 当前不能确认题型细节，不能继续当已读往年题样本。</td></tr>
         <tr><td>2024 回忆</td><td>回忆中说客观题基本来自云班课原题；选择可能不标单选/多选。</td><td>为什么需要评审；客户与质量关系；经典质量费用模型；软件测试原则；发布后 bug 处理。</td><td>文件命名格式等价类；中缀转后缀代码的控制流图、环路复杂度、基本路径、测试用例。</td><td>这是已读回忆材料，但仍是“回忆”，不是老师官方题库。</td></tr>
-        <tr><td>2025 回忆</td><td>本地有图片文件，尚未 OCR/人工逐条校对。</td><td>暂不写具体客观题结论。</td><td>等图片题面读出后再补。</td><td>不能继续把未读图片当已核验来源。</td></tr>
+        <tr><td>2025 回忆</td><td>判断 5 分、选择 15 分、填空 8 分，除大题外多为云班课原题；选择单选/多选混考。</td><td>质量管理体系；单元/集成/系统测试侧重点；SQA 人员工作；测量原则；软件测试定义。</td><td>8 位图书编号有效/无效等价类 8 分；链表排序代码的控制流图、复杂度、基本路径、测试用例 40 分。</td><td>这是人工读图后的回忆材料结论，不是官方题库；最该吸收的是大题训练方向。</td></tr>
       </tbody>
     </table>
   </div>
@@ -1071,7 +1071,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
   <h2 id="design-drill" class="sqr-section-title">七、大题设计题：高分值必须单独练</h2>
   <section class="sqr-note"><p><strong>大题拿分原则：</strong>题面会换，但评分动作基本不变：列规则、分等价类、取边界值、画控制流图/状态图、算复杂度、列基本路径、写测试用例。卷面上一定要有表格和编号。</p></section>
   <div class="sqr-grid">
-    <article class="sqr-card"><span class="sqr-badge hot">等价类</span><h3>编号类等价划分同型练习</h3><p>下面是用于训练方法的同型练习，不声称来自 2025 原题。假设 8 位编号可拆成三段：1-2 位楼层、3-5 位书架、6-8 位图书。有效类：楼层 01-11、书架 001-120、图书 001-300，且全为数字、长度为 8。无效类至少按字段拆：长度错误、非数字、楼层 00/12 及以上、书架 000/121 及以上、图书 000/301 及以上。</p><ul class="sqr-list" style="margin-top:10px"><li>有效例：01001001、11120300。</li><li>无效例：00001001、12001001、01121001、01000301、01A01001、0100100。</li><li>卷面表：编号、输入、覆盖等价类、预期结果。</li></ul></article>
+    <article class="sqr-card"><span class="sqr-badge hot">等价类</span><h3>2025 图书编号题怎么拆</h3><p>2025 回忆里的 8 位图书编号可拆成三段：1-2 位楼层、3-5 位书架、6-8 位图书。有效类：楼层 01-11、书架 001-120、图书 001-300，且全为数字、长度为 8。无效类至少按字段拆：长度错误、非数字、楼层 00/12 及以上、书架 000/121 及以上、图书 000/301 及以上。</p><ul class="sqr-list" style="margin-top:10px"><li>有效例：01001001、11120300。</li><li>无效例：00001001、12001001、01121001、01000301、01A01001、0100100。</li><li>卷面表：编号、输入、覆盖等价类、预期结果；这块是按回忆题面整理，不是老师官方答案。</li></ul></article>
     <article class="sqr-card"><span class="sqr-badge hot">等价类</span><h3>2024 文件命名题怎么拆</h3><p>命名格式可按“班级号 + 学号”拆。第一位 1-6，后三位表示 001-300 的学号，且总长度固定为 4、全部为数字。有效类是班级合法且学号合法；无效类按长度、班级、学号、字符类型分别写。</p><ul class="sqr-list" style="margin-top:10px"><li>有效例：1001、6300。</li><li>无效例：0100、7100、1000、1301、1A01、101、10001。</li><li>不要把 1-099、100-199、200-299 当作主要等价类，那更像把有效类又切细，漏掉了无效类。</li></ul></article>
     <article class="sqr-card"><span class="sqr-badge apply">边界值</span><h3>一般边界值 4n+1</h3><p>函数 f(x,y)，x 属于 [100,200]，y 属于 [5,15]。一般边界值分析让一个变量取边界，其他变量取正常值。取 X=150，Y=10，则 9 个用例为：</p><ul class="sqr-list" style="margin-top:10px"><li>(100,10)、(101,10)、(199,10)、(200,10)</li><li>(150,5)、(150,6)、(150,14)、(150,15)</li><li>(150,10)</li></ul></article>
     <article class="sqr-card"><span class="sqr-badge apply">白盒</span><h3>控制流图/复杂度/基本路径</h3><p>答题顺序固定：给语句编号 -> 画控制流图 -> 算 V(G) -> 列独立路径 -> 为每条路径写输入和预期输出。复杂度三算法要对上：V(G)=E-N+2P，区域数，判定节点数+1。</p><ul class="sqr-list" style="margin-top:10px"><li>如果代码有 2 个普通 if，通常 V(G)=3。</li><li>如果题目要求把复合条件拆成短路判断，判定节点会增加，要按图重新算。</li><li>路径表必须写节点序列，不要只写“真/假”。</li></ul></article>
@@ -1092,7 +1092,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     <article class="sqr-print"><h3>2 小时背诵</h3><ul class="sqr-list"><li>质量、软件质量、缺陷、测试、测试用例、回归测试。</li><li>为什么评审、质量费用模型、质量管理体系、测量原则。</li><li>SQA 工作内容和三种组织结构。</li><li>白盒/黑盒、单元/集成/系统/验收、桩/驱动。</li></ul></article>
     <article class="sqr-print"><h3>2 小时大题</h3><ul class="sqr-list"><li>做 1 道编号/命名格式等价类题。</li><li>做 1 道 x/y 边界值题。</li><li>做 1 道 if/while 控制流图题。</li><li>做 1 道状态迁移题。</li></ul></article>
   </div>
-  <section class="sqr-note"><p><strong>公开来源：</strong><a href="https://blog.csdn.net/m0_56942491/article/details/131734756" target="_blank" rel="noopener">CSDN 题库整理</a>；<a href="https://www.mosoteach.cn/web/cc-detail/4851E258-439C-11F1-BAE9-A088C2A30E68/act/" target="_blank" rel="noopener">蓝墨云班课活动页</a>。当前状态：云班课登录态已读取活动清单和题库；CSDN 公开页用于校准章节覆盖；C 卷和 2025 图片仍待 OCR/人工核验。博客中不包含登录 token、手机号或用户 ID。</p></section>
+  <section class="sqr-note"><p><strong>公开来源：</strong><a href="https://blog.csdn.net/m0_56942491/article/details/131734756" target="_blank" rel="noopener">CSDN 题库整理</a>；<a href="https://www.mosoteach.cn/web/cc-detail/4851E258-439C-11F1-BAE9-A088C2A30E68/act/" target="_blank" rel="noopener">蓝墨云班课活动页</a>。当前状态：云班课登录态已读取活动清单和题库；CSDN 公开页用于校准章节覆盖；2025 图片回忆已人工读出大题结构，C 卷仍待 OCR/人工核验。博客中不包含登录 token、手机号或用户 ID。</p></section>
     </main>
   </div>
 </div>
