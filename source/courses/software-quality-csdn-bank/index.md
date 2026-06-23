@@ -18,10 +18,16 @@ description: "《软件质量保证与测试》CSDN 公开题库对照页：按�
 .csdn-stat strong { display: block; font-size: 24px; color: #0d3557; }
 .csdn-stat span { display: block; margin-top: 4px; color: #5c6675; line-height: 1.55; }
 .csdn-note { margin: 16px 0; padding: 14px 16px; border-left: 4px solid #286f9f; background: #f6fafc; border-radius: 8px; }
-.csdn-toolbar { position: sticky; top: 0; z-index: 3; margin: 18px 0; padding: 12px; border: 1px solid rgba(31,43,68,.12); border-radius: 10px; background: rgba(255,255,255,.96); backdrop-filter: blur(10px); }
+.csdn-searchbar { margin: 18px 0; padding: 12px; border: 1px solid rgba(31,43,68,.12); border-radius: 10px; background: #fff; box-shadow: 0 8px 22px rgba(24, 39, 75, .04); }
 .csdn-search { width: 100%; min-height: 42px; border: 1px solid rgba(31,43,68,.18); border-radius: 8px; padding: 0 12px; font-size: 15px; }
-.csdn-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.csdn-section { margin-top: 28px; }
+.csdn-count { margin-top: 8px; color: #667085; font-size: 13px; }
+.csdn-study-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 18px; align-items: start; }
+.csdn-sidebar { position: sticky; top: 86px; max-height: calc(100vh - 108px); overflow: auto; padding: 12px; border: 1px solid rgba(31,43,68,.12); border-radius: 10px; background: rgba(255,255,255,.96); box-shadow: 0 10px 24px rgba(24, 39, 75, .06); }
+.csdn-sidebar-title { margin: 0 0 10px; color: #667085; font-size: 13px; font-weight: 800; }
+.csdn-nav { display: grid; gap: 8px; }
+.csdn-nav .csdn-chip { justify-content: flex-start; width: 100%; min-height: 34px; padding: 0 10px; font-size: 14px; line-height: 1.35; }
+.csdn-section { margin-top: 28px; scroll-margin-top: 92px; }
+.csdn-content .csdn-section:first-of-type { margin-top: 0; }
 .csdn-section h2 { margin: 0 0 12px; font-size: 24px; }
 .csdn-grid { display: grid; gap: 12px; }
 .csdn-card { border: 1px solid rgba(31,43,68,.12); border-radius: 10px; background: #fff; padding: 14px 16px; box-shadow: 0 8px 22px rgba(24, 39, 75, .05); }
@@ -33,10 +39,11 @@ description: "《软件质量保证与测试》CSDN 公开题库对照页：按�
 .csdn-full { margin: 10px 0 0; line-height: 1.85; color: #3f4957; white-space: pre-wrap; }
 .csdn-empty { display: none; margin: 18px 0; color: #b42318; font-weight: 700; }
 html[data-user-color-scheme="dark"] .csdn-page { color: #e5e7eb; }
-html[data-user-color-scheme="dark"] .csdn-hero, html[data-user-color-scheme="dark"] .csdn-card, html[data-user-color-scheme="dark"] .csdn-toolbar, html[data-user-color-scheme="dark"] .csdn-stat { background: #141821; border-color: rgba(255,255,255,.12); }
+html[data-user-color-scheme="dark"] .csdn-hero, html[data-user-color-scheme="dark"] .csdn-card, html[data-user-color-scheme="dark"] .csdn-searchbar, html[data-user-color-scheme="dark"] .csdn-sidebar, html[data-user-color-scheme="dark"] .csdn-stat { background: #141821; border-color: rgba(255,255,255,.12); }
 html[data-user-color-scheme="dark"] .csdn-hero p, html[data-user-color-scheme="dark"] .csdn-note p, html[data-user-color-scheme="dark"] .csdn-stat span, html[data-user-color-scheme="dark"] .csdn-full, html[data-user-color-scheme="dark"] .csdn-meta { color: #c8d0dc; }
 html[data-user-color-scheme="dark"] .csdn-question, html[data-user-color-scheme="dark"] .csdn-stat strong { color: #f3f4f6; }
-@media (max-width: 760px) { .csdn-page { padding: 16px 12px 48px; } .csdn-hero { grid-template-columns: 1fr; padding: 18px; } .csdn-hero h2 { font-size: 24px; } .csdn-link, .csdn-chip { width: 100%; } }
+@media (max-width: 980px) { .csdn-study-layout { grid-template-columns: 1fr; } .csdn-sidebar { position: static; max-height: none; overflow: visible; } .csdn-nav { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; } .csdn-nav .csdn-chip { flex: 0 0 auto; width: auto; white-space: nowrap; } }
+@media (max-width: 760px) { .csdn-page { padding: 16px 12px 48px; } .csdn-hero { grid-template-columns: 1fr; padding: 18px; } .csdn-hero h2 { font-size: 24px; } .csdn-link { width: 100%; } }
 
 </style>
 <link rel="stylesheet" href="/css/software-quality-mobile-voice.css?v=20260623-5">
@@ -57,7 +64,11 @@ html[data-user-color-scheme="dark"] .csdn-question, html[data-user-color-scheme=
     </div>
   </section>
   <section class="sqe-tip csdn-note"><p><strong>边界说明：</strong>这不是老师云班课接口导出的答案页，而是 CSDN 公开题库对照页。少数原文条目本身是“填空/选择/判断题组”，这里按原文题组保留，不强行拆散，避免我再加工时改错题意。2025 补充题只用于标记高频考点，不并入“298 条主原文题库”数量。</p></section>
-  <section class="csdn-toolbar" aria-label="题库检索"><input id="csdnSearch" class="csdn-search" type="search" placeholder="搜索 CSDN 题库：例如 评审、边界值、系统测试、路径覆盖、CMMI"><nav class="csdn-nav" aria-label="章节导航">
+  <section class="csdn-searchbar" aria-label="题库检索"><input id="csdnSearch" class="csdn-search" type="search" placeholder="搜索 CSDN 题库：例如 评审、边界值、系统测试、路径覆盖、CMMI"><div id="csdnCount" class="csdn-count"></div></section>
+  <div class="csdn-study-layout">
+    <aside class="csdn-sidebar" aria-label="章节目录">
+      <p class="csdn-sidebar-title">章节目录</p>
+      <nav class="csdn-nav" aria-label="章节导航">
     <a class="csdn-chip" href="#csdn-互评题">互评题</a>
     <a class="csdn-chip" href="#csdn-第一章-质量">第一章 质量</a>
     <a class="csdn-chip" href="#csdn-第二章-软件质量">第二章 软件质量</a>
@@ -72,7 +83,9 @@ html[data-user-color-scheme="dark"] .csdn-question, html[data-user-color-scheme=
     <a class="csdn-chip" href="#csdn-第十一章-白盒测试">第十一章 白盒测试</a>
     <a class="csdn-chip" href="#csdn-第十二章-黑盒测试">第十二章 黑盒测试</a>
     <a class="csdn-chip" href="#csdn-测试相关未分类习题">测试相关未分类习题</a>
-  </nav><div id="csdnCount" style="margin-top:8px;color:#667085;font-size:13px"></div></section>
+      </nav>
+    </aside>
+    <main class="csdn-content">
   <p id="csdnEmpty" class="csdn-empty">没有匹配的 CSDN 题目。</p>
   <section class="sqe-chapter csdn-section" id="csdn-互评题">
     <h2>互评题 <span style="font-size:14px;color:#667085">24 条</span></h2>
@@ -2230,6 +2243,8 @@ html[data-user-color-scheme="dark"] .csdn-question, html[data-user-color-scheme=
       </article>
     </div>
   </section>
+    </main>
+  </div>
 </div>
 
 <script>
