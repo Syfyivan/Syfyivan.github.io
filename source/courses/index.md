@@ -460,7 +460,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <div class="course-category-head">
       <div>
         <h2>软件工程与质量</h2>
-        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量、高质量编程、白盒/黑盒、集成、系统与验收测试。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——再配课堂练习题库、期末复习网络和设计题专项：一个适合连续刷题，一个用来把 PPT、往年题、互评题线索和大题模板串起来，另一个专门拆解高分值设计大题。</p>
+        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量、高质量编程、白盒/黑盒、集成、系统与验收测试。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——再配课堂练习题库、一页通关复习网络和设计题专项：题库适合连续刷题，一页通关页把知识体系、往年题、互评题、课后题和大题模板集中到一个入口，设计题专项再专门拆解高分值大题。</p>
       </div>
       <span class="course-category-count">1 门 · 2 版 · 3 复习入口</span>
     </div>
@@ -502,12 +502,12 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         </div>
       </article>
       <article class="course-card">
-        <span class="course-badge is-project">期末复习 · 题型网络</span>
-        <h3>软件质量与测试期末复习网络</h3>
-        <p>把课程 PPT、复习讲义、往年 A/C 卷、2024/2025 考试回忆、CSDN 题库和互评题线索合成一页：资料异同、章节地图、题型雷达、简答背诵池、等价类/基本路径/状态图大题模板。</p>
+        <span class="course-badge is-project">期末复习 · 一页通关</span>
+        <h3>软件质量与测试一页通关复习网络</h3>
+        <p>主复习页。把 PPT 0-9、测试基本理论、往年 A/C 卷、2024/2025 考试回忆、互评简答、课堂练习、课后作业和设计大题模板集中到一个页面，考前不用在多个入口之间来回跳。</p>
         <div class="course-card-footer">
-          <span>适合：零基础考前建体系 + 按题型冲刺</span>
-          <a class="course-link" href="/courses/software-quality-review-network/">进入复习网络</a>
+          <span>适合：考前只盯一个页面完成总复习</span>
+          <a class="course-link" href="/courses/software-quality-review-network/">进入一页通关</a>
         </div>
       </article>
       <article class="course-card">
