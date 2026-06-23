@@ -47,8 +47,8 @@ html[data-user-color-scheme="dark"] .csdn-question, html[data-user-color-scheme=
     <div>
       <span class="csdn-kicker">CSDN Question Bank / 公开题库对照</span>
       <h2>CSDN 公开题库单独成页，作为云班课题库的补充对照</h2>
-      <p>这页按 CSDN 原文结构整理互评题、章节课后习题和“测试相关未分类习题”。云班课题库仍以登录接口导出的 451 张卡片为准；CSDN 页用于补齐公开题库视角，特别是云班课接口暂未开放答案的未分类题。</p>
-      <div class="csdn-actions"><a class="csdn-link" href="/courses/software-quality-review-network/">返回复习网络</a><a class="csdn-link" href="/courses/software-quality-exercises/">云班课题库</a><a class="csdn-link" href="https://blog.csdn.net/m0_56942491/article/details/131734756" target="_blank" rel="noopener">CSDN 原文</a></div>
+      <p>这页按 CSDN 主原文结构整理互评题、章节课后习题和“测试相关未分类习题”。云班课题库仍以登录接口导出的 451 张卡片为准；CSDN 页用于补齐公开题库视角，特别是云班课接口暂未开放答案的未分类题。另把 2025 CSDN 题（一）作为补充来源，用来提示驱动模块/桩模块、健壮性边界值 <code>6n+1</code>、因果图法等高频客观题点。</p>
+      <div class="csdn-actions"><a class="csdn-link" href="/courses/software-quality-review-network/">返回复习网络</a><a class="csdn-link" href="/courses/software-quality-exercises/">云班课题库</a><a class="csdn-link" href="https://blog.csdn.net/m0_56942491/article/details/131734756" target="_blank" rel="noopener">CSDN 主原文</a><a class="csdn-link" href="https://blog.csdn.net/qq_43055855/article/details/148869571" target="_blank" rel="noopener">2025 补充题（一）</a></div>
     </div>
     <div class="csdn-stats" aria-label="CSDN 题库统计">
       <div class="csdn-stat"><strong>298</strong><span>CSDN 原文题目/题组条目，按源页面结构保留。</span></div>
@@ -56,7 +56,7 @@ html[data-user-color-scheme="dark"] .csdn-question, html[data-user-color-scheme=
       <div class="csdn-stat"><strong>CC BY-SA</strong><span>原文页面标注遵循 CC 4.0 BY-SA，本站保留来源链接。</span></div>
     </div>
   </section>
-  <section class="sqe-tip csdn-note"><p><strong>边界说明：</strong>这不是老师云班课接口导出的答案页，而是 CSDN 公开题库对照页。少数原文条目本身是“填空/选择/判断题组”，这里按原文题组保留，不强行拆散，避免我再加工时改错题意。</p></section>
+  <section class="sqe-tip csdn-note"><p><strong>边界说明：</strong>这不是老师云班课接口导出的答案页，而是 CSDN 公开题库对照页。少数原文条目本身是“填空/选择/判断题组”，这里按原文题组保留，不强行拆散，避免我再加工时改错题意。2025 补充题只用于标记高频考点，不并入“298 条主原文题库”数量。</p></section>
   <section class="csdn-toolbar" aria-label="题库检索"><input id="csdnSearch" class="csdn-search" type="search" placeholder="搜索 CSDN 题库：例如 评审、边界值、系统测试、路径覆盖、CMMI"><nav class="csdn-nav" aria-label="章节导航">
     <a class="csdn-chip" href="#csdn-互评题">互评题</a>
     <a class="csdn-chip" href="#csdn-第一章-质量">第一章 质量</a>
