@@ -618,10 +618,10 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
   <section class="sqr-note"><p><strong>用法：</strong>这一块不是概览，而是检查清单。每一章都按“概念、分类、公式/流程、易错题型”列细。主页面适合快速总览和刷题；如果某章不会，就点卡片里的“进入本章完整讲解”，进入二级章节页从零补完整知识。</p></section>
   <section class="sqr-detail-list" aria-label="0 到 15 章详细知识点目录">
     <article class="sqr-detail-card" id="detail-00">
-      <div class="sqr-detail-head"><span>00</span><h3>绪论：考试范围、课程结构、题源优先级</h3></div>
+      <div class="sqr-detail-head"><span>00</span><h3>绪论：考试范围、复习边界、题源优先级</h3></div>
       <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-00/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
-        <li>课程主线：软件质量保证 24 学时 + 软件测试基本理论 8 学时。</li>
+        <li>课程主线：软件质量保证理论 + 软件测试基本理论；学时数字只作课程安排背景。</li>
         <li>期末题型：判断、选择、填空、简答、设计。</li>
         <li>平时题源：课后习题、课上小测、互评习题、每课一思。</li>
         <li>互评题有标准答案，不能重做，适合作为简答题评分点来源。</li>
@@ -1226,8 +1226,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C。国内普遍约 1:8，1:4 以上不足 30%；美国软件企业基本 1:1；微软达到 2:1。</p></div></details></div>
     </article>
     <article class="sqe-card">
-      <div class="sqe-question"><p class="sqe-question-title">题 00-3（填空）</p><p>本课程总学时为 ______ 学时，其中软件质量保证理论 ______ 学时，软件测试实验 ______ 学时。</p></div>
-      <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>32；24；8。</p></div></details></div>
+      <div class="sqe-question"><p class="sqe-question-title">题 00-3（选择）</p><p>根据 PPT0 的范围说明，最应该作为设计题专项训练的是（ ）。A. 接口工具按钮位置；B. 控制流图、环路复杂度和基本路径；C. Excel 招生表；D. 大作业查重格式。</p></div>
+      <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B。学时和章节数只是课程结构背景，不应当成重点填空背。往年题和 2024 回忆更支持重点训练等价类、状态图、控制流图、环路复杂度、基本路径和测试用例。</p></div></details></div>
     </article>
     <article class="sqe-card">
       <div class="sqe-question"><p class="sqe-question-title">题 00-4（简答）</p><p>简述 AI 时代软件质量保证与测试人员可以扮演哪些角色。</p></div>

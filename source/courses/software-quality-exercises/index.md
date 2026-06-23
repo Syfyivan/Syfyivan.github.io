@@ -487,8 +487,8 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
       <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C。国内普遍约 1:8，1:4 以上不足 30%；美国软件企业基本 1:1；微软达到 2:1。</p></div></details></div>
     </article>
     <article class="sqe-card">
-      <div class="sqe-question"><p class="sqe-question-title">题 00-3（填空）</p><p>本课程总学时为 ______ 学时，其中软件质量保证理论 ______ 学时，软件测试实验 ______ 学时。</p></div>
-      <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>32；24；8。</p></div></details></div>
+      <div class="sqe-question"><p class="sqe-question-title">题 00-3（选择）</p><p>根据 PPT0 的范围说明，最应该作为设计题专项训练的是（ ）。A. 接口工具按钮位置；B. 控制流图、环路复杂度和基本路径；C. Excel 招生表；D. 大作业查重格式。</p></div>
+      <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B。学时和章节数只是课程结构背景，不应当成重点填空背。往年题和 2024 回忆更支持重点训练等价类、状态图、控制流图、环路复杂度、基本路径和测试用例。</p></div></details></div>
     </article>
     <article class="sqe-card">
       <div class="sqe-question"><p class="sqe-question-title">题 00-4（简答）</p><p>简述 AI 时代软件质量保证与测试人员可以扮演哪些角色。</p></div>

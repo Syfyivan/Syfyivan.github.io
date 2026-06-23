@@ -1,7 +1,7 @@
 ---
 title: "软件质量与测试复习网络 · 00 绪论"
 date: 2026-06-23 12:40:00
-description: "《软件质量与测试》期末复习二级章节页：绪论：考试范围、课程结构、题源优先级。面向零基础同学，整理本章知识点、易混点、简答模板和自测题。"
+description: "《软件质量与测试》期末复习二级章节页：绪论：考试范围、复习边界、题源优先级。面向零基础同学，整理本章知识点、易混点、简答模板和自测题。"
 ---
 <link rel="stylesheet" href="/css/software-quality-review-chapters.css?v=20260623-1">
 <link rel="stylesheet" href="/css/software-quality-mobile-voice.css?v=20260623-1">
@@ -10,7 +10,7 @@ description: "《软件质量与测试》期末复习二级章节页：绪论：
 <section class="sqc-hero">
 <div>
 <div class="sqc-kicker">软件质量与测试 · 章节精讲 00</div>
-<h2>绪论：考试范围、课程结构、题源优先级</h2>
+<h2>绪论：考试范围、复习边界、题源优先级</h2>
 <p>这一章不讲某个技术点，先解决“这门课到底考什么、从哪里复习、哪些内容不用深挖”。零基础同学先把范围切清楚，后面才不会被接口、性能、Web、App 实验内容分散注意力。</p>
 <div class="sqc-actions">
 <a class="sqc-chip" href="/courses/software-quality-review-network/">返回总复习页</a>
@@ -21,7 +21,7 @@ description: "《软件质量与测试》期末复习二级章节页：绪论：
 </div>
 <aside class="sqc-hero-side" aria-label="本章考试信息">
 <div><strong>资料来源</strong><p>PPT 0、考试说明、复习资料目录</p></div>
-<div><strong>考试位置</strong><p>判断、选择、填空多考范围和题源；简答可能考 AI 时代测试人员角色。</p></div>
+<div><strong>考试位置</strong><p>本章主要用于划清复习边界，不按“学时/章节数”当重点题背；真正要练的是后续定义、模型、评审、度量、SQA、设计质量、编程规范和测试设计题。</p></div>
 <div><strong>本页定位</strong><p>先讲懂概念，再给背诵句和题型，不要求有编程基础。</p></div>
 </aside>
 </section>
@@ -52,7 +52,7 @@ description: "《软件质量与测试》期末复习二级章节页：绪论：
 <h2 id="core" class="sqc-section-title">一、本章完整知识点</h2>
 <section class="sqc-card">
 <h3>00 绪论必须会的内容</h3>
-<ul class="sqc-list"><li>课程主线：软件质量保证理论 24 学时，软件测试基本理论 8 学时，实验内容另算。</li><li>期末题型：判断、选择、填空、简答、设计；客观题靠题库覆盖，主观题靠互评题和大题模板。</li><li>复习资料优先级：云班课客观题和作业题 -&gt; 互评简答参考答案 -&gt; 往年 A/C 卷与回忆题 -&gt; PPT 定义。</li><li>互评题老师给了参考答案，评分点就是参考答案，考试中很可能转成简答题。</li><li>期末包含软件测试基本理论，但接口测试、性能测试、Web 测试、App 测试的实验操作细节通常不作为主范围。</li><li>PPT 0-9 是软件质量保证主线；测试基本理论补充白盒、黑盒、集成、系统、验收等章节。</li><li>设计题分值高，重点是等价类、边界值、控制流图、环路复杂度、基本路径、测试用例、状态图。</li></ul>
+<ul class="sqc-list"><li>课程主线：软件质量保证理论 + 软件测试基本理论；学时数字只用于理解课程结构，不当作重点考题背。</li><li>期末题型：判断、选择、填空、简答、设计；客观题靠题库覆盖，主观题靠互评题和大题模板。</li><li>复习资料优先级：云班课客观题和作业题 -&gt; 互评简答参考答案 -&gt; 往年 A/C 卷与回忆题 -&gt; PPT 定义。</li><li>互评题老师给了参考答案，评分点就是参考答案，考试中很可能转成简答题。</li><li>期末包含软件测试基本理论，但接口测试、性能测试、Web 测试、App 测试的实验操作细节通常不作为主范围。</li><li>PPT 0-9 是软件质量保证主线；测试基本理论补充白盒、黑盒、集成、系统、验收等章节。</li><li>设计题分值高，重点是等价类、边界值、控制流图、环路复杂度、基本路径、测试用例、状态图。</li></ul>
 </section>
 <h2 id="map" class="sqc-section-title">二、知识网络：概念怎么连起来</h2>
 <div class="sqc-table-wrap">
@@ -91,7 +91,7 @@ description: "《软件质量与测试》期末复习二级章节页：绪论：
 <p><strong>自测 1：</strong>判断：接口测试、性能测试、Web 测试、App 测试专项实验都是期末理论考试的核心范围。</p>
 </div>
 <div class="sqc-question">
-<p><strong>自测 2：</strong>填空：本课程复习资料的主线可以分为软件质量保证理论和软件测试基本理论。</p>
+<p><strong>自测 2：</strong>选择：下列最应该作为设计题专项训练的是：A. 接口工具按钮位置；B. 控制流图、环路复杂度和基本路径；C. Excel 招生表；D. 大作业查重格式。</p>
 </div>
 <div class="sqc-question">
 <p><strong>自测 3：</strong>简答：为什么互评题适合作为简答题复习材料？</p>
