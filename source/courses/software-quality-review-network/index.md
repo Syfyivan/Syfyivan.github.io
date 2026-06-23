@@ -17,9 +17,16 @@ description: "《软件质量保证与测试》期末复习总页：覆盖 PPT 0
   --sqr-blue: #365f91;
   --sqr-rust: #a14f35;
   --sqr-gold: #8a6f2e;
-  max-width: 1120px;
+  max-width: 1360px;
   margin: 0 auto;
   color: var(--sqr-text);
+}
+.sqr-page {
+  scroll-padding-top: 96px;
+}
+.sqr-page [id],
+.sqe-page [id] {
+  scroll-margin-top: 96px;
 }
 .sqr-page * { box-sizing: border-box; min-width: 0; }
 .sqr-hero {
@@ -122,6 +129,113 @@ description: "《软件质量保证与测试》期末复习总页：覆盖 PPT 0
 .sqr-print h3 { margin: 0 0 10px; color: var(--sqr-ink); letter-spacing: 0; }
 .sqr-bank { margin-top: 18px; max-width: 1120px; }
 .sqr-bank .sqe-section-title { margin-top: 30px; }
+.sqr-layout {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  margin-top: 24px;
+}
+.sqr-main {
+  min-width: 0;
+}
+.sqr-side {
+  position: sticky;
+  top: 88px;
+  max-height: calc(100vh - 110px);
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid var(--sqr-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 24px rgba(32, 36, 42, 0.06);
+}
+.sqr-side h3 {
+  margin: 0 0 10px;
+  color: var(--sqr-ink);
+  font-size: 16px;
+  letter-spacing: 0;
+}
+.sqr-side-group {
+  display: grid;
+  gap: 5px;
+  padding: 10px 0;
+  border-top: 1px solid var(--sqr-line);
+}
+.sqr-side-group:first-of-type { border-top: 0; padding-top: 0; }
+.sqr-side-title {
+  color: var(--sqr-rust);
+  font-size: 12px;
+  font-weight: 800;
+}
+.sqr-side a {
+  display: block;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: var(--sqr-muted);
+  font-size: 13px;
+  line-height: 1.4;
+  text-decoration: none !important;
+}
+.sqr-side a:hover,
+.sqr-side a:focus {
+  color: var(--sqr-green);
+  background: rgba(47, 111, 94, 0.09);
+}
+.sqr-detail-list {
+  display: grid;
+  gap: 14px;
+}
+.sqr-detail-card {
+  padding: 18px;
+  border: 1px solid var(--sqr-line);
+  border-radius: 8px;
+  background: var(--sqr-panel);
+  box-shadow: 0 10px 24px rgba(32, 36, 42, 0.055);
+  scroll-margin-top: 92px;
+}
+.sqr-detail-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+.sqr-detail-head span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  min-height: 34px;
+  padding: 5px 9px;
+  border-radius: 7px;
+  color: #fff;
+  background: var(--sqr-blue);
+  font-weight: 850;
+}
+.sqr-detail-card h3 {
+  margin: 0;
+  color: var(--sqr-ink);
+  font-size: 19px;
+  letter-spacing: 0;
+}
+.sqr-kp-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 18px;
+  margin: 0;
+  padding-left: 1.2em;
+  color: var(--sqr-muted);
+}
+.sqr-kp-list li {
+  break-inside: avoid;
+}
+.sqr-subsection-title {
+  margin: 26px 0 12px;
+  color: var(--sqr-ink);
+  font-size: 20px;
+  letter-spacing: 0;
+}
 html[data-user-color-scheme="dark"] .sqr-page {
   --sqr-ink: rgba(245, 247, 250, 0.94);
   --sqr-text: rgba(235, 240, 245, 0.88);
@@ -134,13 +248,18 @@ html[data-user-color-scheme="dark"] .sqr-hero,
 html[data-user-color-scheme="dark"] .sqr-card,
 html[data-user-color-scheme="dark"] .sqr-mini,
 html[data-user-color-scheme="dark"] .sqr-chapter-card,
-html[data-user-color-scheme="dark"] .sqr-table-wrap { background: var(--sqr-panel); }
+html[data-user-color-scheme="dark"] .sqr-table-wrap,
+html[data-user-color-scheme="dark"] .sqr-side,
+html[data-user-color-scheme="dark"] .sqr-detail-card { background: var(--sqr-panel); }
 html[data-user-color-scheme="dark"] .sqr-table th { background: rgba(255, 255, 255, 0.06); }
 html[data-user-color-scheme="dark"] .sqr-print { background: rgba(255, 255, 255, 0.045); }
 @media (max-width: 980px) {
   .sqr-hero,
   .sqr-grid,
   .sqr-grid.three { grid-template-columns: 1fr; }
+  .sqr-layout { grid-template-columns: 1fr; }
+  .sqr-side { display: none; }
+  .sqr-kp-list { grid-template-columns: 1fr; }
 }
 @media (max-width: 680px) {
   .sqr-hero { padding: 22px; }
@@ -383,12 +502,59 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     <a class="sqr-chip" href="#how-to-use">怎么用</a>
     <a class="sqr-chip" href="#source-map">资料清单</a>
     <a class="sqr-chip" href="#past-papers">往年题</a>
+    <a class="sqr-chip" href="#detailed-index">详细目录</a>
     <a class="sqr-chip" href="#knowledge">知识体系</a>
     <a class="sqr-chip" href="#must-short">简答题</a>
     <a class="sqr-chip" href="#design-drill">大题</a>
     <a class="sqr-chip" href="#question-bank">全部题库</a>
     <a class="sqr-chip" href="#last-day">最后一天</a>
   </nav>
+
+  <div class="sqr-layout">
+    <aside class="sqr-side" aria-label="固定复习目录">
+      <h3>复习目录</h3>
+      <div class="sqr-side-group">
+        <span class="sqr-side-title">主流程</span>
+        <a href="#how-to-use">怎么用这页</a>
+        <a href="#source-map">资料清单</a>
+        <a href="#past-papers">往年题雷达</a>
+        <a href="#detailed-index">0-15 章详细目录</a>
+        <a href="#knowledge">知识体系总览</a>
+        <a href="#must-short">简答评分点</a>
+        <a href="#design-drill">大题设计题</a>
+        <a href="#question-bank">全部题库</a>
+        <a href="#last-day">最后一天冲刺</a>
+      </div>
+      <div class="sqr-side-group">
+        <span class="sqr-side-title">知识点章节</span>
+        <a href="#detail-00">00 绪论</a>
+        <a href="#detail-01">01 质量</a>
+        <a href="#detail-02">02 软件质量</a>
+        <a href="#detail-03">03 工程体系</a>
+        <a href="#detail-04">04 质量度量</a>
+        <a href="#detail-05">05 质量标准</a>
+        <a href="#detail-06">06 软件评审</a>
+        <a href="#detail-07">07 SQA 组织</a>
+        <a href="#detail-08">08 设计质量</a>
+        <a href="#detail-09">09 高质量编程</a>
+        <a href="#detail-10">10 软件测试</a>
+        <a href="#detail-11">11 白盒测试</a>
+        <a href="#detail-12">12 黑盒测试</a>
+        <a href="#detail-13">13 集成测试</a>
+        <a href="#detail-14">14 系统测试</a>
+        <a href="#detail-15">15 验收测试</a>
+      </div>
+      <div class="sqr-side-group">
+        <span class="sqr-side-title">题库章节</span>
+        <a href="#peer">互评简答</a>
+        <a href="#ch00">题库 00-03</a>
+        <a href="#ch04">题库 04-07</a>
+        <a href="#ch08">题库 08-10</a>
+        <a href="#ch11">题库 11-15</a>
+        <a href="#chx">综合题</a>
+      </div>
+    </aside>
+    <main class="sqr-main">
 
   <h2 id="how-to-use" class="sqr-section-title">一、怎么用这一个页面复习</h2>
   <div class="sqr-grid three">
@@ -426,7 +592,291 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </table>
   </div>
 
-  <h2 id="knowledge" class="sqr-section-title">四、完整知识体系：0-15 章一张网</h2>
+  <h2 id="detailed-index" class="sqr-section-title">四、0-15 章详细目录：复习时就按这个检查</h2>
+  <section class="sqr-note"><p><strong>用法：</strong>这一块不是概览，而是检查清单。每一章都按“概念、分类、公式/流程、易错题型”列细。你复习时可以从左侧目录跳到对应章节，逐条问自己会不会解释、会不会判断、会不会写成简答。</p></section>
+  <section class="sqr-detail-list" aria-label="0 到 15 章详细知识点目录">
+    <article class="sqr-detail-card" id="detail-00">
+      <div class="sqr-detail-head"><span>00</span><h3>绪论：考试范围、课程结构、题源优先级</h3></div>
+      <ul class="sqr-kp-list">
+        <li>课程主线：软件质量保证 24 学时 + 软件测试基本理论 8 学时。</li>
+        <li>期末题型：判断、选择、填空、简答、设计。</li>
+        <li>平时题源：课后习题、课上小测、互评习题、每课一思。</li>
+        <li>互评题有标准答案，不能重做，适合作为简答题评分点来源。</li>
+        <li>期末包含软件测试基本理论，不包含接口、性能、Web、App 专项实验的操作细节。</li>
+        <li>复习优先级：云班课客观题 -> 互评简答 -> 往年大题 -> PPT 定义。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-01">
+      <div class="sqr-detail-head"><span>01</span><h3>质量：质量定义、客户关系、质量观点、质量发展</h3></div>
+      <ul class="sqr-kp-list">
+        <li>质量定义：一组固有特性满足要求的程度。</li>
+        <li>要求包括明示需求、暗示需求、客户和其他相关方要求。</li>
+        <li>质量属性：客户属性、成本属性、社会属性、可测性、可预见性。</li>
+        <li>客户与质量：质量相对客户存在，服务于客户，客户是质量接受者和判定者。</li>
+        <li>客户分类：内部客户、外部客户；每个人都有客户。</li>
+        <li>四种质量观点：制造者观点、产品观点、用户观点、价值观点。</li>
+        <li>质量概念三层次：符合性质量、适用性质量、广义质量。</li>
+        <li>质量形成过程：需求、设计、生产/实现、使用和反馈共同形成质量。</li>
+        <li>质量管理发展：检验质量管理、统计质量控制、全面质量管理。</li>
+        <li>常见判断：质量不是绝对主观，也不是完全不可测。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-02">
+      <div class="sqr-detail-head"><span>02</span><h3>软件质量：软件特点、软件过程、缺陷、质量模型</h3></div>
+      <ul class="sqr-kp-list">
+        <li>软件特点：无形、复杂、易变、难度量、不会物理磨损。</li>
+        <li>软件质量控制难点：缺陷多来自需求、设计、编码和配置，不是制造阶段复制误差。</li>
+        <li>软件过程：需求分析、设计、编程、测试、维护。</li>
+        <li>需求分析确定软件产品能达到的目标。</li>
+        <li>设计把需求转换为数据结构、体系结构、接口、模块和界面。</li>
+        <li>测试是对设计、编程进行验证和用户需求确认的过程。</li>
+        <li>V 模型：需求对应验收测试，概要/体系结构对应系统/集成测试，详细设计/编码对应单元测试。</li>
+        <li>极限编程：测试驱动、持续反馈、可工作的软件重于面面俱到文档。</li>
+        <li>软件缺陷内部定义：开发或维护过程中存在的错误、毛病等问题。</li>
+        <li>软件缺陷外部定义：系统应实现功能的失效或违背。</li>
+        <li>缺陷来源：期限压力、复杂度、沟通不良、疲劳、经验不足、算法/接口/文档/恢复问题。</li>
+        <li>软件质量三方面：产品质量、过程质量、商业环境中的质量表现。</li>
+        <li>软件质量模型：ISO、McCall、Boehm 用质量特性、准则、度量组织质量评价。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-03">
+      <div class="sqr-detail-head"><span>03</span><h3>软件质量工程体系：质量体系、质量因素、质量成本</h3></div>
+      <ul class="sqr-kp-list">
+        <li>建立质量管理体系：确定质量方针和目标、过程和职责、资源、测量和改进方法。</li>
+        <li>质量工程体系构成：质量计划、组织、协调、控制、反馈与调控。</li>
+        <li>软件六个品质要素：功能性、可靠性、可用性、效率、可维护性、可移植性。</li>
+        <li>质量指标：衡量可识别的软件质量特性的项目。</li>
+        <li>质量因素：影响软件质量特性或软件质量指标的参数。</li>
+        <li>产品质量因素：功能完整性、可用性、可靠性、性能、可维护性、可测试性、可移植性等。</li>
+        <li>过程质量因素：沟通、需求定义方法、项目计划、评审流程、设计标准、协同流程、维护和回归测试流程等。</li>
+        <li>质量方针：在质量控制、质量保证和质量管理之上的组织质量方向。</li>
+        <li>质量控制 QC：设定标准、测量结果、判断是否达标、采取纠正措施。</li>
+        <li>质量保证 QA：有计划、有组织地提供满足质量要求的信任。</li>
+        <li>质量改进：持续增强满足质量要求的能力。</li>
+        <li>质量成本：为保证满意质量而发生的费用，以及未达到满意质量造成的损失。</li>
+        <li>经典质量费用模型：预防费用、评价费用、内部失效费用、外部失效费用。</li>
+        <li>劣质成本：损失、返工、故障等因质量不好产生的成本。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-04">
+      <div class="sqr-detail-head"><span>04</span><h3>软件质量度量：测量、度量、指标、尺度、复杂度</h3></div>
+      <ul class="sqr-kp-list">
+        <li>测量：按照规则给属性赋值。</li>
+        <li>度量：对软件产品、过程或项目进行范围较广的测度。</li>
+        <li>指标：一个度量或一组度量的组合，用来解释质量状况。</li>
+        <li>有效性：测量结果能正确反映被测对象实际状态。</li>
+        <li>可靠性：测量重复进行时结果稳定一致。</li>
+        <li>度量对象：项目质量度量、产品质量度量、过程质量度量。</li>
+        <li>项目度量：进度、风险、规模、工作量、顾客满意度。</li>
+        <li>产品度量：规模、复杂度、设计特征、性能、质量水平。</li>
+        <li>过程度量：缺陷移除效率、测试阶段缺陷、过程改进指标。</li>
+        <li>规模度量：代码行、功能点、对象点、特征点。</li>
+        <li>复杂度度量：估计或预测软件可测试性、可靠性、可维护性。</li>
+        <li>缺陷度量：缺陷密度、缺陷分布、修复工作量、弱点分析。</li>
+        <li>McCabe 环路复杂度：V(G)=E-N+2P，也可用区域数或判定节点数+1。</li>
+        <li>基本测量原则：目标明确、定义一致客观无二义、方法简单可算、结果可靠、自动化、反馈改进。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-05">
+      <div class="sqr-detail-head"><span>05</span><h3>软件质量标准：标准层次、ISO、IEEE、CMM/CMMI</h3></div>
+      <ul class="sqr-kp-list">
+        <li>标准层次：国际标准、国家标准、行业标准、企业标准。</li>
+        <li>国际标准：由国际机构制定和公布，如 ISO。</li>
+        <li>行业标准：适用于特定业务领域，由行业机构、学术团体或国防机构制定。</li>
+        <li>ISO 9001-3：帮助软件组织解释 ISO 9001 在软件过程中的要求。</li>
+        <li>ISO/IEC 15504：软件过程评估标准。</li>
+        <li>IEEE 软件工程标准：生命周期过程、评审等。</li>
+        <li>软件标准目的：帮助开发商和采购商理解质量含义、实施质量、持续改进质量管理体系。</li>
+        <li>CMM/CMMI 思想：以全面质量管理为基础，关注软件过程能力成熟度。</li>
+        <li>CMMI 1 级初始级：过程混乱、依赖个人。</li>
+        <li>CMMI 2 级已管理级：有基本项目管理行为。</li>
+        <li>CMMI 3 级已定义级：组织过程已文档化并标准化。</li>
+        <li>CMMI 4 级量化管理级：设定质量和生产目标并量化管理。</li>
+        <li>CMMI 5 级优化级：持续改进并使用统计质量控制技术。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-06">
+      <div class="sqr-detail-head"><span>06</span><h3>软件评审：为什么评审、评审类型、走查与审查</h3></div>
+      <ul class="sqr-kp-list">
+        <li>评审目的：尽早发现需求、设计、代码、测试文档中的缺陷。</li>
+        <li>成本角度：缺陷越晚发现，修复成本越高。</li>
+        <li>技术角度：前一阶段错误会传递并放大到后一阶段。</li>
+        <li>效率角度：减少返工、缩短测试调试时间、降低维护压力。</li>
+        <li>管理评审：由最高管理层或质量部门组织，评价质量管理体系运行情况。</li>
+        <li>技术评审：评价产品和阶段输出，确保需求/设计/实现保持一致。</li>
+        <li>文档评审：需求评审、设计评审、代码评审、质量验证评审。</li>
+        <li>过程评审：监督组织定义的软件过程是否在项目中被遵守。</li>
+        <li>评审材料：检查单、措施、其他必要文档、评审结论和意见。</li>
+        <li>走查：作者带领评审人员逐步说明，形式较轻，主要发现问题。</li>
+        <li>审查：更正式，有角色、流程、缺陷记录、跟踪和改进作用。</li>
+        <li>评审会议结果：接受、修改后接受、重新评审等。</li>
+        <li>成功评审要点：目标明确、准备充分、记录缺陷、跟踪关闭。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-07">
+      <div class="sqr-detail-head"><span>07</span><h3>SQA 组织活动：组织结构、角色职责、SQA 活动</h3></div>
+      <ul class="sqr-kp-list">
+        <li>软件质量管理组织：测试部门、软件工程过程组、过程改进网络、质量保证协会等。</li>
+        <li>SQA 组织不必照搬标准，应以企业目标为前提。</li>
+        <li>组织结构一：独立 SQA 部门，独立性强、资源共享好，但可能远离项目现场。</li>
+        <li>组织结构二：项目内独立 SQA 工程师，贴近项目、推动快，但独立性弱。</li>
+        <li>组织结构三：独立 SQA 小组/矩阵，兼顾独立性和项目深入，但职责边界要清晰。</li>
+        <li>SQA 经理：制定 SQA 策略和发展计划，管理资源，审定项目 SQA 计划，评审状态。</li>
+        <li>SQA 工程师：按计划检查产品，执行评审/审核，记录偏差，完成测量度量，报告工作情况。</li>
+        <li>SQA 计划：明确质量保证活动、标准、角色、检查点、报告机制。</li>
+        <li>SQA 评审/审核：检查活动和工作产品是否符合已定义过程。</li>
+        <li>偏差处理：记录不符合项，报告管理层，跟踪直到解决。</li>
+        <li>SQA 与项目经理：项目经理负责交付目标，SQA 监督过程符合性和质量风险。</li>
+        <li>SQA 是整个组织责任，不只是某个测试人员的责任。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-08">
+      <div class="sqr-detail-head"><span>08</span><h3>提高软件设计质量：设计目标、评价标准、原则、架构</h3></div>
+      <ul class="sqr-kp-list">
+        <li>软件设计：把软件需求转换为软件表示的过程。</li>
+        <li>高层次设计：把需求转化为数据结构和软件系统结构。</li>
+        <li>详细设计：细化数据结构和算法，给编码人员清晰蓝图。</li>
+        <li>设计目标：保证结构、接口、部件功能分配和数据设计的完整性。</li>
+        <li>评价标准一：以源系统为标准，关注设计合理性，专家和用户代表参与。</li>
+        <li>评价标准二：以分析模型为间接标准，检查分析模型和设计模型一致性。</li>
+        <li>评价标准三：以目标系统为产品质量标准，检查最终质量属性。</li>
+        <li>设计原则：始终以质量为目标，设计越简单越好。</li>
+        <li>技术原则：开闭原则、抽象、针对接口编程、尽量从抽象类继承。</li>
+        <li>体系结构：C/S、B/S、多层分布式结构。</li>
+        <li>耦合从强到弱：内容耦合、公共耦合、控制耦合、标记耦合、数据耦合。</li>
+        <li>内聚从强到弱：功能内聚、顺序内聚、通信内聚、过程内聚、时间内聚、逻辑内聚、偶然内聚。</li>
+        <li>数据库设计质量：数据结构、数据字典、完整性、性能、安全、可维护。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-09">
+      <div class="sqr-detail-head"><span>09</span><h3>高质量编程：命名、版式、函数、表达式、内存</h3></div>
+      <ul class="sqr-kp-list">
+        <li>命名：标识符应清晰、统一，必要时使用前缀避免库冲突。</li>
+        <li>头文件：标准库用 &lt;filename.h&gt;，非标准库用 "filename.h"。</li>
+        <li>类设计版式：数据和行为顺序要保持一致，便于理解。</li>
+        <li>布尔变量判断：用 if(flag) 或 if(!flag)，不要和 TRUE/FALSE 比较。</li>
+        <li>整型与零比较：可用 ==0、!=0。</li>
+        <li>浮点与零比较：用误差范围判断，避免直接 ==0。</li>
+        <li>指针与零比较：用 p == NULL 或 p != NULL。</li>
+        <li>函数参数：只输入的指针参数应加 const，防止函数内误改。</li>
+        <li>大对象传参：优先 const 引用，避免值传递开销。</li>
+        <li>变量初始化：定义时就近初始化，避免使用未初始化值。</li>
+        <li>动态内存：malloc/free、new/delete 配对，申请和释放次数相同。</li>
+        <li>内存泄漏：申请后没有释放。</li>
+        <li>野指针：未初始化、释放后未置 NULL、返回局部变量地址。</li>
+        <li>释放后处理：free/delete 后立即置 NULL，不返回已释放指针。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-10">
+      <div class="sqr-detail-head"><span>10</span><h3>软件测试：目标、原则、过程、用例、调试</h3></div>
+      <ul class="sqr-kp-list">
+        <li>软件测试定义：为了发现错误而执行程序的过程。</li>
+        <li>测试内容：需求、设计、代码、文档、数据、运行环境都可能成为测试对象。</li>
+        <li>测试目标：尽可能多发现缺陷，并评价软件质量。</li>
+        <li>测试不能证明程序没有缺陷，只能增加信心。</li>
+        <li>测试原则：追溯用户需求，尽早并不断测试，注意缺陷群集，回归测试，增量测试。</li>
+        <li>测试计划是做好测试工作的前提。</li>
+        <li>测试过程：计划、设计用例、准备环境和数据、执行、记录缺陷、修复跟踪、回归、报告。</li>
+        <li>三类信息：输入信息、执行信息、输出/预期信息。</li>
+        <li>测试用例：输入数据 + 预期输出结果，完整时还包括前置条件、步骤、环境、实际结果。</li>
+        <li>静态测试：不运行程序，如评审、走查、审查、静态分析。</li>
+        <li>动态测试：运行程序并观察输出或行为。</li>
+        <li>测试与调试：测试发现错误，调试定位和修正错误。</li>
+        <li>回归测试：修改后重测，确认修复有效且没有破坏旧功能。</li>
+        <li>测试停止标准：结合缺陷数量、风险和测试投入成本判断。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-11">
+      <div class="sqr-detail-head"><span>11</span><h3>白盒测试：覆盖准则、控制流、数据流、基本路径</h3></div>
+      <ul class="sqr-kp-list">
+        <li>白盒测试也称结构测试或逻辑驱动测试。</li>
+        <li>白盒依据程序内部逻辑结构设计或选择测试用例。</li>
+        <li>适用层次：单元测试、部分集成测试。</li>
+        <li>检查重点：模块接口、局部数据结构、边界条件、独立路径、内部错误处理。</li>
+        <li>语句覆盖：每条可执行语句至少执行一次，发现错误能力最弱。</li>
+        <li>判定覆盖：每个判定的真/假分支至少执行一次。</li>
+        <li>条件覆盖：每个条件取真/假的情况至少出现一次。</li>
+        <li>判定/条件覆盖：判定结果和条件结果都要覆盖。</li>
+        <li>条件组合覆盖：每个判定中条件结果的所有组合至少出现一次。</li>
+        <li>路径覆盖：覆盖程序可能执行路径，强但成本高。</li>
+        <li>控制流图：节点表示基本块，边表示控制转移。</li>
+        <li>环路复杂度：V(G)=E-N+2P、区域数、判定节点数+1。</li>
+        <li>基本路径：数量通常等于环路复杂度，每条路径引入新边。</li>
+        <li>数据流测试：关注变量定义-使用链，发现未初始化、定义后未用等问题。</li>
+        <li>覆盖率 100% 不等于没有缺陷。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-12">
+      <div class="sqr-detail-head"><span>12</span><h3>黑盒测试：等价类、边界值、判定表、场景和状态</h3></div>
+      <ul class="sqr-kp-list">
+        <li>黑盒测试也称功能测试，主要依据规格说明和用户行为。</li>
+        <li>黑盒不考虑程序内部逻辑结构，重点看输入输出和功能表现。</li>
+        <li>试图发现：功能错误、接口错误、数据结构/数据库访问错误、性能错误、初始化/终止错误。</li>
+        <li>等价类划分：把输入或输出划分成有效等价类和无效等价类。</li>
+        <li>有效等价类：符合规格、能代表一类合法输入。</li>
+        <li>无效等价类：不符合规格，最好一类一个用例。</li>
+        <li>边界值分析：在输入/输出边界及附近设计用例。</li>
+        <li>闭区间常取：a-1、a、a+1、正常值、b-1、b、b+1。</li>
+        <li>一般边界值分析：一个变量取边界，其他变量取正常值。</li>
+        <li>因果图：分析输入条件与输出结果之间的因果关系。</li>
+        <li>判定表：适合条件组合和业务规则复杂的场景。</li>
+        <li>场景法：适合业务流程清楚的功能，如登录、下单、提交。</li>
+        <li>状态迁移测试：适合状态和事件明确的系统，如售票、查询、付款。</li>
+        <li>错误推测：根据经验猜测容易出错的位置。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-13">
+      <div class="sqr-detail-head"><span>13</span><h3>集成测试：接口、策略、桩模块、驱动模块</h3></div>
+      <ul class="sqr-kp-list">
+        <li>集成测试也叫组装测试或联合测试。</li>
+        <li>位置：单元测试之后，系统测试之前。</li>
+        <li>重点：模块接口、参数传递、返回值、调用顺序、全局数据、共享状态、异常传播。</li>
+        <li>集成测试与单元测试区别：单元看模块内部，集成看模块协作。</li>
+        <li>非增量式集成：一次性组装，问题定位困难。</li>
+        <li>增量式集成：逐步组装，便于定位问题。</li>
+        <li>自顶向下：从主控模块向下集成，需要桩模块模拟下层模块。</li>
+        <li>自底向上：从底层模块向上集成，需要驱动模块调用被测模块。</li>
+        <li>混合/三明治：结合自顶向下和自底向上。</li>
+        <li>桩模块：模拟被测模块调用的下级模块。</li>
+        <li>驱动模块：模拟上级模块或主程序，调用被测模块。</li>
+        <li>集成测试用例应覆盖接口数据、调用路径、错误处理和模块间副作用。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-14">
+      <div class="sqr-detail-head"><span>14</span><h3>系统测试：完整系统、功能、性能、安全、恢复</h3></div>
+      <ul class="sqr-kp-list">
+        <li>系统测试把已集成软件与硬件、外设、支撑软件、数据、人员放到接近真实环境检验。</li>
+        <li>目标：确认完整系统是否满足系统规格说明。</li>
+        <li>系统测试不同于集成测试：集成看模块接口，系统看完整产品和环境。</li>
+        <li>功能测试：检查功能、性能是否与需求规格说明相同。</li>
+        <li>性能测试：响应时间、吞吐量、并发能力、资源占用、稳定性。</li>
+        <li>负载测试：预期工作负荷下表现。</li>
+        <li>压力/强度测试：高负荷或异常负荷下瓶颈和崩溃边界。</li>
+        <li>容量测试：最大用户数、数据量、事务量。</li>
+        <li>安全测试：应用层和系统层，认证、授权、输入校验、数据保护、配置和网络。</li>
+        <li>恢复测试：系统故障后是否能恢复数据和服务。</li>
+        <li>兼容/配置/安装测试：检查不同环境、安装卸载、配置组合。</li>
+        <li>压力测试通常需要工具支持，人工点击不能稳定模拟高并发。</li>
+      </ul>
+    </article>
+    <article class="sqr-detail-card" id="detail-15">
+      <div class="sqr-detail-head"><span>15</span><h3>验收测试：交付前确认、用户参与、Alpha/Beta</h3></div>
+      <ul class="sqr-kp-list">
+        <li>验收测试是部署或交付前的最后一类确认/技术测试。</li>
+        <li>目的：确保软件满足合同、需求规格说明、业务目标和验收标准。</li>
+        <li>参与者：最终用户、客户代表、业务方通常要参与。</li>
+        <li>验收依据：合同、需求规格、用户业务流程、验收标准。</li>
+        <li>验收步骤：制定计划、准备环境和数据、执行验收用例、记录问题、确认结果、形成报告。</li>
+        <li>完成标准：关键功能满足、严重缺陷关闭或被正式接受、文档和交付物齐全。</li>
+        <li>用户验收测试：业务方按真实业务场景确认系统是否可用。</li>
+        <li>Alpha 测试：通常在开发方受控环境下由内部或邀请用户完成。</li>
+        <li>Beta 测试：在外部或接近真实用户环境中试用并反馈问题。</li>
+        <li>常见错误：认为“多做了额外功能”就可以忽略核心缺陷。</li>
+      </ul>
+    </article>
+  </section>
+
+  <h2 id="knowledge" class="sqr-section-title">五、完整知识体系：0-15 章一张网</h2>
   <section class="sqr-chapter-list" aria-label="完整知识体系">
     <article class="sqr-chapter-card" id="know-00">
       <div class="sqr-chapter-num">00</div>
@@ -574,14 +1024,14 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     </article>
   </section>
 
-  <h2 id="must-short" class="sqr-section-title">五、简答题优先级：先背这些评分点</h2>
+  <h2 id="must-short" class="sqr-section-title">六、简答题优先级：先背这些评分点</h2>
   <section class="sqr-note"><p><strong>卷面格式：</strong>简答题不要写成一句话。建议每题写 3 到 6 个点，每点独立成句。能写“定义、分类、作用、区别、结论”的题，一定按这个顺序写。</p></section>
   <div class="sqr-grid">
     <article class="sqr-card"><span class="sqr-badge hot">一级必背</span><h3>24/25 已点名或互评高频</h3><ul class="sqr-list"><li>为什么需要软件评审：成本、技术、效率。</li><li>客户与质量关系：相互依赖、客户接受、质量相对客户存在并由客户判定。</li><li>经典质量费用模型：预防、评价、内部失效、外部失效。</li><li>质量管理体系：质量方针、目标、职责、资源、产品实现、测量分析改进。</li><li>SQA 人员工作：计划、过程描述、评审、审计、记录偏差、报告、跟踪、度量。</li><li>基本测量原则：目标、定义一致客观、简单可算、剪裁、自动化、统计关系、可靠、反馈。</li><li>软件测试定义：为了发现错误而执行程序，依据规格和结构设计用例。</li><li>单元/集成/系统测试侧重点。</li></ul></article>
     <article class="sqr-card"><span class="sqr-badge apply">二级必背</span><h3>老卷与题库反复出现</h3><ul class="sqr-list"><li>SQA 三种组织结构及优缺点。</li><li>软件缺陷内部/外部定义。</li><li>走查与审查区别。</li><li>ISO/McCall/Boehm 三种质量模型评价。</li><li>软件测试与调试区别。</li><li>回归测试目的。</li><li>测试用例定义。</li><li>桩模块与驱动模块。</li><li>白盒与黑盒测试区别。</li><li>负载、容量、强度/压力测试区别。</li></ul></article>
   </div>
 
-  <h2 id="design-drill" class="sqr-section-title">六、大题设计题：高分值必须单独练</h2>
+  <h2 id="design-drill" class="sqr-section-title">七、大题设计题：高分值必须单独练</h2>
   <section class="sqr-note"><p><strong>大题拿分原则：</strong>题面会换，但评分动作基本不变：列规则、分等价类、取边界值、画控制流图/状态图、算复杂度、列基本路径、写测试用例。卷面上一定要有表格和编号。</p></section>
   <div class="sqr-grid">
     <article class="sqr-card"><span class="sqr-badge hot">等价类</span><h3>2025 图书编号题怎么拆</h3><p>8 位编号可拆成三段：1-2 位楼层、3-5 位书架、6-8 位图书。有效类：楼层 01-11、书架 001-120、图书 001-300，且全为数字、长度为 8。无效类至少按字段拆：长度错误、非数字、楼层 00/12 及以上、书架 000/121 及以上、图书 000/301 及以上。</p><ul class="sqr-list" style="margin-top:10px"><li>有效例：01001001、11120300。</li><li>无效例：00001001、12001001、01121001、01000301、01A01001、0100100。</li><li>卷面表：编号、输入、覆盖等价类、预期结果。</li></ul></article>
@@ -592,10 +1042,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     <article class="sqr-card"><span class="sqr-badge hot">卷面模板</span><h3>四张表保底拿步骤分</h3><ul class="sqr-list"><li>规则拆分表：字段、合法范围、非法情况。</li><li>等价类/边界表：编号、有效/无效、代表值。</li><li>路径表：路径编号、节点序列、覆盖分支。</li><li>测试用例表：输入、覆盖对象、预期输出。</li></ul></article>
   </div>
 
-  <h2 id="question-bank" class="sqr-section-title">七、全部题库：互评题、课后题、课堂练习都放这里</h2>
+  <h2 id="question-bank" class="sqr-section-title">八、全部题库：互评题、课后题、课堂练习都放这里</h2>
   <section class="sqr-note"><p><strong>使用方式：</strong>下面是完整刷题区，答案默认折叠。先在纸上写，再展开核对。互评题按简答题准备；判断、选择、填空用来补客观题；设计题用来练卷面步骤。</p></section>
-</div>
-
 <div class="sqe-page sqr-bank">
 <h2 class="sqe-section-title">章节跳转</h2>
   <nav class="sqe-nav" aria-label="章节跳转">
@@ -1144,11 +1592,12 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
   </section>
 </div>
 
-<div class="sqr-page">
-  <h2 id="last-day" class="sqr-section-title">八、最后一天冲刺清单</h2>
+  <h2 id="last-day" class="sqr-section-title">九、最后一天冲刺清单</h2>
   <div class="sqr-grid">
     <article class="sqr-print"><h3>2 小时背诵</h3><ul class="sqr-list"><li>质量、软件质量、缺陷、测试、测试用例、回归测试。</li><li>为什么评审、质量费用模型、质量管理体系、测量原则。</li><li>SQA 工作内容和三种组织结构。</li><li>白盒/黑盒、单元/集成/系统/验收、桩/驱动。</li></ul></article>
     <article class="sqr-print"><h3>2 小时大题</h3><ul class="sqr-list"><li>做 1 道编号/命名格式等价类题。</li><li>做 1 道 x/y 边界值题。</li><li>做 1 道 if/while 控制流图题。</li><li>做 1 道状态迁移题。</li></ul></article>
   </div>
   <section class="sqr-note"><p><strong>公开来源：</strong><a href="https://blog.csdn.net/m0_56942491/article/details/131734756" target="_blank" rel="noopener">CSDN 题库整理</a>；<a href="https://www.mosoteach.cn/web/cc-detail/4851E258-439C-11F1-BAE9-A088C2A30E68/act/" target="_blank" rel="noopener">蓝墨云班课活动页</a>。本页还使用本地 PPT、复习讲义、往年 A/C 卷和 2024/2025 考试回忆来校准范围。云班课私有活动页当前未登录不可读，不能把未核验的老师参考答案伪造成已核验内容。</p></section>
+    </main>
+  </div>
 </div>
