@@ -19,6 +19,7 @@ description: "把《软件质量保证与测试》课堂练习、课后练习和
   color: var(--sqe-ink);
 }
 .sqe-page * { box-sizing: border-box; }
+.sqe-page :target { scroll-margin-top: 150px; }
 .sqe-hero {
   padding: 30px;
   border: 1px solid var(--sqe-line);
@@ -104,10 +105,63 @@ description: "把《软件质量保证与测试》课堂练习、课后练习和
 .sqe-stat strong { display: block; color: var(--sqe-blue); font-size: 24px; line-height: 1.1; }
 .sqe-stat span { display: block; margin-top: 5px; color: var(--sqe-muted); font-size: 13px; }
 .sqe-section-title { margin: 34px 0 16px; font-size: 22px; }
-.sqe-nav { margin-bottom: 20px; }
+.sqe-nav {
+  position: sticky;
+  top: 86px;
+  z-index: 20;
+  flex-wrap: nowrap;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid var(--sqe-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 28px rgba(32, 36, 42, 0.08);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.sqe-nav::before {
+  content: "目录";
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 6px;
+  color: var(--sqe-rust);
+  font-weight: 800;
+  white-space: nowrap;
+}
+.sqe-nav .sqe-chip {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 7px 11px;
+}
+.sqe-side-toc { display: none; }
+.sqe-side-toc strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--sqe-rust);
+  font-size: 13px;
+}
+.sqe-side-toc a {
+  display: block;
+  padding: 6px 8px;
+  border-radius: 7px;
+  color: var(--sqe-blue);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-decoration: none !important;
+}
+.sqe-side-toc a:hover {
+  color: #ffffff;
+  background: var(--sqe-blue);
+}
 .sqe-chip { border-color: rgba(54, 95, 145, 0.28); color: var(--sqe-blue); }
 .sqe-chip:hover { background: var(--sqe-blue); }
 .sqe-chapter {
+  scroll-margin-top: 150px;
   margin-top: 18px;
   padding: 20px;
   border: 1px solid var(--sqe-line);
@@ -194,15 +248,49 @@ html[data-user-color-scheme="dark"] .sqe-stat,
 html[data-user-color-scheme="dark"] .sqe-chapter { background: var(--sqe-panel); }
 html[data-user-color-scheme="dark"] .sqe-card { background: rgba(34, 40, 48, 0.88); }
 html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0.045); }
+html[data-user-color-scheme="dark"] .sqe-nav,
+html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39, 0.94); }
+@media (min-width: 1320px) {
+  .sqe-side-toc {
+    position: fixed;
+    top: 108px;
+    right: max(14px, calc((100vw - 1290px) / 2));
+    z-index: 18;
+    display: block;
+    width: 170px;
+    max-height: calc(100vh - 130px);
+    padding: 12px;
+    border: 1px solid var(--sqe-line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 10px 28px rgba(32, 36, 42, 0.08);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
 @media (max-width: 760px) {
+  .sqe-page { padding-bottom: 76px; }
   .sqe-hero { padding: 22px; }
   .sqe-hero h2 { font-size: 25px; }
   .sqe-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sqe-chapter { padding: 16px; }
   .sqe-chapter-head { grid-template-columns: 1fr; }
   .sqe-number { width: 70px; }
-  .sqe-link,
-  .sqe-chip { width: 100%; }
+  .sqe-page :target,
+  .sqe-chapter { scroll-margin-top: 122px; }
+  .sqe-nav {
+    position: fixed;
+    top: auto;
+    right: 8px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    left: 8px;
+    z-index: 80;
+    margin: 0;
+  }
+  .sqe-link { width: 100%; }
+  .sqe-nav .sqe-chip { width: auto; }
 }
 </style>
 
@@ -249,6 +337,28 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     <a class="sqe-chip" href="#ch15">15 验收测试</a>
     <a class="sqe-chip" href="#chx">综合题</a>
   </nav>
+
+  <aside class="sqe-side-toc" aria-label="固定目录">
+    <strong>章节目录</strong>
+    <a href="#peer">互评题</a>
+    <a href="#ch00">00 绪论</a>
+    <a href="#ch01">01 质量</a>
+    <a href="#ch02">02 软件质量</a>
+    <a href="#ch03">03 工程体系</a>
+    <a href="#ch04">04 质量度量</a>
+    <a href="#ch05">05 质量标准</a>
+    <a href="#ch06">06 软件评审</a>
+    <a href="#ch07">07 SQA 组织</a>
+    <a href="#ch08">08 设计质量</a>
+    <a href="#ch09">09 高质量编程</a>
+    <a href="#ch10">10 软件测试</a>
+    <a href="#ch11">11 白盒测试</a>
+    <a href="#ch12">12 黑盒测试</a>
+    <a href="#ch13">13 集成测试</a>
+    <a href="#ch14">14 系统测试</a>
+    <a href="#ch15">15 验收测试</a>
+    <a href="#chx">综合题</a>
+  </aside>
 
   <section id="peer" class="sqe-chapter">
     <div class="sqe-chapter-head">
