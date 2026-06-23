@@ -491,6 +491,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
   .sqe-chip { width: 100%; }
 }
 </style>
+<link rel="stylesheet" href="/css/software-quality-mobile-voice.css?v=20260623-1">
+<script defer src="/js/software-quality-voice.js?v=20260623-1"></script>
 
 <div class="sqr-page">
   <section class="sqr-hero">

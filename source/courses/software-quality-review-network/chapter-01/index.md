@@ -4,6 +4,8 @@ date: 2026-06-23 12:40:00
 description: "《软件质量与测试》期末复习二级章节页：质量：质量定义、客户关系、质量观点、质量发展。面向零基础同学，整理本章知识点、易混点、简答模板和自测题。"
 ---
 <link rel="stylesheet" href="/css/software-quality-review-chapters.css?v=20260623-1">
+<link rel="stylesheet" href="/css/software-quality-mobile-voice.css?v=20260623-1">
+<script defer src="/js/software-quality-voice.js?v=20260623-1"></script>
 <article class="sqc-page">
 <section class="sqc-hero">
 <div>

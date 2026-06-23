@@ -825,6 +825,8 @@ description: "《软件质量与测试》期末复习二级章节页：${chapter
 ---
 
 <link rel="stylesheet" href="/css/software-quality-review-chapters.css?v=20260623-1">
+<link rel="stylesheet" href="/css/software-quality-mobile-voice.css?v=20260623-1">
+<script defer src="/js/software-quality-voice.js?v=20260623-1"></script>
 
 <article class="sqc-page">
   <section class="sqc-hero">
