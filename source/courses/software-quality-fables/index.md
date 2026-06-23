@@ -160,6 +160,9 @@ html[data-user-color-scheme="dark"] .sqf-card { background: var(--sqf-panel); }
     <p>每一讲都是「双轨」：前半用<strong>家具坊寓言</strong>把概念讲到小白也懂；后半给一段 <strong>📌 课件原文 · 标准知识点（背诵版）</strong>，尽量贴合课件原话、按考点分条，考前直接背这一节即可。理念讲懂、原话背牢，两头都不耽误。</p>
   </section>
   <section class="sqf-note">
+    <p><strong>考试边界：</strong>本目录下 00-09 讲的正式考点只以本地资料 <code>/Users/大三下学习资料/软件测试/复习资料</code> 为边界；其中 00-09 分别对应 <code>理论0</code> 到 <code>理论9</code> 的 PPT/PDF。家具坊故事、类比和小练习只作辅助理解，闭卷答题以 PPT 原词、复习资料和往年题为准。</p>
+  </section>
+  <section class="sqf-note">
     <p>这门课有<strong>两个板块</strong>：本页是<strong>寓言版·家具坊</strong>；还有一版<a href="/courses/software-quality-xianxia/">修仙版·质道九境</a>，把同一套考点讲成女弟子青萝在灵枢宗修行。知识点同源、风格迥异，每讲互相对照链接，挑顺眼的读，或两版对读看哪种更记得住。</p>
   </section>
   <section class="sqf-note">

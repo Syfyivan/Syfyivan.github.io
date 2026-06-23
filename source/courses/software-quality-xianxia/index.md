@@ -161,6 +161,9 @@ html[data-user-color-scheme="dark"] .sqx-card { background: var(--sqx-panel); }
     <p>每一境都按固定的「七段式」展开：<strong>故事正文 → 本节术语 → 概念正解 → 场景映射 → 考点卡 → 小试炼 → 易错点</strong>。修仙情节负责让你愿意读、记得住；考点卡和概念正解负责让你在闭卷考试里写出正式答案。</p>
   </section>
   <section class="sqx-note">
+    <p><strong>考试边界：</strong>本目录下 00-09 讲的正式考点只以本地资料 <code>/Users/大三下学习资料/软件测试/复习资料</code> 为边界；其中 00-09 分别对应 <code>理论0</code> 到 <code>理论9</code> 的 PPT/PDF。修仙故事、场景映射和小试炼只作辅助理解，闭卷答题以 PPT 原词、复习资料和往年题为准。</p>
+  </section>
+  <section class="sqx-note">
     <p>这一版与<a href="/courses/software-quality-fables/">寓言版·家具坊</a>是<strong>同一门课的两个板块</strong>：知识点同源、各自独立成篇、风格迥异。两版每讲都互相对照链接，方便你挑顺眼的那种讲法，或两版对读、看哪种更记得住。</p>
   </section>
   <h2 class="sqx-section-title">质道九境 · 学习路径</h2>
