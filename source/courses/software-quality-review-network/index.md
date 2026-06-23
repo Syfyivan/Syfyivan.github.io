@@ -130,18 +130,20 @@ description: "《软件质量保证与测试》期末复习总页：覆盖 PPT 0
 .sqr-bank { margin-top: 18px; max-width: 1120px; }
 .sqr-bank .sqe-section-title { margin-top: 30px; }
 .sqr-layout {
-  display: grid;
-  grid-template-columns: 230px minmax(0, 1fr);
-  gap: 24px;
-  align-items: start;
+  display: block;
+  position: relative;
   margin-top: 24px;
 }
 .sqr-main {
   min-width: 0;
+  max-width: 1040px;
+  margin: 0 auto;
 }
 .sqr-side {
-  position: sticky;
-  top: 88px;
+  position: fixed;
+  top: 96px;
+  left: max(18px, calc(50vw - 760px));
+  width: 220px;
   max-height: calc(100vh - 110px);
   overflow: auto;
   padding: 14px;
@@ -277,9 +279,12 @@ html[data-user-color-scheme="dark"] .sqr-print { background: rgba(255, 255, 255,
   .sqr-hero,
   .sqr-grid,
   .sqr-grid.three { grid-template-columns: 1fr; }
-  .sqr-layout { grid-template-columns: 1fr; }
   .sqr-side { display: none; }
+  .sqr-main { max-width: none; }
   .sqr-kp-list { grid-template-columns: 1fr; }
+}
+@media (max-width: 1540px) {
+  .sqr-side { display: none; }
 }
 @media (max-width: 680px) {
   .sqr-hero { padding: 22px; }
