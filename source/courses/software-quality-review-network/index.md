@@ -498,26 +498,27 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
   <section class="sqr-hero">
     <div>
       <span class="sqr-kicker">Software Quality Final Review / 一页通关版</span>
-      <h2>这页做总复习网络：知识体系、往年题、大题模板、云班课真题入口</h2>
-      <p>这版已经把题源边界重新梳理：知识体系来自本地 PPT、复习讲义、往年 A 卷、2024 回忆和 2025 图片回忆；云班课已登录导出 23 道互评简答参考答案、23 个课上/课后 QUIZ 共 428 道题。主页面只做复习网络和入口，具体题目统一放到已核题库页，避免再混入无来源合成题。</p>
+      <h2>这页做总复习网络：知识体系、往年题、大题模板、云班课和 CSDN 题库入口</h2>
+      <p>这版已经把题源边界重新梳理：知识体系来自本地 PPT、复习讲义、往年 A 卷、2024 回忆和 2025 图片回忆；云班课已登录导出 23 道互评简答参考答案、23 个课上/课后 QUIZ 共 428 道题；CSDN 公开题库已单独整理成 298 个题目/题组条目。主页面只做复习网络和入口，具体题目统一放到题库页，避免再混入无来源合成题。</p>
       <div class="sqr-actions">
         <a class="sqr-link" href="#knowledge">知识体系</a>
         <a class="sqr-link" href="#past-papers">往年题</a>
         <a class="sqr-link" href="#must-short">简答评分点</a>
         <a class="sqr-link" href="#design-drill">大题设计题</a>
         <a class="sqr-link" href="#question-bank">云班课题库</a>
+        <a class="sqr-link" href="/courses/software-quality-csdn-bank/">CSDN题库</a>
       </div>
     </div>
     <div class="sqr-score" aria-label="复习覆盖统计">
       <div><strong>0-15</strong><span>PPT 0-9 + 测试基本理论 10-15，覆盖期末知识体系。</span></div>
-      <div><strong>已核</strong><span>PPT、复习讲义、A 卷、2024 回忆、2025 图片回忆、云班课互评题和 428 道 QUIZ 题。</span></div>
+      <div><strong>已核</strong><span>PPT、复习讲义、A 卷、2024/2025 回忆、云班课题库、CSDN 公开题库。</span></div>
       <div><strong>待核</strong><span>1 个云班课未公布活动、C 卷 OCR。</span></div>
       <div><strong>大题</strong><span>A 卷、2024 和 2025 回忆都指向等价类、控制流图、复杂度、基本路径和测试用例。</span></div>
     </div>
   </section>
 
   <section class="sqr-note">
-    <p><strong>资料边界：</strong>之前混入过没有来源的合成题，已经删除出主复习页。当前可信状态是：PPT、复习讲义、A 卷 PDF、2024 回忆、2025 图片回忆、云班课 23 道互评简答和 428 道 QUIZ 题已经有来源；“测试相关未分类习题”接口显示老师暂未公布答案，C 卷仍需 OCR/人工核验。2024/2025 都是回忆材料，只用于判断复习方向，不当作老师官方答案。</p>
+    <p><strong>资料边界：</strong>之前混入过没有来源的合成题，已经删除出主复习页。当前可信状态是：PPT、复习讲义、A 卷 PDF、2024 回忆、2025 图片回忆、云班课 23 道互评简答和 428 道 QUIZ 题、CSDN 公开题库 298 个题目/题组条目已经有来源；“测试相关未分类习题”在云班课接口显示老师暂未公布答案，但 CSDN 公开页有对应题目，所以现在单独放入 CSDN 对照页。C 卷仍需 OCR/人工核验。2024/2025 都是回忆材料，只用于判断复习方向，不当作老师官方答案。</p>
   </section>
 
   <nav class="sqr-nav" aria-label="页内导航">
@@ -571,6 +572,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
         <a href="#must-short">互评简答评分点</a>
         <a href="#question-bank">云班课已核题库</a>
         <a href="/courses/software-quality-exercises/">打开题库页</a>
+        <a href="/courses/software-quality-csdn-bank/">CSDN公开题库</a>
         <a href="/courses/software-quality-design-questions/">大题专项页</a>
       </div>
     </aside>
@@ -589,7 +591,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <thead><tr><th>资料</th><th>已经核对到的内容</th><th>本页怎么吸收</th><th>注意</th></tr></thead>
       <tbody>
         <tr><td>PPT 理论 0-9</td><td>绪论、质量、软件质量、质量工程体系、度量、标准、评审、SQA、设计质量、高质量编程。</td><td>作为知识体系 00-09 章主线。</td><td>PPT 是定义和术语的第一优先级。</td></tr>
-        <tr><td>复习讲义/CSDN 公开页</td><td>CSDN 页面可见复习题结构；复习讲义可本地检索。</td><td>用于校准知识覆盖和章节顺序。</td><td>公开页不是本班云班课接口，和本班导出的题源分开标注。</td></tr>
+        <tr><td>复习讲义/CSDN 公开页</td><td>CSDN 页面已整理为 298 个题目/题组条目，包含互评题、章节课后习题和测试相关未分类习题；复习讲义可本地检索。</td><td>用于公开题库对照、补齐未分类题，并校准知识覆盖和章节顺序。</td><td>公开页不是本班云班课接口，和本班导出的题源分开标注。</td></tr>
         <tr><td>云班课活动页</td><td>48 个活动已读；23 道互评简答参考答案、23 个 QUIZ 共 428 道题已导出；1 个“测试相关未分类习题”接口显示未公布答案。</td><td>互评题作为简答评分点，QUIZ 作为客观题主刷题库。</td><td>登录 token、用户信息只保存在本地临时文件，不写入博客。</td></tr>
         <tr><td>A 卷</td><td>判断 15、选择 20、填空 10、简答 9、设计 46。设计题含状态图、控制流图、环路复杂度、独立路径、语句/路径覆盖。</td><td>用于“往年题”和“大题模板”。</td><td>老卷题面不必死背，步骤必须会。</td></tr>
         <tr><td>C 卷</td><td>RAR 中存在 C 卷 PDF，但当前文本抽取为空，尚未 OCR 或人工逐页核验。</td><td>暂不作为已读原题来源。</td><td>完成 OCR/人工核对后再补题型和分值。</td></tr>
@@ -1079,11 +1081,12 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     <article class="sqr-card"><span class="sqr-badge hot">卷面模板</span><h3>四张表保底拿步骤分</h3><ul class="sqr-list"><li>规则拆分表：字段、合法范围、非法情况。</li><li>等价类/边界表：编号、有效/无效、代表值。</li><li>路径表：路径编号、节点序列、覆盖分支。</li><li>测试用例表：输入、覆盖对象、预期输出。</li></ul></article>
   </div>
 
-  <h2 id="question-bank" class="sqr-section-title">八、云班课已核题库：题目统一去这里刷</h2>
-  <section class="sqr-note"><p><strong>来源状态：</strong>已经导出 23 道互评简答老师参考答案、23 个课上/课后 QUIZ 共 428 道题。剩余 1 个“测试相关未分类习题”共 41 题，云班课接口返回“老师暂未公布答案，无法查看结果”，所以没有伪装成已读题库。</p></section>
+  <h2 id="question-bank" class="sqr-section-title">八、题库入口：云班课已核题库 + CSDN公开题库</h2>
+  <section class="sqr-note"><p><strong>来源状态：</strong>云班课已导出 23 道互评简答老师参考答案、23 个课上/课后 QUIZ 共 428 道题；CSDN 公开页已整理为 298 个题目/题组条目。剩余 1 个“测试相关未分类习题”在云班课接口返回“老师暂未公布答案，无法查看结果”，所以云班课页不伪装成已读；但 CSDN 对照页已经把公开可见的未分类题单独列出。</p></section>
   <div class="sqr-grid three">
     <article class="sqr-card"><span class="sqr-badge hot">互评简答</span><h3>23 道老师参考答案</h3><p>这些题来自云班课 HOMEWORK 的 <code>refAnswer</code> 字段，分为质量、测试基本、测试实际三组，适合作为简答题评分点背诵。</p><p style="margin-top:10px"><a class="sqr-detail-link" href="/courses/software-quality-exercises/#peer">打开互评简答</a></p></article>
     <article class="sqr-card"><span class="sqr-badge core">客观题</span><h3>428 道课上/课后 QUIZ</h3><p>题目来自云班课 QUIZ 接口，选择/判断题带答案索引，填空题从单题详情补齐 <code>fill.blankAlternatives</code>。</p><p style="margin-top:10px"><a class="sqr-detail-link" href="/courses/software-quality-exercises/">打开云班课题库页</a></p></article>
+    <article class="sqr-card"><span class="sqr-badge apply">CSDN</span><h3>298 个公开题库条目</h3><p>CSDN 原文按互评题、章节课后习题和测试相关未分类习题整理，包含云班课接口暂未开放答案的未分类题。页面保留原文链接和 CC BY-SA 来源说明。</p><p style="margin-top:10px"><a class="sqr-detail-link" href="/courses/software-quality-csdn-bank/">打开 CSDN 题库对照页</a></p></article>
     <article class="sqr-card"><span class="sqr-badge apply">高分题</span><h3>大题设计题单独练</h3><p>大题不靠背题库，靠模板：等价类、边界值、状态图、控制流图、环路复杂度、基本路径和测试用例表。</p><p style="margin-top:10px"><a class="sqr-detail-link" href="/courses/software-quality-design-questions/">打开大题专项</a></p></article>
   </div>
 
@@ -1092,7 +1095,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     <article class="sqr-print"><h3>2 小时背诵</h3><ul class="sqr-list"><li>质量、软件质量、缺陷、测试、测试用例、回归测试。</li><li>为什么评审、质量费用模型、质量管理体系、测量原则。</li><li>SQA 工作内容和三种组织结构。</li><li>白盒/黑盒、单元/集成/系统/验收、桩/驱动。</li></ul></article>
     <article class="sqr-print"><h3>2 小时大题</h3><ul class="sqr-list"><li>做 1 道编号/命名格式等价类题。</li><li>做 1 道 x/y 边界值题。</li><li>做 1 道 if/while 控制流图题。</li><li>做 1 道状态迁移题。</li></ul></article>
   </div>
-  <section class="sqr-note"><p><strong>公开来源：</strong><a href="https://blog.csdn.net/m0_56942491/article/details/131734756" target="_blank" rel="noopener">CSDN 题库整理</a>；<a href="https://www.mosoteach.cn/web/cc-detail/4851E258-439C-11F1-BAE9-A088C2A30E68/act/" target="_blank" rel="noopener">蓝墨云班课活动页</a>。当前状态：云班课登录态已读取活动清单和题库；CSDN 公开页用于校准章节覆盖；2025 图片回忆已人工读出大题结构，C 卷仍待 OCR/人工核验。博客中不包含登录 token、手机号或用户 ID。</p></section>
+  <section class="sqr-note"><p><strong>公开来源：</strong><a href="https://blog.csdn.net/m0_56942491/article/details/131734756" target="_blank" rel="noopener">CSDN 题库整理</a>；<a href="https://www.mosoteach.cn/web/cc-detail/4851E258-439C-11F1-BAE9-A088C2A30E68/act/" target="_blank" rel="noopener">蓝墨云班课活动页</a>。当前状态：云班课登录态已读取活动清单和题库；CSDN 公开题库已单独整理为对照页；2025 图片回忆已人工读出大题结构，C 卷仍待 OCR/人工核验。博客中不包含登录 token、手机号或用户 ID。</p></section>
     </main>
   </div>
 </div>
