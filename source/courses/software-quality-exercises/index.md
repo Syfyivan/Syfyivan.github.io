@@ -19,7 +19,7 @@ description: "把《软件质量保证与测试》课堂练习、课后练习和
   color: var(--sqe-ink);
 }
 .sqe-page * { box-sizing: border-box; }
-.sqe-page :target { scroll-margin-top: 150px; }
+.sqe-page :target { scroll-margin-top: 96px; }
 .sqe-hero {
   padding: 30px;
   border: 1px solid var(--sqe-line);
@@ -106,9 +106,6 @@ description: "把《软件质量保证与测试》课堂练习、课后练习和
 .sqe-stat span { display: block; margin-top: 5px; color: var(--sqe-muted); font-size: 13px; }
 .sqe-section-title { margin: 34px 0 16px; font-size: 22px; }
 .sqe-nav {
-  position: sticky;
-  top: 86px;
-  z-index: 20;
   flex-wrap: nowrap;
   margin-bottom: 20px;
   padding: 10px;
@@ -161,7 +158,7 @@ description: "把《软件质量保证与测试》课堂练习、课后练习和
 .sqe-chip { border-color: rgba(54, 95, 145, 0.28); color: var(--sqe-blue); }
 .sqe-chip:hover { background: var(--sqe-blue); }
 .sqe-chapter {
-  scroll-margin-top: 150px;
+  scroll-margin-top: 96px;
   margin-top: 18px;
   padding: 20px;
   border: 1px solid var(--sqe-line);
@@ -250,6 +247,15 @@ html[data-user-color-scheme="dark"] .sqe-card { background: rgba(34, 40, 48, 0.8
 html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0.045); }
 html[data-user-color-scheme="dark"] .sqe-nav,
 html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39, 0.94); }
+@media (min-width: 761px) and (max-width: 1319px) {
+  .sqe-nav {
+    position: sticky;
+    top: 86px;
+    z-index: 20;
+  }
+  .sqe-page :target,
+  .sqe-chapter { scroll-margin-top: 150px; }
+}
 @media (min-width: 1320px) {
   .sqe-side-toc {
     position: fixed;
