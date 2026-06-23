@@ -1,7 +1,7 @@
 ---
-title: "软件质量与测试 · 课堂练习题库"
+title: "软件质量与测试 · 待溯源练习区"
 date: 2026-06-23 10:20:00
-description: "把《软件质量保证与测试》课堂练习、课后练习和互评题按质量保证理论、软件测试、白盒测试、黑盒测试、集成测试、系统测试和验收测试整理成集中题库，答案默认折叠。"
+description: "《软件质量保证与测试》概念练习区：部分题为根据 PPT/CSDN/复习讲义改写的检查题，云班课原题和互评老师参考答案待导出后逐题校准。"
 ---
 
 <style>
@@ -302,24 +302,24 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 
 <div class="sqe-page">
   <section class="sqe-hero">
-    <span class="sqe-kicker">Software Quality Exercises / 课堂练习题库</span>
-    <h2>把云班课练习范围收成一页，考前直接刷</h2>
-    <p>这页把《软件质量保证与测试》从质量保证理论到软件测试实践拆成集中练习：互评简答、判断、选择、填空、简答和设计题都放在一起，答案默认折叠。做题时先不要展开答案，先在纸上写关键词，再核对参考要点。</p>
+    <span class="sqe-kicker">Software Quality Exercises / 待溯源练习区</span>
+    <h2>这页先作为概念检查，不再当云班课原题库</h2>
+    <p>这里保留的是按章节整理的复习练习，其中一部分是根据 PPT、公开 CSDN 页面和复习讲义改写的概念检查题。蓝墨云班课原题和互评老师参考答案当前没有导出，不能把本页当作老师原题库。后续应逐题补来源标签，找不到来源的题要删除或明确标为自拟练习。</p>
     <div class="sqe-actions">
       <a class="sqe-link" href="/courses/">返回课程总目录</a>
       <a class="sqe-link" href="/courses/software-quality-fables/">寓言版目录</a>
       <a class="sqe-link" href="/courses/software-quality-xianxia/">修仙版目录</a>
     </div>
-    <div class="sqe-stats" aria-label="题库统计">
+    <div class="sqe-stats" aria-label="练习统计">
       <div class="sqe-stat"><strong>18</strong><span>章/组覆盖</span></div>
-      <div class="sqe-stat"><strong>97</strong><span>道复习题</span></div>
+      <div class="sqe-stat"><strong>待核</strong><span>逐题来源</span></div>
       <div class="sqe-stat"><strong>5</strong><span>类题型</span></div>
       <div class="sqe-stat"><strong>折叠</strong><span>答案默认隐藏</span></div>
     </div>
   </section>
 
   <section class="sqe-note">
-    <p>来源边界：本页按课堂云班课练习范围、课件章节骨架、博客中已整理的小练习，以及学长 CSDN《<a href="https://blog.csdn.net/m0_56942491/article/details/131734756" target="_blank" rel="noopener">软件测试与质量保证 - 复习与面试题库（from hitwh）</a>》校准覆盖范围。这里是公开复习整理版，题干与解析已按自己的课程页重写，不逐字转载题库。后续如果拿到云班课导出的原题，可以在这个页面按章节继续替换。</p>
+    <p>来源边界：蓝墨云班课活动页当前跳登录，本页没有读出云班课私有原题和互评老师参考答案；CSDN《<a href="https://blog.csdn.net/m0_56942491/article/details/131734756" target="_blank" rel="noopener">软件测试与质量保证 - 复习与面试题库（from hitwh）</a>》可公开查看，但尚未逐题结构化导入。当前练习只用于检查概念覆盖，不能视为原题题库。</p>
   </section>
 
   <h2 class="sqe-section-title">章节跳转</h2>
@@ -886,7 +886,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
       <li>第一遍只做判断、选择、填空，先把数字、定义、分类背稳。</li>
       <li>第二遍做简答题，每题用 3 到 5 个关键词组织答案，不追求长篇。</li>
       <li>第三遍做设计题，固定写法是“判断风险/对象 → 选方法或指标 → 写流程 → 写跟踪和改进”。</li>
-      <li>如果云班课原题后续能导出，就把这一页对应章节的同类题逐条替换，页面结构不用再改。</li>
+      <li>如果云班课原题后续能导出，应逐题标注来源；找不到来源的练习要删除或标成自拟。</li>
     </ul>
   </section>
 </div>

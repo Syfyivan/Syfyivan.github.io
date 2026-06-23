@@ -366,7 +366,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
       <span>Quality</span>
       <strong>软件工程与质量</strong>
       <p>软件质量保证与测试：质量、缺陷、度量、评审、标准、设计、编程、课堂练习与期末复习。</p>
-      <small>寓言版 + 修仙版 + 题库 + 复习专项</small>
+      <small>寓言版 + 修仙版 + 待溯源练习 + 复习专项</small>
     </a>
     <a class="course-category-card is-client" href="#client">
       <span>Client</span>
@@ -460,7 +460,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <div class="course-category-head">
       <div>
         <h2>软件工程与质量</h2>
-        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量、高质量编程、白盒/黑盒、集成、系统与验收测试。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——再配课堂练习题库、一页通关复习网络、16 个章节精讲页和设计题专项：题库适合连续刷题，一页通关页把知识体系、往年题、互评题、课后题和大题模板集中到一个入口，章节精讲页负责从零补每章完整知识，设计题专项再专门拆解高分值大题。</p>
+        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量、高质量编程、白盒/黑盒、集成、系统与验收测试。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——再配待溯源练习区、一页通关复习网络、16 个章节精讲页和设计题专项：练习区先用于检查概念覆盖，一页通关页把已核知识体系、往年 A 卷、2024 回忆和大题模板集中到一个入口，章节精讲页负责从零补每章完整知识，设计题专项再专门拆解高分值大题。</p>
       </div>
       <span class="course-category-count">1 门 · 2 版 · 3 复习入口</span>
     </div>
@@ -485,11 +485,11 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
       </article>
       <article class="course-card">
         <span class="course-badge is-project">课堂练习 · 97 题</span>
-        <h3>软件质量与测试课堂练习题库</h3>
-        <p>把云班课练习范围、课后练习、互评简答题和学长 CSDN 题库覆盖面集中成一页：质量保证理论到软件测试实践分组，判断、选择、填空、简答、设计题都有，答案默认折叠。适合先做题，再回到寓言版或修仙版复盘。</p>
+        <h3>软件质量与测试待溯源练习区</h3>
+        <p>把 PPT、复习讲义、公开 CSDN 页面和已核往年材料能支持的概念练习先集中成一页：质量保证理论到软件测试实践分组，判断、选择、填空、简答、设计题都有，答案默认折叠。蓝墨云班课原题和互评老师参考答案尚未导出，不能把它当老师原题库。</p>
         <div class="course-card-footer">
           <span>用法：先刷题，再按错题回看对应章节</span>
-          <a class="course-link" href="/courses/software-quality-exercises/">进入题库</a>
+          <a class="course-link" href="/courses/software-quality-exercises/">进入练习区</a>
         </div>
       </article>
       <article class="course-card">
@@ -504,7 +504,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
       <article class="course-card">
         <span class="course-badge is-project">期末复习 · 一页通关</span>
         <h3>软件质量与测试一页通关复习网络</h3>
-        <p>主复习页。把 PPT 0-9、测试基本理论、往年 A/C 卷、2024/2025 考试回忆、互评简答、课堂练习、课后作业和设计大题模板集中到一个页面；每章卡片再连接到二级章节精讲页，方便零基础同学按章补完整知识。</p>
+        <p>主复习页。把 PPT 0-9、测试基本理论、已核往年 A 卷、2024 考试回忆和设计大题模板集中到一个页面；蓝墨云班课、互评老师参考答案、C 卷和 2025 图片先标为待导出/OCR。每章卡片再连接到二级章节精讲页，方便零基础同学按章补完整知识。</p>
         <div class="course-card-footer">
           <span>适合：考前只盯一个页面完成总复习</span>
           <a class="course-link" href="/courses/software-quality-review-network/">进入一页通关</a>

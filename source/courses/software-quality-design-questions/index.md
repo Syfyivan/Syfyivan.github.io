@@ -311,7 +311,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
     <div>
       <span class="sqd-kicker">Design Questions / 设计题专项</span>
       <h2>大题不是靠背，是靠一套可重复的做题流程</h2>
-      <p>往年题和 2024/2025 回忆都指向同一件事：设计题分值高，题面会换，但套路稳定。你不需要先学会所有测试理论，只要先掌握四类动作：划分输入、取边界、画控制流/状态图、把路径变成测试用例。</p>
+      <p>已核验的 A 卷和 2024 回忆都指向同一件事：设计题分值高，题面会换，但套路稳定。你不需要先学会所有测试理论，只要先掌握四类动作：划分输入、取边界、画控制流/状态图、把路径变成测试用例。C 卷和 2025 图片还没有 OCR/人工逐条核验，不能拿来硬写结论。</p>
       <div class="sqd-actions">
         <a class="sqd-link" href="/courses/software-quality-review-network/">返回复习网络</a>
         <a class="sqd-link" href="#equivalence">等价类</a>
@@ -321,7 +321,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
       </div>
     </div>
     <div class="sqd-stat-grid" aria-label="设计题重点">
-      <div class="sqd-stat"><strong>48-50</strong><span>往年设计题常接近半张卷面，必须单独练。</span></div>
+      <div class="sqd-stat"><strong>46+</strong><span>A 卷设计题 46 分，2024 回忆也显示大题必须单独练。</span></div>
       <div class="sqd-stat"><strong>2 类</strong><span>黑盒输入设计 + 白盒/状态路径设计，是最核心的两类。</span></div>
       <div class="sqd-stat"><strong>4 步</strong><span>建模、编号、覆盖、写用例，按步骤给分。</span></div>
       <div class="sqd-stat"><strong>表格</strong><span>卷面写成表，比散文式答案稳得多。</span></div>

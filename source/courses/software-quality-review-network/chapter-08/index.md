@@ -15,12 +15,12 @@ description: "《软件质量与测试》期末复习二级章节页：提高软
 <div class="sqc-actions">
 <a class="sqc-chip" href="/courses/software-quality-review-network/">返回总复习页</a>
 <a class="sqc-chip" href="/courses/software-quality-review-network/#detail-08">回到本章总目录卡片</a>
-<a class="sqc-chip" href="/courses/software-quality-review-network/#ch08">刷本章题库</a>
+<a class="sqc-chip" href="/courses/software-quality-review-network/#ch08">看本章练习</a>
 <a class="sqc-chip" href="/courses/software-quality-design-questions/">大题专项</a>
 </div>
 </div>
 <aside class="sqc-hero-side" aria-label="本章考试信息">
-<div><strong>资料来源</strong><p>PPT 8、互评题、设计相关客观题</p></div>
+<div><strong>资料来源</strong><p>PPT 8、设计质量题源线索（互评答案待核）</p></div>
 <div><strong>考试位置</strong><p>常考软件设计定义、高层/详细设计、设计质量评价标准、设计原则、架构、耦合内聚、数据库设计质量。</p></div>
 <div><strong>本页定位</strong><p>先讲懂概念，再给背诵句和题型，不要求有编程基础。</p></div>
 </aside>
@@ -86,7 +86,7 @@ description: "《软件质量与测试》期末复习二级章节页：提高软
 </section>
 <h2 id="practice" class="sqc-section-title">六、本章自测题</h2>
 <section class="sqc-card">
-<h3>先自己答，再回总复习页刷对应题库</h3>
+<h3>先自己答，再回总复习页看对应练习</h3>
 <div class="sqc-question">
 <p><strong>自测 1：</strong>判断：详细设计主要解决系统体系结构，不涉及算法和数据结构细节。</p>
 </div>
@@ -98,7 +98,7 @@ description: "《软件质量与测试》期末复习二级章节页：提高软
 </div>
 </section>
 <section class="sqc-note">
-<p><strong>下一步：</strong>本章看完后，回到<a href="/courses/software-quality-review-network/#ch08">总复习页题库</a>做对应题；如果是 11-12 章，再去<a href="/courses/software-quality-design-questions/">设计题专项</a>按卷面步骤练。</p>
+<p><strong>下一步：</strong>本章看完后，回到<a href="/courses/software-quality-review-network/#ch08">总复习页练习区</a>检查概念；如果是 11-12 章，再去<a href="/courses/software-quality-design-questions/">设计题专项</a>按卷面步骤练。</p>
 </section>
 <nav class="sqc-page-turn" aria-label="章节翻页">
 <a class="sqc-chip" href="/courses/software-quality-review-network/chapter-07/">上一章：07 SQA 组织活动</a>

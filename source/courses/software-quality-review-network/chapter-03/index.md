@@ -15,12 +15,12 @@ description: "《软件质量与测试》期末复习二级章节页：软件质
 <div class="sqc-actions">
 <a class="sqc-chip" href="/courses/software-quality-review-network/">返回总复习页</a>
 <a class="sqc-chip" href="/courses/software-quality-review-network/#detail-03">回到本章总目录卡片</a>
-<a class="sqc-chip" href="/courses/software-quality-review-network/#ch00">刷本章题库</a>
+<a class="sqc-chip" href="/courses/software-quality-review-network/#ch00">看本章练习</a>
 <a class="sqc-chip" href="/courses/software-quality-design-questions/">大题专项</a>
 </div>
 </div>
 <aside class="sqc-hero-side" aria-label="本章考试信息">
-<div><strong>资料来源</strong><p>PPT 3、互评题、课后题</p></div>
+<div><strong>资料来源</strong><p>PPT 3、评审题源线索（互评答案待核）</p></div>
 <div><strong>考试位置</strong><p>常考质量管理体系、质量因素、质量指标、质量方针、QC/QA/质量改进、质量费用经典模型。</p></div>
 <div><strong>本页定位</strong><p>先讲懂概念，再给背诵句和题型，不要求有编程基础。</p></div>
 </aside>
@@ -86,7 +86,7 @@ description: "《软件质量与测试》期末复习二级章节页：软件质
 </section>
 <h2 id="practice" class="sqc-section-title">六、本章自测题</h2>
 <section class="sqc-card">
-<h3>先自己答，再回总复习页刷对应题库</h3>
+<h3>先自己答，再回总复习页看对应练习</h3>
 <div class="sqc-question">
 <p><strong>自测 1：</strong>选择：测试、评审、审计通常属于质量费用中的哪一类？</p>
 </div>
@@ -98,7 +98,7 @@ description: "《软件质量与测试》期末复习二级章节页：软件质
 </div>
 </section>
 <section class="sqc-note">
-<p><strong>下一步：</strong>本章看完后，回到<a href="/courses/software-quality-review-network/#ch00">总复习页题库</a>做对应题；如果是 11-12 章，再去<a href="/courses/software-quality-design-questions/">设计题专项</a>按卷面步骤练。</p>
+<p><strong>下一步：</strong>本章看完后，回到<a href="/courses/software-quality-review-network/#ch00">总复习页练习区</a>检查概念；如果是 11-12 章，再去<a href="/courses/software-quality-design-questions/">设计题专项</a>按卷面步骤练。</p>
 </section>
 <nav class="sqc-page-turn" aria-label="章节翻页">
 <a class="sqc-chip" href="/courses/software-quality-review-network/chapter-02/">上一章：02 软件质量</a>

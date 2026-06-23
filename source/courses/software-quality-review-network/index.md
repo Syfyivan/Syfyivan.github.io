@@ -1,7 +1,7 @@
 ---
 title: "软件质量与测试期末一页通关复习网络"
 date: 2026-06-23 11:40:00
-description: "《软件质量保证与测试》期末复习总页：覆盖 PPT 0-9、测试基本理论、互评简答题、课堂练习题、课后作业题、往年 A/C 卷、2024/2025 考试回忆和设计大题模板。"
+description: "《软件质量保证与测试》期末复习总页：覆盖已核验 PPT 0-9、测试基本理论、往年 A 卷、2024 考试回忆和设计大题模板；云班课、互评参考答案、C 卷与 2025 图片待导出/OCR 后逐题校准。"
 ---
 
 <style>
@@ -498,26 +498,26 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
   <section class="sqr-hero">
     <div>
       <span class="sqr-kicker">Software Quality Final Review / 一页通关版</span>
-      <h2>这页改成主复习资料：知识点、题库、往年题、大题都在这里</h2>
-      <p>之前那版更像“导航”，确实不够用。现在这版按考试来组织：先给完整知识体系，再给往年题雷达，再放互评简答评分点、课堂/课后题库，最后单独训练高分值设计大题。目标是考前只盯这个页面，也能知道该背什么、刷什么、怎么写大题。</p>
+      <h2>这页先做可信复习骨架：已核来源、知识体系、往年题、大题模板</h2>
+      <p>这版先把来源边界说清楚：已核的是本地 PPT、复习讲义、往年 A 卷、2024 回忆和公开 CSDN 可见内容；蓝墨云班课和老师互评参考答案当前没有登录读出，C 卷和 2025 图片还没 OCR/逐页核验，不能伪装成已导入原题。下面的练习区只作概念检查，不能等同于云班课原题。</p>
       <div class="sqr-actions">
         <a class="sqr-link" href="#knowledge">知识体系</a>
         <a class="sqr-link" href="#past-papers">往年题</a>
-        <a class="sqr-link" href="#must-short">简答评分点</a>
+        <a class="sqr-link" href="#must-short">简答待核区</a>
         <a class="sqr-link" href="#design-drill">大题设计题</a>
-        <a class="sqr-link" href="#question-bank">全部题库</a>
+        <a class="sqr-link" href="#question-bank">待溯源练习</a>
       </div>
     </div>
     <div class="sqr-score" aria-label="复习覆盖统计">
       <div><strong>0-15</strong><span>PPT 0-9 + 测试基本理论 10-15，覆盖期末知识体系。</span></div>
-      <div><strong>25</strong><span>互评/简答题按评分点整理，优先背 24/25 已出现方向。</span></div>
-      <div><strong>97</strong><span>互评题、课堂练习和课后作业题已并入本页，答案默认折叠。</span></div>
-      <div><strong>4 套</strong><span>A 卷、C 卷、2024 回忆、2025 回忆的大题方向集中复盘。</span></div>
+      <div><strong>已核</strong><span>PPT、复习讲义、A 卷、2024 回忆和公开 CSDN 可见内容。</span></div>
+      <div><strong>待核</strong><span>蓝墨云班课原题、互评老师参考答案、25 回忆图片 OCR。</span></div>
+      <div><strong>大题</strong><span>A 卷、2024 回忆已经支持等价类、状态图、控制流图和基本路径方向。</span></div>
     </div>
   </section>
 
   <section class="sqr-note">
-    <p><strong>资料边界：</strong>已核对本地 PPT 0-9、复习讲义、A 卷、C 卷扫描图、2024 考试回忆 docx、2025 考试回忆图片、公开 CSDN 题库结构。云班课活动链接在当前环境会跳到登录页，不能直接读取老师私有参考答案；所以本页把公开可核验的互评题和本地复习资料中的答案要点先做成评分点版，后续拿到老师原答案时只需要逐条校准措辞。</p>
+    <p><strong>资料边界：</strong>这页之前混入了没有来源的合成题，已经开始纠正。当前可信状态是：本地 PPT、复习讲义、A 卷 PDF、2024 回忆 docx、公开 CSDN 页面可见内容已读取或可核；蓝墨云班课活动页当前跳登录，老师互评参考答案没有读出；2025 回忆是图片，未完成 OCR 逐条核验。未逐题标注来源前，练习区只能当概念检查，不能当原题题库。</p>
   </section>
 
   <nav class="sqr-nav" aria-label="页内导航">
@@ -526,9 +526,9 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     <a class="sqr-chip" href="#past-papers">往年题</a>
     <a class="sqr-chip" href="#detailed-index">详细目录</a>
     <a class="sqr-chip" href="#knowledge">知识体系</a>
-    <a class="sqr-chip" href="#must-short">简答题</a>
+    <a class="sqr-chip" href="#must-short">简答待核</a>
     <a class="sqr-chip" href="#design-drill">大题</a>
-    <a class="sqr-chip" href="#question-bank">全部题库</a>
+    <a class="sqr-chip" href="#question-bank">待溯源练习</a>
     <a class="sqr-chip" href="#last-day">最后一天</a>
   </nav>
 
@@ -542,9 +542,9 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
         <a href="#past-papers">往年题雷达</a>
         <a href="#detailed-index">0-15 章详细目录</a>
         <a href="#knowledge">知识体系总览</a>
-        <a href="#must-short">简答评分点</a>
+        <a href="#must-short">简答待核区</a>
         <a href="#design-drill">大题设计题</a>
-        <a href="#question-bank">全部题库</a>
+        <a href="#question-bank">待溯源练习</a>
         <a href="#last-day">最后一天冲刺</a>
       </div>
       <div class="sqr-side-group">
@@ -567,12 +567,12 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
         <a href="#detail-15">15 验收测试</a>
       </div>
       <div class="sqr-side-group">
-        <span class="sqr-side-title">题库章节</span>
+        <span class="sqr-side-title">练习区</span>
         <a href="#peer">互评简答</a>
-        <a href="#ch00">题库 00-03</a>
-        <a href="#ch04">题库 04-07</a>
-        <a href="#ch08">题库 08-10</a>
-        <a href="#ch11">题库 11-15</a>
+        <a href="#ch00">练习 00-03</a>
+        <a href="#ch04">练习 04-07</a>
+        <a href="#ch08">练习 08-10</a>
+        <a href="#ch11">练习 11-15</a>
         <a href="#chx">综合题</a>
       </div>
     </aside>
@@ -580,8 +580,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
 
   <h2 id="how-to-use" class="sqr-section-title">一、怎么用这一个页面复习</h2>
   <div class="sqr-grid three">
-    <article class="sqr-card"><span class="sqr-badge core">第一遍</span><h3>先过知识体系</h3><p>从 00 到 15 章按“一句话、必背、易错”过一遍。不会的先不展开题库，先把概念位置记住。</p></article>
-    <article class="sqr-card"><span class="sqr-badge hot">第二遍</span><h3>背简答评分点</h3><p>互评题、24/25 回忆简答优先。每题按“定义 + 分类/原因 + 作用/结论”写，保证能拿步骤分。</p></article>
+    <article class="sqr-card"><span class="sqr-badge core">第一遍</span><h3>先过知识体系</h3><p>从 00 到 15 章按“一句话、必背、易错”过一遍。不会的先不展开练习区，先把概念位置记住。</p></article>
+    <article class="sqr-card"><span class="sqr-badge hot">第二遍</span><h3>等互评原答案后背简答</h3><p>24 回忆里出现过的简答方向可以先背；蓝墨互评老师参考答案未读出前，不能把本页简答当官方评分点。</p></article>
     <article class="sqr-card"><span class="sqr-badge hot">第三遍</span><h3>练设计大题</h3><p>大题分值最高，不能只背概念。按等价类、边界值、控制流图、复杂度、基本路径、状态图六个模板刷。</p></article>
   </div>
 
@@ -591,11 +591,11 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <thead><tr><th>资料</th><th>已经核对到的内容</th><th>本页怎么吸收</th><th>注意</th></tr></thead>
       <tbody>
         <tr><td>PPT 理论 0-9</td><td>绪论、质量、软件质量、质量工程体系、度量、标准、评审、SQA、设计质量、高质量编程。</td><td>作为知识体系 00-09 章主线。</td><td>PPT 是定义和术语的第一优先级。</td></tr>
-        <tr><td>复习讲义/CSDN 题库</td><td>互评题、1-15 章课后习题、测试基本理论、白盒、黑盒、集成、系统、验收。</td><td>重写成“全部题库”区域，答案折叠。</td><td>公开题库只做复习整理，不逐字搬运长文。</td></tr>
+        <tr><td>复习讲义/CSDN 公开页</td><td>CSDN 页面可见互评题和 1-15 章课后习题结构，但未逐题结构化导入；复习讲义可本地检索。</td><td>只能用于校准知识覆盖，不再声称“全部题库已并入”。</td><td>未逐题溯源前，页面练习不能当原题。</td></tr>
         <tr><td>A 卷</td><td>判断 15、选择 20、填空 10、简答 9、设计 46。设计题含状态图、控制流图、环路复杂度、独立路径、语句/路径覆盖。</td><td>用于“往年题”和“大题模板”。</td><td>老卷题面不必死背，步骤必须会。</td></tr>
-        <tr><td>C 卷</td><td>判断 10、选择 20、填空 10、简答 10、设计 50。设计题含字符串边界值、C 程序覆盖、高铁售票状态转换。</td><td>用于强化边界值、流程图、状态转换。</td><td>C 卷是扫描 PDF，已用页图人工核对题型。</td></tr>
+        <tr><td>C 卷</td><td>RAR 中存在 C 卷 PDF，但当前文本抽取为空，尚未 OCR 或人工逐页核验。</td><td>暂不作为已读原题来源。</td><td>完成 OCR/人工核对后再补题型和分值。</td></tr>
         <tr><td>2024 考试回忆</td><td>客观题来自云班课；简答含评审、客户与质量、质量费用、测试原则、发布后 bug；大题含命名格式等价类和中缀转后缀基本路径。</td><td>用于当前风格判断和大题训练。</td><td>选择可能单选/多选不标明，刷题时要按不定项准备。</td></tr>
-        <tr><td>2025 考试回忆</td><td>判断 5、选择 15、填空 8、简答 24、大题 48。除大题外基本是云班课原题；大题是图书编号等价类和排序代码基本路径。</td><td>作为最高优先级样本。</td><td>大题占比高，必须单独训练。</td></tr>
+        <tr><td>2025 考试回忆</td><td>本地有图片文件，但当前未完成 OCR 逐条核验。</td><td>暂不作为已读原题来源。</td><td>必须 OCR/人工校对后才能写入具体题型结论。</td></tr>
         <tr><td>Excel 和大作业查重资料</td><td>Excel 是辽宁招生投档表或损坏文件；大作业/查重资料不属于期末闭卷理论题源。</td><td>排除。</td><td>不混进复习范围，避免浪费时间。</td></tr>
       </tbody>
     </table>
@@ -607,9 +607,9 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <thead><tr><th>样本</th><th>客观题</th><th>简答题</th><th>设计题/大题</th><th>复习结论</th></tr></thead>
       <tbody>
         <tr><td>A 卷</td><td>判断 15 分，选择 20 分，填空 10 分。覆盖 SQA、质量预测、缺陷、测试目的、覆盖强弱等。</td><td>耦合/内聚排序；基本测量原则；ISO、McCall、Boehm 质量模型评价。</td><td>工厂查询系统状态图、控制流图、环路复杂度、独立路径；简单 C 程序流程图、语句覆盖、路径覆盖。</td><td>白盒与状态图是大题核心，简答偏 PPT 原话。</td></tr>
-        <tr><td>C 卷</td><td>判断 10 分，选择 20 分，填空 10 分。覆盖产品质量、SQA、测试预言、白盒、压力测试等。</td><td>单元测试是否必要；小程序穷举测试是否可能；V/W/H 模型怎么选。</td><td>字符串转整数的 16 位长度边界值；C 程序语句/路径覆盖；高铁售票状态转换图、复杂度、基本路径。</td><td>设计题 50 分，状态迁移和边界值都要会。</td></tr>
-        <tr><td>2024 回忆</td><td>选择、填空、判断基本来自云班课原题；选择可能不标单选/多选。</td><td>为什么需要评审；客户与质量关系；经典质量费用模型；软件测试原则；发布后 bug 处理。</td><td>文件命名格式等价类；中缀转后缀代码的控制流图、环路复杂度、基本路径、测试用例。</td><td>互评题是简答主池；大题要靠步骤，不靠背原题。</td></tr>
-        <tr><td>2025 回忆</td><td>判断 5 分，选择 15 分，填空 8 分，除大题外基本为云班课原题。</td><td>质量管理体系；单元/集成/系统测试侧重点；SQA 工作内容；基本测量原则；软件测试定义。</td><td>8 位图书编号有效/无效等价类；链表冒泡排序代码的控制流图、三种复杂度算法、基本路径、测试用例。</td><td>最接近当前风格：客观题刷题库，简答背互评，大题练设计。</td></tr>
+        <tr><td>C 卷</td><td>待 OCR/人工核验。</td><td>待核验。</td><td>待核验。</td><td>扫描 PDF 当前不能确认题型细节，不能继续当已读往年题样本。</td></tr>
+        <tr><td>2024 回忆</td><td>回忆中说客观题基本来自云班课原题；选择可能不标单选/多选。</td><td>为什么需要评审；客户与质量关系；经典质量费用模型；软件测试原则；发布后 bug 处理。</td><td>文件命名格式等价类；中缀转后缀代码的控制流图、环路复杂度、基本路径、测试用例。</td><td>这是已读回忆材料，但仍是“回忆”，不是老师官方题库。</td></tr>
+        <tr><td>2025 回忆</td><td>本地有图片文件，尚未 OCR/人工逐条校对。</td><td>暂不写具体客观题结论。</td><td>等图片题面读出后再补。</td><td>不能继续把未读图片当已核验来源。</td></tr>
       </tbody>
     </table>
   </div>
@@ -623,10 +623,10 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <ul class="sqr-kp-list">
         <li>课程主线：软件质量保证理论 + 软件测试基本理论；学时数字只作课程安排背景。</li>
         <li>期末题型：判断、选择、填空、简答、设计。</li>
-        <li>平时题源：课后习题、课上小测、互评习题、每课一思。</li>
-        <li>互评题有标准答案，不能重做，适合作为简答题评分点来源。</li>
+        <li>平时题源：课后习题、课上小测、互评习题、每课一思；当前还没有从蓝墨登录页读出原题。</li>
+        <li>你提供的信息显示互评题有标准答案，适合作为简答题评分点来源；但必须拿到老师答案后逐条核验。</li>
         <li>期末包含软件测试基本理论，不包含接口、性能、Web、App 专项实验的操作细节。</li>
-        <li>复习优先级：云班课客观题 -> 互评简答 -> 往年大题 -> PPT 定义。</li>
+        <li>复习优先级：后续导出的云班课客观题 -> 待核验互评简答参考答案 -> 已读 A 卷/2024 回忆中的大题方向 -> PPT 定义。</li>
       </ul>
     </article>
     <article class="sqr-detail-card" id="detail-01">
@@ -1065,14 +1065,14 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
   <h2 id="must-short" class="sqr-section-title">六、简答题优先级：先背这些评分点</h2>
   <section class="sqr-note"><p><strong>卷面格式：</strong>简答题不要写成一句话。建议每题写 3 到 6 个点，每点独立成句。能写“定义、分类、作用、区别、结论”的题，一定按这个顺序写。</p></section>
   <div class="sqr-grid">
-    <article class="sqr-card"><span class="sqr-badge hot">一级必背</span><h3>24/25 已点名或互评高频</h3><ul class="sqr-list"><li>为什么需要软件评审：成本、技术、效率。</li><li>客户与质量关系：相互依赖、客户接受、质量相对客户存在并由客户判定。</li><li>经典质量费用模型：预防、评价、内部失效、外部失效。</li><li>质量管理体系：质量方针、目标、职责、资源、产品实现、测量分析改进。</li><li>SQA 人员工作：计划、过程描述、评审、审计、记录偏差、报告、跟踪、度量。</li><li>基本测量原则：目标、定义一致客观、简单可算、剪裁、自动化、统计关系、可靠、反馈。</li><li>软件测试定义：为了发现错误而执行程序，依据规格和结构设计用例。</li><li>单元/集成/系统测试侧重点。</li></ul></article>
+    <article class="sqr-card"><span class="sqr-badge hot">一级必背</span><h3>2024 回忆已出现 + PPT 高频</h3><ul class="sqr-list"><li>为什么需要软件评审：成本、技术、效率。</li><li>客户与质量关系：相互依赖、客户接受、质量相对客户存在并由客户判定。</li><li>经典质量费用模型：预防、评价、内部失效、外部失效。</li><li>质量管理体系：质量方针、目标、职责、资源、产品实现、测量分析改进。</li><li>SQA 人员工作：计划、过程描述、评审、审计、记录偏差、报告、跟踪、度量。</li><li>基本测量原则：目标、定义一致客观、简单可算、剪裁、自动化、统计关系、可靠、反馈。</li><li>软件测试定义：为了发现错误而执行程序，依据规格和结构设计用例。</li><li>单元/集成/系统测试侧重点。</li></ul></article>
     <article class="sqr-card"><span class="sqr-badge apply">二级必背</span><h3>老卷与题库反复出现</h3><ul class="sqr-list"><li>SQA 三种组织结构及优缺点。</li><li>软件缺陷内部/外部定义。</li><li>走查与审查区别。</li><li>ISO/McCall/Boehm 三种质量模型评价。</li><li>软件测试与调试区别。</li><li>回归测试目的。</li><li>测试用例定义。</li><li>桩模块与驱动模块。</li><li>白盒与黑盒测试区别。</li><li>负载、容量、强度/压力测试区别。</li></ul></article>
   </div>
 
   <h2 id="design-drill" class="sqr-section-title">七、大题设计题：高分值必须单独练</h2>
   <section class="sqr-note"><p><strong>大题拿分原则：</strong>题面会换，但评分动作基本不变：列规则、分等价类、取边界值、画控制流图/状态图、算复杂度、列基本路径、写测试用例。卷面上一定要有表格和编号。</p></section>
   <div class="sqr-grid">
-    <article class="sqr-card"><span class="sqr-badge hot">等价类</span><h3>2025 图书编号题怎么拆</h3><p>8 位编号可拆成三段：1-2 位楼层、3-5 位书架、6-8 位图书。有效类：楼层 01-11、书架 001-120、图书 001-300，且全为数字、长度为 8。无效类至少按字段拆：长度错误、非数字、楼层 00/12 及以上、书架 000/121 及以上、图书 000/301 及以上。</p><ul class="sqr-list" style="margin-top:10px"><li>有效例：01001001、11120300。</li><li>无效例：00001001、12001001、01121001、01000301、01A01001、0100100。</li><li>卷面表：编号、输入、覆盖等价类、预期结果。</li></ul></article>
+    <article class="sqr-card"><span class="sqr-badge hot">等价类</span><h3>编号类等价划分同型练习</h3><p>下面是用于训练方法的同型练习，不声称来自 2025 原题。假设 8 位编号可拆成三段：1-2 位楼层、3-5 位书架、6-8 位图书。有效类：楼层 01-11、书架 001-120、图书 001-300，且全为数字、长度为 8。无效类至少按字段拆：长度错误、非数字、楼层 00/12 及以上、书架 000/121 及以上、图书 000/301 及以上。</p><ul class="sqr-list" style="margin-top:10px"><li>有效例：01001001、11120300。</li><li>无效例：00001001、12001001、01121001、01000301、01A01001、0100100。</li><li>卷面表：编号、输入、覆盖等价类、预期结果。</li></ul></article>
     <article class="sqr-card"><span class="sqr-badge hot">等价类</span><h3>2024 文件命名题怎么拆</h3><p>命名格式可按“班级号 + 学号”拆。第一位 1-6，后三位表示 001-300 的学号，且总长度固定为 4、全部为数字。有效类是班级合法且学号合法；无效类按长度、班级、学号、字符类型分别写。</p><ul class="sqr-list" style="margin-top:10px"><li>有效例：1001、6300。</li><li>无效例：0100、7100、1000、1301、1A01、101、10001。</li><li>不要把 1-099、100-199、200-299 当作主要等价类，那更像把有效类又切细，漏掉了无效类。</li></ul></article>
     <article class="sqr-card"><span class="sqr-badge apply">边界值</span><h3>一般边界值 4n+1</h3><p>函数 f(x,y)，x 属于 [100,200]，y 属于 [5,15]。一般边界值分析让一个变量取边界，其他变量取正常值。取 X=150，Y=10，则 9 个用例为：</p><ul class="sqr-list" style="margin-top:10px"><li>(100,10)、(101,10)、(199,10)、(200,10)</li><li>(150,5)、(150,6)、(150,14)、(150,15)</li><li>(150,10)</li></ul></article>
     <article class="sqr-card"><span class="sqr-badge apply">白盒</span><h3>控制流图/复杂度/基本路径</h3><p>答题顺序固定：给语句编号 -> 画控制流图 -> 算 V(G) -> 列独立路径 -> 为每条路径写输入和预期输出。复杂度三算法要对上：V(G)=E-N+2P，区域数，判定节点数+1。</p><ul class="sqr-list" style="margin-top:10px"><li>如果代码有 2 个普通 if，通常 V(G)=3。</li><li>如果题目要求把复合条件拆成短路判断，判定节点会增加，要按图重新算。</li><li>路径表必须写节点序列，不要只写“真/假”。</li></ul></article>
@@ -1080,7 +1080,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     <article class="sqr-card"><span class="sqr-badge hot">卷面模板</span><h3>四张表保底拿步骤分</h3><ul class="sqr-list"><li>规则拆分表：字段、合法范围、非法情况。</li><li>等价类/边界表：编号、有效/无效、代表值。</li><li>路径表：路径编号、节点序列、覆盖分支。</li><li>测试用例表：输入、覆盖对象、预期输出。</li></ul></article>
   </div>
 
-  <h2 id="question-bank" class="sqr-section-title">八、全部题库：互评题、课后题、课堂练习都放这里</h2>
+  <h2 id="question-bank" class="sqr-section-title">八、待逐题溯源练习区：先检查概念，不当作原题题库</h2>
+  <section class="sqr-note"><p><strong>重要：</strong>下面这些题中有一部分是根据 PPT/CSDN/复习讲义改写的概念检查题，并非全部来自云班课或往年卷。每道题完成来源标签前，不要把这里当“老师原题库”。</p></section>
   <section class="sqr-note"><p><strong>使用方式：</strong>下面是完整刷题区，答案默认折叠。先在纸上写，再展开核对。互评题按简答题准备；判断、选择、填空用来补客观题；设计题用来练卷面步骤。</p></section>
 <div class="sqe-page sqr-bank">
 <h2 class="sqe-section-title">章节跳转</h2>
@@ -1625,7 +1626,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <li>第一遍只做判断、选择、填空，先把数字、定义、分类背稳。</li>
       <li>第二遍做简答题，每题用 3 到 5 个关键词组织答案，不追求长篇。</li>
       <li>第三遍做设计题，固定写法是“判断风险/对象 → 选方法或指标 → 写流程 → 写跟踪和改进”。</li>
-      <li>如果云班课原题后续能导出，就把这一页对应章节的同类题逐条替换，页面结构不用再改。</li>
+      <li>如果云班课原题后续能导出，先逐题标注来源，再替换或删除当前未溯源练习。</li>
     </ul>
   </section>
 </div>
@@ -1635,7 +1636,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
     <article class="sqr-print"><h3>2 小时背诵</h3><ul class="sqr-list"><li>质量、软件质量、缺陷、测试、测试用例、回归测试。</li><li>为什么评审、质量费用模型、质量管理体系、测量原则。</li><li>SQA 工作内容和三种组织结构。</li><li>白盒/黑盒、单元/集成/系统/验收、桩/驱动。</li></ul></article>
     <article class="sqr-print"><h3>2 小时大题</h3><ul class="sqr-list"><li>做 1 道编号/命名格式等价类题。</li><li>做 1 道 x/y 边界值题。</li><li>做 1 道 if/while 控制流图题。</li><li>做 1 道状态迁移题。</li></ul></article>
   </div>
-  <section class="sqr-note"><p><strong>公开来源：</strong><a href="https://blog.csdn.net/m0_56942491/article/details/131734756" target="_blank" rel="noopener">CSDN 题库整理</a>；<a href="https://www.mosoteach.cn/web/cc-detail/4851E258-439C-11F1-BAE9-A088C2A30E68/act/" target="_blank" rel="noopener">蓝墨云班课活动页</a>。本页还使用本地 PPT、复习讲义、往年 A/C 卷和 2024/2025 考试回忆来校准范围。云班课私有活动页当前未登录不可读，不能把未核验的老师参考答案伪造成已核验内容。</p></section>
+  <section class="sqr-note"><p><strong>公开来源：</strong><a href="https://blog.csdn.net/m0_56942491/article/details/131734756" target="_blank" rel="noopener">CSDN 题库整理</a>；<a href="https://www.mosoteach.cn/web/cc-detail/4851E258-439C-11F1-BAE9-A088C2A30E68/act/" target="_blank" rel="noopener">蓝墨云班课活动页</a>。当前状态：CSDN 可公开查看但未逐题结构化导入；蓝墨云班课跳登录，未读取私有原题和老师参考答案；本页已核来源主要是本地 PPT、复习讲义、往年 A 卷和 2024 回忆。未核内容后续必须逐条补来源标签。</p></section>
     </main>
   </div>
 </div>
