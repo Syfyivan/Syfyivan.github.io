@@ -335,7 +335,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>13</strong>
+        <strong>14</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
@@ -366,7 +366,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
       <span>Quality</span>
       <strong>软件工程与质量</strong>
       <p>软件质量保证与测试：质量、缺陷、度量、评审、标准、设计、编程、课堂练习与期末复习。</p>
-      <small>寓言版 + 修仙版 + 题库 + 复习网络</small>
+      <small>寓言版 + 修仙版 + 题库 + 复习专项</small>
     </a>
     <a class="course-category-card is-client" href="#client">
       <span>Client</span>
@@ -460,9 +460,9 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <div class="course-category-head">
       <div>
         <h2>软件工程与质量</h2>
-        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量、高质量编程、白盒/黑盒、集成、系统与验收测试。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——再配课堂练习题库和期末复习网络：一个适合连续刷题，一个用来把 PPT、往年题、互评题线索和大题模板串起来。</p>
+        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量、高质量编程、白盒/黑盒、集成、系统与验收测试。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——再配课堂练习题库、期末复习网络和设计题专项：一个适合连续刷题，一个用来把 PPT、往年题、互评题线索和大题模板串起来，另一个专门拆解高分值设计大题。</p>
       </div>
-      <span class="course-category-count">1 门 · 2 版 · 2 复习入口</span>
+      <span class="course-category-count">1 门 · 2 版 · 3 复习入口</span>
     </div>
     <div class="course-grid">
       <article class="course-card">
@@ -508,6 +508,15 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <div class="course-card-footer">
           <span>适合：零基础考前建体系 + 按题型冲刺</span>
           <a class="course-link" href="/courses/software-quality-review-network/">进入复习网络</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge is-project">设计题 · 大题专项</span>
+        <h3>软件质量与测试设计题专项</h3>
+        <p>专门面向高分值大题：从零讲等价类、边界值、控制流图、环路复杂度、基本路径、测试用例和状态图。用表格化卷面模板训练，不靠背原题。</p>
+        <div class="course-card-footer">
+          <span>适合：没学过大题、想按步骤拿过程分</span>
+          <a class="course-link" href="/courses/software-quality-design-questions/">进入设计题专项</a>
         </div>
       </article>
     </div>

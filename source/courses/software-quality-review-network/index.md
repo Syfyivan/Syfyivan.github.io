@@ -396,6 +396,7 @@ html[data-user-color-scheme="dark"] .sqr-table th {
         <a class="sqr-link" href="/courses/software-quality-xianxia/">修仙版目录</a>
         <a class="sqr-link" href="#short-answer">简答背诵池</a>
         <a class="sqr-link" href="#design">大题模板</a>
+        <a class="sqr-link" href="/courses/software-quality-design-questions/">设计题专项</a>
       </div>
     </div>
     <div class="sqr-score" aria-label="复习优先级">
@@ -612,6 +613,9 @@ html[data-user-color-scheme="dark"] .sqr-table th {
   </div>
 
   <h2 id="design" class="sqr-section-title">七、大题模板：不背题面，背流程</h2>
+  <section class="sqr-note">
+    <p><strong>想专门学大题：</strong>如果你还没学过设计题，不建议只看下面四个模板。先去<a href="/courses/software-quality-design-questions/">设计题大题专项</a>，那里把等价类、边界值、控制流图、环路复杂度、基本路径、测试用例和状态图按零基础顺序拆开讲。</p>
+  </section>
   <div class="sqr-grid">
     <article class="sqr-card">
       <span class="sqr-badge hot">模板 A</span>
