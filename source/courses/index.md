@@ -335,7 +335,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>12</strong>
+        <strong>13</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
@@ -365,8 +365,8 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <a class="course-category-card is-client" href="#quality">
       <span>Quality</span>
       <strong>软件工程与质量</strong>
-      <p>软件质量保证与测试：质量、缺陷、度量、评审、标准、设计与编程。</p>
-      <small>寓言版 + 修仙版</small>
+      <p>软件质量保证与测试：质量、缺陷、度量、评审、标准、设计、编程与期末复习。</p>
+      <small>寓言版 + 修仙版 + 复习网络</small>
     </a>
     <a class="course-category-card is-client" href="#client">
       <span>Client</span>
@@ -460,9 +460,9 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <div class="course-category-head">
       <div>
         <h2>软件工程与质量</h2>
-        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量与高质量编程。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——知识点同源、风格不同，可挑一种读，也可两版对读比较哪种更记得住。</p>
+        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量与高质量编程。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——再配一页期末复习网络，把 PPT、往年题、互评题线索和大题模板串起来。</p>
       </div>
-      <span class="course-category-count">1 门 · 2 版</span>
+      <span class="course-category-count">1 门 · 2 版 · 复习网络</span>
     </div>
     <div class="course-grid">
       <article class="course-card">
@@ -490,6 +490,15 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <div class="course-card-footer">
           <span>适合：纠结读哪一版、或想两版对读的人</span>
           <a class="course-link" href="/2026/06/20/software-quality-two-styles-compare/">看对比</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge is-project">期末复习 · 题型网络</span>
+        <h3>软件质量与测试期末复习网络</h3>
+        <p>把课程 PPT、复习讲义、往年 A/C 卷、2024/2025 考试回忆、CSDN 题库和互评题线索合成一页：资料异同、章节地图、题型雷达、简答背诵池、等价类/基本路径/状态图大题模板。</p>
+        <div class="course-card-footer">
+          <span>适合：零基础考前建体系 + 按题型冲刺</span>
+          <a class="course-link" href="/courses/software-quality-review-network/">进入复习网络</a>
         </div>
       </article>
     </div>
