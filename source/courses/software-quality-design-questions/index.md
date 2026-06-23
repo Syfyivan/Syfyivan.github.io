@@ -303,8 +303,8 @@ html[data-user-color-scheme="dark"] .sqd-code {
   .sqd-chip { width: 100%; }
 }
 </style>
-<link rel="stylesheet" href="/css/software-quality-mobile-voice.css?v=20260623-1">
-<script defer src="/js/software-quality-voice.js?v=20260623-1"></script>
+<link rel="stylesheet" href="/css/software-quality-mobile-voice.css?v=20260623-5">
+<script defer src="/js/software-quality-voice.js?v=20260623-5"></script>
 
 <div class="sqd-page">
   <section class="sqd-hero">

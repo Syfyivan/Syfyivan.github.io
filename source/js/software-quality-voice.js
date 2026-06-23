@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var PAGE_SELECTOR = ".sqr-page, .sqc-page, .sqd-page";
+  var PAGE_SELECTOR = ".sqr-page, .sqc-page, .sqd-page, .sqe-page";
   var STORAGE_RATE = "softwareQualityVoiceRate";
   var STORAGE_AUTO = "softwareQualityVoiceAuto";
   var MAX_CHUNK = 150;
@@ -36,17 +36,23 @@
       ".sqr-side",
       ".sqc-side",
       ".sqd-nav",
+      ".sqe-nav",
+      ".sqe-side-toc",
+      ".sqe-filter",
       ".sqr-nav",
       ".sqc-nav",
       ".sqr-actions",
       ".sqc-actions",
       ".sqd-actions",
+      ".sqe-actions",
       ".sqr-detail-link",
       ".sqr-chip",
       ".sqc-chip",
       ".sqd-chip",
+      ".sqe-chip",
       ".sqr-link",
       ".sqd-link",
+      ".sqe-link",
       ".sqe-answer"
     ].forEach(function (selector) {
       root.querySelectorAll(selector).forEach(function (node) {
@@ -78,6 +84,28 @@
     return pieces.join("。");
   }
 
+  function extractExerciseText(section) {
+    var holder = section.cloneNode(true);
+    [
+      "script",
+      "style",
+      "noscript",
+      "button",
+      "select",
+      "input",
+      "textarea",
+      "details",
+      ".sqe-answer",
+      ".sqe-meta",
+      ".sqe-source-pill"
+    ].forEach(function (selector) {
+      holder.querySelectorAll(selector).forEach(function (node) {
+        node.remove();
+      });
+    });
+    return cleanText(holder.textContent);
+  }
+
   function directChildrenSections(main) {
     var sections = [];
     var current = null;
@@ -100,13 +128,32 @@
   function buildSections(page) {
     var isChapter = page.classList.contains("sqc-page");
     var isDesign = page.classList.contains("sqd-page");
+    var isExercise = page.classList.contains("sqe-page");
     var sections = [];
-    var hero = page.querySelector(isChapter ? ".sqc-hero" : isDesign ? ".sqd-hero" : ".sqr-hero");
+    var hero = page.querySelector(isChapter ? ".sqc-hero" : isDesign ? ".sqd-hero" : isExercise ? ".sqe-hero" : ".sqr-hero");
     if (hero) {
       sections.push({
-        title: isChapter ? "本章导读" : isDesign ? "设计题导读" : "总复习导读",
+        title: isChapter ? "本章导读" : isDesign ? "设计题导读" : isExercise ? "题库导读" : "总复习导读",
         anchor: "",
         text: extractText([hero])
+      });
+    }
+
+    if (isExercise) {
+      document.querySelectorAll(".sqe-chapter, .sqe-tip").forEach(function (section) {
+        var heading = section.querySelector("h2,h3");
+        var text = extractExerciseText(section);
+        if (heading && text.length > 20) {
+          sections.push({
+            title: cleanText(heading.textContent),
+            anchor: section.id || "",
+            text: text
+          });
+        }
+      });
+
+      return sections.filter(function (section) {
+        return section.text && section.text.length > 20;
       });
     }
 

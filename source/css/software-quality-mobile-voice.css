@@ -204,13 +204,15 @@ html[data-user-color-scheme="dark"] .sqv-button {
 @media (max-width: 760px) {
   body:has(.sqr-page),
   body:has(.sqc-page),
-  body:has(.sqd-page) {
+  body:has(.sqd-page),
+  body:has(.sqe-page) {
     padding-bottom: 96px;
   }
 
   body:has(.sqr-page) #board,
   body:has(.sqc-page) #board,
-  body:has(.sqd-page) #board {
+  body:has(.sqd-page) #board,
+  body:has(.sqe-page) #board {
     margin-top: -22px;
   }
 
