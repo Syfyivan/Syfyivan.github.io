@@ -18,11 +18,11 @@ description: "《软件质量保证与测试》CSDN 公开题库对照页：按�
 .csdn-stat strong { display: block; font-size: 24px; color: #0d3557; }
 .csdn-stat span { display: block; margin-top: 4px; color: #5c6675; line-height: 1.55; }
 .csdn-note { margin: 16px 0; padding: 14px 16px; border-left: 4px solid #286f9f; background: #f6fafc; border-radius: 8px; }
-.csdn-searchbar { margin: 18px 0; padding: 12px; border: 1px solid rgba(31,43,68,.12); border-radius: 10px; background: #fff; box-shadow: 0 8px 22px rgba(24, 39, 75, .04); }
+.csdn-searchbar { max-width: min(1040px, calc(100vw - 520px)); margin: 18px auto; padding: 12px; border: 1px solid rgba(31,43,68,.12); border-radius: 10px; background: #fff; box-shadow: 0 8px 22px rgba(24, 39, 75, .04); }
 .csdn-search { width: 100%; min-height: 42px; border: 1px solid rgba(31,43,68,.18); border-radius: 8px; padding: 0 12px; font-size: 15px; }
 .csdn-count { margin-top: 8px; color: #667085; font-size: 13px; }
-.csdn-study-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 18px; align-items: start; }
-.csdn-sidebar { position: sticky; top: 86px; max-height: calc(100vh - 108px); overflow: auto; padding: 12px; border: 1px solid rgba(31,43,68,.12); border-radius: 10px; background: rgba(255,255,255,.96); box-shadow: 0 10px 24px rgba(24, 39, 75, .06); }
+.csdn-study-layout { display: block; max-width: min(1040px, calc(100vw - 520px)); margin: 0 auto; }
+.csdn-sidebar { position: fixed; top: 96px; right: max(18px, calc(50vw - 920px)); width: 220px; max-height: calc(100vh - 110px); overflow: auto; padding: 12px; border: 1px solid rgba(31,43,68,.12); border-radius: 10px; background: rgba(255,255,255,.96); box-shadow: 0 10px 24px rgba(24, 39, 75, .06); }
 .csdn-sidebar-title { margin: 0 0 10px; color: #667085; font-size: 13px; font-weight: 800; }
 .csdn-nav { display: grid; gap: 8px; }
 .csdn-nav .csdn-chip { justify-content: flex-start; width: 100%; min-height: 34px; padding: 0 10px; font-size: 14px; line-height: 1.35; }
@@ -42,7 +42,7 @@ html[data-user-color-scheme="dark"] .csdn-page { color: #e5e7eb; }
 html[data-user-color-scheme="dark"] .csdn-hero, html[data-user-color-scheme="dark"] .csdn-card, html[data-user-color-scheme="dark"] .csdn-searchbar, html[data-user-color-scheme="dark"] .csdn-sidebar, html[data-user-color-scheme="dark"] .csdn-stat { background: #141821; border-color: rgba(255,255,255,.12); }
 html[data-user-color-scheme="dark"] .csdn-hero p, html[data-user-color-scheme="dark"] .csdn-note p, html[data-user-color-scheme="dark"] .csdn-stat span, html[data-user-color-scheme="dark"] .csdn-full, html[data-user-color-scheme="dark"] .csdn-meta { color: #c8d0dc; }
 html[data-user-color-scheme="dark"] .csdn-question, html[data-user-color-scheme="dark"] .csdn-stat strong { color: #f3f4f6; }
-@media (max-width: 980px) { .csdn-study-layout { grid-template-columns: 1fr; } .csdn-sidebar { position: static; max-height: none; overflow: visible; } .csdn-nav { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; } .csdn-nav .csdn-chip { flex: 0 0 auto; width: auto; white-space: nowrap; } }
+@media (max-width: 980px) { .csdn-searchbar, .csdn-study-layout { max-width: none; } .csdn-sidebar { display: none; } }
 @media (max-width: 760px) { .csdn-page { padding: 16px 12px 48px; } .csdn-hero { grid-template-columns: 1fr; padding: 18px; } .csdn-hero h2 { font-size: 24px; } .csdn-link { width: 100%; } }
 
 </style>

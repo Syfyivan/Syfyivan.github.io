@@ -136,13 +136,13 @@ description: "《软件质量保证与测试》期末复习总页：覆盖 PPT 0
 }
 .sqr-main {
   min-width: 0;
-  max-width: 1040px;
+  max-width: min(1040px, calc(100vw - 520px));
   margin: 0 auto;
 }
 .sqr-side {
   position: fixed;
   top: 96px;
-  left: max(18px, calc(50vw - 760px));
+  right: max(18px, calc(50vw - 920px));
   width: 220px;
   max-height: calc(100vh - 110px);
   overflow: auto;
@@ -282,9 +282,6 @@ html[data-user-color-scheme="dark"] .sqr-print { background: rgba(255, 255, 255,
   .sqr-side { display: none; }
   .sqr-main { max-width: none; }
   .sqr-kp-list { grid-template-columns: 1fr; }
-}
-@media (max-width: 1540px) {
-  .sqr-side { display: none; }
 }
 @media (max-width: 680px) {
   .sqr-hero { padding: 22px; }
