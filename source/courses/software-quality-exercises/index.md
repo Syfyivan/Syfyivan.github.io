@@ -404,7 +404,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 </section>
 
 <section class="sqe-note">
-<p><strong>来源边界：</strong>这页是云班课导出题库，不再混入 PPT 改写题或自拟概念题。仍未导出的“测试相关未分类习题”是因为云班课接口返回“老师暂未公布答案，无法查看结果”，它被单独列在页尾，未伪装成已读题库；CSDN 公开页里能看到的对应题目，已经放到单独的 CSDN 题库对照页。</p>
+<p><strong>来源边界：</strong>这页是云班课导出题库，不再混入 PPT 改写题或未标来源的概念题。仍未导出的“测试相关未分类习题”是因为云班课接口返回“老师暂未公布答案，无法查看结果”，它被单独列在页尾，未伪装成已读题库；CSDN 公开页里能看到的对应题目，已经放到单独的 CSDN 题库对照页。</p>
 </section>
 
 <h2 class="sqe-section-title">题库跳转</h2>

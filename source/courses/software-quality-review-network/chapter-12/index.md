@@ -1,7 +1,7 @@
 ---
 title: "软件质量与测试复习网络 · 12 黑盒测试"
 date: 2026-06-23 12:40:00
-description: "《软件质量与测试》期末复习二级章节页：黑盒测试：等价类、边界值、判定表、场景和状态。面向零基础同学，整理本章知识点、易混点、简答模板和自测题。"
+description: "《软件质量与测试》期末复习二级章节页：黑盒测试：等价类、边界值、判定表、场景和状态。面向零基础同学，整理本章知识点、资料对照、简答模板和自测题。"
 ---
 <link rel="stylesheet" href="/css/software-quality-review-chapters.css?v=20260623-5">
 <link rel="stylesheet" href="/css/software-quality-mobile-voice.css?v=20260623-5">
@@ -21,15 +21,14 @@ description: "《软件质量与测试》期末复习二级章节页：黑盒测
 </div>
 <aside class="sqc-hero-side" aria-label="本章考试信息">
 <div><strong>资料来源</strong><p>测试基本理论、A 卷/2024 回忆、待核课堂练习线索</p></div>
-<div><strong>考试位置</strong><p>大题高频：等价类、边界值、判定表、场景法、状态迁移；客观题考黑盒概念和适用场景。</p></div>
-<div><strong>本页定位</strong><p>先讲懂概念，再给背诵句和题型，不要求有编程基础。</p></div>
+<div><strong>题源边界</strong><p>本页用于串联 PPT、讲义和题库中已出现的概念；不加入未核验的考试预测句。</p></div>
+<div><strong>本页定位</strong><p>只保留资料中能对上的概念、题型和练习入口；未核验句子不当作考点。</p></div>
 </aside>
 </section>
 <nav class="sqc-nav" aria-label="本章页内目录">
 <a class="sqc-chip" href="#core">完整知识点</a>
 <a class="sqc-chip" href="#map">知识网络</a>
-<a class="sqc-chip" href="#must">必背句</a>
-<a class="sqc-chip" href="#confuse">易混点</a>
+<a class="sqc-chip" href="#confuse">资料对照</a>
 <a class="sqc-chip" href="#templates">简答模板</a>
 <a class="sqc-chip" href="#practice">自测题</a>
 </nav>
@@ -38,8 +37,7 @@ description: "《软件质量与测试》期末复习二级章节页：黑盒测
 <h3>本章目录</h3>
 <a href="#core">完整知识点</a>
 <a href="#map">知识网络</a>
-<a href="#must">必背句</a>
-<a href="#confuse">易混点</a>
+<a href="#confuse">资料对照</a>
 <a href="#templates">简答模板</a>
 <a href="#practice">自测题</a>
 <a href="/courses/software-quality-review-network/chapter-12/">回到页首</a>
@@ -47,7 +45,7 @@ description: "《软件质量与测试》期末复习二级章节页：黑盒测
 </aside>
 <main class="sqc-main">
 <section class="sqc-note">
-<p><strong>学习顺序：</strong>先读“完整知识点”，把每句话变成能解释的话；再看“知识网络”，知道它会怎么出题；最后用“简答模板”和“自测题”检查能不能写到评分点。</p>
+<p><strong>学习顺序：</strong>先读“完整知识点”，把每句话变成能解释的话；再看“知识网络”，知道概念之间怎么区分；最后用“简答模板”和“自测题”检查能不能写到评分点。</p>
 </section>
 <h2 id="core" class="sqc-section-title">一、本章完整知识点</h2>
 <section class="sqc-card">
@@ -57,21 +55,17 @@ description: "《软件质量与测试》期末复习二级章节页：黑盒测
 <h2 id="map" class="sqc-section-title">二、知识网络：概念怎么连起来</h2>
 <div class="sqc-table-wrap">
 <table class="sqc-table">
-<thead><tr><th>知识点</th><th>零基础理解</th><th>考试问法</th></tr></thead>
+<thead><tr><th>知识点</th><th>零基础理解</th><th>题源/练习形态</th></tr></thead>
 <tbody>
-<tr><td>等价类</td><td>有效/无效分类</td><td>设计题高频</td></tr><tr><td>边界值</td><td>边界及附近</td><td>设计题高频</td></tr><tr><td>判定表</td><td>条件组合</td><td>规则题</td></tr><tr><td>状态迁移</td><td>状态 + 事件</td><td>售票/订单类题</td></tr>
+<tr><td>等价类</td><td>有效/无效分类</td><td>设计题</td></tr><tr><td>边界值</td><td>边界及附近</td><td>设计题</td></tr><tr><td>判定表</td><td>条件组合</td><td>规则题</td></tr><tr><td>状态迁移</td><td>状态 + 事件</td><td>售票/订单类题</td></tr>
 </tbody>
 </table>
 </div>
-<h2 id="must" class="sqc-section-title">三、必背句：考试写成这样就比较稳</h2>
-<section class="sqc-grid">
-<article class="sqc-mini"><h4>背诵句</h4><p>等价类关注代表性，边界值关注最容易出错的边界附近。</p></article><article class="sqc-mini"><h4>背诵句</h4><p>无效等价类通常单独设计用例，避免一个用例同时包含多个无效原因导致定位困难。</p></article><article class="sqc-mini"><h4>背诵句</h4><p>判定表适合多条件多动作，状态图适合状态变化明显。</p></article>
-</section>
-<h2 id="confuse" class="sqc-section-title">四、易混点：判断选择最容易错在这里</h2>
+<h2 id="confuse" class="sqc-section-title">三、资料对照：概念边界怎么区分</h2>
 <section class="sqc-card">
 <ul class="sqc-list"><li>黑盒不是随便试，而是根据规格系统设计用例。</li><li>有效等价类不是所有合法值都枚举，而是选代表。</li><li>边界值不仅测边界本身，还测边界两侧附近。</li></ul>
 </section>
-<h2 id="templates" class="sqc-section-title">五、简答模板：按评分点组织语言</h2>
+<h2 id="templates" class="sqc-section-title">四、简答模板：按已给题源组织语言</h2>
 <section class="sqc-grid">
 <article class="sqc-card">
 <span class="sqc-badge hot">简答模板</span>
@@ -84,7 +78,7 @@ description: "《软件质量与测试》期末复习二级章节页：黑盒测
 <p>先确定输入或输出的边界；对闭区间取下边界外、下边界、下边界内、正常值、上边界内、上边界、上边界外；多变量时通常一个变量取边界，其他变量取正常值；最后整理成测试用例表。</p>
 </article>
 </section>
-<h2 id="practice" class="sqc-section-title">六、本章自测题</h2>
+<h2 id="practice" class="sqc-section-title">五、本章自测题</h2>
 <section class="sqc-card">
 <h3>先自己答，再回总复习页看对应练习</h3>
 <div class="sqc-question">

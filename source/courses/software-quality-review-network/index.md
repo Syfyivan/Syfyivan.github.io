@@ -542,7 +542,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
         <span class="sqr-side-title">主流程</span>
         <a href="#how-to-use">怎么用这页</a>
         <a href="#source-map">资料清单</a>
-        <a href="#past-papers">往年题雷达</a>
+        <a href="#past-papers">往年题来源对照</a>
         <a href="#detailed-index">0-15 章详细目录</a>
         <a href="#knowledge">知识体系总览</a>
         <a href="#must-short">简答评分点</a>
@@ -582,8 +582,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
 
   <h2 id="how-to-use" class="sqr-section-title">一、怎么用这一个页面复习</h2>
   <div class="sqr-grid three">
-    <article class="sqr-card"><span class="sqr-badge core">第一遍</span><h3>先过知识体系</h3><p>从 00 到 15 章按“一句话、必背、易错”过一遍。不会的先不展开练习区，先把概念位置记住。</p></article>
-    <article class="sqr-card"><span class="sqr-badge hot">第二遍</span><h3>按互评老师答案背简答</h3><p>互评题老师参考答案已经导出，按“题干 + 分组 + 满分 + 评分点”集中背；这里的 23 道题优先级高于普通自拟练习。</p></article>
+    <article class="sqr-card"><span class="sqr-badge core">第一遍</span><h3>先过知识体系</h3><p>从 00 到 15 章按“章节概念、资料点、边界提醒”过一遍。不会的先不展开练习区，先把概念位置记住。</p></article>
+    <article class="sqr-card"><span class="sqr-badge hot">第二遍</span><h3>按互评老师答案整理简答</h3><p>互评题老师参考答案已经导出，按“题干 + 分组 + 满分 + 评分点”集中整理；这 23 道题来自老师参考答案，和普通练习讲解分开标注。</p></article>
     <article class="sqr-card"><span class="sqr-badge hot">第三遍</span><h3>练设计大题</h3><p>大题分值最高，不能只背概念。按等价类、边界值、控制流图、复杂度、基本路径、状态图六个模板刷。</p></article>
   </div>
 
@@ -597,18 +597,18 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
         <tr><td>云班课活动页</td><td>48 个活动已读；23 道互评简答参考答案、23 个 QUIZ 共 428 道题已导出；1 个“测试相关未分类习题”接口显示未公布答案。</td><td>互评题作为简答评分点，QUIZ 作为客观题主刷题库。</td><td>登录 token、用户信息只保存在本地临时文件，不写入博客。</td></tr>
         <tr><td>A 卷</td><td>判断 15、选择 20、填空 10、简答 9、设计 46。设计题含状态图、控制流图、环路复杂度、独立路径、语句/路径覆盖。</td><td>用于“往年题”和“大题模板”。</td><td>老卷题面不必死背，步骤必须会。</td></tr>
         <tr><td>C 卷</td><td>RAR 中存在 C 卷 PDF，但当前文本抽取为空，尚未 OCR 或人工逐页核验。</td><td>暂不作为已读原题来源。</td><td>完成 OCR/人工核对后再补题型和分值。</td></tr>
-        <tr><td>2024 考试回忆</td><td>客观题来自云班课；简答含评审、客户与质量、质量费用、测试原则、发布后 bug；大题含命名格式等价类和中缀转后缀基本路径。</td><td>用于当前风格判断和大题训练。</td><td>选择可能单选/多选不标明，刷题时要按不定项准备。</td></tr>
+        <tr><td>2024 考试回忆</td><td>客观题来自云班课；简答含评审、客户与质量、质量费用、测试原则、发布后 bug；大题含命名格式等价类和中缀转后缀基本路径。</td><td>用于题源对照和大题训练。</td><td>选择可能单选/多选不标明，刷题时要按不定项准备。</td></tr>
         <tr><td>2025 考试回忆</td><td>图片已人工读出题型：判断 5 分、选择 15 分、填空 8 分、简答 24 分、大题 48 分；大题含 8 位图书编号等价类和链表排序代码设计。</td><td>用于强化大题训练顺序，尤其是代码类控制流图、复杂度、基本路径和测试用例。</td><td>仍属于学生回忆材料，不当作老师官方答案；客观题细项不逐题展开。</td></tr>
         <tr><td>Excel 和大作业查重资料</td><td>Excel 是辽宁招生投档表或损坏文件；大作业/查重资料不属于期末闭卷理论题源。</td><td>排除。</td><td>不混进复习范围，避免浪费时间。</td></tr>
       </tbody>
     </table>
   </div>
-  <section class="sqr-note"><p><strong>客观题命中判断：</strong>如果只看选择、填空、判断，当前最高优先级是 <a href="/courses/software-quality-csdn-bank/">CSDN 公开题库</a> + 云班课 QUIZ。依据是：2024 回忆明确写客观题来自云班课；2025 回忆写除大题外多为云班课原题；A 卷和已抽查老卷客观题能对上 CSDN 中的白盒/黑盒、测试目的、测试用例文档、发现错误能力等同题或同考点。更严谨地说，我还没有把所有老卷逐题做完 100% 对照，所以本页不写“每一道客观题都必在 CSDN”，但会把 CSDN/云班课放在客观题第一复习顺位。</p></section>
+  <section class="sqr-note"><p><strong>客观题题源说明：</strong>如果只看选择、填空、判断，当前已有依据指向 <a href="/courses/software-quality-csdn-bank/">CSDN 公开题库</a> + 云班课 QUIZ。依据是：2024 回忆明确写客观题来自云班课；2025 回忆写除大题外多为云班课原题；A 卷和已抽查老卷客观题能对上 CSDN 中的白盒/黑盒、测试目的、测试用例文档、发现错误能力等同题或同考点。更严谨地说，我还没有把所有老卷逐题做完 100% 对照，所以本页不写“每一道客观题都必在 CSDN”，只把 CSDN/云班课标为已核对到的客观题来源。</p></section>
 
-  <h2 id="past-papers" class="sqr-section-title">三、往年题雷达：题型、分值、该练什么</h2>
+  <h2 id="past-papers" class="sqr-section-title">三、往年题来源对照：题型、分值、已读内容</h2>
   <div class="sqr-table-wrap">
     <table class="sqr-table">
-      <thead><tr><th>样本</th><th>客观题</th><th>简答题</th><th>设计题/大题</th><th>复习结论</th></tr></thead>
+      <thead><tr><th>样本</th><th>客观题</th><th>简答题</th><th>设计题/大题</th><th>本页处理</th></tr></thead>
       <tbody>
         <tr><td>A 卷</td><td>判断 15 分，选择 20 分，填空 10 分。覆盖 SQA、质量预测、缺陷、测试目的、覆盖强弱等。</td><td>耦合/内聚排序；基本测量原则；ISO、McCall、Boehm 质量模型评价。</td><td>工厂查询系统状态图、控制流图、环路复杂度、独立路径；简单 C 程序流程图、语句覆盖、路径覆盖。</td><td>白盒与状态图是大题核心，简答偏 PPT 原话。</td></tr>
         <tr><td>C 卷</td><td>待 OCR/人工核验。</td><td>待核验。</td><td>待核验。</td><td>扫描 PDF 当前不能确认题型细节，不能继续当已读往年题样本。</td></tr>
@@ -619,10 +619,10 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
   </div>
 
   <h2 id="detailed-index" class="sqr-section-title">四、0-15 章详细目录：复习时就按这个检查</h2>
-  <section class="sqr-note"><p><strong>用法：</strong>这一块不是概览，而是检查清单。每一章都按“概念、分类、公式/流程、易错题型”列细。主页面适合快速总览和刷题；如果某章不会，就点卡片里的“进入本章完整讲解”，进入二级章节页从零补完整知识。</p></section>
+  <section class="sqr-note"><p><strong>用法：</strong>这一块不是概览，而是检查清单。每一章都按“概念、分类、公式/流程、边界提醒”列细。主页面适合快速总览和刷题；如果某章不会，就点卡片里的“进入本章完整讲解”，进入二级章节页从零补完整知识。</p></section>
   <section class="sqr-detail-list" aria-label="0 到 15 章详细知识点目录">
     <article class="sqr-detail-card" id="detail-00">
-      <div class="sqr-detail-head"><span>00</span><h3>绪论：考试范围、复习边界、题源优先级</h3></div>
+      <div class="sqr-detail-head"><span>00</span><h3>绪论：考试范围、复习边界、题源顺序</h3></div>
       <a class="sqr-detail-link" href="/courses/software-quality-review-network/chapter-00/">进入本章完整讲解</a>
       <ul class="sqr-kp-list">
         <li>课程主线：软件质量保证理论 + 软件测试基本理论；课程安排只作背景，不作为刷题考点。</li>
@@ -630,7 +630,7 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
         <li>平时题源：课后习题、课上小测、互评习题、每课一思；云班课已导出 23 道互评简答和 428 道 QUIZ 题。</li>
         <li>互评题老师参考答案已经拿到，适合作为简答题评分点来源。</li>
         <li>期末包含软件测试基本理论，不包含接口、性能、Web、App 专项实验的操作细节。</li>
-        <li>复习优先级：CSDN 公开题库 + 云班课 QUIZ 客观题 -> 互评简答参考答案 -> A 卷/2024/2025 回忆中的大题方向 -> PPT 定义。</li>
+        <li>题源顺序：CSDN 公开题库 + 云班课 QUIZ 客观题 -> 互评简答参考答案 -> A 卷/2024/2025 回忆中的大题题面 -> PPT 定义。</li>
       </ul>
     </article>
     <article class="sqr-detail-card" id="detail-01">
@@ -925,8 +925,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>00 绪论：这门课考什么、哪些算期末范围</h3>
         <p><strong>一句话：</strong>PPT 0 明确课程分成软件质量保证理论和软件测试基本理论。期末题型包括判断、选择、填空、简答、设计；软件测试实践里的接口、性能、Web、App 专项实验不作为期末主范围。</p>
-        <p><strong>必背：</strong>题型、平时分构成、云班课题源、互评题有标准答案、软件测试基本理论包含在期末。</p>
-        <p><strong>易错：</strong>不要把大作业查重资料、招生 Excel、专项实验材料当成期末理论题源。</p>
+        <p><strong>资料点：</strong>题型、平时分构成、云班课题源、互评题有标准答案、软件测试基本理论包含在期末。</p>
+        <p><strong>边界提醒：</strong>不要把大作业查重资料、招生 Excel、专项实验材料当成期末理论题源。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-01">
@@ -934,8 +934,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>01 质量：先回答“什么叫好”</h3>
         <p><strong>一句话：</strong>质量是一组固有特性满足要求的程度。要求包括明示需求、暗示需求、客户与相关方要求。质量具有客户属性、成本属性、社会属性、可测性、可预见性。</p>
-        <p><strong>必背：</strong>质量定义；客户与质量关系；质量观点：制造者、产品、用户、价值；质量概念发展：符合性质量、适用性质量、广义质量。</p>
-        <p><strong>易错：</strong>看到“产品最终完成前无法预测质量”通常判错；看到“客户期望和质量无关”也错。</p>
+        <p><strong>资料点：</strong>质量定义；客户与质量关系；质量观点：制造者、产品、用户、价值；质量概念发展：符合性质量、适用性质量、广义质量。</p>
+        <p><strong>边界提醒：</strong>“产品最终完成前无法预测质量”“客户期望和质量无关”都和本章质量定义、客户关系相反。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-02">
@@ -943,8 +943,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>02 软件质量：软件为什么比硬件更难保证质量</h3>
         <p><strong>一句话：</strong>软件无形、难度量、不会像硬件那样磨损，但会因需求变化、设计错误、编码错误、配置和环境问题产生缺陷。软件质量不只看产品，还看过程和运行服务。</p>
-        <p><strong>必背：</strong>软件特点；软件过程；软件缺陷内部/外部定义；缺陷来源；软件质量三方面；ISO/McCall/Boehm 模型。</p>
-        <p><strong>易错：</strong>不要把“缺陷”只理解成代码 bug，需求、设计、文档、配置和数据都可能有缺陷。</p>
+        <p><strong>资料点：</strong>软件特点；软件过程；软件缺陷内部/外部定义；缺陷来源；软件质量三方面；ISO/McCall/Boehm 模型。</p>
+        <p><strong>边界提醒：</strong>不要把“缺陷”只理解成代码 bug，需求、设计、文档、配置和数据都可能有缺陷。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-03">
@@ -952,8 +952,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>03 软件质量工程体系：组织层面怎样把质量管起来</h3>
         <p><strong>一句话：</strong>质量工程体系把质量方针、质量目标、过程、职责、资源、计划、控制、保证、改进、成本、标准和度量放进一个系统。</p>
-        <p><strong>必背：</strong>质量管理体系；质量方针；质量计划；质量控制 QC；质量保证 QA；质量改进；质量成本模型。</p>
-        <p><strong>易错：</strong>QA 面向过程并提供信任，QC 面向产品合格性检查，Testing 是发现缺陷的技术活动，三者不要混。</p>
+        <p><strong>资料点：</strong>质量管理体系；质量方针；质量计划；质量控制 QC；质量保证 QA；质量改进；质量成本模型。</p>
+        <p><strong>边界提醒：</strong>QA 面向过程并提供信任，QC 面向产品合格性检查，Testing 是发现缺陷的技术活动，三者不要混。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-04">
@@ -961,8 +961,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>04 软件质量度量：怎么把质量变成能比较的数</h3>
         <p><strong>一句话：</strong>测量是赋值，度量是对软件产品/过程/项目属性进行测度，指标是度量或度量组合的解释形式。质量度量研究项目、产品、过程三类对象。</p>
-        <p><strong>必背：</strong>有效性、可靠性；尺度；规模度量、复杂度度量、缺陷度量、进度/风险/工作量度量；基本测量原则；McCabe 环路复杂度。</p>
-        <p><strong>易错：</strong>复杂度可以用于估计可测试性、可靠性、可维护性。大题里 V(G)=E-N+2P、区域数、判定节点数+1 要互相校验。</p>
+        <p><strong>资料点：</strong>有效性、可靠性；尺度；规模度量、复杂度度量、缺陷度量、进度/风险/工作量度量；基本测量原则；McCabe 环路复杂度。</p>
+        <p><strong>边界提醒：</strong>复杂度可以用于估计可测试性、可靠性、可维护性。大题里 V(G)=E-N+2P、区域数、判定节点数+1 要互相校验。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-05">
@@ -970,8 +970,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>05 软件质量标准：有哪些外部规矩和成熟度框架</h3>
         <p><strong>一句话：</strong>标准可以是国际、国家、行业、企业标准。软件质量标准用于规定过程和产品要求，也用于能力评估和持续改进。</p>
-        <p><strong>必背：</strong>ISO 9001-3；ISO/IEC 15504；IEEE 软件工程标准；CMM/CMMI；成熟度 1-5 级：初始、已管理、已定义、量化管理、优化。</p>
-        <p><strong>易错：</strong>CMM/CMMI 更偏过程能力成熟度，不是直接给某个程序判分的测试方法。</p>
+        <p><strong>资料点：</strong>ISO 9001-3；ISO/IEC 15504；IEEE 软件工程标准；CMM/CMMI；成熟度 1-5 级：初始、已管理、已定义、量化管理、优化。</p>
+        <p><strong>边界提醒：</strong>CMM/CMMI 更偏过程能力成熟度，不是直接给某个程序判分的测试方法。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-06">
@@ -979,8 +979,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>06 软件评审：为什么越早看越省钱</h3>
         <p><strong>一句话：</strong>评审通过人工和结构化检查在需求、设计、代码、测试计划、测试用例等阶段尽早发现问题，减少后期返工。</p>
-        <p><strong>必背：</strong>为什么评审：成本、技术、效率；管理评审、技术评审、文档评审、过程评审；需求/设计/代码/质量验证评审；走查与审查区别；评审会议。</p>
-        <p><strong>易错：</strong>走查比审查不正式；审查记录、角色、检查表和跟踪更严格。简答题不要只写“发现错误”，要写成本和过程改进。</p>
+        <p><strong>资料点：</strong>为什么评审：成本、技术、效率；管理评审、技术评审、文档评审、过程评审；需求/设计/代码/质量验证评审；走查与审查区别；评审会议。</p>
+        <p><strong>边界提醒：</strong>走查比审查不正式；审查记录、角色、检查表和跟踪更严格。简答题不要只写“发现错误”，要写成本和过程改进。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-07">
@@ -988,8 +988,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>07 SQA 组织活动：谁来监督过程真的被执行</h3>
         <p><strong>一句话：</strong>SQA 不是测试小组的同义词，而是围绕过程符合性和质量保证活动进行计划、监督、评审、审核、记录、报告和跟踪。</p>
-        <p><strong>必背：</strong>独立 SQA 部门；项目内独立 SQA 工程师；独立 SQA 小组/矩阵；SQA 经理与工程师职责；SQA 计划；评审/审核；偏差跟踪。</p>
-        <p><strong>易错：</strong>三种组织结构优缺点是互评高频题；SQA 的独立性和贴近项目之间存在取舍。</p>
+        <p><strong>资料点：</strong>独立 SQA 部门；项目内独立 SQA 工程师；独立 SQA 小组/矩阵；SQA 经理与工程师职责；SQA 计划；评审/审核；偏差跟踪。</p>
+        <p><strong>边界提醒：</strong>三种组织结构优缺点是互评题；SQA 的独立性和贴近项目之间存在取舍。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-08">
@@ -997,8 +997,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>08 提高软件设计质量：先把结构设计得不容易坏</h3>
         <p><strong>一句话：</strong>软件设计把需求转化为软件表示，分体系结构设计和详细设计。高质量设计追求简单、一致、低耦合、高内聚、可维护、可测试。</p>
-        <p><strong>必背：</strong>设计目标；评价标准；源系统/分析模型/目标系统三类标准；开闭原则、抽象、接口编程；体系结构：C/S、B/S、多层；耦合/内聚排序；设计模式；数据库设计质量。</p>
-        <p><strong>易错：</strong>耦合题注意方向：从强到弱常见为内容、公共、控制、标记、数据；内聚从强到弱常见为功能、顺序、通信、过程、时间、逻辑、偶然。</p>
+        <p><strong>资料点：</strong>设计目标；评价标准；源系统/分析模型/目标系统三类标准；开闭原则、抽象、接口编程；体系结构：C/S、B/S、多层；耦合/内聚排序；设计模式；数据库设计质量。</p>
+        <p><strong>边界提醒：</strong>耦合题注意方向：从强到弱常见为内容、公共、控制、标记、数据；内聚从强到弱常见为功能、顺序、通信、过程、时间、逻辑、偶然。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-09">
@@ -1006,8 +1006,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>09 高质量编程：代码层面怎样少出错</h3>
         <p><strong>一句话：</strong>高质量编程通过命名、版式、注释、函数、表达式、基本语句、内存、文件结构和语言规则降低错误率。</p>
-        <p><strong>必背：</strong>命名规则；头文件引用；函数参数；const；变量初始化；布尔/整型/浮点/指针与零比较；new/delete、malloc/free；内存泄漏、野指针；Java/C++规则。</p>
-        <p><strong>易错：</strong>如果参数是指针且只输入，应在类型前加 const；释放后继续返回或使用指针是典型野指针错误。</p>
+        <p><strong>资料点：</strong>命名规则；头文件引用；函数参数；const；变量初始化；布尔/整型/浮点/指针与零比较；new/delete、malloc/free；内存泄漏、野指针；Java/C++规则。</p>
+        <p><strong>边界提醒：</strong>如果参数是指针且只输入，应在类型前加 const；释放后继续返回或使用指针是典型野指针错误。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-10">
@@ -1015,8 +1015,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>10 软件测试：测试是为了发现错误，不是证明没错</h3>
         <p><strong>一句话：</strong>软件测试是为了发现错误而执行程序的过程。测试应贯穿开发全过程，所有测试追溯到用户需求，尽早并不断测试，注意缺陷群集和回归测试。</p>
-        <p><strong>必背：</strong>测试目标；测试原则；测试过程；静态/动态测试；测试计划；测试用例；测试与调试区别；回归测试；测试组织与文档。</p>
-        <p><strong>易错：</strong>“测试能证明程序完全正确”“测试只在编码后开始”“测试等于调试”都是典型错法。</p>
+        <p><strong>资料点：</strong>测试目标；测试原则；测试过程；静态/动态测试；测试计划；测试用例；测试与调试区别；回归测试；测试组织与文档。</p>
+        <p><strong>边界提醒：</strong>“测试能证明程序完全正确”“测试只在编码后开始”“测试等于调试”都是典型错法。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-11">
@@ -1024,8 +1024,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>11 白盒测试：看内部结构来设计用例</h3>
         <p><strong>一句话：</strong>白盒测试也叫结构测试或逻辑驱动测试，依据程序内部逻辑、控制流、数据流设计用例，常用于单元测试和部分集成测试。</p>
-        <p><strong>必背：</strong>语句覆盖、判定覆盖、条件覆盖、判定/条件覆盖、条件组合覆盖、路径覆盖；控制流图；环路复杂度；基本路径；数据流测试；变异测试。</p>
-        <p><strong>易错：</strong>100% 语句覆盖不等于 100% 判定覆盖；100% 覆盖也不能保证没有隐藏缺陷。</p>
+        <p><strong>资料点：</strong>语句覆盖、判定覆盖、条件覆盖、判定/条件覆盖、条件组合覆盖、路径覆盖；控制流图；环路复杂度；基本路径；数据流测试；变异测试。</p>
+        <p><strong>边界提醒：</strong>100% 语句覆盖不等于 100% 判定覆盖；100% 覆盖也不能保证没有隐藏缺陷。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-12">
@@ -1033,8 +1033,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>12 黑盒测试：不看代码，按规格和行为切用例</h3>
         <p><strong>一句话：</strong>黑盒测试也叫功能测试，从规格说明、输入输出、业务规则、用户场景出发设计用例。</p>
-        <p><strong>必背：</strong>等价类划分；边界值分析；因果图；判定表；场景法；状态迁移；错误推测；正交试验。</p>
-        <p><strong>易错：</strong>等价类先分有效/无效，边界值要取刚好和刚越界；无效等价类最好一类一个用例。</p>
+        <p><strong>资料点：</strong>等价类划分；边界值分析；因果图；判定表；场景法；状态迁移；错误推测；正交试验。</p>
+        <p><strong>边界提醒：</strong>等价类先分有效/无效，边界值要取刚好和刚越界；无效等价类最好一类一个用例。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-13">
@@ -1042,8 +1042,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>13 集成测试：模块能跑不代表拼起来能跑</h3>
         <p><strong>一句话：</strong>集成测试在单元测试之后，把模块按设计组合，重点检查接口、调用顺序、参数传递、全局数据和模块协作。</p>
-        <p><strong>必背：</strong>非增量式；增量式；自顶向下、自底向上、混合/三明治；桩模块；驱动模块；集成测试用例设计。</p>
-        <p><strong>易错：</strong>桩模块被测模块调用，驱动模块调用被测模块。不要把二者写反。</p>
+        <p><strong>资料点：</strong>非增量式；增量式；自顶向下、自底向上、混合/三明治；桩模块；驱动模块；集成测试用例设计。</p>
+        <p><strong>边界提醒：</strong>桩模块被测模块调用，驱动模块调用被测模块。不要把二者写反。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-14">
@@ -1051,8 +1051,8 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>14 系统测试：把完整系统放回真实环境检验</h3>
         <p><strong>一句话：</strong>系统测试在集成后，对完整系统及其硬件、数据、环境、人员和外部接口进行测试，确认满足系统规格。</p>
-        <p><strong>必背：</strong>功能、性能、压力、负载、容量、安全、恢复、兼容、安装、配置、文档测试；系统测试流程和原则。</p>
-        <p><strong>易错：</strong>负载看预期负荷，压力看极端负荷，容量看最大用户数/数据量/事务量。</p>
+        <p><strong>资料点：</strong>功能、性能、压力、负载、容量、安全、恢复、兼容、安装、配置、文档测试；系统测试流程和原则。</p>
+        <p><strong>边界提醒：</strong>负载看预期负荷，压力看极端负荷，容量看最大用户数/数据量/事务量。</p>
       </div>
     </article>
     <article class="sqr-chapter-card" id="know-15">
@@ -1060,17 +1060,17 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
       <div>
         <h3>15 验收测试：最终看用户是否接受交付</h3>
         <p><strong>一句话：</strong>验收测试是交付前确认软件是否满足合同、需求、用户业务目标和验收标准的测试，用户或客户代表参与很关键。</p>
-        <p><strong>必背：</strong>验收测试定义、步骤、完成标准、验收报告、用户验收测试、Alpha/Beta 测试。</p>
-        <p><strong>易错：</strong>额外功能不能抵消核心需求不满足；验收依据是合同、需求和验收标准。</p>
+        <p><strong>资料点：</strong>验收测试定义、步骤、完成标准、验收报告、用户验收测试、Alpha/Beta 测试。</p>
+        <p><strong>边界提醒：</strong>额外功能不能抵消核心需求不满足；验收依据是合同、需求和验收标准。</p>
       </div>
     </article>
   </section>
 
-  <h2 id="must-short" class="sqr-section-title">六、简答题优先级：先背云班课互评评分点</h2>
+  <h2 id="must-short" class="sqr-section-title">六、简答题来源：先看云班课互评评分点</h2>
   <section class="sqr-note"><p><strong>卷面格式：</strong>简答题不要写成一句话。建议每题写 3 到 6 个点，每点独立成句。能写“定义、分类、作用、区别、结论”的题，一定按这个顺序写。</p></section>
   <div class="sqr-grid">
-    <article class="sqr-card"><span class="sqr-badge hot">一级必背</span><h3>2024 回忆已出现 + PPT 高频</h3><ul class="sqr-list"><li>为什么需要软件评审：成本、技术、效率。</li><li>客户与质量关系：相互依赖、客户接受、质量相对客户存在并由客户判定。</li><li>经典质量费用模型：预防、评价、内部失效、外部失效。</li><li>质量管理体系：质量方针、目标、职责、资源、产品实现、测量分析改进。</li><li>SQA 人员工作：计划、过程描述、评审、审计、记录偏差、报告、跟踪、度量。</li><li>基本测量原则：目标、定义一致客观、简单可算、剪裁、自动化、统计关系、可靠、反馈。</li><li>软件测试定义：为了发现错误而执行程序，依据规格和结构设计用例。</li><li>单元/集成/系统测试侧重点。</li></ul></article>
-    <article class="sqr-card"><span class="sqr-badge apply">二级必背</span><h3>老卷与题库反复出现</h3><ul class="sqr-list"><li>SQA 三种组织结构及优缺点。</li><li>软件缺陷内部/外部定义。</li><li>走查与审查区别。</li><li>ISO/McCall/Boehm 三种质量模型评价。</li><li>软件测试与调试区别。</li><li>回归测试目的。</li><li>测试用例定义。</li><li>桩模块与驱动模块。</li><li>白盒与黑盒测试区别。</li><li>负载、容量、强度/压力测试区别。</li></ul></article>
+    <article class="sqr-card"><span class="sqr-badge hot">互评/回忆</span><h3>2024 回忆、互评答案和 PPT 已见条目</h3><ul class="sqr-list"><li>为什么需要软件评审：成本、技术、效率。</li><li>客户与质量关系：相互依赖、客户接受、质量相对客户存在并由客户判定。</li><li>经典质量费用模型：预防、评价、内部失效、外部失效。</li><li>质量管理体系：质量方针、目标、职责、资源、产品实现、测量分析改进。</li><li>SQA 人员工作：计划、过程描述、评审、审计、记录偏差、报告、跟踪、度量。</li><li>基本测量原则：目标、定义一致客观、简单可算、剪裁、自动化、统计关系、可靠、反馈。</li><li>软件测试定义：为了发现错误而执行程序，依据规格和结构设计用例。</li><li>单元/集成/系统测试侧重点。</li></ul></article>
+    <article class="sqr-card"><span class="sqr-badge apply">题库/老卷</span><h3>老卷与题库已见条目</h3><ul class="sqr-list"><li>SQA 三种组织结构及优缺点。</li><li>软件缺陷内部/外部定义。</li><li>走查与审查区别。</li><li>ISO/McCall/Boehm 三种质量模型评价。</li><li>软件测试与调试区别。</li><li>回归测试目的。</li><li>测试用例定义。</li><li>桩模块与驱动模块。</li><li>白盒与黑盒测试区别。</li><li>负载、容量、强度/压力测试区别。</li></ul></article>
   </div>
 
   <h2 id="design-drill" class="sqr-section-title">七、大题设计题：高分值必须单独练</h2>
@@ -1085,17 +1085,17 @@ html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0
   </div>
 
   <h2 id="question-bank" class="sqr-section-title">八、题库入口：云班课已核题库 + CSDN公开题库</h2>
-  <section class="sqr-note"><p><strong>来源状态：</strong>云班课已导出 23 道互评简答老师参考答案、23 个课上/课后 QUIZ 共 428 道题；CSDN 主公开页已整理为 298 个题目/题组条目，另补充标记 2025 CSDN 题（一）里出现的高频填空点。剩余 1 个“测试相关未分类习题”在云班课接口返回“老师暂未公布答案，无法查看结果”，所以云班课页不伪装成已读；但 CSDN 对照页已经把公开可见的未分类题单独列出。</p></section>
+  <section class="sqr-note"><p><strong>来源状态：</strong>云班课已导出 23 道互评简答老师参考答案、23 个课上/课后 QUIZ 共 428 道题；CSDN 主公开页已整理为 298 个题目/题组条目，另补充标记 2025 CSDN 题（一）里出现的补充填空点。剩余 1 个“测试相关未分类习题”在云班课接口返回“老师暂未公布答案，无法查看结果”，所以云班课页不伪装成已读；但 CSDN 对照页已经把公开可见的未分类题单独列出。</p></section>
   <div class="sqr-grid three">
-    <article class="sqr-card"><span class="sqr-badge hot">互评简答</span><h3>23 道老师参考答案</h3><p>这些题来自云班课 HOMEWORK 的 <code>refAnswer</code> 字段，分为质量、测试基本、测试实际三组，适合作为简答题评分点背诵。</p><p style="margin-top:10px"><a class="sqr-detail-link" href="/courses/software-quality-exercises/#peer">打开互评简答</a></p></article>
+    <article class="sqr-card"><span class="sqr-badge hot">互评简答</span><h3>23 道老师参考答案</h3><p>这些题来自云班课 HOMEWORK 的 <code>refAnswer</code> 字段，分为质量、测试基本、测试实际三组，适合作为简答题评分点来源。</p><p style="margin-top:10px"><a class="sqr-detail-link" href="/courses/software-quality-exercises/#peer">打开互评简答</a></p></article>
     <article class="sqr-card"><span class="sqr-badge core">客观题</span><h3>428 道课上/课后 QUIZ</h3><p>题目来自云班课 QUIZ 接口，选择/判断题带答案索引，填空题从单题详情补齐 <code>fill.blankAlternatives</code>。</p><p style="margin-top:10px"><a class="sqr-detail-link" href="/courses/software-quality-exercises/">打开云班课题库页</a></p></article>
-    <article class="sqr-card"><span class="sqr-badge apply">CSDN</span><h3>298 个公开题库条目</h3><p>CSDN 主原文按互评题、章节课后习题和测试相关未分类习题整理，包含云班课接口暂未开放答案的未分类题；2025 CSDN 补充题用于标记驱动/桩模块、<code>6n+1</code>、因果图法等高频客观题点。</p><p style="margin-top:10px"><a class="sqr-detail-link" href="/courses/software-quality-csdn-bank/">打开 CSDN 题库对照页</a></p></article>
-    <article class="sqr-card"><span class="sqr-badge apply">高分题</span><h3>大题设计题单独练</h3><p>大题不靠背题库，靠模板：等价类、边界值、状态图、控制流图、环路复杂度、基本路径和测试用例表。</p><p style="margin-top:10px"><a class="sqr-detail-link" href="/courses/software-quality-design-questions/">打开大题专项</a></p></article>
+    <article class="sqr-card"><span class="sqr-badge apply">CSDN</span><h3>298 个公开题库条目</h3><p>CSDN 主原文按互评题、章节课后习题和测试相关未分类习题整理，包含云班课接口暂未开放答案的未分类题；2025 CSDN 补充题用于标记驱动/桩模块、<code>6n+1</code>、因果图法等客观题补充点。</p><p style="margin-top:10px"><a class="sqr-detail-link" href="/courses/software-quality-csdn-bank/">打开 CSDN 题库对照页</a></p></article>
+    <article class="sqr-card"><span class="sqr-badge apply">大题专项</span><h3>设计题单独练</h3><p>大题训练按模板做：等价类、边界值、状态图、控制流图、环路复杂度、基本路径和测试用例表。</p><p style="margin-top:10px"><a class="sqr-detail-link" href="/courses/software-quality-design-questions/">打开大题专项</a></p></article>
   </div>
 
   <h2 id="last-day" class="sqr-section-title">九、最后一天冲刺清单</h2>
   <div class="sqr-grid">
-    <article class="sqr-print"><h3>2 小时背诵</h3><ul class="sqr-list"><li>质量、软件质量、缺陷、测试、测试用例、回归测试。</li><li>为什么评审、质量费用模型、质量管理体系、测量原则。</li><li>SQA 工作内容和三种组织结构。</li><li>白盒/黑盒、单元/集成/系统/验收、桩/驱动。</li></ul></article>
+    <article class="sqr-print"><h3>2 小时术语/简答</h3><ul class="sqr-list"><li>质量、软件质量、缺陷、测试、测试用例、回归测试。</li><li>为什么评审、质量费用模型、质量管理体系、测量原则。</li><li>SQA 工作内容和三种组织结构。</li><li>白盒/黑盒、单元/集成/系统/验收、桩/驱动。</li></ul></article>
     <article class="sqr-print"><h3>2 小时大题</h3><ul class="sqr-list"><li>做 1 道编号/命名格式等价类题。</li><li>做 1 道 x/y 边界值题。</li><li>做 1 道 if/while 控制流图题。</li><li>做 1 道状态迁移题。</li></ul></article>
   </div>
   <section class="sqr-note"><p><strong>公开来源：</strong><a href="https://blog.csdn.net/m0_56942491/article/details/131734756" target="_blank" rel="noopener">CSDN 题库整理</a>；<a href="https://blog.csdn.net/qq_43055855/article/details/148869571" target="_blank" rel="noopener">2025 CSDN 补充题（一）</a>；<a href="https://www.mosoteach.cn/web/cc-detail/4851E258-439C-11F1-BAE9-A088C2A30E68/act/" target="_blank" rel="noopener">蓝墨云班课活动页</a>。当前状态：云班课登录态已读取活动清单和题库；CSDN 公开题库已单独整理为对照页；2025 图片回忆已人工读出大题结构，C 卷仍待 OCR/人工核验。博客中不包含登录 token、手机号或用户 ID。</p></section>

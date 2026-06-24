@@ -1,7 +1,7 @@
 ---
 title: "软件质量与测试复习网络 · 06 软件评审"
 date: 2026-06-23 12:40:00
-description: "《软件质量与测试》期末复习二级章节页：软件评审：为什么评审、评审类型、走查与审查。面向零基础同学，整理本章知识点、易混点、简答模板和自测题。"
+description: "《软件质量与测试》期末复习二级章节页：软件评审：为什么评审、评审类型、走查与审查。面向零基础同学，整理本章知识点、资料对照、简答模板和自测题。"
 ---
 <link rel="stylesheet" href="/css/software-quality-review-chapters.css?v=20260623-5">
 <link rel="stylesheet" href="/css/software-quality-mobile-voice.css?v=20260623-5">
@@ -21,15 +21,14 @@ description: "《软件质量与测试》期末复习二级章节页：软件评
 </div>
 <aside class="sqc-hero-side" aria-label="本章考试信息">
 <div><strong>资料来源</strong><p>PPT 6、度量题源线索（待逐题核）</p></div>
-<div><strong>考试位置</strong><p>常考评审目的、评审类型、走查和审查区别、评审材料、评审结果。</p></div>
-<div><strong>本页定位</strong><p>先讲懂概念，再给背诵句和题型，不要求有编程基础。</p></div>
+<div><strong>题源边界</strong><p>本页用于串联 PPT、讲义和题库中已出现的概念；不加入未核验的考试预测句。</p></div>
+<div><strong>本页定位</strong><p>只保留资料中能对上的概念、题型和练习入口；未核验句子不当作考点。</p></div>
 </aside>
 </section>
 <nav class="sqc-nav" aria-label="本章页内目录">
 <a class="sqc-chip" href="#core">完整知识点</a>
 <a class="sqc-chip" href="#map">知识网络</a>
-<a class="sqc-chip" href="#must">必背句</a>
-<a class="sqc-chip" href="#confuse">易混点</a>
+<a class="sqc-chip" href="#confuse">资料对照</a>
 <a class="sqc-chip" href="#templates">简答模板</a>
 <a class="sqc-chip" href="#practice">自测题</a>
 </nav>
@@ -38,8 +37,7 @@ description: "《软件质量与测试》期末复习二级章节页：软件评
 <h3>本章目录</h3>
 <a href="#core">完整知识点</a>
 <a href="#map">知识网络</a>
-<a href="#must">必背句</a>
-<a href="#confuse">易混点</a>
+<a href="#confuse">资料对照</a>
 <a href="#templates">简答模板</a>
 <a href="#practice">自测题</a>
 <a href="/courses/software-quality-review-network/chapter-06/">回到页首</a>
@@ -47,7 +45,7 @@ description: "《软件质量与测试》期末复习二级章节页：软件评
 </aside>
 <main class="sqc-main">
 <section class="sqc-note">
-<p><strong>学习顺序：</strong>先读“完整知识点”，把每句话变成能解释的话；再看“知识网络”，知道它会怎么出题；最后用“简答模板”和“自测题”检查能不能写到评分点。</p>
+<p><strong>学习顺序：</strong>先读“完整知识点”，把每句话变成能解释的话；再看“知识网络”，知道概念之间怎么区分；最后用“简答模板”和“自测题”检查能不能写到评分点。</p>
 </section>
 <h2 id="core" class="sqc-section-title">一、本章完整知识点</h2>
 <section class="sqc-card">
@@ -57,21 +55,17 @@ description: "《软件质量与测试》期末复习二级章节页：软件评
 <h2 id="map" class="sqc-section-title">二、知识网络：概念怎么连起来</h2>
 <div class="sqc-table-wrap">
 <table class="sqc-table">
-<thead><tr><th>知识点</th><th>零基础理解</th><th>考试问法</th></tr></thead>
+<thead><tr><th>知识点</th><th>零基础理解</th><th>题源/练习形态</th></tr></thead>
 <tbody>
-<tr><td>评审价值</td><td>早发现、低成本、防传递</td><td>简答高频</td></tr><tr><td>管理评审</td><td>看质量体系</td><td>选择题</td></tr><tr><td>技术评审</td><td>看工作产品</td><td>选择题</td></tr><tr><td>走查/审查</td><td>轻量说明 / 正式记录跟踪</td><td>对比题</td></tr>
+<tr><td>评审价值</td><td>早发现、低成本、防传递</td><td>简答</td></tr><tr><td>管理评审</td><td>看质量体系</td><td>选择题</td></tr><tr><td>技术评审</td><td>看工作产品</td><td>选择题</td></tr><tr><td>走查/审查</td><td>轻量说明 / 正式记录跟踪</td><td>对比题</td></tr>
 </tbody>
 </table>
 </div>
-<h2 id="must" class="sqc-section-title">三、必背句：考试写成这样就比较稳</h2>
-<section class="sqc-grid">
-<article class="sqc-mini"><h4>背诵句</h4><p>评审是静态测试的重要形式，不需要运行程序。</p></article><article class="sqc-mini"><h4>背诵句</h4><p>评审不是为了批评作者，而是为了尽早发现缺陷和改进过程。</p></article><article class="sqc-mini"><h4>背诵句</h4><p>审查比走查更正式，通常有明确角色、缺陷记录和跟踪关闭。</p></article>
-</section>
-<h2 id="confuse" class="sqc-section-title">四、易混点：判断选择最容易错在这里</h2>
+<h2 id="confuse" class="sqc-section-title">三、资料对照：概念边界怎么区分</h2>
 <section class="sqc-card">
 <ul class="sqc-list"><li>走查不是随便聊天，仍然有发现问题的目标。</li><li>管理评审不是代码评审，它关注质量管理体系是否有效。</li><li>评审发现问题后必须跟踪，否则只能算发现，不能算闭环。</li></ul>
 </section>
-<h2 id="templates" class="sqc-section-title">五、简答模板：按评分点组织语言</h2>
+<h2 id="templates" class="sqc-section-title">四、简答模板：按已给题源组织语言</h2>
 <section class="sqc-grid">
 <article class="sqc-card">
 <span class="sqc-badge hot">简答模板</span>
@@ -84,7 +78,7 @@ description: "《软件质量与测试》期末复习二级章节页：软件评
 <p>走查通常由作者带领评审人员逐步说明工作产品，形式较轻，重点是理解和发现问题。审查更正式，有明确角色、准备过程、会议流程、缺陷记录和跟踪机制，不仅发现缺陷，还能形成过程改进依据。</p>
 </article>
 </section>
-<h2 id="practice" class="sqc-section-title">六、本章自测题</h2>
+<h2 id="practice" class="sqc-section-title">五、本章自测题</h2>
 <section class="sqc-card">
 <h3>先自己答，再回总复习页看对应练习</h3>
 <div class="sqc-question">

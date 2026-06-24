@@ -1,7 +1,7 @@
 ---
 title: "软件质量与测试复习网络 · 14 系统测试"
 date: 2026-06-23 12:40:00
-description: "《软件质量与测试》期末复习二级章节页：系统测试：完整系统、功能、性能、安全、恢复。面向零基础同学，整理本章知识点、易混点、简答模板和自测题。"
+description: "《软件质量与测试》期末复习二级章节页：系统测试：完整系统、功能、性能、安全、恢复。面向零基础同学，整理本章知识点、资料对照、简答模板和自测题。"
 ---
 <link rel="stylesheet" href="/css/software-quality-review-chapters.css?v=20260623-5">
 <link rel="stylesheet" href="/css/software-quality-mobile-voice.css?v=20260623-5">
@@ -21,15 +21,14 @@ description: "《软件质量与测试》期末复习二级章节页：系统测
 </div>
 <aside class="sqc-hero-side" aria-label="本章考试信息">
 <div><strong>资料来源</strong><p>测试基本理论、2024 回忆、待核课堂题线索</p></div>
-<div><strong>考试位置</strong><p>常考系统测试定义、与集成测试区别、功能/性能/负载/压力/容量/安全/恢复/兼容/安装测试。</p></div>
-<div><strong>本页定位</strong><p>先讲懂概念，再给背诵句和题型，不要求有编程基础。</p></div>
+<div><strong>题源边界</strong><p>本页用于串联 PPT、讲义和题库中已出现的概念；不加入未核验的考试预测句。</p></div>
+<div><strong>本页定位</strong><p>只保留资料中能对上的概念、题型和练习入口；未核验句子不当作考点。</p></div>
 </aside>
 </section>
 <nav class="sqc-nav" aria-label="本章页内目录">
 <a class="sqc-chip" href="#core">完整知识点</a>
 <a class="sqc-chip" href="#map">知识网络</a>
-<a class="sqc-chip" href="#must">必背句</a>
-<a class="sqc-chip" href="#confuse">易混点</a>
+<a class="sqc-chip" href="#confuse">资料对照</a>
 <a class="sqc-chip" href="#templates">简答模板</a>
 <a class="sqc-chip" href="#practice">自测题</a>
 </nav>
@@ -38,8 +37,7 @@ description: "《软件质量与测试》期末复习二级章节页：系统测
 <h3>本章目录</h3>
 <a href="#core">完整知识点</a>
 <a href="#map">知识网络</a>
-<a href="#must">必背句</a>
-<a href="#confuse">易混点</a>
+<a href="#confuse">资料对照</a>
 <a href="#templates">简答模板</a>
 <a href="#practice">自测题</a>
 <a href="/courses/software-quality-review-network/chapter-14/">回到页首</a>
@@ -47,7 +45,7 @@ description: "《软件质量与测试》期末复习二级章节页：系统测
 </aside>
 <main class="sqc-main">
 <section class="sqc-note">
-<p><strong>学习顺序：</strong>先读“完整知识点”，把每句话变成能解释的话；再看“知识网络”，知道它会怎么出题；最后用“简答模板”和“自测题”检查能不能写到评分点。</p>
+<p><strong>学习顺序：</strong>先读“完整知识点”，把每句话变成能解释的话；再看“知识网络”，知道概念之间怎么区分；最后用“简答模板”和“自测题”检查能不能写到评分点。</p>
 </section>
 <h2 id="core" class="sqc-section-title">一、本章完整知识点</h2>
 <section class="sqc-card">
@@ -57,21 +55,17 @@ description: "《软件质量与测试》期末复习二级章节页：系统测
 <h2 id="map" class="sqc-section-title">二、知识网络：概念怎么连起来</h2>
 <div class="sqc-table-wrap">
 <table class="sqc-table">
-<thead><tr><th>知识点</th><th>零基础理解</th><th>考试问法</th></tr></thead>
+<thead><tr><th>知识点</th><th>零基础理解</th><th>题源/练习形态</th></tr></thead>
 <tbody>
 <tr><td>系统测试</td><td>完整系统 + 真实环境</td><td>定义题</td></tr><tr><td>性能测试</td><td>响应、吞吐、并发、资源</td><td>选择</td></tr><tr><td>压力测试</td><td>异常高负荷</td><td>和负载对比</td></tr><tr><td>恢复测试</td><td>故障后恢复</td><td>选择题</td></tr>
 </tbody>
 </table>
 </div>
-<h2 id="must" class="sqc-section-title">三、必背句：考试写成这样就比较稳</h2>
-<section class="sqc-grid">
-<article class="sqc-mini"><h4>背诵句</h4><p>系统测试看完整产品是否满足系统规格，不只是模块之间能不能调通。</p></article><article class="sqc-mini"><h4>背诵句</h4><p>负载测试是预期负荷下，压力测试是超过正常负荷看极限。</p></article><article class="sqc-mini"><h4>背诵句</h4><p>安全测试既可以从应用层做，也可以从系统层和配置层做。</p></article>
-</section>
-<h2 id="confuse" class="sqc-section-title">四、易混点：判断选择最容易错在这里</h2>
+<h2 id="confuse" class="sqc-section-title">三、资料对照：概念边界怎么区分</h2>
 <section class="sqc-card">
 <ul class="sqc-list"><li>功能测试不是只看功能菜单，也要对照需求规格。</li><li>性能测试和压力测试不是同义词，压力测试更强调极限和异常负荷。</li><li>系统测试在验收测试之前，验收测试更强调客户和用户确认。</li></ul>
 </section>
-<h2 id="templates" class="sqc-section-title">五、简答模板：按评分点组织语言</h2>
+<h2 id="templates" class="sqc-section-title">四、简答模板：按已给题源组织语言</h2>
 <section class="sqc-grid">
 <article class="sqc-card">
 <span class="sqc-badge hot">简答模板</span>
@@ -84,7 +78,7 @@ description: "《软件质量与测试》期末复习二级章节页：系统测
 <p>常见系统测试包括功能测试、性能测试、负载测试、压力测试、容量测试、安全测试、恢复测试、兼容测试、配置测试和安装测试。不同类型从功能满足、运行效率、极限承载、故障恢复和环境适配等角度评价完整系统。</p>
 </article>
 </section>
-<h2 id="practice" class="sqc-section-title">六、本章自测题</h2>
+<h2 id="practice" class="sqc-section-title">五、本章自测题</h2>
 <section class="sqc-card">
 <h3>先自己答，再回总复习页看对应练习</h3>
 <div class="sqc-question">

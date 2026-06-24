@@ -1,7 +1,7 @@
 ---
 title: "软件质量与测试复习网络 · 09 高质量编程"
 date: 2026-06-23 12:40:00
-description: "《软件质量与测试》期末复习二级章节页：高质量编程：命名、版式、函数、表达式、内存。面向零基础同学，整理本章知识点、易混点、简答模板和自测题。"
+description: "《软件质量与测试》期末复习二级章节页：高质量编程：命名、版式、函数、表达式、内存。面向零基础同学，整理本章知识点、资料对照、简答模板和自测题。"
 ---
 <link rel="stylesheet" href="/css/software-quality-review-chapters.css?v=20260623-5">
 <link rel="stylesheet" href="/css/software-quality-mobile-voice.css?v=20260623-5">
@@ -21,15 +21,14 @@ description: "《软件质量与测试》期末复习二级章节页：高质量
 </div>
 <aside class="sqc-hero-side" aria-label="本章考试信息">
 <div><strong>资料来源</strong><p>PPT 9、编程规范客观题</p></div>
-<div><strong>考试位置</strong><p>常考命名、头文件、布尔/整型/浮点/指针比较、const、引用传参、内存泄漏、野指针。</p></div>
-<div><strong>本页定位</strong><p>先讲懂概念，再给背诵句和题型，不要求有编程基础。</p></div>
+<div><strong>题源边界</strong><p>本页用于串联 PPT、讲义和题库中已出现的概念；不加入未核验的考试预测句。</p></div>
+<div><strong>本页定位</strong><p>只保留资料中能对上的概念、题型和练习入口；未核验句子不当作考点。</p></div>
 </aside>
 </section>
 <nav class="sqc-nav" aria-label="本章页内目录">
 <a class="sqc-chip" href="#core">完整知识点</a>
 <a class="sqc-chip" href="#map">知识网络</a>
-<a class="sqc-chip" href="#must">必背句</a>
-<a class="sqc-chip" href="#confuse">易混点</a>
+<a class="sqc-chip" href="#confuse">资料对照</a>
 <a class="sqc-chip" href="#templates">简答模板</a>
 <a class="sqc-chip" href="#practice">自测题</a>
 </nav>
@@ -38,8 +37,7 @@ description: "《软件质量与测试》期末复习二级章节页：高质量
 <h3>本章目录</h3>
 <a href="#core">完整知识点</a>
 <a href="#map">知识网络</a>
-<a href="#must">必背句</a>
-<a href="#confuse">易混点</a>
+<a href="#confuse">资料对照</a>
 <a href="#templates">简答模板</a>
 <a href="#practice">自测题</a>
 <a href="/courses/software-quality-review-network/chapter-09/">回到页首</a>
@@ -47,7 +45,7 @@ description: "《软件质量与测试》期末复习二级章节页：高质量
 </aside>
 <main class="sqc-main">
 <section class="sqc-note">
-<p><strong>学习顺序：</strong>先读“完整知识点”，把每句话变成能解释的话；再看“知识网络”，知道它会怎么出题；最后用“简答模板”和“自测题”检查能不能写到评分点。</p>
+<p><strong>学习顺序：</strong>先读“完整知识点”，把每句话变成能解释的话；再看“知识网络”，知道概念之间怎么区分；最后用“简答模板”和“自测题”检查能不能写到评分点。</p>
 </section>
 <h2 id="core" class="sqc-section-title">一、本章完整知识点</h2>
 <section class="sqc-card">
@@ -57,21 +55,17 @@ description: "《软件质量与测试》期末复习二级章节页：高质量
 <h2 id="map" class="sqc-section-title">二、知识网络：概念怎么连起来</h2>
 <div class="sqc-table-wrap">
 <table class="sqc-table">
-<thead><tr><th>知识点</th><th>零基础理解</th><th>考试问法</th></tr></thead>
+<thead><tr><th>知识点</th><th>零基础理解</th><th>题源/练习形态</th></tr></thead>
 <tbody>
-<tr><td>表达式判断</td><td>布尔、整型、浮点、指针各有写法</td><td>选择和判断高频</td></tr><tr><td>函数参数</td><td>const、引用、值传递</td><td>客观题</td></tr><tr><td>动态内存</td><td>配对释放、置 NULL</td><td>判断题</td></tr><tr><td>野指针</td><td>未初始化/释放后/局部地址</td><td>选择题</td></tr>
+<tr><td>表达式判断</td><td>布尔、整型、浮点、指针各有写法</td><td>选择和判断</td></tr><tr><td>函数参数</td><td>const、引用、值传递</td><td>客观题</td></tr><tr><td>动态内存</td><td>配对释放、置 NULL</td><td>判断题</td></tr><tr><td>野指针</td><td>未初始化/释放后/局部地址</td><td>选择题</td></tr>
 </tbody>
 </table>
 </div>
-<h2 id="must" class="sqc-section-title">三、必背句：考试写成这样就比较稳</h2>
-<section class="sqc-grid">
-<article class="sqc-mini"><h4>背诵句</h4><p>浮点数不能直接用 ==0 判断，要使用误差范围。</p></article><article class="sqc-mini"><h4>背诵句</h4><p>只输入不修改的指针或引用参数应加 const。</p></article><article class="sqc-mini"><h4>背诵句</h4><p>new/delete、malloc/free 要配对，释放后置空可以降低野指针风险。</p></article>
-</section>
-<h2 id="confuse" class="sqc-section-title">四、易混点：判断选择最容易错在这里</h2>
+<h2 id="confuse" class="sqc-section-title">三、资料对照：概念边界怎么区分</h2>
 <section class="sqc-card">
 <ul class="sqc-list"><li>NULL 指针不是野指针；野指针指向不确定或已失效的内存。</li><li>内存泄漏是没有释放，野指针是还拿着无效地址，两者不同。</li><li>大对象用 const 引用不是为了改变语义，而是减少拷贝开销并防止误改。</li></ul>
 </section>
-<h2 id="templates" class="sqc-section-title">五、简答模板：按评分点组织语言</h2>
+<h2 id="templates" class="sqc-section-title">四、简答模板：按已给题源组织语言</h2>
 <section class="sqc-grid">
 <article class="sqc-card">
 <span class="sqc-badge hot">简答模板</span>
@@ -84,7 +78,7 @@ description: "《软件质量与测试》期末复习二级章节页：高质量
 <p>只输入的指针参数加 const 可以明确函数不会修改被指向对象，增强接口表达能力，防止函数内部误改数据，也便于调用者理解和编译器检查。</p>
 </article>
 </section>
-<h2 id="practice" class="sqc-section-title">六、本章自测题</h2>
+<h2 id="practice" class="sqc-section-title">五、本章自测题</h2>
 <section class="sqc-card">
 <h3>先自己答，再回总复习页看对应练习</h3>
 <div class="sqc-question">
