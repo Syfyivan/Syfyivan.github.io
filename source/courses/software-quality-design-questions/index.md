@@ -333,7 +333,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
       <p>已核验的 A 卷、2024 回忆和 2025 图片回忆都指向同一件事：代码类设计题分值高，题面会换，但套路稳定。你不需要先学会所有测试理论，只要先掌握四类动作：划分输入、取边界、画控制流/状态图、把路径变成测试用例。回忆材料只能说明考试风格，不能当老师官方答案。</p>
       <div class="sqd-actions">
         <a class="sqd-link" href="/courses/software-quality-review-network/">返回复习网络</a>
-        <a class="sqd-link" href="#paper-a-final">A 卷最后题</a>
+        <a class="sqd-link" href="#paper-a-final">完整例题</a>
         <a class="sqd-link" href="#equivalence">等价类</a>
         <a class="sqd-link" href="#flow">基本路径</a>
         <a class="sqd-link" href="#state">状态图</a>
@@ -353,7 +353,7 @@ html[data-user-color-scheme="dark"] .sqd-code {
   </section>
 
   <nav class="sqd-nav" aria-label="页内导航">
-    <a class="sqd-chip" href="#paper-a-final">A 卷最后题</a>
+    <a class="sqd-chip" href="#paper-a-final">完整例题</a>
     <a class="sqd-chip" href="#what">考什么</a>
     <a class="sqd-chip" href="#equivalence">等价类</a>
     <a class="sqd-chip" href="#boundary">边界值</a>
@@ -363,169 +363,60 @@ html[data-user-color-scheme="dark"] .sqd-code {
     <a class="sqd-chip" href="#practice">训练顺序</a>
   </nav>
 
-  <h2 id="paper-a-final" class="sqd-section-title">一、A 卷最后小题：从零做完路径覆盖题</h2>
+  <h2 id="paper-a-final" class="sqd-section-title">一、完整例题：跟着一套答案图学会基本路径题</h2>
   <section class="sqd-note">
-    <p><strong>来源说明：</strong>本块来自往年 A 卷 PDF 第 6 页的最后一道 C 程序小题，不是合成题。2024 回忆的最后大题是中缀转后缀代码的控制流图、环路复杂度、基本路径和测试用例；2025 图片回忆的大题二也是给代码，要求控制流图、复杂度、基本路径和测试用例。因此先学会这道简单版，再做 2024/2025 的复杂代码版。</p>
+    <p><strong>来源说明：</strong>这次不再放零散模板图，而是直接换成复习讲义里的“基本路径测试步骤例子”完整解题图。它不是往年原卷扫描答案，但它是本地资料里少有的整套示范：程序、程序流程图、控制流图、圈复杂度、独立路径、测试用例都连在一起，最适合拿来学会做题顺序。</p>
   </section>
   <div class="sqd-grid">
     <article class="sqd-card">
-      <span class="sqd-badge hot">原题核心</span>
-      <h3>题面给的代码</h3>
-      <pre class="sqd-code">int main(int x, y, z)
-{
-  int n = 1;
-  if ((x &gt; 0 || y &lt; 0))
-    n = n + x;
-  else
-    n = n + y;
-  if (z &gt; 0)
-    n = n + z;
-  return n;
-}</pre>
-      <p style="margin-top:10px">题目要求：画程序流程图，设计语句覆盖测试用例，设计路径覆盖测试用例。它考的不是 C 语言细节，而是能不能让输入控制程序走不同路线。</p>
+      <span class="sqd-badge hot">对应题目</span>
+      <h3>这张图在解什么题</h3>
+      <p>图里对应的是讲义中的 <code>Sort(int iR, int iT)</code> 示例程序。它不是拿来考你代码语义的，而是拿来训练一整套白盒设计题动作：</p>
+      <ul class="sqd-list">
+        <li>先把程序流程图和控制流图画出来。</li>
+        <li>再用 3 种方法核对圈复杂度。</li>
+        <li>再列出独立路径。</li>
+        <li>最后按路径反推测试输入和预期输出。</li>
+      </ul>
+      <p style="margin-top:10px">你把这 4 步学会，A 卷里的简单代码题、2024 回忆里的中缀转后缀题、2025 回忆里的链表排序题，本质上都是同一套做法。</p>
     </article>
     <article class="sqd-card">
-      <span class="sqd-badge core">从零理解</span>
-      <h3>先懂四个词</h3>
+      <span class="sqd-badge core">怎么看图</span>
+      <h3>建议按这 4 遍看</h3>
       <ul class="sqd-list">
-        <li><strong>语句：</strong>会被执行的一行代码，例如 <code>n=n+x</code>。</li>
-        <li><strong>判定：</strong>会分叉的地方，例如 <code>if</code>。</li>
-        <li><strong>路径：</strong>从函数开始到 <code>return</code> 的一条完整走法。</li>
-        <li><strong>测试用例：</strong>给一组 <code>x,y,z</code>，让程序按你想要的路径走。</li>
+        <li><strong>第 1 遍：</strong>只看标题，记住“画图 → 算复杂度 → 列路径 → 准备测试用例”。</li>
+        <li><strong>第 2 遍：</strong>看程序流程图怎样被简化成控制流图，理解哪些顺序语句被合并了。</li>
+        <li><strong>第 3 遍：</strong>看圈复杂度为什么等于独立路径条数，注意 3 种算法怎样互相校验。</li>
+        <li><strong>第 4 遍：</strong>看最下面的路径和输入数据表，理解“每条路径都要有能走到它的数据”。</li>
       </ul>
     </article>
   </div>
-  <div class="sqd-table-wrap" style="margin-top:14px">
-    <table class="sqd-table">
-      <thead>
-        <tr>
-          <th>判定</th>
-          <th>为真时</th>
-          <th>为假时</th>
-          <th>好用的例子</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>D1：<code>x&gt;0 || y&lt;0</code></td>
-          <td><code>x&gt;0</code> 或 <code>y&lt;0</code> 有一个成立就真，走 <code>n=n+x</code>。</td>
-          <td>必须同时满足 <code>x&lt;=0</code> 且 <code>y&gt;=0</code>，走 <code>n=n+y</code>。</td>
-          <td>真：x=1,y=0；假：x=0,y=0。</td>
-        </tr>
-        <tr>
-          <td>D2：<code>z&gt;0</code></td>
-          <td>走 <code>n=n+z</code>。</td>
-          <td>跳过 <code>n=n+z</code>，直接 <code>return</code>。</td>
-          <td>真：z=1；假：z=0。</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <figure class="sqd-figure" style="margin-top:14px">
+    <img src="/img/courses/software-quality/design-basic-path-complete-answer.png" alt="基本路径测试步骤例子的完整答案图">
+    <figcaption>完整例题答案图。题目、程序流程图、控制流图、圈复杂度、独立路径和测试用例已经对应排好。先临摹这张，再做卷子上的代码题，比单看零散小图更容易真正学会。</figcaption>
+  </figure>
   <div class="sqd-grid" style="margin-top:14px">
     <article class="sqd-card">
-      <span class="sqd-badge apply">流程图</span>
-      <h3>卷面怎么画</h3>
-      <figure class="sqd-figure">
-        <img src="/img/courses/software-quality/design-control-flow-ppt-example.png" alt="课件中的程序流程图与控制流图示例切图">
-        <figcaption>课件切图示例。左边是程序流程图，右边是控制流图，版式和老师课件一致。卷面不需要临摹得一模一样，但节点、分支、回边和真假走向最好按这种视觉习惯来画。</figcaption>
-      </figure>
-      <pre class="sqd-code">开始
-  |
-n = 1
-  |
-D1: x&gt;0 || y&lt;0 ?
-  |真              |假
-n = n + x       n = n + y
-  |                |
-  +------&gt; D2: z&gt;0 ?
-             |真        |假
-          n = n + z     |
-             |          |
-          return n &lt;----+
-             |
-            结束</pre>
-      <p style="margin-top:10px">考试画图可以更简洁：方框写处理语句，菱形写 if 条件，箭头标“真/假”。</p>
+      <span class="sqd-badge apply">从图里要学会什么</span>
+      <ul class="sqd-list">
+        <li>顺序语句可以合并成一个节点，不必一行代码一个框。</li>
+        <li><code>while</code> 和 <code>if</code> 会带来回边和分支，这是复杂度上升的根源。</li>
+        <li>圈复杂度不是孤立数字，它直接决定你至少要列几条独立路径。</li>
+        <li>测试用例不是拍脑袋写输入，而是要和上面那几条路径一一对应。</li>
+      </ul>
     </article>
     <article class="sqd-card">
-      <span class="sqd-badge core">复杂度</span>
-      <h3>基本路径和路径覆盖不要混</h3>
-      <p>这段程序有 2 个判定节点，所以环路复杂度 <code>V(G)=2+1=3</code>。如果题目问“基本路径”，通常写 3 条独立路径；但 A 卷最后小题问的是“路径覆盖”，要覆盖所有完整可行路径，所以两个 if 的真假组合一共有 4 条。</p>
-      <section class="sqd-note" style="margin-top:10px">
-        <p><strong>记法：</strong>基本路径看 <code>V(G)</code>；路径覆盖看所有可行的完整走法。遇到循环时路径可能很多，考试通常会指定基本路径或给出覆盖要求。</p>
-      </section>
+      <span class="sqd-badge core">怎么迁移到考试题</span>
+      <ul class="sqd-list">
+        <li><strong>A 卷简单代码题：</strong>步骤不变，只是判定更少、路径更短。</li>
+        <li><strong>2024/2025 回忆代码题：</strong>代码更长，但仍然是“先图、再复杂度、再路径、再用例”。</li>
+        <li><strong>真正丢分点：</strong>不是不会背公式，而是图、路径、测试数据三者对不上。</li>
+        <li><strong>最稳练法：</strong>先遮住下半部分自己做，再对照这张完整图逐项改错。</li>
+      </ul>
     </article>
   </div>
-  <h3 class="sqd-section-title" style="font-size:22px">A 卷最后题参考写法：语句覆盖</h3>
   <section class="sqd-note">
-    <p>语句覆盖的目标是让每条可执行语句至少执行一次。因为 <code>n=n+x</code> 和 <code>n=n+y</code> 在 if/else 两边，一组输入不可能同时走到，所以至少需要 2 组输入。</p>
-  </section>
-  <div class="sqd-table-wrap">
-    <table class="sqd-table">
-      <thead>
-        <tr>
-          <th>用例</th>
-          <th>输入 x,y,z</th>
-          <th>走法</th>
-          <th>返回值</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>T1</td>
-          <td>x=1, y=0, z=1</td>
-          <td>D1 真，执行 <code>n=n+x</code>；D2 真，执行 <code>n=n+z</code>。</td>
-          <td>3</td>
-        </tr>
-        <tr>
-          <td>T2</td>
-          <td>x=0, y=0, z=0</td>
-          <td>D1 假，执行 <code>n=n+y</code>；D2 假，直接返回。</td>
-          <td>1</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <h3 class="sqd-section-title" style="font-size:22px">A 卷最后题参考写法：路径覆盖</h3>
-  <div class="sqd-table-wrap">
-    <table class="sqd-table">
-      <thead>
-        <tr>
-          <th>路径</th>
-          <th>条件组合</th>
-          <th>输入 x,y,z</th>
-          <th>返回值</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>P1</td>
-          <td>D1 真，D2 真</td>
-          <td>x=1, y=0, z=1</td>
-          <td>3</td>
-        </tr>
-        <tr>
-          <td>P2</td>
-          <td>D1 真，D2 假</td>
-          <td>x=1, y=0, z=0</td>
-          <td>2</td>
-        </tr>
-        <tr>
-          <td>P3</td>
-          <td>D1 假，D2 真</td>
-          <td>x=0, y=0, z=1</td>
-          <td>2</td>
-        </tr>
-        <tr>
-          <td>P4</td>
-          <td>D1 假，D2 假</td>
-          <td>x=0, y=0, z=0</td>
-          <td>1</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <section class="sqd-note">
-    <p><strong>卷面保底句：</strong>设 D1 为 <code>x&gt;0 || y&lt;0</code>，D2 为 <code>z&gt;0</code>。语句覆盖需覆盖初始化、then 分支、else 分支、第二个 if 的 then 分支和 return；路径覆盖需覆盖 D1/D2 的四种真假组合。</p>
+    <p><strong>这一节的定位：</strong>如果你现在只想先学会一道题，就只看上面这一套完整例题。后面的等价类、边界值、状态图部分是把这套思维迁移到别的题型，不是要求你一次全背完。</p>
   </section>
 
   <h2 id="what" class="sqd-section-title">二、设计题到底考什么</h2>
@@ -788,10 +679,6 @@ n = n + x       n = n + y
       <span class="sqd-badge hot">最常见误区</span>
       <h3>状态不是动作</h3>
       <p>状态是系统停留的样子，比如“等待输入”“待付款”“出票”“退款”“查询失败”。动作是从一个状态变到另一个状态时发生的事，比如“输入正确”“付款成功”“取消订单”。画图时，节点写状态，边上写触发条件和动作。</p>
-      <figure class="sqd-figure">
-        <img src="/img/courses/software-quality/design-state-ppt-example.png" alt="课件中的状态迁移图示例切图">
-        <figcaption>课件切图示例。这个图来自“功能图法/状态迁移图”部分，不是工人工资那道原题，但它非常适合当模板：节点画成状态，箭头写触发条件，成功/失败/回退分支都要落在图里。</figcaption>
-      </figure>
     </article>
     <article class="sqd-card">
       <span class="sqd-badge core">四步法</span>
@@ -804,6 +691,9 @@ n = n + x       n = n + y
       </ul>
     </article>
   </div>
+  <section class="sqd-note">
+    <p><strong>这里先不放小模板图：</strong>这页现在优先用上面的完整代码例题把“做题顺序”讲透。状态图题还是按同样的思路处理，只不过把“程序节点”换成“状态节点”，把“判定分支”换成“事件/条件触发的状态迁移”。如果后面要做状态图成品图，就应该直接针对具体题面单独画，不应该再塞一个不完全对应的小模板图。</p>
+  </section>
   <div class="sqd-table-wrap" style="margin-top:14px">
     <table class="sqd-table">
       <thead>
