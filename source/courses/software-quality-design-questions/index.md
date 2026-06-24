@@ -196,6 +196,25 @@ description: "面向零基础同学的《软件质量与测试》期末设计题
   color: var(--sqd-ink);
   font-size: 16px;
 }
+.sqd-figure {
+  margin: 12px 0 0;
+  border: 1px solid var(--sqd-line);
+  border-radius: 6px;
+  background: var(--sqd-panel);
+  overflow: hidden;
+}
+.sqd-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.sqd-figure figcaption {
+  padding: 10px 12px 12px;
+  color: var(--sqd-muted);
+  font-size: 14px;
+  line-height: 1.75;
+  background: var(--sqd-wash);
+}
 .sqd-badge {
   color: var(--sqd-blue);
   background: rgba(54, 95, 145, 0.1);
@@ -406,6 +425,10 @@ html[data-user-color-scheme="dark"] .sqd-code {
     <article class="sqd-card">
       <span class="sqd-badge apply">流程图</span>
       <h3>卷面怎么画</h3>
+      <figure class="sqd-figure">
+        <img src="/img/courses/software-quality/design-control-flow-ppt-example.png" alt="课件中的程序流程图与控制流图示例切图">
+        <figcaption>课件切图示例。左边是程序流程图，右边是控制流图，版式和老师课件一致。卷面不需要临摹得一模一样，但节点、分支、回边和真假走向最好按这种视觉习惯来画。</figcaption>
+      </figure>
       <pre class="sqd-code">开始
   |
 n = 1
@@ -765,6 +788,10 @@ n = n + x       n = n + y
       <span class="sqd-badge hot">最常见误区</span>
       <h3>状态不是动作</h3>
       <p>状态是系统停留的样子，比如“等待输入”“待付款”“出票”“退款”“查询失败”。动作是从一个状态变到另一个状态时发生的事，比如“输入正确”“付款成功”“取消订单”。画图时，节点写状态，边上写触发条件和动作。</p>
+      <figure class="sqd-figure">
+        <img src="/img/courses/software-quality/design-state-ppt-example.png" alt="课件中的状态迁移图示例切图">
+        <figcaption>课件切图示例。这个图来自“功能图法/状态迁移图”部分，不是工人工资那道原题，但它非常适合当模板：节点画成状态，箭头写触发条件，成功/失败/回退分支都要落在图里。</figcaption>
+      </figure>
     </article>
     <article class="sqd-card">
       <span class="sqd-badge core">四步法</span>
