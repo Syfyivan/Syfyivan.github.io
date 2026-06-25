@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1180" viewBox="0 0 1000 1180" role="img" aria-labelledby="title desc">
+  <title id="title">A 卷最后题程序流程图完整答案</title>
+  <desc id="desc">流程图从开始、n 等于 1、第一个判断、两个分支、第二个判断、return 到结束，箭头标注真和假。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#26313d"/>
+    </marker>
+    <style>
+      .bg { fill: #fbfcfb; }
+      .title { fill: #20242a; font: 700 32px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .subtitle { fill: #5b6673; font: 18px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .shape { fill: #ffffff; stroke: #26313d; stroke-width: 2.5; }
+      .decision { fill: #fff8ed; stroke: #a14f35; stroke-width: 2.8; }
+      .process { fill: #f2f7fb; stroke: #365f91; stroke-width: 2.5; }
+      .terminal { fill: #f2f8f5; stroke: #2f6f5e; stroke-width: 2.5; }
+      .text { fill: #20242a; font: 700 22px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .small { fill: #303843; font: 18px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .label { fill: #a14f35; font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .line { fill: none; stroke: #26313d; stroke-width: 2.6; marker-end: url(#arrow); }
+      .merge { fill: none; stroke: #26313d; stroke-width: 2.6; }
+      .note { fill: #5b6673; font: 17px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    </style>
+  </defs>
+  <rect class="bg" width="1000" height="1180" rx="28"/>
+  <text class="title" x="500" y="58" text-anchor="middle">A 卷最后题：程序流程图答案</text>
+  <text class="subtitle" x="500" y="90" text-anchor="middle">方框写处理语句，菱形写判断，箭头标“真 / 假”</text>
+
+  <ellipse class="terminal" cx="500" cy="145" rx="115" ry="34"/>
+  <text class="text" x="500" y="153" text-anchor="middle">开始</text>
+
+  <path class="line" d="M500 179 L500 222"/>
+
+  <rect class="process" x="380" y="222" width="240" height="68" rx="10"/>
+  <text class="text" x="500" y="264" text-anchor="middle">n = 1</text>
+
+  <path class="line" d="M500 290 L500 336"/>
+
+  <polygon class="decision" points="500,336 670,410 500,484 330,410"/>
+  <text class="text" x="500" y="402" text-anchor="middle">D1</text>
+  <text class="small" x="500" y="431" text-anchor="middle">x &gt; 0 || y &lt; 0 ?</text>
+
+  <path class="line" d="M382 446 L284 446 L284 540"/>
+  <text class="label" x="310" y="430" text-anchor="middle">真</text>
+  <rect class="process" x="154" y="540" width="260" height="72" rx="10"/>
+  <text class="text" x="284" y="584" text-anchor="middle">n = n + x</text>
+
+  <path class="line" d="M618 446 L716 446 L716 540"/>
+  <text class="label" x="690" y="430" text-anchor="middle">假</text>
+  <rect class="process" x="586" y="540" width="260" height="72" rx="10"/>
+  <text class="text" x="716" y="584" text-anchor="middle">n = n + y</text>
+
+  <path class="merge" d="M284 612 L284 680 L500 680"/>
+  <path class="merge" d="M716 612 L716 680 L500 680"/>
+  <path class="line" d="M500 680 L500 722"/>
+
+  <polygon class="decision" points="500,722 660,792 500,862 340,792"/>
+  <text class="text" x="500" y="785" text-anchor="middle">D2</text>
+  <text class="small" x="500" y="814" text-anchor="middle">z &gt; 0 ?</text>
+
+  <path class="line" d="M500 862 L500 930"/>
+  <text class="label" x="530" y="900">真</text>
+  <rect class="process" x="380" y="930" width="240" height="70" rx="10"/>
+  <text class="text" x="500" y="973" text-anchor="middle">n = n + z</text>
+
+  <path class="line" d="M660 792 L812 792 L812 1050 L622 1050"/>
+  <text class="label" x="704" y="776" text-anchor="middle">假</text>
+
+  <path class="line" d="M500 1000 L500 1016"/>
+  <rect class="process" x="378" y="1016" width="244" height="68" rx="10"/>
+  <text class="text" x="500" y="1058" text-anchor="middle">return n</text>
+
+  <path class="line" d="M500 1084 L500 1116"/>
+  <ellipse class="terminal" cx="500" cy="1148" rx="115" ry="30"/>
+  <text class="text" x="500" y="1156" text-anchor="middle">结束</text>
+
+  <text class="note" x="80" y="1118">卷面提示：D1 真走 n=n+x，D1 假走 n=n+y；D2 真才加 z，D2 假直接 return。</text>
+</svg>
