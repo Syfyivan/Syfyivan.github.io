@@ -294,7 +294,7 @@ description: "面向零基础同学的《软件质量与测试》期末设计题
   background: #ffffff;
 }
 .sqd-figure-object.flowchart {
-  aspect-ratio: 1000 / 1180;
+  aspect-ratio: 1100 / 920;
 }
 .sqd-figure-object.path-coverage {
   aspect-ratio: 1200 / 900;
@@ -389,7 +389,7 @@ html[data-user-color-scheme="dark"] .sqd-copy-answer {
   .sqd-link,
   .sqd-chip { width: 100%; }
   .sqd-figure { padding: 10px; }
-  .sqd-figure-object.flowchart { min-width: 660px; }
+  .sqd-figure-object.flowchart { min-width: 760px; }
   .sqd-figure-object.path-coverage { min-width: 760px; }
 }
 </style>
@@ -436,7 +436,7 @@ html[data-user-color-scheme="dark"] .sqd-copy-answer {
 
   <h2 id="paper-a-final" class="sqd-section-title">一、A 卷最后小题：从零做完路径覆盖题</h2>
   <section class="sqd-note">
-    <p><strong>来源说明：</strong>本块来自往年 A 卷 PDF 第 6 页的最后一道 C 程序小题，不是合成题。它的原题要求是：画程序流程图、设计语句覆盖测试用例、设计路径覆盖测试用例。下面给的是可以直接照着学的完整答案图和逐问做法。</p>
+    <p><strong>来源说明：</strong>本块来自往年 A 卷 PDF 第 6 页的最后一道 C 程序小题，不是合成题。它考的是软件测试里的程序流图/控制流图、语句覆盖测试用例和路径覆盖测试用例。控制流图的卷面写法通常是：图里只写节点编号，旁边另列编号含义。</p>
   </section>
   <div class="sqd-grid">
     <article class="sqd-card">
@@ -453,7 +453,7 @@ html[data-user-color-scheme="dark"] .sqd-copy-answer {
     n = n + z;
   return n;
 }</pre>
-      <p style="margin-top:10px">题目要求：画程序流程图，设计语句覆盖测试用例，设计路径覆盖测试用例。它考的不是 C 语言细节，而是能不能让输入控制程序走不同路线。</p>
+      <p style="margin-top:10px">题目要求：画程序流图/控制流图，设计语句覆盖测试用例，设计路径覆盖测试用例。它考的不是 C 语言细节，而是能不能让输入控制程序走不同路线。</p>
     </article>
     <article class="sqd-card">
       <span class="sqd-badge core">从零理解</span>
@@ -468,17 +468,17 @@ html[data-user-color-scheme="dark"] .sqd-copy-answer {
   </div>
 
   <figure class="sqd-figure">
-    <object class="sqd-figure-object flowchart" type="image/svg+xml" data="/img/software-quality-design/a-final-flowchart.svg" aria-label="A 卷最后题程序流程图完整答案">
-      <img src="/img/software-quality-design/a-final-flowchart.svg" alt="A 卷最后题程序流程图完整答案">
+    <object class="sqd-figure-object flowchart" type="image/svg+xml" data="/img/software-quality-design/a-final-flowchart.svg" aria-label="A 卷最后题控制流图编号版答案">
+      <img src="/img/software-quality-design/a-final-flowchart.svg" alt="A 卷最后题控制流图编号版答案">
     </object>
-    <figcaption><strong>图 1：程序流程图完整答案。</strong>方框写处理语句，菱形写判断条件，箭头上标“真/假”。单独打开：<a class="sqd-figure-link" href="/img/software-quality-design/a-final-flowchart.svg">查看大图</a>。</figcaption>
+    <figcaption><strong>图 1：控制流图编号版答案。</strong>图中只写节点编号，编号对应的语句和判断条件写在右侧表格。单独打开：<a class="sqd-figure-link" href="/img/software-quality-design/a-final-flowchart.svg">查看大图</a>。</figcaption>
   </figure>
 
   <figure class="sqd-figure">
     <object class="sqd-figure-object path-coverage" type="image/svg+xml" data="/img/software-quality-design/a-final-path-coverage.svg" aria-label="A 卷最后题控制流路径覆盖答案图">
       <img src="/img/software-quality-design/a-final-path-coverage.svg" alt="A 卷最后题控制流路径覆盖答案图">
     </object>
-    <figcaption><strong>图 2：路径覆盖答案图。</strong>左边是编号后的控制流走法，右边把 4 条完整路径、输入和返回值列出来。单独打开：<a class="sqd-figure-link" href="/img/software-quality-design/a-final-path-coverage.svg">查看大图</a>。</figcaption>
+    <figcaption><strong>图 2：路径覆盖编号版答案图。</strong>左边控制流图只写编号，右边把编号含义、4 条完整路径、输入和返回值列出来。单独打开：<a class="sqd-figure-link" href="/img/software-quality-design/a-final-path-coverage.svg">查看大图</a>。</figcaption>
   </figure>
 
   <div class="sqd-answer-pack">
@@ -514,14 +514,15 @@ html[data-user-color-scheme="dark"] .sqd-copy-answer {
     </article>
 
     <article class="sqd-step-card">
-      <h3>第一问：程序流程图怎么画</h3>
-      <p>程序流程图按代码从上往下画。顺序执行的语句画方框，判断画菱形。第一个判断分出两条路：真路到 <code>n=n+x</code>，假路到 <code>n=n+y</code>；两条路合起来以后，再进入第二个判断 <code>z&gt;0</code>。第二个判断为真才执行 <code>n=n+z</code>，否则直接到 <code>return n</code>。</p>
+      <h3>第一问：程序流图/控制流图怎么画</h3>
+      <p>你记得没错：这类基本路径题的图通常不在节点里写完整语句，而是先给每个基本块或判断点编号，图中只画编号和箭头。语句、判断条件写在图旁边的“编号含义表”里。这样老师看图时能直接用节点序列写路径，例如 <code>1-2-3-5-6-7</code>。</p>
       <h4>卷面答案要点</h4>
       <ul class="sqd-list">
-        <li>开始 -> <code>n=1</code> -> 判断 <code>x&gt;0 || y&lt;0</code>。</li>
-        <li>真分支 -> <code>n=n+x</code>；假分支 -> <code>n=n+y</code>。</li>
-        <li>两条分支合并 -> 判断 <code>z&gt;0</code>。</li>
-        <li>真分支 -> <code>n=n+z</code> -> <code>return n</code>；假分支 -> <code>return n</code>。</li>
+        <li>节点 1：<code>n=1</code>。</li>
+        <li>节点 2：判断 <code>x&gt;0 || y&lt;0</code>，真到 3，假到 4。</li>
+        <li>节点 3：<code>n=n+x</code>；节点 4：<code>n=n+y</code>，然后都汇入节点 5。</li>
+        <li>节点 5：判断 <code>z&gt;0</code>，真到 6，假到 7。</li>
+        <li>节点 6：<code>n=n+z</code>，然后到 7；节点 7：<code>return n</code>。</li>
       </ul>
     </article>
 
@@ -616,7 +617,7 @@ html[data-user-color-scheme="dark"] .sqd-copy-answer {
 
   <section class="sqd-copy-answer" style="margin-top:16px">
     <h3>这道题最终可抄答案</h3>
-    <p><strong>程序流程图：</strong>见图 1。写法为：开始 -> <code>n=1</code> -> 判断 <code>x&gt;0 || y&lt;0</code>；真分支执行 <code>n=n+x</code>，假分支执行 <code>n=n+y</code>；合并后判断 <code>z&gt;0</code>；真分支执行 <code>n=n+z</code>，假分支跳过；最后 <code>return n</code> -> 结束。</p>
+    <p><strong>程序流图/控制流图：</strong>见图 1。图中只写编号，编号含义为：1=<code>n=1</code>；2=判断 <code>x&gt;0 || y&lt;0</code>；3=<code>n=n+x</code>；4=<code>n=n+y</code>；5=判断 <code>z&gt;0</code>；6=<code>n=n+z</code>；7=<code>return n</code>。边为：1->2，2 真 ->3，2 假 ->4，3->5，4->5，5 真 ->6，5 假 ->7，6->7。</p>
     <p style="margin-top:8px"><strong>语句覆盖测试用例：</strong><code>(x,y,z)=(1,0,1)</code>，返回 <code>3</code>；<code>(x,y,z)=(0,0,0)</code>，返回 <code>1</code>。两组用例合起来覆盖 <code>n=1</code>、<code>n=n+x</code>、<code>n=n+y</code>、<code>n=n+z</code> 和 <code>return n</code>。</p>
     <p style="margin-top:8px"><strong>路径覆盖测试用例：</strong>P1：D1 真、D2 真，取 <code>(1,0,1)</code>，返回 <code>3</code>；P2：D1 真、D2 假，取 <code>(1,0,0)</code>，返回 <code>2</code>；P3：D1 假、D2 真，取 <code>(0,0,1)</code>，返回 <code>2</code>；P4：D1 假、D2 假，取 <code>(0,0,0)</code>，返回 <code>1</code>。</p>
   </section>

@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1180" viewBox="0 0 1000 1180" role="img" aria-labelledby="title desc">
-  <title id="title">A 卷最后题程序流程图完整答案</title>
-  <desc id="desc">流程图从开始、n 等于 1、第一个判断、两个分支、第二个判断、return 到结束，箭头标注真和假。</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="920" viewBox="0 0 1100 920" role="img" aria-labelledby="title desc">
+  <title id="title">A 卷最后题控制流图编号版答案</title>
+  <desc id="desc">控制流图中只写节点编号，右侧列出每个编号对应的语句或判断条件。</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10 Z" fill="#26313d"/>
@@ -9,69 +9,101 @@
       .bg { fill: #fbfcfb; }
       .title { fill: #20242a; font: 700 32px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       .subtitle { fill: #5b6673; font: 18px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .shape { fill: #ffffff; stroke: #26313d; stroke-width: 2.5; }
+      .panel { fill: #ffffff; stroke: rgba(32, 36, 42, 0.16); stroke-width: 1.5; }
+      .node { fill: #f2f7fb; stroke: #365f91; stroke-width: 2.7; }
       .decision { fill: #fff8ed; stroke: #a14f35; stroke-width: 2.8; }
-      .process { fill: #f2f7fb; stroke: #365f91; stroke-width: 2.5; }
-      .terminal { fill: #f2f8f5; stroke: #2f6f5e; stroke-width: 2.5; }
-      .text { fill: #20242a; font: 700 22px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .small { fill: #303843; font: 18px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .label { fill: #a14f35; font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .line { fill: none; stroke: #26313d; stroke-width: 2.6; marker-end: url(#arrow); }
-      .merge { fill: none; stroke: #26313d; stroke-width: 2.6; }
-      .note { fill: #5b6673; font: 17px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .return { fill: #f2f8f5; stroke: #2f6f5e; stroke-width: 2.7; }
+      .num { fill: #20242a; font: 800 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .label { fill: #a14f35; font: 800 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .line { fill: none; stroke: #26313d; stroke-width: 2.8; marker-end: url(#arrow); }
+      .merge { fill: none; stroke: #26313d; stroke-width: 2.8; }
+      .head { fill: #365f91; font: 800 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .table { fill: #303843; font: 18px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .note { fill: #2f6f5e; font: 700 18px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .row { stroke: rgba(32, 36, 42, 0.14); stroke-width: 1; }
     </style>
   </defs>
-  <rect class="bg" width="1000" height="1180" rx="28"/>
-  <text class="title" x="500" y="58" text-anchor="middle">A 卷最后题：程序流程图答案</text>
-  <text class="subtitle" x="500" y="90" text-anchor="middle">方框写处理语句，菱形写判断，箭头标“真 / 假”</text>
 
-  <ellipse class="terminal" cx="500" cy="145" rx="115" ry="34"/>
-  <text class="text" x="500" y="153" text-anchor="middle">开始</text>
+  <rect class="bg" width="1100" height="920" rx="26"/>
+  <text class="title" x="550" y="54" text-anchor="middle">A 卷最后题：控制流图编号版答案</text>
+  <text class="subtitle" x="550" y="86" text-anchor="middle">考试写法：图中只写编号；编号对应的语句和判断条件单独列在右侧</text>
 
-  <path class="line" d="M500 179 L500 222"/>
+  <rect class="panel" x="48" y="118" width="530" height="740" rx="16"/>
+  <text class="head" x="313" y="154" text-anchor="middle">控制流图</text>
 
-  <rect class="process" x="380" y="222" width="240" height="68" rx="10"/>
-  <text class="text" x="500" y="264" text-anchor="middle">n = 1</text>
+  <circle class="node" cx="313" cy="205" r="38"/>
+  <text class="num" x="313" y="216" text-anchor="middle">1</text>
 
-  <path class="line" d="M500 290 L500 336"/>
+  <path class="line" d="M313 243 L313 286"/>
 
-  <polygon class="decision" points="500,336 670,410 500,484 330,410"/>
-  <text class="text" x="500" y="402" text-anchor="middle">D1</text>
-  <text class="small" x="500" y="431" text-anchor="middle">x &gt; 0 || y &lt; 0 ?</text>
+  <polygon class="decision" points="313,286 438,346 313,406 188,346"/>
+  <text class="num" x="313" y="357" text-anchor="middle">2</text>
 
-  <path class="line" d="M382 446 L284 446 L284 540"/>
-  <text class="label" x="310" y="430" text-anchor="middle">真</text>
-  <rect class="process" x="154" y="540" width="260" height="72" rx="10"/>
-  <text class="text" x="284" y="584" text-anchor="middle">n = n + x</text>
+  <path class="line" d="M211 374 L128 374 L128 484"/>
+  <text class="label" x="158" y="356" text-anchor="middle">真</text>
+  <circle class="node" cx="128" cy="522" r="38"/>
+  <text class="num" x="128" y="533" text-anchor="middle">3</text>
 
-  <path class="line" d="M618 446 L716 446 L716 540"/>
-  <text class="label" x="690" y="430" text-anchor="middle">假</text>
-  <rect class="process" x="586" y="540" width="260" height="72" rx="10"/>
-  <text class="text" x="716" y="584" text-anchor="middle">n = n + y</text>
+  <path class="line" d="M415 374 L498 374 L498 484"/>
+  <text class="label" x="468" y="356" text-anchor="middle">假</text>
+  <circle class="node" cx="498" cy="522" r="38"/>
+  <text class="num" x="498" y="533" text-anchor="middle">4</text>
 
-  <path class="merge" d="M284 612 L284 680 L500 680"/>
-  <path class="merge" d="M716 612 L716 680 L500 680"/>
-  <path class="line" d="M500 680 L500 722"/>
+  <path class="merge" d="M128 560 L128 626 L313 626"/>
+  <path class="merge" d="M498 560 L498 626 L313 626"/>
+  <path class="line" d="M313 626 L313 662"/>
 
-  <polygon class="decision" points="500,722 660,792 500,862 340,792"/>
-  <text class="text" x="500" y="785" text-anchor="middle">D2</text>
-  <text class="small" x="500" y="814" text-anchor="middle">z &gt; 0 ?</text>
+  <polygon class="decision" points="313,662 428,716 313,770 198,716"/>
+  <text class="num" x="313" y="728" text-anchor="middle">5</text>
 
-  <path class="line" d="M500 862 L500 930"/>
-  <text class="label" x="530" y="900">真</text>
-  <rect class="process" x="380" y="930" width="240" height="70" rx="10"/>
-  <text class="text" x="500" y="973" text-anchor="middle">n = n + z</text>
+  <path class="line" d="M313 770 L313 812"/>
+  <text class="label" x="344" y="796">真</text>
+  <circle class="node" cx="313" cy="850" r="34"/>
+  <text class="num" x="313" y="861" text-anchor="middle">6</text>
 
-  <path class="line" d="M660 792 L812 792 L812 1050 L622 1050"/>
-  <text class="label" x="704" y="776" text-anchor="middle">假</text>
+  <path class="line" d="M428 716 L540 716 L540 850 L501 850"/>
+  <text class="label" x="468" y="698" text-anchor="middle">假</text>
 
-  <path class="line" d="M500 1000 L500 1016"/>
-  <rect class="process" x="378" y="1016" width="244" height="68" rx="10"/>
-  <text class="text" x="500" y="1058" text-anchor="middle">return n</text>
+  <rect class="return" x="405" y="812" width="96" height="76" rx="14"/>
+  <text class="num" x="453" y="862" text-anchor="middle">7</text>
+  <path class="line" d="M347 850 L405 850"/>
 
-  <path class="line" d="M500 1084 L500 1116"/>
-  <ellipse class="terminal" cx="500" cy="1148" rx="115" ry="30"/>
-  <text class="text" x="500" y="1156" text-anchor="middle">结束</text>
+  <rect class="panel" x="612" y="118" width="440" height="740" rx="16"/>
+  <text class="head" x="832" y="154" text-anchor="middle">编号含义表</text>
+  <text class="note" x="640" y="196">图中节点只写编号，语句写在这里。</text>
 
-  <text class="note" x="80" y="1118">卷面提示：D1 真走 n=n+x，D1 假走 n=n+y；D2 真才加 z，D2 假直接 return。</text>
+  <text class="head" x="650" y="245">编号</text>
+  <text class="head" x="760" y="245">含义</text>
+  <line class="row" x1="638" y1="266" x2="1026" y2="266"/>
+
+  <text class="table" x="660" y="306">1</text>
+  <text class="table" x="760" y="306">n = 1</text>
+  <line class="row" x1="638" y1="330" x2="1026" y2="330"/>
+
+  <text class="table" x="660" y="370">2</text>
+  <text class="table" x="760" y="370">判断 x &gt; 0 || y &lt; 0</text>
+  <line class="row" x1="638" y1="394" x2="1026" y2="394"/>
+
+  <text class="table" x="660" y="434">3</text>
+  <text class="table" x="760" y="434">n = n + x</text>
+  <line class="row" x1="638" y1="458" x2="1026" y2="458"/>
+
+  <text class="table" x="660" y="498">4</text>
+  <text class="table" x="760" y="498">n = n + y</text>
+  <line class="row" x1="638" y1="522" x2="1026" y2="522"/>
+
+  <text class="table" x="660" y="562">5</text>
+  <text class="table" x="760" y="562">判断 z &gt; 0</text>
+  <line class="row" x1="638" y1="586" x2="1026" y2="586"/>
+
+  <text class="table" x="660" y="626">6</text>
+  <text class="table" x="760" y="626">n = n + z</text>
+  <line class="row" x1="638" y1="650" x2="1026" y2="650"/>
+
+  <text class="table" x="660" y="690">7</text>
+  <text class="table" x="760" y="690">return n</text>
+
+  <rect x="640" y="746" width="386" height="72" rx="12" fill="#fff8ed" stroke="#a14f35" stroke-width="2"/>
+  <text class="table" x="662" y="778">如果老师明确写“流程图”，写语句也可解释；</text>
+  <text class="table" x="662" y="807">但基本路径题按控制流图编号版最稳。</text>
 </svg>
