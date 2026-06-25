@@ -468,17 +468,17 @@ html[data-user-color-scheme="dark"] .sqd-copy-answer {
   </div>
 
   <figure class="sqd-figure">
-    <object class="sqd-figure-object flowchart" type="image/svg+xml" data="/img/software-quality-design/a-final-flowchart.svg" aria-label="A 卷最后题控制流图编号版答案">
-      <img src="/img/software-quality-design/a-final-flowchart.svg" alt="A 卷最后题控制流图编号版答案">
+    <object class="sqd-figure-object flowchart" type="image/svg+xml" data="/img/software-quality-design/a-final-flowchart.svg?v=20260625-numbered" aria-label="A 卷最后题控制流图编号版答案">
+      <img src="/img/software-quality-design/a-final-flowchart.svg?v=20260625-numbered" alt="A 卷最后题控制流图编号版答案">
     </object>
-    <figcaption><strong>图 1：控制流图编号版答案。</strong>图中只写节点编号，编号对应的语句和判断条件写在右侧表格。单独打开：<a class="sqd-figure-link" href="/img/software-quality-design/a-final-flowchart.svg">查看大图</a>。</figcaption>
+    <figcaption><strong>图 1：控制流图编号版答案。</strong>图中只写节点编号，编号对应的语句和判断条件写在右侧表格。单独打开：<a class="sqd-figure-link" href="/img/software-quality-design/a-final-flowchart.svg?v=20260625-numbered">查看大图</a>。</figcaption>
   </figure>
 
   <figure class="sqd-figure">
-    <object class="sqd-figure-object path-coverage" type="image/svg+xml" data="/img/software-quality-design/a-final-path-coverage.svg" aria-label="A 卷最后题控制流路径覆盖答案图">
-      <img src="/img/software-quality-design/a-final-path-coverage.svg" alt="A 卷最后题控制流路径覆盖答案图">
+    <object class="sqd-figure-object path-coverage" type="image/svg+xml" data="/img/software-quality-design/a-final-path-coverage.svg?v=20260625-numbered" aria-label="A 卷最后题控制流路径覆盖答案图">
+      <img src="/img/software-quality-design/a-final-path-coverage.svg?v=20260625-numbered" alt="A 卷最后题控制流路径覆盖答案图">
     </object>
-    <figcaption><strong>图 2：路径覆盖编号版答案图。</strong>左边控制流图只写编号，右边把编号含义、4 条完整路径、输入和返回值列出来。单独打开：<a class="sqd-figure-link" href="/img/software-quality-design/a-final-path-coverage.svg">查看大图</a>。</figcaption>
+    <figcaption><strong>图 2：路径覆盖编号版答案图。</strong>左边控制流图只写编号，右边把编号含义、4 条完整路径、输入和返回值列出来。单独打开：<a class="sqd-figure-link" href="/img/software-quality-design/a-final-path-coverage.svg?v=20260625-numbered">查看大图</a>。</figcaption>
   </figure>
 
   <div class="sqd-answer-pack">
