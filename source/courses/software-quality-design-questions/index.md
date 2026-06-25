@@ -512,7 +512,6 @@ html[data-user-color-scheme="dark"] .sqd-copy-answer {
         </table>
       </div>
     </article>
-
     <article class="sqd-step-card">
       <h3>第一问：程序流图/控制流图怎么画</h3>
       <p>你记得没错：这类基本路径题的图通常不在节点里写完整语句，而是先给每个基本块或判断点编号，图中只画编号和箭头。语句、判断条件写在图旁边的“编号含义表”里。这样老师看图时能直接用节点序列写路径，例如 <code>1-2-3-5-6-7</code>。</p>
@@ -525,7 +524,6 @@ html[data-user-color-scheme="dark"] .sqd-copy-answer {
         <li>节点 6：<code>n=n+z</code>，然后到 7；节点 7：<code>return n</code>。</li>
       </ul>
     </article>
-
     <article class="sqd-step-card">
       <h3>第二问：语句覆盖怎么做</h3>
       <p>语句覆盖的意思是：每条可执行语句至少运行一次。这里最容易漏的是 <code>n=n+x</code> 和 <code>n=n+y</code>，因为它们在 if/else 两边，一组输入只能走其中一边，所以至少要两组测试用例。</p>
@@ -562,7 +560,6 @@ html[data-user-color-scheme="dark"] .sqd-copy-answer {
         <p><strong>为什么返回值是 3 和 1：</strong>T1 中 <code>n=1</code>，先加 <code>x=1</code> 得 2，再加 <code>z=1</code> 得 3。T2 中 <code>n=1</code>，加 <code>y=0</code> 还是 1，<code>z=0</code> 不加，所以返回 1。</p>
       </section>
     </article>
-
     <article class="sqd-step-card">
       <h3>第三问：路径覆盖怎么做</h3>
       <p>路径覆盖要求把从开始到结束的完整走法都覆盖到。本题有两个没有循环的判断，每个判断都有真/假两种结果，所以完整路径是 <code>2 x 2 = 4</code> 条。做题时把 D1 和 D2 的真假组合列出来，再给每一行找一组输入。</p>
