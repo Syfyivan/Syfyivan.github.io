@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>电子信息专业就业方向与学历发展</title>
+  <meta name="description" content="电子信息专业毕业后的常见工作、企业类型、岗位方向、薪资水平，以及本科、硕士、博士的就业差异。">
+  <style>
+    :root {
+      --bg: #f6f7f4;
+      --paper: #ffffff;
+      --ink: #1f272a;
+      --muted: #667175;
+      --line: #d9dfd9;
+      --teal: #007f7a;
+      --teal-dark: #005f5b;
+      --green: #3b7d3d;
+      --amber: #b86b00;
+      --red: #a94636;
+      --blue: #2f67a1;
+      --surface: #edf2ef;
+      --shadow: 0 18px 42px rgba(32, 46, 42, 0.10);
+      --max: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.68;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: var(--teal-dark);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    a:hover {
+      color: var(--amber);
+    }
+
+    .page-shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(31, 39, 42, 0.10);
+      background: rgba(246, 247, 244, 0.94);
+      backdrop-filter: blur(16px);
+    }
+
+    .topbar-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      font-weight: 760;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--teal);
+      border-radius: 6px;
+      position: relative;
+      background:
+        linear-gradient(90deg, transparent 45%, rgba(0, 127, 122, 0.22) 45%, rgba(0, 127, 122, 0.22) 55%, transparent 55%),
+        linear-gradient(0deg, transparent 45%, rgba(184, 107, 0, 0.24) 45%, rgba(184, 107, 0, 0.24) 55%, transparent 55%),
+        var(--paper);
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--amber);
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .brand-mark::before {
+      left: -5px;
+    }
+
+    .brand-mark::after {
+      right: -5px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      white-space: nowrap;
+    }
+
+    .nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav a {
+      color: var(--muted);
+      font-size: 14px;
+      text-decoration: none;
+      padding: 6px 0;
+    }
+
+    .nav a:hover {
+      color: var(--teal-dark);
+    }
+
+    .hero {
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(0, 127, 122, 0.08) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(0, 127, 122, 0.06) 1px, transparent 1px),
+        #fbfcf8;
+      background-size: 38px 38px;
+    }
+
+    .hero-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      min-height: 520px;
+      padding: 72px 24px 46px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(340px, 0.68fr);
+      align-items: center;
+      gap: 52px;
+    }
+
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--teal-dark);
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.22;
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 840px;
+      font-size: 54px;
+      font-weight: 840;
+    }
+
+    h2 {
+      font-size: 30px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    h3 {
+      font-size: 19px;
+      font-weight: 760;
+      margin-bottom: 8px;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin: 20px 0 0;
+      color: #394448;
+      font-size: 20px;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 5px 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.78);
+      color: #384246;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .chip-visual {
+      position: relative;
+      min-height: 430px;
+      display: grid;
+      place-items: center;
+    }
+
+    .chip-board {
+      width: min(100%, 410px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(31, 39, 42, 0.13);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(47, 103, 161, 0.10) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(47, 103, 161, 0.10) 1px, transparent 1px),
+        #f1f5f1;
+      background-size: 30px 30px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chip-core {
+      position: absolute;
+      inset: 26%;
+      border-radius: 8px;
+      background: #243033;
+      color: #f7fbfb;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 24px;
+      font-weight: 780;
+      font-size: 22px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+    }
+
+    .trace {
+      position: absolute;
+      background: var(--teal);
+      opacity: 0.8;
+    }
+
+    .trace.t1 {
+      width: 30%;
+      height: 3px;
+      top: 24%;
+      left: 20%;
+    }
+
+    .trace.t2 {
+      width: 3px;
+      height: 28%;
+      top: 16%;
+      right: 25%;
+      background: var(--amber);
+    }
+
+    .trace.t3 {
+      width: 25%;
+      height: 3px;
+      bottom: 24%;
+      right: 18%;
+      background: var(--green);
+    }
+
+    .trace.t4 {
+      width: 3px;
+      height: 22%;
+      bottom: 17%;
+      left: 24%;
+      background: var(--blue);
+    }
+
+    .node {
+      position: absolute;
+      width: 58px;
+      height: 58px;
+      border-radius: 8px;
+      background: var(--paper);
+      border: 1px solid rgba(31, 39, 42, 0.14);
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 750;
+      text-align: center;
+      box-shadow: 0 10px 22px rgba(32, 46, 42, 0.10);
+    }
+
+    .node.n1 {
+      top: 34px;
+      left: 44px;
+      color: var(--teal-dark);
+    }
+
+    .node.n2 {
+      top: 64px;
+      right: 38px;
+      color: var(--amber);
+    }
+
+    .node.n3 {
+      bottom: 48px;
+      right: 48px;
+      color: var(--green);
+    }
+
+    .node.n4 {
+      bottom: 64px;
+      left: 36px;
+      color: var(--blue);
+    }
+
+    .quick-answer {
+      max-width: var(--max);
+      margin: -28px auto 0;
+      padding: 0 24px;
+      position: relative;
+      z-index: 5;
+    }
+
+    .quick-answer-inner {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .fact {
+      border-left: 4px solid var(--teal);
+      padding-left: 14px;
+    }
+
+    .fact:nth-child(2) {
+      border-left-color: var(--amber);
+    }
+
+    .fact:nth-child(3) {
+      border-left-color: var(--green);
+    }
+
+    .fact strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .fact span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    main {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 54px 24px 78px;
+    }
+
+    section {
+      scroll-margin-top: 84px;
+      margin-top: 54px;
+    }
+
+    .section-lead {
+      margin: 0 0 22px;
+      max-width: 840px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(320px, 0.7fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .plain-panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .plain-panel p:first-child {
+      margin-top: 0;
+    }
+
+    .plain-panel p:last-child {
+      margin-bottom: 0;
+    }
+
+    .tag-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .tag-item {
+      min-height: 64px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfa;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #394448;
+      font-weight: 650;
+    }
+
+    .tag-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      background: var(--teal);
+    }
+
+    .tag-item:nth-child(2) .tag-dot,
+    .tag-item:nth-child(6) .tag-dot {
+      background: var(--amber);
+    }
+
+    .tag-item:nth-child(3) .tag-dot,
+    .tag-item:nth-child(7) .tag-dot {
+      background: var(--green);
+    }
+
+    .tag-item:nth-child(4) .tag-dot,
+    .tag-item:nth-child(8) .tag-dot {
+      background: var(--blue);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    table {
+      width: 100%;
+      min-width: 840px;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    th,
+    td {
+      padding: 16px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      background: #edf2ef;
+      color: #344044;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    td:first-child {
+      font-weight: 760;
+      color: var(--teal-dark);
+      white-space: nowrap;
+    }
+
+    .company-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .company {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      min-height: 156px;
+    }
+
+    .company .kicker {
+      display: inline-block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+      margin-bottom: 8px;
+    }
+
+    .company p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .salary-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.75fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .salary-chart {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr) 130px;
+      align-items: center;
+      gap: 14px;
+      min-height: 48px;
+      margin: 8px 0;
+    }
+
+    .bar-label {
+      font-weight: 760;
+      color: #344044;
+    }
+
+    .bar-track {
+      height: 18px;
+      background: #e7ece8;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #d4dbd5;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 5px;
+      background: var(--teal);
+    }
+
+    .bar-fill.undergrad {
+      width: 45%;
+      background: var(--blue);
+    }
+
+    .bar-fill.master {
+      width: 70%;
+      background: var(--teal);
+    }
+
+    .bar-fill.phd {
+      width: 92%;
+      background: var(--amber);
+    }
+
+    .bar-note {
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .data-card {
+      background: #243033;
+      color: #f4f8f7;
+      border-radius: 8px;
+      padding: 24px;
+      min-height: 100%;
+    }
+
+    .data-card h3 {
+      color: #ffffff;
+    }
+
+    .data-card ul {
+      margin: 14px 0 0;
+      padding-left: 20px;
+    }
+
+    .data-card li {
+      margin: 9px 0;
+      color: #dce6e4;
+    }
+
+    .edu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .edu-card {
+      position: relative;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      min-height: 320px;
+    }
+
+    .edu-card::before {
+      content: "";
+      display: block;
+      width: 42px;
+      height: 5px;
+      border-radius: 5px;
+      background: var(--teal);
+      margin-bottom: 16px;
+    }
+
+    .edu-card:nth-child(2)::before {
+      background: var(--amber);
+    }
+
+    .edu-card:nth-child(3)::before {
+      background: var(--green);
+    }
+
+    .edu-card ul {
+      margin: 14px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    .edu-card li {
+      margin: 8px 0;
+    }
+
+    .route-map {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+    }
+
+    .route-row {
+      display: grid;
+      grid-template-columns: 140px minmax(0, 1fr);
+      gap: 18px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .route-row:last-child {
+      border-bottom: 0;
+    }
+
+    .route-title {
+      font-weight: 800;
+      color: var(--teal-dark);
+    }
+
+    .route-body {
+      color: #3d484c;
+    }
+
+    .route-body strong {
+      color: var(--ink);
+    }
+
+    .warning {
+      border-left: 5px solid var(--red);
+      background: #fff8f6;
+      padding: 18px 20px;
+      border-radius: 8px;
+      color: #523832;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .skill {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      min-height: 96px;
+    }
+
+    .skill strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .skill span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .sources {
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .sources ol {
+      margin: 14px 0 0;
+      padding-left: 22px;
+      color: var(--muted);
+    }
+
+    .sources li {
+      margin: 8px 0;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      background: #edf2ef;
+      color: var(--muted);
+      padding: 24px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .hero-inner,
+      .two-col,
+      .salary-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-inner {
+        min-height: auto;
+        padding-top: 52px;
+      }
+
+      h1 {
+        font-size: 40px;
+      }
+
+      .chip-visual {
+        min-height: 360px;
+      }
+
+      .quick-answer-inner,
+      .edu-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .company-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .skills-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .topbar-inner {
+        display: block;
+        padding: 10px 16px;
+      }
+
+      .nav {
+        margin-top: 8px;
+      }
+
+      .hero-inner,
+      main,
+      .quick-answer {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      h2 {
+        font-size: 25px;
+      }
+
+      .lead {
+        font-size: 17px;
+      }
+
+      .company-grid,
+      .skills-grid,
+      .tag-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bar-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        margin: 16px 0;
+      }
+
+      .bar-note {
+        white-space: normal;
+      }
+
+      .route-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .chip-board {
+        width: min(100%, 330px);
+      }
+
+      .node {
+        width: 52px;
+        height: 52px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="#top" aria-label="返回页面顶部">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>电子信息职业地图</span>
+        </a>
+        <nav class="nav" aria-label="页面导航">
+          <a href="#overview">专业定位</a>
+          <a href="#jobs">就业方向</a>
+          <a href="#companies">企业类型</a>
+          <a href="#salary">薪资水平</a>
+          <a href="#education">学历差异</a>
+          <a href="#route">选择建议</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero" id="top">
+      <div class="hero-inner">
+        <div>
+          <p class="eyebrow">面向国内就业市场的专业解读</p>
+          <h1>电子信息专业毕业后，一般会做什么工作？</h1>
+          <p class="lead">它是一个宽口径工科专业，真实就业会分流到硬件、通信、芯片、嵌入式、信号处理、光电、测试制造、算法和软件等方向。专业不窄，但需要尽早把技能栈做实。</p>
+          <div class="hero-meta" aria-label="核心判断">
+            <span class="pill">就业面宽</span>
+            <span class="pill">研发岗更偏硕士</span>
+            <span class="pill">芯片/通信/嵌入式上限高</span>
+            <span class="pill">本科分化明显</span>
+          </div>
+        </div>
+
+        <div class="chip-visual" aria-label="电子信息方向示意图">
+          <div class="chip-board">
+            <span class="trace t1"></span>
+            <span class="trace t2"></span>
+            <span class="trace t3"></span>
+            <span class="trace t4"></span>
+            <div class="node n1">硬件</div>
+            <div class="node n2">通信</div>
+            <div class="node n3">芯片</div>
+            <div class="node n4">软件</div>
+            <div class="chip-core">电子信息<br>工程能力</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="quick-answer" aria-label="快速结论">
+      <div class="quick-answer-inner">
+        <div class="fact">
+          <strong>毕业去向</strong>
+          <span>科技制造、通信、半导体、汽车电子、工业控制、研究所和互联网硬件平台。</span>
+        </div>
+        <div class="fact">
+          <strong>岗位分布</strong>
+          <span>本科常从测试、硬件、嵌入式、工艺、FAE 起步；硕士更容易进入核心研发。</span>
+        </div>
+        <div class="fact">
+          <strong>学历发展</strong>
+          <span>本科看项目和实习，硕士看方向和平台，博士看研究成果和稀缺技术。</span>
+        </div>
+      </div>
+    </div>
+
+    <main>
+      <section id="overview">
+        <div class="two-col">
+          <div>
+            <h2>专业定位</h2>
+            <p class="section-lead">电子信息不是单一岗位专业，而是围绕“信息的获取、传输、处理、存储、控制和呈现”的工程体系。它和计算机、通信、自动化、微电子、光电、仪器都有交叉。</p>
+            <div class="plain-panel">
+              <p>如果用一句话概括：电子信息学的是“把物理世界的信号变成可以被电路、芯片、软件和系统处理的信息”。所以它既会接触电路，也会接触编程；既可以做硬件，也可以做算法；既能去制造业，也能去互联网和科研单位。</p>
+              <p>这个专业的优势是路宽，上限高；劣势是课程多、方向散。如果本科四年没有形成明确技能，毕业时容易变成“什么都学过，但什么都不够深”。</p>
+            </div>
+          </div>
+          <aside class="plain-panel">
+            <h3>常见技术关键词</h3>
+            <div class="tag-grid">
+              <div class="tag-item"><span class="tag-dot"></span><span>模拟/数字电路</span></div>
+              <div class="tag-item"><span class="tag-dot"></span><span>信号与系统</span></div>
+              <div class="tag-item"><span class="tag-dot"></span><span>通信原理</span></div>
+              <div class="tag-item"><span class="tag-dot"></span><span>嵌入式系统</span></div>
+              <div class="tag-item"><span class="tag-dot"></span><span>FPGA/Verilog</span></div>
+              <div class="tag-item"><span class="tag-dot"></span><span>芯片设计验证</span></div>
+              <div class="tag-item"><span class="tag-dot"></span><span>图像/音频处理</span></div>
+              <div class="tag-item"><span class="tag-dot"></span><span>电磁场/射频</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="jobs">
+        <h2>毕业后常见工作方向</h2>
+        <p class="section-lead">电子信息的岗位通常分为研发设计、测试验证、制造工艺、技术支持和软件算法几大类。真正的就业差异，不只取决于专业名，更取决于你本科或研究生阶段做过什么项目。</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>方向</th>
+                <th>典型岗位</th>
+                <th>主要工作</th>
+                <th>适合的人</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>硬件电子</td>
+                <td>硬件工程师、PCB工程师、电源工程师、信号完整性工程师</td>
+                <td>画电路、选器件、做 PCB、调板子、过 EMC/可靠性测试。</td>
+                <td>喜欢动手、能看原理图、愿意长期调试和定位问题。</td>
+              </tr>
+              <tr>
+                <td>嵌入式</td>
+                <td>嵌入式软件、驱动开发、BSP、固件工程师</td>
+                <td>用 C/C++、Linux、RTOS、MCU 控制硬件设备。</td>
+                <td>既懂一点硬件，又愿意写底层代码。</td>
+              </tr>
+              <tr>
+                <td>通信/信号</td>
+                <td>通信算法、基带、射频、天线、DSP、雷达算法</td>
+                <td>做无线通信、雷达、卫星、导航、图像/音频信号处理。</td>
+                <td>数学基础较好，能接受公式、仿真和算法推导。</td>
+              </tr>
+              <tr>
+                <td>半导体/芯片</td>
+                <td>数字IC、模拟IC、验证、DFT、版图、FPGA、EDA、工艺/封测</td>
+                <td>设计、验证、制造、测试芯片，或开发芯片相关工具。</td>
+                <td>耐心强，能接受长周期工程，愿意深入一个高门槛方向。</td>
+              </tr>
+              <tr>
+                <td>光电/传感</td>
+                <td>光电工程师、摄像头模组、激光雷达、显示、传感器</td>
+                <td>做光通信、激光、摄像头、传感器、显示器件和光学系统。</td>
+                <td>对物理、器件、光学或硬件系统有兴趣。</td>
+              </tr>
+              <tr>
+                <td>测试/制造/质量</td>
+                <td>测试工程师、验证工程师、工艺工程师、质量工程师</td>
+                <td>测产品、导入产线、提升良率、做失效分析和可靠性验证。</td>
+                <td>重视稳定性，适合细致、流程意识强的人。</td>
+              </tr>
+              <tr>
+                <td>技术支持/FAE</td>
+                <td>FAE、售前、售后、解决方案工程师</td>
+                <td>帮客户使用芯片、设备或系统方案，解决现场技术问题。</td>
+                <td>技术基础可以，沟通表达也不错的人。</td>
+              </tr>
+              <tr>
+                <td>软件/AI转向</td>
+                <td>后端、算法、自动驾驶、音视频、边缘AI工程师</td>
+                <td>写软件系统、做 AI 算法、音视频处理、自动驾驶或硬件平台软件。</td>
+                <td>编程强，愿意补计算机基础的人。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="companies">
+        <h2>通常会进入什么样的企业</h2>
+        <p class="section-lead">电子信息的去向更像“硬科技产业链”，既有研发密集型企业，也有制造和工程交付型企业。</p>
+        <div class="company-grid">
+          <article class="company">
+            <span class="kicker">ICT / 通信</span>
+            <h3>通信设备与运营商</h3>
+            <p>华为、中兴、运营商、卫星通信、网络设备、无线基站、光通信企业。</p>
+          </article>
+          <article class="company">
+            <span class="kicker">Consumer Electronics</span>
+            <h3>消费电子</h3>
+            <p>手机、无人机、智能硬件、可穿戴、家电、摄像头和声学模组企业。</p>
+          </article>
+          <article class="company">
+            <span class="kicker">Semiconductor</span>
+            <h3>半导体</h3>
+            <p>芯片设计、晶圆制造、封装测试、EDA、半导体设备和材料企业。</p>
+          </article>
+          <article class="company">
+            <span class="kicker">EV / Mobility</span>
+            <h3>汽车电子与新能源</h3>
+            <p>车载芯片、智能座舱、BMS、激光雷达、自动驾驶、三电系统企业。</p>
+          </article>
+          <article class="company">
+            <span class="kicker">Industrial</span>
+            <h3>工业控制与机器人</h3>
+            <p>PLC、伺服、电机控制、传感器、工业视觉、机器人和仪器仪表企业。</p>
+          </article>
+          <article class="company">
+            <span class="kicker">Institute</span>
+            <h3>研究所/军工/航天</h3>
+            <p>雷达、导航、遥感、电子对抗、卫星、航天航空和国防电子方向。</p>
+          </article>
+          <article class="company">
+            <span class="kicker">Internet / AI</span>
+            <h3>互联网与AI公司</h3>
+            <p>音视频、自动驾驶、边缘计算、云基础设施、AI硬件平台相关岗位。</p>
+          </article>
+          <article class="company">
+            <span class="kicker">Public Sector</span>
+            <h3>国企与事业单位</h3>
+            <p>运营商、电网相关电子系统、银行科技岗、政府信息化和科研单位。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="salary">
+        <h2>薪资大概是什么水平</h2>
+        <p class="section-lead">以下是国内税前总包口径的粗略区间，通常包含基本工资、年终奖、补贴和其他现金性收入，不是到手收入。电子信息的薪资波动很大，城市、学校、企业层级、方向和项目经历都会显著影响结果。</p>
+        <div class="salary-layout">
+          <div class="salary-chart">
+            <h3>应届常见税前总包区间</h3>
+            <div class="bar-row">
+              <div class="bar-label">本科</div>
+              <div class="bar-track" aria-label="本科薪资区间示意"><div class="bar-fill undergrad"></div></div>
+              <div class="bar-note">税前约 8万-25万/年</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">硕士</div>
+              <div class="bar-track" aria-label="硕士薪资区间示意"><div class="bar-fill master"></div></div>
+              <div class="bar-note">税前约 15万-50万/年</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">博士</div>
+              <div class="bar-track" aria-label="博士薪资区间示意"><div class="bar-fill phd"></div></div>
+              <div class="bar-note">税前约 35万-80万+/年</div>
+            </div>
+            <div class="warning">
+              同一个专业，本科去本地企业做测试可能是 6k-8k/月；去一线城市做嵌入式、芯片验证或硬件研发可能明显更高。硕士和博士的高薪通常来自高壁垒方向，而不是学历本身。
+            </div>
+          </div>
+          <aside class="data-card">
+            <h3>公开数据锚点</h3>
+            <ul>
+              <li>2025 年城镇非私营单位中，信息传输、软件和信息技术服务业年均工资约 24.88 万元。</li>
+              <li>2025 年城镇私营单位中，信息传输、软件和信息技术服务业年均工资约 12.82 万元。</li>
+              <li>2025 年规模以上企业专业技术人员年均工资约 15.55 万元。</li>
+              <li>媒体转述麦可思数据显示，2025 届本科生毕业半年后平均月收入约 6435 元；电子信息类中多个专业进入高薪前列。</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section id="education">
+        <h2>本科、硕士、博士分别是什么发展</h2>
+        <p class="section-lead">电子信息的学历差异比较明显：本科能就业，但研发核心岗竞争更激烈；硕士是很多研发岗位的主力学历；博士适合稀缺技术、科研和专家路线。</p>
+        <div class="edu-grid">
+          <article class="edu-card">
+            <h3>本科毕业</h3>
+            <p>能直接就业，但分化最大。项目、竞赛、实习和编程能力会直接决定能否进入研发岗。</p>
+            <ul>
+              <li>常见岗位：测试、硬件助理、嵌入式、工艺、质量、FAE。</li>
+              <li>优势：早就业、选择面宽、可转软件。</li>
+              <li>风险：课程学得杂，如果没有项目，容易被分到支持或测试类岗位。</li>
+            </ul>
+          </article>
+          <article class="edu-card">
+            <h3>硕士毕业</h3>
+            <p>电子信息里性价比较高的学历层级，更容易对应企业的正式研发工程师岗位。</p>
+            <ul>
+              <li>常见岗位：通信算法、信号处理、芯片设计/验证、FPGA、嵌入式Linux、雷达、自动驾驶感知。</li>
+              <li>优势：方向更明确，实验室项目和实习更容易积累。</li>
+              <li>风险：如果研究方向和市场脱节，学历优势会被削弱。</li>
+            </ul>
+          </article>
+          <article class="edu-card">
+            <h3>博士毕业</h3>
+            <p>适合做前沿研究、高壁垒工程、企业专家、高校或研究所路线。</p>
+            <ul>
+              <li>常见方向：6G、雷达、卫星通信、芯片架构、器件、光电子、EDA、AI芯片。</li>
+              <li>优势：能进入专家岗、科研岗和高门槛平台。</li>
+              <li>风险：周期长，对成果、导师、平台和方向依赖很强。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="route">
+        <h2>怎么判断自己适合哪条路</h2>
+        <p class="section-lead">选择方向时，不要只看专业名称，要看自己的能力结构和愿意长期投入的工作方式。</p>
+        <div class="route-map">
+          <div class="route-row">
+            <div class="route-title">数学和物理好</div>
+            <div class="route-body">优先考虑 <strong>通信、信号处理、雷达、光电、芯片、算法</strong>，读研价值通常更高。</div>
+          </div>
+          <div class="route-row">
+            <div class="route-title">喜欢动手调试</div>
+            <div class="route-body">适合 <strong>硬件、射频、电源、嵌入式、测试验证</strong>，项目经验比单纯成绩更能证明能力。</div>
+          </div>
+          <div class="route-row">
+            <div class="route-title">喜欢写代码</div>
+            <div class="route-body">可以走 <strong>嵌入式软件、驱动、音视频、后端、AI工程、自动驾驶软件</strong>，需要补计算机基础。</div>
+          </div>
+          <div class="route-row">
+            <div class="route-title">想要稳定</div>
+            <div class="route-body">可以看 <strong>运营商、国企、研究所、事业单位、银行科技岗、航天军工</strong>，薪资上限可能低于头部企业但稳定性更强。</div>
+          </div>
+          <div class="route-row">
+            <div class="route-title">想冲高薪</div>
+            <div class="route-body">重点关注 <strong>芯片设计/验证、嵌入式Linux、C++、通信算法、AI/自动驾驶、EDA、射频、高端硬件平台</strong>。</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="skills">
+        <h2>本科阶段最值得提前准备的能力</h2>
+        <p class="section-lead">电子信息不是靠背概念就业的专业，最好用能展示的作品证明能力。</p>
+        <div class="skills-grid">
+          <div class="skill"><strong>C/C++</strong><span>嵌入式、驱动、音视频、芯片验证都常用。</span></div>
+          <div class="skill"><strong>Linux</strong><span>会 shell、进程、网络、驱动基础会很有优势。</span></div>
+          <div class="skill"><strong>PCB/硬件</strong><span>能看原理图、画板、调试和使用仪器。</span></div>
+          <div class="skill"><strong>FPGA/Verilog</strong><span>适合芯片、通信、图像处理和硬件加速。</span></div>
+          <div class="skill"><strong>Python/Matlab</strong><span>适合仿真、数据处理、算法验证和自动化测试。</span></div>
+        </div>
+      </section>
+
+      <section class="sources" id="sources">
+        <h2>参考来源</h2>
+        <p class="section-lead">薪资和就业数据会随年份、城市和行业周期变化，页面中的区间用于判断大方向，不建议直接当作个人 offer 标准。</p>
+        <ol>
+          <li><a href="https://www.moe.gov.cn/srcsite/A08/moe_1034/s4930/202504/W020250422312780837078.pdf" target="_blank" rel="noreferrer">教育部《普通高等学校本科专业目录》</a></li>
+          <li><a href="https://meng.tsinghua.edu.cn/wjfg/zyxwlbjjjjbyq/6328.htm" target="_blank" rel="noreferrer">全国工程专业学位研究生教育网：电子信息专业学位类别说明</a></li>
+          <li><a href="https://www.stats.gov.cn/sj/zxfb/202605/t20260515_1963707.html" target="_blank" rel="noreferrer">国家统计局：2025 年城镇单位就业人员年平均工资情况</a></li>
+          <li><a href="https://www.sohu.com/a/1037458783_121478296" target="_blank" rel="noreferrer">媒体转述麦可思《2026年中国本科生就业报告》相关数据</a></li>
+          <li><a href="https://www.rmzxw.com.cn/c/2025-06-11/3732505.shtml?n2m=1" target="_blank" rel="noreferrer">人民政协网：2025年版就业蓝皮书发布</a></li>
+        </ol>
+      </section>
+    </main>
+
+    <footer>
+      电子信息职业地图 · 静态 HTML 页面
+    </footer>
+  </div>
+</body>
+</html>

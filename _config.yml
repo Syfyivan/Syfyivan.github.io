@@ -33,6 +33,7 @@ skip_render:
   - flipbook/**
   - mahjong/**
   - painters-guild/**
+  - electronic-information-careers/**
   - docs/**
   - software-architecture-2020c-review/**
 
