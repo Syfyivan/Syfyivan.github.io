@@ -1,7 +1,7 @@
 ---
 title: "软件质量与测试 · 云班课已核题库"
 date: 2026-06-23 10:20:00
-description: "《软件质量保证与测试》云班课题库页：已导出 23 道互评简答参考答案、23 个课上/课后 QUIZ 共 428 道题，剩余未公布活动单独标注。"
+description: "《软件质量保证与测试》云班课题库页：已导出 23 道互评简答参考答案、25 个课上/课后 QUIZ 共 479 道题，未能归入章节的题目单独放在未分类内容。"
 ---
 
 <style>
@@ -206,6 +206,14 @@ description: "《软件质量保证与测试》云班课题库页：已导出 23
   font-weight: 800;
   color: var(--sqe-ink);
 }
+.sqe-question-body {
+  margin: 0 0 10px;
+  line-height: 1.7;
+}
+.sqe-question-body > :first-child { margin-top: 0; }
+.sqe-question-body > :last-child { margin-bottom: 0; }
+.sqe-question-body ul,
+.sqe-question-body ol { margin: 6px 0 6px 22px; }
 .sqe-answer details { background: var(--sqe-wash); }
 .sqe-answer summary {
   display: flex;
@@ -389,13 +397,13 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <a class="sqe-link" href="/courses/software-quality-review-network/">返回总复习网络</a>
 <a class="sqe-link" href="/courses/software-quality-design-questions/">大题专项</a>
 <a class="sqe-link" href="/courses/software-quality-csdn-bank/">CSDN题库对照</a>
-<a class="sqe-link" href="#missing">看未导出说明</a>
+<a class="sqe-link" href="#quiz-25">看未分类内容</a>
 </div>
 <div class="sqe-stats" aria-label="云班课题源统计">
-<div class="sqe-stat"><strong>48</strong><span>云班课活动已读取</span></div>
+<div class="sqe-stat"><strong>49</strong><span>云班课活动已读取</span></div>
 <div class="sqe-stat"><strong>23</strong><span>互评简答老师参考答案</span></div>
-<div class="sqe-stat"><strong>23/24</strong><span>QUIZ 活动已导出</span></div>
-<div class="sqe-stat"><strong>428</strong><span>课上/课后题目</span></div>
+<div class="sqe-stat"><strong>25/25</strong><span>QUIZ 活动已导出</span></div>
+<div class="sqe-stat"><strong>479</strong><span>课上/课后题目</span></div>
 </div>
 <form class="sqe-filter" role="search" onsubmit="return false;">
 <input type="search" data-sqe-filter placeholder="搜索题干、答案、章节或关键词">
@@ -404,7 +412,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 </section>
 
 <section class="sqe-note">
-<p><strong>来源边界：</strong>这页是云班课导出题库，不再混入 PPT 改写题或未标来源的概念题。仍未导出的“测试相关未分类习题”是因为云班课接口返回“老师暂未公布答案，无法查看结果”，它被单独列在页尾，未伪装成已读题库；CSDN 公开页里能看到的对应题目，已经放到单独的 CSDN 题库对照页。</p>
+<p><strong>来源边界：</strong>这页是云班课导出题库，不再混入 PPT 改写题或未标来源的概念题。本次已重新核对云班课 49 个活动，其中 25 个课上/课后 QUIZ 都已记录；“测试相关未分类习题”无法稳定归入某一章，按未分类内容单独放在页尾。</p>
 </section>
 
 <h2 class="sqe-section-title">题库跳转</h2>
@@ -432,8 +440,9 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <a class="sqe-chip" href="#quiz-2">实验一课后练习</a>
 <a class="sqe-chip" href="#quiz-22">实验二课上测试</a>
 <a class="sqe-chip" href="#quiz-13">实验二课后练习</a>
+<a class="sqe-chip" href="#quiz-24">实验三课上测试</a>
 <a class="sqe-chip" href="#quiz-16">实验三课后练习</a>
-<a class="sqe-chip" href="#missing">未导出说明</a>
+<a class="sqe-chip" href="#quiz-25">未分类内容</a>
 </nav>
 
 <aside class="sqe-side-toc" aria-label="固定目录">
@@ -461,8 +470,9 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <a href="#quiz-2">实验一课后练习</a>
 <a href="#quiz-22">实验二课上测试</a>
 <a href="#quiz-13">实验二课后练习</a>
+<a href="#quiz-24">实验三课上测试</a>
 <a href="#quiz-16">实验三课后练习</a>
-<a href="#missing">未导出说明</a>
+<a href="#quiz-25">未分类内容</a>
 </aside>
 
 <section id="peer" class="sqe-chapter">
@@ -5048,9 +5058,122 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 </article>
 </section>
 
-<section id="quiz-16" class="sqe-chapter">
+<section id="quiz-24" class="sqe-chapter">
 <div class="sqe-chapter-head">
 <span class="sqe-number">23</span>
+<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>实验三课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 用等价类划分法设计8位长数字类型用户名登录操作的测试用例，应该分成_____个等价区间 A. 4 4 6 2 3">
+<div class="sqe-question">
+<p class="sqe-question-title">题 24-01（单选）</p>
+<div class="sqe-question-body">用等价类划分法设计8位长数字类型用户名登录操作的测试用例，应该分成_____个等价区间</div>
+<ul class="sqe-options"><li><strong>A.</strong> 4</li><li><strong>B.</strong> 6</li><li><strong>C.</strong> 2</li><li><strong>D.</strong> 3</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验三课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 4</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 某系统对每个员工一年的出勤天数进行核算和存储(每月22工作日，一年最多出勤12*22=264天)，使用文本框进行填写。在此文本框的测试用例编写中使用了等价类划分法，则下面划分不准确的是 D. 有效等价类，0&amp;lt;出勤日&amp;lt;264 无效等价类，出勤日&amp;gt;264 无效等价类，出勤日为非数字 无效等价类，出勤日&amp;lt;0 有效等价类，0&amp;lt;出勤日&amp;lt;264">
+<div class="sqe-question">
+<p class="sqe-question-title">题 24-02（单选）</p>
+<div class="sqe-question-body">某系统对每个员工一年的出勤天数进行核算和存储(每月22工作日，一年最多出勤12*22=264天)，使用文本框进行填写。在此文本框的测试用例编写中使用了等价类划分法，则下面划分不准确的是</div>
+<ul class="sqe-options"><li><strong>A.</strong> 无效等价类，出勤日&gt;264</li><li><strong>B.</strong> 无效等价类，出勤日为非数字</li><li><strong>C.</strong> 无效等价类，出勤日&lt;0</li><li><strong>D.</strong> 有效等价类，0&lt;出勤日&lt;264</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验三课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 有效等价类，0&lt;出勤日&lt;264</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 黑盒测试称为功能测试，黑盒测试不能发现 D. 是否存在冗余代码 界面是否有误 输入是否正确接收 终止性错误 是否存在冗余代码">
+<div class="sqe-question">
+<p class="sqe-question-title">题 24-03（单选）</p>
+<div class="sqe-question-body">黑盒测试称为功能测试，黑盒测试不能发现</div>
+<ul class="sqe-options"><li><strong>A.</strong> 界面是否有误</li><li><strong>B.</strong> 输入是否正确接收</li><li><strong>C.</strong> 终止性错误</li><li><strong>D.</strong> 是否存在冗余代码</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验三课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 是否存在冗余代码</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 在划分了等价类后，首先需要设计一个案例覆盖_____有效等价类。 D. 尽可能多的 1 2 等价类数量-1个 尽可能多的">
+<div class="sqe-question">
+<p class="sqe-question-title">题 24-04（单选）</p>
+<div class="sqe-question-body">在划分了等价类后，首先需要设计一个案例覆盖_____有效等价类。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 1</li><li><strong>B.</strong> 2</li><li><strong>C.</strong> 等价类数量-1个</li><li><strong>D.</strong> 尽可能多的</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验三课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 尽可能多的</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 某视频应用有如下需求：该应用应该允许在下面的显示分辨率下播放视频： 1. 640*480 2. 1280*720 3. 1600*1200 4. 1920*1080 以下哪组测试用例是对该需求进行等价类划分测试技术得到的结果？ B. 验证应用能够在需求中的每个显示尺寸都可以播放视频（4 个测试用例） 验证应用能够在需求中的任意一个显示尺寸可以播放视频（1 个测试用例） 验证应用能够在需求中的每个显示尺寸都可以播放视频（4 个测试用例） 验证应用能够在显示尺寸 640*480 和 1920*1080 下播放视频（2 个测试用例） 验证应用能够在显示尺寸 1920*1080 下播放视频（1 个测试用例）">
+<div class="sqe-question">
+<p class="sqe-question-title">题 24-05（单选）</p>
+<div class="sqe-question-body">某视频应用有如下需求：该应用应该允许在下面的显示分辨率下播放视频：&nbsp;<br />1. 640*480&nbsp;<br />2. 1280*720&nbsp;<br />3. 1600*1200&nbsp;<br />4. 1920*1080<br />以下哪组测试用例是对该需求进行等价类划分测试技术得到的结果？</div>
+<ul class="sqe-options"><li><strong>A.</strong> 验证应用能够在需求中的任意一个显示尺寸可以播放视频（1 个测试用例）</li><li><strong>B.</strong> 验证应用能够在需求中的每个显示尺寸都可以播放视频（4 个测试用例）</li><li><strong>C.</strong> 验证应用能够在显示尺寸 640*480 和 1920*1080 下播放视频（2 个测试用例）</li><li><strong>D.</strong> 验证应用能够在显示尺寸 1920*1080 下播放视频（1 个测试用例）</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验三课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 验证应用能够在需求中的每个显示尺寸都可以播放视频（4 个测试用例）</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 需要计算员工的奖金。奖金不能是负数，但是最少可以是 0。 奖金是根据雇佣的时间： 小于等于 2 年 大于 2 年但是小于 5 年 5年到 10 年（包括 5 和 10），或者超过 10 年 为了覆盖奖金计算的所有有效等价类最少需要多少测试用例？ C. 4 3 5 4 2">
+<div class="sqe-question">
+<p class="sqe-question-title">题 24-06（单选）</p>
+<div class="sqe-question-body">需要计算员工的奖金。奖金不能是负数，但是最少可以是 0。<br />奖金是根据雇佣的时间：<br />
+<ul style="list-style-type: disc;">
+<li>小于等于 2 年</li>
+<li>大于 2 年但是小于 5 年</li>
+<li>5年到 10 年（包括 5 和 10），或者超过 10 年</li>
+</ul>
+为了覆盖奖金计算的所有有效等价类最少需要多少测试用例？</div>
+<ul class="sqe-options"><li><strong>A.</strong> 3</li><li><strong>B.</strong> 5</li><li><strong>C.</strong> 4</li><li><strong>D.</strong> 2</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验三课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 4</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 一个程序只有一个输入S，其取值范围是－60&amp;le;S&amp;le;60。现从输入的角度设计了一组测试数据：-200，20，200，设计这组测试用例的方法 A. 等价类划分 等价类划分 因果图 条件覆盖 边界值分析">
+<div class="sqe-question">
+<p class="sqe-question-title">题 24-07（单选）</p>
+<div class="sqe-question-body">一个程序只有一个输入S，其取值范围是－60&le;S&le;60。现从输入的角度设计了一组测试数据：-200，20，200，设计这组测试用例的方法</div>
+<ul class="sqe-options"><li><strong>A.</strong> 等价类划分</li><li><strong>B.</strong> 因果图</li><li><strong>C.</strong> 条件覆盖</li><li><strong>D.</strong> 边界值分析</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验三课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 等价类划分</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 若有一个计算类型的程序，它的输入量只有&amp;mdash;个X，其范围是[-1．0，1．0]，现从输入的角度考虑一组测试用例：-1.001，-1.0，1.0，1.001。设计这组测试用例的方法是 A. 边界值分析法 边界值分析法 等价分类法 条件覆盖法 错误推测法">
+<div class="sqe-question">
+<p class="sqe-question-title">题 24-08（单选）</p>
+<div class="sqe-question-body">若有一个计算类型的程序，它的输入量只有&mdash;个X，其范围是[-1．0，1．0]，现从输入的角度考虑一组测试用例：-1.001，-1.0，1.0，1.001。设计这组测试用例的方法是</div>
+<ul class="sqe-options"><li><strong>A.</strong> 边界值分析法</li><li><strong>B.</strong> 等价分类法</li><li><strong>C.</strong> 条件覆盖法</li><li><strong>D.</strong> 错误推测法</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验三课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 边界值分析法</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 白盒测试、灰盒测试和黑盒测试都是常用的系统测试方法。其中，_____也称功能测试或数据驱动测试，它是已知产品所应具有的功能，通过测试来检测每个功能是否都能正常使用。 A. 黑盒测试 黑盒测试 都不对 白盒测试 灰盒测试">
+<div class="sqe-question">
+<p class="sqe-question-title">题 24-09（单选）</p>
+<div class="sqe-question-body">白盒测试、灰盒测试和黑盒测试都是常用的系统测试方法。其中，_____也称功能测试或数据驱动测试，它是已知产品所应具有的功能，通过测试来检测每个功能是否都能正常使用。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 黑盒测试</li><li><strong>B.</strong> 都不对</li><li><strong>C.</strong> 白盒测试</li><li><strong>D.</strong> 灰盒测试</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验三课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 黑盒测试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 用边界值分析法，假定1&amp;lt;X&amp;lt;100，那么整数X在测试中应取的边界值不包括 D. X=0，X=101 X=3，X=98 X=1，X=100 X=2，X=99 X=0，X=101">
+<div class="sqe-question">
+<p class="sqe-question-title">题 24-10（单选）</p>
+<div class="sqe-question-body">用边界值分析法，假定1&lt;X&lt;100，那么整数X在测试中应取的边界值不包括</div>
+<ul class="sqe-options"><li><strong>A.</strong> X=3，X=98</li><li><strong>B.</strong> X=1，X=100</li><li><strong>C.</strong> X=2，X=99</li><li><strong>D.</strong> X=0，X=101</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验三课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. X=0，X=101</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-16" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">24</span>
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>实验三课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">33 道题</span></div></div>
 </div>
 
@@ -5409,9 +5532,426 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 </article>
 </section>
 
-<section id="missing" class="sqe-tip">
-<h3>仍未导出的云班课活动</h3>
-<ul><li>测试相关未分类习题：err.act.notViewResult，操作无效，老师暂未公布答案，您无法查看结果。活动状态 IN_PRGRS，云班课显示题数 41。</li></ul>
+<section id="quiz-25" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">25</span>
+<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>未分类内容</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">41 道题</span><span class="sqe-source-pill">测试相关未分类习题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） MULTI 下列关于系统测试的描述，正确的是 A. 不仅执行功能性测试，还考虑非功能性测试；B. 主要采用黑盒测试技术；C. 参与人员可能包括项目团队成员、市场人员以及客户代表等；D. 需要在多种运行环境下进行测试 不仅执行功能性测试，还考虑非功能性测试 主要采用黑盒测试技术 参与人员可能包括项目团队成员、市场人员以及客户代表等 需要在多种运行环境下进行测试">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-01（多选）</p>
+<div class="sqe-question-body">下列关于系统测试的描述，正确的是</div>
+<ul class="sqe-options"><li><strong>A.</strong> 不仅执行功能性测试，还考虑非功能性测试</li><li><strong>B.</strong> 主要采用黑盒测试技术</li><li><strong>C.</strong> 参与人员可能包括项目团队成员、市场人员以及客户代表等</li><li><strong>D.</strong> 需要在多种运行环境下进行测试</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 不仅执行功能性测试，还考虑非功能性测试；B. 主要采用黑盒测试技术；C. 参与人员可能包括项目团队成员、市场人员以及客户代表等；D. 需要在多种运行环境下进行测试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 以下描述中哪个是正确的： B. 驱动模块是对原始模块的功能的模拟 当被测模块的被调用模块尚未测试或开发完成时，必须开发驱动模块，才能对被测模块进行单元测试 驱动模块是对原始模块的功能的模拟 针对具有调用关系的一组函数执行单元测试时，如果从最顶层的函数开始测试，直至底层函数，则不需要开发桩模块 要完成单元测试，必须开发桩模块和驱动模块">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-02（单选）</p>
+<div class="sqe-question-body">以下描述中哪个是正确的：</div>
+<ul class="sqe-options"><li><strong>A.</strong> 当被测模块的被调用模块尚未测试或开发完成时，必须开发驱动模块，才能对被测模块进行单元测试</li><li><strong>B.</strong> 驱动模块是对原始模块的功能的模拟</li><li><strong>C.</strong> 针对具有调用关系的一组函数执行单元测试时，如果从最顶层的函数开始测试，直至底层函数，则不需要开发桩模块</li><li><strong>D.</strong> 要完成单元测试，必须开发桩模块和驱动模块</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 驱动模块是对原始模块的功能的模拟</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 对于软件的&amp;beta;测试，下列描述正确的是 D. &amp;beta;测试就是在软件公司外部展开的测试，可以由非专业的测试人员执行的测试 &amp;beta;测试就是在软件公司内部展开的测试，由公司专业的测试人员执行的测试 &amp;beta;测试就是在软件公司内部展开的测试，由公司的非专业测试人员执行的测试 &amp;beta;测试就是在软件公司外部展开的测试，由专业的测试人员执行的测试 &amp;beta;测试就是在软件公司外部展开的测试，可以由非专业的测试人员执行的测试">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-03（单选）</p>
+<div class="sqe-question-body">对于软件的&beta;测试，下列描述正确的是</div>
+<ul class="sqe-options"><li><strong>A.</strong> &beta;测试就是在软件公司内部展开的测试，由公司专业的测试人员执行的测试</li><li><strong>B.</strong> &beta;测试就是在软件公司内部展开的测试，由公司的非专业测试人员执行的测试</li><li><strong>C.</strong> &beta;测试就是在软件公司外部展开的测试，由专业的测试人员执行的测试</li><li><strong>D.</strong> &beta;测试就是在软件公司外部展开的测试，可以由非专业的测试人员执行的测试</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. &beta;测试就是在软件公司外部展开的测试，可以由非专业的测试人员执行的测试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 系统测试是将软件系统与硬件、外设和网络等其他因素结合，对整个软件系统进行测试。_____不是系统测试的内容。 B. 路径测试 安全测试 路径测试 可靠性测试 安装测试">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-04（单选）</p>
+<div class="sqe-question-body">系统测试是将软件系统与硬件、外设和网络等其他因素结合，对整个软件系统进行测试。_____不是系统测试的内容。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 安全测试</li><li><strong>B.</strong> 路径测试</li><li><strong>C.</strong> 可靠性测试</li><li><strong>D.</strong> 安装测试</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 路径测试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 白盒测试法和黑盒测试法均可用于测试程序的内部结构。其中，_____ 将程序看做是路径的集合。 D. 白盒测试法 两者都不是 两者都是 黑盒测试 白盒测试法">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-05（单选）</p>
+<div class="sqe-question-body">白盒测试法和黑盒测试法均可用于测试程序的内部结构。其中，_____ 将程序看做是路径的集合。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 两者都不是</li><li><strong>B.</strong> 两者都是</li><li><strong>C.</strong> 黑盒测试</li><li><strong>D.</strong> 白盒测试法</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 白盒测试法</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 以下关于语句覆盖和判定覆盖的关系描述正确的是？ B. 100%判定覆盖保证 100%语句覆盖 100%语句覆盖保证 100%判定覆盖 100%判定覆盖保证 100%语句覆盖 50%的判定覆盖保证 50%的语句覆盖 判定覆盖永远不可能达到 100%">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-06（单选）</p>
+<div class="sqe-question-body">以下关于语句覆盖和判定覆盖的关系描述正确的是？</div>
+<ul class="sqe-options"><li><strong>A.</strong> 100%语句覆盖保证 100%判定覆盖</li><li><strong>B.</strong> 100%判定覆盖保证 100%语句覆盖</li><li><strong>C.</strong> 50%的判定覆盖保证 50%的语句覆盖</li><li><strong>D.</strong> 判定覆盖永远不可能达到 100%</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 100%判定覆盖保证 100%语句覆盖</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 程序变异的用途不包括_____。 A. 减少测试的工作量 减少测试的工作量 度量测试用例的缺陷检测能力 程序调优 强制出现特定条件以便执行测试">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-07（单选）</p>
+<div class="sqe-question-body">程序变异的用途不包括_____。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 减少测试的工作量</li><li><strong>B.</strong> 度量测试用例的缺陷检测能力</li><li><strong>C.</strong> 程序调优</li><li><strong>D.</strong> 强制出现特定条件以便执行测试</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 减少测试的工作量</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 软件测试过程中的集成测试主要是为了发现_____阶段的错误。 D. 概要设计 需求分析 详细设计 编码 概要设计">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-08（单选）</p>
+<div class="sqe-question-body">软件测试过程中的集成测试主要是为了发现_____阶段的错误。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 需求分析</li><li><strong>B.</strong> 详细设计</li><li><strong>C.</strong> 编码</li><li><strong>D.</strong> 概要设计</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 概要设计</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 配置测试是指 B. 使用各种硬件或参数来测试软件的过程 检查软件缺陷是否有效改正 使用各种硬件或参数来测试软件的过程 检查软件运行所需的硬件是否都已配备 检查测试软件各部件之间是否能正确交互和共享信息">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-09（单选）</p>
+<div class="sqe-question-body">配置测试是指</div>
+<ul class="sqe-options"><li><strong>A.</strong> 检查软件缺陷是否有效改正</li><li><strong>B.</strong> 使用各种硬件或参数来测试软件的过程</li><li><strong>C.</strong> 检查软件运行所需的硬件是否都已配备</li><li><strong>D.</strong> 检查测试软件各部件之间是否能正确交互和共享信息</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 使用各种硬件或参数来测试软件的过程</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 在_____的指导下，测试人员可以评价测试用例集的错误检测能力，创建错误检测能力更强的测试数据集。 C. 变异测试 程序插桩 逻辑覆盖测试 变异测试 路径测试">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-10（单选）</p>
+<div class="sqe-question-body">在_____的指导下，测试人员可以评价测试用例集的错误检测能力，创建错误检测能力更强的测试数据集。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 程序插桩</li><li><strong>B.</strong> 逻辑覆盖测试</li><li><strong>C.</strong> 变异测试</li><li><strong>D.</strong> 路径测试</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 变异测试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 软件验收测试合格通过的标准不包括 C. 至少有一项软件功能超出软件需求分析说明书中的定义，属于软件特色功能。 软件需求分析说明书中定义的所有功能已全部实现，性能指标全部达到要求。 所有在软件测试中被发现的严重软件缺陷均已被修复。 至少有一项软件功能超出软件需求分析说明书中的定义，属于软件特色功能。 立项审批表、需求分析文档、设计文档和编码实现一致。">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-11（单选）</p>
+<div class="sqe-question-body">软件验收测试合格通过的标准不包括</div>
+<ul class="sqe-options"><li><strong>A.</strong> 软件需求分析说明书中定义的所有功能已全部实现，性能指标全部达到要求。</li><li><strong>B.</strong> 所有在软件测试中被发现的严重软件缺陷均已被修复。</li><li><strong>C.</strong> 至少有一项软件功能超出软件需求分析说明书中的定义，属于软件特色功能。</li><li><strong>D.</strong> 立项审批表、需求分析文档、设计文档和编码实现一致。</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 至少有一项软件功能超出软件需求分析说明书中的定义，属于软件特色功能。</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 几乎所有的性能测试都会涉及 B. 并发测试 安装测试 并发测试 压力测试 容量测试">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-12（单选）</p>
+<div class="sqe-question-body">几乎所有的性能测试都会涉及</div>
+<ul class="sqe-options"><li><strong>A.</strong> 安装测试</li><li><strong>B.</strong> 并发测试</li><li><strong>C.</strong> 压力测试</li><li><strong>D.</strong> 容量测试</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 并发测试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 采用程序插桩一般是为了获取程序执行的_____信息。 B. 过程状态 输出结果 过程状态 输入数据 账号密码">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-13（单选）</p>
+<div class="sqe-question-body">采用程序插桩一般是为了获取程序执行的_____信息。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 输出结果</li><li><strong>B.</strong> 过程状态</li><li><strong>C.</strong> 输入数据</li><li><strong>D.</strong> 账号密码</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 过程状态</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 以下关于集成测试的内容正确的表述有_____。 ①集成测试也叫组装测试或者联合测试； ②在把各个模块连接起来的时候，穿越模块接口的数据是否会丢失； ③一个模块的功能是否会对另一个模块的功能产生不利的影响； ④各个子功能组合起来，能否达到预期要求的父功能； ⑤全局数据结构是否有问题； ⑥单个模块的误差累积起来，是否会放大，从而达到不能接受的程度； D. 全部正确 ①②③⑤⑥ ③④⑤⑥ ②④⑤⑥ 全部正确">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-14（单选）</p>
+<div class="sqe-question-body">以下关于集成测试的内容正确的表述有_____。<br />①集成测试也叫组装测试或者联合测试；<br />②在把各个模块连接起来的时候，穿越模块接口的数据是否会丢失；<br />③一个模块的功能是否会对另一个模块的功能产生不利的影响；<br />④各个子功能组合起来，能否达到预期要求的父功能；<br />⑤全局数据结构是否有问题；<br />⑥单个模块的误差累积起来，是否会放大，从而达到不能接受的程度；</div>
+<ul class="sqe-options"><li><strong>A.</strong> ①②③⑤⑥</li><li><strong>B.</strong> ③④⑤⑥</li><li><strong>C.</strong> ②④⑤⑥</li><li><strong>D.</strong> 全部正确</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 全部正确</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 应该在软件的其它部分使用该类之前来执行对类的测试。防止因未经测试的类被使用而导致 C. 缺陷传导和扩散 执行失败 测试异常 缺陷传导和扩散 代码出错">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-15（单选）</p>
+<div class="sqe-question-body">应该在软件的其它部分使用该类之前来执行对类的测试。防止因未经测试的类被使用而导致</div>
+<ul class="sqe-options"><li><strong>A.</strong> 执行失败</li><li><strong>B.</strong> 测试异常</li><li><strong>C.</strong> 缺陷传导和扩散</li><li><strong>D.</strong> 代码出错</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 缺陷传导和扩散</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 面向对象软件测试是根据面向对象的软件开发过程结合面向对象的特点提出的。它不包括： D. 对象封装测试 分析与设计模型测试技术 类测试技术 对象交互测试技术 对象封装测试">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-16（单选）</p>
+<div class="sqe-question-body">面向对象软件测试是根据面向对象的软件开发过程结合面向对象的特点提出的。它不包括：</div>
+<ul class="sqe-options"><li><strong>A.</strong> 分析与设计模型测试技术</li><li><strong>B.</strong> 类测试技术</li><li><strong>C.</strong> 对象交互测试技术</li><li><strong>D.</strong> 对象封装测试</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 对象封装测试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 如果父类带有缺陷，派生出的_____也会带有缺陷。继承使代码的重用率得到了提高，但同时也使缺陷的传播几率增加。 A. 子类 子类 代码 函数 软件">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-17（单选）</p>
+<div class="sqe-question-body">如果父类带有缺陷，派生出的_____也会带有缺陷。继承使代码的重用率得到了提高，但同时也使缺陷的传播几率增加。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 子类</li><li><strong>B.</strong> 代码</li><li><strong>C.</strong> 函数</li><li><strong>D.</strong> 软件</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 子类</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 下列关于alpha测试的描述中正确的是 A. alpha测试是验收测试的一种 alpha测试是验收测试的一种 alpha测试是系统测试的一种 alpha测试一定要真实的最终软件用户参加 alpha测试是集成测试的一种">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-18（单选）</p>
+<div class="sqe-question-body">下列关于alpha测试的描述中正确的是</div>
+<ul class="sqe-options"><li><strong>A.</strong> alpha测试是验收测试的一种</li><li><strong>B.</strong> alpha测试是系统测试的一种</li><li><strong>C.</strong> alpha测试一定要真实的最终软件用户参加</li><li><strong>D.</strong> alpha测试是集成测试的一种</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. alpha测试是验收测试的一种</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 用于考察当前软硬件环境下软件系统所能承受的最大负荷并帮助找出系统瓶颈所在的是 B. 压力测试 容量测试 压力测试 负载测试 疲劳测试">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-19（单选）</p>
+<div class="sqe-question-body">用于考察当前软硬件环境下软件系统所能承受的最大负荷并帮助找出系统瓶颈所在的是</div>
+<ul class="sqe-options"><li><strong>A.</strong> 容量测试</li><li><strong>B.</strong> 压力测试</li><li><strong>C.</strong> 负载测试</li><li><strong>D.</strong> 疲劳测试</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 压力测试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 错误推测法的基本想法是：_____ D. 列举出程序中所有可能有的错误和容易发生错误的特殊情况，根据它们选择测试用例 划分有效等价类和无效等价类 划分原因和结果 列出所有的可能情况 列举出程序中所有可能有的错误和容易发生错误的特殊情况，根据它们选择测试用例">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-20（单选）</p>
+<div class="sqe-question-body">错误推测法的基本想法是：_____</div>
+<ul class="sqe-options"><li><strong>A.</strong> 划分有效等价类和无效等价类</li><li><strong>B.</strong> 划分原因和结果</li><li><strong>C.</strong> 列出所有的可能情况</li><li><strong>D.</strong> 列举出程序中所有可能有的错误和容易发生错误的特殊情况，根据它们选择测试用例</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 列举出程序中所有可能有的错误和容易发生错误的特殊情况，根据它们选择测试用例</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 以下不属于集成测试的是。 D. 函数内局部变量的值是否为预期值 各个子功能组合起来，能否达到预期要求 一个模块的功能是否会对另一个模块的功能产生不利的影响 全局数据结构是否有问题 函数内局部变量的值是否为预期值">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-21（单选）</p>
+<div class="sqe-question-body">以下不属于集成测试的是。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 各个子功能组合起来，能否达到预期要求</li><li><strong>B.</strong> 一个模块的功能是否会对另一个模块的功能产生不利的影响</li><li><strong>C.</strong> 全局数据结构是否有问题</li><li><strong>D.</strong> 函数内局部变量的值是否为预期值</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 函数内局部变量的值是否为预期值</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） TF 功能测试是系统测试的主要内容，检查系统的功能、性能是否与需求规格说明相同。 正确">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-22（判断）</p>
+<div class="sqe-question-body">功能测试是系统测试的主要内容，检查系统的功能、性能是否与需求规格说明相同。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） FILL 系统测试包括 （填空1） 测试、 （填空2） 测试、 （填空3） 测试、 （填空4） 测试等。 填空1: 压力；填空2: 容量；填空3: 性能；填空4: 安全性">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-23（填空）</p>
+<div class="sqe-question-body">系统测试包括 （填空1） 测试、 （填空2） 测试、 （填空3） 测试、 （填空4） 测试等。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>填空</span><span>4 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 压力；填空2: 容量；填空3: 性能；填空4: 安全性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 常见的覆盖率标准不包括_____ A. 函数覆盖 函数覆盖 逻辑覆盖 数据流覆盖 功能覆盖">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-24（单选）</p>
+<div class="sqe-question-body">常见的覆盖率标准不包括_____</div>
+<ul class="sqe-options"><li><strong>A.</strong> 函数覆盖</li><li><strong>B.</strong> 逻辑覆盖</li><li><strong>C.</strong> 数据流覆盖</li><li><strong>D.</strong> 功能覆盖</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 函数覆盖</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 对已经发现的错误进行错误定位和确定出错性质，并改正这些错误，同时修改相关的文档，这种行为属于______。 B. 调试 测试 调试 回归测试 单元测试">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-25（单选）</p>
+<div class="sqe-question-body">对已经发现的错误进行错误定位和确定出错性质，并改正这些错误，同时修改相关的文档，这种行为属于______。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 测试</li><li><strong>B.</strong> 调试</li><li><strong>C.</strong> 回归测试</li><li><strong>D.</strong> 单元测试</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 调试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE ______是一种关注变量定义赋值点（语句）和引用或使用这些值的点（语句）的结构性测试，主要用作路径测试的真实性检查。 D. 数据流测试 基本路径测试 逻辑覆盖 决策表 数据流测试">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-26（单选）</p>
+<div class="sqe-question-body">______是一种关注变量定义赋值点（语句）和引用或使用这些值的点（语句）的结构性测试，主要用作路径测试的真实性检查。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 基本路径测试</li><li><strong>B.</strong> 逻辑覆盖</li><li><strong>C.</strong> 决策表</li><li><strong>D.</strong> 数据流测试</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 数据流测试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 在单元测试的基础上，需要将所有模块按照概要设计和详细设计说明书的要求进行组装，模块组装成系统的方式有两种，分别是 _____。 A. 一次性组装和增殖性组装 一次性组装和增殖性组装 自顶向下组装和自底向上组装 单个模块组装和混合模块组装 接口组装和功能组装">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-27（单选）</p>
+<div class="sqe-question-body">在单元测试的基础上，需要将所有模块按照概要设计和详细设计说明书的要求进行组装，模块组装成系统的方式有两种，分别是&nbsp;_____。</div>
+<ul class="sqe-options"><li><strong>A.</strong> 一次性组装和增殖性组装</li><li><strong>B.</strong> 自顶向下组装和自底向上组装</li><li><strong>C.</strong> 单个模块组装和混合模块组装</li><li><strong>D.</strong> 接口组装和功能组装</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 一次性组装和增殖性组装</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） TF 功能测试是系统测试的主要内容，检查系统的功能、性能是否与需求规格说明相同。 正确">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-28（判断）</p>
+<div class="sqe-question-body">功能测试是系统测试的主要内容，检查系统的功能、性能是否与需求规格说明相同。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） TF 软件测试员可以对产品说明书进行白盒测试。 错误">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-29（判断）</p>
+<div class="sqe-question-body">软件测试员可以对产品说明书进行白盒测试。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） TF 压力测试通常需要辅助工具的支持。 正确">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-30（判断）</p>
+<div class="sqe-question-body">压力测试通常需要辅助工具的支持。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） TF 自动化测试可能延误项目进度。 正确">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-31（判断）</p>
+<div class="sqe-question-body">自动化测试可能延误项目进度。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） FILL 单元测试是对软件基本组成单元进行的测试，一般在代码完成后由 （填空1） 人员完成， （填空2） 人员辅助。 填空1: 开发；填空2: SQA">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-32（填空）</p>
+<div class="sqe-question-body">单元测试是对软件基本组成单元进行的测试，一般在代码完成后由 （填空1） 人员完成， （填空2） 人员辅助。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>填空</span><span>2 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 开发；填空2: SQA</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） FILL 为了将数据库性能、应用程序和系统参数优化，通常对 （填空1） 进行测试。 填空1: 数据库应用服务器">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-33（填空）</p>
+<div class="sqe-question-body">为了将数据库性能、应用程序和系统参数优化，通常对 （填空1） 进行测试。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 数据库应用服务器</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） FILL 恢复测试主要检查系统的 （填空1） 。 填空1: 容错能力">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-34（填空）</p>
+<div class="sqe-question-body">恢复测试主要检查系统的 （填空1） 。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 容错能力</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） FILL （填空1） 测试是检查软件在异常条件下自身是否具有防护性的措施或者某种灾难性恢复的手段。 填空1: 容错性">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-35（填空）</p>
+<div class="sqe-question-body">（填空1） 测试是检查软件在异常条件下自身是否具有防护性的措施或者某种灾难性恢复的手段。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 容错性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） TF 验收测试是以最终用户为主的测试。 正确">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-36（判断）</p>
+<div class="sqe-question-body">验收测试是以最终用户为主的测试。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） TF 自底向上集成需要测试员编写驱动程序。 正确">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-37（判断）</p>
+<div class="sqe-question-body">自底向上集成需要测试员编写驱动程序。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） FILL 验收测试在软件产品完成了 （填空1）测试 和 （填空2） 测试之后、产品发布之前所进行的软件测试活动它是技术测试的最后一个阶段,也称为交付测试。 填空1: 功能；填空2: 系统">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-38（填空）</p>
+<div class="sqe-question-body">验收测试在软件产品完成了 （填空1）测试 和 （填空2） 测试之后、产品发布之前所进行的软件测试活动它是技术测试的最后一个阶段,也称为交付测试。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>填空</span><span>2 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 功能；填空2: 系统</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） FILL 安全性分为两个层次，即 （填空1） 级别的安全性和 （填空2） 级别的安全性。 填空1: 应用程序；填空2: 系统">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-39（填空）</p>
+<div class="sqe-question-body">安全性分为两个层次，即 （填空1） 级别的安全性和 （填空2） 级别的安全性。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>填空</span><span>2 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 应用程序；填空2: 系统</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） FILL （填空1） 测试的目的：为了验证系统是否达到用户提出的性能指标，同时发现系统中存在的性能瓶颈，起到优化系统的目的。 填空1: 性能">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-40（填空）</p>
+<div class="sqe-question-body">（填空1） 测试的目的：为了验证系统是否达到用户提出的性能指标，同时发现系统中存在的性能瓶颈，起到优化系统的目的。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 性能</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） FILL 静态测试技术主要使用的分析方法包括： （填空1） 、 （填空2） 、 （填空3） 。 填空1: 走查；填空2: 审查；填空3: 评审">
+<div class="sqe-question">
+<p class="sqe-question-title">题 25-41（填空）</p>
+<div class="sqe-question-body">静态测试技术主要使用的分析方法包括： （填空1） 、 （填空2） 、 （填空3） 。</div>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>测试相关未分类习题</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 走查；填空2: 审查；填空3: 评审</p></div></details></div>
+</article>
+</section>
+
+<section class="sqe-tip">
+<h3>云班课核对状态</h3>
+<ul><li>2026-06-27 已核对云班课活动 49 个；25 个 QUIZ 均已记录。期末大作业仍保留在云班课提交区，不作为题库导出。</li></ul>
 </section>
 </div>
 
