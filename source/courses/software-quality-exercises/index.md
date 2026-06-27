@@ -410,58 +410,58 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <h2 class="sqe-section-title">题库跳转</h2>
 <nav class="sqe-nav" aria-label="题库跳转">
 <a class="sqe-chip" href="#peer">互评简答</a>
-<a class="sqe-chip" href="#quiz-1">第八章课上测试</a>
-<a class="sqe-chip" href="#quiz-2">实验一课后练习</a>
-<a class="sqe-chip" href="#quiz-3">第七章课后练习</a>
-<a class="sqe-chip" href="#quiz-4">第七章课上测试</a>
-<a class="sqe-chip" href="#quiz-5">第九章课后练习</a>
-<a class="sqe-chip" href="#quiz-6">第五章课后练习</a>
-<a class="sqe-chip" href="#quiz-7">第三章课上测试</a>
-<a class="sqe-chip" href="#quiz-8">第八章课后练习</a>
-<a class="sqe-chip" href="#quiz-9">第二章课后练习</a>
-<a class="sqe-chip" href="#quiz-10">第二章课上测试</a>
-<a class="sqe-chip" href="#quiz-11">第六章课上测试</a>
-<a class="sqe-chip" href="#quiz-12">第四章课后练习</a>
-<a class="sqe-chip" href="#quiz-13">实验二课后练习</a>
-<a class="sqe-chip" href="#quiz-14">第一章课后练习</a>
-<a class="sqe-chip" href="#quiz-15">第三章课后练习</a>
-<a class="sqe-chip" href="#quiz-16">实验三课后练习</a>
-<a class="sqe-chip" href="#quiz-17">第六章课后练习</a>
 <a class="sqe-chip" href="#quiz-18">第一章课上测试</a>
+<a class="sqe-chip" href="#quiz-14">第一章课后练习</a>
+<a class="sqe-chip" href="#quiz-10">第二章课上测试</a>
+<a class="sqe-chip" href="#quiz-9">第二章课后练习</a>
+<a class="sqe-chip" href="#quiz-7">第三章课上测试</a>
+<a class="sqe-chip" href="#quiz-15">第三章课后练习</a>
 <a class="sqe-chip" href="#quiz-19">第四章课上测试</a>
+<a class="sqe-chip" href="#quiz-12">第四章课后练习</a>
 <a class="sqe-chip" href="#quiz-20">第五章课上测试</a>
+<a class="sqe-chip" href="#quiz-6">第五章课后练习</a>
+<a class="sqe-chip" href="#quiz-11">第六章课上测试</a>
+<a class="sqe-chip" href="#quiz-17">第六章课后练习</a>
+<a class="sqe-chip" href="#quiz-4">第七章课上测试</a>
+<a class="sqe-chip" href="#quiz-3">第七章课后练习</a>
+<a class="sqe-chip" href="#quiz-1">第八章课上测试</a>
+<a class="sqe-chip" href="#quiz-8">第八章课后练习</a>
 <a class="sqe-chip" href="#quiz-21">第九章课上测试</a>
-<a class="sqe-chip" href="#quiz-22">实验二课上测试</a>
+<a class="sqe-chip" href="#quiz-5">第九章课后练习</a>
 <a class="sqe-chip" href="#quiz-23">实验一课上测试</a>
+<a class="sqe-chip" href="#quiz-2">实验一课后练习</a>
+<a class="sqe-chip" href="#quiz-22">实验二课上测试</a>
+<a class="sqe-chip" href="#quiz-13">实验二课后练习</a>
+<a class="sqe-chip" href="#quiz-16">实验三课后练习</a>
 <a class="sqe-chip" href="#missing">未导出说明</a>
 </nav>
 
 <aside class="sqe-side-toc" aria-label="固定目录">
 <strong>云班课目录</strong>
 <a href="#peer">互评简答</a>
-<a href="#quiz-1">第八章课上测试</a>
-<a href="#quiz-2">实验一课后练习</a>
-<a href="#quiz-3">第七章课后练习</a>
-<a href="#quiz-4">第七章课上测试</a>
-<a href="#quiz-5">第九章课后练习</a>
-<a href="#quiz-6">第五章课后练习</a>
-<a href="#quiz-7">第三章课上测试</a>
-<a href="#quiz-8">第八章课后练习</a>
-<a href="#quiz-9">第二章课后练习</a>
-<a href="#quiz-10">第二章课上测试</a>
-<a href="#quiz-11">第六章课上测试</a>
-<a href="#quiz-12">第四章课后练习</a>
-<a href="#quiz-13">实验二课后练习</a>
-<a href="#quiz-14">第一章课后练习</a>
-<a href="#quiz-15">第三章课后练习</a>
-<a href="#quiz-16">实验三课后练习</a>
-<a href="#quiz-17">第六章课后练习</a>
 <a href="#quiz-18">第一章课上测试</a>
+<a href="#quiz-14">第一章课后练习</a>
+<a href="#quiz-10">第二章课上测试</a>
+<a href="#quiz-9">第二章课后练习</a>
+<a href="#quiz-7">第三章课上测试</a>
+<a href="#quiz-15">第三章课后练习</a>
 <a href="#quiz-19">第四章课上测试</a>
+<a href="#quiz-12">第四章课后练习</a>
 <a href="#quiz-20">第五章课上测试</a>
+<a href="#quiz-6">第五章课后练习</a>
+<a href="#quiz-11">第六章课上测试</a>
+<a href="#quiz-17">第六章课后练习</a>
+<a href="#quiz-4">第七章课上测试</a>
+<a href="#quiz-3">第七章课后练习</a>
+<a href="#quiz-1">第八章课上测试</a>
+<a href="#quiz-8">第八章课后练习</a>
 <a href="#quiz-21">第九章课上测试</a>
-<a href="#quiz-22">实验二课上测试</a>
+<a href="#quiz-5">第九章课后练习</a>
 <a href="#quiz-23">实验一课上测试</a>
+<a href="#quiz-2">实验一课后练习</a>
+<a href="#quiz-22">实验二课上测试</a>
+<a href="#quiz-13">实验二课后练习</a>
+<a href="#quiz-16">实验三课后练习</a>
 <a href="#missing">未导出说明</a>
 </aside>
 
@@ -776,10 +776,2157 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 </article>
 </section>
 
+<section id="quiz-18" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">01</span>
+<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第一章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） FILL 质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。 填空1: 系统；填空2: 部件；填空3: 过程 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 18-01（填空）</p>
+<p>质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 系统；填空2: 部件；填空3: 过程</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） MULTI 质量管理是指在质量方面（ ）和（ ）组织的协调的活动 B. 指挥；C. 控制 策划 指挥 控制 制定">
+<div class="sqe-question">
+<p class="sqe-question-title">题 18-02（多选）</p>
+<p>质量管理是指在质量方面（ ）和（ ）组织的协调的活动</p>
+<ul class="sqe-options"><li><strong>A.</strong> 策划</li><li><strong>B.</strong> 指挥</li><li><strong>C.</strong> 控制</li><li><strong>D.</strong> 制定</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 指挥；C. 控制</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量改进是质量管理的一部分，致力于增强满足质量要求的能力  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 18-03（判断）</p>
+<p>质量改进是质量管理的一部分，致力于增强满足质量要求的能力</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量特性是指产品、过程或体系与标准有关的固有特性。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 18-04（判断）</p>
+<p>质量特性是指产品、过程或体系与标准有关的固有特性。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） MULTI 质量管理体系可以（ ） A. 帮助组织实现顾客满意；B. 为组织提供实现持续改进的框架；C. 向顾客提供信任 帮助组织实现顾客满意 为组织提供实现持续改进的框架 向顾客提供信任 使管理过程标准化">
+<div class="sqe-question">
+<p class="sqe-question-title">题 18-05（多选）</p>
+<p>质量管理体系可以（ ）</p>
+<ul class="sqe-options"><li><strong>A.</strong> 帮助组织实现顾客满意</li><li><strong>B.</strong> 为组织提供实现持续改进的框架</li><li><strong>C.</strong> 向顾客提供信任</li><li><strong>D.</strong> 使管理过程标准化</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 帮助组织实现顾客满意；B. 为组织提供实现持续改进的框架；C. 向顾客提供信任</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量管理体系是为实现质量方针和质量目标而建立的管理工作系统  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 18-06（判断）</p>
+<p>质量管理体系是为实现质量方针和质量目标而建立的管理工作系统</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 18-07（判断）</p>
+<p>珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 当生产过程处于受控制状态时，产品质量就不会波动  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 18-08（判断）</p>
+<p>当生产过程处于受控制状态时，产品质量就不会波动</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量管理是指在质量方面指挥和控制组织的协调的活动  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 18-09（判断）</p>
+<p>质量管理是指在质量方面指挥和控制组织的协调的活动</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） SINGLE 著名的质量管理专家朱兰提出的质量管理三步曲是指 （ ）。 C. 质量策划、质量控制、质量改进 质量保证、质量控制、质量改进 质量控制、质量保证、质量改进 质量策划、质量控制、质量改进 质量策划、 质量改进、质量保证">
+<div class="sqe-question">
+<p class="sqe-question-title">题 18-10（单选）</p>
+<p>著名的质量管理专家朱兰提出的质量管理三步曲是指 （ ）。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 质量保证、质量控制、质量改进</li><li><strong>B.</strong> 质量控制、质量保证、质量改进</li><li><strong>C.</strong> 质量策划、质量控制、质量改进</li><li><strong>D.</strong> 质量策划、 质量改进、质量保证</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 质量策划、质量控制、质量改进</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-14" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">02</span>
+<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第一章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">27 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） FILL 与质量相关的概念包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 和 （填空6） 。 填空1: 组织；填空2: 过程；填空3: 产品；填空4: 服务；填空5: 客户；填空6: 体系 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-01（填空）</p>
+<p>与质量相关的概念包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 和 （填空6） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>填空</span><span>6 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 组织；填空2: 过程；填空3: 产品；填空4: 服务；填空5: 客户；填空6: 体系</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） FILL 质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。 填空1: 系统；填空2: 部件；填空3: 过程 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-02（填空）</p>
+<p>质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 系统；填空2: 部件；填空3: 过程</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） FILL 质量的属性包括： （填空1） 属性、 （填空2） 属性、 （填空3） 属性、 （填空4） 、 （填空5） 。 填空1: 客户；填空2: 成本；填空3: 社会；填空4: 可测性；填空5: 可预见性 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-03（填空）</p>
+<p>质量的属性包括： （填空1） 属性、 （填空2） 属性、 （填空3） 属性、 （填空4） 、 （填空5） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>填空</span><span>5 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 客户；填空2: 成本；填空3: 社会；填空4: 可测性；填空5: 可预见性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） MULTI 质量管理是指在质量方面（ ）和（ ）组织的协调的活动 B. 指挥；C. 控制 策划 指挥 控制 制定">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-04（多选）</p>
+<p>质量管理是指在质量方面（ ）和（ ）组织的协调的活动</p>
+<ul class="sqe-options"><li><strong>A.</strong> 策划</li><li><strong>B.</strong> 指挥</li><li><strong>C.</strong> 控制</li><li><strong>D.</strong> 制定</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 指挥；C. 控制</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量检验是对产品质量特性进行检验，以确定每项质量特性合格情况的管理性检查活动  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-05（判断）</p>
+<p>质量检验是对产品质量特性进行检验，以确定每项质量特性合格情况的管理性检查活动</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 持续改进总体业绩应当是组织应追求的目标  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-06（判断）</p>
+<p>持续改进总体业绩应当是组织应追求的目标</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量改进是质量管理的一部分，致力于增强满足质量要求的能力  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-07（判断）</p>
+<p>质量改进是质量管理的一部分，致力于增强满足质量要求的能力</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量控制是按照一个设定的标准去实施检验  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-08（判断）</p>
+<p>质量控制是按照一个设定的标准去实施检验</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 服务是产品类别中的一类  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-09（判断）</p>
+<p>服务是产品类别中的一类</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量特性是指产品、过程或体系与标准有关的固有特性。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-10（判断）</p>
+<p>质量特性是指产品、过程或体系与标准有关的固有特性。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF &amp;ldquo;符合标准&amp;rdquo;就是合格的产品质量  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-11（判断）</p>
+<p>&amp;ldquo;符合标准&amp;rdquo;就是合格的产品质量</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） MULTI 质量管理体系可以（ ） A. 帮助组织实现顾客满意；B. 为组织提供实现持续改进的框架；C. 向顾客提供信任 帮助组织实现顾客满意 为组织提供实现持续改进的框架 向顾客提供信任 使管理过程标准化">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-12（多选）</p>
+<p>质量管理体系可以（ ）</p>
+<ul class="sqe-options"><li><strong>A.</strong> 帮助组织实现顾客满意</li><li><strong>B.</strong> 为组织提供实现持续改进的框架</li><li><strong>C.</strong> 向顾客提供信任</li><li><strong>D.</strong> 使管理过程标准化</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 帮助组织实现顾客满意；B. 为组织提供实现持续改进的框架；C. 向顾客提供信任</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） MULTI 实现全面质量管理全过程的管理必须体现（ ）的思想 A. 预防为主、不断改进；D. 为顾客服务 预防为主、不断改进 严格质量检验 加强生产控制 为顾客服务">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-13（多选）</p>
+<p>实现全面质量管理全过程的管理必须体现（ ）的思想</p>
+<ul class="sqe-options"><li><strong>A.</strong> 预防为主、不断改进</li><li><strong>B.</strong> 严格质量检验</li><li><strong>C.</strong> 加强生产控制</li><li><strong>D.</strong> 为顾客服务</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 预防为主、不断改进；D. 为顾客服务</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 不合格品控制时，请示领导决定是否可用  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-14（判断）</p>
+<p>不合格品控制时，请示领导决定是否可用</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量管理体系是为实现质量方针和质量目标而建立的管理工作系统  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-15（判断）</p>
+<p>质量管理体系是为实现质量方针和质量目标而建立的管理工作系统</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-16（判断）</p>
+<p>珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量改进和质量控制都是为了保持产品质量稳定  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-17（判断）</p>
+<p>质量改进和质量控制都是为了保持产品质量稳定</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 当生产过程处于受控制状态时，产品质量就不会波动  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-18（判断）</p>
+<p>当生产过程处于受控制状态时，产品质量就不会波动</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量控制是消除偶发性问题，使产品质量保持规定的水平  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-19（判断）</p>
+<p>质量控制是消除偶发性问题，使产品质量保持规定的水平</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量管理是指在质量方面指挥和控制组织的协调的活动  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-20（判断）</p>
+<p>质量管理是指在质量方面指挥和控制组织的协调的活动</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 致力于制定质量目标并规定必要的运行过程和相关资源以实现质量目标，称之为（ ） B. 质量策划 质量管理 质量策划 质量保证 质量控制">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-21（单选）</p>
+<p>致力于制定质量目标并规定必要的运行过程和相关资源以实现质量目标，称之为（ ）</p>
+<ul class="sqe-options"><li><strong>A.</strong> 质量管理</li><li><strong>B.</strong> 质量策划</li><li><strong>C.</strong> 质量保证</li><li><strong>D.</strong> 质量控制</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 质量策划</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 质量方针是一个组织总的质量宗旨和方向，应由组织的（ ）批准。 B. 最高管理者 上级机关 最高管理者 质量管理办公室主任 总工程师">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-22（单选）</p>
+<p>质量方针是一个组织总的质量宗旨和方向，应由组织的（ ）批准。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 上级机关</li><li><strong>B.</strong> 最高管理者</li><li><strong>C.</strong> 质量管理办公室主任</li><li><strong>D.</strong> 总工程师</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 最高管理者</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 由于组织的顾客和其他相关方对组织的产品、过程和体系的要求是随着时间不断变化的，这体现了质量的（ ）。 A. 时效性 时效性 广泛性 主观性 相对性">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-23（单选）</p>
+<p>由于组织的顾客和其他相关方对组织的产品、过程和体系的要求是随着时间不断变化的，这体现了质量的（ ）。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 时效性</li><li><strong>B.</strong> 广泛性</li><li><strong>C.</strong> 主观性</li><li><strong>D.</strong> 相对性</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 时效性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 著名的质量管理专家朱兰提出的质量管理三步曲是指 （ ）。 C. 质量策划、质量控制、质量改进 质量保证、质量控制、质量改进 质量控制、质量保证、质量改进 质量策划、质量控制、质量改进 质量策划、 质量改进、质量保证">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-24（单选）</p>
+<p>著名的质量管理专家朱兰提出的质量管理三步曲是指 （ ）。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 质量保证、质量控制、质量改进</li><li><strong>B.</strong> 质量控制、质量保证、质量改进</li><li><strong>C.</strong> 质量策划、质量控制、质量改进</li><li><strong>D.</strong> 质量策划、 质量改进、质量保证</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 质量策划、质量控制、质量改进</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 质量概念涵盖的对象是（ ）。 D. 以上皆是 产品 服务 过程 以上皆是">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-25（单选）</p>
+<p>质量概念涵盖的对象是（ ）。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 产品</li><li><strong>B.</strong> 服务</li><li><strong>C.</strong> 过程</li><li><strong>D.</strong> 以上皆是</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 以上皆是</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 从适合顾客需要的角度对产品质量下定义被称为（ ）。 D. 适用性质量 符合性质量 广义性质量 满意的质量 适用性质量">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-26（单选）</p>
+<p>从适合顾客需要的角度对产品质量下定义被称为（ ）。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 符合性质量</li><li><strong>B.</strong> 广义性质量</li><li><strong>C.</strong> 满意的质量</li><li><strong>D.</strong> 适用性质量</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 适用性质量</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 质量是一组固有（ ）满足要求的程度。 A. 特性 特性 品质 行为的特性 特征">
+<div class="sqe-question">
+<p class="sqe-question-title">题 14-27（单选）</p>
+<p>质量是一组固有（ ）满足要求的程度。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 特性</li><li><strong>B.</strong> 品质</li><li><strong>C.</strong> 行为的特性</li><li><strong>D.</strong> 特征</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 特性</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-10" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">03</span>
+<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第二章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） SINGLE 据权威部门统计，软件错误产生的原因分布图表中，如下____________选项是导致软件错误的主要原因。 A. 软件需求规格说明错误 软件需求规格说明错误 设计错误 编码错误 测试错误">
+<div class="sqe-question">
+<p class="sqe-question-title">题 10-01（单选）</p>
+<p>据权威部门统计，软件错误产生的原因分布图表中，如下____________选项是导致软件错误的主要原因。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 软件需求规格说明错误</li><li><strong>B.</strong> 设计错误</li><li><strong>C.</strong> 编码错误</li><li><strong>D.</strong> 测试错误</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 软件需求规格说明错误</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） SINGLE V 模型是具有代表意义的测试模型，以下理解正确的是______。 C. V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现 V模型认为测试阶段是与开发阶段并行的 V 模型是软件开发螺旋模型的变种，它反映了测试活动与分析和设计的关系 V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现 V 模型是对W 模型的改进">
+<div class="sqe-question">
+<p class="sqe-question-title">题 10-02（单选）</p>
+<p>V 模型是具有代表意义的测试模型，以下理解正确的是______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> V模型认为测试阶段是与开发阶段并行的</li><li><strong>B.</strong> V 模型是软件开发螺旋模型的变种，它反映了测试活动与分析和设计的关系</li><li><strong>C.</strong> V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现</li><li><strong>D.</strong> V 模型是对W 模型的改进</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） SINGLE 下列关于软件设计的说法不正确的是：_______ D. 软件设计越复杂越好 软件设计可以分为概要设计和详细设计两个阶段 详细设计的首要任务就是设计模块的程序流程、算法和数据结构 软件概要设计是指对整个软件系统进行结构设计，确定软件系统的结构 软件设计越复杂越好">
+<div class="sqe-question">
+<p class="sqe-question-title">题 10-03（单选）</p>
+<p>下列关于软件设计的说法不正确的是：_______</p>
+<ul class="sqe-options"><li><strong>A.</strong> 软件设计可以分为概要设计和详细设计两个阶段</li><li><strong>B.</strong> 详细设计的首要任务就是设计模块的程序流程、算法和数据结构</li><li><strong>C.</strong> 软件概要设计是指对整个软件系统进行结构设计，确定软件系统的结构</li><li><strong>D.</strong> 软件设计越复杂越好</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 软件设计越复杂越好</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） SINGLE 极限编程的主要特点有______。 D. 以上全部 简单的分析设计 频繁的客户交流 增量式开发和连续的测试 以上全部">
+<div class="sqe-question">
+<p class="sqe-question-title">题 10-04（单选）</p>
+<p>极限编程的主要特点有______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 简单的分析设计</li><li><strong>B.</strong> 频繁的客户交流</li><li><strong>C.</strong> 增量式开发和连续的测试</li><li><strong>D.</strong> 以上全部</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 以上全部</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） MULTI 软件质量的含义是_____ A. 能满足给定需要的特性之全体；；B. 具有所希望的各种属性的组合的程度；；C. 顾客或用户认为能满足其综合期望的程度；；D. 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。 能满足给定需要的特性之全体； 具有所希望的各种属性的组合的程度； 顾客或用户认为能满足其综合期望的程度； 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。">
+<div class="sqe-question">
+<p class="sqe-question-title">题 10-05（多选）</p>
+<p>软件质量的含义是_____</p>
+<ul class="sqe-options"><li><strong>A.</strong> 能满足给定需要的特性之全体；</li><li><strong>B.</strong> 具有所希望的各种属性的组合的程度；</li><li><strong>C.</strong> 顾客或用户认为能满足其综合期望的程度；</li><li><strong>D.</strong> 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 能满足给定需要的特性之全体；；B. 具有所希望的各种属性的组合的程度；；C. 顾客或用户认为能满足其综合期望的程度；；D. 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） FILL 用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 10-06（填空）</p>
+<p>用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4）</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>填空</span><span>4 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） FILL 软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量 填空1: 产品；填空2: 开发过程；填空3: 商业环境中 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 10-07（填空）</p>
+<p>软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 产品；填空2: 开发过程；填空3: 商业环境中</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） FILL 从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。 填空1: 失效；填空2: 违背 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 10-08（填空）</p>
+<p>从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>填空</span><span>2 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 失效；填空2: 违背</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） SINGLE 以下哪一种选项不属于软件缺陷______。 D. 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题 软件没有实现产品规格说明所要求的功能 软件中出现了产品规格说明不应该出现的功能 软件实现了产品规格说明没有提到的功能 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题">
+<div class="sqe-question">
+<p class="sqe-question-title">题 10-09（单选）</p>
+<p>以下哪一种选项不属于软件缺陷______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 软件没有实现产品规格说明所要求的功能</li><li><strong>B.</strong> 软件中出现了产品规格说明不应该出现的功能</li><li><strong>C.</strong> 软件实现了产品规格说明没有提到的功能</li><li><strong>D.</strong> 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） SINGLE 以下关于软件质量的说法中，错误的是______ C. 程序的正确性足以体现软件的价值 软件产品必须提供用户所需要的功能，并能正常工作 软件质量是产品、组织和体系或过程的一组固有特性，反映它们满足顾客和其他相关方面要求的程度 程序的正确性足以体现软件的价值 越是关注客户的满意度，软件就越有可能达到质量要求">
+<div class="sqe-question">
+<p class="sqe-question-title">题 10-10（单选）</p>
+<p>以下关于软件质量的说法中，错误的是______</p>
+<ul class="sqe-options"><li><strong>A.</strong> 软件产品必须提供用户所需要的功能，并能正常工作</li><li><strong>B.</strong> 软件质量是产品、组织和体系或过程的一组固有特性，反映它们满足顾客和其他相关方面要求的程度</li><li><strong>C.</strong> 程序的正确性足以体现软件的价值</li><li><strong>D.</strong> 越是关注客户的满意度，软件就越有可能达到质量要求</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 程序的正确性足以体现软件的价值</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-9" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">04</span>
+<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第二章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">20 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 据权威部门统计，软件错误产生的原因分布图表中，如下____________选项是导致软件错误的主要原因。 A. 软件需求规格说明错误 软件需求规格说明错误 设计错误 编码错误 测试错误">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-01（单选）</p>
+<p>据权威部门统计，软件错误产生的原因分布图表中，如下____________选项是导致软件错误的主要原因。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 软件需求规格说明错误</li><li><strong>B.</strong> 设计错误</li><li><strong>C.</strong> 编码错误</li><li><strong>D.</strong> 测试错误</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 软件需求规格说明错误</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE V 模型是具有代表意义的测试模型，以下理解正确的是______。 C. V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现 V模型认为测试阶段是与开发阶段并行的 V 模型是软件开发螺旋模型的变种，它反映了测试活动与分析和设计的关系 V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现 V 模型是对W 模型的改进">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-02（单选）</p>
+<p>V 模型是具有代表意义的测试模型，以下理解正确的是______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> V模型认为测试阶段是与开发阶段并行的</li><li><strong>B.</strong> V 模型是软件开发螺旋模型的变种，它反映了测试活动与分析和设计的关系</li><li><strong>C.</strong> V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现</li><li><strong>D.</strong> V 模型是对W 模型的改进</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 以下关于软件质量的说法中，错误的是______ C. 程序的正确性足以体现软件的价值 软件产品必须提供用户所需要的功能，并能正常工作 软件质量是产品、组织和体系或过程的一组固有特性，反映它们满足顾客和其他相关方面要求的程度 程序的正确性足以体现软件的价值 越是关注客户的满意度，软件就越有可能达到质量要求">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-03（单选）</p>
+<p>以下关于软件质量的说法中，错误的是______</p>
+<ul class="sqe-options"><li><strong>A.</strong> 软件产品必须提供用户所需要的功能，并能正常工作</li><li><strong>B.</strong> 软件质量是产品、组织和体系或过程的一组固有特性，反映它们满足顾客和其他相关方面要求的程度</li><li><strong>C.</strong> 程序的正确性足以体现软件的价值</li><li><strong>D.</strong> 越是关注客户的满意度，软件就越有可能达到质量要求</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 程序的正确性足以体现软件的价值</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL SEI的Watts Humphrey认为软件质量是在 （填空1） 、 （填空2） 、 （填空3） 和 （填空4） 等方面，达到优秀的水准。 填空1: 实用性；填空2: 需求；填空3: 可靠性；填空4: 可维护性 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-04（填空）</p>
+<p>SEI的Watts Humphrey认为软件质量是在 （填空1） 、 （填空2） 、 （填空3） 和 （填空4） 等方面，达到优秀的水准。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>4 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 实用性；填空2: 需求；填空3: 可靠性；填空4: 可维护性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 下列____________是关于软件缺陷的描述。 B. 产品的异常情况 导致软件包含故障的人的行为 产品的异常情况 引起一个功能部件不能完成所要求的功能的一种意外情况 功能部件执行其规定功能的能力丧失">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-05（单选）</p>
+<p>下列____________是关于软件缺陷的描述。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 导致软件包含故障的人的行为</li><li><strong>B.</strong> 产品的异常情况</li><li><strong>C.</strong> 引起一个功能部件不能完成所要求的功能的一种意外情况</li><li><strong>D.</strong> 功能部件执行其规定功能的能力丧失</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 产品的异常情况</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 不属于软件产品的质量的特殊性是：____________ D. 软件的类型不同，但是软件质量的衡量标准的侧重点相同 很难制定具体的、数量化的产品质量标准，所以没有相应的国际标推、国家标准或行业标淮。 软件产品之间很难进行横向的质量对比，很难说这个产品比那个产品好多少。 满足了用户需求的软件质量，就是好的软件质量 软件的类型不同，但是软件质量的衡量标准的侧重点相同">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-06（单选）</p>
+<p>不属于软件产品的质量的特殊性是：____________</p>
+<ul class="sqe-options"><li><strong>A.</strong> 很难制定具体的、数量化的产品质量标准，所以没有相应的国际标推、国家标准或行业标淮。</li><li><strong>B.</strong> 软件产品之间很难进行横向的质量对比，很难说这个产品比那个产品好多少。</li><li><strong>C.</strong> 满足了用户需求的软件质量，就是好的软件质量</li><li><strong>D.</strong> 软件的类型不同，但是软件质量的衡量标准的侧重点相同</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 软件的类型不同，但是软件质量的衡量标准的侧重点相同</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 下列关于软件设计的说法不正确的是：_______ D. 软件设计越复杂越好 软件设计可以分为概要设计和详细设计两个阶段 详细设计的首要任务就是设计模块的程序流程、算法和数据结构 软件概要设计是指对整个软件系统进行结构设计，确定软件系统的结构 软件设计越复杂越好">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-07（单选）</p>
+<p>下列关于软件设计的说法不正确的是：_______</p>
+<ul class="sqe-options"><li><strong>A.</strong> 软件设计可以分为概要设计和详细设计两个阶段</li><li><strong>B.</strong> 详细设计的首要任务就是设计模块的程序流程、算法和数据结构</li><li><strong>C.</strong> 软件概要设计是指对整个软件系统进行结构设计，确定软件系统的结构</li><li><strong>D.</strong> 软件设计越复杂越好</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 软件设计越复杂越好</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 以下哪一种选项不属于软件缺陷______。 D. 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题 软件没有实现产品规格说明所要求的功能 软件中出现了产品规格说明不应该出现的功能 软件实现了产品规格说明没有提到的功能 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-08（单选）</p>
+<p>以下哪一种选项不属于软件缺陷______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 软件没有实现产品规格说明所要求的功能</li><li><strong>B.</strong> 软件中出现了产品规格说明不应该出现的功能</li><li><strong>C.</strong> 软件实现了产品规格说明没有提到的功能</li><li><strong>D.</strong> 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 下面有关软件缺陷的说法中错误的是______。 C. 缺陷就是导致系统程序崩溃的错误 缺陷就是软件产品在开发中存在的错误 缺陷就是软件维护过程中存在的错误、毛病等各种问题 缺陷就是导致系统程序崩溃的错误 缺陷就是系统所需要实现的某种功能的失效和违背">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-09（单选）</p>
+<p>下面有关软件缺陷的说法中错误的是______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 缺陷就是软件产品在开发中存在的错误</li><li><strong>B.</strong> 缺陷就是软件维护过程中存在的错误、毛病等各种问题</li><li><strong>C.</strong> 缺陷就是导致系统程序崩溃的错误</li><li><strong>D.</strong> 缺陷就是系统所需要实现的某种功能的失效和违背</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 缺陷就是导致系统程序崩溃的错误</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 极限编程的主要特点有______。 D. 以上全部 简单的分析设计 频繁的客户交流 增量式开发和连续的测试 以上全部">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-10（单选）</p>
+<p>极限编程的主要特点有______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 简单的分析设计</li><li><strong>B.</strong> 频繁的客户交流</li><li><strong>C.</strong> 增量式开发和连续的测试</li><li><strong>D.</strong> 以上全部</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 以上全部</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 以下关于软件可靠性与硬件的可靠性主要区别的说法中，正确的是______。 A. 软件的每个拷贝都是完全一样的，而按照设计生产出来的同规格硬件总有微小差别 软件的每个拷贝都是完全一样的，而按照设计生产出来的同规格硬件总有微小差别 软件经常面临恶意的使用者，而硬件没有恶意的使用者 软件的使用者通常遍及整个世界，而硬件使用者通常只局限于某个地区 软件的失效都是逻辑错误引起的，而硬件的失效都不是逻辑错误引起的">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-11（单选）</p>
+<p>以下关于软件可靠性与硬件的可靠性主要区别的说法中，正确的是______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 软件的每个拷贝都是完全一样的，而按照设计生产出来的同规格硬件总有微小差别</li><li><strong>B.</strong> 软件经常面临恶意的使用者，而硬件没有恶意的使用者</li><li><strong>C.</strong> 软件的使用者通常遍及整个世界，而硬件使用者通常只局限于某个地区</li><li><strong>D.</strong> 软件的失效都是逻辑错误引起的，而硬件的失效都不是逻辑错误引起的</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 软件的每个拷贝都是完全一样的，而按照设计生产出来的同规格硬件总有微小差别</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） MULTI 软件质量的含义是_____ A. 能满足给定需要的特性之全体；；B. 具有所希望的各种属性的组合的程度；；C. 顾客或用户认为能满足其综合期望的程度；；D. 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。 能满足给定需要的特性之全体； 具有所希望的各种属性的组合的程度； 顾客或用户认为能满足其综合期望的程度； 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-12（多选）</p>
+<p>软件质量的含义是_____</p>
+<ul class="sqe-options"><li><strong>A.</strong> 能满足给定需要的特性之全体；</li><li><strong>B.</strong> 具有所希望的各种属性的组合的程度；</li><li><strong>C.</strong> 顾客或用户认为能满足其综合期望的程度；</li><li><strong>D.</strong> 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 能满足给定需要的特性之全体；；B. 具有所希望的各种属性的组合的程度；；C. 顾客或用户认为能满足其综合期望的程度；；D. 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-13（填空）</p>
+<p>用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4）</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>4 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 用户要求在功能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 填空1: 完整性；填空2: 可靠性；填空3: 生存性；填空4: 可用性；填空5: 便利性 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-14（填空）</p>
+<p>用户要求在功能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5）</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>5 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 完整性；填空2: 可靠性；填空3: 生存性；填空4: 可用性；填空5: 便利性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 软件质量的3维特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称) 填空1: 功能性；填空2: 可靠性；填空3: 性能 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-15（填空）</p>
+<p>软件质量的3维特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称)</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 功能性；填空2: 可靠性；填空3: 性能</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 软件质量的3A特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称) 填空1: 可说明性；填空2: 有效性；填空3: 易用性 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-16（填空）</p>
+<p>软件质量的3A特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称)</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 可说明性；填空2: 有效性；填空3: 易用性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量 填空1: 产品；填空2: 开发过程；填空3: 商业环境中 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-17（填空）</p>
+<p>软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 产品；填空2: 开发过程；填空3: 商业环境中</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL ANSI/IEEE STD729给出了软件质量定义：软件产品满足规定的和隐含的与 （填空1） 有关的全部特征和特性。 填空1: 需求能力 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-18（填空）</p>
+<p>ANSI/IEEE STD729给出了软件质量定义：软件产品满足规定的和隐含的与 （填空1） 有关的全部特征和特性。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 需求能力</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。 填空1: 失效；填空2: 违背 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-19（填空）</p>
+<p>从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>2 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 失效；填空2: 违背</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 极限编程适合 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 填空1: 小团队；填空2: 高风险；填空3: 快速变化或不稳定的需求；填空4: 强调可测试性 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 9-20（填空）</p>
+<p>极限编程适合 （填空1） 、 （填空2） 、 （填空3） 、 （填空4）</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>4 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 小团队；填空2: 高风险；填空3: 快速变化或不稳定的需求；填空4: 强调可测试性</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-7" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">05</span>
+<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第三章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） TF 软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 7-01（判断）</p>
+<p>软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） SINGLE 软件工程概念的提出是由于______。 B. 软件危机的出现 计算技术的发展 软件危机的出现 程序设计方法学的影响 其它工程科学的影响">
+<div class="sqe-question">
+<p class="sqe-question-title">题 7-02（单选）</p>
+<p>软件工程概念的提出是由于______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 计算技术的发展</li><li><strong>B.</strong> 软件危机的出现</li><li><strong>C.</strong> 程序设计方法学的影响</li><li><strong>D.</strong> 其它工程科学的影响</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 软件危机的出现</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） SINGLE 系统可维护性的评价指标不包括______。 C. 可移植性 可理解性 可测试性 可移植性 可修改性">
+<div class="sqe-question">
+<p class="sqe-question-title">题 7-03（单选）</p>
+<p>系统可维护性的评价指标不包括______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 可理解性</li><li><strong>B.</strong> 可测试性</li><li><strong>C.</strong> 可移植性</li><li><strong>D.</strong> 可修改性</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 可移植性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。 填空1: 功能性；填空2: 可靠性；填空3: 可使用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 7-04（填空）</p>
+<p>ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>填空</span><span>6 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 功能性；填空2: 可靠性；填空3: 可使用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） SINGLE 软件可移植性是用来衡量软件______的重要尺度之一。 C. 质量 通用性 效率 质量 人机界面">
+<div class="sqe-question">
+<p class="sqe-question-title">题 7-05（单选）</p>
+<p>软件可移植性是用来衡量软件______的重要尺度之一。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 通用性</li><li><strong>B.</strong> 效率</li><li><strong>C.</strong> 质量</li><li><strong>D.</strong> 人机界面</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 质量</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL 六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。 填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 7-06（填空）</p>
+<p>六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>填空</span><span>5 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。 填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 7-07（填空）</p>
+<p>IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>填空</span><span>5 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL 采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。 填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 7-08（填空）</p>
+<p>采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。 填空1: 可维护；填空2: 灵活；填空3: 可测试 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 7-09（填空）</p>
+<p>McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 可维护；填空2: 灵活；填空3: 可测试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL 软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。 填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 7-10（填空）</p>
+<p>软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>填空</span><span>4 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-15" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">06</span>
+<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第三章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">11 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） TF 软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 15-01（判断）</p>
+<p>软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） SINGLE 软件工程概念的提出是由于______。 B. 软件危机的出现 计算技术的发展 软件危机的出现 程序设计方法学的影响 其它工程科学的影响">
+<div class="sqe-question">
+<p class="sqe-question-title">题 15-02（单选）</p>
+<p>软件工程概念的提出是由于______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 计算技术的发展</li><li><strong>B.</strong> 软件危机的出现</li><li><strong>C.</strong> 程序设计方法学的影响</li><li><strong>D.</strong> 其它工程科学的影响</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 软件危机的出现</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） SINGLE 系统可维护性的评价指标不包括______。 C. 可移植性 可理解性 可测试性 可移植性 可修改性">
+<div class="sqe-question">
+<p class="sqe-question-title">题 15-03（单选）</p>
+<p>系统可维护性的评价指标不包括______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 可理解性</li><li><strong>B.</strong> 可测试性</li><li><strong>C.</strong> 可移植性</li><li><strong>D.</strong> 可修改性</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 可移植性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。 填空1: 功能性；填空2: 可靠性；填空3: 可使用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 15-04（填空）</p>
+<p>ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>6 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 功能性；填空2: 可靠性；填空3: 可使用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） SINGLE 软件可移植性是用来衡量软件______的重要尺度之一。 C. 质量 通用性 效率 质量 人机界面">
+<div class="sqe-question">
+<p class="sqe-question-title">题 15-05（单选）</p>
+<p>软件可移植性是用来衡量软件______的重要尺度之一。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 通用性</li><li><strong>B.</strong> 效率</li><li><strong>C.</strong> 质量</li><li><strong>D.</strong> 人机界面</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 质量</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。 填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 15-06（填空）</p>
+<p>六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>5 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。 填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 15-07（填空）</p>
+<p>IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>5 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。 填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 15-08（填空）</p>
+<p>采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。 填空1: 可维护；填空2: 灵活；填空3: 可测试 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 15-09（填空）</p>
+<p>McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 可维护；填空2: 灵活；填空3: 可测试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。 填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 15-10（填空）</p>
+<p>软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>4 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 软件的6个品质要素包括： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。 填空1: 正确性；填空2: 可靠性；填空3: 易用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 15-11（填空）</p>
+<p>软件的6个品质要素包括： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>6 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 正确性；填空2: 可靠性；填空3: 易用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-19" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">07</span>
+<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第四章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF 质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 19-01（判断）</p>
+<p>质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 19-02（判断）</p>
+<p>McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL 语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE 填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 19-03（填空）</p>
+<p>语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>填空</span><span>4 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL 软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。 填空1: 项目；填空2: 产品；填空3: 过程 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 19-04（填空）</p>
+<p>软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 项目；填空2: 产品；填空3: 过程</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF 有效性差一般意味着测量方法在原则性上有错误。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 19-05（判断）</p>
+<p>有效性差一般意味着测量方法在原则性上有错误。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF 可靠性差一般意味着测量方法在技术上有待改进。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 19-06（判断）</p>
+<p>可靠性差一般意味着测量方法在技术上有待改进。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL 课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。 填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 19-07（填空）</p>
+<p>课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>填空</span><span>4 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） SINGLE 假设在程序控制流图中，有14 条边，10个节点，则控制流程图的环路复杂性V(G)等于______。 C. 6 12 8 6 4">
+<div class="sqe-question">
+<p class="sqe-question-title">题 19-08（单选）</p>
+<p>假设在程序控制流图中，有14 条边，10个节点，则控制流程图的环路复杂性V(G)等于______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 12</li><li><strong>B.</strong> 8</li><li><strong>C.</strong> 6</li><li><strong>D.</strong> 4</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 6</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） SINGLE 修复软件缺陷费用最高的是 __________ 阶段。 D. 发布 编制说明书 设计 编写代码 发布">
+<div class="sqe-question">
+<p class="sqe-question-title">题 19-09（单选）</p>
+<p>修复软件缺陷费用最高的是 __________ 阶段。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 编制说明书</li><li><strong>B.</strong> 设计</li><li><strong>C.</strong> 编写代码</li><li><strong>D.</strong> 发布</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 发布</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL （填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。 填空1: 度量 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 19-10（填空）</p>
+<p>（填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 度量</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-12" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">08</span>
+<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第四章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">21 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-01（判断）</p>
+<p>质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-02（判断）</p>
+<p>McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE 填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-03（填空）</p>
+<p>语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>4 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 这段程序的环形计数复杂度（McCabe）是多少 （填空1） ？ 填空1: 4 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-04（填空）</p>
+<p>这段程序的环形计数复杂度（McCabe）是多少 （填空1） ？</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 4</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 软件项目度量的主要内容包括： （填空1） 度量、 （填空2） 度量、 （填空3） 度量、 （填空4） 度量、 （填空5） 度量、 （填空6） 度量以及其他一些度量项目。 填空1: 规模；填空2: 复杂度；填空3: 缺陷；填空4: 进度；填空5: 风险；填空6: 工作量 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-05（填空）</p>
+<p>软件项目度量的主要内容包括： （填空1） 度量、 （填空2） 度量、 （填空3） 度量、 （填空4） 度量、 （填空5） 度量、 （填空6） 度量以及其他一些度量项目。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>6 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 规模；填空2: 复杂度；填空3: 缺陷；填空4: 进度；填空5: 风险；填空6: 工作量</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 软件度量应基于分析模型、设计模型或程序本身的结构进行，而独立于编程语言的句法和语法之外。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-06（判断）</p>
+<p>软件度量应基于分析模型、设计模型或程序本身的结构进行，而独立于编程语言的句法和语法之外。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。 填空1: 项目；填空2: 产品；填空3: 过程 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-07（填空）</p>
+<p>软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 项目；填空2: 产品；填空3: 过程</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 测量的目标是不断提高有效性和可靠性，测量可以避免出现偏差或误差。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-08（判断）</p>
+<p>测量的目标是不断提高有效性和可靠性，测量可以避免出现偏差或误差。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 可靠性差一般意味着测量方法在技术上有待改进。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-09（判断）</p>
+<p>可靠性差一般意味着测量方法在技术上有待改进。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 有效性差一般意味着测量方法在原则性上有错误。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-10（判断）</p>
+<p>有效性差一般意味着测量方法在原则性上有错误。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL （填空1） 性和 （填空2） 性是测量标准中最重要的指标。 填空1: 有效；填空2: 可靠 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-11（填空）</p>
+<p>（填空1） 性和 （填空2） 性是测量标准中最重要的指标。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>2 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 有效；填空2: 可靠</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。 填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-12（填空）</p>
+<p>课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>4 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 度量是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的 （填空1） 。 填空1: 定量测量 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-13（填空）</p>
+<p>度量是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的 （填空1） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 定量测量</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 测量是对产品过程的某个属性的范围、数量、维度、容量或大小提供一个 （填空1） 。 填空1: 定量的指示 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-14（填空）</p>
+<p>测量是对产品过程的某个属性的范围、数量、维度、容量或大小提供一个 （填空1） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 定量的指示</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 度量是为了获取指标评估量化结果的重要手段和方法。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-15（判断）</p>
+<p>度量是为了获取指标评估量化结果的重要手段和方法。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 软件度量具有相对性强，绝对性弱的特点。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-16（判断）</p>
+<p>软件度量具有相对性强，绝对性弱的特点。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 软件质量度量就是用来衡量软件质量控制和保证的过程和结果的。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-17（判断）</p>
+<p>软件质量度量就是用来衡量软件质量控制和保证的过程和结果的。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） SINGLE 假设在程序控制流图中，有14 条边，10个节点，则控制流程图的环路复杂性V(G)等于______。 C. 6 12 8 6 4">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-18（单选）</p>
+<p>假设在程序控制流图中，有14 条边，10个节点，则控制流程图的环路复杂性V(G)等于______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 12</li><li><strong>B.</strong> 8</li><li><strong>C.</strong> 6</li><li><strong>D.</strong> 4</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 6</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） SINGLE 修复软件缺陷费用最高的是 __________ 阶段。 D. 发布 编制说明书 设计 编写代码 发布">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-19（单选）</p>
+<p>修复软件缺陷费用最高的是 __________ 阶段。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 编制说明书</li><li><strong>B.</strong> 设计</li><li><strong>C.</strong> 编写代码</li><li><strong>D.</strong> 发布</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 发布</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 软件产品度量包括软件 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 以及 （填空5） 。 填空1: 规模大小；填空2: 产品复杂度；填空3: 设计特征；填空4: 性能；填空5: 质量水平 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-20（填空）</p>
+<p>软件产品度量包括软件 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 以及 （填空5） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>5 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 规模大小；填空2: 产品复杂度；填空3: 设计特征；填空4: 性能；填空5: 质量水平</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL （填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。 填空1: 度量 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 12-21（填空）</p>
+<p>（填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 度量</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-20" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">09</span>
+<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第五章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">9 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） FILL CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。 填空1: 必需；填空2: 期望；填空3: 提供信息 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 20-01（填空）</p>
+<p>CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 必需；填空2: 期望；填空3: 提供信息</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） TF 软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 20-02（判断）</p>
+<p>软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） TF 优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 20-03（判断）</p>
+<p>优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） TF 为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 20-04（判断）</p>
+<p>为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） FILL CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。 填空1: 初始级；填空2: 可重复级；填空3: 已定义级；填空4: 已管理级；填空5: 优化级 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 20-05（填空）</p>
+<p>CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>填空</span><span>5 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 初始级；填空2: 可重复级；填空3: 已定义级；填空4: 已管理级；填空5: 优化级</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） MULTI 软件设计需要注意哪些问题：____________ A. 减少耦合；C. 代码重用；D. 功能分解 减少耦合 考虑范围要窄 代码重用 功能分解">
+<div class="sqe-question">
+<p class="sqe-question-title">题 20-06（多选）</p>
+<p>软件设计需要注意哪些问题：____________</p>
+<ul class="sqe-options"><li><strong>A.</strong> 减少耦合</li><li><strong>B.</strong> 考虑范围要窄</li><li><strong>C.</strong> 代码重用</li><li><strong>D.</strong> 功能分解</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 减少耦合；C. 代码重用；D. 功能分解</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） SINGLE 根据CMMI规范，每一个软件企业均具有_________成熟度。 A. 等级一 等级一 等级三 等级四 等级五">
+<div class="sqe-question">
+<p class="sqe-question-title">题 20-07（单选）</p>
+<p>根据CMMI规范，每一个软件企业均具有_________成熟度。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 等级一</li><li><strong>B.</strong> 等级三</li><li><strong>C.</strong> 等级四</li><li><strong>D.</strong> 等级五</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 等级一</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） SINGLE cmm 模型将软件过程的成熟度分为 5 个等级，在_____使用定量分析来不断地改进和管理软件过程。 B. 管理级 优化级 管理级 定义级 可重复级">
+<div class="sqe-question">
+<p class="sqe-question-title">题 20-08（单选）</p>
+<p>cmm 模型将软件过程的成熟度分为 5 个等级，在_____使用定量分析来不断地改进和管理软件过程。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 优化级</li><li><strong>B.</strong> 管理级</li><li><strong>C.</strong> 定义级</li><li><strong>D.</strong> 可重复级</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 管理级</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） FILL CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。 填空1: 降低成本；填空2: 提高质量；填空3: 用户满意度 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 20-09（填空）</p>
+<p>CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 降低成本；填空2: 提高质量；填空3: 用户满意度</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-6" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">10</span>
+<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第五章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">11 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。 填空1: 必需；填空2: 期望；填空3: 提供信息 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 6-01（填空）</p>
+<p>CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 必需；填空2: 期望；填空3: 提供信息</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） TF 软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 6-02（判断）</p>
+<p>软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） TF 为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 6-03（判断）</p>
+<p>为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） TF 优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 6-04（判断）</p>
+<p>优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMM为软件过程改进提供了一个框架，将整个软件改进过程分为 （填空1） （请填写阿拉伯数字）个成熟度等级。 填空1: 5 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 6-05（填空）</p>
+<p>CMM为软件过程改进提供了一个框架，将整个软件改进过程分为 （填空1） （请填写阿拉伯数字）个成熟度等级。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 5</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL 根据软件工程标准制定的机构和标准适用的范围，可将其分为5个级别，即 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 及 （填空5） 。 填空1: 国际标准；填空2: 国家标准；填空3: 行业标准；填空4: 企业规范；填空5: 项目规范 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 6-06（填空）</p>
+<p>根据软件工程标准制定的机构和标准适用的范围，可将其分为5个级别，即 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 及 （填空5） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>填空</span><span>5 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 国际标准；填空2: 国家标准；填空3: 行业标准；填空4: 企业规范；填空5: 项目规范</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。 填空1: 初始级；填空2: 可重复级；填空3: 已定义级；填空4: 已管理级；填空5: 优化级 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 6-07（填空）</p>
+<p>CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>填空</span><span>5 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 初始级；填空2: 可重复级；填空3: 已定义级；填空4: 已管理级；填空5: 优化级</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） MULTI 软件设计需要注意哪些问题：____________ A. 减少耦合；C. 代码重用；D. 功能分解 减少耦合 考虑范围要窄 代码重用 功能分解">
+<div class="sqe-question">
+<p class="sqe-question-title">题 6-08（多选）</p>
+<p>软件设计需要注意哪些问题：____________</p>
+<ul class="sqe-options"><li><strong>A.</strong> 减少耦合</li><li><strong>B.</strong> 考虑范围要窄</li><li><strong>C.</strong> 代码重用</li><li><strong>D.</strong> 功能分解</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 减少耦合；C. 代码重用；D. 功能分解</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） SINGLE 根据CMMI规范，每一个软件企业均具有_________成熟度。 A. 等级一 等级一 等级三 等级四 等级五">
+<div class="sqe-question">
+<p class="sqe-question-title">题 6-09（单选）</p>
+<p>根据CMMI规范，每一个软件企业均具有_________成熟度。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 等级一</li><li><strong>B.</strong> 等级三</li><li><strong>C.</strong> 等级四</li><li><strong>D.</strong> 等级五</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 等级一</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。 填空1: 降低成本；填空2: 提高质量；填空3: 用户满意度 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 6-10（填空）</p>
+<p>CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 降低成本；填空2: 提高质量；填空3: 用户满意度</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） SINGLE cmm 模型将软件过程的成熟度分为 5 个等级，在_____使用定量分析来不断地改进和管理软件过程。 B. 管理级 优化级 管理级 定义级 可重复级">
+<div class="sqe-question">
+<p class="sqe-question-title">题 6-11（单选）</p>
+<p>cmm 模型将软件过程的成熟度分为 5 个等级，在_____使用定量分析来不断地改进和管理软件过程。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 优化级</li><li><strong>B.</strong> 管理级</li><li><strong>C.</strong> 定义级</li><li><strong>D.</strong> 可重复级</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 管理级</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-11" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">11</span>
+<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第六章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 11-01（判断）</p>
+<p>发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 评审报告可以看作是评审会结束的标志。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 11-02（判断）</p>
+<p>评审报告可以看作是评审会结束的标志。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） MULTI 评审会议的主要步骤如下 A. 由评审员/作者进行演示或说明；B. 评审员会就不清楚或疑惑的地方与作者进行沟通；C. 协调人或记录员在会议过程中完成会议记录 由评审员/作者进行演示或说明 评审员会就不清楚或疑惑的地方与作者进行沟通 协调人或记录员在会议过程中完成会议记录 分析评审结果">
+<div class="sqe-question">
+<p class="sqe-question-title">题 11-03（多选）</p>
+<p>评审会议的主要步骤如下</p>
+<ul class="sqe-options"><li><strong>A.</strong> 由评审员/作者进行演示或说明</li><li><strong>B.</strong> 评审员会就不清楚或疑惑的地方与作者进行沟通</li><li><strong>C.</strong> 协调人或记录员在会议过程中完成会议记录</li><li><strong>D.</strong> 分析评审结果</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 由评审员/作者进行演示或说明；B. 评审员会就不清楚或疑惑的地方与作者进行沟通；C. 协调人或记录员在会议过程中完成会议记录</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 规则集列出了容易出现的典型错误，是评审的一个重要组成部分。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 11-04（判断）</p>
+<p>规则集列出了容易出现的典型错误，是评审的一个重要组成部分。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） MULTI 过程评审作用如下： A. 评估主要的质量保证流程；B. 考虑如何处理和解决评审过程中发现的不符合问题；C. 总结和共享好的经验；D. 指出需要进一步完善和改进的部分 评估主要的质量保证流程 考虑如何处理和解决评审过程中发现的不符合问题 总结和共享好的经验 指出需要进一步完善和改进的部分">
+<div class="sqe-question">
+<p class="sqe-question-title">题 11-05（多选）</p>
+<p>过程评审作用如下：</p>
+<ul class="sqe-options"><li><strong>A.</strong> 评估主要的质量保证流程</li><li><strong>B.</strong> 考虑如何处理和解决评审过程中发现的不符合问题</li><li><strong>C.</strong> 总结和共享好的经验</li><li><strong>D.</strong> 指出需要进一步完善和改进的部分</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 评估主要的质量保证流程；B. 考虑如何处理和解决评审过程中发现的不符合问题；C. 总结和共享好的经验；D. 指出需要进一步完善和改进的部分</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 文档评审分为格式评审和内容评审。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 11-06（判断）</p>
+<p>文档评审分为格式评审和内容评审。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） FILL 管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。 填空1: 适宜；填空2: 有效；填空3: 充分 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 11-07（填空）</p>
+<p>管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 适宜；填空2: 有效；填空3: 充分</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） MULTI 评审小组一般由以下角色构成 A. 协调人；C. 作者；D. 评审员 协调人 SQA人员 作者 评审员">
+<div class="sqe-question">
+<p class="sqe-question-title">题 11-08（多选）</p>
+<p>评审小组一般由以下角色构成</p>
+<ul class="sqe-options"><li><strong>A.</strong> 协调人</li><li><strong>B.</strong> SQA人员</li><li><strong>C.</strong> 作者</li><li><strong>D.</strong> 评审员</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 协调人；C. 作者；D. 评审员</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） MULTI 评审可以帮助开发工程师 A. 减少修订缺陷的时间；B. 提高编程效率；D. 减少测试和调试时间 减少修订缺陷的时间 提高编程效率 增强产品的可维护性 减少测试和调试时间">
+<div class="sqe-question">
+<p class="sqe-question-title">题 11-09（多选）</p>
+<p>评审可以帮助开发工程师</p>
+<ul class="sqe-options"><li><strong>A.</strong> 减少修订缺陷的时间</li><li><strong>B.</strong> 提高编程效率</li><li><strong>C.</strong> 增强产品的可维护性</li><li><strong>D.</strong> 减少测试和调试时间</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 减少修订缺陷的时间；B. 提高编程效率；D. 减少测试和调试时间</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） SINGLE 在软件设计中，设计复审是和软件设计本身一样重要的环节，其主要的目的和作用是为了能够______。 B. 避免后期付出高代价 减少测试工作量 避免后期付出高代价 保证软件质量 缩短软件开发周期">
+<div class="sqe-question">
+<p class="sqe-question-title">题 11-10（单选）</p>
+<p>在软件设计中，设计复审是和软件设计本身一样重要的环节，其主要的目的和作用是为了能够______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 减少测试工作量</li><li><strong>B.</strong> 避免后期付出高代价</li><li><strong>C.</strong> 保证软件质量</li><li><strong>D.</strong> 缩短软件开发周期</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 避免后期付出高代价</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-17" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">12</span>
+<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第六章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">28 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-01（判断）</p>
+<p>发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 评审报告可以看作是评审会结束的标志。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-02（判断）</p>
+<p>评审报告可以看作是评审会结束的标志。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 评审会议的主要步骤如下 A. 由评审员/作者进行演示或说明；B. 评审员会就不清楚或疑惑的地方与作者进行沟通；C. 协调人或记录员在会议过程中完成会议记录 由评审员/作者进行演示或说明 评审员会就不清楚或疑惑的地方与作者进行沟通 协调人或记录员在会议过程中完成会议记录 分析评审结果">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-03（多选）</p>
+<p>评审会议的主要步骤如下</p>
+<ul class="sqe-options"><li><strong>A.</strong> 由评审员/作者进行演示或说明</li><li><strong>B.</strong> 评审员会就不清楚或疑惑的地方与作者进行沟通</li><li><strong>C.</strong> 协调人或记录员在会议过程中完成会议记录</li><li><strong>D.</strong> 分析评审结果</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 由评审员/作者进行演示或说明；B. 评审员会就不清楚或疑惑的地方与作者进行沟通；C. 协调人或记录员在会议过程中完成会议记录</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 以下哪些资料应当评审 A. 基础性和早期的文档；B. 与重大决策有关的文档；C. 对如何做没有把握部分相关的文档；D. 不断被重复使用部件相关的文档 基础性和早期的文档 与重大决策有关的文档 对如何做没有把握部分相关的文档 不断被重复使用部件相关的文档">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-04（多选）</p>
+<p>以下哪些资料应当评审</p>
+<ul class="sqe-options"><li><strong>A.</strong> 基础性和早期的文档</li><li><strong>B.</strong> 与重大决策有关的文档</li><li><strong>C.</strong> 对如何做没有把握部分相关的文档</li><li><strong>D.</strong> 不断被重复使用部件相关的文档</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 基础性和早期的文档；B. 与重大决策有关的文档；C. 对如何做没有把握部分相关的文档；D. 不断被重复使用部件相关的文档</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 对评审组长的要求如下 A. 善于制定和执行评审计划；B. 评审是公平、公正的；C. 具有丰富的技术技能和知识；D. 积极带领评审组员按时保质的完成评审任务 善于制定和执行评审计划 评审是公平、公正的 具有丰富的技术技能和知识 积极带领评审组员按时保质的完成评审任务">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-05（多选）</p>
+<p>对评审组长的要求如下</p>
+<ul class="sqe-options"><li><strong>A.</strong> 善于制定和执行评审计划</li><li><strong>B.</strong> 评审是公平、公正的</li><li><strong>C.</strong> 具有丰富的技术技能和知识</li><li><strong>D.</strong> 积极带领评审组员按时保质的完成评审任务</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 善于制定和执行评审计划；B. 评审是公平、公正的；C. 具有丰富的技术技能和知识；D. 积极带领评审组员按时保质的完成评审任务</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 规则集列出了容易出现的典型错误，是评审的一个重要组成部分。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-06（判断）</p>
+<p>规则集列出了容易出现的典型错误，是评审的一个重要组成部分。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 填空1: 临时评审；填空2: 轮查；填空3: 走查；填空4: 小组评审；填空5: 审查 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-07（填空）</p>
+<p>评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5）</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>填空</span><span>5 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 临时评审；填空2: 轮查；填空3: 走查；填空4: 小组评审；填空5: 审查</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 过程评审作用如下： A. 评估主要的质量保证流程；B. 考虑如何处理和解决评审过程中发现的不符合问题；C. 总结和共享好的经验；D. 指出需要进一步完善和改进的部分 评估主要的质量保证流程 考虑如何处理和解决评审过程中发现的不符合问题 总结和共享好的经验 指出需要进一步完善和改进的部分">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-08（多选）</p>
+<p>过程评审作用如下：</p>
+<ul class="sqe-options"><li><strong>A.</strong> 评估主要的质量保证流程</li><li><strong>B.</strong> 考虑如何处理和解决评审过程中发现的不符合问题</li><li><strong>C.</strong> 总结和共享好的经验</li><li><strong>D.</strong> 指出需要进一步完善和改进的部分</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 评估主要的质量保证流程；B. 考虑如何处理和解决评审过程中发现的不符合问题；C. 总结和共享好的经验；D. 指出需要进一步完善和改进的部分</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 程评审的评审对象是质量保证流程，以及针对产品质量或其他形式的工作产出。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-09（判断）</p>
+<p>程评审的评审对象是质量保证流程，以及针对产品质量或其他形式的工作产出。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 过程评审是 A. 对软件开发过程的评审；B. 通过对流程的监控，保证SQA组织定义的软件过程在项目中得到了遵循；C. 保证质量保证方针能得到更快更好的执行 对软件开发过程的评审 通过对流程的监控，保证SQA组织定义的软件过程在项目中得到了遵循 保证质量保证方针能得到更快更好的执行 出现异常情况时，系统如何响应">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-10（多选）</p>
+<p>过程评审是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 对软件开发过程的评审</li><li><strong>B.</strong> 通过对流程的监控，保证SQA组织定义的软件过程在项目中得到了遵循</li><li><strong>C.</strong> 保证质量保证方针能得到更快更好的执行</li><li><strong>D.</strong> 出现异常情况时，系统如何响应</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 对软件开发过程的评审；B. 通过对流程的监控，保证SQA组织定义的软件过程在项目中得到了遵循；C. 保证质量保证方针能得到更快更好的执行</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 文档评审分为格式评审和内容评审。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-11（判断）</p>
+<p>文档评审分为格式评审和内容评审。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 技术评审作为一项软件质量保证活动，作用如下： A. 揭示软件在逻辑、执行以及功能和函数上的错误；B. 验证软件是否符合需求；C. 确保软件的一致性 揭示软件在逻辑、执行以及功能和函数上的错误 验证软件是否符合需求 确保软件的一致性 确保使用的术语具有唯一性">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-12（多选）</p>
+<p>技术评审作为一项软件质量保证活动，作用如下：</p>
+<ul class="sqe-options"><li><strong>A.</strong> 揭示软件在逻辑、执行以及功能和函数上的错误</li><li><strong>B.</strong> 验证软件是否符合需求</li><li><strong>C.</strong> 确保软件的一致性</li><li><strong>D.</strong> 确保使用的术语具有唯一性</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 揭示软件在逻辑、执行以及功能和函数上的错误；B. 验证软件是否符合需求；C. 确保软件的一致性</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 管理评审是对产品以及各阶段的输出内容进行评估。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-13（判断）</p>
+<p>管理评审是对产品以及各阶段的输出内容进行评估。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。 填空1: 适宜；填空2: 有效；填空3: 充分 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-14（填空）</p>
+<p>管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 适宜；填空2: 有效；填空3: 充分</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 评审小组一般由以下角色构成 A. 协调人；C. 作者；D. 评审员 协调人 SQA人员 作者 评审员">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-15（多选）</p>
+<p>评审小组一般由以下角色构成</p>
+<ul class="sqe-options"><li><strong>A.</strong> 协调人</li><li><strong>B.</strong> SQA人员</li><li><strong>C.</strong> 作者</li><li><strong>D.</strong> 评审员</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 协调人；C. 作者；D. 评审员</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 评审可以帮助开发工程师 A. 减少修订缺陷的时间；B. 提高编程效率；D. 减少测试和调试时间 减少修订缺陷的时间 提高编程效率 增强产品的可维护性 减少测试和调试时间">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-16（多选）</p>
+<p>评审可以帮助开发工程师</p>
+<ul class="sqe-options"><li><strong>A.</strong> 减少修订缺陷的时间</li><li><strong>B.</strong> 提高编程效率</li><li><strong>C.</strong> 增强产品的可维护性</li><li><strong>D.</strong> 减少测试和调试时间</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 减少修订缺陷的时间；B. 提高编程效率；D. 减少测试和调试时间</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 管理者、开发人员、客户有时都反对评审，因为评审会浪费时间，减缓项目的进度。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-17（判断）</p>
+<p>管理者、开发人员、客户有时都反对评审，因为评审会浪费时间，减缓项目的进度。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 评审是对软件元素或者项目状态的一种评估手段。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-18（判断）</p>
+<p>评审是对软件元素或者项目状态的一种评估手段。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 评审是质量控制方面一种非常有效的方法。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-19（判断）</p>
+<p>评审是质量控制方面一种非常有效的方法。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 同行评审的主要目标在于检测错误、核对与标准的偏离。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-20（判断）</p>
+<p>同行评审的主要目标在于检测错误、核对与标准的偏离。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） SINGLE 软件评审作为质量控制的一个重要手段，已经被业界广泛使用。评审分为内部评审和外部评审。关于内部评审的叙述，正确的包括。①对软件的每个开发阶段都要进行内部评审②评审人员由软件开发组、质量管理和配置管理人员组成，可邀请用户参与③评审人数根据实际情况确定，比如根据软件的规模等级和安全性等级等指标而定④内部评审由用户单位主持，由信息系统建设单位组织，应成立评审委员会 B. ①②③ ①②④ ①②③ ②③④ ①②③④">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-21（单选）</p>
+<p>软件评审作为质量控制的一个重要手段，已经被业界广泛使用。评审分为内部评审和外部评审。关于内部评审的叙述，正确的包括。①对软件的每个开发阶段都要进行内部评审②评审人员由软件开发组、质量管理和配置管理人员组成，可邀请用户参与③评审人数根据实际情况确定，比如根据软件的规模等级和安全性等级等指标而定④内部评审由用户单位主持，由信息系统建设单位组织，应成立评审委员会</p>
+<ul class="sqe-options"><li><strong>A.</strong> ①②④</li><li><strong>B.</strong> ①②③</li><li><strong>C.</strong> ②③④</li><li><strong>D.</strong> ①②③④</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. ①②③</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 管理评审由 （填空1） 发起。 填空1: 最高管理者 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-22（填空）</p>
+<p>管理评审由 （填空1） 发起。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 最高管理者</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 代码评审是检查源代码是否达到模块设计的要求。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-23（判断）</p>
+<p>代码评审是检查源代码是否达到模块设计的要求。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 技术评审即是一种技术手段，也是一种质量管理手段。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-24（判断）</p>
+<p>技术评审即是一种技术手段，也是一种质量管理手段。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 在软件设计中，设计复审是和软件设计本身一样重要的环节，其主要的目的和作用是为了能够____________ B. 避免后期付出高代价 减少测试工作量 避免后期付出高代价 保证软件质量 缩短软件开发周期">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-25（多选）</p>
+<p>在软件设计中，设计复审是和软件设计本身一样重要的环节，其主要的目的和作用是为了能够____________</p>
+<ul class="sqe-options"><li><strong>A.</strong> 减少测试工作量</li><li><strong>B.</strong> 避免后期付出高代价</li><li><strong>C.</strong> 保证软件质量</li><li><strong>D.</strong> 缩短软件开发周期</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 避免后期付出高代价</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 软件测试计划评审会需要哪些人员参加____________？ A. 项目经理；B. SQA 负责人；C. 配置负责人；D. 测试组 项目经理 SQA 负责人 配置负责人 测试组">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-26（多选）</p>
+<p>软件测试计划评审会需要哪些人员参加____________？</p>
+<ul class="sqe-options"><li><strong>A.</strong> 项目经理</li><li><strong>B.</strong> SQA 负责人</li><li><strong>C.</strong> 配置负责人</li><li><strong>D.</strong> 测试组</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 项目经理；B. SQA 负责人；C. 配置负责人；D. 测试组</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） SINGLE 在软件设计中，设计复审是和软件设计本身一样重要的环节，其主要的目的和作用是为了能够______。 B. 避免后期付出高代价 减少测试工作量 避免后期付出高代价 保证软件质量 缩短软件开发周期">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-27（单选）</p>
+<p>在软件设计中，设计复审是和软件设计本身一样重要的环节，其主要的目的和作用是为了能够______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 减少测试工作量</li><li><strong>B.</strong> 避免后期付出高代价</li><li><strong>C.</strong> 保证软件质量</li><li><strong>D.</strong> 缩短软件开发周期</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 避免后期付出高代价</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 。 填空1: 临时评审；填空2: 轮查；填空3: 走查；填空4: 小组评审；填空5: 审查 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 17-28（填空）</p>
+<p>评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>填空</span><span>5 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 临时评审；填空2: 轮查；填空3: 走查；填空4: 小组评审；填空5: 审查</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-4" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">13</span>
+<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第七章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） FILL 为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1） 填空1: 软件工具的评估 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 4-01（填空）</p>
+<p>为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1）</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 软件工具的评估</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 审核是对工作流程的评审，而评审则主要侧重产品本身。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 4-02（判断）</p>
+<p>审核是对工作流程的评审，而评审则主要侧重产品本身。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 4-03（判断）</p>
+<p>SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 4-04（判断）</p>
+<p>为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） SINGLE 以下三种组织结构中，哪种相对完善一些 C. 独立的SQA工程师（独立的SQA小组） 独立的SQA工程师（非独立SQA小组） 独立的SQA部门 独立的SQA工程师（独立的SQA小组）">
+<div class="sqe-question">
+<p class="sqe-question-title">题 4-05（单选）</p>
+<p>以下三种组织结构中，哪种相对完善一些</p>
+<ul class="sqe-options"><li><strong>A.</strong> 独立的SQA工程师（非独立SQA小组）</li><li><strong>B.</strong> 独立的SQA部门</li><li><strong>C.</strong> 独立的SQA工程师（独立的SQA小组）</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 独立的SQA工程师（独立的SQA小组）</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 4-06（判断）</p>
+<p>创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 软件工程过程组类似于一个&amp;ldquo;立法&amp;rdquo;机构，而SQA则类似于一个&amp;ldquo;监督&amp;rdquo;机构。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 4-07（判断）</p>
+<p>软件工程过程组类似于一个&amp;ldquo;立法&amp;rdquo;机构，而SQA则类似于一个&amp;ldquo;监督&amp;rdquo;机构。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 任何不符合客户需求的地方都可以认为是缺陷。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 4-08（判断）</p>
+<p>任何不符合客户需求的地方都可以认为是缺陷。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） MULTI 在企业中，最常见的质量保证组织是______。 A. 软件测试部门；B. 软件质量保证组织 软件测试部门 软件质量保证组织 生产车间 技术部门">
+<div class="sqe-question">
+<p class="sqe-question-title">题 4-09（多选）</p>
+<p>在企业中，最常见的质量保证组织是______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 软件测试部门</li><li><strong>B.</strong> 软件质量保证组织</li><li><strong>C.</strong> 生产车间</li><li><strong>D.</strong> 技术部门</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 软件测试部门；B. 软件质量保证组织</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 4-10（判断）</p>
+<p>软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-3" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">14</span>
+<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第七章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">18 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） FILL 为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1） 填空1: 软件工具的评估 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-01（填空）</p>
+<p>为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1）</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 软件工具的评估</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 审核是对工作流程的评审，而评审则主要侧重产品本身。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-02（判断）</p>
+<p>审核是对工作流程的评审，而评审则主要侧重产品本身。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） SINGLE SQA计划实施步骤的第一步是 C. 了解项目的需求，明确项目SQA计划的要求和范围 选择SQA任务 估计SQA的工作量和资源 了解项目的需求，明确项目SQA计划的要求和范围 安排SQA任务和日程">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-03（单选）</p>
+<p>SQA计划实施步骤的第一步是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 选择SQA任务</li><li><strong>B.</strong> 估计SQA的工作量和资源</li><li><strong>C.</strong> 了解项目的需求，明确项目SQA计划的要求和范围</li><li><strong>D.</strong> 安排SQA任务和日程</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 了解项目的需求，明确项目SQA计划的要求和范围</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-04（判断）</p>
+<p>SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF SQA人员与开发工程师本质上是对立的。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-05（判断）</p>
+<p>SQA人员与开发工程师本质上是对立的。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-06（判断）</p>
+<p>为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） SINGLE 以下三种组织结构中，哪种相对完善一些 C. 独立的SQA工程师（独立的SQA小组） 独立的SQA工程师（非独立SQA小组） 独立的SQA部门 独立的SQA工程师（独立的SQA小组）">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-07（单选）</p>
+<p>以下三种组织结构中，哪种相对完善一些</p>
+<ul class="sqe-options"><li><strong>A.</strong> 独立的SQA工程师（非独立SQA小组）</li><li><strong>B.</strong> 独立的SQA部门</li><li><strong>C.</strong> 独立的SQA工程师（独立的SQA小组）</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 独立的SQA工程师（独立的SQA小组）</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） MULTI 以下属于独立SQA部门优点的是： B. 保护SQA工程师的独立性和客观性；D. 有利于资源的共享 能够深入项目发现实质性问题 保护SQA工程师的独立性和客观性 便于部门之间经验的分享 有利于资源的共享">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-08（多选）</p>
+<p>以下属于独立SQA部门优点的是：</p>
+<ul class="sqe-options"><li><strong>A.</strong> 能够深入项目发现实质性问题</li><li><strong>B.</strong> 保护SQA工程师的独立性和客观性</li><li><strong>C.</strong> 便于部门之间经验的分享</li><li><strong>D.</strong> 有利于资源的共享</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 保护SQA工程师的独立性和客观性；D. 有利于资源的共享</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-09（判断）</p>
+<p>创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） FILL 六西格玛组织结构从上到下分为 （填空1） 、 黑带主管(大师)、 （填空2） 、 （填空3） 。 填空1: 倡导者；填空2: 黑带；填空3: 绿带 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-10（填空）</p>
+<p>六西格玛组织结构从上到下分为 （填空1） 、 黑带主管(大师)、 （填空2） 、 （填空3） 。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>填空</span><span>3 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 倡导者；填空2: 黑带；填空3: 绿带</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 软件工程过程组类似于一个&amp;ldquo;立法&amp;rdquo;机构，而SQA则类似于一个&amp;ldquo;监督&amp;rdquo;机构。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-11（判断）</p>
+<p>软件工程过程组类似于一个&amp;ldquo;立法&amp;rdquo;机构，而SQA则类似于一个&amp;ldquo;监督&amp;rdquo;机构。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 任何不符合客户需求的地方都可以认为是缺陷。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-12（判断）</p>
+<p>任何不符合客户需求的地方都可以认为是缺陷。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） MULTI 在企业中，最常见的质量保证组织是______。 A. 软件测试部门；B. 软件质量保证组织 软件测试部门 软件质量保证组织 生产车间 技术部门">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-13（多选）</p>
+<p>在企业中，最常见的质量保证组织是______。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 软件测试部门</li><li><strong>B.</strong> 软件质量保证组织</li><li><strong>C.</strong> 生产车间</li><li><strong>D.</strong> 技术部门</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 软件测试部门；B. 软件质量保证组织</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 所有SQA活动和项目里程碑的完成或项目里程碑的检验是同时发生的。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-14（判断）</p>
+<p>所有SQA活动和项目里程碑的完成或项目里程碑的检验是同时发生的。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 在整个机构中使用基础设施防护与改进部件的主要目标是在机构积累的SQA经验基础上消除或至少降低出错率。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-15（判断）</p>
+<p>在整个机构中使用基础设施防护与改进部件的主要目标是在机构积累的SQA经验基础上消除或至少降低出错率。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-16（判断）</p>
+<p>软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 在软件产品制定生产计划阶段,不必进行重大的SQA活动。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-17（判断）</p>
+<p>在软件产品制定生产计划阶段,不必进行重大的SQA活动。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） FILL （填空1） 是一个动态的过程，需要不断调度、协调，保证项目的均衡发展。 填空1: 项目的进度管理 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 3-18（填空）</p>
+<p>（填空1） 是一个动态的过程，需要不断调度、协调，保证项目的均衡发展。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>填空</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 项目的进度管理</p></div></details></div>
+</article>
+</section>
 
 <section id="quiz-1" class="sqe-chapter">
 <div class="sqe-chapter-head">
-<span class="sqe-number">01</span>
+<span class="sqe-number">15</span>
 <div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第八章课上测试</h3><div><span class="sqe-source-pill">补充自成绩结果接口</span><span class="sqe-source-pill">10 道题</span></div></div>
 </div>
 
@@ -884,9 +3031,635 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 </article>
 </section>
 
+<section id="quiz-8" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">16</span>
+<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第八章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">25 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 需求分析是将用户需求准确转化为软件系统的唯一途径。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-01（判断）</p>
+<p>需求分析是将用户需求准确转化为软件系统的唯一途径。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） SINGLE 将软件需求转化为数据结构和软件的系统结构，并定义子系统和它们之间的通信或接口是哪个阶段的任务 D. 概要设计 详细设计 编码 测试 概要设计">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-02（单选）</p>
+<p>将软件需求转化为数据结构和软件的系统结构，并定义子系统和它们之间的通信或接口是哪个阶段的任务</p>
+<ul class="sqe-options"><li><strong>A.</strong> 详细设计</li><li><strong>B.</strong> 编码</li><li><strong>C.</strong> 测试</li><li><strong>D.</strong> 概要设计</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 概要设计</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 软件体系结构设计的基本任务 A. 数据结构及数据库设计；B. 编写概要设计文档；C. 概要设计文档评审；D. 设计软件系统结构 数据结构及数据库设计 编写概要设计文档 概要设计文档评审 设计软件系统结构">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-03（多选）</p>
+<p>软件体系结构设计的基本任务</p>
+<ul class="sqe-options"><li><strong>A.</strong> 数据结构及数据库设计</li><li><strong>B.</strong> 编写概要设计文档</li><li><strong>C.</strong> 概要设计文档评审</li><li><strong>D.</strong> 设计软件系统结构</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 数据结构及数据库设计；B. 编写概要设计文档；C. 概要设计文档评审；D. 设计软件系统结构</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 软件设计的基本原则是设计越简单越好  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-04（判断）</p>
+<p>软件设计的基本原则是设计越简单越好</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 软件设计的指导思想是降低模块内聚性，提高模块耦合度。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-05（判断）</p>
+<p>软件设计的指导思想是降低模块内聚性，提高模块耦合度。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） SINGLE 下列耦合度从低到高排列正确的是 C. 数据耦合、控制耦合、公共环境耦合、内容耦合 特征耦合、数据耦合、外部耦合、公共环境耦合 非直接耦合、特征耦合、公共环境耦合、外部耦合 数据耦合、控制耦合、公共环境耦合、内容耦合 控制耦合、外部耦合、公共环境耦合、特征耦合">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-06（单选）</p>
+<p>下列耦合度从低到高排列正确的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 特征耦合、数据耦合、外部耦合、公共环境耦合</li><li><strong>B.</strong> 非直接耦合、特征耦合、公共环境耦合、外部耦合</li><li><strong>C.</strong> 数据耦合、控制耦合、公共环境耦合、内容耦合</li><li><strong>D.</strong> 控制耦合、外部耦合、公共环境耦合、特征耦合</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 数据耦合、控制耦合、公共环境耦合、内容耦合</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 任何体系结构都有它自身的优点和缺点，所以我们要有针对性的选择使用。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-07（判断）</p>
+<p>任何体系结构都有它自身的优点和缺点，所以我们要有针对性的选择使用。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 软件设计的时候技术远比用户需求重要的多。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-08（判断）</p>
+<p>软件设计的时候技术远比用户需求重要的多。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 常作验证，早作验证是软件设计的原则之一  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-09（判断）</p>
+<p>常作验证，早作验证是软件设计的原则之一</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） SINGLE 开－闭原则的闭指的是 B. 对于原有代码的修改是封闭的，即不应该修改原有的代码。 一个类只有一个引起它变化的原因 对于原有代码的修改是封闭的，即不应该修改原有的代码。 如果多于一个动机去改变一个类，就应该在穿件一些类来完成每一个职责 传递参数，或者在组合聚合关系中，尽量引用层次高的类。">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-10（单选）</p>
+<p>开－闭原则的闭指的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 一个类只有一个引起它变化的原因</li><li><strong>B.</strong> 对于原有代码的修改是封闭的，即不应该修改原有的代码。</li><li><strong>C.</strong> 如果多于一个动机去改变一个类，就应该在穿件一些类来完成每一个职责</li><li><strong>D.</strong> 传递参数，或者在组合聚合关系中，尽量引用层次高的类。</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 对于原有代码的修改是封闭的，即不应该修改原有的代码。</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 软件设计的技术原则包括 A. 开－闭原则；B. 接口隔离原则；C. 迪米特法则；D. 单一职责原则 开－闭原则 接口隔离原则 迪米特法则 单一职责原则">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-11（多选）</p>
+<p>软件设计的技术原则包括</p>
+<ul class="sqe-options"><li><strong>A.</strong> 开－闭原则</li><li><strong>B.</strong> 接口隔离原则</li><li><strong>C.</strong> 迪米特法则</li><li><strong>D.</strong> 单一职责原则</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 开－闭原则；B. 接口隔离原则；C. 迪米特法则；D. 单一职责原则</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 里氏代换原则中说，任何基类可以出现的地方，子类不一定可以出现。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-12（判断）</p>
+<p>里氏代换原则中说，任何基类可以出现的地方，子类不一定可以出现。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） SINGLE 在一个新的对象里面使用一些已有的对象，使之成为新对象的一部分。新的对象通过向这些对象的委派达到复用已有功能的目的。这是什么原则 C. 合成/聚合复用原则 迪米特法则 依赖倒转原则 合成/聚合复用原则 单一职责原则">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-13（单选）</p>
+<p>在一个新的对象里面使用一些已有的对象，使之成为新对象的一部分。新的对象通过向这些对象的委派达到复用已有功能的目的。这是什么原则</p>
+<ul class="sqe-options"><li><strong>A.</strong> 迪米特法则</li><li><strong>B.</strong> 依赖倒转原则</li><li><strong>C.</strong> 合成/聚合复用原则</li><li><strong>D.</strong> 单一职责原则</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 合成/聚合复用原则</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 框架模型主要以一些特殊的问题为目标建立只针对和适应该问题的结构。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-14（判断）</p>
+<p>框架模型主要以一些特殊的问题为目标建立只针对和适应该问题的结构。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 体系结构的模型包括 A. 结构模型；B. 功能模型；C. 动态模型；D. 过程模型 结构模型 功能模型 动态模型 过程模型">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-15（多选）</p>
+<p>体系结构的模型包括</p>
+<ul class="sqe-options"><li><strong>A.</strong> 结构模型</li><li><strong>B.</strong> 功能模型</li><li><strong>C.</strong> 动态模型</li><li><strong>D.</strong> 过程模型</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 结构模型；B. 功能模型；C. 动态模型；D. 过程模型</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF C/S与B/S软件体系结构相比，除了用户界面的实现方式不同以外，其他没什么差别。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-16（判断）</p>
+<p>C/S与B/S软件体系结构相比，除了用户界面的实现方式不同以外，其他没什么差别。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 中间件的多层分布式的体系结构将客户和资源分开，降低了服务器的负载  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-17（判断）</p>
+<p>中间件的多层分布式的体系结构将客户和资源分开，降低了服务器的负载</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 设计模式使得人们可以更加简单和方便地去复用成功的软件设计和体系结构，从而帮助设计者更快更好地完成系统设计。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-18（判断）</p>
+<p>设计模式使得人们可以更加简单和方便地去复用成功的软件设计和体系结构，从而帮助设计者更快更好地完成系统设计。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 一个设计模式的基本要素包括 A. 问题；B. 效果；C. 解决方案；D. 模式名称 问题 效果 解决方案 模式名称">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-19（多选）</p>
+<p>一个设计模式的基本要素包括</p>
+<ul class="sqe-options"><li><strong>A.</strong> 问题</li><li><strong>B.</strong> 效果</li><li><strong>C.</strong> 解决方案</li><li><strong>D.</strong> 模式名称</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 问题；B. 效果；C. 解决方案；D. 模式名称</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 设计模式的作用包括 A. 有助于作出有利于系统复用的选择，避免设计损害系统复用性；B. 可以帮助设计者更快更好的完成系统设计；C. 可以更加简单方便的复用成功的设计和体系结构；D. 在工程小组成员之间提供了通用的语义 有助于作出有利于系统复用的选择，避免设计损害系统复用性 可以帮助设计者更快更好的完成系统设计 可以更加简单方便的复用成功的设计和体系结构 在工程小组成员之间提供了通用的语义">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-20（多选）</p>
+<p>设计模式的作用包括</p>
+<ul class="sqe-options"><li><strong>A.</strong> 有助于作出有利于系统复用的选择，避免设计损害系统复用性</li><li><strong>B.</strong> 可以帮助设计者更快更好的完成系统设计</li><li><strong>C.</strong> 可以更加简单方便的复用成功的设计和体系结构</li><li><strong>D.</strong> 在工程小组成员之间提供了通用的语义</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 有助于作出有利于系统复用的选择，避免设计损害系统复用性；B. 可以帮助设计者更快更好的完成系统设计；C. 可以更加简单方便的复用成功的设计和体系结构；D. 在工程小组成员之间提供了通用的语义</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF UML语言先建模再编写代码，从一开始就保证系统结构合理  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-21（判断）</p>
+<p>UML语言先建模再编写代码，从一开始就保证系统结构合理</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 接口设计准则包括 A. 是否包含有硬件接口设计，硬件接口设计是否正确且全面；B. 是否包含有软件接口设计，软件接口设计是否正确且全面；C. 是否描述了各类接口的功能；D. 是否描述各接口与其他接口或模块之间的关系 是否包含有硬件接口设计，硬件接口设计是否正确且全面 是否包含有软件接口设计，软件接口设计是否正确且全面 是否描述了各类接口的功能 是否描述各接口与其他接口或模块之间的关系">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-22（多选）</p>
+<p>接口设计准则包括</p>
+<ul class="sqe-options"><li><strong>A.</strong> 是否包含有硬件接口设计，硬件接口设计是否正确且全面</li><li><strong>B.</strong> 是否包含有软件接口设计，软件接口设计是否正确且全面</li><li><strong>C.</strong> 是否描述了各类接口的功能</li><li><strong>D.</strong> 是否描述各接口与其他接口或模块之间的关系</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 是否包含有硬件接口设计，硬件接口设计是否正确且全面；B. 是否包含有软件接口设计，软件接口设计是否正确且全面；C. 是否描述了各类接口的功能；D. 是否描述各接口与其他接口或模块之间的关系</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 详细设计的目标任务包括 A. 确定每一模块使用的数据结构；B. 确定模块接口的细节；C. 为每一个模块设计出一组测试用例 确定每一模块使用的数据结构 确定模块接口的细节 为每一个模块设计出一组测试用例 确定模块内的数据流和控制流的定义是否正确">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-23（多选）</p>
+<p>详细设计的目标任务包括</p>
+<ul class="sqe-options"><li><strong>A.</strong> 确定每一模块使用的数据结构</li><li><strong>B.</strong> 确定模块接口的细节</li><li><strong>C.</strong> 为每一个模块设计出一组测试用例</li><li><strong>D.</strong> 确定模块内的数据流和控制流的定义是否正确</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 确定每一模块使用的数据结构；B. 确定模块接口的细节；C. 为每一个模块设计出一组测试用例</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 用户界面设计原则包括 A. 必须保持一致性；B. 应有自助功能；C. 界面易懂 必须保持一致性 应有自助功能 界面易懂 结构化">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-24（多选）</p>
+<p>用户界面设计原则包括</p>
+<ul class="sqe-options"><li><strong>A.</strong> 必须保持一致性</li><li><strong>B.</strong> 应有自助功能</li><li><strong>C.</strong> 界面易懂</li><li><strong>D.</strong> 结构化</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 必须保持一致性；B. 应有自助功能；C. 界面易懂</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 数据字典是指对数据的数据项、数据结构、数据流、数据存储、处理逻辑、外部实体等进行定义和描述，其目的是对数据流程图中的各个元素做出详细的说明。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 8-25（判断）</p>
+<p>数据字典是指对数据的数据项、数据结构、数据流、数据存储、处理逻辑、外部实体等进行定义和描述，其目的是对数据流程图中的各个元素做出详细的说明。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-21" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">17</span>
+<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第九章课上测试</h3><div><span class="sqe-source-pill">补充自成绩结果接口</span><span class="sqe-source-pill">10 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） TF 注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。 T ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 21-01（判断）</p>
+<p>注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>T</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） FILL 建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。 填空1: 版权；填空2: 版本 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 21-02（填空）</p>
+<p>建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>填空</span><span>2 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 版权；填空2: 版本</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） FILL 正常值用 （填空1） 获得，错误标志用 （填空2） 返回。 填空1: 输出参数；填空2: return语句 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 21-03（填空）</p>
+<p>正常值用 （填空1） 获得，错误标志用 （填空2） 返回。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>填空</span><span>2 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 输出参数；填空2: return语句</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） TF 边写代码边注释，修改代码同时修改相应的注释 T ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 21-04（判断）</p>
+<p>边写代码边注释，修改代码同时修改相应的注释</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>T</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下属于优秀代码风格的是 A. If（ j= =1）；D. If（i〉MAX_NUM） If（ j= =1） If（1= = j） If（i〉5000） If（i〉MAX_NUM）">
+<div class="sqe-question">
+<p class="sqe-question-title">题 21-05（多选）</p>
+<p>以下属于优秀代码风格的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> If（ j= =1）</li><li><strong>B.</strong> If（1= = j）</li><li><strong>C.</strong> If（i〉5000）</li><li><strong>D.</strong> If（i〉MAX_NUM）</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. If（ j= =1）；D. If（i〉MAX_NUM）</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下属于Windows程序命名规则的是 A. 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo; 程序中要靠大小写来区分相似的标识符 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_ 常量全用大写的字母，用下划线分割单词">
+<div class="sqe-question">
+<p class="sqe-question-title">题 21-06（多选）</p>
+<p>以下属于Windows程序命名规则的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;</li><li><strong>B.</strong> 程序中要靠大小写来区分相似的标识符</li><li><strong>C.</strong> 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_</li><li><strong>D.</strong> 常量全用大写的字母，用下划线分割单词</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 下列属于函数处理规则的是 A. 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改；B. 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率；C. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回；D. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回">
+<div class="sqe-question">
+<p class="sqe-question-title">题 21-07（多选）</p>
+<p>下列属于函数处理规则的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改</li><li><strong>B.</strong> 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率</li><li><strong>C.</strong> 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回</li><li><strong>D.</strong> 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改；B. 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率；C. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回；D. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下符合内存使用规范的是 A. 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定；D. 静态存储区域在程序的整个运行期间都存在 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定 全局变量，static变量应建立在动态内存上 栈上创建的存储单元的生命周期也由我们决定 静态存储区域在程序的整个运行期间都存在">
+<div class="sqe-question">
+<p class="sqe-question-title">题 21-08（多选）</p>
+<p>以下符合内存使用规范的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定</li><li><strong>B.</strong> 全局变量，static变量应建立在动态内存上</li><li><strong>C.</strong> 栈上创建的存储单元的生命周期也由我们决定</li><li><strong>D.</strong> 静态存储区域在程序的整个运行期间都存在</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定；D. 静态存储区域在程序的整个运行期间都存在</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下符合基本语句规则的是 A. if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较 if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较 不可在for循环体内修改循环变量 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法 if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较">
+<div class="sqe-question">
+<p class="sqe-question-title">题 21-09（多选）</p>
+<p>以下符合基本语句规则的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较</li><li><strong>B.</strong> 不可在for循环体内修改循环变量</li><li><strong>C.</strong> 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法</li><li><strong>D.</strong> if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下说法正确的是 A. const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动；C. void Func(const A &amp;a)的形式可以有效防止参数a被意外修改；D. 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用 const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动 const既能修饰输入参数也能修饰输出参数 void Func(const A &amp;a)的形式可以有效防止参数a被意外修改 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用">
+<div class="sqe-question">
+<p class="sqe-question-title">题 21-10（多选）</p>
+<p>以下说法正确的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动</li><li><strong>B.</strong> const既能修饰输入参数也能修饰输出参数</li><li><strong>C.</strong> void Func(const A &amp;a)的形式可以有效防止参数a被意外修改</li><li><strong>D.</strong> 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动；C. void Func(const A &amp;a)的形式可以有效防止参数a被意外修改；D. 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-5" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">18</span>
+<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第九章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">13 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） TF 注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-01（判断）</p>
+<p>注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） FILL 建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。 填空1: 版权；填空2: 版本 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-02（填空）</p>
+<p>建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>填空</span><span>2 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 版权；填空2: 版本</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） FILL 正常值用 （填空1） 获得，错误标志用 （填空2） 返回。 填空1: 输出参数；填空2: return语句 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-03（填空）</p>
+<p>正常值用 （填空1） 获得，错误标志用 （填空2） 返回。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>填空</span><span>2 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 输出参数；填空2: return语句</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） TF 边写代码边注释，修改代码同时修改相应的注释  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-04（判断）</p>
+<p>边写代码边注释，修改代码同时修改相应的注释</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） TF 建议将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与数字比较。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-05（判断）</p>
+<p>建议将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与数字比较。</p>
+
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下属于优秀代码风格的是 A. If（ j= =1）；D. If（i〉MAX_NUM） If（ j= =1） If（1= = j） If（i〉5000） If（i〉MAX_NUM）">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-06（多选）</p>
+<p>以下属于优秀代码风格的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> If（ j= =1）</li><li><strong>B.</strong> If（1= = j）</li><li><strong>C.</strong> If（i〉5000）</li><li><strong>D.</strong> If（i〉MAX_NUM）</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. If（ j= =1）；D. If（i〉MAX_NUM）</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下属于Windows程序命名规则的是 A. 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo; 程序中要靠大小写来区分相似的标识符 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_ 常量全用大写的字母，用下划线分割单词">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-07（多选）</p>
+<p>以下属于Windows程序命名规则的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;</li><li><strong>B.</strong> 程序中要靠大小写来区分相似的标识符</li><li><strong>C.</strong> 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_</li><li><strong>D.</strong> 常量全用大写的字母，用下划线分割单词</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 下列属于函数处理规则的是 A. 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改；B. 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率；C. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回；D. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-08（多选）</p>
+<p>下列属于函数处理规则的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改</li><li><strong>B.</strong> 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率</li><li><strong>C.</strong> 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回</li><li><strong>D.</strong> 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改；B. 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率；C. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回；D. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下符合程序版式规则的是 A. 尽可能在定义变量的同时初始化该变量；B. 长表达式要在低优先级操作符处拆分成新行，操作符放在新行之首；C. 尽量避免在注释中使用缩写，特别是不常用缩写 尽可能在定义变量的同时初始化该变量 长表达式要在低优先级操作符处拆分成新行，操作符放在新行之首 尽量避免在注释中使用缩写，特别是不常用缩写 注释的位置可以放在被描述的代码相邻的任何地方">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-09（多选）</p>
+<p>以下符合程序版式规则的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 尽可能在定义变量的同时初始化该变量</li><li><strong>B.</strong> 长表达式要在低优先级操作符处拆分成新行，操作符放在新行之首</li><li><strong>C.</strong> 尽量避免在注释中使用缩写，特别是不常用缩写</li><li><strong>D.</strong> 注释的位置可以放在被描述的代码相邻的任何地方</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 尽可能在定义变量的同时初始化该变量；B. 长表达式要在低优先级操作符处拆分成新行，操作符放在新行之首；C. 尽量避免在注释中使用缩写，特别是不常用缩写</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下符合基本语句规则的是 A. if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较 if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较 不可在for循环体内修改循环变量 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法 if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-10（多选）</p>
+<p>以下符合基本语句规则的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较</li><li><strong>B.</strong> 不可在for循环体内修改循环变量</li><li><strong>C.</strong> 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法</li><li><strong>D.</strong> if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下符合内存使用规范的是 A. 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定；D. 静态存储区域在程序的整个运行期间都存在 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定 全局变量，static变量应建立在动态内存上 栈上创建的存储单元的生命周期也由我们决定 静态存储区域在程序的整个运行期间都存在">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-11（多选）</p>
+<p>以下符合内存使用规范的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定</li><li><strong>B.</strong> 全局变量，static变量应建立在动态内存上</li><li><strong>C.</strong> 栈上创建的存储单元的生命周期也由我们决定</li><li><strong>D.</strong> 静态存储区域在程序的整个运行期间都存在</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定；D. 静态存储区域在程序的整个运行期间都存在</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下符合内存使用规范的是 A. 用malloc或new来申请内存，应该用if(p==NULL) 或if(p!=NULL)进行防错处理；B. 内存分配成功后，应尽快对其进行初始化；C. 程序中malloc与free的使用次数一定要相同；D. free和delete只是把指针所指的内存给释放掉，但并没有把指针本身干掉 用malloc或new来申请内存，应该用if(p==NULL) 或if(p!=NULL)进行防错处理 内存分配成功后，应尽快对其进行初始化 程序中malloc与free的使用次数一定要相同 free和delete只是把指针所指的内存给释放掉，但并没有把指针本身干掉">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-12（多选）</p>
+<p>以下符合内存使用规范的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 用malloc或new来申请内存，应该用if(p==NULL) 或if(p!=NULL)进行防错处理</li><li><strong>B.</strong> 内存分配成功后，应尽快对其进行初始化</li><li><strong>C.</strong> 程序中malloc与free的使用次数一定要相同</li><li><strong>D.</strong> free和delete只是把指针所指的内存给释放掉，但并没有把指针本身干掉</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 用malloc或new来申请内存，应该用if(p==NULL) 或if(p!=NULL)进行防错处理；B. 内存分配成功后，应尽快对其进行初始化；C. 程序中malloc与free的使用次数一定要相同；D. free和delete只是把指针所指的内存给释放掉，但并没有把指针本身干掉</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下说法正确的是 A. const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动；C. void Func(const A &amp;a)的形式可以有效防止参数a被意外修改；D. 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用 const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动 const既能修饰输入参数也能修饰输出参数 void Func(const A &amp;a)的形式可以有效防止参数a被意外修改 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用">
+<div class="sqe-question">
+<p class="sqe-question-title">题 5-13（多选）</p>
+<p>以下说法正确的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动</li><li><strong>B.</strong> const既能修饰输入参数也能修饰输出参数</li><li><strong>C.</strong> void Func(const A &amp;a)的形式可以有效防止参数a被意外修改</li><li><strong>D.</strong> 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用</li></ul>
+<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动；C. void Func(const A &amp;a)的形式可以有效防止参数a被意外修改；D. 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用</p></div></details></div>
+</article>
+</section>
+
+<section id="quiz-23" class="sqe-chapter">
+<div class="sqe-chapter-head">
+<span class="sqe-number">19</span>
+<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>实验一课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
+</div>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） MULTI &amp;zwnj;以下可以作为单元的是 A. 一个类；B. 一个页面；C. 一个函数；D. 一个窗口 一个类 一个页面 一个函数 一个窗口">
+<div class="sqe-question">
+<p class="sqe-question-title">题 23-01（多选）</p>
+<p>&amp;zwnj;以下可以作为单元的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 一个类</li><li><strong>B.</strong> 一个页面</li><li><strong>C.</strong> 一个函数</li><li><strong>D.</strong> 一个窗口</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>多选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 一个类；B. 一个页面；C. 一个函数；D. 一个窗口</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 导致软件缺陷的原因有很多，①&amp;mdash;④是可能的原因，其中最主要的原因包括_____
+①软件需求说明书编写的不全面，不完整，不准确，而且经常更改&amp;rlm;&amp;zwnj;　　　　
+②软件设计说明书&amp;rlm;&amp;zwnj;　　　　
+③软件操作人员的水平&amp;rlm;&amp;zwnj;　　　　
+④开发人员不能很好的理解需求说明书和沟通不足 D. ①、④ ①、②、③ ①、③ ②、③ ①、④">
+<div class="sqe-question">
+<p class="sqe-question-title">题 23-02（单选）</p>
+<p>导致软件缺陷的原因有很多，①&amp;mdash;④是可能的原因，其中最主要的原因包括_____
+①软件需求说明书编写的不全面，不完整，不准确，而且经常更改&amp;rlm;&amp;zwnj;　　　　
+②软件设计说明书&amp;rlm;&amp;zwnj;　　　　
+③软件操作人员的水平&amp;rlm;&amp;zwnj;　　　　
+④开发人员不能很好的理解需求说明书和沟通不足</p>
+<ul class="sqe-options"><li><strong>A.</strong> ①、②、③</li><li><strong>B.</strong> ①、③</li><li><strong>C.</strong> ②、③</li><li><strong>D.</strong> ①、④</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. ①、④</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 一条Bug记录应该包括_____
+①编号
+②Bug描述
+③Bug级别
+④Bug所属模块
+⑤发现人 C. ①②③④⑤ ①②③④ ①② ①②③④⑤ ①②③">
+<div class="sqe-question">
+<p class="sqe-question-title">题 23-03（单选）</p>
+<p>一条Bug记录应该包括_____
+①编号
+②Bug描述
+③Bug级别
+④Bug所属模块
+⑤发现人</p>
+<ul class="sqe-options"><li><strong>A.</strong> ①②③④</li><li><strong>B.</strong> ①②</li><li><strong>C.</strong> ①②③④⑤</li><li><strong>D.</strong> ①②③</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. ①②③④⑤</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） TF 测试人员要坚持原则，缺陷未修复完坚决不予通过。  ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 23-04（判断）</p>
+<p>测试人员要坚持原则，缺陷未修复完坚决不予通过。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>判断</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 软件设计阶段的质量控制主要采取的方式是 D. 评审 白盒测试 动态测试 黑盒测试 评审">
+<div class="sqe-question">
+<p class="sqe-question-title">题 23-05（单选）</p>
+<p>软件设计阶段的质量控制主要采取的方式是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 白盒测试</li><li><strong>B.</strong> 动态测试</li><li><strong>C.</strong> 黑盒测试</li><li><strong>D.</strong> 评审</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 评审</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 软件质量保证与测试人员需要的的基本素质有 C. 所有选项都是 行业知识 测试专业技能 所有选项都是 计算机专业技能">
+<div class="sqe-question">
+<p class="sqe-question-title">题 23-06（单选）</p>
+<p>软件质量保证与测试人员需要的的基本素质有</p>
+<ul class="sqe-options"><li><strong>A.</strong> 行业知识</li><li><strong>B.</strong> 测试专业技能</li><li><strong>C.</strong> 所有选项都是</li><li><strong>D.</strong> 计算机专业技能</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 所有选项都是</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 在软件底层进行的测试称为 B. 单元测试 系统测试 单元测试 功能测试 集成测试">
+<div class="sqe-question">
+<p class="sqe-question-title">题 23-07（单选）</p>
+<p>在软件底层进行的测试称为</p>
+<ul class="sqe-options"><li><strong>A.</strong> 系统测试</li><li><strong>B.</strong> 单元测试</li><li><strong>C.</strong> 功能测试</li><li><strong>D.</strong> 集成测试</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 单元测试</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 下列中不属于测试原则的是 D. 找到的缺陷越多，软件遗留的缺陷就越少 软件测试是有风险的行为 完全测试程序是不可能的 测试无法找出所有的软件缺陷 找到的缺陷越多，软件遗留的缺陷就越少">
+<div class="sqe-question">
+<p class="sqe-question-title">题 23-08（单选）</p>
+<p>下列中不属于测试原则的是</p>
+<ul class="sqe-options"><li><strong>A.</strong> 软件测试是有风险的行为</li><li><strong>B.</strong> 完全测试程序是不可能的</li><li><strong>C.</strong> 测试无法找出所有的软件缺陷</li><li><strong>D.</strong> 找到的缺陷越多，软件遗留的缺陷就越少</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 找到的缺陷越多，软件遗留的缺陷就越少</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 测试人员应在软件生命周期中的下面哪个阶段介入最好______ A. 需求阶段 需求阶段 设计阶段 编码阶段 系统集成阶段">
+<div class="sqe-question">
+<p class="sqe-question-title">题 23-09（单选）</p>
+<p>测试人员应在软件生命周期中的下面哪个阶段介入最好______</p>
+<ul class="sqe-options"><li><strong>A.</strong> 需求阶段</li><li><strong>B.</strong> 设计阶段</li><li><strong>C.</strong> 编码阶段</li><li><strong>D.</strong> 系统集成阶段</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 需求阶段</p></div></details></div>
+</article>
+
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） FILL 回归测试的目的是所做的修改 （填空1） ，同时 （填空2） 的正确性。 填空1: 达到了预定的目的；填空2: 不影响软件原有功能 ">
+<div class="sqe-question">
+<p class="sqe-question-title">题 23-10（填空）</p>
+<p>回归测试的目的是所做的修改 （填空1） ，同时 （填空2） 的正确性。</p>
+
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>填空</span><span>2 分</span></div>
+</div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 达到了预定的目的；填空2: 不影响软件原有功能</p></div></details></div>
+</article>
+</section>
+
 <section id="quiz-2" class="sqe-chapter">
 <div class="sqe-chapter-head">
-<span class="sqe-number">02</span>
+<span class="sqe-number">20</span>
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>实验一课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">87 道题</span></div></div>
 </div>
 
@@ -1843,1559 +4616,146 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 </article>
 </section>
 
-<section id="quiz-3" class="sqe-chapter">
+<section id="quiz-22" class="sqe-chapter">
 <div class="sqe-chapter-head">
-<span class="sqe-number">03</span>
-<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第七章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">18 道题</span></div></div>
+<span class="sqe-number">21</span>
+<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>实验二课上测试</h3><div><span class="sqe-source-pill">补充自成绩结果接口</span><span class="sqe-source-pill">10 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） FILL 为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1） 填空1: 软件工具的评估 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） TF 基路径测试给出了必需进行的测试的上限。 F ">
 <div class="sqe-question">
-<p class="sqe-question-title">题 3-01（填空）</p>
-<p>为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1）</p>
+<p class="sqe-question-title">题 22-01（判断）</p>
+<p>基路径测试给出了必需进行的测试的上限。</p>
 
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>填空</span><span>1 分</span></div>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>判断</span><span>1 分</span></div>
 </div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 软件工具的评估</p></div></details></div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>F</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 审核是对工作流程的评审，而评审则主要侧重产品本身。  ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） TF 基路径是指从所有的程序路径中选择一个最小的路径集合，程序中的其它路径都可以由这一组路径进行加法和数乘运算得到。 T ">
 <div class="sqe-question">
-<p class="sqe-question-title">题 3-02（判断）</p>
-<p>审核是对工作流程的评审，而评审则主要侧重产品本身。</p>
+<p class="sqe-question-title">题 22-02（判断）</p>
+<p>基路径是指从所有的程序路径中选择一个最小的路径集合，程序中的其它路径都可以由这一组路径进行加法和数乘运算得到。</p>
 
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>判断</span><span>1 分</span></div>
 </div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>T</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） SINGLE SQA计划实施步骤的第一步是 C. 了解项目的需求，明确项目SQA计划的要求和范围 选择SQA任务 估计SQA的工作量和资源 了解项目的需求，明确项目SQA计划的要求和范围 安排SQA任务和日程">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE &amp;rlm;一个程序中所含有的路径数与_____有着直接的关系 D. 程序的复杂程度 程序语句行数 程序指令执行时间 程序模块数 程序的复杂程度">
 <div class="sqe-question">
-<p class="sqe-question-title">题 3-03（单选）</p>
-<p>SQA计划实施步骤的第一步是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 选择SQA任务</li><li><strong>B.</strong> 估计SQA的工作量和资源</li><li><strong>C.</strong> 了解项目的需求，明确项目SQA计划的要求和范围</li><li><strong>D.</strong> 安排SQA任务和日程</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>单选</span><span>1 分</span></div>
+<p class="sqe-question-title">题 22-03（单选）</p>
+<p>&amp;rlm;一个程序中所含有的路径数与_____有着直接的关系</p>
+<ul class="sqe-options"><li><strong>A.</strong> 程序语句行数</li><li><strong>B.</strong> 程序指令执行时间</li><li><strong>C.</strong> 程序模块数</li><li><strong>D.</strong> 程序的复杂程度</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>单选</span><span>1 分</span></div>
 </div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 了解项目的需求，明确项目SQA计划的要求和范围</p></div></details></div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 程序的复杂程度</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。  ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE 白盒测试是根据程序的_____来设计测试用例,黑盒测试是根据软件的规格说明来设计测试用例。 B. 内部逻辑 内部数据 内部逻辑 功能 性能">
 <div class="sqe-question">
-<p class="sqe-question-title">题 3-04（判断）</p>
-<p>SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF SQA人员与开发工程师本质上是对立的。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-05（判断）</p>
-<p>SQA人员与开发工程师本质上是对立的。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-06（判断）</p>
-<p>为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） SINGLE 以下三种组织结构中，哪种相对完善一些 C. 独立的SQA工程师（独立的SQA小组） 独立的SQA工程师（非独立SQA小组） 独立的SQA部门 独立的SQA工程师（独立的SQA小组）">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-07（单选）</p>
-<p>以下三种组织结构中，哪种相对完善一些</p>
-<ul class="sqe-options"><li><strong>A.</strong> 独立的SQA工程师（非独立SQA小组）</li><li><strong>B.</strong> 独立的SQA部门</li><li><strong>C.</strong> 独立的SQA工程师（独立的SQA小组）</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 独立的SQA工程师（独立的SQA小组）</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） MULTI 以下属于独立SQA部门优点的是： B. 保护SQA工程师的独立性和客观性；D. 有利于资源的共享 能够深入项目发现实质性问题 保护SQA工程师的独立性和客观性 便于部门之间经验的分享 有利于资源的共享">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-08（多选）</p>
-<p>以下属于独立SQA部门优点的是：</p>
-<ul class="sqe-options"><li><strong>A.</strong> 能够深入项目发现实质性问题</li><li><strong>B.</strong> 保护SQA工程师的独立性和客观性</li><li><strong>C.</strong> 便于部门之间经验的分享</li><li><strong>D.</strong> 有利于资源的共享</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 保护SQA工程师的独立性和客观性；D. 有利于资源的共享</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-09（判断）</p>
-<p>创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） FILL 六西格玛组织结构从上到下分为 （填空1） 、 黑带主管(大师)、 （填空2） 、 （填空3） 。 填空1: 倡导者；填空2: 黑带；填空3: 绿带 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-10（填空）</p>
-<p>六西格玛组织结构从上到下分为 （填空1） 、 黑带主管(大师)、 （填空2） 、 （填空3） 。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 倡导者；填空2: 黑带；填空3: 绿带</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 软件工程过程组类似于一个&amp;ldquo;立法&amp;rdquo;机构，而SQA则类似于一个&amp;ldquo;监督&amp;rdquo;机构。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-11（判断）</p>
-<p>软件工程过程组类似于一个&amp;ldquo;立法&amp;rdquo;机构，而SQA则类似于一个&amp;ldquo;监督&amp;rdquo;机构。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 任何不符合客户需求的地方都可以认为是缺陷。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-12（判断）</p>
-<p>任何不符合客户需求的地方都可以认为是缺陷。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） MULTI 在企业中，最常见的质量保证组织是______。 A. 软件测试部门；B. 软件质量保证组织 软件测试部门 软件质量保证组织 生产车间 技术部门">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-13（多选）</p>
-<p>在企业中，最常见的质量保证组织是______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 软件测试部门</li><li><strong>B.</strong> 软件质量保证组织</li><li><strong>C.</strong> 生产车间</li><li><strong>D.</strong> 技术部门</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 软件测试部门；B. 软件质量保证组织</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 所有SQA活动和项目里程碑的完成或项目里程碑的检验是同时发生的。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-14（判断）</p>
-<p>所有SQA活动和项目里程碑的完成或项目里程碑的检验是同时发生的。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 在整个机构中使用基础设施防护与改进部件的主要目标是在机构积累的SQA经验基础上消除或至少降低出错率。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-15（判断）</p>
-<p>在整个机构中使用基础设施防护与改进部件的主要目标是在机构积累的SQA经验基础上消除或至少降低出错率。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-16（判断）</p>
-<p>软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 在软件产品制定生产计划阶段,不必进行重大的SQA活动。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-17（判断）</p>
-<p>在软件产品制定生产计划阶段,不必进行重大的SQA活动。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） FILL （填空1） 是一个动态的过程，需要不断调度、协调，保证项目的均衡发展。 填空1: 项目的进度管理 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 3-18（填空）</p>
-<p>（填空1） 是一个动态的过程，需要不断调度、协调，保证项目的均衡发展。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第七章课后练习</span><span>填空</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 项目的进度管理</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-4" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">04</span>
-<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第七章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） FILL 为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1） 填空1: 软件工具的评估 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 4-01（填空）</p>
-<p>为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1）</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>填空</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 软件工具的评估</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 审核是对工作流程的评审，而评审则主要侧重产品本身。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 4-02（判断）</p>
-<p>审核是对工作流程的评审，而评审则主要侧重产品本身。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 4-03（判断）</p>
-<p>SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 4-04（判断）</p>
-<p>为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） SINGLE 以下三种组织结构中，哪种相对完善一些 C. 独立的SQA工程师（独立的SQA小组） 独立的SQA工程师（非独立SQA小组） 独立的SQA部门 独立的SQA工程师（独立的SQA小组）">
-<div class="sqe-question">
-<p class="sqe-question-title">题 4-05（单选）</p>
-<p>以下三种组织结构中，哪种相对完善一些</p>
-<ul class="sqe-options"><li><strong>A.</strong> 独立的SQA工程师（非独立SQA小组）</li><li><strong>B.</strong> 独立的SQA部门</li><li><strong>C.</strong> 独立的SQA工程师（独立的SQA小组）</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 独立的SQA工程师（独立的SQA小组）</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 4-06（判断）</p>
-<p>创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 软件工程过程组类似于一个&amp;ldquo;立法&amp;rdquo;机构，而SQA则类似于一个&amp;ldquo;监督&amp;rdquo;机构。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 4-07（判断）</p>
-<p>软件工程过程组类似于一个&amp;ldquo;立法&amp;rdquo;机构，而SQA则类似于一个&amp;ldquo;监督&amp;rdquo;机构。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 任何不符合客户需求的地方都可以认为是缺陷。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 4-08（判断）</p>
-<p>任何不符合客户需求的地方都可以认为是缺陷。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） MULTI 在企业中，最常见的质量保证组织是______。 A. 软件测试部门；B. 软件质量保证组织 软件测试部门 软件质量保证组织 生产车间 技术部门">
-<div class="sqe-question">
-<p class="sqe-question-title">题 4-09（多选）</p>
-<p>在企业中，最常见的质量保证组织是______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 软件测试部门</li><li><strong>B.</strong> 软件质量保证组织</li><li><strong>C.</strong> 生产车间</li><li><strong>D.</strong> 技术部门</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 软件测试部门；B. 软件质量保证组织</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 4-10（判断）</p>
-<p>软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第七章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-5" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">05</span>
-<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第九章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">13 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） TF 注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-01（判断）</p>
-<p>注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） FILL 建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。 填空1: 版权；填空2: 版本 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-02（填空）</p>
-<p>建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>填空</span><span>2 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 版权；填空2: 版本</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） FILL 正常值用 （填空1） 获得，错误标志用 （填空2） 返回。 填空1: 输出参数；填空2: return语句 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-03（填空）</p>
-<p>正常值用 （填空1） 获得，错误标志用 （填空2） 返回。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>填空</span><span>2 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 输出参数；填空2: return语句</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） TF 边写代码边注释，修改代码同时修改相应的注释  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-04（判断）</p>
-<p>边写代码边注释，修改代码同时修改相应的注释</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） TF 建议将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与数字比较。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-05（判断）</p>
-<p>建议将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与数字比较。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下属于优秀代码风格的是 A. If（ j= =1）；D. If（i〉MAX_NUM） If（ j= =1） If（1= = j） If（i〉5000） If（i〉MAX_NUM）">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-06（多选）</p>
-<p>以下属于优秀代码风格的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> If（ j= =1）</li><li><strong>B.</strong> If（1= = j）</li><li><strong>C.</strong> If（i〉5000）</li><li><strong>D.</strong> If（i〉MAX_NUM）</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. If（ j= =1）；D. If（i〉MAX_NUM）</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下属于Windows程序命名规则的是 A. 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo; 程序中要靠大小写来区分相似的标识符 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_ 常量全用大写的字母，用下划线分割单词">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-07（多选）</p>
-<p>以下属于Windows程序命名规则的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;</li><li><strong>B.</strong> 程序中要靠大小写来区分相似的标识符</li><li><strong>C.</strong> 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_</li><li><strong>D.</strong> 常量全用大写的字母，用下划线分割单词</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 下列属于函数处理规则的是 A. 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改；B. 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率；C. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回；D. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-08（多选）</p>
-<p>下列属于函数处理规则的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改</li><li><strong>B.</strong> 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率</li><li><strong>C.</strong> 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回</li><li><strong>D.</strong> 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改；B. 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率；C. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回；D. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下符合程序版式规则的是 A. 尽可能在定义变量的同时初始化该变量；B. 长表达式要在低优先级操作符处拆分成新行，操作符放在新行之首；C. 尽量避免在注释中使用缩写，特别是不常用缩写 尽可能在定义变量的同时初始化该变量 长表达式要在低优先级操作符处拆分成新行，操作符放在新行之首 尽量避免在注释中使用缩写，特别是不常用缩写 注释的位置可以放在被描述的代码相邻的任何地方">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-09（多选）</p>
-<p>以下符合程序版式规则的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 尽可能在定义变量的同时初始化该变量</li><li><strong>B.</strong> 长表达式要在低优先级操作符处拆分成新行，操作符放在新行之首</li><li><strong>C.</strong> 尽量避免在注释中使用缩写，特别是不常用缩写</li><li><strong>D.</strong> 注释的位置可以放在被描述的代码相邻的任何地方</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 尽可能在定义变量的同时初始化该变量；B. 长表达式要在低优先级操作符处拆分成新行，操作符放在新行之首；C. 尽量避免在注释中使用缩写，特别是不常用缩写</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下符合基本语句规则的是 A. if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较 if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较 不可在for循环体内修改循环变量 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法 if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-10（多选）</p>
-<p>以下符合基本语句规则的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较</li><li><strong>B.</strong> 不可在for循环体内修改循环变量</li><li><strong>C.</strong> 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法</li><li><strong>D.</strong> if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下符合内存使用规范的是 A. 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定；D. 静态存储区域在程序的整个运行期间都存在 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定 全局变量，static变量应建立在动态内存上 栈上创建的存储单元的生命周期也由我们决定 静态存储区域在程序的整个运行期间都存在">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-11（多选）</p>
-<p>以下符合内存使用规范的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定</li><li><strong>B.</strong> 全局变量，static变量应建立在动态内存上</li><li><strong>C.</strong> 栈上创建的存储单元的生命周期也由我们决定</li><li><strong>D.</strong> 静态存储区域在程序的整个运行期间都存在</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定；D. 静态存储区域在程序的整个运行期间都存在</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下符合内存使用规范的是 A. 用malloc或new来申请内存，应该用if(p==NULL) 或if(p!=NULL)进行防错处理；B. 内存分配成功后，应尽快对其进行初始化；C. 程序中malloc与free的使用次数一定要相同；D. free和delete只是把指针所指的内存给释放掉，但并没有把指针本身干掉 用malloc或new来申请内存，应该用if(p==NULL) 或if(p!=NULL)进行防错处理 内存分配成功后，应尽快对其进行初始化 程序中malloc与free的使用次数一定要相同 free和delete只是把指针所指的内存给释放掉，但并没有把指针本身干掉">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-12（多选）</p>
-<p>以下符合内存使用规范的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 用malloc或new来申请内存，应该用if(p==NULL) 或if(p!=NULL)进行防错处理</li><li><strong>B.</strong> 内存分配成功后，应尽快对其进行初始化</li><li><strong>C.</strong> 程序中malloc与free的使用次数一定要相同</li><li><strong>D.</strong> free和delete只是把指针所指的内存给释放掉，但并没有把指针本身干掉</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 用malloc或new来申请内存，应该用if(p==NULL) 或if(p!=NULL)进行防错处理；B. 内存分配成功后，应尽快对其进行初始化；C. 程序中malloc与free的使用次数一定要相同；D. free和delete只是把指针所指的内存给释放掉，但并没有把指针本身干掉</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下说法正确的是 A. const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动；C. void Func(const A &amp;a)的形式可以有效防止参数a被意外修改；D. 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用 const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动 const既能修饰输入参数也能修饰输出参数 void Func(const A &amp;a)的形式可以有效防止参数a被意外修改 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用">
-<div class="sqe-question">
-<p class="sqe-question-title">题 5-13（多选）</p>
-<p>以下说法正确的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动</li><li><strong>B.</strong> const既能修饰输入参数也能修饰输出参数</li><li><strong>C.</strong> void Func(const A &amp;a)的形式可以有效防止参数a被意外修改</li><li><strong>D.</strong> 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第九章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动；C. void Func(const A &amp;a)的形式可以有效防止参数a被意外修改；D. 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-6" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">06</span>
-<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第五章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">11 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。 填空1: 必需；填空2: 期望；填空3: 提供信息 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 6-01（填空）</p>
-<p>CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 必需；填空2: 期望；填空3: 提供信息</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） TF 软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 6-02（判断）</p>
-<p>软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） TF 为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 6-03（判断）</p>
-<p>为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） TF 优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 6-04（判断）</p>
-<p>优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMM为软件过程改进提供了一个框架，将整个软件改进过程分为 （填空1） （请填写阿拉伯数字）个成熟度等级。 填空1: 5 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 6-05（填空）</p>
-<p>CMM为软件过程改进提供了一个框架，将整个软件改进过程分为 （填空1） （请填写阿拉伯数字）个成熟度等级。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>填空</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 5</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL 根据软件工程标准制定的机构和标准适用的范围，可将其分为5个级别，即 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 及 （填空5） 。 填空1: 国际标准；填空2: 国家标准；填空3: 行业标准；填空4: 企业规范；填空5: 项目规范 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 6-06（填空）</p>
-<p>根据软件工程标准制定的机构和标准适用的范围，可将其分为5个级别，即 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 及 （填空5） 。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>填空</span><span>5 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 国际标准；填空2: 国家标准；填空3: 行业标准；填空4: 企业规范；填空5: 项目规范</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。 填空1: 初始级；填空2: 可重复级；填空3: 已定义级；填空4: 已管理级；填空5: 优化级 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 6-07（填空）</p>
-<p>CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>填空</span><span>5 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 初始级；填空2: 可重复级；填空3: 已定义级；填空4: 已管理级；填空5: 优化级</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） MULTI 软件设计需要注意哪些问题：____________ A. 减少耦合；C. 代码重用；D. 功能分解 减少耦合 考虑范围要窄 代码重用 功能分解">
-<div class="sqe-question">
-<p class="sqe-question-title">题 6-08（多选）</p>
-<p>软件设计需要注意哪些问题：____________</p>
-<ul class="sqe-options"><li><strong>A.</strong> 减少耦合</li><li><strong>B.</strong> 考虑范围要窄</li><li><strong>C.</strong> 代码重用</li><li><strong>D.</strong> 功能分解</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 减少耦合；C. 代码重用；D. 功能分解</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） SINGLE 根据CMMI规范，每一个软件企业均具有_________成熟度。 A. 等级一 等级一 等级三 等级四 等级五">
-<div class="sqe-question">
-<p class="sqe-question-title">题 6-09（单选）</p>
-<p>根据CMMI规范，每一个软件企业均具有_________成熟度。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 等级一</li><li><strong>B.</strong> 等级三</li><li><strong>C.</strong> 等级四</li><li><strong>D.</strong> 等级五</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 等级一</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。 填空1: 降低成本；填空2: 提高质量；填空3: 用户满意度 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 6-10（填空）</p>
-<p>CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 降低成本；填空2: 提高质量；填空3: 用户满意度</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） SINGLE cmm 模型将软件过程的成熟度分为 5 个等级，在_____使用定量分析来不断地改进和管理软件过程。 B. 管理级 优化级 管理级 定义级 可重复级">
-<div class="sqe-question">
-<p class="sqe-question-title">题 6-11（单选）</p>
-<p>cmm 模型将软件过程的成熟度分为 5 个等级，在_____使用定量分析来不断地改进和管理软件过程。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 优化级</li><li><strong>B.</strong> 管理级</li><li><strong>C.</strong> 定义级</li><li><strong>D.</strong> 可重复级</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第五章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 管理级</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-7" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">07</span>
-<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第三章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） TF 软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 7-01（判断）</p>
-<p>软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） SINGLE 软件工程概念的提出是由于______。 B. 软件危机的出现 计算技术的发展 软件危机的出现 程序设计方法学的影响 其它工程科学的影响">
-<div class="sqe-question">
-<p class="sqe-question-title">题 7-02（单选）</p>
-<p>软件工程概念的提出是由于______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 计算技术的发展</li><li><strong>B.</strong> 软件危机的出现</li><li><strong>C.</strong> 程序设计方法学的影响</li><li><strong>D.</strong> 其它工程科学的影响</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 软件危机的出现</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） SINGLE 系统可维护性的评价指标不包括______。 C. 可移植性 可理解性 可测试性 可移植性 可修改性">
-<div class="sqe-question">
-<p class="sqe-question-title">题 7-03（单选）</p>
-<p>系统可维护性的评价指标不包括______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 可理解性</li><li><strong>B.</strong> 可测试性</li><li><strong>C.</strong> 可移植性</li><li><strong>D.</strong> 可修改性</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 可移植性</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。 填空1: 功能性；填空2: 可靠性；填空3: 可使用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 7-04（填空）</p>
-<p>ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>填空</span><span>6 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 功能性；填空2: 可靠性；填空3: 可使用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） SINGLE 软件可移植性是用来衡量软件______的重要尺度之一。 C. 质量 通用性 效率 质量 人机界面">
-<div class="sqe-question">
-<p class="sqe-question-title">题 7-05（单选）</p>
-<p>软件可移植性是用来衡量软件______的重要尺度之一。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 通用性</li><li><strong>B.</strong> 效率</li><li><strong>C.</strong> 质量</li><li><strong>D.</strong> 人机界面</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 质量</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL 六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。 填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 7-06（填空）</p>
-<p>六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>填空</span><span>5 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。 填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 7-07（填空）</p>
-<p>IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>填空</span><span>5 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL 采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。 填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 7-08（填空）</p>
-<p>采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。 填空1: 可维护；填空2: 灵活；填空3: 可测试 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 7-09（填空）</p>
-<p>McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 可维护；填空2: 灵活；填空3: 可测试</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL 软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。 填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 7-10（填空）</p>
-<p>软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第三章课上测试</span><span>填空</span><span>4 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-8" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">08</span>
-<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第八章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">25 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 需求分析是将用户需求准确转化为软件系统的唯一途径。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-01（判断）</p>
-<p>需求分析是将用户需求准确转化为软件系统的唯一途径。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） SINGLE 将软件需求转化为数据结构和软件的系统结构，并定义子系统和它们之间的通信或接口是哪个阶段的任务 D. 概要设计 详细设计 编码 测试 概要设计">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-02（单选）</p>
-<p>将软件需求转化为数据结构和软件的系统结构，并定义子系统和它们之间的通信或接口是哪个阶段的任务</p>
-<ul class="sqe-options"><li><strong>A.</strong> 详细设计</li><li><strong>B.</strong> 编码</li><li><strong>C.</strong> 测试</li><li><strong>D.</strong> 概要设计</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 概要设计</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 软件体系结构设计的基本任务 A. 数据结构及数据库设计；B. 编写概要设计文档；C. 概要设计文档评审；D. 设计软件系统结构 数据结构及数据库设计 编写概要设计文档 概要设计文档评审 设计软件系统结构">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-03（多选）</p>
-<p>软件体系结构设计的基本任务</p>
-<ul class="sqe-options"><li><strong>A.</strong> 数据结构及数据库设计</li><li><strong>B.</strong> 编写概要设计文档</li><li><strong>C.</strong> 概要设计文档评审</li><li><strong>D.</strong> 设计软件系统结构</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 数据结构及数据库设计；B. 编写概要设计文档；C. 概要设计文档评审；D. 设计软件系统结构</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 软件设计的基本原则是设计越简单越好  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-04（判断）</p>
-<p>软件设计的基本原则是设计越简单越好</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 软件设计的指导思想是降低模块内聚性，提高模块耦合度。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-05（判断）</p>
-<p>软件设计的指导思想是降低模块内聚性，提高模块耦合度。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） SINGLE 下列耦合度从低到高排列正确的是 C. 数据耦合、控制耦合、公共环境耦合、内容耦合 特征耦合、数据耦合、外部耦合、公共环境耦合 非直接耦合、特征耦合、公共环境耦合、外部耦合 数据耦合、控制耦合、公共环境耦合、内容耦合 控制耦合、外部耦合、公共环境耦合、特征耦合">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-06（单选）</p>
-<p>下列耦合度从低到高排列正确的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 特征耦合、数据耦合、外部耦合、公共环境耦合</li><li><strong>B.</strong> 非直接耦合、特征耦合、公共环境耦合、外部耦合</li><li><strong>C.</strong> 数据耦合、控制耦合、公共环境耦合、内容耦合</li><li><strong>D.</strong> 控制耦合、外部耦合、公共环境耦合、特征耦合</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 数据耦合、控制耦合、公共环境耦合、内容耦合</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 任何体系结构都有它自身的优点和缺点，所以我们要有针对性的选择使用。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-07（判断）</p>
-<p>任何体系结构都有它自身的优点和缺点，所以我们要有针对性的选择使用。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 软件设计的时候技术远比用户需求重要的多。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-08（判断）</p>
-<p>软件设计的时候技术远比用户需求重要的多。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 常作验证，早作验证是软件设计的原则之一  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-09（判断）</p>
-<p>常作验证，早作验证是软件设计的原则之一</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） SINGLE 开－闭原则的闭指的是 B. 对于原有代码的修改是封闭的，即不应该修改原有的代码。 一个类只有一个引起它变化的原因 对于原有代码的修改是封闭的，即不应该修改原有的代码。 如果多于一个动机去改变一个类，就应该在穿件一些类来完成每一个职责 传递参数，或者在组合聚合关系中，尽量引用层次高的类。">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-10（单选）</p>
-<p>开－闭原则的闭指的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 一个类只有一个引起它变化的原因</li><li><strong>B.</strong> 对于原有代码的修改是封闭的，即不应该修改原有的代码。</li><li><strong>C.</strong> 如果多于一个动机去改变一个类，就应该在穿件一些类来完成每一个职责</li><li><strong>D.</strong> 传递参数，或者在组合聚合关系中，尽量引用层次高的类。</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 对于原有代码的修改是封闭的，即不应该修改原有的代码。</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 软件设计的技术原则包括 A. 开－闭原则；B. 接口隔离原则；C. 迪米特法则；D. 单一职责原则 开－闭原则 接口隔离原则 迪米特法则 单一职责原则">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-11（多选）</p>
-<p>软件设计的技术原则包括</p>
-<ul class="sqe-options"><li><strong>A.</strong> 开－闭原则</li><li><strong>B.</strong> 接口隔离原则</li><li><strong>C.</strong> 迪米特法则</li><li><strong>D.</strong> 单一职责原则</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 开－闭原则；B. 接口隔离原则；C. 迪米特法则；D. 单一职责原则</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 里氏代换原则中说，任何基类可以出现的地方，子类不一定可以出现。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-12（判断）</p>
-<p>里氏代换原则中说，任何基类可以出现的地方，子类不一定可以出现。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） SINGLE 在一个新的对象里面使用一些已有的对象，使之成为新对象的一部分。新的对象通过向这些对象的委派达到复用已有功能的目的。这是什么原则 C. 合成/聚合复用原则 迪米特法则 依赖倒转原则 合成/聚合复用原则 单一职责原则">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-13（单选）</p>
-<p>在一个新的对象里面使用一些已有的对象，使之成为新对象的一部分。新的对象通过向这些对象的委派达到复用已有功能的目的。这是什么原则</p>
-<ul class="sqe-options"><li><strong>A.</strong> 迪米特法则</li><li><strong>B.</strong> 依赖倒转原则</li><li><strong>C.</strong> 合成/聚合复用原则</li><li><strong>D.</strong> 单一职责原则</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 合成/聚合复用原则</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 框架模型主要以一些特殊的问题为目标建立只针对和适应该问题的结构。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-14（判断）</p>
-<p>框架模型主要以一些特殊的问题为目标建立只针对和适应该问题的结构。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 体系结构的模型包括 A. 结构模型；B. 功能模型；C. 动态模型；D. 过程模型 结构模型 功能模型 动态模型 过程模型">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-15（多选）</p>
-<p>体系结构的模型包括</p>
-<ul class="sqe-options"><li><strong>A.</strong> 结构模型</li><li><strong>B.</strong> 功能模型</li><li><strong>C.</strong> 动态模型</li><li><strong>D.</strong> 过程模型</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 结构模型；B. 功能模型；C. 动态模型；D. 过程模型</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF C/S与B/S软件体系结构相比，除了用户界面的实现方式不同以外，其他没什么差别。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-16（判断）</p>
-<p>C/S与B/S软件体系结构相比，除了用户界面的实现方式不同以外，其他没什么差别。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 中间件的多层分布式的体系结构将客户和资源分开，降低了服务器的负载  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-17（判断）</p>
-<p>中间件的多层分布式的体系结构将客户和资源分开，降低了服务器的负载</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 设计模式使得人们可以更加简单和方便地去复用成功的软件设计和体系结构，从而帮助设计者更快更好地完成系统设计。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-18（判断）</p>
-<p>设计模式使得人们可以更加简单和方便地去复用成功的软件设计和体系结构，从而帮助设计者更快更好地完成系统设计。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 一个设计模式的基本要素包括 A. 问题；B. 效果；C. 解决方案；D. 模式名称 问题 效果 解决方案 模式名称">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-19（多选）</p>
-<p>一个设计模式的基本要素包括</p>
-<ul class="sqe-options"><li><strong>A.</strong> 问题</li><li><strong>B.</strong> 效果</li><li><strong>C.</strong> 解决方案</li><li><strong>D.</strong> 模式名称</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 问题；B. 效果；C. 解决方案；D. 模式名称</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 设计模式的作用包括 A. 有助于作出有利于系统复用的选择，避免设计损害系统复用性；B. 可以帮助设计者更快更好的完成系统设计；C. 可以更加简单方便的复用成功的设计和体系结构；D. 在工程小组成员之间提供了通用的语义 有助于作出有利于系统复用的选择，避免设计损害系统复用性 可以帮助设计者更快更好的完成系统设计 可以更加简单方便的复用成功的设计和体系结构 在工程小组成员之间提供了通用的语义">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-20（多选）</p>
-<p>设计模式的作用包括</p>
-<ul class="sqe-options"><li><strong>A.</strong> 有助于作出有利于系统复用的选择，避免设计损害系统复用性</li><li><strong>B.</strong> 可以帮助设计者更快更好的完成系统设计</li><li><strong>C.</strong> 可以更加简单方便的复用成功的设计和体系结构</li><li><strong>D.</strong> 在工程小组成员之间提供了通用的语义</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 有助于作出有利于系统复用的选择，避免设计损害系统复用性；B. 可以帮助设计者更快更好的完成系统设计；C. 可以更加简单方便的复用成功的设计和体系结构；D. 在工程小组成员之间提供了通用的语义</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF UML语言先建模再编写代码，从一开始就保证系统结构合理  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-21（判断）</p>
-<p>UML语言先建模再编写代码，从一开始就保证系统结构合理</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 接口设计准则包括 A. 是否包含有硬件接口设计，硬件接口设计是否正确且全面；B. 是否包含有软件接口设计，软件接口设计是否正确且全面；C. 是否描述了各类接口的功能；D. 是否描述各接口与其他接口或模块之间的关系 是否包含有硬件接口设计，硬件接口设计是否正确且全面 是否包含有软件接口设计，软件接口设计是否正确且全面 是否描述了各类接口的功能 是否描述各接口与其他接口或模块之间的关系">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-22（多选）</p>
-<p>接口设计准则包括</p>
-<ul class="sqe-options"><li><strong>A.</strong> 是否包含有硬件接口设计，硬件接口设计是否正确且全面</li><li><strong>B.</strong> 是否包含有软件接口设计，软件接口设计是否正确且全面</li><li><strong>C.</strong> 是否描述了各类接口的功能</li><li><strong>D.</strong> 是否描述各接口与其他接口或模块之间的关系</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 是否包含有硬件接口设计，硬件接口设计是否正确且全面；B. 是否包含有软件接口设计，软件接口设计是否正确且全面；C. 是否描述了各类接口的功能；D. 是否描述各接口与其他接口或模块之间的关系</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 详细设计的目标任务包括 A. 确定每一模块使用的数据结构；B. 确定模块接口的细节；C. 为每一个模块设计出一组测试用例 确定每一模块使用的数据结构 确定模块接口的细节 为每一个模块设计出一组测试用例 确定模块内的数据流和控制流的定义是否正确">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-23（多选）</p>
-<p>详细设计的目标任务包括</p>
-<ul class="sqe-options"><li><strong>A.</strong> 确定每一模块使用的数据结构</li><li><strong>B.</strong> 确定模块接口的细节</li><li><strong>C.</strong> 为每一个模块设计出一组测试用例</li><li><strong>D.</strong> 确定模块内的数据流和控制流的定义是否正确</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 确定每一模块使用的数据结构；B. 确定模块接口的细节；C. 为每一个模块设计出一组测试用例</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） MULTI 用户界面设计原则包括 A. 必须保持一致性；B. 应有自助功能；C. 界面易懂 必须保持一致性 应有自助功能 界面易懂 结构化">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-24（多选）</p>
-<p>用户界面设计原则包括</p>
-<ul class="sqe-options"><li><strong>A.</strong> 必须保持一致性</li><li><strong>B.</strong> 应有自助功能</li><li><strong>C.</strong> 界面易懂</li><li><strong>D.</strong> 结构化</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 必须保持一致性；B. 应有自助功能；C. 界面易懂</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 数据字典是指对数据的数据项、数据结构、数据流、数据存储、处理逻辑、外部实体等进行定义和描述，其目的是对数据流程图中的各个元素做出详细的说明。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 8-25（判断）</p>
-<p>数据字典是指对数据的数据项、数据结构、数据流、数据存储、处理逻辑、外部实体等进行定义和描述，其目的是对数据流程图中的各个元素做出详细的说明。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第八章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-9" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">09</span>
-<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第二章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">20 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 据权威部门统计，软件错误产生的原因分布图表中，如下____________选项是导致软件错误的主要原因。 A. 软件需求规格说明错误 软件需求规格说明错误 设计错误 编码错误 测试错误">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-01（单选）</p>
-<p>据权威部门统计，软件错误产生的原因分布图表中，如下____________选项是导致软件错误的主要原因。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 软件需求规格说明错误</li><li><strong>B.</strong> 设计错误</li><li><strong>C.</strong> 编码错误</li><li><strong>D.</strong> 测试错误</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 软件需求规格说明错误</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE V 模型是具有代表意义的测试模型，以下理解正确的是______。 C. V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现 V模型认为测试阶段是与开发阶段并行的 V 模型是软件开发螺旋模型的变种，它反映了测试活动与分析和设计的关系 V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现 V 模型是对W 模型的改进">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-02（单选）</p>
-<p>V 模型是具有代表意义的测试模型，以下理解正确的是______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> V模型认为测试阶段是与开发阶段并行的</li><li><strong>B.</strong> V 模型是软件开发螺旋模型的变种，它反映了测试活动与分析和设计的关系</li><li><strong>C.</strong> V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现</li><li><strong>D.</strong> V 模型是对W 模型的改进</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 以下关于软件质量的说法中，错误的是______ C. 程序的正确性足以体现软件的价值 软件产品必须提供用户所需要的功能，并能正常工作 软件质量是产品、组织和体系或过程的一组固有特性，反映它们满足顾客和其他相关方面要求的程度 程序的正确性足以体现软件的价值 越是关注客户的满意度，软件就越有可能达到质量要求">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-03（单选）</p>
-<p>以下关于软件质量的说法中，错误的是______</p>
-<ul class="sqe-options"><li><strong>A.</strong> 软件产品必须提供用户所需要的功能，并能正常工作</li><li><strong>B.</strong> 软件质量是产品、组织和体系或过程的一组固有特性，反映它们满足顾客和其他相关方面要求的程度</li><li><strong>C.</strong> 程序的正确性足以体现软件的价值</li><li><strong>D.</strong> 越是关注客户的满意度，软件就越有可能达到质量要求</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 程序的正确性足以体现软件的价值</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL SEI的Watts Humphrey认为软件质量是在 （填空1） 、 （填空2） 、 （填空3） 和 （填空4） 等方面，达到优秀的水准。 填空1: 实用性；填空2: 需求；填空3: 可靠性；填空4: 可维护性 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-04（填空）</p>
-<p>SEI的Watts Humphrey认为软件质量是在 （填空1） 、 （填空2） 、 （填空3） 和 （填空4） 等方面，达到优秀的水准。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>4 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 实用性；填空2: 需求；填空3: 可靠性；填空4: 可维护性</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 下列____________是关于软件缺陷的描述。 B. 产品的异常情况 导致软件包含故障的人的行为 产品的异常情况 引起一个功能部件不能完成所要求的功能的一种意外情况 功能部件执行其规定功能的能力丧失">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-05（单选）</p>
-<p>下列____________是关于软件缺陷的描述。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 导致软件包含故障的人的行为</li><li><strong>B.</strong> 产品的异常情况</li><li><strong>C.</strong> 引起一个功能部件不能完成所要求的功能的一种意外情况</li><li><strong>D.</strong> 功能部件执行其规定功能的能力丧失</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 产品的异常情况</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 不属于软件产品的质量的特殊性是：____________ D. 软件的类型不同，但是软件质量的衡量标准的侧重点相同 很难制定具体的、数量化的产品质量标准，所以没有相应的国际标推、国家标准或行业标淮。 软件产品之间很难进行横向的质量对比，很难说这个产品比那个产品好多少。 满足了用户需求的软件质量，就是好的软件质量 软件的类型不同，但是软件质量的衡量标准的侧重点相同">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-06（单选）</p>
-<p>不属于软件产品的质量的特殊性是：____________</p>
-<ul class="sqe-options"><li><strong>A.</strong> 很难制定具体的、数量化的产品质量标准，所以没有相应的国际标推、国家标准或行业标淮。</li><li><strong>B.</strong> 软件产品之间很难进行横向的质量对比，很难说这个产品比那个产品好多少。</li><li><strong>C.</strong> 满足了用户需求的软件质量，就是好的软件质量</li><li><strong>D.</strong> 软件的类型不同，但是软件质量的衡量标准的侧重点相同</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 软件的类型不同，但是软件质量的衡量标准的侧重点相同</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 下列关于软件设计的说法不正确的是：_______ D. 软件设计越复杂越好 软件设计可以分为概要设计和详细设计两个阶段 详细设计的首要任务就是设计模块的程序流程、算法和数据结构 软件概要设计是指对整个软件系统进行结构设计，确定软件系统的结构 软件设计越复杂越好">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-07（单选）</p>
-<p>下列关于软件设计的说法不正确的是：_______</p>
-<ul class="sqe-options"><li><strong>A.</strong> 软件设计可以分为概要设计和详细设计两个阶段</li><li><strong>B.</strong> 详细设计的首要任务就是设计模块的程序流程、算法和数据结构</li><li><strong>C.</strong> 软件概要设计是指对整个软件系统进行结构设计，确定软件系统的结构</li><li><strong>D.</strong> 软件设计越复杂越好</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 软件设计越复杂越好</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 以下哪一种选项不属于软件缺陷______。 D. 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题 软件没有实现产品规格说明所要求的功能 软件中出现了产品规格说明不应该出现的功能 软件实现了产品规格说明没有提到的功能 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-08（单选）</p>
-<p>以下哪一种选项不属于软件缺陷______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 软件没有实现产品规格说明所要求的功能</li><li><strong>B.</strong> 软件中出现了产品规格说明不应该出现的功能</li><li><strong>C.</strong> 软件实现了产品规格说明没有提到的功能</li><li><strong>D.</strong> 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 下面有关软件缺陷的说法中错误的是______。 C. 缺陷就是导致系统程序崩溃的错误 缺陷就是软件产品在开发中存在的错误 缺陷就是软件维护过程中存在的错误、毛病等各种问题 缺陷就是导致系统程序崩溃的错误 缺陷就是系统所需要实现的某种功能的失效和违背">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-09（单选）</p>
-<p>下面有关软件缺陷的说法中错误的是______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 缺陷就是软件产品在开发中存在的错误</li><li><strong>B.</strong> 缺陷就是软件维护过程中存在的错误、毛病等各种问题</li><li><strong>C.</strong> 缺陷就是导致系统程序崩溃的错误</li><li><strong>D.</strong> 缺陷就是系统所需要实现的某种功能的失效和违背</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 缺陷就是导致系统程序崩溃的错误</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 极限编程的主要特点有______。 D. 以上全部 简单的分析设计 频繁的客户交流 增量式开发和连续的测试 以上全部">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-10（单选）</p>
-<p>极限编程的主要特点有______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 简单的分析设计</li><li><strong>B.</strong> 频繁的客户交流</li><li><strong>C.</strong> 增量式开发和连续的测试</li><li><strong>D.</strong> 以上全部</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 以上全部</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） SINGLE 以下关于软件可靠性与硬件的可靠性主要区别的说法中，正确的是______。 A. 软件的每个拷贝都是完全一样的，而按照设计生产出来的同规格硬件总有微小差别 软件的每个拷贝都是完全一样的，而按照设计生产出来的同规格硬件总有微小差别 软件经常面临恶意的使用者，而硬件没有恶意的使用者 软件的使用者通常遍及整个世界，而硬件使用者通常只局限于某个地区 软件的失效都是逻辑错误引起的，而硬件的失效都不是逻辑错误引起的">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-11（单选）</p>
-<p>以下关于软件可靠性与硬件的可靠性主要区别的说法中，正确的是______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 软件的每个拷贝都是完全一样的，而按照设计生产出来的同规格硬件总有微小差别</li><li><strong>B.</strong> 软件经常面临恶意的使用者，而硬件没有恶意的使用者</li><li><strong>C.</strong> 软件的使用者通常遍及整个世界，而硬件使用者通常只局限于某个地区</li><li><strong>D.</strong> 软件的失效都是逻辑错误引起的，而硬件的失效都不是逻辑错误引起的</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 软件的每个拷贝都是完全一样的，而按照设计生产出来的同规格硬件总有微小差别</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） MULTI 软件质量的含义是_____ A. 能满足给定需要的特性之全体；；B. 具有所希望的各种属性的组合的程度；；C. 顾客或用户认为能满足其综合期望的程度；；D. 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。 能满足给定需要的特性之全体； 具有所希望的各种属性的组合的程度； 顾客或用户认为能满足其综合期望的程度； 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-12（多选）</p>
-<p>软件质量的含义是_____</p>
-<ul class="sqe-options"><li><strong>A.</strong> 能满足给定需要的特性之全体；</li><li><strong>B.</strong> 具有所希望的各种属性的组合的程度；</li><li><strong>C.</strong> 顾客或用户认为能满足其综合期望的程度；</li><li><strong>D.</strong> 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 能满足给定需要的特性之全体；；B. 具有所希望的各种属性的组合的程度；；C. 顾客或用户认为能满足其综合期望的程度；；D. 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-13（填空）</p>
-<p>用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4）</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>4 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 用户要求在功能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 填空1: 完整性；填空2: 可靠性；填空3: 生存性；填空4: 可用性；填空5: 便利性 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-14（填空）</p>
-<p>用户要求在功能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5）</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>5 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 完整性；填空2: 可靠性；填空3: 生存性；填空4: 可用性；填空5: 便利性</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 软件质量的3维特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称) 填空1: 功能性；填空2: 可靠性；填空3: 性能 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-15（填空）</p>
-<p>软件质量的3维特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称)</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 功能性；填空2: 可靠性；填空3: 性能</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 软件质量的3A特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称) 填空1: 可说明性；填空2: 有效性；填空3: 易用性 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-16（填空）</p>
-<p>软件质量的3A特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称)</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 可说明性；填空2: 有效性；填空3: 易用性</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量 填空1: 产品；填空2: 开发过程；填空3: 商业环境中 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-17（填空）</p>
-<p>软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 产品；填空2: 开发过程；填空3: 商业环境中</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL ANSI/IEEE STD729给出了软件质量定义：软件产品满足规定的和隐含的与 （填空1） 有关的全部特征和特性。 填空1: 需求能力 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-18（填空）</p>
-<p>ANSI/IEEE STD729给出了软件质量定义：软件产品满足规定的和隐含的与 （填空1） 有关的全部特征和特性。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 需求能力</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。 填空1: 失效；填空2: 违背 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-19（填空）</p>
-<p>从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>2 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 失效；填空2: 违背</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 极限编程适合 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 填空1: 小团队；填空2: 高风险；填空3: 快速变化或不稳定的需求；填空4: 强调可测试性 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 9-20（填空）</p>
-<p>极限编程适合 （填空1） 、 （填空2） 、 （填空3） 、 （填空4）</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第二章课后练习</span><span>填空</span><span>4 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 小团队；填空2: 高风险；填空3: 快速变化或不稳定的需求；填空4: 强调可测试性</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-10" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">10</span>
-<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第二章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） SINGLE 据权威部门统计，软件错误产生的原因分布图表中，如下____________选项是导致软件错误的主要原因。 A. 软件需求规格说明错误 软件需求规格说明错误 设计错误 编码错误 测试错误">
-<div class="sqe-question">
-<p class="sqe-question-title">题 10-01（单选）</p>
-<p>据权威部门统计，软件错误产生的原因分布图表中，如下____________选项是导致软件错误的主要原因。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 软件需求规格说明错误</li><li><strong>B.</strong> 设计错误</li><li><strong>C.</strong> 编码错误</li><li><strong>D.</strong> 测试错误</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 软件需求规格说明错误</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） SINGLE V 模型是具有代表意义的测试模型，以下理解正确的是______。 C. V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现 V模型认为测试阶段是与开发阶段并行的 V 模型是软件开发螺旋模型的变种，它反映了测试活动与分析和设计的关系 V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现 V 模型是对W 模型的改进">
-<div class="sqe-question">
-<p class="sqe-question-title">题 10-02（单选）</p>
-<p>V 模型是具有代表意义的测试模型，以下理解正确的是______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> V模型认为测试阶段是与开发阶段并行的</li><li><strong>B.</strong> V 模型是软件开发螺旋模型的变种，它反映了测试活动与分析和设计的关系</li><li><strong>C.</strong> V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现</li><li><strong>D.</strong> V 模型是对W 模型的改进</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. V 模型造成需求分析阶段隐藏的问题一直到后期的验收测试才被发现</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） SINGLE 下列关于软件设计的说法不正确的是：_______ D. 软件设计越复杂越好 软件设计可以分为概要设计和详细设计两个阶段 详细设计的首要任务就是设计模块的程序流程、算法和数据结构 软件概要设计是指对整个软件系统进行结构设计，确定软件系统的结构 软件设计越复杂越好">
-<div class="sqe-question">
-<p class="sqe-question-title">题 10-03（单选）</p>
-<p>下列关于软件设计的说法不正确的是：_______</p>
-<ul class="sqe-options"><li><strong>A.</strong> 软件设计可以分为概要设计和详细设计两个阶段</li><li><strong>B.</strong> 详细设计的首要任务就是设计模块的程序流程、算法和数据结构</li><li><strong>C.</strong> 软件概要设计是指对整个软件系统进行结构设计，确定软件系统的结构</li><li><strong>D.</strong> 软件设计越复杂越好</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 软件设计越复杂越好</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） SINGLE 极限编程的主要特点有______。 D. 以上全部 简单的分析设计 频繁的客户交流 增量式开发和连续的测试 以上全部">
-<div class="sqe-question">
-<p class="sqe-question-title">题 10-04（单选）</p>
-<p>极限编程的主要特点有______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 简单的分析设计</li><li><strong>B.</strong> 频繁的客户交流</li><li><strong>C.</strong> 增量式开发和连续的测试</li><li><strong>D.</strong> 以上全部</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 以上全部</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） MULTI 软件质量的含义是_____ A. 能满足给定需要的特性之全体；；B. 具有所希望的各种属性的组合的程度；；C. 顾客或用户认为能满足其综合期望的程度；；D. 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。 能满足给定需要的特性之全体； 具有所希望的各种属性的组合的程度； 顾客或用户认为能满足其综合期望的程度； 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。">
-<div class="sqe-question">
-<p class="sqe-question-title">题 10-05（多选）</p>
-<p>软件质量的含义是_____</p>
-<ul class="sqe-options"><li><strong>A.</strong> 能满足给定需要的特性之全体；</li><li><strong>B.</strong> 具有所希望的各种属性的组合的程度；</li><li><strong>C.</strong> 顾客或用户认为能满足其综合期望的程度；</li><li><strong>D.</strong> 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 能满足给定需要的特性之全体；；B. 具有所希望的各种属性的组合的程度；；C. 顾客或用户认为能满足其综合期望的程度；；D. 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） FILL 用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 10-06（填空）</p>
-<p>用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4）</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>填空</span><span>4 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） FILL 软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量 填空1: 产品；填空2: 开发过程；填空3: 商业环境中 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 10-07（填空）</p>
-<p>软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 产品；填空2: 开发过程；填空3: 商业环境中</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） FILL 从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。 填空1: 失效；填空2: 违背 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 10-08（填空）</p>
-<p>从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>填空</span><span>2 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 失效；填空2: 违背</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） SINGLE 以下哪一种选项不属于软件缺陷______。 D. 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题 软件没有实现产品规格说明所要求的功能 软件中出现了产品规格说明不应该出现的功能 软件实现了产品规格说明没有提到的功能 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题">
-<div class="sqe-question">
-<p class="sqe-question-title">题 10-09（单选）</p>
-<p>以下哪一种选项不属于软件缺陷______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 软件没有实现产品规格说明所要求的功能</li><li><strong>B.</strong> 软件中出现了产品规格说明不应该出现的功能</li><li><strong>C.</strong> 软件实现了产品规格说明没有提到的功能</li><li><strong>D.</strong> 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 软件实现了产品规格说明所要求的功能但因受性能限制而未考虑可移植性问题</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） SINGLE 以下关于软件质量的说法中，错误的是______ C. 程序的正确性足以体现软件的价值 软件产品必须提供用户所需要的功能，并能正常工作 软件质量是产品、组织和体系或过程的一组固有特性，反映它们满足顾客和其他相关方面要求的程度 程序的正确性足以体现软件的价值 越是关注客户的满意度，软件就越有可能达到质量要求">
-<div class="sqe-question">
-<p class="sqe-question-title">题 10-10（单选）</p>
-<p>以下关于软件质量的说法中，错误的是______</p>
-<ul class="sqe-options"><li><strong>A.</strong> 软件产品必须提供用户所需要的功能，并能正常工作</li><li><strong>B.</strong> 软件质量是产品、组织和体系或过程的一组固有特性，反映它们满足顾客和其他相关方面要求的程度</li><li><strong>C.</strong> 程序的正确性足以体现软件的价值</li><li><strong>D.</strong> 越是关注客户的满意度，软件就越有可能达到质量要求</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第二章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 程序的正确性足以体现软件的价值</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-11" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">11</span>
-<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第六章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 11-01（判断）</p>
-<p>发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 评审报告可以看作是评审会结束的标志。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 11-02（判断）</p>
-<p>评审报告可以看作是评审会结束的标志。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） MULTI 评审会议的主要步骤如下 A. 由评审员/作者进行演示或说明；B. 评审员会就不清楚或疑惑的地方与作者进行沟通；C. 协调人或记录员在会议过程中完成会议记录 由评审员/作者进行演示或说明 评审员会就不清楚或疑惑的地方与作者进行沟通 协调人或记录员在会议过程中完成会议记录 分析评审结果">
-<div class="sqe-question">
-<p class="sqe-question-title">题 11-03（多选）</p>
-<p>评审会议的主要步骤如下</p>
-<ul class="sqe-options"><li><strong>A.</strong> 由评审员/作者进行演示或说明</li><li><strong>B.</strong> 评审员会就不清楚或疑惑的地方与作者进行沟通</li><li><strong>C.</strong> 协调人或记录员在会议过程中完成会议记录</li><li><strong>D.</strong> 分析评审结果</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 由评审员/作者进行演示或说明；B. 评审员会就不清楚或疑惑的地方与作者进行沟通；C. 协调人或记录员在会议过程中完成会议记录</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 规则集列出了容易出现的典型错误，是评审的一个重要组成部分。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 11-04（判断）</p>
-<p>规则集列出了容易出现的典型错误，是评审的一个重要组成部分。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） MULTI 过程评审作用如下： A. 评估主要的质量保证流程；B. 考虑如何处理和解决评审过程中发现的不符合问题；C. 总结和共享好的经验；D. 指出需要进一步完善和改进的部分 评估主要的质量保证流程 考虑如何处理和解决评审过程中发现的不符合问题 总结和共享好的经验 指出需要进一步完善和改进的部分">
-<div class="sqe-question">
-<p class="sqe-question-title">题 11-05（多选）</p>
-<p>过程评审作用如下：</p>
-<ul class="sqe-options"><li><strong>A.</strong> 评估主要的质量保证流程</li><li><strong>B.</strong> 考虑如何处理和解决评审过程中发现的不符合问题</li><li><strong>C.</strong> 总结和共享好的经验</li><li><strong>D.</strong> 指出需要进一步完善和改进的部分</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 评估主要的质量保证流程；B. 考虑如何处理和解决评审过程中发现的不符合问题；C. 总结和共享好的经验；D. 指出需要进一步完善和改进的部分</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 文档评审分为格式评审和内容评审。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 11-06（判断）</p>
-<p>文档评审分为格式评审和内容评审。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） FILL 管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。 填空1: 适宜；填空2: 有效；填空3: 充分 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 11-07（填空）</p>
-<p>管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 适宜；填空2: 有效；填空3: 充分</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） MULTI 评审小组一般由以下角色构成 A. 协调人；C. 作者；D. 评审员 协调人 SQA人员 作者 评审员">
-<div class="sqe-question">
-<p class="sqe-question-title">题 11-08（多选）</p>
-<p>评审小组一般由以下角色构成</p>
-<ul class="sqe-options"><li><strong>A.</strong> 协调人</li><li><strong>B.</strong> SQA人员</li><li><strong>C.</strong> 作者</li><li><strong>D.</strong> 评审员</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 协调人；C. 作者；D. 评审员</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） MULTI 评审可以帮助开发工程师 A. 减少修订缺陷的时间；B. 提高编程效率；D. 减少测试和调试时间 减少修订缺陷的时间 提高编程效率 增强产品的可维护性 减少测试和调试时间">
-<div class="sqe-question">
-<p class="sqe-question-title">题 11-09（多选）</p>
-<p>评审可以帮助开发工程师</p>
-<ul class="sqe-options"><li><strong>A.</strong> 减少修订缺陷的时间</li><li><strong>B.</strong> 提高编程效率</li><li><strong>C.</strong> 增强产品的可维护性</li><li><strong>D.</strong> 减少测试和调试时间</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 减少修订缺陷的时间；B. 提高编程效率；D. 减少测试和调试时间</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） SINGLE 在软件设计中，设计复审是和软件设计本身一样重要的环节，其主要的目的和作用是为了能够______。 B. 避免后期付出高代价 减少测试工作量 避免后期付出高代价 保证软件质量 缩短软件开发周期">
-<div class="sqe-question">
-<p class="sqe-question-title">题 11-10（单选）</p>
-<p>在软件设计中，设计复审是和软件设计本身一样重要的环节，其主要的目的和作用是为了能够______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 减少测试工作量</li><li><strong>B.</strong> 避免后期付出高代价</li><li><strong>C.</strong> 保证软件质量</li><li><strong>D.</strong> 缩短软件开发周期</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第六章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 避免后期付出高代价</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-12" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">12</span>
-<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第四章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">21 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-01（判断）</p>
-<p>质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-02（判断）</p>
-<p>McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE 填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-03（填空）</p>
-<p>语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>4 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 这段程序的环形计数复杂度（McCabe）是多少 （填空1） ？ 填空1: 4 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-04（填空）</p>
-<p>这段程序的环形计数复杂度（McCabe）是多少 （填空1） ？</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 4</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 软件项目度量的主要内容包括： （填空1） 度量、 （填空2） 度量、 （填空3） 度量、 （填空4） 度量、 （填空5） 度量、 （填空6） 度量以及其他一些度量项目。 填空1: 规模；填空2: 复杂度；填空3: 缺陷；填空4: 进度；填空5: 风险；填空6: 工作量 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-05（填空）</p>
-<p>软件项目度量的主要内容包括： （填空1） 度量、 （填空2） 度量、 （填空3） 度量、 （填空4） 度量、 （填空5） 度量、 （填空6） 度量以及其他一些度量项目。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>6 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 规模；填空2: 复杂度；填空3: 缺陷；填空4: 进度；填空5: 风险；填空6: 工作量</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 软件度量应基于分析模型、设计模型或程序本身的结构进行，而独立于编程语言的句法和语法之外。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-06（判断）</p>
-<p>软件度量应基于分析模型、设计模型或程序本身的结构进行，而独立于编程语言的句法和语法之外。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。 填空1: 项目；填空2: 产品；填空3: 过程 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-07（填空）</p>
-<p>软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 项目；填空2: 产品；填空3: 过程</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 测量的目标是不断提高有效性和可靠性，测量可以避免出现偏差或误差。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-08（判断）</p>
-<p>测量的目标是不断提高有效性和可靠性，测量可以避免出现偏差或误差。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 可靠性差一般意味着测量方法在技术上有待改进。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-09（判断）</p>
-<p>可靠性差一般意味着测量方法在技术上有待改进。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 有效性差一般意味着测量方法在原则性上有错误。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-10（判断）</p>
-<p>有效性差一般意味着测量方法在原则性上有错误。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL （填空1） 性和 （填空2） 性是测量标准中最重要的指标。 填空1: 有效；填空2: 可靠 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-11（填空）</p>
-<p>（填空1） 性和 （填空2） 性是测量标准中最重要的指标。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>2 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 有效；填空2: 可靠</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。 填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-12（填空）</p>
-<p>课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>4 分</span></div>
+<p class="sqe-question-title">题 22-04（单选）</p>
+<p>白盒测试是根据程序的_____来设计测试用例,黑盒测试是根据软件的规格说明来设计测试用例。</p>
+<ul class="sqe-options"><li><strong>A.</strong> 内部数据</li><li><strong>B.</strong> 内部逻辑</li><li><strong>C.</strong> 功能</li><li><strong>D.</strong> 性能</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>单选</span><span>1 分</span></div>
 </div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值</p></div></details></div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 内部逻辑</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 度量是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的 （填空1） 。 填空1: 定量测量 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE ​阅读下面这段程序，使用逻辑覆盖法进行测试，请问哪一组关于（a,b,c）的输入值可以达到判定覆盖。
+&amp;lrm;​int func(int a,b,c)
+{&amp;lrm;​
+int k=1;
+&amp;lrm;​if ( (a&gt;0) &amp;&amp;(b&lt;0) &amp;&amp; (a+c&gt;0) )
+k=k+a;&amp;lrm;​
+else
+k=k+b;
+&amp;lrm;​if (c&gt;0)
+k=k+c;&amp;lrm;​
+return k;&amp;lrm;​
+} C. (a,b,c) = (4,-9,-2)、(-4,8,3) (a,b,c) = (2,5,8)、(-4,-9,-5) (a,b,c) = (3,6,1)、(-4,-5,7) (a,b,c) = (4,-9,-2)、(-4,8,3) (a,b,c) = (6,8,-2)、(1,5,4)">
 <div class="sqe-question">
-<p class="sqe-question-title">题 12-13（填空）</p>
-<p>度量是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的 （填空1） 。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 定量测量</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 测量是对产品过程的某个属性的范围、数量、维度、容量或大小提供一个 （填空1） 。 填空1: 定量的指示 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-14（填空）</p>
-<p>测量是对产品过程的某个属性的范围、数量、维度、容量或大小提供一个 （填空1） 。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 定量的指示</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 度量是为了获取指标评估量化结果的重要手段和方法。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-15（判断）</p>
-<p>度量是为了获取指标评估量化结果的重要手段和方法。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 软件度量具有相对性强，绝对性弱的特点。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 12-16（判断）</p>
-<p>软件度量具有相对性强，绝对性弱的特点。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
+<p class="sqe-question-title">题 22-05（单选）</p>
+<p>​阅读下面这段程序，使用逻辑覆盖法进行测试，请问哪一组关于（a,b,c）的输入值可以达到判定覆盖。
+&amp;lrm;​int func(int a,b,c)
+{&amp;lrm;​
+int k=1;
+&amp;lrm;​if ( (a&gt;0) &amp;&amp;(b&lt;0) &amp;&amp; (a+c&gt;0) )
+k=k+a;&amp;lrm;​
+else
+k=k+b;
+&amp;lrm;​if (c&gt;0)
+k=k+c;&amp;lrm;​
+return k;&amp;lrm;​
+}</p>
+<ul class="sqe-options"><li><strong>A.</strong> (a,b,c) = (2,5,8)、(-4,-9,-5)</li><li><strong>B.</strong> (a,b,c) = (3,6,1)、(-4,-5,7)</li><li><strong>C.</strong> (a,b,c) = (4,-9,-2)、(-4,8,3)</li><li><strong>D.</strong> (a,b,c) = (6,8,-2)、(1,5,4)</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>单选</span><span>1 分</span></div>
 </div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. (a,b,c) = (4,-9,-2)、(-4,8,3)</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 软件质量度量就是用来衡量软件质量控制和保证的过程和结果的。  ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE &amp;zwnj;针对下面一个程序段：
+If ((M&gt;0) &amp;&amp; (N = = 0)) FUCTION1;
+If ((M = = 10)|| (P &gt; 10)) FUCTION2;
+其中，FUCTION1、FUCTION2均为语句块。
+现在选取测试用例：M=10 N=0 P=3 ，该测试用例满足了 A. 语句覆盖 语句覆盖 判定覆盖 条件组合覆 路径覆盖">
 <div class="sqe-question">
-<p class="sqe-question-title">题 12-17（判断）</p>
-<p>软件质量度量就是用来衡量软件质量控制和保证的过程和结果的。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>判断</span><span>1 分</span></div>
+<p class="sqe-question-title">题 22-06（单选）</p>
+<p>&amp;zwnj;针对下面一个程序段：
+If ((M&gt;0) &amp;&amp; (N = = 0)) FUCTION1;
+If ((M = = 10)|| (P &gt; 10)) FUCTION2;
+其中，FUCTION1、FUCTION2均为语句块。
+现在选取测试用例：M=10 N=0 P=3 ，该测试用例满足了</p>
+<ul class="sqe-options"><li><strong>A.</strong> 语句覆盖</li><li><strong>B.</strong> 判定覆盖</li><li><strong>C.</strong> 条件组合覆</li><li><strong>D.</strong> 路径覆盖</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>单选</span><span>1 分</span></div>
 </div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 语句覆盖</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） SINGLE 假设在程序控制流图中，有14 条边，10个节点，则控制流程图的环路复杂性V(G)等于______。 C. 6 12 8 6 4">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE 如果某测试用例集实现了判定覆盖，那么它一定同时实现了该软件的 C. 语句覆盖 条件组合覆盖 判定/条件覆盖 语句覆盖 条件覆盖">
 <div class="sqe-question">
-<p class="sqe-question-title">题 12-18（单选）</p>
-<p>假设在程序控制流图中，有14 条边，10个节点，则控制流程图的环路复杂性V(G)等于______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 12</li><li><strong>B.</strong> 8</li><li><strong>C.</strong> 6</li><li><strong>D.</strong> 4</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>单选</span><span>1 分</span></div>
+<p class="sqe-question-title">题 22-07（单选）</p>
+<p>如果某测试用例集实现了判定覆盖，那么它一定同时实现了该软件的</p>
+<ul class="sqe-options"><li><strong>A.</strong> 条件组合覆盖</li><li><strong>B.</strong> 判定/条件覆盖</li><li><strong>C.</strong> 语句覆盖</li><li><strong>D.</strong> 条件覆盖</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>单选</span><span>1 分</span></div>
 </div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 6</p></div></details></div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 语句覆盖</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） SINGLE 修复软件缺陷费用最高的是 __________ 阶段。 D. 发布 编制说明书 设计 编写代码 发布">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE 发现错误能力最弱的是_______ A. 语句覆盖 语句覆盖 判定覆盖 条件覆盖 路径覆盖">
 <div class="sqe-question">
-<p class="sqe-question-title">题 12-19（单选）</p>
-<p>修复软件缺陷费用最高的是 __________ 阶段。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 编制说明书</li><li><strong>B.</strong> 设计</li><li><strong>C.</strong> 编写代码</li><li><strong>D.</strong> 发布</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>单选</span><span>1 分</span></div>
+<p class="sqe-question-title">题 22-08（单选）</p>
+<p>发现错误能力最弱的是_______</p>
+<ul class="sqe-options"><li><strong>A.</strong> 语句覆盖</li><li><strong>B.</strong> 判定覆盖</li><li><strong>C.</strong> 条件覆盖</li><li><strong>D.</strong> 路径覆盖</li></ul>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>单选</span><span>1 分</span></div>
 </div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 发布</p></div></details></div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 语句覆盖</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 软件产品度量包括软件 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 以及 （填空5） 。 填空1: 规模大小；填空2: 产品复杂度；填空3: 设计特征；填空4: 性能；填空5: 质量水平 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） FILL 判定-条件覆盖法要求使得判断中 （填空1） 至少执行一次。 填空1: 每个条件的所有可能取值 ">
 <div class="sqe-question">
-<p class="sqe-question-title">题 12-20（填空）</p>
-<p>软件产品度量包括软件 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 以及 （填空5） 。</p>
+<p class="sqe-question-title">题 22-09（填空）</p>
+<p>判定-条件覆盖法要求使得判断中 （填空1） 至少执行一次。</p>
 
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>5 分</span></div>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>填空</span><span>1 分</span></div>
 </div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 规模大小；填空2: 产品复杂度；填空3: 设计特征；填空4: 性能；填空5: 质量水平</p></div></details></div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 每个条件的所有可能取值</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL （填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。 填空1: 度量 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） TF 在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。 F ">
 <div class="sqe-question">
-<p class="sqe-question-title">题 12-21（填空）</p>
-<p>（填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。</p>
+<p class="sqe-question-title">题 22-10（判断）</p>
+<p>在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。</p>
 
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第四章课后练习</span><span>填空</span><span>1 分</span></div>
+<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>判断</span><span>1 分</span></div>
 </div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 度量</p></div></details></div>
+<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>F</p></div></details></div>
 </article>
 </section>
 
 <section id="quiz-13" class="sqe-chapter">
 <div class="sqe-chapter-head">
-<span class="sqe-number">13</span>
+<span class="sqe-number">22</span>
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>实验二课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">25 道题</span></div></div>
 </div>
 
@@ -3688,403 +5048,9 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 </article>
 </section>
 
-<section id="quiz-14" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">14</span>
-<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第一章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">27 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） FILL 与质量相关的概念包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 和 （填空6） 。 填空1: 组织；填空2: 过程；填空3: 产品；填空4: 服务；填空5: 客户；填空6: 体系 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-01（填空）</p>
-<p>与质量相关的概念包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 和 （填空6） 。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>填空</span><span>6 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 组织；填空2: 过程；填空3: 产品；填空4: 服务；填空5: 客户；填空6: 体系</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） FILL 质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。 填空1: 系统；填空2: 部件；填空3: 过程 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-02（填空）</p>
-<p>质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 系统；填空2: 部件；填空3: 过程</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） FILL 质量的属性包括： （填空1） 属性、 （填空2） 属性、 （填空3） 属性、 （填空4） 、 （填空5） 。 填空1: 客户；填空2: 成本；填空3: 社会；填空4: 可测性；填空5: 可预见性 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-03（填空）</p>
-<p>质量的属性包括： （填空1） 属性、 （填空2） 属性、 （填空3） 属性、 （填空4） 、 （填空5） 。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>填空</span><span>5 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 客户；填空2: 成本；填空3: 社会；填空4: 可测性；填空5: 可预见性</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） MULTI 质量管理是指在质量方面（ ）和（ ）组织的协调的活动 B. 指挥；C. 控制 策划 指挥 控制 制定">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-04（多选）</p>
-<p>质量管理是指在质量方面（ ）和（ ）组织的协调的活动</p>
-<ul class="sqe-options"><li><strong>A.</strong> 策划</li><li><strong>B.</strong> 指挥</li><li><strong>C.</strong> 控制</li><li><strong>D.</strong> 制定</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 指挥；C. 控制</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量检验是对产品质量特性进行检验，以确定每项质量特性合格情况的管理性检查活动  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-05（判断）</p>
-<p>质量检验是对产品质量特性进行检验，以确定每项质量特性合格情况的管理性检查活动</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 持续改进总体业绩应当是组织应追求的目标  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-06（判断）</p>
-<p>持续改进总体业绩应当是组织应追求的目标</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量改进是质量管理的一部分，致力于增强满足质量要求的能力  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-07（判断）</p>
-<p>质量改进是质量管理的一部分，致力于增强满足质量要求的能力</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量控制是按照一个设定的标准去实施检验  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-08（判断）</p>
-<p>质量控制是按照一个设定的标准去实施检验</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 服务是产品类别中的一类  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-09（判断）</p>
-<p>服务是产品类别中的一类</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量特性是指产品、过程或体系与标准有关的固有特性。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-10（判断）</p>
-<p>质量特性是指产品、过程或体系与标准有关的固有特性。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF &amp;ldquo;符合标准&amp;rdquo;就是合格的产品质量  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-11（判断）</p>
-<p>&amp;ldquo;符合标准&amp;rdquo;就是合格的产品质量</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） MULTI 质量管理体系可以（ ） A. 帮助组织实现顾客满意；B. 为组织提供实现持续改进的框架；C. 向顾客提供信任 帮助组织实现顾客满意 为组织提供实现持续改进的框架 向顾客提供信任 使管理过程标准化">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-12（多选）</p>
-<p>质量管理体系可以（ ）</p>
-<ul class="sqe-options"><li><strong>A.</strong> 帮助组织实现顾客满意</li><li><strong>B.</strong> 为组织提供实现持续改进的框架</li><li><strong>C.</strong> 向顾客提供信任</li><li><strong>D.</strong> 使管理过程标准化</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 帮助组织实现顾客满意；B. 为组织提供实现持续改进的框架；C. 向顾客提供信任</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） MULTI 实现全面质量管理全过程的管理必须体现（ ）的思想 A. 预防为主、不断改进；D. 为顾客服务 预防为主、不断改进 严格质量检验 加强生产控制 为顾客服务">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-13（多选）</p>
-<p>实现全面质量管理全过程的管理必须体现（ ）的思想</p>
-<ul class="sqe-options"><li><strong>A.</strong> 预防为主、不断改进</li><li><strong>B.</strong> 严格质量检验</li><li><strong>C.</strong> 加强生产控制</li><li><strong>D.</strong> 为顾客服务</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 预防为主、不断改进；D. 为顾客服务</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 不合格品控制时，请示领导决定是否可用  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-14（判断）</p>
-<p>不合格品控制时，请示领导决定是否可用</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量管理体系是为实现质量方针和质量目标而建立的管理工作系统  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-15（判断）</p>
-<p>质量管理体系是为实现质量方针和质量目标而建立的管理工作系统</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-16（判断）</p>
-<p>珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量改进和质量控制都是为了保持产品质量稳定  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-17（判断）</p>
-<p>质量改进和质量控制都是为了保持产品质量稳定</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 当生产过程处于受控制状态时，产品质量就不会波动  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-18（判断）</p>
-<p>当生产过程处于受控制状态时，产品质量就不会波动</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量控制是消除偶发性问题，使产品质量保持规定的水平  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-19（判断）</p>
-<p>质量控制是消除偶发性问题，使产品质量保持规定的水平</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量管理是指在质量方面指挥和控制组织的协调的活动  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-20（判断）</p>
-<p>质量管理是指在质量方面指挥和控制组织的协调的活动</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 致力于制定质量目标并规定必要的运行过程和相关资源以实现质量目标，称之为（ ） B. 质量策划 质量管理 质量策划 质量保证 质量控制">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-21（单选）</p>
-<p>致力于制定质量目标并规定必要的运行过程和相关资源以实现质量目标，称之为（ ）</p>
-<ul class="sqe-options"><li><strong>A.</strong> 质量管理</li><li><strong>B.</strong> 质量策划</li><li><strong>C.</strong> 质量保证</li><li><strong>D.</strong> 质量控制</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 质量策划</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 质量方针是一个组织总的质量宗旨和方向，应由组织的（ ）批准。 B. 最高管理者 上级机关 最高管理者 质量管理办公室主任 总工程师">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-22（单选）</p>
-<p>质量方针是一个组织总的质量宗旨和方向，应由组织的（ ）批准。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 上级机关</li><li><strong>B.</strong> 最高管理者</li><li><strong>C.</strong> 质量管理办公室主任</li><li><strong>D.</strong> 总工程师</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 最高管理者</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 由于组织的顾客和其他相关方对组织的产品、过程和体系的要求是随着时间不断变化的，这体现了质量的（ ）。 A. 时效性 时效性 广泛性 主观性 相对性">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-23（单选）</p>
-<p>由于组织的顾客和其他相关方对组织的产品、过程和体系的要求是随着时间不断变化的，这体现了质量的（ ）。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 时效性</li><li><strong>B.</strong> 广泛性</li><li><strong>C.</strong> 主观性</li><li><strong>D.</strong> 相对性</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 时效性</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 著名的质量管理专家朱兰提出的质量管理三步曲是指 （ ）。 C. 质量策划、质量控制、质量改进 质量保证、质量控制、质量改进 质量控制、质量保证、质量改进 质量策划、质量控制、质量改进 质量策划、 质量改进、质量保证">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-24（单选）</p>
-<p>著名的质量管理专家朱兰提出的质量管理三步曲是指 （ ）。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 质量保证、质量控制、质量改进</li><li><strong>B.</strong> 质量控制、质量保证、质量改进</li><li><strong>C.</strong> 质量策划、质量控制、质量改进</li><li><strong>D.</strong> 质量策划、 质量改进、质量保证</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 质量策划、质量控制、质量改进</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 质量概念涵盖的对象是（ ）。 D. 以上皆是 产品 服务 过程 以上皆是">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-25（单选）</p>
-<p>质量概念涵盖的对象是（ ）。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 产品</li><li><strong>B.</strong> 服务</li><li><strong>C.</strong> 过程</li><li><strong>D.</strong> 以上皆是</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 以上皆是</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 从适合顾客需要的角度对产品质量下定义被称为（ ）。 D. 适用性质量 符合性质量 广义性质量 满意的质量 适用性质量">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-26（单选）</p>
-<p>从适合顾客需要的角度对产品质量下定义被称为（ ）。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 符合性质量</li><li><strong>B.</strong> 广义性质量</li><li><strong>C.</strong> 满意的质量</li><li><strong>D.</strong> 适用性质量</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 适用性质量</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） SINGLE 质量是一组固有（ ）满足要求的程度。 A. 特性 特性 品质 行为的特性 特征">
-<div class="sqe-question">
-<p class="sqe-question-title">题 14-27（单选）</p>
-<p>质量是一组固有（ ）满足要求的程度。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 特性</li><li><strong>B.</strong> 品质</li><li><strong>C.</strong> 行为的特性</li><li><strong>D.</strong> 特征</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第一章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 特性</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-15" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">15</span>
-<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第三章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">11 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） TF 软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 15-01（判断）</p>
-<p>软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） SINGLE 软件工程概念的提出是由于______。 B. 软件危机的出现 计算技术的发展 软件危机的出现 程序设计方法学的影响 其它工程科学的影响">
-<div class="sqe-question">
-<p class="sqe-question-title">题 15-02（单选）</p>
-<p>软件工程概念的提出是由于______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 计算技术的发展</li><li><strong>B.</strong> 软件危机的出现</li><li><strong>C.</strong> 程序设计方法学的影响</li><li><strong>D.</strong> 其它工程科学的影响</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 软件危机的出现</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） SINGLE 系统可维护性的评价指标不包括______。 C. 可移植性 可理解性 可测试性 可移植性 可修改性">
-<div class="sqe-question">
-<p class="sqe-question-title">题 15-03（单选）</p>
-<p>系统可维护性的评价指标不包括______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 可理解性</li><li><strong>B.</strong> 可测试性</li><li><strong>C.</strong> 可移植性</li><li><strong>D.</strong> 可修改性</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 可移植性</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。 填空1: 功能性；填空2: 可靠性；填空3: 可使用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 15-04（填空）</p>
-<p>ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>6 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 功能性；填空2: 可靠性；填空3: 可使用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） SINGLE 软件可移植性是用来衡量软件______的重要尺度之一。 C. 质量 通用性 效率 质量 人机界面">
-<div class="sqe-question">
-<p class="sqe-question-title">题 15-05（单选）</p>
-<p>软件可移植性是用来衡量软件______的重要尺度之一。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 通用性</li><li><strong>B.</strong> 效率</li><li><strong>C.</strong> 质量</li><li><strong>D.</strong> 人机界面</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 质量</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。 填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 15-06（填空）</p>
-<p>六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>5 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。 填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 15-07（填空）</p>
-<p>IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>5 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。 填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 15-08（填空）</p>
-<p>采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。 填空1: 可维护；填空2: 灵活；填空3: 可测试 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 15-09（填空）</p>
-<p>McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 可维护；填空2: 灵活；填空3: 可测试</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。 填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 15-10（填空）</p>
-<p>软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>4 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 软件的6个品质要素包括： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。 填空1: 正确性；填空2: 可靠性；填空3: 易用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 15-11（填空）</p>
-<p>软件的6个品质要素包括： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第三章课后练习</span><span>填空</span><span>6 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 正确性；填空2: 可靠性；填空3: 易用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性</p></div></details></div>
-</article>
-</section>
-
 <section id="quiz-16" class="sqe-chapter">
 <div class="sqe-chapter-head">
-<span class="sqe-number">16</span>
+<span class="sqe-number">23</span>
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>实验三课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">33 道题</span></div></div>
 </div>
 
@@ -4440,973 +5406,6 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-meta"><span>课后练习（计入总分）</span><span>实验三课后练习</span><span>单选</span><span>1 分</span></div>
 </div>
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 变异测试</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-17" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">17</span>
-<div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第六章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">28 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-01（判断）</p>
-<p>发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 评审报告可以看作是评审会结束的标志。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-02（判断）</p>
-<p>评审报告可以看作是评审会结束的标志。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 评审会议的主要步骤如下 A. 由评审员/作者进行演示或说明；B. 评审员会就不清楚或疑惑的地方与作者进行沟通；C. 协调人或记录员在会议过程中完成会议记录 由评审员/作者进行演示或说明 评审员会就不清楚或疑惑的地方与作者进行沟通 协调人或记录员在会议过程中完成会议记录 分析评审结果">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-03（多选）</p>
-<p>评审会议的主要步骤如下</p>
-<ul class="sqe-options"><li><strong>A.</strong> 由评审员/作者进行演示或说明</li><li><strong>B.</strong> 评审员会就不清楚或疑惑的地方与作者进行沟通</li><li><strong>C.</strong> 协调人或记录员在会议过程中完成会议记录</li><li><strong>D.</strong> 分析评审结果</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 由评审员/作者进行演示或说明；B. 评审员会就不清楚或疑惑的地方与作者进行沟通；C. 协调人或记录员在会议过程中完成会议记录</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 以下哪些资料应当评审 A. 基础性和早期的文档；B. 与重大决策有关的文档；C. 对如何做没有把握部分相关的文档；D. 不断被重复使用部件相关的文档 基础性和早期的文档 与重大决策有关的文档 对如何做没有把握部分相关的文档 不断被重复使用部件相关的文档">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-04（多选）</p>
-<p>以下哪些资料应当评审</p>
-<ul class="sqe-options"><li><strong>A.</strong> 基础性和早期的文档</li><li><strong>B.</strong> 与重大决策有关的文档</li><li><strong>C.</strong> 对如何做没有把握部分相关的文档</li><li><strong>D.</strong> 不断被重复使用部件相关的文档</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 基础性和早期的文档；B. 与重大决策有关的文档；C. 对如何做没有把握部分相关的文档；D. 不断被重复使用部件相关的文档</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 对评审组长的要求如下 A. 善于制定和执行评审计划；B. 评审是公平、公正的；C. 具有丰富的技术技能和知识；D. 积极带领评审组员按时保质的完成评审任务 善于制定和执行评审计划 评审是公平、公正的 具有丰富的技术技能和知识 积极带领评审组员按时保质的完成评审任务">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-05（多选）</p>
-<p>对评审组长的要求如下</p>
-<ul class="sqe-options"><li><strong>A.</strong> 善于制定和执行评审计划</li><li><strong>B.</strong> 评审是公平、公正的</li><li><strong>C.</strong> 具有丰富的技术技能和知识</li><li><strong>D.</strong> 积极带领评审组员按时保质的完成评审任务</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 善于制定和执行评审计划；B. 评审是公平、公正的；C. 具有丰富的技术技能和知识；D. 积极带领评审组员按时保质的完成评审任务</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 规则集列出了容易出现的典型错误，是评审的一个重要组成部分。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-06（判断）</p>
-<p>规则集列出了容易出现的典型错误，是评审的一个重要组成部分。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 填空1: 临时评审；填空2: 轮查；填空3: 走查；填空4: 小组评审；填空5: 审查 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-07（填空）</p>
-<p>评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5）</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>填空</span><span>5 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 临时评审；填空2: 轮查；填空3: 走查；填空4: 小组评审；填空5: 审查</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 过程评审作用如下： A. 评估主要的质量保证流程；B. 考虑如何处理和解决评审过程中发现的不符合问题；C. 总结和共享好的经验；D. 指出需要进一步完善和改进的部分 评估主要的质量保证流程 考虑如何处理和解决评审过程中发现的不符合问题 总结和共享好的经验 指出需要进一步完善和改进的部分">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-08（多选）</p>
-<p>过程评审作用如下：</p>
-<ul class="sqe-options"><li><strong>A.</strong> 评估主要的质量保证流程</li><li><strong>B.</strong> 考虑如何处理和解决评审过程中发现的不符合问题</li><li><strong>C.</strong> 总结和共享好的经验</li><li><strong>D.</strong> 指出需要进一步完善和改进的部分</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 评估主要的质量保证流程；B. 考虑如何处理和解决评审过程中发现的不符合问题；C. 总结和共享好的经验；D. 指出需要进一步完善和改进的部分</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 程评审的评审对象是质量保证流程，以及针对产品质量或其他形式的工作产出。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-09（判断）</p>
-<p>程评审的评审对象是质量保证流程，以及针对产品质量或其他形式的工作产出。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 过程评审是 A. 对软件开发过程的评审；B. 通过对流程的监控，保证SQA组织定义的软件过程在项目中得到了遵循；C. 保证质量保证方针能得到更快更好的执行 对软件开发过程的评审 通过对流程的监控，保证SQA组织定义的软件过程在项目中得到了遵循 保证质量保证方针能得到更快更好的执行 出现异常情况时，系统如何响应">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-10（多选）</p>
-<p>过程评审是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 对软件开发过程的评审</li><li><strong>B.</strong> 通过对流程的监控，保证SQA组织定义的软件过程在项目中得到了遵循</li><li><strong>C.</strong> 保证质量保证方针能得到更快更好的执行</li><li><strong>D.</strong> 出现异常情况时，系统如何响应</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 对软件开发过程的评审；B. 通过对流程的监控，保证SQA组织定义的软件过程在项目中得到了遵循；C. 保证质量保证方针能得到更快更好的执行</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 文档评审分为格式评审和内容评审。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-11（判断）</p>
-<p>文档评审分为格式评审和内容评审。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 技术评审作为一项软件质量保证活动，作用如下： A. 揭示软件在逻辑、执行以及功能和函数上的错误；B. 验证软件是否符合需求；C. 确保软件的一致性 揭示软件在逻辑、执行以及功能和函数上的错误 验证软件是否符合需求 确保软件的一致性 确保使用的术语具有唯一性">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-12（多选）</p>
-<p>技术评审作为一项软件质量保证活动，作用如下：</p>
-<ul class="sqe-options"><li><strong>A.</strong> 揭示软件在逻辑、执行以及功能和函数上的错误</li><li><strong>B.</strong> 验证软件是否符合需求</li><li><strong>C.</strong> 确保软件的一致性</li><li><strong>D.</strong> 确保使用的术语具有唯一性</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 揭示软件在逻辑、执行以及功能和函数上的错误；B. 验证软件是否符合需求；C. 确保软件的一致性</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 管理评审是对产品以及各阶段的输出内容进行评估。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-13（判断）</p>
-<p>管理评审是对产品以及各阶段的输出内容进行评估。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。 填空1: 适宜；填空2: 有效；填空3: 充分 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-14（填空）</p>
-<p>管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 适宜；填空2: 有效；填空3: 充分</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 评审小组一般由以下角色构成 A. 协调人；C. 作者；D. 评审员 协调人 SQA人员 作者 评审员">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-15（多选）</p>
-<p>评审小组一般由以下角色构成</p>
-<ul class="sqe-options"><li><strong>A.</strong> 协调人</li><li><strong>B.</strong> SQA人员</li><li><strong>C.</strong> 作者</li><li><strong>D.</strong> 评审员</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 协调人；C. 作者；D. 评审员</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 评审可以帮助开发工程师 A. 减少修订缺陷的时间；B. 提高编程效率；D. 减少测试和调试时间 减少修订缺陷的时间 提高编程效率 增强产品的可维护性 减少测试和调试时间">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-16（多选）</p>
-<p>评审可以帮助开发工程师</p>
-<ul class="sqe-options"><li><strong>A.</strong> 减少修订缺陷的时间</li><li><strong>B.</strong> 提高编程效率</li><li><strong>C.</strong> 增强产品的可维护性</li><li><strong>D.</strong> 减少测试和调试时间</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 减少修订缺陷的时间；B. 提高编程效率；D. 减少测试和调试时间</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 管理者、开发人员、客户有时都反对评审，因为评审会浪费时间，减缓项目的进度。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-17（判断）</p>
-<p>管理者、开发人员、客户有时都反对评审，因为评审会浪费时间，减缓项目的进度。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 评审是对软件元素或者项目状态的一种评估手段。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-18（判断）</p>
-<p>评审是对软件元素或者项目状态的一种评估手段。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 评审是质量控制方面一种非常有效的方法。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-19（判断）</p>
-<p>评审是质量控制方面一种非常有效的方法。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 同行评审的主要目标在于检测错误、核对与标准的偏离。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-20（判断）</p>
-<p>同行评审的主要目标在于检测错误、核对与标准的偏离。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） SINGLE 软件评审作为质量控制的一个重要手段，已经被业界广泛使用。评审分为内部评审和外部评审。关于内部评审的叙述，正确的包括。①对软件的每个开发阶段都要进行内部评审②评审人员由软件开发组、质量管理和配置管理人员组成，可邀请用户参与③评审人数根据实际情况确定，比如根据软件的规模等级和安全性等级等指标而定④内部评审由用户单位主持，由信息系统建设单位组织，应成立评审委员会 B. ①②③ ①②④ ①②③ ②③④ ①②③④">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-21（单选）</p>
-<p>软件评审作为质量控制的一个重要手段，已经被业界广泛使用。评审分为内部评审和外部评审。关于内部评审的叙述，正确的包括。①对软件的每个开发阶段都要进行内部评审②评审人员由软件开发组、质量管理和配置管理人员组成，可邀请用户参与③评审人数根据实际情况确定，比如根据软件的规模等级和安全性等级等指标而定④内部评审由用户单位主持，由信息系统建设单位组织，应成立评审委员会</p>
-<ul class="sqe-options"><li><strong>A.</strong> ①②④</li><li><strong>B.</strong> ①②③</li><li><strong>C.</strong> ②③④</li><li><strong>D.</strong> ①②③④</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. ①②③</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 管理评审由 （填空1） 发起。 填空1: 最高管理者 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-22（填空）</p>
-<p>管理评审由 （填空1） 发起。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>填空</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 最高管理者</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 代码评审是检查源代码是否达到模块设计的要求。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-23（判断）</p>
-<p>代码评审是检查源代码是否达到模块设计的要求。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 技术评审即是一种技术手段，也是一种质量管理手段。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-24（判断）</p>
-<p>技术评审即是一种技术手段，也是一种质量管理手段。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 在软件设计中，设计复审是和软件设计本身一样重要的环节，其主要的目的和作用是为了能够____________ B. 避免后期付出高代价 减少测试工作量 避免后期付出高代价 保证软件质量 缩短软件开发周期">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-25（多选）</p>
-<p>在软件设计中，设计复审是和软件设计本身一样重要的环节，其主要的目的和作用是为了能够____________</p>
-<ul class="sqe-options"><li><strong>A.</strong> 减少测试工作量</li><li><strong>B.</strong> 避免后期付出高代价</li><li><strong>C.</strong> 保证软件质量</li><li><strong>D.</strong> 缩短软件开发周期</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 避免后期付出高代价</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） MULTI 软件测试计划评审会需要哪些人员参加____________？ A. 项目经理；B. SQA 负责人；C. 配置负责人；D. 测试组 项目经理 SQA 负责人 配置负责人 测试组">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-26（多选）</p>
-<p>软件测试计划评审会需要哪些人员参加____________？</p>
-<ul class="sqe-options"><li><strong>A.</strong> 项目经理</li><li><strong>B.</strong> SQA 负责人</li><li><strong>C.</strong> 配置负责人</li><li><strong>D.</strong> 测试组</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 项目经理；B. SQA 负责人；C. 配置负责人；D. 测试组</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） SINGLE 在软件设计中，设计复审是和软件设计本身一样重要的环节，其主要的目的和作用是为了能够______。 B. 避免后期付出高代价 减少测试工作量 避免后期付出高代价 保证软件质量 缩短软件开发周期">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-27（单选）</p>
-<p>在软件设计中，设计复审是和软件设计本身一样重要的环节，其主要的目的和作用是为了能够______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 减少测试工作量</li><li><strong>B.</strong> 避免后期付出高代价</li><li><strong>C.</strong> 保证软件质量</li><li><strong>D.</strong> 缩短软件开发周期</li></ul>
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 避免后期付出高代价</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 。 填空1: 临时评审；填空2: 轮查；填空3: 走查；填空4: 小组评审；填空5: 审查 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 17-28（填空）</p>
-<p>评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 。</p>
-
-<div class="sqe-meta"><span>课后练习（计入总分）</span><span>第六章课后练习</span><span>填空</span><span>5 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 临时评审；填空2: 轮查；填空3: 走查；填空4: 小组评审；填空5: 审查</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-18" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">18</span>
-<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第一章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） FILL 质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。 填空1: 系统；填空2: 部件；填空3: 过程 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 18-01（填空）</p>
-<p>质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 系统；填空2: 部件；填空3: 过程</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） MULTI 质量管理是指在质量方面（ ）和（ ）组织的协调的活动 B. 指挥；C. 控制 策划 指挥 控制 制定">
-<div class="sqe-question">
-<p class="sqe-question-title">题 18-02（多选）</p>
-<p>质量管理是指在质量方面（ ）和（ ）组织的协调的活动</p>
-<ul class="sqe-options"><li><strong>A.</strong> 策划</li><li><strong>B.</strong> 指挥</li><li><strong>C.</strong> 控制</li><li><strong>D.</strong> 制定</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 指挥；C. 控制</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量改进是质量管理的一部分，致力于增强满足质量要求的能力  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 18-03（判断）</p>
-<p>质量改进是质量管理的一部分，致力于增强满足质量要求的能力</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量特性是指产品、过程或体系与标准有关的固有特性。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 18-04（判断）</p>
-<p>质量特性是指产品、过程或体系与标准有关的固有特性。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） MULTI 质量管理体系可以（ ） A. 帮助组织实现顾客满意；B. 为组织提供实现持续改进的框架；C. 向顾客提供信任 帮助组织实现顾客满意 为组织提供实现持续改进的框架 向顾客提供信任 使管理过程标准化">
-<div class="sqe-question">
-<p class="sqe-question-title">题 18-05（多选）</p>
-<p>质量管理体系可以（ ）</p>
-<ul class="sqe-options"><li><strong>A.</strong> 帮助组织实现顾客满意</li><li><strong>B.</strong> 为组织提供实现持续改进的框架</li><li><strong>C.</strong> 向顾客提供信任</li><li><strong>D.</strong> 使管理过程标准化</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 帮助组织实现顾客满意；B. 为组织提供实现持续改进的框架；C. 向顾客提供信任</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量管理体系是为实现质量方针和质量目标而建立的管理工作系统  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 18-06（判断）</p>
-<p>质量管理体系是为实现质量方针和质量目标而建立的管理工作系统</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 18-07（判断）</p>
-<p>珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 当生产过程处于受控制状态时，产品质量就不会波动  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 18-08（判断）</p>
-<p>当生产过程处于受控制状态时，产品质量就不会波动</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量管理是指在质量方面指挥和控制组织的协调的活动  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 18-09（判断）</p>
-<p>质量管理是指在质量方面指挥和控制组织的协调的活动</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） SINGLE 著名的质量管理专家朱兰提出的质量管理三步曲是指 （ ）。 C. 质量策划、质量控制、质量改进 质量保证、质量控制、质量改进 质量控制、质量保证、质量改进 质量策划、质量控制、质量改进 质量策划、 质量改进、质量保证">
-<div class="sqe-question">
-<p class="sqe-question-title">题 18-10（单选）</p>
-<p>著名的质量管理专家朱兰提出的质量管理三步曲是指 （ ）。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 质量保证、质量控制、质量改进</li><li><strong>B.</strong> 质量控制、质量保证、质量改进</li><li><strong>C.</strong> 质量策划、质量控制、质量改进</li><li><strong>D.</strong> 质量策划、 质量改进、质量保证</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第一章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 质量策划、质量控制、质量改进</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-19" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">19</span>
-<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第四章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF 质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 19-01（判断）</p>
-<p>质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 19-02（判断）</p>
-<p>McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL 语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE 填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 19-03（填空）</p>
-<p>语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>填空</span><span>4 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL 软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。 填空1: 项目；填空2: 产品；填空3: 过程 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 19-04（填空）</p>
-<p>软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 项目；填空2: 产品；填空3: 过程</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF 有效性差一般意味着测量方法在原则性上有错误。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 19-05（判断）</p>
-<p>有效性差一般意味着测量方法在原则性上有错误。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF 可靠性差一般意味着测量方法在技术上有待改进。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 19-06（判断）</p>
-<p>可靠性差一般意味着测量方法在技术上有待改进。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL 课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。 填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 19-07（填空）</p>
-<p>课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>填空</span><span>4 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） SINGLE 假设在程序控制流图中，有14 条边，10个节点，则控制流程图的环路复杂性V(G)等于______。 C. 6 12 8 6 4">
-<div class="sqe-question">
-<p class="sqe-question-title">题 19-08（单选）</p>
-<p>假设在程序控制流图中，有14 条边，10个节点，则控制流程图的环路复杂性V(G)等于______。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 12</li><li><strong>B.</strong> 8</li><li><strong>C.</strong> 6</li><li><strong>D.</strong> 4</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 6</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） SINGLE 修复软件缺陷费用最高的是 __________ 阶段。 D. 发布 编制说明书 设计 编写代码 发布">
-<div class="sqe-question">
-<p class="sqe-question-title">题 19-09（单选）</p>
-<p>修复软件缺陷费用最高的是 __________ 阶段。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 编制说明书</li><li><strong>B.</strong> 设计</li><li><strong>C.</strong> 编写代码</li><li><strong>D.</strong> 发布</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 发布</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL （填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。 填空1: 度量 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 19-10（填空）</p>
-<p>（填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第四章课上测试</span><span>填空</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 度量</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-20" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">20</span>
-<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第五章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">9 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） FILL CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。 填空1: 必需；填空2: 期望；填空3: 提供信息 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 20-01（填空）</p>
-<p>CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 必需；填空2: 期望；填空3: 提供信息</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） TF 软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 20-02（判断）</p>
-<p>软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） TF 优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 20-03（判断）</p>
-<p>优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） TF 为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 20-04（判断）</p>
-<p>为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） FILL CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。 填空1: 初始级；填空2: 可重复级；填空3: 已定义级；填空4: 已管理级；填空5: 优化级 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 20-05（填空）</p>
-<p>CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>填空</span><span>5 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 初始级；填空2: 可重复级；填空3: 已定义级；填空4: 已管理级；填空5: 优化级</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） MULTI 软件设计需要注意哪些问题：____________ A. 减少耦合；C. 代码重用；D. 功能分解 减少耦合 考虑范围要窄 代码重用 功能分解">
-<div class="sqe-question">
-<p class="sqe-question-title">题 20-06（多选）</p>
-<p>软件设计需要注意哪些问题：____________</p>
-<ul class="sqe-options"><li><strong>A.</strong> 减少耦合</li><li><strong>B.</strong> 考虑范围要窄</li><li><strong>C.</strong> 代码重用</li><li><strong>D.</strong> 功能分解</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 减少耦合；C. 代码重用；D. 功能分解</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） SINGLE 根据CMMI规范，每一个软件企业均具有_________成熟度。 A. 等级一 等级一 等级三 等级四 等级五">
-<div class="sqe-question">
-<p class="sqe-question-title">题 20-07（单选）</p>
-<p>根据CMMI规范，每一个软件企业均具有_________成熟度。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 等级一</li><li><strong>B.</strong> 等级三</li><li><strong>C.</strong> 等级四</li><li><strong>D.</strong> 等级五</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 等级一</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） SINGLE cmm 模型将软件过程的成熟度分为 5 个等级，在_____使用定量分析来不断地改进和管理软件过程。 B. 管理级 优化级 管理级 定义级 可重复级">
-<div class="sqe-question">
-<p class="sqe-question-title">题 20-08（单选）</p>
-<p>cmm 模型将软件过程的成熟度分为 5 个等级，在_____使用定量分析来不断地改进和管理软件过程。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 优化级</li><li><strong>B.</strong> 管理级</li><li><strong>C.</strong> 定义级</li><li><strong>D.</strong> 可重复级</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 管理级</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） FILL CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。 填空1: 降低成本；填空2: 提高质量；填空3: 用户满意度 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 20-09（填空）</p>
-<p>CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第五章课上测试</span><span>填空</span><span>3 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 降低成本；填空2: 提高质量；填空3: 用户满意度</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-21" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">21</span>
-<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第九章课上测试</h3><div><span class="sqe-source-pill">补充自成绩结果接口</span><span class="sqe-source-pill">10 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） TF 注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。 T ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 21-01（判断）</p>
-<p>注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>T</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） FILL 建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。 填空1: 版权；填空2: 版本 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 21-02（填空）</p>
-<p>建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>填空</span><span>2 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 版权；填空2: 版本</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） FILL 正常值用 （填空1） 获得，错误标志用 （填空2） 返回。 填空1: 输出参数；填空2: return语句 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 21-03（填空）</p>
-<p>正常值用 （填空1） 获得，错误标志用 （填空2） 返回。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>填空</span><span>2 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 输出参数；填空2: return语句</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） TF 边写代码边注释，修改代码同时修改相应的注释 T ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 21-04（判断）</p>
-<p>边写代码边注释，修改代码同时修改相应的注释</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>T</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下属于优秀代码风格的是 A. If（ j= =1）；D. If（i〉MAX_NUM） If（ j= =1） If（1= = j） If（i〉5000） If（i〉MAX_NUM）">
-<div class="sqe-question">
-<p class="sqe-question-title">题 21-05（多选）</p>
-<p>以下属于优秀代码风格的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> If（ j= =1）</li><li><strong>B.</strong> If（1= = j）</li><li><strong>C.</strong> If（i〉5000）</li><li><strong>D.</strong> If（i〉MAX_NUM）</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. If（ j= =1）；D. If（i〉MAX_NUM）</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下属于Windows程序命名规则的是 A. 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo; 程序中要靠大小写来区分相似的标识符 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_ 常量全用大写的字母，用下划线分割单词">
-<div class="sqe-question">
-<p class="sqe-question-title">题 21-06（多选）</p>
-<p>以下属于Windows程序命名规则的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;</li><li><strong>B.</strong> 程序中要靠大小写来区分相似的标识符</li><li><strong>C.</strong> 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_</li><li><strong>D.</strong> 常量全用大写的字母，用下划线分割单词</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 下列属于函数处理规则的是 A. 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改；B. 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率；C. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回；D. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回">
-<div class="sqe-question">
-<p class="sqe-question-title">题 21-07（多选）</p>
-<p>下列属于函数处理规则的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改</li><li><strong>B.</strong> 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率</li><li><strong>C.</strong> 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回</li><li><strong>D.</strong> 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改；B. 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率；C. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回；D. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下符合内存使用规范的是 A. 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定；D. 静态存储区域在程序的整个运行期间都存在 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定 全局变量，static变量应建立在动态内存上 栈上创建的存储单元的生命周期也由我们决定 静态存储区域在程序的整个运行期间都存在">
-<div class="sqe-question">
-<p class="sqe-question-title">题 21-08（多选）</p>
-<p>以下符合内存使用规范的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定</li><li><strong>B.</strong> 全局变量，static变量应建立在动态内存上</li><li><strong>C.</strong> 栈上创建的存储单元的生命周期也由我们决定</li><li><strong>D.</strong> 静态存储区域在程序的整个运行期间都存在</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定；D. 静态存储区域在程序的整个运行期间都存在</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下符合基本语句规则的是 A. if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较 if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较 不可在for循环体内修改循环变量 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法 if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较">
-<div class="sqe-question">
-<p class="sqe-question-title">题 21-09（多选）</p>
-<p>以下符合基本语句规则的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较</li><li><strong>B.</strong> 不可在for循环体内修改循环变量</li><li><strong>C.</strong> 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法</li><li><strong>D.</strong> if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下说法正确的是 A. const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动；C. void Func(const A &amp;a)的形式可以有效防止参数a被意外修改；D. 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用 const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动 const既能修饰输入参数也能修饰输出参数 void Func(const A &amp;a)的形式可以有效防止参数a被意外修改 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用">
-<div class="sqe-question">
-<p class="sqe-question-title">题 21-10（多选）</p>
-<p>以下说法正确的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动</li><li><strong>B.</strong> const既能修饰输入参数也能修饰输出参数</li><li><strong>C.</strong> void Func(const A &amp;a)的形式可以有效防止参数a被意外修改</li><li><strong>D.</strong> 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>第九章课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动；C. void Func(const A &amp;a)的形式可以有效防止参数a被意外修改；D. 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-22" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">22</span>
-<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>实验二课上测试</h3><div><span class="sqe-source-pill">补充自成绩结果接口</span><span class="sqe-source-pill">10 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） TF 基路径测试给出了必需进行的测试的上限。 F ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 22-01（判断）</p>
-<p>基路径测试给出了必需进行的测试的上限。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>F</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） TF 基路径是指从所有的程序路径中选择一个最小的路径集合，程序中的其它路径都可以由这一组路径进行加法和数乘运算得到。 T ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 22-02（判断）</p>
-<p>基路径是指从所有的程序路径中选择一个最小的路径集合，程序中的其它路径都可以由这一组路径进行加法和数乘运算得到。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>T</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE &amp;rlm;一个程序中所含有的路径数与_____有着直接的关系 D. 程序的复杂程度 程序语句行数 程序指令执行时间 程序模块数 程序的复杂程度">
-<div class="sqe-question">
-<p class="sqe-question-title">题 22-03（单选）</p>
-<p>&amp;rlm;一个程序中所含有的路径数与_____有着直接的关系</p>
-<ul class="sqe-options"><li><strong>A.</strong> 程序语句行数</li><li><strong>B.</strong> 程序指令执行时间</li><li><strong>C.</strong> 程序模块数</li><li><strong>D.</strong> 程序的复杂程度</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 程序的复杂程度</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE 白盒测试是根据程序的_____来设计测试用例,黑盒测试是根据软件的规格说明来设计测试用例。 B. 内部逻辑 内部数据 内部逻辑 功能 性能">
-<div class="sqe-question">
-<p class="sqe-question-title">题 22-04（单选）</p>
-<p>白盒测试是根据程序的_____来设计测试用例,黑盒测试是根据软件的规格说明来设计测试用例。</p>
-<ul class="sqe-options"><li><strong>A.</strong> 内部数据</li><li><strong>B.</strong> 内部逻辑</li><li><strong>C.</strong> 功能</li><li><strong>D.</strong> 性能</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 内部逻辑</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE ​阅读下面这段程序，使用逻辑覆盖法进行测试，请问哪一组关于（a,b,c）的输入值可以达到判定覆盖。
-&amp;lrm;​int func(int a,b,c)
-{&amp;lrm;​
-int k=1;
-&amp;lrm;​if ( (a&gt;0) &amp;&amp;(b&lt;0) &amp;&amp; (a+c&gt;0) )
-k=k+a;&amp;lrm;​
-else
-k=k+b;
-&amp;lrm;​if (c&gt;0)
-k=k+c;&amp;lrm;​
-return k;&amp;lrm;​
-} C. (a,b,c) = (4,-9,-2)、(-4,8,3) (a,b,c) = (2,5,8)、(-4,-9,-5) (a,b,c) = (3,6,1)、(-4,-5,7) (a,b,c) = (4,-9,-2)、(-4,8,3) (a,b,c) = (6,8,-2)、(1,5,4)">
-<div class="sqe-question">
-<p class="sqe-question-title">题 22-05（单选）</p>
-<p>​阅读下面这段程序，使用逻辑覆盖法进行测试，请问哪一组关于（a,b,c）的输入值可以达到判定覆盖。
-&amp;lrm;​int func(int a,b,c)
-{&amp;lrm;​
-int k=1;
-&amp;lrm;​if ( (a&gt;0) &amp;&amp;(b&lt;0) &amp;&amp; (a+c&gt;0) )
-k=k+a;&amp;lrm;​
-else
-k=k+b;
-&amp;lrm;​if (c&gt;0)
-k=k+c;&amp;lrm;​
-return k;&amp;lrm;​
-}</p>
-<ul class="sqe-options"><li><strong>A.</strong> (a,b,c) = (2,5,8)、(-4,-9,-5)</li><li><strong>B.</strong> (a,b,c) = (3,6,1)、(-4,-5,7)</li><li><strong>C.</strong> (a,b,c) = (4,-9,-2)、(-4,8,3)</li><li><strong>D.</strong> (a,b,c) = (6,8,-2)、(1,5,4)</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. (a,b,c) = (4,-9,-2)、(-4,8,3)</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE &amp;zwnj;针对下面一个程序段：
-If ((M&gt;0) &amp;&amp; (N = = 0)) FUCTION1;
-If ((M = = 10)|| (P &gt; 10)) FUCTION2;
-其中，FUCTION1、FUCTION2均为语句块。
-现在选取测试用例：M=10 N=0 P=3 ，该测试用例满足了 A. 语句覆盖 语句覆盖 判定覆盖 条件组合覆 路径覆盖">
-<div class="sqe-question">
-<p class="sqe-question-title">题 22-06（单选）</p>
-<p>&amp;zwnj;针对下面一个程序段：
-If ((M&gt;0) &amp;&amp; (N = = 0)) FUCTION1;
-If ((M = = 10)|| (P &gt; 10)) FUCTION2;
-其中，FUCTION1、FUCTION2均为语句块。
-现在选取测试用例：M=10 N=0 P=3 ，该测试用例满足了</p>
-<ul class="sqe-options"><li><strong>A.</strong> 语句覆盖</li><li><strong>B.</strong> 判定覆盖</li><li><strong>C.</strong> 条件组合覆</li><li><strong>D.</strong> 路径覆盖</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 语句覆盖</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE 如果某测试用例集实现了判定覆盖，那么它一定同时实现了该软件的 C. 语句覆盖 条件组合覆盖 判定/条件覆盖 语句覆盖 条件覆盖">
-<div class="sqe-question">
-<p class="sqe-question-title">题 22-07（单选）</p>
-<p>如果某测试用例集实现了判定覆盖，那么它一定同时实现了该软件的</p>
-<ul class="sqe-options"><li><strong>A.</strong> 条件组合覆盖</li><li><strong>B.</strong> 判定/条件覆盖</li><li><strong>C.</strong> 语句覆盖</li><li><strong>D.</strong> 条件覆盖</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 语句覆盖</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE 发现错误能力最弱的是_______ A. 语句覆盖 语句覆盖 判定覆盖 条件覆盖 路径覆盖">
-<div class="sqe-question">
-<p class="sqe-question-title">题 22-08（单选）</p>
-<p>发现错误能力最弱的是_______</p>
-<ul class="sqe-options"><li><strong>A.</strong> 语句覆盖</li><li><strong>B.</strong> 判定覆盖</li><li><strong>C.</strong> 条件覆盖</li><li><strong>D.</strong> 路径覆盖</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 语句覆盖</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） FILL 判定-条件覆盖法要求使得判断中 （填空1） 至少执行一次。 填空1: 每个条件的所有可能取值 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 22-09（填空）</p>
-<p>判定-条件覆盖法要求使得判断中 （填空1） 至少执行一次。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>填空</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 每个条件的所有可能取值</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） TF 在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。 F ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 22-10（判断）</p>
-<p>在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验二课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>F</p></div></details></div>
-</article>
-</section>
-
-<section id="quiz-23" class="sqe-chapter">
-<div class="sqe-chapter-head">
-<span class="sqe-number">23</span>
-<div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>实验一课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
-</div>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） MULTI &amp;zwnj;以下可以作为单元的是 A. 一个类；B. 一个页面；C. 一个函数；D. 一个窗口 一个类 一个页面 一个函数 一个窗口">
-<div class="sqe-question">
-<p class="sqe-question-title">题 23-01（多选）</p>
-<p>&amp;zwnj;以下可以作为单元的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 一个类</li><li><strong>B.</strong> 一个页面</li><li><strong>C.</strong> 一个函数</li><li><strong>D.</strong> 一个窗口</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>多选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 一个类；B. 一个页面；C. 一个函数；D. 一个窗口</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 导致软件缺陷的原因有很多，①&amp;mdash;④是可能的原因，其中最主要的原因包括_____
-①软件需求说明书编写的不全面，不完整，不准确，而且经常更改&amp;rlm;&amp;zwnj;　　　　
-②软件设计说明书&amp;rlm;&amp;zwnj;　　　　
-③软件操作人员的水平&amp;rlm;&amp;zwnj;　　　　
-④开发人员不能很好的理解需求说明书和沟通不足 D. ①、④ ①、②、③ ①、③ ②、③ ①、④">
-<div class="sqe-question">
-<p class="sqe-question-title">题 23-02（单选）</p>
-<p>导致软件缺陷的原因有很多，①&amp;mdash;④是可能的原因，其中最主要的原因包括_____
-①软件需求说明书编写的不全面，不完整，不准确，而且经常更改&amp;rlm;&amp;zwnj;　　　　
-②软件设计说明书&amp;rlm;&amp;zwnj;　　　　
-③软件操作人员的水平&amp;rlm;&amp;zwnj;　　　　
-④开发人员不能很好的理解需求说明书和沟通不足</p>
-<ul class="sqe-options"><li><strong>A.</strong> ①、②、③</li><li><strong>B.</strong> ①、③</li><li><strong>C.</strong> ②、③</li><li><strong>D.</strong> ①、④</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. ①、④</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 一条Bug记录应该包括_____
-①编号
-②Bug描述
-③Bug级别
-④Bug所属模块
-⑤发现人 C. ①②③④⑤ ①②③④ ①② ①②③④⑤ ①②③">
-<div class="sqe-question">
-<p class="sqe-question-title">题 23-03（单选）</p>
-<p>一条Bug记录应该包括_____
-①编号
-②Bug描述
-③Bug级别
-④Bug所属模块
-⑤发现人</p>
-<ul class="sqe-options"><li><strong>A.</strong> ①②③④</li><li><strong>B.</strong> ①②</li><li><strong>C.</strong> ①②③④⑤</li><li><strong>D.</strong> ①②③</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. ①②③④⑤</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） TF 测试人员要坚持原则，缺陷未修复完坚决不予通过。  ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 23-04（判断）</p>
-<p>测试人员要坚持原则，缺陷未修复完坚决不予通过。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>判断</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>云班课未返回答案</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 软件设计阶段的质量控制主要采取的方式是 D. 评审 白盒测试 动态测试 黑盒测试 评审">
-<div class="sqe-question">
-<p class="sqe-question-title">题 23-05（单选）</p>
-<p>软件设计阶段的质量控制主要采取的方式是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 白盒测试</li><li><strong>B.</strong> 动态测试</li><li><strong>C.</strong> 黑盒测试</li><li><strong>D.</strong> 评审</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 评审</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 软件质量保证与测试人员需要的的基本素质有 C. 所有选项都是 行业知识 测试专业技能 所有选项都是 计算机专业技能">
-<div class="sqe-question">
-<p class="sqe-question-title">题 23-06（单选）</p>
-<p>软件质量保证与测试人员需要的的基本素质有</p>
-<ul class="sqe-options"><li><strong>A.</strong> 行业知识</li><li><strong>B.</strong> 测试专业技能</li><li><strong>C.</strong> 所有选项都是</li><li><strong>D.</strong> 计算机专业技能</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 所有选项都是</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 在软件底层进行的测试称为 B. 单元测试 系统测试 单元测试 功能测试 集成测试">
-<div class="sqe-question">
-<p class="sqe-question-title">题 23-07（单选）</p>
-<p>在软件底层进行的测试称为</p>
-<ul class="sqe-options"><li><strong>A.</strong> 系统测试</li><li><strong>B.</strong> 单元测试</li><li><strong>C.</strong> 功能测试</li><li><strong>D.</strong> 集成测试</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 单元测试</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 下列中不属于测试原则的是 D. 找到的缺陷越多，软件遗留的缺陷就越少 软件测试是有风险的行为 完全测试程序是不可能的 测试无法找出所有的软件缺陷 找到的缺陷越多，软件遗留的缺陷就越少">
-<div class="sqe-question">
-<p class="sqe-question-title">题 23-08（单选）</p>
-<p>下列中不属于测试原则的是</p>
-<ul class="sqe-options"><li><strong>A.</strong> 软件测试是有风险的行为</li><li><strong>B.</strong> 完全测试程序是不可能的</li><li><strong>C.</strong> 测试无法找出所有的软件缺陷</li><li><strong>D.</strong> 找到的缺陷越多，软件遗留的缺陷就越少</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 找到的缺陷越多，软件遗留的缺陷就越少</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 测试人员应在软件生命周期中的下面哪个阶段介入最好______ A. 需求阶段 需求阶段 设计阶段 编码阶段 系统集成阶段">
-<div class="sqe-question">
-<p class="sqe-question-title">题 23-09（单选）</p>
-<p>测试人员应在软件生命周期中的下面哪个阶段介入最好______</p>
-<ul class="sqe-options"><li><strong>A.</strong> 需求阶段</li><li><strong>B.</strong> 设计阶段</li><li><strong>C.</strong> 编码阶段</li><li><strong>D.</strong> 系统集成阶段</li></ul>
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>单选</span><span>1 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 需求阶段</p></div></details></div>
-</article>
-
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） FILL 回归测试的目的是所做的修改 （填空1） ，同时 （填空2） 的正确性。 填空1: 达到了预定的目的；填空2: 不影响软件原有功能 ">
-<div class="sqe-question">
-<p class="sqe-question-title">题 23-10（填空）</p>
-<p>回归测试的目的是所做的修改 （填空1） ，同时 （填空2） 的正确性。</p>
-
-<div class="sqe-meta"><span>课上测试（计入总分）</span><span>实验一课上测试</span><span>填空</span><span>2 分</span></div>
-</div>
-<div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 达到了预定的目的；填空2: 不影响软件原有功能</p></div></details></div>
 </article>
 </section>
 
