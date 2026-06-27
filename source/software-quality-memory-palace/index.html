@@ -3,14 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="软件质量与测试考前分块默写页：保留正式考点，用轻量提示降低背诵负担。" />
-  <title>软件质量与测试 · 考点分块默写</title>
+  <meta name="description" content="软件质量与测试考前全量清单与口诀默写页：原资料不删减，口诀只辅助记忆。" />
+  <title>软件质量与测试 · 全量清单与口诀默写</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="topbar" aria-label="页面顶部">
     <a class="brand" href="/">一凡的博客</a>
     <nav class="topnav" aria-label="页面导航">
+      <a href="#source-map">全量清单</a>
+      <a href="#mnemonics">口诀表</a>
       <a href="#palace">原文分块</a>
       <a href="#route">背诵路线</a>
       <a href="#drill">默写训练</a>
@@ -22,34 +24,52 @@
   <main>
     <section class="hero" aria-labelledby="page-title">
       <div class="hero-copy">
-        <p class="kicker">软件质量与测试 · 考前分块默写</p>
-        <h1 id="page-title"><span>背原考点</span><span>不背新故事</span></h1>
-        <p class="lead">这页只做一件事：把 CSDN、PPT、往年题里的高频点按题型分块放好。每块先给完整考点，再给一句轻提示帮你找回顺序，不再让你额外背一套新东西。</p>
+        <p class="kicker">软件质量与测试 · 全量清单与口诀默写</p>
+        <h1 id="page-title"><span>资料不删减</span><span>口诀帮记住</span></h1>
+        <p class="lead">这页先把 CSDN、PPT、往年题涉及的章和细点列全，再把容易忘的顺序做成谐音、节奏句和短口诀。口诀只帮你把原答案取出来，不替代原资料。</p>
         <div class="hero-actions" aria-label="快速操作">
-          <a class="button primary" href="#palace">按块背一遍</a>
+          <a class="button primary" href="#source-map">先查有没有漏</a>
           <a class="button" href="#drill">直接默写</a>
         </div>
       </div>
 
       <div class="hero-board" aria-label="背诵原则">
         <span class="board-label">总原则</span>
-        <p>不删考点，不造新词。只做分组、排序、遮答案默写。</p>
+        <p>原资料完整保留；口诀只做取回线索；不会把考点替换成新故事。</p>
       </div>
     </section>
 
     <section class="overview" aria-label="宫殿规则">
       <article>
         <strong>怎么用</strong>
-        <p>先看完整考点，再遮住答案复述，最后去题库检查。提示只帮你想起顺序，不替代正式答案。</p>
+        <p>先看全量清单确认没漏，再用口诀表背顺序，最后用默写题检查是否能写出正式答案。</p>
       </article>
       <article>
         <strong>答题边界</strong>
-        <p>闭卷答题以课程 PPT、复习资料和已核题库的正式措辞为准。这里不把原资料改写成另一套难背的东西。</p>
+        <p>闭卷答题以课程 PPT、复习资料和已核题库的正式措辞为准。这里不删减原资料，只做结构化和背诵辅助。</p>
       </article>
       <article>
         <strong>知识来源</strong>
-        <p>考点按 CSDN 复习题库、云班课题库、往年题和本地复习资料重组。客观题仍要回题库逐题刷。</p>
+        <p>考点按 CSDN 复习题库、云班课题库、往年题和本地复习资料重组。客观题仍要回题库逐题刷，页面负责帮你背。</p>
       </article>
+    </section>
+
+    <section class="source-map" id="source-map" aria-labelledby="source-map-title">
+      <div class="section-head">
+        <p class="kicker">Full Checklist</p>
+        <h2 id="source-map-title">全量清单：先确认没有被删掉</h2>
+        <p class="section-note">这里按 CSDN 文章目录、PPT 章节和往年题暴露点重排。每章保留“要会什么”，口诀只在后面辅助背诵。</p>
+      </div>
+      <div class="source-map-grid" id="sourceMap"></div>
+    </section>
+
+    <section class="mnemonics" id="mnemonics" aria-labelledby="mnemonics-title">
+      <div class="section-head">
+        <p class="kicker">Mnemonics</p>
+        <h2 id="mnemonics-title">口诀表：好背，但不替代答案</h2>
+        <p class="section-note">左边是你最终要写的原知识点，右边是帮助取回顺序的谐音或节奏句。背不出口诀也没关系，能写出原答案才算过。</p>
+      </div>
+      <div class="mnemonic-grid" id="mnemonicGrid"></div>
     </section>
 
     <section class="exam-evidence" aria-labelledby="evidence-title">
@@ -338,17 +358,17 @@
       <div class="route-grid">
         <article>
           <span>第一遍</span>
-          <h3>先看完整考点</h3>
-          <p>按章节块读一遍，确认没有因为“好记”而删掉原资料里的细点。</p>
+          <h3>先查全量清单</h3>
+          <p>按章点开清单，先确认 CSDN、PPT、往年题的小点都在，没有为了“好记”而删掉。</p>
         </article>
         <article>
           <span>第二遍</span>
-          <h3>遮住答案复述</h3>
-          <p>每块先看轻提示，再自己说出正式词。说不完整就展开对照，不背提示本身。</p>
+          <h3>再背口诀取回</h3>
+          <p>口诀只帮你找回顺序，例如“上驱下桩”“有效多，无效单”。最终仍要写正式答案。</p>
         </article>
         <article>
           <span>第三遍</span>
-          <h3>回题库查漏</h3>
+          <h3>最后遮答案默写</h3>
           <p>简答和大题用这里默写，判断选择填空回云班课和 CSDN 对照页刷原题。</p>
         </article>
       </div>
@@ -362,7 +382,7 @@
 
       <div class="drill-layout">
         <div class="drill-card">
-          <span class="drill-label" id="drillLabel">题 1 / 30</span>
+          <span class="drill-label" id="drillLabel">题 1 / 45</span>
           <h3 id="drillQuestion">质量的属性包括哪些？</h3>
           <p id="drillHint">不要背字头，按“客户、成本、社会、能否测量、能否预见”说正式词。</p>
           <button class="button primary" type="button" id="showAnswer">显示答案</button>
