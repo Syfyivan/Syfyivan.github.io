@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="软件质量与测试记忆宫殿：把质量、SQA、评审、测试、白盒、黑盒等考点做成可点击的复习建筑。" />
+  <title>软件质量医院 · 记忆宫殿</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar" aria-label="页面顶部">
+    <a class="brand" href="/">一凡的博客</a>
+    <nav class="topnav" aria-label="页面导航">
+      <a href="#palace">进入宫殿</a>
+      <a href="#route">背诵路线</a>
+      <a href="#drill">默写训练</a>
+      <a href="/courses/software-quality-review-network/">总复习网络</a>
+      <a href="/courses/software-quality-exercises/">题库</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="kicker">软件质量与测试 · 考前记忆宫殿</p>
+        <h1 id="page-title">软件质量医院</h1>
+        <p class="lead">把零散考点放进一栋可走的建筑：从大门、一楼前台、二楼检查室，一直走到五楼专项实验室。点开每个房间，看画面、背口诀、展开标准答题句。</p>
+        <div class="hero-actions" aria-label="快速操作">
+          <a class="button primary" href="#palace">开始走一遍</a>
+          <a class="button" href="#drill">直接默写</a>
+        </div>
+      </div>
+
+      <div class="hero-board" aria-label="核心口诀">
+        <span class="board-label">总钥匙</span>
+        <p>质量看客户，保证靠体系，评审抓早期，测试分层次，白盒看内部，黑盒看功能。</p>
+      </div>
+    </section>
+
+    <section class="overview" aria-label="宫殿规则">
+      <article>
+        <strong>怎么用</strong>
+        <p>先按楼层点一遍，再遮住答案默写口诀，最后用题库检查。考试时只要在脑子里从大门走到五楼。</p>
+      </article>
+      <article>
+        <strong>答题边界</strong>
+        <p>这个页面负责帮你记忆。闭卷答题仍以课程 PPT、复习资料和已核题库的正式措辞为准。</p>
+      </article>
+      <article>
+        <strong>知识来源</strong>
+        <p>考点按软件质量与测试复习题库和本地复习资料重组，页面只做助记，不逐段转载原文。</p>
+      </article>
+    </section>
+
+    <section class="palace-shell" id="palace" aria-labelledby="palace-title">
+      <div class="section-head">
+        <p class="kicker">Interactive Palace</p>
+        <h2 id="palace-title">点房间，把考点放进画面里</h2>
+      </div>
+
+      <div class="palace-layout">
+        <aside class="building" aria-label="软件质量医院楼层">
+          <div class="building-roof">
+            <span>软件质量医院</span>
+          </div>
+          <div class="floor-stack" id="floorStack"></div>
+          <div class="building-steps">
+            <span>入口</span>
+            <span>从下往上走</span>
+          </div>
+        </aside>
+
+        <section class="room-panel" aria-live="polite">
+          <div class="panel-top">
+            <span class="room-floor" id="roomFloor">大门</span>
+            <span class="room-code" id="roomCode">客成社测预</span>
+          </div>
+          <h3 id="roomTitle">质量大门</h3>
+          <p class="room-scene" id="roomScene">门口站着客户，手里拿着需求单。旁边五块牌子写着“客、成、社、测、预”。</p>
+
+          <div class="mnemonic-card">
+            <span>口诀</span>
+            <strong id="roomMnemonic">质量五属性：客成社测预。</strong>
+          </div>
+
+          <div class="knowledge-grid">
+            <div>
+              <h4>要背的小点</h4>
+              <ul id="roomPoints"></ul>
+            </div>
+            <div>
+              <h4>答题句</h4>
+              <p id="roomAnswer"></p>
+            </div>
+          </div>
+
+          <details class="recall-box">
+            <summary>展开默写提示</summary>
+            <p id="roomPrompt"></p>
+          </details>
+        </section>
+      </div>
+    </section>
+
+    <section class="route" id="route" aria-labelledby="route-title">
+      <div class="section-head">
+        <p class="kicker">Route</p>
+        <h2 id="route-title">考试前按这条路线走三遍</h2>
+      </div>
+      <div class="route-grid">
+        <article>
+          <span>第一遍</span>
+          <h3>看图认房间</h3>
+          <p>点 8 个房间，只记每个画面和口诀。先不要追求完整背诵。</p>
+        </article>
+        <article>
+          <span>第二遍</span>
+          <h3>口诀展开</h3>
+          <p>看到“接数边路错”“等边因判错”“上驱下桩”，立刻能说出完整含义。</p>
+        </article>
+        <article>
+          <span>第三遍</span>
+          <h3>写成答题句</h3>
+          <p>把每个房间的“答题句”遮住，自己写一遍，再展开对照。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="drill" id="drill" aria-labelledby="drill-title">
+      <div class="section-head">
+        <p class="kicker">Recall Drill</p>
+        <h2 id="drill-title">默写训练</h2>
+      </div>
+
+      <div class="drill-layout">
+        <div class="drill-card">
+          <span class="drill-label" id="drillLabel">题 1 / 8</span>
+          <h3 id="drillQuestion">“客成社测预”分别是什么？</h3>
+          <p id="drillHint">先回到医院大门，看五块牌子。</p>
+          <button class="button primary" type="button" id="showAnswer">显示答案</button>
+          <p class="drill-answer" id="drillAnswer" hidden>客户属性、成本属性、社会属性、可测性、可预见性。</p>
+          <div class="drill-actions">
+            <button class="button" type="button" id="prevDrill">上一题</button>
+            <button class="button" type="button" id="nextDrill">下一题</button>
+          </div>
+        </div>
+
+        <aside class="cheat-sheet" aria-label="最终口诀表">
+          <h3>最终只背这 8 句</h3>
+          <ol>
+            <li>质量五属性：客成社测预。</li>
+            <li>SQA：部门独立，工程师深入，小组折中。</li>
+            <li>评审为早抓，晚抓代价大。</li>
+            <li>质量费用：预评内外。</li>
+            <li>测试流程：单测模块，集测接口，系统测整体，验收看用户。</li>
+            <li>测试找错，调试改错；测试用例是输入、条件、预期。</li>
+            <li>白盒：接数边路错。</li>
+            <li>黑盒：等边因判错；上驱下桩别记反。</li>
+          </ol>
+        </aside>
+      </div>
+    </section>
+
+    <section class="links" aria-labelledby="links-title">
+      <div>
+        <p class="kicker">Next</p>
+        <h2 id="links-title">背完后去哪里检查</h2>
+      </div>
+      <div class="link-grid">
+        <a href="/courses/software-quality-review-network/">一页通关复习网络</a>
+        <a href="/courses/software-quality-exercises/">云班课已核题库</a>
+        <a href="/courses/software-quality-csdn-bank/">CSDN 题库对照</a>
+        <a href="/courses/software-quality-design-questions/">设计题专项</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

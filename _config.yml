@@ -36,6 +36,7 @@ skip_render:
   - electronic-information-careers/**
   - docs/**
   - software-architecture-2020c-review/**
+  - software-quality-memory-palace/**
 
 # Writing
 new_post_name: :title.md # File name of new posts

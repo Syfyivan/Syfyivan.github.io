@@ -460,9 +460,9 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     <div class="course-category-head">
       <div>
         <h2>软件工程与质量</h2>
-        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量、高质量编程、白盒/黑盒、集成、系统与验收测试。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——再配待溯源练习区、一页通关复习网络、16 个章节精讲页和设计题专项：练习区先用于检查概念覆盖，一页通关页把已核知识体系、往年 A 卷、2024 回忆和大题模板集中到一个入口，章节精讲页负责从零补每章完整知识，设计题专项再专门拆解高分值大题。</p>
+        <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量、高质量编程、白盒/黑盒、集成、系统与验收测试。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——再配记忆宫殿、待溯源练习区、一页通关复习网络、16 个章节精讲页和设计题专项：记忆宫殿负责把零散考点放进可点击的空间，练习区先用于检查概念覆盖，一页通关页把已核知识体系、往年 A 卷、2024 回忆和大题模板集中到一个入口，章节精讲页负责从零补每章完整知识，设计题专项再专门拆解高分值大题。</p>
       </div>
-      <span class="course-category-count">1 门 · 2 版 · 3 复习入口</span>
+      <span class="course-category-count">1 门 · 2 版 · 4 复习入口</span>
     </div>
     <div class="course-grid">
       <article class="course-card">
@@ -481,6 +481,15 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <div class="course-card-footer">
           <span>风格：有冲突有节奏的修仙叙事 + 七段考点结构</span>
           <a class="course-link" href="/courses/software-quality-xianxia/">进入修仙版</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge is-client">记忆宫殿 · 可交互</span>
+        <h3>软件质量医院</h3>
+        <p>把质量、SQA、评审、质量费用、设计编程、测试层次、白盒与黑盒测试做成一栋可点击的复习建筑。按“大门 → 一楼 → 二楼 → 三楼 → 四楼 → 五楼”走一遍，口诀、画面联想、答题句和默写题同步展开。</p>
+        <div class="course-card-footer">
+          <span>适合：考前记不住概念，想用空间联想快速回忆的人</span>
+          <a class="course-link" href="/software-quality-memory-palace/">进入记忆宫殿</a>
         </div>
       </article>
       <article class="course-card">
