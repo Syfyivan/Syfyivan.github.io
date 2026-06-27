@@ -143,6 +143,10 @@ h1 {
   letter-spacing: 0;
 }
 
+h1 span {
+  display: block;
+}
+
 .lead {
   max-width: 760px;
   margin: 22px 0 0;
@@ -202,16 +206,15 @@ h1 {
 }
 
 .hero-board::before {
-  content: "";
+  content: "不删考点 / 不造新词 / 遮答案默写";
   display: block;
-  height: 180px;
-  margin-bottom: 20px;
-  border: 1px solid rgba(23, 32, 39, 0.12);
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid rgba(34, 119, 109, 0.22);
   border-radius: 8px;
-  background:
-    linear-gradient(180deg, transparent 0 22%, rgba(23, 32, 39, 0.12) 22% 23%, transparent 23% 45%, rgba(23, 32, 39, 0.12) 45% 46%, transparent 46% 68%, rgba(23, 32, 39, 0.12) 68% 69%, transparent 69%),
-    linear-gradient(90deg, rgba(50, 106, 163, 0.22) 0 18%, transparent 18% 21%, rgba(34, 119, 109, 0.22) 21% 42%, transparent 42% 46%, rgba(163, 49, 43, 0.2) 46% 68%, transparent 68% 72%, rgba(91, 74, 168, 0.2) 72% 100%),
-    #f8fbff;
+  color: var(--teal-dark);
+  background: rgba(34, 119, 109, 0.08);
+  font-weight: 850;
 }
 
 .board-label {
@@ -813,7 +816,12 @@ h1 {
   }
 
   .hero-board::before {
-    height: 130px;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-size: 40px;
+    line-height: 1.08;
   }
 
   .button,
