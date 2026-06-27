@@ -24,7 +24,7 @@
       <div class="hero-copy">
         <p class="kicker">软件质量与测试 · 考前记忆宫殿</p>
         <h1 id="page-title">软件质量医院</h1>
-        <p class="lead">把零散考点放进一栋可走的建筑：从大门、一楼前台、二楼检查室，一直走到五楼专项实验室。点开每个房间，看画面、背口诀、展开标准答题句。</p>
+        <p class="lead">把零散考点放进一栋可走的建筑：第一层用房间定位，第二层用道具链记细点，第三层用动作链做大题。原来的 8 个口诀只是地图，不是完整考试答案。</p>
         <div class="hero-actions" aria-label="快速操作">
           <a class="button primary" href="#palace">开始走一遍</a>
           <a class="button" href="#drill">直接默写</a>
@@ -33,14 +33,14 @@
 
       <div class="hero-board" aria-label="核心口诀">
         <span class="board-label">总钥匙</span>
-        <p>质量看客户，保证靠体系，评审抓早期，测试分层次，白盒看内部，黑盒看功能。</p>
+        <p>先找房间，再看道具；简答背模板，大题背动作。不要只背几个字头。</p>
       </div>
     </section>
 
     <section class="overview" aria-label="宫殿规则">
       <article>
         <strong>怎么用</strong>
-        <p>先按楼层点一遍，再遮住答案默写口诀，最后用题库检查。考试时只要在脑子里从大门走到五楼。</p>
+        <p>先按楼层点一遍，再记每个房间里的道具，最后用题库检查。考试时不是背缩写，而是在脑子里走场景。</p>
       </article>
       <article>
         <strong>答题边界</strong>
@@ -50,6 +50,211 @@
         <strong>知识来源</strong>
         <p>考点按软件质量与测试复习题库和本地复习资料重组，页面只做助记，不逐段转载原文。</p>
       </article>
+    </section>
+
+    <section class="exam-evidence" aria-labelledby="evidence-title">
+      <div class="section-head">
+        <p class="kicker">Coverage Check</p>
+        <h2 id="evidence-title">几个口诀不够，往年题要求三层覆盖</h2>
+      </div>
+      <div class="evidence-grid">
+        <article>
+          <span>2025 回忆</span>
+          <h3>客观题细，简答固定，大题重</h3>
+          <p>判断、选择、填空多来自云班课；简答考质量管理体系、三种测试侧重点、SQA 工作、测量原则、软件测试定义；大题是等价类和基本路径测试。</p>
+        </article>
+        <article>
+          <span>2024 回忆</span>
+          <h3>简答和大题都要模板</h3>
+          <p>简答包括评审、客户与质量、质量费用、测试原则、发布后 bug；大题是等价类分类和控制流图、环路复杂度、基本路径、测试用例。</p>
+        </article>
+        <article>
+          <span>旧 A 卷</span>
+          <h3>细点横跨 0-15 章</h3>
+          <p>判断/选择考 CMMI、IDEAL、度量、质量方针、缺陷、逻辑覆盖、白盒黑盒；简答考耦合内聚、测量原则、质量模型；大题考状态图和路径覆盖。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="memory-method" aria-labelledby="method-title">
+      <div class="section-head">
+        <p class="kicker">Better Mnemonics</p>
+        <h2 id="method-title">不要硬背字头，改成“道具链”</h2>
+      </div>
+      <div class="method-grid">
+        <article>
+          <h3>字头口诀的问题</h3>
+          <p>“客成社测预”本身没有故事，你需要额外背它，所以成本高。它只能当索引，不能当记忆本体。</p>
+        </article>
+        <article>
+          <h3>更好记的方法</h3>
+          <p>每个抽象词都换成实物：客户是门口的人，成本是账本，社会属性是公章，可测性是尺子，可预见性是天气预报。</p>
+        </article>
+        <article>
+          <h3>考试取答案</h3>
+          <p>看到题目先找房间，再把房间里的道具按顺序说出来。忘了字，也能靠画面把概念拉回来。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="detail-drawers" aria-labelledby="drawer-title">
+      <div class="section-head">
+        <p class="kicker">Fine Detail Drawers</p>
+        <h2 id="drawer-title">高频细点抽屉</h2>
+      </div>
+
+      <div class="drawer-grid">
+        <article class="drawer-card">
+          <span class="drawer-room">大门 · 质量</span>
+          <h3>五件道具记质量属性</h3>
+          <p class="memory-scene">门口排队：客户拿需求单，账本算成本，公章代表社会责任，尺子负责测量，天气预报提醒可预见。</p>
+          <ul>
+            <li>质量属性：客户属性、成本属性、社会属性、可测性、可预见性。</li>
+            <li>客户关系：客户是质量接受者，质量服务于客户，由客户判定。</li>
+            <li>质量管理三部曲：质量策划、质量控制、质量改进。</li>
+          </ul>
+        </article>
+
+        <article class="drawer-card">
+          <span class="drawer-room">总控室 · 质量管理体系</span>
+          <h3>体系不是一句话，是一台机器</h3>
+          <p class="memory-scene">总控室里有方针旗、目标靶、策划图、职责牌、资源仓、产品线、测量仪、分析镜、改进轮。</p>
+          <ul>
+            <li>定义：在质量方面指挥和控制组织的管理体系。</li>
+            <li>组成：质量方针、质量目标、质量策划、管理职责、资源管理、产品实现、测量、分析和改进。</li>
+            <li>答题抓手：方针目标先定，职责资源支撑，产品实现落地，测量分析改进闭环。</li>
+          </ul>
+        </article>
+
+        <article class="drawer-card">
+          <span class="drawer-room">标准楼梯 · CMMI / IDEAL</span>
+          <h3>五级楼梯 + 五步流程</h3>
+          <p class="memory-scene">CMMI 是楼梯：初始层乱，可重复层能照旧做，已定义层有文档，已管理层看数据，优化层持续改进。</p>
+          <ul>
+            <li>CMMI 五级：初始级、可重复级、已定义级、已管理级、优化级。</li>
+            <li>IDEAL 五步：初始化、诊断、建立、行动、学习。</li>
+            <li>CMMI 流程改进三步：确定总体框架、细化框架要求、确定度量方法与标准。</li>
+          </ul>
+        </article>
+
+        <article class="drawer-card">
+          <span class="drawer-room">二楼 · 度量室</span>
+          <h3>测量原则用“量尺八件套”</h3>
+          <p class="memory-scene">量尺放在理论地基上，对准目标靶；刻度一致、客观、无歧义；旁边有直觉灯、计算器、剪刀、统计桥、可靠锁、反馈喇叭。</p>
+          <ul>
+            <li>过程：识别目标和度量描述、定义度量过程、搜集数据、数据分析与反馈、过程改进。</li>
+            <li>原则：理论与目标；一致、客观、无二义；经验直觉有说服力；简单可计算；适应产品过程并自动化；统计建立关系；结果可靠；建立反馈。</li>
+            <li>对象：项目质量度量、产品质量度量、过程质量度量。</li>
+          </ul>
+        </article>
+
+        <article class="drawer-card">
+          <span class="drawer-room">二楼 · 费用室</span>
+          <h3>四本账不背字，按发生时间记</h3>
+          <p class="memory-scene">出门前花钱预防和评价；交付前修错是内部失效；交付后用户发现才修，是外部失效。</p>
+          <ul>
+            <li>控制费用：预防费用、评价费用。</li>
+            <li>失效费用：内部失效费用、外部失效费用。</li>
+            <li>劣质成本常见分类：损失成本、返工成本、故障成本。</li>
+          </ul>
+        </article>
+
+        <article class="drawer-card">
+          <span class="drawer-room">三楼 · 设计手术室</span>
+          <h3>耦合往下走，内聚往上爬</h3>
+          <p class="memory-scene">耦合是坏黏胶，从最坏的“内容耦合”往下撕到“非直接耦合”；内聚是好磁铁，从“偶然内聚”一路升到“功能内聚”。</p>
+          <ul>
+            <li>耦合从高到低：内容耦合、公共环境耦合、外部耦合、控制耦合、特征耦合、数据耦合、非直接耦合。</li>
+            <li>内聚从低到高：偶然内聚、逻辑内聚、时间内聚、过程内聚、通信内聚、信息内聚、功能内聚。</li>
+            <li>设计原则：降低耦合，提高内聚，模块接口清晰。</li>
+          </ul>
+        </article>
+
+        <article class="drawer-card">
+          <span class="drawer-room">三楼 · 编码床</span>
+          <h3>C++ 细点用“指针戴护具”</h3>
+          <p class="memory-scene">只输入的指针要戴 const 护具；释放后的指针必须挂 NULL 牌，不然会变成野指针。</p>
+          <ul>
+            <li>如果参数是指针且仅作输入用，应在类型前加 const。</li>
+            <li>函数没有参数时用 void 填充；参数命名要恰当，顺序要合理。</li>
+            <li>动态内存申请与释放配对，free/delete 后立即置 NULL，避免野指针。</li>
+          </ul>
+        </article>
+
+        <article class="drawer-card">
+          <span class="drawer-room">四楼 · 测试中心</span>
+          <h3>测试原则用“需早群回小独”</h3>
+          <p class="memory-scene">测试员拿着需求单，早早进场；错误喜欢群居；改完要回归；从小模块逐步放大；最好由独立人员测。</p>
+          <ul>
+            <li>测试追溯到用户需求。</li>
+            <li>尽早地、不断地测试。</li>
+            <li>注意缺陷群集现象，发现错误多的模块残留错误也多。</li>
+            <li>回归测试确认修改没有引入新错误。</li>
+            <li>增量测试，由小到大；测试通常应由独立测试人员承担。</li>
+          </ul>
+        </article>
+
+        <article class="drawer-card">
+          <span class="drawer-room">四楼 · 流水线</span>
+          <h3>三种/四种测试侧重点</h3>
+          <p class="memory-scene">流水线从模块台、接口桥、整机房、用户验收门依次走过。</p>
+          <ul>
+            <li>单元测试：独立单元/模块，开发人员完成，SQA 辅助。</li>
+            <li>集成测试：模块间接口、参数传递、组合后的父功能、全局数据结构。</li>
+            <li>系统测试：完整系统运行、功能和非功能、与软硬件环境结合。</li>
+            <li>验收测试：功能和系统测试之后，发布之前，按规格说明书验收。</li>
+          </ul>
+        </article>
+
+        <article class="drawer-card">
+          <span class="drawer-room">五楼 · 白盒实验室</span>
+          <h3>逻辑覆盖强弱用“语判条判条组路”</h3>
+          <p class="memory-scene">白盒里有 6 盏灯，从最弱到最强依次亮：语句灯、判定灯、条件灯、判定条件灯、条件组合灯、路径灯。</p>
+          <ul>
+            <li>语句覆盖：每条语句至少执行一次。</li>
+            <li>判定覆盖：每个判定真假分支至少执行一次。</li>
+            <li>条件覆盖：每个条件真假至少出现一次。</li>
+            <li>判定/条件覆盖：同时满足判定覆盖和条件覆盖。</li>
+            <li>条件组合覆盖：每个判定中条件组合至少出现一次。</li>
+            <li>路径覆盖：每条可能路径至少执行一次。</li>
+          </ul>
+        </article>
+
+        <article class="drawer-card">
+          <span class="drawer-room">五楼 · 基本路径工位</span>
+          <h3>大题动作链：画图-算数-找路-配数据</h3>
+          <p class="memory-scene">拿到代码不要慌，先画控制流图，再算环路复杂度，再列独立路径，最后给每条路径配输入数据。</p>
+          <ul>
+            <li>控制流图：只画节点、边和编号，不写大段代码。</li>
+            <li>环路复杂度：常用 V(G)=E-N+2，也可用判定节点数+1。</li>
+            <li>独立路径条数通常等于环路复杂度。</li>
+            <li>测试用例必须能覆盖列出的基本路径，不能只写路径不配数据。</li>
+          </ul>
+        </article>
+
+        <article class="drawer-card">
+          <span class="drawer-room">五楼 · 黑盒实验室</span>
+          <h3>等价类不是口诀，是“分队伍”</h3>
+          <p class="memory-scene">黑盒门口按规则排队：合法队是有效等价类，违法队按不同违法原因分成多个无效等价类。</p>
+          <ul>
+            <li>有效等价类：符合规格说明、有意义的输入集合。</li>
+            <li>无效等价类：不符合规格说明的输入集合。</li>
+            <li>设计原则：一个新用例尽可能覆盖多个未覆盖有效等价类；一个新用例只覆盖一个未覆盖无效等价类。</li>
+            <li>边界值：一般边界值常用 4n+1；健壮性边界值常用 6n+1。</li>
+          </ul>
+        </article>
+
+        <article class="drawer-card">
+          <span class="drawer-room">五楼 · 因果图/判定表</span>
+          <h3>输入是因，输出是果</h3>
+          <p class="memory-scene">因果图像案件板：左边贴原因，右边贴结果，中间拉线，最后整理成判定表。</p>
+          <ul>
+            <li>适合检查输入条件的各种组合。</li>
+            <li>步骤：找原因和结果，画因果关系，标约束，转判定表，为每列设计测试用例。</li>
+            <li>因果图最终生成判定表。</li>
+          </ul>
+        </article>
+      </div>
     </section>
 
     <section class="palace-shell" id="palace" aria-labelledby="palace-title">
@@ -145,17 +350,17 @@
           </div>
         </div>
 
-        <aside class="cheat-sheet" aria-label="最终口诀表">
-          <h3>最终只背这 8 句</h3>
+        <aside class="cheat-sheet" aria-label="最终道具链">
+          <h3>最终背“画面链”，不是背字头</h3>
           <ol>
-            <li>质量五属性：客成社测预。</li>
-            <li>SQA：部门独立，工程师深入，小组折中。</li>
-            <li>评审为早抓，晚抓代价大。</li>
-            <li>质量费用：预评内外。</li>
-            <li>测试流程：单测模块，集测接口，系统测整体，验收看用户。</li>
-            <li>测试找错，调试改错；测试用例是输入、条件、预期。</li>
-            <li>白盒：接数边路错。</li>
-            <li>黑盒：等边因判错；上驱下桩别记反。</li>
+            <li>质量门口五件道具：客户、账本、公章、尺子、天气预报。</li>
+            <li>SQA 前台三窗口：部门保独立，工程师进项目，小组折中。</li>
+            <li>评审室墙上写：越晚发现，越贵。</li>
+            <li>费用室四本账：预防、评价、内部失效、外部失效。</li>
+            <li>测试流水线：模块台、接口桥、整机房、用户验收门。</li>
+            <li>白盒六盏灯：语句、判定、条件、判定条件、条件组合、路径。</li>
+            <li>黑盒门口分队：有效队一网打尽，无效队一队一测。</li>
+            <li>大题工位四动作：画图、算数、找路、配数据。</li>
           </ol>
         </aside>
       </div>
