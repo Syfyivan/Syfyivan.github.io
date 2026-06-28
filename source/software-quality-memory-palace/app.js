@@ -826,6 +826,7 @@ const mnemonicCards = [
 ];
 
 const stack = document.querySelector("#floorStack");
+const quickMnemonicList = document.querySelector("#quickMnemonicList");
 const sourceMap = document.querySelector("#sourceMap");
 const mnemonicGrid = document.querySelector("#mnemonicGrid");
 const roomPanel = document.querySelector(".room-panel");
@@ -913,10 +914,32 @@ function renderSourceMap() {
 
     const cue = document.createElement("p");
     cue.className = "source-cue";
-    cue.textContent = chapter.cue;
+    cue.textContent = `本章口诀/背诵线：${chapter.cue}`;
 
     details.append(summary, scope, list, cue);
     sourceMap.append(details);
+  });
+}
+
+function renderQuickMnemonics() {
+  quickMnemonicList.innerHTML = "";
+  mnemonicCards.forEach((card) => {
+    const item = document.createElement("article");
+    item.className = "quick-mnemonic";
+
+    const title = document.createElement("strong");
+    title.textContent = card.title;
+
+    const hook = document.createElement("span");
+    hook.className = "quick-hook";
+    hook.textContent = card.hook;
+
+    const answer = document.createElement("span");
+    answer.className = "quick-answer";
+    answer.textContent = card.answer;
+
+    item.append(title, hook, answer);
+    quickMnemonicList.append(item);
   });
 }
 
@@ -999,6 +1022,7 @@ prevDrill.addEventListener("click", () => setDrill(activeDrill - 1));
 nextDrill.addEventListener("click", () => setDrill(activeDrill + 1));
 
 renderSourceMap();
+renderQuickMnemonics();
 renderMnemonics();
 renderRooms();
 setRoom(activeRoom);

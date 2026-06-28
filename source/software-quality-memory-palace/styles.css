@@ -242,6 +242,7 @@ h1 span {
 .overview article,
 .evidence-grid article,
 .method-grid article,
+.quick-mnemonic,
 .source-card,
 .mnemonic-item,
 .drawer-card,
@@ -261,6 +262,7 @@ h1 span {
 
 .exam-evidence,
 .memory-method,
+.quick-mnemonics,
 .source-map,
 .mnemonics,
 .detail-drawers {
@@ -286,6 +288,43 @@ h1 span {
   max-width: 860px;
   margin: 8px 0 0;
   color: var(--muted);
+}
+
+.quick-mnemonic-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.quick-mnemonic {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 14px;
+  border-left: 5px solid var(--teal);
+}
+
+.quick-mnemonic strong,
+.quick-mnemonic span {
+  min-width: 0;
+}
+
+.quick-mnemonic strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.quick-hook {
+  color: var(--red);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.quick-answer {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .source-map-grid {
@@ -925,11 +964,18 @@ h1 span {
   .overview,
   .evidence-grid,
   .method-grid,
+  .quick-mnemonic-list,
   .source-map-grid,
   .mnemonic-grid,
   .drawer-grid,
   .link-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 921px) and (max-width: 1100px) {
+  .quick-mnemonic-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

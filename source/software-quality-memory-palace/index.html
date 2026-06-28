@@ -11,8 +11,9 @@
   <header class="topbar" aria-label="页面顶部">
     <a class="brand" href="/">一凡的博客</a>
     <nav class="topnav" aria-label="页面导航">
+      <a href="#quick-mnemonics">口诀速背</a>
       <a href="#source-map">全量清单</a>
-      <a href="#mnemonics">口诀表</a>
+      <a href="#mnemonics">详细口诀</a>
       <a href="#palace">原文分块</a>
       <a href="#route">背诵路线</a>
       <a href="#drill">默写训练</a>
@@ -28,7 +29,7 @@
         <h1 id="page-title"><span>资料不删减</span><span>口诀帮记住</span></h1>
         <p class="lead">这页先把 CSDN、PPT、往年题涉及的章和细点列全，再把容易忘的顺序做成谐音、节奏句和短口诀。口诀只帮你把原答案取出来，不替代原资料。</p>
         <div class="hero-actions" aria-label="快速操作">
-          <a class="button primary" href="#source-map">先查有没有漏</a>
+          <a class="button primary" href="#quick-mnemonics">先背口诀</a>
           <a class="button" href="#drill">直接默写</a>
         </div>
       </div>
@@ -42,7 +43,7 @@
     <section class="overview" aria-label="宫殿规则">
       <article>
         <strong>怎么用</strong>
-        <p>先看全量清单确认没漏，再用口诀表背顺序，最后用默写题检查是否能写出正式答案。</p>
+        <p>先看口诀速背，把顺序挂住；再看全量清单确认没漏；最后用默写题检查是否能写出正式答案。</p>
       </article>
       <article>
         <strong>答题边界</strong>
@@ -52,6 +53,15 @@
         <strong>知识来源</strong>
         <p>考点按 CSDN 复习题库、云班课题库、往年题和本地复习资料重组。客观题仍要回题库逐题刷，页面负责帮你背。</p>
       </article>
+    </section>
+
+    <section class="quick-mnemonics" id="quick-mnemonics" aria-labelledby="quick-mnemonics-title">
+      <div class="section-head">
+        <p class="kicker">Quick Mnemonics</p>
+        <h2 id="quick-mnemonics-title">先背口诀：打开就该看到这个</h2>
+        <p class="section-note">这些是考前快速取回顺序的入口。每条口诀旁边都保留正式答案，避免只记口诀忘了原词。</p>
+      </div>
+      <div class="quick-mnemonic-list" id="quickMnemonicList"></div>
     </section>
 
     <section class="source-map" id="source-map" aria-labelledby="source-map-title">
