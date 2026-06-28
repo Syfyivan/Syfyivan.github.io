@@ -37,6 +37,7 @@ skip_render:
   - docs/**
   - software-architecture-2020c-review/**
   - software-quality-memory-palace/**
+  - courses/software-quality-flashcards/**
 
 # Writing
 new_post_name: :title.md # File name of new posts

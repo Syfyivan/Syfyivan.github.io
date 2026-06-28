@@ -462,7 +462,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>软件工程与质量</h2>
         <p>软件不只是写出来，更要「保证它是好的」。这里放软件质量保证与测试方向：从质量是什么、软件缺陷、质量工程体系、度量、标准、评审、SQA 组织，到设计质量、高质量编程、白盒/黑盒、集成、系统与验收测试。同一门课提供<strong>两个板块、两种讲法</strong>——寓言版与修仙版——再配记忆宫殿、待溯源练习区、一页通关复习网络、16 个章节精讲页和设计题专项：记忆宫殿负责把零散考点放进可点击的空间，练习区先用于检查概念覆盖，一页通关页把已核知识体系、往年 A 卷、2024 回忆和大题模板集中到一个入口，章节精讲页负责从零补每章完整知识，设计题专项再专门拆解高分值大题。</p>
       </div>
-      <span class="course-category-count">1 门 · 2 版 · 4 复习入口</span>
+      <span class="course-category-count">1 门 · 2 版 · 5 复习入口</span>
     </div>
     <div class="course-grid">
       <article class="course-card">
@@ -490,6 +490,15 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <div class="course-card-footer">
           <span>适合：考前记不住概念，想用空间联想快速回忆的人</span>
           <a class="course-link" href="/software-quality-memory-palace/">进入记忆宫殿</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge is-ai">冲刺闪卡 · 翻面练习</span>
+        <h3>软件质量与测试 · 冲刺记忆闪卡</h3>
+        <p>把全书 15 章考点做成带优先级（P0 必背 / P1 重点 / P2 了解）的知识卡，关键的「一串性质」配首字口诀/谐音助记；再把练习区的 97 道练习题按章节绑到对应卡片，做成翻面卡：默认显示题目，先做、再点「翻面」对知识点和答案。支持搜索、按优先级筛选、勾选记进度（存本机浏览器）。</p>
+        <div class="course-card-footer">
+          <span>适合：考前要把考点背下来、又想边背边刷题的人</span>
+          <a class="course-link" href="/courses/software-quality-flashcards/">进入闪卡</a>
         </div>
       </article>
       <article class="course-card">
