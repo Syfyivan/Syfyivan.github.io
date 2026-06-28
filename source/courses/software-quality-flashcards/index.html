@@ -9,12 +9,26 @@
     --bg:#0f1420; --panel:#161d2e; --panel2:#1d2638; --line:#2a3550;
     --text:#e6ecf7; --muted:#93a1bd; --accent:#4A90D9; --accent2:#7EC8E3;
     --p0:#ff5d6c; --p1:#f5a623; --p2:#5fb878; --ok:#3ddc84;
+    --headerbg:rgba(15,20,32,.92); --inset:#0d1424; --code:#0b1020;
   }
+  body.light{
+    --bg:#f3f6fb; --panel:#ffffff; --panel2:#eef2f8; --line:#d6deec;
+    --text:#1b2433; --muted:#5d6b80; --accent:#2f6cc0; --accent2:#1f7fa6;
+    --p0:#d8394a; --p1:#b5760e; --p2:#2f9e57; --ok:#1f9d57;
+    --headerbg:rgba(255,255,255,.92); --inset:#f1f5fb; --code:#f3f6fc;
+  }
+  body.light .qa{background:rgba(31,157,87,.1);border-color:rgba(31,157,87,.32);color:#1f6e44}
+  body.light .qa b{color:#15643b}
+  body.light .mnemo{color:#9a6b04}
+  body.light .qstem{color:#1b2433}
+  body.light .body{color:#28344a}
+  body.light .body li{color:#28344a}
+  body.light .qitem{box-shadow:0 1px 3px rgba(20,30,60,.05)}
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;
-    background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;-webkit-font-smoothing:antialiased}
-  header{position:sticky;top:0;z-index:50;background:rgba(15,20,32,.92);backdrop-filter:blur(10px);
+    background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+  header{position:sticky;top:0;z-index:50;background:var(--headerbg);backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);padding:10px 16px}
   .htop{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.5px}
@@ -66,12 +80,12 @@
   .body{font-size:13.5px;color:#d4ddee}
   .body ul{margin:5px 0;padding-left:18px} .body li{margin:2px 0}
   .body b{color:var(--accent2)} .body .hl{color:var(--p1);font-weight:600}
-  .body code{background:#0b1020;border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12.5px;
+  .body code{background:var(--code);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12.5px;
     color:#ffd479;font-family:"SF Mono",Consolas,monospace}
   .body table{border-collapse:collapse;width:100%;margin:6px 0;font-size:12.5px}
   .body th,.body td{border:1px solid var(--line);padding:4px 7px;text-align:left}
   .body th{background:var(--panel2);color:var(--accent2)}
-  .body pre{background:#0b1020;border:1px solid var(--line);border-radius:8px;padding:10px;overflow-x:auto;
+  .body pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px;overflow-x:auto;
     font-size:12px;color:#cfe0ff;font-family:"SF Mono",Consolas,monospace;line-height:1.5}
   /* flashcard hidden */
   body.flip .hideable{filter:blur(6px);cursor:pointer;user-select:none;position:relative}
@@ -84,7 +98,7 @@
     border-radius:7px;padding:3px 8px;cursor:pointer;margin-top:0;white-space:nowrap;user-select:none}
   .flipbtn:hover{border-color:var(--accent2);color:#fff}
   .qhead{font-size:12px;color:var(--accent2);margin-bottom:9px;font-weight:600}
-  .qitem{border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin-bottom:9px;background:#0d1424}
+  .qitem{border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin-bottom:9px;background:var(--inset)}
   .qitem:last-child{margin-bottom:0}
   .qt{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
   .qtype{font-size:10px;font-weight:700;padding:1px 7px;border-radius:5px;background:rgba(74,144,217,.22);color:var(--accent2)}
@@ -125,6 +139,7 @@
     <button class="btn f1" data-f="1">P1 重点</button>
     <button class="btn f2" data-f="2">P2 了解</button>
     <button class="btn mode on" id="modeBtn">翻卡模式：开</button>
+    <button class="btn" id="themeBtn">🌙 暗色</button>
     <button class="btn" id="resetBtn">清空进度</button>
   </div>
 </header>
@@ -925,6 +940,19 @@ mb.onclick=()=>{
 document.getElementById('resetBtn').onclick=()=>{
   if(confirm('确定清空所有"已背"标记？')){done={};localStorage.removeItem(KEY);
     document.querySelectorAll('.card').forEach(c=>c.classList.remove('done'));updateProg();}
+};
+// 白天/暗黑切换
+const THKEY='swtest_theme';
+const tb=document.getElementById('themeBtn');
+function applyTheme(t){
+  const light=t==='light';
+  document.body.classList.toggle('light',light);
+  tb.textContent=light?'☀️ 亮色':'🌙 暗色';
+}
+applyTheme(localStorage.getItem(THKEY)||'dark');
+tb.onclick=()=>{
+  const t=document.body.classList.contains('light')?'dark':'light';
+  localStorage.setItem(THKEY,t);applyTheme(t);
 };
 </script>
 </body>
