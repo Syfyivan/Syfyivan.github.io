@@ -130,7 +130,7 @@
 </header>
 <nav id="nav"></nav>
 <main id="app"></main>
-<footer>🔄 蓝色边框的卡片＝已绑定云班课练习题：默认显示题目，先做、再点「🔄 看知识点」翻面对答案 · 数据存本机浏览器 · 可 Ctrl/⌘+P 打印</footer>
+<footer>🔄 蓝色边框的卡片＝已绑定配套练习题（来自练习区，非云班课原题，按关键词匹配到知识点）：默认显示题目，先做、再点「🔄 看知识点」翻面对答案 · 数据存本机浏览器 · 可 Ctrl/⌘+P 打印</footer>
 
 <script>
 /* ============== 数据：p=优先级(0最高) t=标题 b=内容HTML  flip=可隐藏(默认true) ============== */
@@ -478,7 +478,7 @@ CARDS.forEach(c=>{
   if(c.qs.length){
     boundN+=c.qs.length;c.card.classList.add('hasq');
     const fq=document.createElement('div');fq.className='face fq';
-    fq.innerHTML=`<div class="qhead">📝 云班课练习 · ${c.qs.length} 题（先做，再翻面对知识点）</div>`+
+    fq.innerHTML=`<div class="qhead">📝 配套练习 · ${c.qs.length} 题 · 来自练习区（非云班课原题，先做再翻面）</div>`+
       c.qs.map(q=>`<div class="qitem"><div class="qt"><span class="qtype">${esc(q.t)}</span><span class="qid">第${q.c}章 · ${esc(q.i)}</span></div><div class="qstem">${esc(q.q)}</div><div class="qa hideable"><b>参考答案：</b>${esc(q.a)}</div></div>`).join('');
     faces.insertBefore(fq,faces.firstChild);
     fa.style.display='none';btn.style.display='';btn.textContent='🔄 看知识点';
