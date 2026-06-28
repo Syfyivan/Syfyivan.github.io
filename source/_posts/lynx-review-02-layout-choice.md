@@ -242,6 +242,22 @@ relative 类似 Android RelativeLayout，每个元素用 `relative-id` 标识，
 **flex** + `flex-wrap: wrap` + `gap`。linear 不支持换行；grid 是固定网格不适合不定数量的标签；flex-wrap 最自然。
 </details>
 
+## 源码核对 <span class="lrv-b lrv-key">源码为证</span>
+
+<details class="lrv-fold">
+<summary>展开：布局默认值对照 lynx-family/lynx 源码 <span class="lrv-b lrv-skim">确认与勘误</span></summary>
+
+都在 `core/renderer/starlight/style/default_layout_style.h`（布局引擎正是 **Starlight**，源码 `namespace starlight` 坐实）：
+
+**源码坐实：**
+- `SL_DEFAULT_JUSTIFY_CONTENT = JustifyContentType::kStretch` —— 实锤“`justify-content` 默认 `stretch`（非 web 的 flex-start）”。
+- `SL_DEFAULT_ALIGN_ITEMS = kStretch`、`SL_DEFAULT_FLEX_WRAP = kNowrap`、`SL_DEFAULT_FLEX_GROW = 0`、`SL_DEFAULT_FLEX_SHRINK = 1` —— flex 默认值与本讲一致。
+- `SL_DEFAULT_POSITION = kRelative`、`SL_DEFAULT_RELATIVE_ALIGN_* = -1` —— relative 布局靠 id 对齐，与本讲一致。
+
+**精化（措辞更准）：**
+- 源码 `SL_DEFAULT_DISPLAY = DisplayType::kAuto`、`SL_DEFAULT_BOX_SIZING = kAuto`——默认值字面是 `auto`，**行为上**表现为“类 linear（flex column）布局 + border-box 盒模型”。本讲说的“默认 linear/border-box”是这个行为的通俗说法。
+</details>
+
 ## 速查卡 · 02 讲 <span class="lrv-b lrv-core">必读</span>
 
 <div class="lrv-card">

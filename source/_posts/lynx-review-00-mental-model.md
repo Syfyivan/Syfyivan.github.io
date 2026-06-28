@@ -321,6 +321,20 @@ export function BuyButton({ skuId }) {
 **错**。Lynx 有自己的元素集、CSS 规则（border-box 默认、不合并 margin、linear 默认布局），以及 RN 没有的**双线程模型**。把 RN（或 Web）经验直接套，正是这门课要训练你拦截的错误来源。
 </details>
 
+## 源码核对 <span class="lrv-b lrv-key">源码为证</span>
+
+<details class="lrv-fold">
+<summary>展开：双线程在 lynx-family/lynx 源码里的真身 <span class="lrv-b lrv-skim">确认</span></summary>
+
+双线程不是文档概念，它在 C++ 引擎里有实体：
+
+- `core/runtime/` 下有 **`mts_context.cc/h`**——**MTS = Main-Thread Script**（主线程脚本）的上下文，正是本讲 2.5 / 第 03、04 讲讲的 `'main thread'` 机制的根。
+- 同目录的 `lepus` / `lepusng`（主线程侧的脚本引擎）与 `js`（后台 JS 运行时）并存——这就是“两个线程各跑各的”的源码体现。
+- `core/renderer/worklet/`——主线程 worklet，对应跟手交互在主线程同步执行的能力。
+
+所以“render/UI 在主线程、effect/事件/原生在后台线程”不是约定，是引擎的线程与运行时切分。
+</details>
+
 ## 速查卡 · 00 讲 <span class="lrv-b lrv-core">必读</span>
 
 <div class="lrv-card">

@@ -192,6 +192,20 @@ function CommentBox({ value, onChange }) {
 查是否漏了外层 `<scroll-view>`。Lynx 的 `<page>` 默认 `overflow:hidden` 不自己滚，长内容要包在 scroll-view 里。
 </details>
 
+## 源码核对 <span class="lrv-b lrv-key">源码为证</span>
+
+<details class="lrv-fold">
+<summary>展开：元素默认值对照 lynx-family/lynx 源码 <span class="lrv-b lrv-skim">确认</span></summary>
+
+`core/style/default_computed_style.h` 里：
+
+- `DEFAULT_OVERFLOW = OverflowType::kHidden` —— 实锤“`page`/容器默认 `overflow: hidden`、自己不滚”，所以长内容要包 `<scroll-view>`。
+- `DEFAULT_TEXT_OVERFLOW = TextOverflowType::kClip` —— 实锤“默认裁切不带省略号，要 ellipsis 得显式设”。
+- `DEFAULT_TEXT_MAX_LINE = -1` —— `text-maxline` 是引擎一等公民，默认 `-1`（不限行数），多行截断用它而非 Web 的 `-webkit-line-clamp`。
+
+`scroll-view`/`list` 的渲染分别落在 `core/renderer/ui_component`、`core/list` 等目录——大列表走 list 的虚拟化路径，与本讲选型一致。
+</details>
+
 ## 速查卡 · 06 讲 <span class="lrv-b lrv-core">必读</span>
 
 <div class="lrv-card">

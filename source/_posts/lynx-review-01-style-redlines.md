@@ -46,11 +46,11 @@ html[data-user-color-scheme="dark"] .lrv-skip{color:#aab1bb;background:rgba(170,
 | 依赖相邻 margin 合并 | Lynx **不合并**，margin 相加 | 只给一边设 margin，或用 gap/padding |
 | 子元素以为会自动撑满父宽 | linear 默认**不撑满** | `width:100%` 或 `linear-layout-gravity:stretch` |
 | 心里默认 `content-box` | Lynx 默认 `border-box` | 知道 width 已含 padding/border |
-| `::before` `::after` | 解析但**不渲染** | 用真实元素替代 |
-| `:first-child` `:nth-child()` | 解析但**不匹配** | 加类名，或在数据层处理 |
+| `::before` `::after` | 引擎无此选择器常量，**不渲染** | 用真实元素替代 |
+| `:nth-child()` | 引擎无此选择器常量，**不生效** | 加类名，或在数据层处理 |
 | `:is()` `:where()` `:has()` | 不支持 | 拆成普通选择器 |
 | `z-index` 没配 `position` | 不生效 | 配 `position: relative` 等 |
-| `text` 没设 `white-space` 却指望换行 | 默认 `nowrap` 不换行 | 显式 `white-space: normal` |
+| 依赖 `text` 的隐式换行/截断行为 | 源码默认 `white-space:normal`，但跨上下文不稳 | 需要精确控制时显式设 `white-space` |
 | `float` / `display:block,inline,inline-block,table*` | 不支持或回退 | 用 flex / linear / grid |
 | `position: static` | 不支持 | 用 `relative`（默认） |
 | `rpx` 单位（要 Web 兼容时） | Lynx 特有，缺 Web 兼容 | 响应式优先 `rem` + `vw` |
@@ -81,8 +81,9 @@ html[data-user-color-scheme="dark"] .lrv-skip{color:#aab1bb;background:rgba(170,
 | 属性 `[type="text"]` | ✅ |
 | `:hover` `:active` `:focus` `:not()` `:root` | ✅ |
 | `::placeholder` `::selection` | ✅ |
-| `::before` `::after` | ❌ 解析但不渲染 |
-| `:first-child` `:last-child` `:nth-child()` | ❌ 解析但不匹配 |
+| `::before` `::after` | ❌ 引擎无此常量，不渲染 |
+| `:nth-child()` `:nth-of-type()` | ❌ 引擎无此常量，不生效 |
+| `:first-child` `:last-child` | ⚠️ 源码有常量定义，行为依实现/版本，仍建议用显式类名 |
 | `:is()` `:where()` `:has()` | ❌ 不支持 |
 
 <div class="lrv-why"><strong>为什么这条最该练？</strong>因为它骗过了所有自动化：lint 不报、编译不错、控制台不警告。AI 又极爱用 <code>::before</code> 做小圆点/角标、用 <code>:nth-child</code> 做斑马纹。只有你这个人肉审查者能拦下来。看到 <code>::before/::after</code> 或结构性伪类，无条件亮红灯。</div>
@@ -192,7 +193,7 @@ fold-view-header { position: relative; z-index: 0; }
 <details class="lrv-fold">
 <summary>展开：text 默认不换行 + page 不继承 body 默认样式 <span class="lrv-b lrv-skim">可跳读</span></summary>
 
-**text 默认 `nowrap`**：Web 文字默认换行，Lynx 的 `<text>` 默认不换行，要换行得显式写：
+**text 的换行别赖隐式默认**：源码里全局 `white-space` 默认是 `normal`（`default_computed_style.h` 的 `DEFAULT_WHITE_SPACE=kNormal`），并非“默认 nowrap”。但跨元素/上下文的换行与截断行为可能不同，需要精确控制时显式设：
 
 ```css
 .title { white-space: normal; }           /* 允许换行 */
@@ -301,6 +302,22 @@ function Banner() {
 <summary>Q6（判断）：从 Web 迁移，给 <code>body</code> 设了 margin 就够了。</summary>
 
 **错**。Lynx 根元素是 `page`，不继承 `body` 的浏览器默认样式。要把样式同步到 `page { margin: ... }`。
+</details>
+
+## 源码核对 <span class="lrv-b lrv-key">源码为证</span>
+
+<details class="lrv-fold">
+<summary>展开：对照 lynx-family/lynx（develop 分支）逐条核实 <span class="lrv-b lrv-skim">确认与勘误</span></summary>
+
+**源码坐实：**
+- 默认 `position: relative`（不支持 `static`）—— `core/renderer/starlight/style/default_layout_style.h`：`SL_DEFAULT_POSITION = PositionType::kRelative`。
+- `::before`/`::after`、`:nth-child` 确不被引擎登记 —— `core/renderer/css/css_selector_constants.h` 里只有 `:not`、`::placeholder`、`:first-child`、`:last-child`、`:hover`、`:active`、`:focus`，没有 `::before/::after/:nth-child`。
+- 默认 `overflow: hidden` —— `core/style/default_computed_style.h`：`DEFAULT_OVERFLOW = OverflowType::kHidden`。
+
+**本讲已据此勘误：**
+- `:first-child`/`:last-child` 在源码里**有**选择器常量（被引擎识别），不能与 `:nth-child` 一并归为“不支持”；但结构性伪类行为依实现/版本，仍建议改用显式类名。
+- `white-space` 源码默认是 `normal`（`DEFAULT_WHITE_SPACE=kNormal`），并非“默认 nowrap”——已改为“需要时显式设”。
+- `box-sizing` 源码默认是 `kAuto`（非字面 `border-box`），但表现为 border-box 语义（width 含 padding/border），仍区别于 web 的 content-box。
 </details>
 
 ## 速查卡 · 01 讲 <span class="lrv-b lrv-core">必读</span>
