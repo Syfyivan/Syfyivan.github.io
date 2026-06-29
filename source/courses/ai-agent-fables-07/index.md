@@ -186,7 +186,7 @@ html[data-user-color-scheme="dark"] .ahf-card { background: var(--ahf-panel); }
     </article>
     <article class="ahf-card">
       <span class="ahf-number">07.4</span>
-      <div><small>从 PRD 到测试</small><h3>拿什么证明盖好了</h3><p>行为样例、边界条件、回归集、可验证完成——“看着好”最不可信。</p></div>
+      <div><small>从需求到测试</small><h3>拿什么证明盖好了</h3><p>行为样例、边界条件、回归集、可验证完成——“看着好”最不可信。</p></div>
       <a class="ahf-link" href="/2026/06/20/ai-agent-fables-07-ch4-prd-to-tests/">阅读</a>
     </article>
     <article class="ahf-card">

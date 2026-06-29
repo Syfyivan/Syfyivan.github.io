@@ -55,6 +55,8 @@ categories: [技术笔记, AI 与 Agent 大寓言课, 会查档案的书记]
 - 把**整座馆的内容**一股脑堆桌面：窗口爆掉、关键信息被稀释（第三、四讲反复说的坑）。
 - 把**桌面的临时内容**误当长期记忆：本该用完即弃的东西被永久保留，造成污染和隐私风险。
 
+这对应一个你天天能感受到的现象：开一个全新对话，助手就不记得你上次让它“只说中文、用正式语气”了——除非产品专门做了长期记忆功能，把这条偏好记进“小本”。大上下文窗口救不了这件事，因为窗口是“这次能看多少”，不是“跨次记得住”。
+
 分清三层，你才能正确地设计“它该记住什么、该查什么、此刻该看什么”。
 
 ## 记忆该存什么、不该存什么
@@ -100,4 +102,4 @@ categories: [技术笔记, AI 与 Agent 大寓言课, 会查档案的书记]
 - [Effective context engineering for AI agents - Anthropic](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
 - [What is RAG? - IBM](https://www.ibm.com/think/topics/retrieval-augmented-generation)
 - [Context window - IBM](https://www.ibm.com/think/topics/context-window)
-- [Memory in LLM agents - Anthropic](https://platform.claude.com/docs/en/build-with-claude/context-windows)
+- [Context windows - Anthropic](https://platform.claude.com/docs/en/build-with-claude/context-windows)
