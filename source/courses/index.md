@@ -388,7 +388,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>AI 与 Agent</h2>
         <p>先从 AI 导论、数据与机器学习讲起，再进入 LLM、RAG、MCP、Skill、Agent Loop、vibe coding、SDD、评测、安全治理、多模态、多 Agent 和产品化工程。</p>
       </div>
-      <span class="course-category-count">8 项</span>
+      <span class="course-category-count">9 项</span>
     </div>
     <div class="course-grid">
       <article class="course-card">
@@ -398,6 +398,15 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <div class="course-card-footer">
           <span>适合：刚高考完、零基础、还在纠结要不要学编程的人</span>
           <a class="course-link" href="/courses/gaokao-coding/">进入课程</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge is-ai">零基础 · 14 讲全</span>
+        <h3>AI 造物入门</h3>
+        <p>面向任何对编程和 AI 好奇的零基础的人：一个月、做中学，独立做出并上线一个带 AI 的个人作品——还要东西坏了能自己修、AI 说错了能看出来。14 讲分四周，两条路线：按顺序跟做 / 按能力速查。</p>
+        <div class="course-card-footer">
+          <span>适合：刚接触编程和 AI、想亲手做出第一个作品的人</span>
+          <a class="course-link" href="/courses/ai-maker/">进入课程</a>
         </div>
       </article>
       <article class="course-card">
@@ -594,19 +603,19 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>前端与客户端</h2>
         <p>这里会放前端工程、Lynx、React、客户端调试、跨端和移动端相关课程，避免它们被 AI 或项目文章淹没。</p>
       </div>
-      <span class=”course-category-count”>1 门 + 规划</span>
+      <span class="course-category-count">1 门 + 规划</span>
     </div>
-    <div class=”course-grid”>
-      <article class=”course-card”>
-        <span class=”course-badge is-client”>16 讲 · 已完成</span>
+    <div class="course-grid">
+      <article class="course-card">
+        <span class="course-badge is-client">16 讲 · 已完成</span>
         <h3>Swift 从零路线</h3>
         <p>不预设任何编程背景，从 let/var 开始，走过 Optional、Protocol、async/await，直到 SwiftUI 写完整 App。每讲配 Xcode Playground 可运行代码，16 讲覆盖现代 Swift 6 全貌。</p>
-        <div class=”course-card-footer”>
+        <div class="course-card-footer">
           <span>起点：零基础 → 目标：独立写 SwiftUI App</span>
-          <a class=”course-link” href=”/courses/learn-swift/”>进入课程</a>
+          <a class="course-link" href="/courses/learn-swift/">进入课程</a>
         </div>
       </article>
-      <div class=”course-empty” style=”align-self:start”>
+      <div class="course-empty" style="align-self:start">
         <p>已有的 Lynx、前端调试、ReactLynx、Canvas、动效文章会先继续沉淀，后面整理成一条”前端与客户端工程路线”。</p>
       </div>
     </div>
