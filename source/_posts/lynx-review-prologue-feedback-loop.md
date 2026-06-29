@@ -33,7 +33,7 @@ html[data-user-color-scheme="dark"] .lrv-skim{color:#9fc1ec;background:rgba(126,
 html[data-user-color-scheme="dark"] .lrv-skip{color:#aab1bb;background:rgba(170,180,190,.14);border-color:rgba(170,180,190,.3)}
 </style>
 
-<div class="lrv-key-note"><strong>这是全课的序章</strong>，回答一个问题：<strong>为什么 AI 写 Web 页面挺好用，一到 Lynx 就明显变差？</strong> 答案不是“模型对 Lynx 更笨”，而是——它写 Web 时拥有的那条<strong>“生成 → 看结果 → 改”的反馈回路，在 Lynx 上被切断了</strong>。这门审查课，本质就是教你把这条回路<strong>手工补回来</strong>。</div>
+<div class="lrv-key-note"><strong>这是全课的序章</strong>，回答一个问题：<strong>为什么 AI 写 Web 页面挺好用，一到 Lynx 就明显变差？</strong> 答案不是“模型对 Lynx 更笨”，而是——它写 Web 时拥有的那条<strong>“生成 → 看结果 → 改”的反馈回路，在 Lynx 上被切断了</strong>。这门审查课，本质就是教你把这条回路<strong>手工补回来</strong>。<br><strong>（发表后更正：</strong>“被切断”这话说绝对了——继续调研发现这条回路其实<strong>补得回来、且不必靠真机</strong>，见文末「调研更新」。）</div>
 
 ## 一句话论点 <span class="lrv-b lrv-core">必读</span>
 
@@ -89,11 +89,25 @@ AI 不是靠“懂”变好的，是靠**不停地“写一版 → 看哪错了 
 | 编译器 / 浏览器即时报错 | **审查眼力 + 扫描器**（00–07 讲）替代“错误显形” |
 | Playwright 操作页面 | **可靠交互层**（DevTool CDP 几何驱动）替代缺失的自动化面 |
 | 权威 MDN 文档 | **对照 Lynx 源码核校** 替代不可信的二手文档 |
-| headless 秒跑看结果 | **真机 + DevTool + 驱动闭环** 替代“看不见结果” |
+| headless 秒跑看结果 | `@lynx-js/testing-environment`（jsdom 级，测逻辑）+ **Web Platform 在浏览器里跑**（可 Playwright 驱动）+ 真机只做最终像素验收 |
 
 把这四样接起来，你就给 AI 手工搭了一条“**生成 → 真机看 → 改**”的回路。
 
 <div class="lrv-key-note">结论：<strong>Lynx 上 AI 写得好不好，现在主要不取决于模型，取决于你能不能替它把这条回路补上。</strong> 这也是“会 review 的人”比“只会让 AI 写的人”值钱的地方——你就是那条被切断的回路里，<strong>缺的那一环</strong>。</div>
+
+## 调研更新：回路其实闭得上，只是没接好 <span class="lrv-b lrv-key">发表后修正</span>
+
+本文初版把“反馈回路被切断”说得太绝对。继续往 Lynx 源码里挖，发现**不靠真机闭环的路子，Lynx 其实备齐了**——“被卡死”的只是默认那条（真机 + HDT）。证据：
+
+| 路子 | 是什么（源码自述） | 闭哪段环 |
+| --- | --- | --- |
+| `@lynx-js/testing-environment` + testing-library | “**Lynx 版的 jsdom**” | 组件/逻辑正确性，**零设备、纯自动化** |
+| Web Platform（`@lynx-js/web-*`） | “**同一个 Lynx 工程在浏览器里跑**”，用浏览器引擎实现 Lynx 原生绑定 API，连 Linear Layout 都用 JS/CSS 复刻、双线程用 worker 保留；仓里自带 `playwright-fixtures` | 渲染+交互，**浏览器里就能看、能 Playwright 驱动** |
+| 桌面 Explorer（`explorer/darwin`·`windows`）+ `DesktopTransport` | Lynx Explorer 有 **macOS/Windows 桌面版** | 在电脑上跑 + DevTool 看，不用手机 |
+
+<div class="lrv-why"><strong>诚实的折扣</strong>：Web Platform 官方说“we’re working on…”“most behaviors the same”，且<strong>像素渲染不与 Android/iOS 对齐</strong>（它走 DOM 渲染）。所以它适合跑<strong>逻辑、交互、大致外观</strong>并让 AI 自我纠错，但<strong>不能当像素级真机验收</strong>；testing-environment 测逻辑很准，但不测真机渲染。</div>
+
+<div class="lrv-key-note"><strong>所以修正后的结论更有用</strong>：Lynx 的反馈回路缺的不是“可能性”，是“<strong>开箱即用 + 接进 AI</strong>”。给 AI 配的反馈面，<strong>本就不该是物理手机</strong>，而该是 <code>testing-environment</code>（测逻辑）+ Web Platform（看渲染、Playwright 驱动）；真机只留给最后的像素验收。序章从“诉苦”就此变成“有解的行动纲领”。</div>
 
 ## 接下来怎么读这门课
 
@@ -108,4 +122,4 @@ AI 不是靠“懂”变好的，是靠**不停地“写一版 → 看哪错了 
 
 ---
 
-> 本文是一篇“为什么”的总论，观点基于对 [lynx-family/lynx](https://github.com/lynx-family/lynx) 源码与 lynx-devtool 工具链的实测。Lynx 仍在快速演进，文中的工具成熟度判断会随时间变化——这正是需要“继续调研”的原因。
+> 本文是一篇“为什么”的总论，观点基于对 [lynx-family/lynx](https://github.com/lynx-family/lynx)、[lynx-stack](https://github.com/lynx-family/lynx-stack) 源码与 lynx-devtool 工具链的实测；「调研更新」一节是发表后继续调研得到的修正——把结论从“回路被切断”更正为“回路闭得上、只是没接好”。下一步要亲手验证的是 **Web Platform 能不能跑任意 ReactLynx 页面、parity 有多全**，这决定了“AI 能否主要靠浏览器闭环”。Lynx 仍在快速演进，判断会随时间变化。
