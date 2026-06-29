@@ -33,12 +33,12 @@ categories: [升学指南]
 .gaokao-note{font-size:.92rem;color:#666;line-height:1.75}
 
 .gaokao-tabs{margin-top:12px}
-.gaokao-tab-input{position:absolute;opacity:0;pointer-events:none}
 .gaokao-tab-list{display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #e6e8eb;margin:8px 0 14px}
-.gaokao-tab-label{cursor:pointer;border:1px solid #e6e8eb;border-bottom:none;border-radius:8px 8px 0 0;padding:9px 14px;background:#f7f8fa;font-weight:700;color:#555}
-#gaokao-view-score:checked~.gaokao-tab-list label[for="gaokao-view-score"],#gaokao-view-school:checked~.gaokao-tab-list label[for="gaokao-view-school"]{background:#fff;color:#1f5fbf;border-color:#9bbcf2}
+.gaokao-tab-label{appearance:none;cursor:pointer;border:1px solid #e6e8eb;border-bottom:none;border-radius:8px 8px 0 0;padding:9px 14px;background:#f7f8fa;font:inherit;font-weight:700;color:#555}
+.gaokao-tab-label.is-active{background:#fff;color:#1f5fbf;border-color:#9bbcf2}
 .gaokao-tab-panel{display:none}
-#gaokao-view-score:checked~.gaokao-score-panel,#gaokao-view-school:checked~.gaokao-school-panel{display:block}
+.gaokao-tab-panel.is-active{display:block}
+.gaokao-tab-panel[hidden]{display:none!important}
 @media (max-width:640px){.gaokao-table{font-size:.8rem;min-width:1180px}.gaokao-fold summary{font-size:.92rem}.gaokao-stat strong{font-size:1.12rem}}
 </style>
 
@@ -92,14 +92,12 @@ categories: [升学指南]
 
 ## 全量明细
 
-<div class="gaokao-tabs">
-<input class="gaokao-tab-input" type="radio" name="gaokao-view" id="gaokao-view-score" checked>
-<input class="gaokao-tab-input" type="radio" name="gaokao-view" id="gaokao-view-school">
+<div class="gaokao-tabs" data-gaokao-tabs>
 <div class="gaokao-tab-list" role="tablist" aria-label="全量明细查看方式">
-<label class="gaokao-tab-label" for="gaokao-view-score">按分数排序</label>
-<label class="gaokao-tab-label" for="gaokao-view-school">按学校查看</label>
+<button class="gaokao-tab-label is-active" type="button" role="tab" aria-selected="true" aria-controls="gaokao-panel-score" data-gaokao-tab="score">按分数排序</button>
+<button class="gaokao-tab-label" type="button" role="tab" aria-selected="false" aria-controls="gaokao-panel-school" data-gaokao-tab="school">按学校查看</button>
 </div>
-<section class="gaokao-tab-panel gaokao-score-panel">
+<section id="gaokao-panel-score" class="gaokao-tab-panel gaokao-score-panel is-active" role="tabpanel">
 
 <p class="gaokao-note">默认视图保留原来的 <strong>2025 投档分 / 位次排序</strong>：仍按 10 分一段折叠，共 <strong>22</strong> 个分段；每个分段内部按 2025 投档最低分从高到低排。新增的 2026 院校代号、专业代号只来自官方计划；未精确匹配同名专业时，不臆造专业代号，请切到“按学校查看”核对该校 2026 官方计划。</p>
 
@@ -2645,7 +2643,7 @@ categories: [升学指南]
 </details>
 
 </section>
-<section class="gaokao-tab-panel gaokao-school-panel">
+<section id="gaokao-panel-school" class="gaokao-tab-panel gaokao-school-panel" role="tabpanel" hidden>
 
 <p class="gaokao-note">这个视图按 <strong>2026 官方招生院校项</strong>折叠展示：院校代号、专业代号、计划数、选科、学费和备注均来自官方计划。它适合逐校核对全部 2026 计划代码；不再保持 2025 分数排序。</p>
 
@@ -6614,6 +6612,35 @@ categories: [升学指南]
 </details>
 
 </section>
+<script>
+(function(){
+  var root=document.querySelector('[data-gaokao-tabs]');
+  if(!root) return;
+  var buttons=root.querySelectorAll('[data-gaokao-tab]');
+  var panels={
+    score: root.querySelector('#gaokao-panel-score'),
+    school: root.querySelector('#gaokao-panel-school')
+  };
+  function show(name){
+    buttons.forEach(function(btn){
+      var active=btn.getAttribute('data-gaokao-tab')===name;
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    Object.keys(panels).forEach(function(key){
+      var panel=panels[key];
+      if(!panel) return;
+      var active=key===name;
+      panel.classList.toggle('is-active', active);
+      if(active){ panel.removeAttribute('hidden'); } else { panel.setAttribute('hidden',''); }
+    });
+  }
+  buttons.forEach(function(btn){
+    btn.addEventListener('click', function(){ show(btn.getAttribute('data-gaokao-tab')); });
+  });
+  show('score');
+})();
+</script>
 </div>
 
 ## 数据来源和校验
