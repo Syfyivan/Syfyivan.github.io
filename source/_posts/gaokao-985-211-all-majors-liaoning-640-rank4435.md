@@ -1,7 +1,7 @@
 ---
 title: "辽宁 640 分 / 4435 名：985/211 + 深圳大学全量专业投档表"
 date: 2026-06-24 21:20:00
-updated: 2026-06-24 21:50:00
+updated: 2026-06-29 23:30:00
 description: "基于辽宁招考办 2025 普通本科批物理类专业投档表，不设分数窗口，抽取全部 985/211 院校专业，并额外加入深圳大学，按投档最低分和 2025 物理类累计位次从高到低排列。"
 tags: [高考, 志愿填报, 辽宁, 985, 211, 深圳大学, 完整专业, 投档分, 位次]
 categories: [升学指南]
@@ -9,7 +9,9 @@ categories: [升学指南]
 
 > 这是一张纯数据页，不再使用任何分数窗口。只做一件事：把 **2025 辽宁物理类普通本科批**里，官方投档表出现的 **全部 985/211 院校专业**取出，再按你的要求额外加入 **深圳大学**，然后按投档最低分从高到低排列。
 >
-> 这张表适合先做“全量排查”：不先判断冲稳保，不先判断专业好坏，先把 985/211 + 深圳大学在辽宁物理类普通本科批里所有可见专业完整摆出来。
+> 这张表只能用于“全量排查”和看 2025 投档难度：不先判断冲稳保，不先判断专业好坏，先把 985/211 + 深圳大学在辽宁物理类普通本科批里所有可见专业完整摆出来。
+>
+> **重要更正：表中的“院校码/专业码”来自 2025 年投档结果表，只能用于核对历史投档数据，不能当作 2026 辽宁志愿填报系统里的可填代码。正式填报时必须进入辽宁志愿系统，用今年的招生计划查询或关注列表选择院校和专业。**
 
 <!-- more -->
 
@@ -42,11 +44,11 @@ categories: [升学指南]
 </div>
 
 - 本页不设分数窗口：从 **695 分到 460 分**，只要属于 985/211 院校项，或招生院校是深圳大学，就全部收录。
-- 本页只处理 **2025 辽宁普通类本科批物理学科类**普通投档表，不含本科提前批、强基、综评、高校专项、国家专项、征集志愿、专科批等其它批次。
+- 本页只处理 **2025 辽宁普通类本科批物理学科类**普通投档表，不含本科提前批、强基、综评、高校专项、国家专项、征集志愿、专科批等其它批次；**本页不是 2026 招生计划表，也不是填报系统代码表**。
 - 分校、校区、医学部、中外合作、预科班等，只要在官方“招生院校”字段中独立出现，且属于 985/211 院校体系，均照实保留。
 - 独立学院、民办二级学院不按母体 985/211 收入；例如“厦门大学嘉庚学院”“大连理工大学城市学院”“电子科技大学成都学院”等不在本页正文里。
 - “位次≈”使用 2025 辽宁物理类成绩统计表的**同分累计人数**；同分内部不能表示各专业之间的真实排序差异。
-- 同分行仅按“985、211、深圳大学、招生院校、院校码、专业码”做页面展示排序，不代表志愿推荐顺序。
+- 同分行仅按“985、211、深圳大学、招生院校、2025 投档院校码、2025 投档专业码”做页面展示排序，不代表志愿推荐顺序；这些历史代号不保证与 2026 志愿平台一致。
 
 ## 院校项索引
 
@@ -70,14 +72,14 @@ categories: [升学指南]
 
 ## 全量明细
 
-下面按 10 分一段折叠，共 **22** 个分段；每个分段内部仍然按投档最低分从高到低排。手机端表格很宽时，左右滑动查看完整专业名。
+下面按 10 分一段折叠，共 **22** 个分段；每个分段内部仍然按 2025 投档最低分从高到低排。表里的院校码和专业码是 2025 投档表原始字段，不是 2026 填报入口；手机端表格很宽时，左右滑动查看完整专业名。
 
 <details class="gaokao-fold">
 <summary>695-690 分 / 位次≈58-123 / 15 条</summary>
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>695</td><td>58</td><td>985</td><td>0001</td><td>北京大学</td><td>56</td><td>理科试验班类(理科基础类专业)(数学类)</td></tr>
 <tr><td>694</td><td>72</td><td>985</td><td>0003</td><td>清华大学</td><td>1B</td><td>理科试验班(理科各专业)[交叉工程(等理科各专业)]</td></tr>
@@ -103,7 +105,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>688</td><td>156</td><td>985</td><td>0248</td><td>上海交通大学</td><td>06</td><td>机械类(钱学森工程科学试点班，含双学士学位项目)(机械工程、能源与动力工程)</td></tr>
 <tr><td>688</td><td>156</td><td>985</td><td>0246</td><td>复旦大学</td><td>37</td><td>工科试验班(计算与智能领军人才班)(人工智能)</td></tr>
@@ -145,7 +147,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>679</td><td>366</td><td>985</td><td>0358</td><td>中国科学技术大学</td><td>A3</td><td>工科试验班(航空航天、人形机器人、低碳能源技术及安全)(机器人工程、理论与应用力学、机械设计制造及其自动化、测控技术与仪器、能源与动力工程、安全工程)</td></tr>
 <tr><td>679</td><td>366</td><td>985</td><td>0358</td><td>中国科学技术大学</td><td>CJ</td><td>工科试验班(信息智能方向)[计算机类、计算机类(华夏计算机科技英才班)、电子信息类、电子信息类(信息科技英才班)、人工智能、集成电路设计与集成系统、网络空间安全]</td></tr>
@@ -214,7 +216,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>669</td><td>788</td><td>985</td><td>0286</td><td>东南大学</td><td>06</td><td>电子信息类(信息工程、电子科学与技术、海洋信息工程)</td></tr>
 <tr><td>669</td><td>788</td><td>985</td><td>0286</td><td>东南大学</td><td>08</td><td>集成电路设计与集成系统</td></tr>
@@ -319,7 +321,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>659</td><td>1,496</td><td>985</td><td>0558</td><td>中山大学</td><td>2Z</td><td>网络空间安全(含鸿网创新班)</td></tr>
 <tr><td>659</td><td>1,496</td><td>985</td><td>0055</td><td>南开大学</td><td>3S</td><td>理科试验班(物理与光电信息技术工程)(物理学、应用物理学、光电信息科学与工程、电子信息科学与技术、微电子科学与工程、电子科学与技术、通信工程)</td></tr>
@@ -459,7 +461,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>649</td><td>2,609</td><td>985</td><td>0533</td><td>中南大学</td><td>81</td><td>软件工程</td></tr>
 <tr><td>649</td><td>2,609</td><td>985</td><td>0533</td><td>中南大学</td><td>B3</td><td>电子信息类(电子信息科学与技术、通信工程、电子信息工程)</td></tr>
@@ -598,7 +600,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>639</td><td>4,039</td><td>985</td><td>0561</td><td>华南理工大学</td><td>43</td><td>金融科技</td></tr>
 <tr><td>639</td><td>4,039</td><td>985</td><td>0183</td><td>吉林大学</td><td>AK</td><td>临床医学(白求恩班)</td></tr>
@@ -782,7 +784,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>629</td><td>5,882</td><td>985</td><td>0145</td><td>东北大学</td><td>1T</td><td>计算机类(软件工程、信息安全、数字媒体技术)</td></tr>
 <tr><td>629</td><td>5,882</td><td>985</td><td>0183</td><td>吉林大学</td><td>97</td><td>仿生科学与工程</td></tr>
@@ -1132,7 +1134,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>619</td><td>8,169</td><td>985</td><td>0019</td><td>中国农业大学</td><td>51</td><td>生物工程(营养与健康方向)</td></tr>
 <tr><td>619</td><td>8,169</td><td>985</td><td>0423</td><td>中国海洋大学</td><td>10</td><td>化学</td></tr>
@@ -1495,7 +1497,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>609</td><td>10,891</td><td>985</td><td>9145</td><td>东北大学秦皇岛分校</td><td>01</td><td>经济学类(经济学、金融学、国际经济与贸易)</td></tr>
 <tr><td>609</td><td>10,891</td><td>985</td><td>0019</td><td>中国农业大学</td><td>52</td><td>城乡规划</td></tr>
@@ -1837,7 +1839,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>599</td><td>13,937</td><td>985</td><td>0712</td><td>西北农林科技大学</td><td>09</td><td>工商管理类(会计学、工商管理、农林经济管理、土地资源管理、市场营销)</td></tr>
 <tr><td>599</td><td>13,937</td><td>211</td><td>0224</td><td>东北农业大学</td><td>22</td><td>机械类(机械设计制造及其自动化、农业机械化及其自动化)</td></tr>
@@ -2082,7 +2084,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>589</td><td>17,304</td><td>211</td><td>1415</td><td>中国地质大学(北京)</td><td>21</td><td>地下水科学与工程</td></tr>
 <tr><td>589</td><td>17,304</td><td>211</td><td>9414</td><td>中国石油大学(北京)克拉玛依校区</td><td>B4</td><td>机械设计制造及其自动化</td></tr>
@@ -2227,7 +2229,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>579</td><td>20,928</td><td>211</td><td>0224</td><td>东北农业大学</td><td>28</td><td>工商管理类(工商管理、会计学、市场营销、人力资源管理)</td></tr>
 <tr><td>579</td><td>20,928</td><td>211</td><td>0225</td><td>东北林业大学</td><td>22</td><td>生物科学类[生物科学(国家理科基础科学研究和教学人才培养基地)、生物技术(国家生命科学与技术人才培养基地)、生物技术]</td></tr>
@@ -2333,7 +2335,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>569</td><td>24,815</td><td>211</td><td>0224</td><td>东北农业大学</td><td>42</td><td>土木工程</td></tr>
 <tr><td>569</td><td>24,815</td><td>211</td><td>0673</td><td>云南大学</td><td>1U</td><td>工商管理类(工商管理、财务管理、会计学、人力资源管理、物流管理、旅游管理)</td></tr>
@@ -2408,7 +2410,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>559</td><td>28,848</td><td>211</td><td>0224</td><td>东北农业大学</td><td>12</td><td>农业资源与环境</td></tr>
 <tr><td>559</td><td>28,848</td><td>211</td><td>0626</td><td>四川农业大学</td><td>70</td><td>工商管理</td></tr>
@@ -2472,7 +2474,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>549</td><td>33,193</td><td>211</td><td>0224</td><td>东北农业大学</td><td>09</td><td>园林</td></tr>
 <tr><td>549</td><td>33,193</td><td>211</td><td>0225</td><td>东北林业大学</td><td>H2</td><td>生物技术(中外合作办学)</td></tr>
@@ -2516,7 +2518,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>539</td><td>37,781</td><td>211</td><td>0673</td><td>云南大学</td><td>1P</td><td>土木工程(中外合作办学)</td></tr>
 <tr><td>539</td><td>37,781</td><td>211</td><td>0184</td><td>延边大学</td><td>46</td><td>动物科学</td></tr>
@@ -2550,7 +2552,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>529</td><td>42,471</td><td>211</td><td>0755</td><td>新疆大学</td><td>89</td><td>服装设计与工程</td></tr>
 <tr><td>528</td><td>42,898</td><td>211</td><td>0184</td><td>延边大学</td><td>70</td><td>园林</td></tr>
@@ -2569,7 +2571,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>513</td><td>50,149</td><td>211</td><td>0224</td><td>东北农业大学</td><td>57</td><td>动物科学(中美双学位)</td></tr>
 <tr><td>510</td><td>51,658</td><td>211</td><td>0694</td><td>西藏大学</td><td>44</td><td>护理学</td></tr>
@@ -2582,7 +2584,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>507</td><td>53,087</td><td>211</td><td>0694</td><td>西藏大学</td><td>06</td><td>建筑学</td></tr>
 </tbody></table>
@@ -2594,7 +2596,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>494</td><td>59,521</td><td>211</td><td>0694</td><td>西藏大学</td><td>54</td><td>经济学</td></tr>
 </tbody></table>
@@ -2606,7 +2608,7 @@ categories: [升学指南]
 
 <div class="gaokao-table-scroll">
 <table class="gaokao-table">
-<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>院校码</th><th>招生院校</th><th>专业码</th><th>招生专业（官方完整名）</th></tr></thead>
+<thead><tr><th>分</th><th>位次≈</th><th>层</th><th>2025投档院校码</th><th>招生院校</th><th>2025投档专业码</th><th>招生专业（官方完整名）</th></tr></thead>
 <tbody>
 <tr><td>460</td><td>76,739</td><td>211</td><td>0694</td><td>西藏大学</td><td>37</td><td>土木工程</td></tr>
 </tbody></table>
@@ -2618,4 +2620,4 @@ categories: [升学指南]
 - 投档数据：《辽宁招生考试之窗》2025 普通类本科批物理学科类投档 Excel：<https://www.lnzsks.com/lnzkbfiles/2025/2025gklqfsxbksidecpfrf0720l.xlsx>。
 - 位次数据：《辽宁招生考试之窗》2025 辽宁省普通高校招生考试成绩统计表（物理学科类）：<https://www.lnzsks.com/lnzkbfiles/2025/2025gk1f1d0624wl001.pdf>。
 - 结构化校验：官方投档表有效专业行 **10,969** 条；本页过滤后 **2,299** 条，其中 985 **717** 条、211 **1,565** 条、深圳大学 **17** 条；覆盖 **131** 个官方招生院校项、**111** 个基础院校口径。
-- 本页由官方 CSV/PDF 结构化抽取生成，非手工摘抄；后续如果要加入提前批，需要另按提前批投档表单独生成，不能混入本页普通本科批口径。
+- 本页由官方 CSV/PDF 结构化抽取生成，非手工摘抄；其中“2025投档院校码/2025投档专业码”只是历史投档表字段。后续如果要做可填报清单，必须改用 2026 辽宁招生计划和志愿系统口径重新生成，不能沿用本页代码字段。
