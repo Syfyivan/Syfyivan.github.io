@@ -74,7 +74,7 @@ html[data-user-color-scheme="dark"] .aim-card{background:rgba(217,116,43,.13)}
 
 <div class="aim-legend"><span class="aim-b aim-core">必读</span> 必须做 / 必须懂，全课的承重墙<br><span class="aim-b aim-key">重点</span> 关键细节，做的时候高频用到<br><span class="aim-b aim-skim">可跳读</span> 知道有这回事即可<br><span class="aim-b aim-skip">选学</span> 进阶边角，第一次学可以直接跳过</div>
 
-节奏：4 周、13 讲（含这一讲），每讲 30–60 分钟封顶。每周一个小高潮，第 4 周一个大高潮——上线。
+节奏：4 周、14 讲（含这一讲），每讲 30–60 分钟封顶。每周一个小高潮，第 4 周一个大高潮——上线。
 
 ## 开课前，备齐这几样 <span class="aim-b aim-core">必读</span>
 
