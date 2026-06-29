@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-06-29 18:10 Asia/Shanghai",
+  "source_official_csv": "/Users/bytedance/code/gkzy_liaoning_2026_codes/plan_codes_regular_undergraduate_all_subjects.csv",
+  "source_article": "source/_posts/gaokao-985-211-all-majors-liaoning-640-rank4435.md",
+  "article_rows_2025": 2299,
+  "article_college_items": 131,
+  "official_all_subject_rows": 15195,
+  "official_physics_rows_regular_undergraduate": 11677,
+  "official_physics_rows_for_article_colleges": 2512,
+  "exact_article_rows_unique_match": 1615,
+  "exact_article_rows_multiple_plan_rows": 59,
+  "unmatched_article_rows": 625,
+  "emitted_match_csv_rows": 2359,
+  "missing_college_items_in_official_physics_plan": [
+    "陕西师范大学"
+  ]
+}
