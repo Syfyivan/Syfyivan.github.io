@@ -28,7 +28,7 @@ html[data-user-color-scheme="dark"] .gkc-week{color:#e89180}
 html[data-user-color-scheme="dark"] .gkc-tag{color:#6abb8a}
 </style>
 
-<div class="gkc-key-note"><strong>刚高考完，要不要趁这个暑假学点编程？</strong>这门课带你用 AI、做中学，<strong>独立</strong>做出并上线一个带 AI 的个人作品——开学就能发给新室友，还顺手给"要不要报计算机"做一次真实的<strong>专业试驾</strong>。真·零基础，完全 OK。十三讲，两条路线，挑你顺手的走。</div>
+<div class="gkc-key-note"><strong>刚高考完，要不要趁这个暑假学点编程？</strong>这门课带你用 AI、做中学，<strong>独立</strong>做出并上线一个带 AI 的个人作品——开学就能发给新室友，还顺手给"要不要报计算机"做一次真实的<strong>专业试驾</strong>。真·零基础，完全 OK。十三讲，两条路线，挑你顺手的走。<br><strong>说在前头：它是入门点火器，不是速成班</strong>——要真入这行，语法 / 算法 / 计网这些基本功一样得系统学，AI 时代更要学好；第 12 讲给你一张完整的基本功路线图。</div>
 
 <input class="gkc-route" type="radio" name="gkc-route" id="gkc-seq-r" checked><input class="gkc-route" type="radio" name="gkc-route" id="gkc-skill-r"><div class="gkc-tabs"><label for="gkc-seq-r">第一次学 · 按顺序</label><label for="gkc-skill-r">回来查 · 按问题</label></div><div class="gkc-panel gkc-panel-seq"><p class="gkc-route-note">从 00 一路做到 12。每讲 30–60 分钟，主线必做、选学可跳。一周一站，留足玩和歇的时间。</p><div class="gkc-week">开篇</div>
 <a class="gkc-row" href="/2026/06/29/gaokao-coding-00-summer/"><span class="gkc-num">00</span><div class="gkc-rt"><h4>序：高考完了，这个夏天值得你做件事</h4><p>要不要学编程 / AI 时代还学不学 / 零基础行不行 + 写下你的点子</p></div><span class="gkc-tag">✔</span></a>

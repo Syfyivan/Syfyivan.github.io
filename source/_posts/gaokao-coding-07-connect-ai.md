@@ -32,7 +32,9 @@ html[data-user-color-scheme="dark"] .gkc-card{background:rgba(183,58,44,.14)}
 
 ## 🎯 这一讲你会做出什么 <span class="gkc-b gkc-core">必读</span>
 
-一个能输入问题、由真 AI 回答的对话框，而且是**部署好、在线**的。你的作品，第一次"活"了。
+一个能输入问题、由真 AI 回答的对话框，**跑起来、能用**了。你的作品，第一次"活"了。
+
+<div class="gkc-note"><strong>关于"部署"和"上线"，先说清楚，免得后面你犯迷糊：</strong>这一讲为了让 key 待在安全的后端，会把作品<strong>放到一个平台上</strong>（这个动作就叫"<strong>部署</strong>"），所以你很可能这一讲结束时就<strong>顺手拿到了一个能打开的网址</strong>。这很棒，等于提前尝到了甜头。但"上线 / 部署"这件事到底是怎么回事、怎么做才稳，我们留到<strong>第 10 讲</strong>正式讲透（那一讲也会帮没接 AI 的纯网页作品上线）。这一讲你只管把 AI <strong>接通、能对话</strong>就算过关。</div>
 
 ## 先认识两个词：API 和 key <span class="gkc-b gkc-core">必读</span>
 
@@ -59,10 +61,10 @@ html[data-user-color-scheme="dark"] .gkc-card{background:rgba(183,58,44,.14)}
 
 **别从零搭后端。** 自己拿 key、本地跑服务器、配环境——那是新手成批掉队的悬崖。我们直接绕开，走现成模板：
 
-**第 1 步 · 拿一个 key。** 挑一个 provider，在它的"API / 开发者"页面创建 key（都有免费额度）：
+**第 1 步 · 拿一个 key。** 挑一个 **provider**（就是给你提供 AI 的那家公司，AI 服务商），在它的"API / 开发者"页面创建 key：
 
-- **海外**：OpenAI、Anthropic（Claude）等。
-- **国内可直连**：通义千问、豆包、DeepSeek、智谱 等。
+- **国内可直连**：通义千问、豆包、DeepSeek、智谱 等——通常给新用户一些免费额度，适合先用着。
+- **海外**：OpenAI、Anthropic（Claude）等——免费政策经常变，可能一上来就要绑卡，介意就先用国内的。
 
 **第 2 步 · 让 AI 帮你找一个现成模板，一键部署。** 套这段：
 
@@ -76,7 +78,9 @@ html[data-user-color-scheme="dark"] .gkc-card{background:rgba(183,58,44,.14)}
 
 **第 3 步 · 在平台后台填 key。** 部署时，平台会有个"**环境变量（Environment Variables）**"的地方，把 key 填进去 → 部署完成 → 打开它给你的网址，对话框就能用了。
 
-<div class="gkc-note">用"现成模板 + 同一个平台部署"，你基本不会碰到本地环境、跨域（CORS）这些经典坑——它们都被模板和平台处理好了。这就是水泥路的意义：把悬崖填平，你只管走过去。</div>
+<div class="gkc-note"><strong>"环境变量"是个啥？</strong>你可以把它理解成<strong>平台帮你偷偷保管的小保险箱</strong>：你的代码能从里面取出 key 来用，但访客打开网页怎么翻都看不到它。这就是为什么 key 填这儿才安全——它没跟代码混在一起。</div>
+
+<div class="gkc-note"><strong>这一步可能要先注册账号。</strong>"一键部署到平台"，现实里第一次通常要：注册一个平台账号（很多用 GitHub 账号登录，所以可能还要先注册个 GitHub）→ 把模板导入你的账号 → 点部署。听着步骤多，但每一步平台都有引导，照着点就行；卡住就把你看到的画面截图描述给 AI，让它带你过。<strong>别因为名词多就怕——这是这门课最硬的一关，过了就海阔天空。</strong>用"现成模板 + 同平台部署"，你还能绕开本地环境、跨域（CORS）这些经典坑。</div>
 
 ## 会花钱吗？（先把这点说透） <span class="gkc-b gkc-core">必读</span>
 

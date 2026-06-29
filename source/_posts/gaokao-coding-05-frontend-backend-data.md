@@ -36,7 +36,7 @@ html[data-user-color-scheme="dark"] .gkc-card{background:rgba(183,58,44,.14)}
 
 一张你能看懂的"作品由哪几块组成"的地图，外加一个很实用的直觉：遇到问题时，能判断"这是前端的事，还是后端的事"。
 
-<div class="gkc-note"><strong>提前剧透一个好消息：</strong>"前端 / 后端"这两个词，等你大学里和同学聊技术、甚至以后找实习面试，都会反复听到。今天用一家餐厅就把它彻底搞懂，你已经赢在起跑线了。</div>
+<div class="gkc-note"><strong>提前剧透一个好消息：</strong>"前端 / 后端"这两个词，等你大学里和同学聊技术、甚至以后找实习面试，都会反复听到。今天用一家餐厅先把它搞懂，以后再听到，就不发怵了。</div>
 
 ## 用一家餐厅，讲清三个词 <span class="gkc-b gkc-core">必读</span>
 

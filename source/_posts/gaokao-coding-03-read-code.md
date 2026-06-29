@@ -36,7 +36,7 @@ html[data-user-color-scheme="dark"] .gkc-card{background:rgba(183,58,44,.14)}
 
 一个"看代码不慌"的本事：拿到任何一段 AI 生成的网页代码，你能大概说出它分几块、哪块管什么。不用会写，只要会认。
 
-<div class="gkc-note"><strong>说句掏心窝的话：</strong>大学里计算机专业的课，很大一部分就是在教"读懂程序怎么运转"。你这个暑假先把"读个大概"这层窗户纸捅破，开学真上课时，会比身边同学轻松不少。</div>
+<div class="gkc-note"><strong>说句掏心窝的话：</strong>大学里计算机专业的课，很大一部分就是在教"读懂程序怎么运转"。你这个暑假先把"读个大概"这层窗户纸捅破，开学真上课时，你会上手得更顺一些。</div>
 
 ## 读代码，像看房子的平面图 <span class="gkc-b gkc-core">必读</span>
 

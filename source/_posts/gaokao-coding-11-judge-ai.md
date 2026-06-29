@@ -64,7 +64,7 @@ html[data-user-color-scheme="dark"] .gkc-card{background:rgba(183,58,44,.14)}
 
 这门课快结束了，最后给你一个检验"独立"的动作——
 
-<div class="gkc-key-note"><strong>造物者习惯 · 周末裸考</strong><br>找个时间，<strong>不开 AI</strong>，自己做一件小事：在代码里改一处文字、读懂某一段在干嘛、复述一遍"上线要注意什么"。<br>卡住的地方，就是你还依赖 AI 的地方——记下来，下次专门补上。</div>
+<div class="gkc-key-note"><strong>造物者习惯 #3 · 周末裸考</strong><br>找个时间，<strong>不开 AI</strong>，自己做一件小事：在代码里改一处文字、读懂某一段在干嘛、复述一遍"上线要注意什么"。<br>卡住的地方，就是你还依赖 AI 的地方——记下来，下次专门补上。</div>
 
 裸考不是为了为难你，是为了让你看清：哪些本事已经真的长在你身上了。能独立走过的部分，越来越多，你就越来越"独立"。
 
