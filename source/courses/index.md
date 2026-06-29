@@ -388,9 +388,18 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>AI 与 Agent</h2>
         <p>先从 AI 导论、数据与机器学习讲起，再进入 LLM、RAG、MCP、Skill、Agent Loop、vibe coding、SDD、评测、安全治理、多模态、多 Agent 和产品化工程。</p>
       </div>
-      <span class="course-category-count">7 项</span>
+      <span class="course-category-count">8 项</span>
     </div>
     <div class="course-grid">
+      <article class="course-card">
+        <span class="course-badge is-ai">零基础入门 · 13 讲</span>
+        <h3>写给高考生的编程第一课</h3>
+        <p>给刚走出考场的你：用一个暑假、AI 当主力、做中学，独立做出并上线一个带 AI 的个人作品，开学就能发给新室友。顺手回答“AI 时代还要不要学编程、要不要报计算机”，把这个项目当成一次专业试驾。真·零基础，13 讲分四站，两条路线。</p>
+        <div class="course-card-footer">
+          <span>适合：刚高考完、零基础、还在纠结要不要学编程的人</span>
+          <a class="course-link" href="/courses/gaokao-coding/">进入课程</a>
+        </div>
+      </article>
       <article class="course-card">
         <span class="course-badge is-ai">总目录 · 12 讲全</span>
         <h3>AI 与 Agent 大寓言课</h3>
