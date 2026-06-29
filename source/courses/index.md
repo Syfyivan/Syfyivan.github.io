@@ -558,6 +558,27 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     </div>
   </section>
 
+  <section class="course-category" id="cs-foundations">
+    <div class="course-category-head">
+      <div>
+        <h2>计算机基础（科班基本功）</h2>
+        <p>用 AI 做项目能点火，但要真入这行，基本功一门都不能少——而且 AI 时代更要学扎实。这条路线图把科班硬功夫拆成 6 门零基础也能起步的课：编程语言、数据结构与算法、计算机网络、操作系统、数据库、计算机组成原理。每门都扎实讲原理 + 自己动手练 + 练判断，绝不让 AI 代写。</p>
+      </div>
+      <span class="course-category-count">6 门 · 75 讲</span>
+    </div>
+    <div class="course-grid">
+      <article class="course-card">
+        <span class="course-badge">6 门 · 75 讲 · 已完成</span>
+        <h3>计算机基本功路线图</h3>
+        <p>承接《写给高考生的编程第一课》打完地基后，从这儿继续往深走。Python 入门、数据结构与算法、计网、操作系统、数据库、组成原理六门一条龙，每讲都带可动手的练习，强调“自己写、别让 AI 代写”。</p>
+        <div class="course-card-footer">
+          <span>适合：用 AI 入门后，想认真补科班基本功、真入这行的人</span>
+          <a class="course-link" href="/courses/csf/">进入路线图</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
   <section class="course-category" id="backend">
     <div class="course-category-head">
       <div>
