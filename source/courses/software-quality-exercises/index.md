@@ -5858,7 +5858,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     { re: /质量管理体系可以|质量管理体系是/, scope: '质量管理体系作用', focus: '这题问质量管理体系能带来什么：它服务质量方针和质量目标，帮助顾客满意，也提供持续改进框架。' },
     { re: /顾客抱怨|顾客投诉/, scope: '顾客满意与持续改进', focus: '这题问顾客抱怨应不应该被重视。抱怨说明顾客期望没有被满足，是发现需求偏差、改进产品和提升服务的线索。' },
     { re: /受控制状态.*不会波动|质量.*不会波动/, scope: '过程受控与质量波动', focus: '这题问“受控”是不是等于“不波动”。受控只说明波动在可管理范围内，不等于产品质量完全没有随机波动。' },
-    { re: /质量特性/, scope: '质量特性定义', focus: '题干关键词是“质量特性”，它与要求有关，而不是只与标准有关。' },
+    { re: /质量特性/, scope: '质量特性定义', focus: '核心概念是“质量特性”，它与要求有关，而不是只与标准有关。' },
     { re: /质量改进/, scope: '质量改进定义', focus: '质量改进属于质量管理的一部分，重点是增强满足质量要求的能力。' },
     { re: /质量策划|制定质量目标/, scope: '质量策划', focus: '题干说制定质量目标、规定过程和资源，这就是质量策划。' },
     { re: /质量方针/, scope: '质量方针', focus: '质量方针是组织级质量方向，必须由最高管理者批准。' },
@@ -5907,7 +5907,55 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     for (var j = 0; j < exactConcepts.length; j++) {
       if (compact.indexOf(strip(exactConcepts[j][0])) !== -1) return '「' + exactConcepts[j][0] + '」：' + exactConcepts[j][1];
     }
-    return '看关键词「' + clip(src, 42) + '」和教材概念是否一致。';
+    return '这里说的是「' + clip(src, 42) + '」。';
+  }
+  function answerSummary(item) {
+    return item.options.filter(function (opt) { return opt.correct; }).map(function (opt) {
+      return opt.text;
+    }).join('、') || item.answerText;
+  }
+  function optionPlainText(text) {
+    return clip(String(text || '').replace(/^答案[:：]?/, '').replace(/^填空\d+[:：]/, '').replace(/\s+/g, ' ').trim(), 46);
+  }
+  function optionConcept(option) {
+    var text = optionPlainText(option.text);
+    var concept = conceptText(option.text);
+    if (concept.indexOf('这里说的是') === 0) {
+      return '它的意思是「' + text + '」。';
+    }
+    return concept;
+  }
+  function fillReason(item) {
+    var reason = conceptText(item.questionText + ' ' + item.answerText);
+    if (reason.indexOf('这里说的是') === 0) {
+      return '答案是 ' + item.answerText + '。这类填空考固定表述，按答案里的顺序背这些术语。';
+    }
+    return '答案是 ' + item.answerText + '。' + reason;
+  }
+  function splitAnswerPoints(answer, maxCount) {
+    return String(answer || '')
+      .replace(/^答(?:案)?[:：]\s*/, '')
+      .replace(/案[:：]\s*/, '')
+      .split(/(?:\n|。|；|;|(?=（\d+）)|(?=\d+[、.]))/)
+      .map(function (part) { return part.replace(/\s+/g, ' ').trim(); })
+      .filter(Boolean)
+      .slice(0, maxCount);
+  }
+  function shortAnswerReason(item, info) {
+    var q = item.questionText || '';
+    var points = splitAnswerPoints(item.answerText, 4);
+    var lead = '这道简答要写清「' + clip(q.replace(/[？?。]$/, ''), 34) + '」。';
+    if (/区别|不同|对比|辨证/.test(q)) {
+      lead = '这题是比较题，要按维度对照写，不要只背一个定义。';
+    } else if (/为什么|需要/.test(q)) {
+      lead = '这题问原因，答案要说明带来的成本、风险或效率影响。';
+    } else if (/什么是|定义/.test(q)) {
+      lead = '这题问定义，先写概念边界，再补作用或适用范围。';
+    } else if (/如何|怎样|怎么/.test(q)) {
+      lead = '这题问做法，按步骤或组成部分列评分点。';
+    }
+    if (!points.length) return lead + info.focus;
+    return lead + '可按这些点背：' + points.join('；') + '。';
   }
   function intentInfo(item) {
     var core = questionCore(item);
@@ -5925,7 +5973,8 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
       keyword: keyword,
       negative: /不包括|不属于|不正确|错误的是|不准确|不是|无关|不能|除外/.test(core),
       scope: hit ? hit.scope : keyword,
-      focus: hit ? hit.focus : '这题要先抓题干关键词「' + keyword + '」，再看选项是在回答同一个概念，还是把对象、阶段、方法或评价指标换掉了。'
+      matched: !!hit,
+      focus: hit ? hit.focus : '题干描述对应「' + answerSummary(item) + '」。'
     };
   }
   function answerLabels(answer) {
@@ -5942,18 +5991,24 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
   }
   function optionReason(item, option, correct, info) {
     var prefix = correct ? '选' : '不选';
-    var concept = conceptText(option.text);
+    var concept = optionConcept(option);
+    var answer = answerSummary(item);
+    var plain = optionPlainText(option.text);
+    var genericConcept = concept.indexOf('它的意思是') === 0;
     if (item.answerText.indexOf('以上') !== -1 && /以上|全部|皆是/.test(option.text)) {
       return prefix + '：' + (correct ? '前面成立的项都被包含进来了。' : '本题不是所有前项都成立，不能直接选“以上/全部”。');
     }
+    if (item.answerText.indexOf('以上') !== -1 && !correct) {
+      return prefix + '：' + (genericConcept ? '这个前项是「' + plain + '」。' : concept) + '但答案给了“以上/全部”，说明要选汇总项，不能只选其中一项。';
+    }
     if (info.negative) {
       return correct
-        ? prefix + '：题干在找“不属于/错误”的项。' + concept
-        : prefix + '：这个说法本身是对的，不能当作例外项。' + concept;
+        ? prefix + '：题目带“不/错误/除外”，要找例外项；' + (genericConcept ? '这个选项是「' + plain + '」。' : concept)
+        : prefix + '：题目要找例外项；正确例外是「' + answer + '」，不是「' + plain + '」。' + (genericConcept ? '' : concept);
     }
     return correct
-      ? prefix + '：' + concept
-      : prefix + '：' + concept + '但它不是本题要找的「' + info.scope + '」。';
+      ? prefix + '：' + (genericConcept ? '题干描述的就是「' + plain + '」。' : concept)
+      : prefix + '：' + (genericConcept ? '这个选项是「' + plain + '」。' : concept) + '正确答案是「' + answer + '」，不是「' + plain + '」。';
   }
   function tfDecisionReason(item) {
     var reason = conceptText(item.questionText + ' ' + item.answerText);
@@ -5969,7 +6024,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     if (item.kind === 'choice') {
       var correctOptions = item.options.filter(function (opt) { return opt.correct; });
       var correctText = correctOptions.map(function (opt) { return opt.label + '. ' + opt.text; }).join('；');
-      html += '<div class="sqe-exp-block"><b>解析：</b>答案是 ' + esc(item.answerText) + '。' + esc(info.negative ? '这题问的是“不属于/错误”的例外项。' : '这题要选和题干概念对应的项。') + (correctText ? '正确项：' + esc(correctText) + '。' : '') + '</div>';
+      html += '<div class="sqe-exp-block"><b>解析：</b>答案是 ' + esc(item.answerText) + '。' + esc(info.focus) + (info.negative ? ' 因为题目带“不/错误/除外”，所以要反着找例外项。' : '') + (correctText ? ' 正确项：' + esc(correctText) + '。' : '') + '</div>';
       var opts = displayOptions || item.options;
       html += '<div class="sqe-exp-options">';
       opts.forEach(function (opt) {
@@ -5980,9 +6035,9 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     } else if (item.kind === 'tf') {
       html += '<div class="sqe-exp-block"><b>解析：</b>' + esc(tfDecisionReason(item)) + '</div>';
     } else if (item.kind === 'fill') {
-      html += '<div class="sqe-exp-block"><b>解析：</b>这里填 ' + esc(item.answerText) + '。' + esc(conceptText(item.questionText + ' ' + item.answerText)) + '</div>';
+      html += '<div class="sqe-exp-block"><b>解析：</b>' + esc(fillReason(item)) + '</div>';
     } else {
-      html += '<div class="sqe-exp-block"><b>解析：</b>这题抓住「' + esc(info.keyword) + '」回答即可。参考答案要点：' + esc(clip(item.answerText, 260)) + '</div>';
+      html += '<div class="sqe-exp-block"><b>解析：</b>' + esc(shortAnswerReason(item, info)) + '</div>';
     }
     return html;
   }
