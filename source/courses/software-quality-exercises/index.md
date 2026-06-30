@@ -533,6 +533,58 @@ html[data-user-color-scheme="dark"] .sqe-practice {
 }
 .sqe-filter button:hover { color: #ffffff; background: var(--sqe-blue); }
 .sqe-card.is-hidden { display: none; }
+#peer .sqe-card {
+  margin-top: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+#peer .sqe-card + .sqe-card {
+  border-top: 1px solid var(--sqe-line);
+}
+#peer .sqe-question {
+  padding: 18px 0 10px;
+  border-bottom: 0;
+}
+#peer .sqe-question-title {
+  margin-bottom: 7px;
+  color: var(--sqe-ink);
+  font-size: 18px;
+}
+#peer .sqe-question p:not(.sqe-question-title) {
+  color: var(--sqe-muted);
+  line-height: 1.75;
+}
+#peer .sqe-answer {
+  padding: 0 0 16px;
+}
+#peer .sqe-answer details {
+  background: transparent;
+}
+#peer .sqe-answer summary {
+  display: inline-flex;
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 1px solid rgba(47, 111, 94, 0.28);
+  border-radius: 999px;
+  color: var(--sqe-green);
+  background: rgba(47, 111, 94, 0.08);
+  font-size: 14px;
+}
+#peer .sqe-answer-body {
+  margin-top: 10px;
+  padding: 14px 15px;
+  border: 1px solid var(--sqe-line);
+  border-radius: 8px;
+  background: #fbfcff;
+}
+#peer .sqe-answer-body > p {
+  color: var(--sqe-ink);
+}
+#peer .sqe-explanation {
+  margin-top: 12px;
+}
 .sqe-mode-tabs {
   display: inline-flex;
   flex-wrap: wrap;
