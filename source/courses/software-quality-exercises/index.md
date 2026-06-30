@@ -14,17 +14,96 @@ description: "《软件质量保证与测试》云班课题库页：已导出 23
   --sqe-green: #2f6f5e;
   --sqe-blue: #365f91;
   --sqe-rust: #a14f35;
-  max-width: 980px;
+  width: min(100%, 1160px);
+  max-width: 1160px;
   margin: 0 auto;
+  padding: 0 clamp(14px, 2.2vw, 28px);
   color: var(--sqe-ink);
+  box-sizing: border-box;
 }
 .sqe-page * { box-sizing: border-box; }
 .sqe-page :target { scroll-margin-top: 96px; }
 .sqe-chapter,
 .sqe-tip {
-  max-width: 980px;
+  max-width: none;
   margin-right: auto;
   margin-left: auto;
+}
+body.sqe-study-layout .main-inner,
+body.sqe-study-layout .content-wrap,
+body.sqe-study-layout .post-block,
+body.sqe-study-layout .post-body {
+  max-width: none;
+}
+body.sqe-study-layout .main,
+body.sqe-study-layout .main-inner {
+  width: min(100%, 1240px);
+}
+body.sqe-study-layout {
+  overflow-x: hidden;
+}
+body.sqe-study-layout #board > .container {
+  width: min(100%, 1280px);
+  max-width: 1280px;
+}
+body.sqe-study-layout #board > .container > .row {
+  margin-right: 0;
+  margin-left: 0;
+}
+body.sqe-study-layout #board > .container > .row > .col-12.col-md-10.m-auto {
+  flex: 0 0 100%;
+  max-width: 100%;
+  padding-right: clamp(8px, 1.8vw, 18px);
+  padding-left: clamp(8px, 1.8vw, 18px);
+}
+body.sqe-study-layout .page-content {
+  width: 100%;
+  max-width: none;
+}
+#banner .banner-text,
+#banner .banner-text .h2,
+#subtitle {
+  max-width: min(92vw, 900px);
+  white-space: normal !important;
+}
+#subtitle {
+  display: block;
+  margin: 0 auto;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.35;
+}
+@media (max-width: 760px) {
+  #banner .h2 {
+    padding: 0 18px;
+    font-size: 1.35rem !important;
+    line-height: 1.35 !important;
+  }
+  #banner,
+  #banner .full-bg-img,
+  #banner .mask,
+  #banner .banner-text,
+  #board,
+  #board > .container,
+  #board > .container > .row,
+  #board > .container > .row > .col-12.col-md-10.m-auto {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    overflow-x: hidden;
+  }
+  #board > .container,
+  #board > .container > .row > .col-12.col-md-10.m-auto {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+  }
+  #subtitle {
+    max-width: 310px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
 }
 .sqe-hero {
   padding: 30px;
@@ -48,7 +127,15 @@ description: "《软件质量保证与测试》云班课题库页：已导出 23
 .sqe-section-title,
 .sqe-chapter h3,
 .sqe-question-title { letter-spacing: 0; }
-.sqe-hero h2 { margin: 0 0 14px; font-size: 30px; line-height: 1.25; }
+.sqe-hero h2 {
+  margin: 0 0 14px;
+  font-size: 30px;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.sqe-mobile-break { display: none; }
 .sqe-hero p,
 .sqe-note p,
 .sqe-card p,
@@ -233,10 +320,63 @@ description: "《软件质量保证与测试》云班课题库页：已导出 23
   font-weight: 700;
 }
 .sqe-answer details[open] summary::after { content: "收起"; }
-.sqe-answer-body {
-  padding: 0 16px 15px;
-}
+.sqe-answer-body { padding: 0 16px 15px; }
 .sqe-answer-body ul { margin: 8px 0 0; padding-left: 1.2em; color: var(--sqe-muted); line-height: 1.8; }
+.sqe-explanation {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(47, 111, 94, 0.24);
+  color: var(--sqe-ink);
+}
+.sqe-explanation-title {
+  margin: 0 0 9px;
+  color: var(--sqe-green);
+  font-weight: 900;
+}
+.sqe-explanation p { margin: 8px 0 0; }
+.sqe-exp-tag {
+  display: inline-flex;
+  margin: 0 8px 8px 0;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: var(--sqe-blue);
+  background: rgba(54, 95, 145, 0.11);
+  font-size: 12px;
+  font-weight: 800;
+}
+.sqe-exp-block {
+  margin-top: 9px;
+  color: var(--sqe-muted);
+  line-height: 1.78;
+}
+.sqe-exp-block b,
+.sqe-exp-option b {
+  color: var(--sqe-ink);
+}
+.sqe-exp-options {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.sqe-exp-option {
+  padding: 10px 11px;
+  border: 1px solid var(--sqe-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--sqe-muted);
+  line-height: 1.7;
+}
+.sqe-exp-option.is-correct {
+  border-color: rgba(47, 111, 94, 0.28);
+  background: rgba(47, 111, 94, 0.08);
+}
+.sqe-exp-option.is-wrong {
+  border-color: rgba(161, 79, 53, 0.18);
+}
+.sqe-exp-why {
+  display: block;
+  margin-top: 5px;
+}
 .sqe-tip {
   margin-top: 20px;
   padding: 16px 18px;
@@ -261,6 +401,10 @@ html[data-user-color-scheme="dark"] .sqe-card { background: rgba(34, 40, 48, 0.8
 html[data-user-color-scheme="dark"] .sqe-tip { background: rgba(255, 255, 255, 0.045); }
 html[data-user-color-scheme="dark"] .sqe-nav,
 html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39, 0.94); }
+html[data-user-color-scheme="dark"] .sqe-exp-option,
+html[data-user-color-scheme="dark"] .sqe-practice {
+  background: rgba(255, 255, 255, 0.045);
+}
 @media (min-width: 761px) and (max-width: 1319px) {
   .sqe-nav {
     position: sticky;
@@ -270,11 +414,11 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
   .sqe-page :target,
   .sqe-chapter { scroll-margin-top: 150px; }
 }
-@media (min-width: 1320px) {
+@media (min-width: 1500px) {
   .sqe-side-toc {
     position: fixed;
     top: 108px;
-    right: max(14px, calc((100vw - 1290px) / 2));
+    right: max(14px, calc((100vw - 1460px) / 2));
     z-index: 18;
     display: block;
     width: 170px;
@@ -291,9 +435,33 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
   }
 }
 @media (max-width: 760px) {
-  .sqe-page { padding-bottom: 76px; }
-  .sqe-hero { padding: 22px; }
-  .sqe-hero h2 { font-size: 25px; }
+  .sqe-page {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    padding: 0 12px 76px !important;
+  }
+  .sqe-page.is-practice { padding-bottom: 0; }
+  .sqe-hero,
+  .sqe-note,
+  .sqe-practice,
+  .sqe-chapter,
+  .sqe-tip {
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .sqe-hero {
+    padding: 22px 16px;
+    overflow: hidden;
+  }
+  .sqe-hero h2 {
+    font-size: 22px;
+    line-height: 1.38;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-all !important;
+  }
+  .sqe-mobile-break { display: block; }
   .sqe-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sqe-chapter { padding: 16px; }
   .sqe-chapter-head { grid-template-columns: 1fr; }
@@ -365,8 +533,153 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 }
 .sqe-filter button:hover { color: #ffffff; background: var(--sqe-blue); }
 .sqe-card.is-hidden { display: none; }
+.sqe-mode-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 5px;
+  border: 1px solid var(--sqe-line);
+  border-radius: 8px;
+  background: var(--sqe-panel);
+}
+.sqe-mode-tabs button,
+.sqe-practice button {
+  min-height: 38px;
+  border: 1px solid rgba(54, 95, 145, 0.25);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--sqe-blue);
+  background: var(--sqe-panel);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.sqe-mode-tabs button[aria-selected="true"],
+.sqe-mode-tabs button:hover,
+.sqe-practice button:hover {
+  color: #ffffff;
+  background: var(--sqe-blue);
+}
+.sqe-page.is-practice .sqe-section-title,
+.sqe-page.is-practice .sqe-nav,
+.sqe-page.is-practice .sqe-side-toc,
+.sqe-page.is-practice .sqe-chapter,
+.sqe-page.is-practice .sqe-tip {
+  display: none;
+}
+.sqe-practice {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid var(--sqe-line);
+  border-radius: 8px;
+  background: #fbfcff;
+}
+.sqe-practice[hidden] { display: none; }
+.sqe-practice-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--sqe-line);
+}
+.sqe-practice-title {
+  display: grid;
+  gap: 3px;
+}
+.sqe-practice-title strong {
+  color: var(--sqe-green);
+  font-size: 18px;
+}
+.sqe-practice-title span {
+  color: var(--sqe-muted);
+  font-size: 13px;
+}
+.sqe-practice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sqe-practice-card {
+  display: grid;
+  gap: 14px;
+}
+.sqe-practice-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sqe-practice-meta span {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: var(--sqe-blue);
+  background: rgba(54, 95, 145, 0.11);
+  font-size: 12px;
+  font-weight: 800;
+}
+.sqe-practice-question {
+  padding: 14px;
+  border: 1px solid var(--sqe-line);
+  border-radius: 8px;
+  background: var(--sqe-panel);
+  line-height: 1.78;
+}
+.sqe-practice-options {
+  display: grid;
+  gap: 10px;
+}
+.sqe-practice-option {
+  width: 100%;
+  min-height: 48px;
+  justify-content: flex-start;
+  text-align: left;
+  color: var(--sqe-ink) !important;
+  background: var(--sqe-panel) !important;
+  border-color: var(--sqe-line) !important;
+  line-height: 1.65;
+}
+.sqe-practice-option.is-selected {
+  border-color: rgba(54, 95, 145, 0.6) !important;
+  background: rgba(54, 95, 145, 0.1) !important;
+}
+.sqe-practice-option.is-correct {
+  border-color: rgba(47, 111, 94, 0.58) !important;
+  background: rgba(47, 111, 94, 0.12) !important;
+}
+.sqe-practice-option.is-wrong {
+  border-color: rgba(161, 79, 53, 0.5) !important;
+  background: rgba(161, 79, 53, 0.1) !important;
+}
+.sqe-practice-feedback {
+  min-height: 26px;
+  color: var(--sqe-muted);
+  font-weight: 800;
+}
+.sqe-practice-feedback.is-ok { color: var(--sqe-green); }
+.sqe-practice-feedback.is-bad { color: var(--sqe-rust); }
+.sqe-practice-explain {
+  display: none;
+  padding: 13px 14px;
+  border: 1px dashed rgba(47, 111, 94, 0.3);
+  border-radius: 8px;
+  background: var(--sqe-wash);
+}
+.sqe-practice-explain.is-visible { display: block; }
 @media (max-width: 760px) {
   .sqe-filter { grid-template-columns: 1fr; }
+  .sqe-practice { padding: 14px; }
+  .sqe-practice-actions,
+  .sqe-practice-actions button,
+  .sqe-mode-tabs,
+  .sqe-mode-tabs button {
+    width: 100%;
+  }
 }
 </style>
 
@@ -374,7 +687,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div class="sqe-page">
 <section class="sqe-hero">
 <span class="sqe-kicker">Software Quality Exercises / 云班课已核题库</span>
-<h2>这页只放已经从云班课导出的真实题源</h2>
+<h2>这页只放已经从云班课导出的<br class="sqe-mobile-break">真实题源</h2>
 <p>当前页面已按登录后的云班课接口重建：互评简答题来自 <code>activity.homework.refAnswer</code>，课上测试和课后练习来自 <code>/quizzes/{actId}/topics</code>，少数课上测试从只读成绩结果接口补齐。没有来源的合成题不再放进这页。</p>
 <div class="sqe-actions">
 <a class="sqe-link" href="/courses/software-quality-review-network/">返回总复习网络</a>
@@ -396,6 +709,29 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 
 <section class="sqe-note">
 <p><strong>来源边界：</strong>这页是云班课导出题库，不再混入 PPT 改写题或未标来源的概念题。本次已重新核对云班课 49 个活动，其中 25 个课上/课后 QUIZ 都已记录；“测试相关未分类习题”无法稳定归入某一章，按未分类内容单独放在页尾。</p>
+</section>
+
+<div class="sqe-mode-tabs" role="tablist" aria-label="复习模式">
+<button type="button" role="tab" aria-selected="true" data-sqe-mode="browse">题库浏览</button>
+<button type="button" role="tab" aria-selected="false" data-sqe-mode="practice">交互刷题</button>
+</div>
+
+<section class="sqe-practice" data-sqe-practice hidden>
+<div class="sqe-practice-head">
+<div class="sqe-practice-title"><strong>交互刷题</strong><span data-sqe-practice-stats>正在整理题目</span></div>
+<div class="sqe-practice-actions">
+<button type="button" data-sqe-submit>提交</button>
+<button type="button" data-sqe-next>下一题</button>
+<button type="button" data-sqe-reset>重置进度</button>
+</div>
+</div>
+<div class="sqe-practice-card" data-sqe-practice-card>
+<div class="sqe-practice-meta" data-sqe-practice-meta></div>
+<div class="sqe-practice-question" data-sqe-practice-question></div>
+<div class="sqe-practice-options" data-sqe-practice-options></div>
+<div class="sqe-practice-feedback" data-sqe-practice-feedback></div>
+<div class="sqe-practice-explain" data-sqe-practice-explain></div>
+</div>
 </section>
 
 <h2 class="sqe-section-title">题库跳转</h2>
@@ -464,14 +800,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div><small>互评题 · 简答题评分点</small><h3>老师参考答案已导出，按简答题背</h3><div><span class="sqe-source-pill">23 道</span><span class="sqe-source-pill">activity.homework.refAnswer</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="软件测试与调试有什么区别？ 互评题-测试基本 软件测试与调试在目的、技术和方法等方面存在很大的区别
-测试是为了发现软件中存在的错误；调试是为了证明软件开发的正确性。
-测试以已知条件开始，使用预先定义的程序，且有预知的结果，不可预见的仅是程序是否通过测试；调试一般是以不可知的内部条件开始，除统计性调试外，结果是不可预见的。
-测试是有计划的，需要进行测试设计；调试是不受时间约束的。
-测试经历发现错误、改正错误、重新测试的过程；调试是一个推理的过程。
-测试的执行是有规程的；调试的执行往往要求开发人员进行必要推理以至知觉的&quot;飞跃&quot;。
-测试经常是由独立的测试组在不了解软件设计的条件下完成的；调试必须由了解详细设计的开发人员完成。
-大多数测试的执行和设计可以由工具支持；调式时，开发人员能利用的工具主要是调试器。">
+<article class="sqe-card" data-sqe-card data-sqe-text="软件测试与调试有什么区别？ 互评题-测试基本 软件测试与调试在目的、技术和方法等方面存在很大的区别 测试是为了发现软件中存在的错误；调试是为了证明软件开发的正确性。 测试以已知条件开始，使用预先定义的程序，且有预知的结果，不可预见的仅是程序是否通过测试；调试一般是以不可知的内部条件开始，除统计性调试外，结果是不可预见的。 测试是有计划的，需要进行测试设计；调试是不受时间约束的。 测试经历发现错误、改正错误、重新测试的过程；调试是一个推理的过程。 测试的执行是有规程的；调试的执行往往要求开发人员进行必要推理以至知觉的&amp;quot;飞跃&amp;quot;。 测试经常是由独立的测试组在不了解软件设计的条件下完成的；调试必须由了解详细设计的开发人员完成。 大多数测试的执行和设计可以由工具支持；调式时，开发人员能利用的工具主要是调试器。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-01（简答 · 互评题-测试基本）</p>
 <p>软件测试与调试有什么区别？</p>
@@ -479,15 +808,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>软件测试与调试在目的、技术和方法等方面存在很大的区别</p><p>测试是为了发现软件中存在的错误；调试是为了证明软件开发的正确性。</p><p>测试以已知条件开始，使用预先定义的程序，且有预知的结果，不可预见的仅是程序是否通过测试；调试一般是以不可知的内部条件开始，除统计性调试外，结果是不可预见的。</p><p>测试是有计划的，需要进行测试设计；调试是不受时间约束的。</p><p>测试经历发现错误、改正错误、重新测试的过程；调试是一个推理的过程。</p><p>测试的执行是有规程的；调试的执行往往要求开发人员进行必要推理以至知觉的&quot;飞跃&quot;。</p><p>测试经常是由独立的测试组在不了解软件设计的条件下完成的；调试必须由了解详细设计的开发人员完成。</p><p>大多数测试的执行和设计可以由工具支持；调式时，开发人员能利用的工具主要是调试器。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="简述基本的测量原则。 互评题-质量 答案：
-测量应该基于该应用领域正确的理论之上，并在测量的定义中确定测度的目标；
-每一个技术测量的定义应该具有一致性和客观性、无二义性；
-测量在经验和直觉上也应该有说服力；
-测量的方法力求简单、可计算性；
-测量应该被剪裁以最适应特定的产品和过程，而且任何时候应尽可能使得收集和分析自动化；
-应该用正确的统计技术来建立内部产品属性和外部待测量特征的关系；
-测量结果应该是可靠的，不会因为一些技术问题导致测量结果很大的偏离；
-测量应该建立反馈机制。">
+<article class="sqe-card" data-sqe-card data-sqe-text="简述基本的测量原则。 互评题-质量 答案： 测量应该基于该应用领域正确的理论之上，并在测量的定义中确定测度的目标； 每一个技术测量的定义应该具有一致性和客观性、无二义性； 测量在经验和直觉上也应该有说服力； 测量的方法力求简单、可计算性； 测量应该被剪裁以最适应特定的产品和过程，而且任何时候应尽可能使得收集和分析自动化； 应该用正确的统计技术来建立内部产品属性和外部待测量特征的关系； 测量结果应该是可靠的，不会因为一些技术问题导致测量结果很大的偏离； 测量应该建立反馈机制。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-02（简答 · 互评题-质量）</p>
 <p>简述基本的测量原则。</p>
@@ -495,9 +816,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>答案：</p><p>测量应该基于该应用领域正确的理论之上，并在测量的定义中确定测度的目标；</p><p>每一个技术测量的定义应该具有一致性和客观性、无二义性；</p><p>测量在经验和直觉上也应该有说服力；</p><p>测量的方法力求简单、可计算性；</p><p>测量应该被剪裁以最适应特定的产品和过程，而且任何时候应尽可能使得收集和分析自动化；</p><p>应该用正确的统计技术来建立内部产品属性和外部待测量特征的关系；</p><p>测量结果应该是可靠的，不会因为一些技术问题导致测量结果很大的偏离；</p><p>测量应该建立反馈机制。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="请指出走查、审查这两种同行评审方法的不同？ 互评题-质量 走查和审查的区别是其正式性的等级。其中，审查是两者之中更为正式。
-走查的发现限于被评审文档的意见，而审查的发现还同改进开发方法自身的工作相结合。
-所以和走查相比，审查对一般的SQA做出了更大贡献。">
+<article class="sqe-card" data-sqe-card data-sqe-text="请指出走查、审查这两种同行评审方法的不同？ 互评题-质量 走查和审查的区别是其正式性的等级。其中，审查是两者之中更为正式。 走查的发现限于被评审文档的意见，而审查的发现还同改进开发方法自身的工作相结合。 所以和走查相比，审查对一般的SQA做出了更大贡献。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-03（简答 · 互评题-质量）</p>
 <p>请指出走查、审查这两种同行评审方法的不同？</p>
@@ -505,8 +824,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>走查和审查的区别是其正式性的等级。其中，审查是两者之中更为正式。</p><p>走查的发现限于被评审文档的意见，而审查的发现还同改进开发方法自身的工作相结合。</p><p>所以和走查相比，审查对一般的SQA做出了更大贡献。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="什么是测试用例？ 互评题-测试基本 测试用例是为特定的目的而设计的一组测试输入、执行条件和预期的结果。
-测试用例是执行的最小实体。">
+<article class="sqe-card" data-sqe-card data-sqe-text="什么是测试用例？ 互评题-测试基本 测试用例是为特定的目的而设计的一组测试输入、执行条件和预期的结果。 测试用例是执行的最小实体。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-04（简答 · 互评题-测试基本）</p>
 <p>什么是测试用例？</p>
@@ -514,9 +832,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>测试用例是为特定的目的而设计的一组测试输入、执行条件和预期的结果。</p><p>测试用例是执行的最小实体。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="什么是回归测试？回归测试的目的是什么？ 互评题-测试实际 回归测试是指在修改了源代码后，用原有的测试用例进行重新进行测试以确认修改没有引入新的错误或导致其他代码产生错误。
-
-回归测试的目的是所做的修改达到了预定的目的，如错误得到了改正，新功能得到了实现，能够适应新的运行环境等，不影响软件原有功能的正确性。">
+<article class="sqe-card" data-sqe-card data-sqe-text="什么是回归测试？回归测试的目的是什么？ 互评题-测试实际 回归测试是指在修改了源代码后，用原有的测试用例进行重新进行测试以确认修改没有引入新的错误或导致其他代码产生错误。 回归测试的目的是所做的修改达到了预定的目的，如错误得到了改正，新功能得到了实现，能够适应新的运行环境等，不影响软件原有功能的正确性。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-05（简答 · 互评题-测试实际）</p>
 <p>什么是回归测试？回归测试的目的是什么？</p>
@@ -524,10 +840,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>回归测试是指在修改了源代码后，用原有的测试用例进行重新进行测试以确认修改没有引入新的错误或导致其他代码产生错误。</p><p>回归测试的目的是所做的修改达到了预定的目的，如错误得到了改正，新功能得到了实现，能够适应新的运行环境等，不影响软件原有功能的正确性。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="如何辨证的看待质量和客户的关系？ 互评题-质量 答案：
-客户与质量的基本关系是相互依赖的关系。
-客户是质量的接受者，可以直接观察或感觉到质量的存在。
-质量相对于客户存在，服务于客户，而且由客户判定。">
+<article class="sqe-card" data-sqe-card data-sqe-text="如何辨证的看待质量和客户的关系？ 互评题-质量 答案： 客户与质量的基本关系是相互依赖的关系。 客户是质量的接受者，可以直接观察或感觉到质量的存在。 质量相对于客户存在，服务于客户，而且由客户判定。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-06（简答 · 互评题-质量）</p>
 <p>如何辨证的看待质量和客户的关系？</p>
@@ -535,11 +848,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>答案：</p><p>客户与质量的基本关系是相互依赖的关系。</p><p>客户是质量的接受者，可以直接观察或感觉到质量的存在。</p><p>质量相对于客户存在，服务于客户，而且由客户判定。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="白盒测试的重点以及相应的对策是什么？ 互评题-测试实际 1、模块接口测试，重点检查进出模块的数据是否正确
-2、模块局部数据结构测试，重点检查局部数据结构能否保持完整性
-3、模块边界条件测试，重点检查临界数据是否正确处理
-4、模块独立执行路径测试，重点检查由于计算错误，判定错误，控制流错误导致的程序错误
-5、模块内部错误处理测试，重点检查内部错误处理设施是否有效">
+<article class="sqe-card" data-sqe-card data-sqe-text="白盒测试的重点以及相应的对策是什么？ 互评题-测试实际 1、模块接口测试，重点检查进出模块的数据是否正确 2、模块局部数据结构测试，重点检查局部数据结构能否保持完整性 3、模块边界条件测试，重点检查临界数据是否正确处理 4、模块独立执行路径测试，重点检查由于计算错误，判定错误，控制流错误导致的程序错误 5、模块内部错误处理测试，重点检查内部错误处理设施是否有效">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-07（简答 · 互评题-测试实际）</p>
 <p>白盒测试的重点以及相应的对策是什么？</p>
@@ -547,14 +856,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>1、模块接口测试，重点检查进出模块的数据是否正确</p><p>2、模块局部数据结构测试，重点检查局部数据结构能否保持完整性</p><p>3、模块边界条件测试，重点检查临界数据是否正确处理</p><p>4、模块独立执行路径测试，重点检查由于计算错误，判定错误，控制流错误导致的程序错误</p><p>5、模块内部错误处理测试，重点检查内部错误处理设施是否有效</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="单元测试、集成测试、系统测试的侧重点是什么？ 互评题-测试实际 单元测试是在软件开发过程中要进行的最低级别的测试活动，在单元测试活动中，软件的独立单元将在与程序的其他部分相隔离的情况下进行测试，
-测试重点是系统的模块，包括子程序的正确性验证等。
-
-集成测试，也叫组装测试或联合测试。在单元测试的基础上，将所有模块按照设计要求，组装成为子系统或系统，进行集成测试。
-测试重点是模块间的衔接以及参数的传递等。
-
-系统测试是将经过测试的子系统装配成一个完整系统来测试。它是检验系统是否确实能提供系统方案说明书中指定功能的有效方法。
-测试重点是整个系统的运行以及与其他软件的兼容性。">
+<article class="sqe-card" data-sqe-card data-sqe-text="单元测试、集成测试、系统测试的侧重点是什么？ 互评题-测试实际 单元测试是在软件开发过程中要进行的最低级别的测试活动，在单元测试活动中，软件的独立单元将在与程序的其他部分相隔离的情况下进行测试， 测试重点是系统的模块，包括子程序的正确性验证等。 集成测试，也叫组装测试或联合测试。在单元测试的基础上，将所有模块按照设计要求，组装成为子系统或系统，进行集成测试。 测试重点是模块间的衔接以及参数的传递等。 系统测试是将经过测试的子系统装配成一个完整系统来测试。它是检验系统是否确实能提供系统方案说明书中指定功能的有效方法。 测试重点是整个系统的运行以及与其他软件的兼容性。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-08（简答 · 互评题-测试实际）</p>
 <p>单元测试、集成测试、系统测试的侧重点是什么？</p>
@@ -562,14 +864,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>单元测试是在软件开发过程中要进行的最低级别的测试活动，在单元测试活动中，软件的独立单元将在与程序的其他部分相隔离的情况下进行测试，</p><p>测试重点是系统的模块，包括子程序的正确性验证等。</p><p>集成测试，也叫组装测试或联合测试。在单元测试的基础上，将所有模块按照设计要求，组装成为子系统或系统，进行集成测试。</p><p>测试重点是模块间的衔接以及参数的传递等。</p><p>系统测试是将经过测试的子系统装配成一个完整系统来测试。它是检验系统是否确实能提供系统方案说明书中指定功能的有效方法。</p><p>测试重点是整个系统的运行以及与其他软件的兼容性。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="请详细描述软件质量费用的经典模型？ 互评题-质量 案：
-在经典软件质量费用模型中，软件质量费用可以划分为控制费用、控制失效费用。
-其中，控制费用被进一步细化为预防费用和评价费用；
-控制失效费用进一步细化为内部失效费用、外部失效费用。
-（1）预防费用包括建立软件质量基础设施、更新并改进基础设施以及完成其运行所需的常规活动的投资。
-（2）评价费用花在特定项目或软件系统中软件错误的检测上。
-（3）内部失效费用是指改正在顾客现场安装软件之前实施设计评审、软件测试及验收测试时检测到的错误而产生的费用。
-（4）外部失效费用限定为改正由顾客或维护组在顾客现场安装软件系统之后检测到的失效的费用。">
+<article class="sqe-card" data-sqe-card data-sqe-text="请详细描述软件质量费用的经典模型？ 互评题-质量 案： 在经典软件质量费用模型中，软件质量费用可以划分为控制费用、控制失效费用。 其中，控制费用被进一步细化为预防费用和评价费用； 控制失效费用进一步细化为内部失效费用、外部失效费用。 （1）预防费用包括建立软件质量基础设施、更新并改进基础设施以及完成其运行所需的常规活动的投资。 （2）评价费用花在特定项目或软件系统中软件错误的检测上。 （3）内部失效费用是指改正在顾客现场安装软件之前实施设计评审、软件测试及验收测试时检测到的错误而产生的费用。 （4）外部失效费用限定为改正由顾客或维护组在顾客现场安装软件系统之后检测到的失效的费用。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-09（简答 · 互评题-质量）</p>
 <p>请详细描述软件质量费用的经典模型？</p>
@@ -577,11 +872,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>案：</p><p>在经典软件质量费用模型中，软件质量费用可以划分为控制费用、控制失效费用。</p><p>其中，控制费用被进一步细化为预防费用和评价费用；</p><p>控制失效费用进一步细化为内部失效费用、外部失效费用。</p><p>（1）预防费用包括建立软件质量基础设施、更新并改进基础设施以及完成其运行所需的常规活动的投资。</p><p>（2）评价费用花在特定项目或软件系统中软件错误的检测上。</p><p>（3）内部失效费用是指改正在顾客现场安装软件之前实施设计评审、软件测试及验收测试时检测到的错误而产生的费用。</p><p>（4）外部失效费用限定为改正由顾客或维护组在顾客现场安装软件系统之后检测到的失效的费用。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="简述负载测试，容量测试和强度测试的区别。 互评题-测试实际 负载测试：在一定的工作负荷下，系统的负荷及响应时间。
-
-强度测试：在一定的负荷条件下，在较长时间跨度内的系统连续运行给系统性能所造成的影响。
-
-容量测试：是通过测试预先分析出反映软件系统应用特征的某项指标的极限值，系统在其极限值状态下没有出现任何软件故障或还能保持主要功能正常运行。">
+<article class="sqe-card" data-sqe-card data-sqe-text="简述负载测试，容量测试和强度测试的区别。 互评题-测试实际 负载测试：在一定的工作负荷下，系统的负荷及响应时间。 强度测试：在一定的负荷条件下，在较长时间跨度内的系统连续运行给系统性能所造成的影响。 容量测试：是通过测试预先分析出反映软件系统应用特征的某项指标的极限值，系统在其极限值状态下没有出现任何软件故障或还能保持主要功能正常运行。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-10（简答 · 互评题-测试实际）</p>
 <p>简述负载测试，容量测试和强度测试的区别。</p>
@@ -589,13 +880,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>负载测试：在一定的工作负荷下，系统的负荷及响应时间。</p><p>强度测试：在一定的负荷条件下，在较长时间跨度内的系统连续运行给系统性能所造成的影响。</p><p>容量测试：是通过测试预先分析出反映软件系统应用特征的某项指标的极限值，系统在其极限值状态下没有出现任何软件故障或还能保持主要功能正常运行。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="简述质量保证人员的主要工作内容。 互评题-质量 为项目制定SQA计划。该计划在制定项目计划时制定，由相关部门审定。它规定了软件开发小组和质量保证小组需要执行的质量保证活动。
-参与开发该软件项目的软件过程描述。
-评审各项软件工程活动，核实其是否符合已定义的软件过程。
-审计指定的软件工作产品，核实其是否符合已定义的软件过程中的相应部分。
-确保软件工作及工作产品中的偏差已被记录在案，并根据预定规程进行处理。
-记录所有不符合部分，并向上级管理部门报告。跟踪不符合的部分直到问题得到解决。
-协调变更的控制与管理，并帮助收集和分析软件度量的信息。">
+<article class="sqe-card" data-sqe-card data-sqe-text="简述质量保证人员的主要工作内容。 互评题-质量 为项目制定SQA计划。该计划在制定项目计划时制定，由相关部门审定。它规定了软件开发小组和质量保证小组需要执行的质量保证活动。 参与开发该软件项目的软件过程描述。 评审各项软件工程活动，核实其是否符合已定义的软件过程。 审计指定的软件工作产品，核实其是否符合已定义的软件过程中的相应部分。 确保软件工作及工作产品中的偏差已被记录在案，并根据预定规程进行处理。 记录所有不符合部分，并向上级管理部门报告。跟踪不符合的部分直到问题得到解决。 协调变更的控制与管理，并帮助收集和分析软件度量的信息。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-11（简答 · 互评题-质量）</p>
 <p>简述质量保证人员的主要工作内容。</p>
@@ -603,10 +888,7 @@ html[data-user-color-scheme="dark"] .sqe-side-toc { background: rgba(29, 33, 39,
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>为项目制定SQA计划。该计划在制定项目计划时制定，由相关部门审定。它规定了软件开发小组和质量保证小组需要执行的质量保证活动。</p><p>参与开发该软件项目的软件过程描述。</p><p>评审各项软件工程活动，核实其是否符合已定义的软件过程。</p><p>审计指定的软件工作产品，核实其是否符合已定义的软件过程中的相应部分。</p><p>确保软件工作及工作产品中的偏差已被记录在案，并根据预定规程进行处理。</p><p>记录所有不符合部分，并向上级管理部门报告。跟踪不符合的部分直到问题得到解决。</p><p>协调变更的控制与管理，并帮助收集和分析软件度量的信息。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="简单评价ISO模型、McCall模型和Boehm模型3种软件质量模型。 互评题-质量 答案：
-存在差别：软件质量特性、影响因素或质量指标的定义不完全一致；总体上要表达的思想非常接近；
-目的相同：构造软件质量因素-准则-度量，3者综合的软件质量结构模型；
-ISO模型第一层（质量特性）和第二层（准则）的关系非常清楚，不像McCall模型和Boehm模型那样存在交叉关系。">
+<article class="sqe-card" data-sqe-card data-sqe-text="简单评价ISO模型、McCall模型和Boehm模型3种软件质量模型。 互评题-质量 答案： 存在差别：软件质量特性、影响因素或质量指标的定义不完全一致；总体上要表达的思想非常接近； 目的相同：构造软件质量因素-准则-度量，3者综合的软件质量结构模型； ISO模型第一层（质量特性）和第二层（准则）的关系非常清楚，不像McCall模型和Boehm模型那样存在交叉关系。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-12（简答 · 互评题-质量）</p>
 <p>简单评价ISO模型、McCall模型和Boehm模型3种软件质量模型。</p>
@@ -614,9 +896,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>答案：</p><p>存在差别：软件质量特性、影响因素或质量指标的定义不完全一致；总体上要表达的思想非常接近；</p><p>目的相同：构造软件质量因素-准则-度量，3者综合的软件质量结构模型；</p><p>ISO模型第一层（质量特性）和第二层（准则）的关系非常清楚，不像McCall模型和Boehm模型那样存在交叉关系。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="简述软件开发人员和质量保证人员的区别。 互评题-质量 答案：
-软件开发人员负责技术工作，质量保证人员负责质量保证的计划、监督、记录、分析及报告工作。
-软件开发人员通过采用可靠的技术方法和措施，进行正式的技术评审，执行计划周密的软件测试来保证软件产品的质量。软件质量保证人员则辅助软件开发组得到高质量的最终产品。">
+<article class="sqe-card" data-sqe-card data-sqe-text="简述软件开发人员和质量保证人员的区别。 互评题-质量 答案： 软件开发人员负责技术工作，质量保证人员负责质量保证的计划、监督、记录、分析及报告工作。 软件开发人员通过采用可靠的技术方法和措施，进行正式的技术评审，执行计划周密的软件测试来保证软件产品的质量。软件质量保证人员则辅助软件开发组得到高质量的最终产品。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-13（简答 · 互评题-质量）</p>
 <p>简述软件开发人员和质量保证人员的区别。</p>
@@ -624,17 +904,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>答案：</p><p>软件开发人员负责技术工作，质量保证人员负责质量保证的计划、监督、记录、分析及报告工作。</p><p>软件开发人员通过采用可靠的技术方法和措施，进行正式的技术评审，执行计划周密的软件测试来保证软件产品的质量。软件质量保证人员则辅助软件开发组得到高质量的最终产品。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="简述三种SQA的组织结构以及各自的优缺点。 互评题-质量 答案：
-独立的SQA部门：在整个企业的组织结构中设立一个独立的职能和行政部门—SQA部门，该部门和其他职能部门平级。
-优点：保护SQA工程师的独立性和客观性；有利于资源的共享。
-缺点：SQA对流程的跟踪和控制难于深入，往往流于形式，难于发现流程中存在的关键问题；由于和项目组的相互独立，SQA工程师发现的问题不能得到及时有效的解决。
-
-独立的SQA工程师：在这种组织结构中，SQA工程师属于项目成员，向项目经理汇报。
-优点：SQA工程师能够深入项目，较容易发现实质性问题；对于SQA工程师发现的问题，能够得到较快短的解决。
-缺点：项目之间相互独立， SQA工程师之间的沟通和交流有所缺乏，不利于经验的共享和SQA整体的培养和发展；由于SQA工程师隶属于项目组，独立性和客观性有所欠缺。
-
-独立的SQA小组：该组织结构是前面两种组织结构的综合结果。
-特点：SQA组虽然不算一个行政部门，但具有相对的独立性。同时，SQA工程师有隶属于不同的项目组，在工作上向项目经理汇报。该结构综合了上面两种结构的优点，既便于QA融入项目组，又便于部门之间经验的分享，还利于QA能力的提高。">
+<article class="sqe-card" data-sqe-card data-sqe-text="简述三种SQA的组织结构以及各自的优缺点。 互评题-质量 答案： 独立的SQA部门：在整个企业的组织结构中设立一个独立的职能和行政部门—SQA部门，该部门和其他职能部门平级。 优点：保护SQA工程师的独立性和客观性；有利于资源的共享。 缺点：SQA对流程的跟踪和控制难于深入，往往流于形式，难于发现流程中存在的关键问题；由于和项目组的相互独立，SQA工程师发现的问题不能得到及时有效的解决。 独立的SQA工程师：在这种组织结构中，SQA工程师属于项目成员，向项目经理汇报。 优点：SQA工程师能够深入项目，较容易发现实质性问题；对于SQA工程师发现的问题，能够得到较快短的解决。 缺点：项目之间相互独立， SQA工程师之间的沟通和交流有所缺乏，不利于经验的共享和SQA整体的培养和发展；由于SQA工程师隶属于项目组，独立性和客观性有所欠缺。 独立的SQA小组：该组织结构是前面两种组织结构的综合结果。 特点：SQA组虽然不算一个行政部门，但具有相对的独立性。同时，SQA工程师有隶属于不同的项目组，在工作上向项目经理汇报。该结构综合了上面两种结构的优点，既便于QA融入项目组，又便于部门之间经验的分享，还利于QA能力的提高。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-14（简答 · 互评题-质量）</p>
 <p>简述三种SQA的组织结构以及各自的优缺点。</p>
@@ -642,11 +912,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>答案：</p><p>独立的SQA部门：在整个企业的组织结构中设立一个独立的职能和行政部门—SQA部门，该部门和其他职能部门平级。</p><p>优点：保护SQA工程师的独立性和客观性；有利于资源的共享。</p><p>缺点：SQA对流程的跟踪和控制难于深入，往往流于形式，难于发现流程中存在的关键问题；由于和项目组的相互独立，SQA工程师发现的问题不能得到及时有效的解决。</p><p>独立的SQA工程师：在这种组织结构中，SQA工程师属于项目成员，向项目经理汇报。</p><p>优点：SQA工程师能够深入项目，较容易发现实质性问题；对于SQA工程师发现的问题，能够得到较快短的解决。</p><p>缺点：项目之间相互独立， SQA工程师之间的沟通和交流有所缺乏，不利于经验的共享和SQA整体的培养和发展；由于SQA工程师隶属于项目组，独立性和客观性有所欠缺。</p><p>独立的SQA小组：该组织结构是前面两种组织结构的综合结果。</p><p>特点：SQA组虽然不算一个行政部门，但具有相对的独立性。同时，SQA工程师有隶属于不同的项目组，在工作上向项目经理汇报。该结构综合了上面两种结构的优点，既便于QA融入项目组，又便于部门之间经验的分享，还利于QA能力的提高。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="软件测试和软件开发过程具有怎么样的关系？ 互评题-测试基本 软件测试贯穿在软件的开发过程中，在每个开发阶段具有不同的任务，
-在需求分析阶段，主要测试需求分析，以及进行系统测试计划的制定。
-在详细设计和概要设计阶段，主要确保集成测试计划和单元测试计划完成。
-在编码阶段，主要由开发人员测试自己负责开发的模块的代码。对于大型项目则需要有专门人员进行编码阶段的测试任务。
-在测试阶段，主要对系统进行测试，并提交相应的测试结果报告和测试分析报告。">
+<article class="sqe-card" data-sqe-card data-sqe-text="软件测试和软件开发过程具有怎么样的关系？ 互评题-测试基本 软件测试贯穿在软件的开发过程中，在每个开发阶段具有不同的任务， 在需求分析阶段，主要测试需求分析，以及进行系统测试计划的制定。 在详细设计和概要设计阶段，主要确保集成测试计划和单元测试计划完成。 在编码阶段，主要由开发人员测试自己负责开发的模块的代码。对于大型项目则需要有专门人员进行编码阶段的测试任务。 在测试阶段，主要对系统进行测试，并提交相应的测试结果报告和测试分析报告。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-15（简答 · 互评题-测试基本）</p>
 <p>软件测试和软件开发过程具有怎么样的关系？</p>
@@ -654,9 +920,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>软件测试贯穿在软件的开发过程中，在每个开发阶段具有不同的任务，</p><p>在需求分析阶段，主要测试需求分析，以及进行系统测试计划的制定。</p><p>在详细设计和概要设计阶段，主要确保集成测试计划和单元测试计划完成。</p><p>在编码阶段，主要由开发人员测试自己负责开发的模块的代码。对于大型项目则需要有专门人员进行编码阶段的测试任务。</p><p>在测试阶段，主要对系统进行测试，并提交相应的测试结果报告和测试分析报告。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="什么是性能测试？ 互评题-测试实际 是指通过自动化的测试工具模拟多种正常、峰值以及异常负载条件来对系统的各项性能指标进行测试。
-
-主要包括以下三个方面：应用在客户端性能的测试，应用在网络上性能的测试和应用在服务器端性能的测试">
+<article class="sqe-card" data-sqe-card data-sqe-text="什么是性能测试？ 互评题-测试实际 是指通过自动化的测试工具模拟多种正常、峰值以及异常负载条件来对系统的各项性能指标进行测试。 主要包括以下三个方面：应用在客户端性能的测试，应用在网络上性能的测试和应用在服务器端性能的测试">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-16（简答 · 互评题-测试实际）</p>
 <p>什么是性能测试？</p>
@@ -664,11 +928,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>是指通过自动化的测试工具模拟多种正常、峰值以及异常负载条件来对系统的各项性能指标进行测试。</p><p>主要包括以下三个方面：应用在客户端性能的测试，应用在网络上性能的测试和应用在服务器端性能的测试</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="简述驱动程序以及如何构建测试驱动程序。 互评题-测试基本 测试驱动程序是一个运行测试用例并收集运行结果的程序。
-测试驱动程序的设计应该相对简单。
-测试驱动程序必须是严谨的、结构清晰、简单，易于维护。
-对所测试的类说明变化具有很强的适应能力。
-理想情况下，在创建新的测试驱动程序时，应该能够复用已存在的驱动程序的代码">
+<article class="sqe-card" data-sqe-card data-sqe-text="简述驱动程序以及如何构建测试驱动程序。 互评题-测试基本 测试驱动程序是一个运行测试用例并收集运行结果的程序。 测试驱动程序的设计应该相对简单。 测试驱动程序必须是严谨的、结构清晰、简单，易于维护。 对所测试的类说明变化具有很强的适应能力。 理想情况下，在创建新的测试驱动程序时，应该能够复用已存在的驱动程序的代码">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-17（简答 · 互评题-测试基本）</p>
 <p>简述驱动程序以及如何构建测试驱动程序。</p>
@@ -676,11 +936,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>测试驱动程序是一个运行测试用例并收集运行结果的程序。</p><p>测试驱动程序的设计应该相对简单。</p><p>测试驱动程序必须是严谨的、结构清晰、简单，易于维护。</p><p>对所测试的类说明变化具有很强的适应能力。</p><p>理想情况下，在创建新的测试驱动程序时，应该能够复用已存在的驱动程序的代码</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="什么是桩模块，什么是驱动模块？ 互评题-测试基本 桩模块是在进行单元测试时所设置的一种辅助测试模块，它用来模拟被测试模块工作过程中所调用的模块。
-桩模块由被测模块调用，它们一般只进行很少的数据处理，以便检验被测模块与其下级模块的接口。
-
-驱动模块是在进行单元测试时所设置的一种辅助测试模块，它用来模拟被测试模块的上一级模块，相当于被测模块的主程序。
-驱动模块在单元测试中接收数据，把相关的数据传送给被测试的模块，启动被测模块，并给出相应的结果。">
+<article class="sqe-card" data-sqe-card data-sqe-text="什么是桩模块，什么是驱动模块？ 互评题-测试基本 桩模块是在进行单元测试时所设置的一种辅助测试模块，它用来模拟被测试模块工作过程中所调用的模块。 桩模块由被测模块调用，它们一般只进行很少的数据处理，以便检验被测模块与其下级模块的接口。 驱动模块是在进行单元测试时所设置的一种辅助测试模块，它用来模拟被测试模块的上一级模块，相当于被测模块的主程序。 驱动模块在单元测试中接收数据，把相关的数据传送给被测试的模块，启动被测模块，并给出相应的结果。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-18（简答 · 互评题-测试基本）</p>
 <p>什么是桩模块，什么是驱动模块？</p>
@@ -688,9 +944,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>桩模块是在进行单元测试时所设置的一种辅助测试模块，它用来模拟被测试模块工作过程中所调用的模块。</p><p>桩模块由被测模块调用，它们一般只进行很少的数据处理，以便检验被测模块与其下级模块的接口。</p><p>驱动模块是在进行单元测试时所设置的一种辅助测试模块，它用来模拟被测试模块的上一级模块，相当于被测模块的主程序。</p><p>驱动模块在单元测试中接收数据，把相关的数据传送给被测试的模块，启动被测模块，并给出相应的结果。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="简述什么是软件缺陷。 互评题-质量 答案：
-从产品内部看，软件缺陷是软件产品开发或维护过程中所存在的错误、毛病等各种问题；
-从外部看，软件缺陷是系统所需要实现的某种功能的失效或违背。">
+<article class="sqe-card" data-sqe-card data-sqe-text="简述什么是软件缺陷。 互评题-质量 答案： 从产品内部看，软件缺陷是软件产品开发或维护过程中所存在的错误、毛病等各种问题； 从外部看，软件缺陷是系统所需要实现的某种功能的失效或违背。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-19（简答 · 互评题-质量）</p>
 <p>简述什么是软件缺陷。</p>
@@ -698,13 +952,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>答案：</p><p>从产品内部看，软件缺陷是软件产品开发或维护过程中所存在的错误、毛病等各种问题；</p><p>从外部看，软件缺陷是系统所需要实现的某种功能的失效或违背。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="简述为什么需要评审？ 互评题-质量 从成本上来衡量：缺陷发现得越晚纠正费用越高，而软件评审的重要目的就是通过软件评审尽早的产品中的缺陷，减少大量的后期返工。
-从技术上来衡量：前一阶段的错误自然会导致后一阶段的工作结果中有相应的错误，而且错误会逐渐累积，越来越多。
-从效率上来衡量：
-开发工程师：减少修订缺陷的时间，提高编程效率；减少测试和调试时间
-项目负责人：缩短开发周期；减少维护费用；项目风险和质量问题得到很好控制
-测试工程师：可以将更多精力放到测试用例的设计上，提高测试效率
-维护人员：维护工作减少；产品的可维护性增强">
+<article class="sqe-card" data-sqe-card data-sqe-text="简述为什么需要评审？ 互评题-质量 从成本上来衡量：缺陷发现得越晚纠正费用越高，而软件评审的重要目的就是通过软件评审尽早的产品中的缺陷，减少大量的后期返工。 从技术上来衡量：前一阶段的错误自然会导致后一阶段的工作结果中有相应的错误，而且错误会逐渐累积，越来越多。 从效率上来衡量： 开发工程师：减少修订缺陷的时间，提高编程效率；减少测试和调试时间 项目负责人：缩短开发周期；减少维护费用；项目风险和质量问题得到很好控制 测试工程师：可以将更多精力放到测试用例的设计上，提高测试效率 维护人员：维护工作减少；产品的可维护性增强">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-20（简答 · 互评题-质量）</p>
 <p>简述为什么需要评审？</p>
@@ -720,8 +968,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>答：质量管理体系是在质量方面指挥和控制组织的管理体系。组织为了实现所确定的质量方针和质量目标，经过质量策划将管理职责、资源管理、产品实现、测量、分析和改进等相互关联或相互作用的过程有机的组成一个整体，构成质量管理体系。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="什么是软件测试？ 互评题-测试基本 软件测试是为了发现错误而执行程序的过程。
-软件测试是根据软件开发各阶段的规格说明和程序的内部结构而精心设计一批测试用例（即输入数据及其预期的输出结果），并利用这些测试用例去运行程序，以发现程序错误的过程。">
+<article class="sqe-card" data-sqe-card data-sqe-text="什么是软件测试？ 互评题-测试基本 软件测试是为了发现错误而执行程序的过程。 软件测试是根据软件开发各阶段的规格说明和程序的内部结构而精心设计一批测试用例（即输入数据及其预期的输出结果），并利用这些测试用例去运行程序，以发现程序错误的过程。">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-22（简答 · 互评题-测试基本）</p>
 <p>什么是软件测试？</p>
@@ -729,15 +976,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>老师参考答案/评分点</summary><div class="sqe-answer-body"><p>软件测试是为了发现错误而执行程序的过程。</p><p>软件测试是根据软件开发各阶段的规格说明和程序的内部结构而精心设计一批测试用例（即输入数据及其预期的输出结果），并利用这些测试用例去运行程序，以发现程序错误的过程。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="简单对比白盒测试与黑盒测试 互评题-测试实际 白盒测试
-已知产品的内部工作过程，可以对程序每一行语句、每一个条件或分支进行测试
-适合单元测试、集成测试
-不适合系统测试
-
-黑盒测试
-不考虑程序内部结构和内部特性，而是从用户观点出发，针对程序接口和用户界面进行测试
-适合功能测试、易用性测试，验收测试、确认测试；
-不适合单元测试、集成测试">
+<article class="sqe-card" data-sqe-card data-sqe-text="简单对比白盒测试与黑盒测试 互评题-测试实际 白盒测试 已知产品的内部工作过程，可以对程序每一行语句、每一个条件或分支进行测试 适合单元测试、集成测试 不适合系统测试 黑盒测试 不考虑程序内部结构和内部特性，而是从用户观点出发，针对程序接口和用户界面进行测试 适合功能测试、易用性测试，验收测试、确认测试； 不适合单元测试、集成测试">
 <div class="sqe-question">
 <p class="sqe-question-title">互评-23（简答 · 互评题-测试实际）</p>
 <p>简单对比白盒测试与黑盒测试</p>
@@ -752,7 +991,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第一章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） FILL 质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。 填空1: 系统；填空2: 部件；填空3: 过程 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） FILL 质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。 填空1: 系统；填空2: 部件；填空3: 过程">
 <div class="sqe-question">
 <p class="sqe-question-title">题 18-01（填空）</p>
 <p>质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。</p>
@@ -770,7 +1009,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 指挥；C. 控制</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量改进是质量管理的一部分，致力于增强满足质量要求的能力   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量改进是质量管理的一部分，致力于增强满足质量要求的能力 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 18-03（判断）</p>
 <p>质量改进是质量管理的一部分，致力于增强满足质量要求的能力</p>
@@ -779,7 +1018,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量特性是指产品、过程或体系与标准有关的固有特性。   错误 正确说法：质量特性是产品、过程或体系与要求有关的固有特性，不是只与标准有关。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量特性是指产品、过程或体系与标准有关的固有特性。 错误 正确说法：质量特性是产品、过程或体系与要求有关的固有特性，不是只与标准有关。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 18-04（判断）</p>
 <p>质量特性是指产品、过程或体系与标准有关的固有特性。</p>
@@ -797,7 +1036,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 帮助组织实现顾客满意；B. 为组织提供实现持续改进的框架；C. 向顾客提供信任</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量管理体系是为实现质量方针和质量目标而建立的管理工作系统   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量管理体系是为实现质量方针和质量目标而建立的管理工作系统 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 18-06（判断）</p>
 <p>质量管理体系是为实现质量方针和质量目标而建立的管理工作系统</p>
@@ -806,7 +1045,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 18-07（判断）</p>
 <p>珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉</p>
@@ -815,7 +1054,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 当生产过程处于受控制状态时，产品质量就不会波动   错误 正确说法：受控状态只能说明过程没有异常原因，产品质量仍会有随机波动，只是波动应处在受控范围内。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 当生产过程处于受控制状态时，产品质量就不会波动 错误 正确说法：受控状态只能说明过程没有异常原因，产品质量仍会有随机波动，只是波动应处在受控范围内。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 18-08（判断）</p>
 <p>当生产过程处于受控制状态时，产品质量就不会波动</p>
@@ -824,7 +1063,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：受控状态只能说明过程没有异常原因，产品质量仍会有随机波动，只是波动应处在受控范围内。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量管理是指在质量方面指挥和控制组织的协调的活动   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课上测试 课上测试（计入总分） TF 质量管理是指在质量方面指挥和控制组织的协调的活动 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 18-09（判断）</p>
 <p>质量管理是指在质量方面指挥和控制组织的协调的活动</p>
@@ -849,7 +1088,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第一章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">27 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） FILL 与质量相关的概念包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 和 （填空6） 。 填空1: 组织；填空2: 过程；填空3: 产品；填空4: 服务；填空5: 客户；填空6: 体系 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） FILL 与质量相关的概念包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 和 （填空6） 。 填空1: 组织；填空2: 过程；填空3: 产品；填空4: 服务；填空5: 客户；填空6: 体系">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-01（填空）</p>
 <p>与质量相关的概念包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 和 （填空6） 。</p>
@@ -858,7 +1097,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 组织；填空2: 过程；填空3: 产品；填空4: 服务；填空5: 客户；填空6: 体系</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） FILL 质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。 填空1: 系统；填空2: 部件；填空3: 过程 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） FILL 质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。 填空1: 系统；填空2: 部件；填空3: 过程">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-02（填空）</p>
 <p>质量是 （填空1） 、 （填空2） 或 （填空3） 满足客户或用户明确需求或期望的不同程度。</p>
@@ -867,7 +1106,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 系统；填空2: 部件；填空3: 过程</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） FILL 质量的属性包括： （填空1） 属性、 （填空2） 属性、 （填空3） 属性、 （填空4） 、 （填空5） 。 填空1: 客户；填空2: 成本；填空3: 社会；填空4: 可测性；填空5: 可预见性 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） FILL 质量的属性包括： （填空1） 属性、 （填空2） 属性、 （填空3） 属性、 （填空4） 、 （填空5） 。 填空1: 客户；填空2: 成本；填空3: 社会；填空4: 可测性；填空5: 可预见性">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-03（填空）</p>
 <p>质量的属性包括： （填空1） 属性、 （填空2） 属性、 （填空3） 属性、 （填空4） 、 （填空5） 。</p>
@@ -885,7 +1124,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 指挥；C. 控制</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量检验是对产品质量特性进行检验，以确定每项质量特性合格情况的管理性检查活动   错误 正确说法：质量检验是依据标准或要求对质量特性进行测量、检查、试验并判定合格与否的技术性质量控制活动。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量检验是对产品质量特性进行检验，以确定每项质量特性合格情况的管理性检查活动 错误 正确说法：质量检验是依据标准或要求对质量特性进行测量、检查、试验并判定合格与否的技术性质量控制活动。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-05（判断）</p>
 <p>质量检验是对产品质量特性进行检验，以确定每项质量特性合格情况的管理性检查活动</p>
@@ -894,7 +1133,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：质量检验是依据标准或要求对质量特性进行测量、检查、试验并判定合格与否的技术性质量控制活动。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 持续改进总体业绩应当是组织应追求的目标   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 持续改进总体业绩应当是组织应追求的目标 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-06（判断）</p>
 <p>持续改进总体业绩应当是组织应追求的目标</p>
@@ -903,7 +1142,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量改进是质量管理的一部分，致力于增强满足质量要求的能力   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量改进是质量管理的一部分，致力于增强满足质量要求的能力 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-07（判断）</p>
 <p>质量改进是质量管理的一部分，致力于增强满足质量要求的能力</p>
@@ -912,7 +1151,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量控制是按照一个设定的标准去实施检验   错误 正确说法：质量控制是质量管理的一部分，关注满足质量要求，包括监控过程、纠正偏差和控制质量，不等同于检验。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量控制是按照一个设定的标准去实施检验 错误 正确说法：质量控制是质量管理的一部分，关注满足质量要求，包括监控过程、纠正偏差和控制质量，不等同于检验。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-08（判断）</p>
 <p>质量控制是按照一个设定的标准去实施检验</p>
@@ -921,7 +1160,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：质量控制是质量管理的一部分，关注满足质量要求，包括监控过程、纠正偏差和控制质量，不等同于检验。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 服务是产品类别中的一类   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 服务是产品类别中的一类 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-09（判断）</p>
 <p>服务是产品类别中的一类</p>
@@ -930,7 +1169,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量特性是指产品、过程或体系与标准有关的固有特性。   错误 正确说法：质量特性是产品、过程或体系与要求有关的固有特性，不是只与标准有关。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量特性是指产品、过程或体系与标准有关的固有特性。 错误 正确说法：质量特性是产品、过程或体系与要求有关的固有特性，不是只与标准有关。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-10（判断）</p>
 <p>质量特性是指产品、过程或体系与标准有关的固有特性。</p>
@@ -939,7 +1178,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：质量特性是产品、过程或体系与要求有关的固有特性，不是只与标准有关。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF “符合标准”就是合格的产品质量   错误 正确说法：符合标准不一定等于质量合格，还要满足顾客明确和隐含的需求以及适用性要求。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF “符合标准”就是合格的产品质量 错误 正确说法：符合标准不一定等于质量合格，还要满足顾客明确和隐含的需求以及适用性要求。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-11（判断）</p>
 <p>&amp;ldquo;符合标准&amp;rdquo;就是合格的产品质量</p>
@@ -966,7 +1205,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 预防为主、不断改进；D. 为顾客服务</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 不合格品控制时，请示领导决定是否可用   错误 正确说法：不合格品应按规定程序识别、隔离、评审和处置，处置方式包括返工、返修、让步接收或报废，不能只靠领导临时决定。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 不合格品控制时，请示领导决定是否可用 错误 正确说法：不合格品应按规定程序识别、隔离、评审和处置，处置方式包括返工、返修、让步接收或报废，不能只靠领导临时决定。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-14（判断）</p>
 <p>不合格品控制时，请示领导决定是否可用</p>
@@ -975,7 +1214,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：不合格品应按规定程序识别、隔离、评审和处置，处置方式包括返工、返修、让步接收或报废，不能只靠领导临时决定。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量管理体系是为实现质量方针和质量目标而建立的管理工作系统   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量管理体系是为实现质量方针和质量目标而建立的管理工作系统 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-15（判断）</p>
 <p>质量管理体系是为实现质量方针和质量目标而建立的管理工作系统</p>
@@ -984,7 +1223,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-16（判断）</p>
 <p>珍视顾客抱怨，把它作为我们研发产品、改善质量、提升服务的动力源泉</p>
@@ -993,7 +1232,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量改进和质量控制都是为了保持产品质量稳定   错误 正确说法：质量控制主要保持过程和产品质量稳定，质量改进则是提高满足质量要求的能力和质量水平。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量改进和质量控制都是为了保持产品质量稳定 错误 正确说法：质量控制主要保持过程和产品质量稳定，质量改进则是提高满足质量要求的能力和质量水平。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-17（判断）</p>
 <p>质量改进和质量控制都是为了保持产品质量稳定</p>
@@ -1002,7 +1241,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：质量控制主要保持过程和产品质量稳定，质量改进则是提高满足质量要求的能力和质量水平。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 当生产过程处于受控制状态时，产品质量就不会波动   错误 正确说法：受控状态只能说明过程没有异常原因，产品质量仍会有随机波动，只是波动应处在受控范围内。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 当生产过程处于受控制状态时，产品质量就不会波动 错误 正确说法：受控状态只能说明过程没有异常原因，产品质量仍会有随机波动，只是波动应处在受控范围内。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-18（判断）</p>
 <p>当生产过程处于受控制状态时，产品质量就不会波动</p>
@@ -1011,7 +1250,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：受控状态只能说明过程没有异常原因，产品质量仍会有随机波动，只是波动应处在受控范围内。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量控制是消除偶发性问题，使产品质量保持规定的水平   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量控制是消除偶发性问题，使产品质量保持规定的水平 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-19（判断）</p>
 <p>质量控制是消除偶发性问题，使产品质量保持规定的水平</p>
@@ -1020,7 +1259,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量管理是指在质量方面指挥和控制组织的协调的活动   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第一章课后练习 课后练习（计入总分） TF 质量管理是指在质量方面指挥和控制组织的协调的活动 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 14-20（判断）</p>
 <p>质量管理是指在质量方面指挥和控制组织的协调的活动</p>
@@ -1144,7 +1383,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 能满足给定需要的特性之全体；；B. 具有所希望的各种属性的组合的程度；；C. 顾客或用户认为能满足其综合期望的程度；；D. 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） FILL 用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） FILL 用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性">
 <div class="sqe-question">
 <p class="sqe-question-title">题 10-06（填空）</p>
 <p>用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4）</p>
@@ -1153,7 +1392,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） FILL 软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量 填空1: 产品；填空2: 开发过程；填空3: 商业环境中 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） FILL 软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量 填空1: 产品；填空2: 开发过程；填空3: 商业环境中">
 <div class="sqe-question">
 <p class="sqe-question-title">题 10-07（填空）</p>
 <p>软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量</p>
@@ -1162,7 +1401,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 产品；填空2: 开发过程；填空3: 商业环境中</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） FILL 从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。 填空1: 失效；填空2: 违背 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课上测试 课上测试（计入总分） FILL 从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。 填空1: 失效；填空2: 违背">
 <div class="sqe-question">
 <p class="sqe-question-title">题 10-08（填空）</p>
 <p>从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。</p>
@@ -1223,7 +1462,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 程序的正确性足以体现软件的价值</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL SEI的Watts Humphrey认为软件质量是在 （填空1） 、 （填空2） 、 （填空3） 和 （填空4） 等方面，达到优秀的水准。 填空1: 实用性；填空2: 需求；填空3: 可靠性；填空4: 可维护性 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL SEI的Watts Humphrey认为软件质量是在 （填空1） 、 （填空2） 、 （填空3） 和 （填空4） 等方面，达到优秀的水准。 填空1: 实用性；填空2: 需求；填空3: 可靠性；填空4: 可维护性">
 <div class="sqe-question">
 <p class="sqe-question-title">题 9-04（填空）</p>
 <p>SEI的Watts Humphrey认为软件质量是在 （填空1） 、 （填空2） 、 （填空3） 和 （填空4） 等方面，达到优秀的水准。</p>
@@ -1304,7 +1543,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 能满足给定需要的特性之全体；；B. 具有所希望的各种属性的组合的程度；；C. 顾客或用户认为能满足其综合期望的程度；；D. 软件的组合特性，它确定软件在使用中将满足顾客预期要求的程度。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性">
 <div class="sqe-question">
 <p class="sqe-question-title">题 9-13（填空）</p>
 <p>用户要求在性能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4）</p>
@@ -1313,7 +1552,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 效率性；填空2: 正确性；填空3: 安全性；填空4: 互操作性</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 用户要求在功能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 填空1: 完整性；填空2: 可靠性；填空3: 生存性；填空4: 可用性；填空5: 便利性 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 用户要求在功能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 填空1: 完整性；填空2: 可靠性；填空3: 生存性；填空4: 可用性；填空5: 便利性">
 <div class="sqe-question">
 <p class="sqe-question-title">题 9-14（填空）</p>
 <p>用户要求在功能方面包含哪些质量特性： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5）</p>
@@ -1322,7 +1561,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 完整性；填空2: 可靠性；填空3: 生存性；填空4: 可用性；填空5: 便利性</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 软件质量的3维特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称) 填空1: 功能性；填空2: 可靠性；填空3: 性能 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 软件质量的3维特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称) 填空1: 功能性；填空2: 可靠性；填空3: 性能">
 <div class="sqe-question">
 <p class="sqe-question-title">题 9-15（填空）</p>
 <p>软件质量的3维特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称)</p>
@@ -1331,7 +1570,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 功能性；填空2: 可靠性；填空3: 性能</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 软件质量的3A特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称) 填空1: 可说明性；填空2: 有效性；填空3: 易用性 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 软件质量的3A特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称) 填空1: 可说明性；填空2: 有效性；填空3: 易用性">
 <div class="sqe-question">
 <p class="sqe-question-title">题 9-16（填空）</p>
 <p>软件质量的3A特性指的是： （填空1） 、 （填空2） 、 （填空3） 。(中文名称)</p>
@@ -1340,7 +1579,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 可说明性；填空2: 有效性；填空3: 易用性</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量 填空1: 产品；填空2: 开发过程；填空3: 商业环境中 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量 填空1: 产品；填空2: 开发过程；填空3: 商业环境中">
 <div class="sqe-question">
 <p class="sqe-question-title">题 9-17（填空）</p>
 <p>软件质量的定义包含三个方面：软件 （填空1） 的质量、软件 （填空2） 的质量、软件在其 （填空3） 所表现的质量</p>
@@ -1349,7 +1588,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 产品；填空2: 开发过程；填空3: 商业环境中</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL ANSI/IEEE STD729给出了软件质量定义：软件产品满足规定的和隐含的与 （填空1） 有关的全部特征和特性。 填空1: 需求能力 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL ANSI/IEEE STD729给出了软件质量定义：软件产品满足规定的和隐含的与 （填空1） 有关的全部特征和特性。 填空1: 需求能力">
 <div class="sqe-question">
 <p class="sqe-question-title">题 9-18（填空）</p>
 <p>ANSI/IEEE STD729给出了软件质量定义：软件产品满足规定的和隐含的与 （填空1） 有关的全部特征和特性。</p>
@@ -1358,7 +1597,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 需求能力</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。 填空1: 失效；填空2: 违背 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。 填空1: 失效；填空2: 违背">
 <div class="sqe-question">
 <p class="sqe-question-title">题 9-19（填空）</p>
 <p>从外部看，软件缺陷是系统所需要实现的某种功能的 （填空1） 或 （填空2） 。</p>
@@ -1367,7 +1606,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 失效；填空2: 违背</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 极限编程适合 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 填空1: 小团队；填空2: 高风险；填空3: 快速变化或不稳定的需求；填空4: 强调可测试性 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第二章课后练习 课后练习（计入总分） FILL 极限编程适合 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 填空1: 小团队；填空2: 高风险；填空3: 快速变化或不稳定的需求；填空4: 强调可测试性">
 <div class="sqe-question">
 <p class="sqe-question-title">题 9-20（填空）</p>
 <p>极限编程适合 （填空1） 、 （填空2） 、 （填空3） 、 （填空4）</p>
@@ -1383,7 +1622,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第三章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） TF 软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） TF 软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 7-01（判断）</p>
 <p>软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。</p>
@@ -1410,7 +1649,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 可移植性</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。 填空1: 功能性；填空2: 可靠性；填空3: 可使用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。 填空1: 功能性；填空2: 可靠性；填空3: 可使用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性">
 <div class="sqe-question">
 <p class="sqe-question-title">题 7-04（填空）</p>
 <p>ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。</p>
@@ -1428,7 +1667,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 质量</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL 六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。 填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL 六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。 填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制">
 <div class="sqe-question">
 <p class="sqe-question-title">题 7-06（填空）</p>
 <p>六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。</p>
@@ -1437,7 +1676,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。 填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。 填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习">
 <div class="sqe-question">
 <p class="sqe-question-title">题 7-07（填空）</p>
 <p>IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。</p>
@@ -1446,7 +1685,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL 采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。 填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL 采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。 填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量">
 <div class="sqe-question">
 <p class="sqe-question-title">题 7-08（填空）</p>
 <p>采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。</p>
@@ -1455,7 +1694,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。 填空1: 可维护；填空2: 灵活；填空3: 可测试 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。 填空1: 可维护；填空2: 灵活；填空3: 可测试">
 <div class="sqe-question">
 <p class="sqe-question-title">题 7-09（填空）</p>
 <p>McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。</p>
@@ -1464,7 +1703,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 可维护；填空2: 灵活；填空3: 可测试</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL 软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。 填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课上测试 课上测试（计入总分） FILL 软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。 填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理">
 <div class="sqe-question">
 <p class="sqe-question-title">题 7-10（填空）</p>
 <p>软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。</p>
@@ -1480,7 +1719,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第三章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">11 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） TF 软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） TF 软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 15-01（判断）</p>
 <p>软件可靠性是指一个系统或组件在某个特定时期、特定条件下完成所需完成的功能的能力。</p>
@@ -1507,7 +1746,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 可移植性</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。 填空1: 功能性；填空2: 可靠性；填空3: 可使用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。 填空1: 功能性；填空2: 可靠性；填空3: 可使用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性">
 <div class="sqe-question">
 <p class="sqe-question-title">题 15-04（填空）</p>
 <p>ISO9126将各种质属性归纳为6个质量特征，其中包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。</p>
@@ -1525,7 +1764,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 质量</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。 填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。 填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制">
 <div class="sqe-question">
 <p class="sqe-question-title">题 15-06（填空）</p>
 <p>六西格玛模型分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个阶段。</p>
@@ -1534,7 +1773,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 界定；填空2: 测量；填空3: 分析；填空4: 改进；填空5: 控制</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。 填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。 填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习">
 <div class="sqe-question">
 <p class="sqe-question-title">题 15-07（填空）</p>
 <p>IDEAL模型将质量改进过程划分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 和 （填空5） 等5个阶段。</p>
@@ -1543,7 +1782,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 初始化；填空2: 诊断；填空3: 建立；填空4: 行动；填空5: 学习</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。 填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。 填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量">
 <div class="sqe-question">
 <p class="sqe-question-title">题 15-08（填空）</p>
 <p>采用定量软件工程，制定软件产品质量的度量准则，可以提高软件开发过程 （填空1） ，降低 （填空2） ，提高软件产品的 （填空3） 。</p>
@@ -1552,7 +1791,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 管理的可视性；填空2: 劣质成本；填空3: 质量</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。 填空1: 可维护；填空2: 灵活；填空3: 可测试 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。 填空1: 可维护；填空2: 灵活；填空3: 可测试">
 <div class="sqe-question">
 <p class="sqe-question-title">题 15-09（填空）</p>
 <p>McCall模型产品修订纬度的质量因素有 （填空1） 性、 （填空2） 性、 （填空3） 性。</p>
@@ -1561,7 +1800,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 可维护；填空2: 灵活；填空3: 可测试</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。 填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。 填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理">
 <div class="sqe-question">
 <p class="sqe-question-title">题 15-10（填空）</p>
 <p>软件质量工程包括软件质量 （填空1） 、软件质量 （填空2） 、软件质量 （填空3） 和软件质量 （填空4） 四大方面。</p>
@@ -1570,7 +1809,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 方针；填空2: 控制；填空3: 保证；填空4: 管理</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 软件的6个品质要素包括： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。 填空1: 正确性；填空2: 可靠性；填空3: 易用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第三章课后练习 课后练习（计入总分） FILL 软件的6个品质要素包括： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。 填空1: 正确性；填空2: 可靠性；填空3: 易用性；填空4: 效率；填空5: 可维护性；填空6: 可移植性">
 <div class="sqe-question">
 <p class="sqe-question-title">题 15-11（填空）</p>
 <p>软件的6个品质要素包括： （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 、 （填空6） 。</p>
@@ -1586,7 +1825,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第四章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF 质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF 质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 19-01（判断）</p>
 <p>质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。</p>
@@ -1595,7 +1834,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 19-02（判断）</p>
 <p>McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。</p>
@@ -1604,7 +1843,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL 语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE 填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL 语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE 填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07">
 <div class="sqe-question">
 <p class="sqe-question-title">题 19-03（填空）</p>
 <p>语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE</p>
@@ -1613,7 +1852,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL 软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。 填空1: 项目；填空2: 产品；填空3: 过程 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL 软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。 填空1: 项目；填空2: 产品；填空3: 过程">
 <div class="sqe-question">
 <p class="sqe-question-title">题 19-04（填空）</p>
 <p>软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。</p>
@@ -1622,7 +1861,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 项目；填空2: 产品；填空3: 过程</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF 有效性差一般意味着测量方法在原则性上有错误。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF 有效性差一般意味着测量方法在原则性上有错误。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 19-05（判断）</p>
 <p>有效性差一般意味着测量方法在原则性上有错误。</p>
@@ -1631,7 +1870,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF 可靠性差一般意味着测量方法在技术上有待改进。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） TF 可靠性差一般意味着测量方法在技术上有待改进。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 19-06（判断）</p>
 <p>可靠性差一般意味着测量方法在技术上有待改进。</p>
@@ -1640,7 +1879,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL 课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。 填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL 课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。 填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值">
 <div class="sqe-question">
 <p class="sqe-question-title">题 19-07（填空）</p>
 <p>课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。</p>
@@ -1667,7 +1906,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 发布</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL （填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。 填空1: 度量 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课上测试 课上测试（计入总分） FILL （填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。 填空1: 度量">
 <div class="sqe-question">
 <p class="sqe-question-title">题 19-10（填空）</p>
 <p>（填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。</p>
@@ -1683,7 +1922,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第四章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">21 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-01（判断）</p>
 <p>质量是反映软件与需求相符程度的指标，而缺陷被认为是软件与需求不一致的某种表现。</p>
@@ -1692,7 +1931,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-02（判断）</p>
 <p>McCabe度量、语法构造方法只适合独立模块内部进行测量，不能考虑系统各个模块间相互耦合的关系。</p>
@@ -1701,7 +1940,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE 填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE 填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-03（填空）</p>
 <p>语法构造方法计算缺陷率的公式是： （填空1） + （填空2） DO WHILE+ （填空3） SELECT+ （填空4） IF-THEN-ELSE</p>
@@ -1710,7 +1949,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 0.15；填空2: 0.23；填空3: 0.22；填空4: 0.07</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 这段程序的环形计数复杂度（McCabe）是多少 （填空1） ？ 填空1: 4 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 这段程序的环形计数复杂度（McCabe）是多少 （填空1） ？ 填空1: 4">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-04（填空）</p>
 <p>这段程序的环形计数复杂度（McCabe）是多少 （填空1） ？</p>
@@ -1719,7 +1958,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 4</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 软件项目度量的主要内容包括： （填空1） 度量、 （填空2） 度量、 （填空3） 度量、 （填空4） 度量、 （填空5） 度量、 （填空6） 度量以及其他一些度量项目。 填空1: 规模；填空2: 复杂度；填空3: 缺陷；填空4: 进度；填空5: 风险；填空6: 工作量 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 软件项目度量的主要内容包括： （填空1） 度量、 （填空2） 度量、 （填空3） 度量、 （填空4） 度量、 （填空5） 度量、 （填空6） 度量以及其他一些度量项目。 填空1: 规模；填空2: 复杂度；填空3: 缺陷；填空4: 进度；填空5: 风险；填空6: 工作量">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-05（填空）</p>
 <p>软件项目度量的主要内容包括： （填空1） 度量、 （填空2） 度量、 （填空3） 度量、 （填空4） 度量、 （填空5） 度量、 （填空6） 度量以及其他一些度量项目。</p>
@@ -1728,7 +1967,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 规模；填空2: 复杂度；填空3: 缺陷；填空4: 进度；填空5: 风险；填空6: 工作量</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 软件度量应基于分析模型、设计模型或程序本身的结构进行，而独立于编程语言的句法和语法之外。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 软件度量应基于分析模型、设计模型或程序本身的结构进行，而独立于编程语言的句法和语法之外。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-06（判断）</p>
 <p>软件度量应基于分析模型、设计模型或程序本身的结构进行，而独立于编程语言的句法和语法之外。</p>
@@ -1737,7 +1976,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。 填空1: 项目；填空2: 产品；填空3: 过程 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。 填空1: 项目；填空2: 产品；填空3: 过程">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-07（填空）</p>
 <p>软件质量度量按其研究对像可分为3类： （填空1） 质量度量、 （填空2） 质量度量、 （填空3） 质量度量。</p>
@@ -1746,7 +1985,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 项目；填空2: 产品；填空3: 过程</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 测量的目标是不断提高有效性和可靠性，测量可以避免出现偏差或误差。   错误 正确说法：测量的目标是获得客观数据以支持评价和改进；测量本身不能避免偏差或误差，只能通过方法和过程控制来减少误差。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 测量的目标是不断提高有效性和可靠性，测量可以避免出现偏差或误差。 错误 正确说法：测量的目标是获得客观数据以支持评价和改进；测量本身不能避免偏差或误差，只能通过方法和过程控制来减少误差。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-08（判断）</p>
 <p>测量的目标是不断提高有效性和可靠性，测量可以避免出现偏差或误差。</p>
@@ -1755,7 +1994,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：测量的目标是获得客观数据以支持评价和改进；测量本身不能避免偏差或误差，只能通过方法和过程控制来减少误差。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 可靠性差一般意味着测量方法在技术上有待改进。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 可靠性差一般意味着测量方法在技术上有待改进。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-09（判断）</p>
 <p>可靠性差一般意味着测量方法在技术上有待改进。</p>
@@ -1764,7 +2003,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 有效性差一般意味着测量方法在原则性上有错误。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 有效性差一般意味着测量方法在原则性上有错误。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-10（判断）</p>
 <p>有效性差一般意味着测量方法在原则性上有错误。</p>
@@ -1773,7 +2012,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL （填空1） 性和 （填空2） 性是测量标准中最重要的指标。 填空1: 有效；填空2: 可靠 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL （填空1） 性和 （填空2） 性是测量标准中最重要的指标。 填空1: 有效；填空2: 可靠">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-11（填空）</p>
 <p>（填空1） 性和 （填空2） 性是测量标准中最重要的指标。</p>
@@ -1782,7 +2021,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 有效；填空2: 可靠</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。 填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。 填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-12（填空）</p>
 <p>课堂上提到的度量尺度包括 （填空1） 尺度、 （填空2）尺度 、 （填空3） 尺度、 （填空4） 尺度。</p>
@@ -1791,7 +2030,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 分类；填空2: 序列；填空3: 间隔；填空4: 比值</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 度量是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的 （填空1） 。 填空1: 定量测量 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 度量是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的 （填空1） 。 填空1: 定量测量">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-13（填空）</p>
 <p>度量是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的 （填空1） 。</p>
@@ -1800,7 +2039,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 定量测量</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 测量是对产品过程的某个属性的范围、数量、维度、容量或大小提供一个 （填空1） 。 填空1: 定量的指示 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 测量是对产品过程的某个属性的范围、数量、维度、容量或大小提供一个 （填空1） 。 填空1: 定量的指示">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-14（填空）</p>
 <p>测量是对产品过程的某个属性的范围、数量、维度、容量或大小提供一个 （填空1） 。</p>
@@ -1809,7 +2048,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 定量的指示</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 度量是为了获取指标评估量化结果的重要手段和方法。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 度量是为了获取指标评估量化结果的重要手段和方法。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-15（判断）</p>
 <p>度量是为了获取指标评估量化结果的重要手段和方法。</p>
@@ -1818,7 +2057,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 软件度量具有相对性强，绝对性弱的特点。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 软件度量具有相对性强，绝对性弱的特点。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-16（判断）</p>
 <p>软件度量具有相对性强，绝对性弱的特点。</p>
@@ -1827,7 +2066,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 软件质量度量就是用来衡量软件质量控制和保证的过程和结果的。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） TF 软件质量度量就是用来衡量软件质量控制和保证的过程和结果的。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-17（判断）</p>
 <p>软件质量度量就是用来衡量软件质量控制和保证的过程和结果的。</p>
@@ -1854,7 +2093,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 发布</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 软件产品度量包括软件 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 以及 （填空5） 。 填空1: 规模大小；填空2: 产品复杂度；填空3: 设计特征；填空4: 性能；填空5: 质量水平 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL 软件产品度量包括软件 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 以及 （填空5） 。 填空1: 规模大小；填空2: 产品复杂度；填空3: 设计特征；填空4: 性能；填空5: 质量水平">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-20（填空）</p>
 <p>软件产品度量包括软件 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 以及 （填空5） 。</p>
@@ -1863,7 +2102,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 规模大小；填空2: 产品复杂度；填空3: 设计特征；填空4: 性能；填空5: 质量水平</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL （填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。 填空1: 度量 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第四章课后练习 课后练习（计入总分） FILL （填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。 填空1: 度量">
 <div class="sqe-question">
 <p class="sqe-question-title">题 12-21（填空）</p>
 <p>（填空1） 是对软件产品进行范围广泛的测度，它给出一个系统、构件或过程的某个给定属性的度的定量测量。</p>
@@ -1879,7 +2118,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第五章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">9 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） FILL CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。 填空1: 必需；填空2: 期望；填空3: 提供信息 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） FILL CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。 填空1: 必需；填空2: 期望；填空3: 提供信息">
 <div class="sqe-question">
 <p class="sqe-question-title">题 20-01（填空）</p>
 <p>CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。</p>
@@ -1888,7 +2127,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 必需；填空2: 期望；填空3: 提供信息</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） TF 软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） TF 软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 20-02（判断）</p>
 <p>软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。</p>
@@ -1897,7 +2136,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） TF 优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。   错误 正确说法：这描述的是量化管理级。优化级强调基于量化反馈、缺陷预防和技术创新进行持续过程改进。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） TF 优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。 错误 正确说法：这描述的是量化管理级。优化级强调基于量化反馈、缺陷预防和技术创新进行持续过程改进。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 20-03（判断）</p>
 <p>优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。</p>
@@ -1906,7 +2145,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：这描述的是量化管理级。优化级强调基于量化反馈、缺陷预防和技术创新进行持续过程改进。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） TF 为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） TF 为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 20-04（判断）</p>
 <p>为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。</p>
@@ -1915,7 +2154,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） FILL CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。 填空1: 初始级；填空2: 可重复级；填空3: 已定义级；填空4: 已管理级；填空5: 优化级 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） FILL CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。 填空1: 初始级；填空2: 可重复级；填空3: 已定义级；填空4: 已管理级；填空5: 优化级">
 <div class="sqe-question">
 <p class="sqe-question-title">题 20-05（填空）</p>
 <p>CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。</p>
@@ -1951,7 +2190,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 管理级</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） FILL CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。 填空1: 降低成本；填空2: 提高质量；填空3: 用户满意度 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课上测试 课上测试（计入总分） FILL CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。 填空1: 降低成本；填空2: 提高质量；填空3: 用户满意度">
 <div class="sqe-question">
 <p class="sqe-question-title">题 20-09（填空）</p>
 <p>CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。</p>
@@ -1967,7 +2206,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第五章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">11 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。 填空1: 必需；填空2: 期望；填空3: 提供信息 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。 填空1: 必需；填空2: 期望；填空3: 提供信息">
 <div class="sqe-question">
 <p class="sqe-question-title">题 6-01（填空）</p>
 <p>CMMI的内容主要有3个级别： （填空1） 的、 （填空2） 的以及 （填空3） 的。</p>
@@ -1976,7 +2215,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 必需；填空2: 期望；填空3: 提供信息</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） TF 软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） TF 软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 6-02（判断）</p>
 <p>软件过程能力成熟度是指一个特定过程被明确定义、管理、测量、控制并且是有效的程度。</p>
@@ -1985,7 +2224,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） TF 为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） TF 为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 6-03（判断）</p>
 <p>为了达到一个成熟度等级，必须实现该等级上的全部关键过程区域。</p>
@@ -1994,7 +2233,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） TF 优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。   错误 正确说法：这描述的是量化管理级。优化级强调基于量化反馈、缺陷预防和技术创新进行持续过程改进。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） TF 优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。 错误 正确说法：这描述的是量化管理级。优化级强调基于量化反馈、缺陷预防和技术创新进行持续过程改进。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 6-04（判断）</p>
 <p>优化级说明已管理的过程，定义了评估软件过程和产品质量的度量。利用此度量对软件过程和产品做出推断和控制。</p>
@@ -2003,7 +2242,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：这描述的是量化管理级。优化级强调基于量化反馈、缺陷预防和技术创新进行持续过程改进。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMM为软件过程改进提供了一个框架，将整个软件改进过程分为 （填空1） （请填写阿拉伯数字）个成熟度等级。 填空1: 5 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMM为软件过程改进提供了一个框架，将整个软件改进过程分为 （填空1） （请填写阿拉伯数字）个成熟度等级。 填空1: 5">
 <div class="sqe-question">
 <p class="sqe-question-title">题 6-05（填空）</p>
 <p>CMM为软件过程改进提供了一个框架，将整个软件改进过程分为 （填空1） （请填写阿拉伯数字）个成熟度等级。</p>
@@ -2012,7 +2251,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 5</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL 根据软件工程标准制定的机构和标准适用的范围，可将其分为5个级别，即 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 及 （填空5） 。 填空1: 国际标准；填空2: 国家标准；填空3: 行业标准；填空4: 企业规范；填空5: 项目规范 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL 根据软件工程标准制定的机构和标准适用的范围，可将其分为5个级别，即 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 及 （填空5） 。 填空1: 国际标准；填空2: 国家标准；填空3: 行业标准；填空4: 企业规范；填空5: 项目规范">
 <div class="sqe-question">
 <p class="sqe-question-title">题 6-06（填空）</p>
 <p>根据软件工程标准制定的机构和标准适用的范围，可将其分为5个级别，即 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 及 （填空5） 。</p>
@@ -2021,7 +2260,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 国际标准；填空2: 国家标准；填空3: 行业标准；填空4: 企业规范；填空5: 项目规范</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。 填空1: 初始级；填空2: 可重复级；填空3: 已定义级；填空4: 已管理级；填空5: 优化级 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。 填空1: 初始级；填空2: 可重复级；填空3: 已定义级；填空4: 已管理级；填空5: 优化级">
 <div class="sqe-question">
 <p class="sqe-question-title">题 6-07（填空）</p>
 <p>CMM将整个软件改进过程分为 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 等5个成熟度等级。</p>
@@ -2048,7 +2287,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 等级一</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。 填空1: 降低成本；填空2: 提高质量；填空3: 用户满意度 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第五章课后练习 课后练习（计入总分） FILL CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。 填空1: 降低成本；填空2: 提高质量；填空3: 用户满意度">
 <div class="sqe-question">
 <p class="sqe-question-title">题 6-10（填空）</p>
 <p>CMM的意义不仅仅是对软件开发的过程进程控制，还是一种高效的管理方法，有助于企业最大程度的 （填空1） ， （填空2） 和 （填空3） 。</p>
@@ -2073,7 +2312,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第六章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 11-01（判断）</p>
 <p>发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。</p>
@@ -2082,7 +2321,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 评审报告可以看作是评审会结束的标志。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 评审报告可以看作是评审会结束的标志。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 11-02（判断）</p>
 <p>评审报告可以看作是评审会结束的标志。</p>
@@ -2100,7 +2339,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 由评审员/作者进行演示或说明；B. 评审员会就不清楚或疑惑的地方与作者进行沟通；C. 协调人或记录员在会议过程中完成会议记录</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 规则集列出了容易出现的典型错误，是评审的一个重要组成部分。   正确说法：列出典型错误的是检查表或核查表；规则集更偏向规定评审流程、角色、准则和执行规则。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 规则集列出了容易出现的典型错误，是评审的一个重要组成部分。 正确说法：列出典型错误的是检查表或核查表；规则集更偏向规定评审流程、角色、准则和执行规则。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 11-04（判断）</p>
 <p>规则集列出了容易出现的典型错误，是评审的一个重要组成部分。</p>
@@ -2118,7 +2357,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 评估主要的质量保证流程；B. 考虑如何处理和解决评审过程中发现的不符合问题；C. 总结和共享好的经验；D. 指出需要进一步完善和改进的部分</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 文档评审分为格式评审和内容评审。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） TF 文档评审分为格式评审和内容评审。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 11-06（判断）</p>
 <p>文档评审分为格式评审和内容评审。</p>
@@ -2127,7 +2366,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） FILL 管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。 填空1: 适宜；填空2: 有效；填空3: 充分 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课上测试 课上测试（计入总分） FILL 管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。 填空1: 适宜；填空2: 有效；填空3: 充分">
 <div class="sqe-question">
 <p class="sqe-question-title">题 11-07（填空）</p>
 <p>管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。</p>
@@ -2170,7 +2409,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第六章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">28 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-01（判断）</p>
 <p>发现缺陷的平均成本不应该超过该缺陷遗留给客户的商业成本。</p>
@@ -2179,7 +2418,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 评审报告可以看作是评审会结束的标志。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 评审报告可以看作是评审会结束的标志。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-02（判断）</p>
 <p>评审报告可以看作是评审会结束的标志。</p>
@@ -2215,7 +2454,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 善于制定和执行评审计划；B. 评审是公平、公正的；C. 具有丰富的技术技能和知识；D. 积极带领评审组员按时保质的完成评审任务</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 规则集列出了容易出现的典型错误，是评审的一个重要组成部分。   正确说法：列出典型错误的是检查表或核查表；规则集更偏向规定评审流程、角色、准则和执行规则。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 规则集列出了容易出现的典型错误，是评审的一个重要组成部分。 正确说法：列出典型错误的是检查表或核查表；规则集更偏向规定评审流程、角色、准则和执行规则。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-06（判断）</p>
 <p>规则集列出了容易出现的典型错误，是评审的一个重要组成部分。</p>
@@ -2224,7 +2463,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：列出典型错误的是检查表或核查表；规则集更偏向规定评审流程、角色、准则和执行规则。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 填空1: 临时评审；填空2: 轮查；填空3: 走查；填空4: 小组评审；填空5: 审查 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 填空1: 临时评审；填空2: 轮查；填空3: 走查；填空4: 小组评审；填空5: 审查">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-07（填空）</p>
 <p>评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5）</p>
@@ -2242,7 +2481,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 评估主要的质量保证流程；B. 考虑如何处理和解决评审过程中发现的不符合问题；C. 总结和共享好的经验；D. 指出需要进一步完善和改进的部分</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 程评审的评审对象是质量保证流程，以及针对产品质量或其他形式的工作产出。   错误 正确说法：过程评审主要评审软件过程或质量保证流程；产品评审才侧重产品质量和阶段工作产出。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 程评审的评审对象是质量保证流程，以及针对产品质量或其他形式的工作产出。 错误 正确说法：过程评审主要评审软件过程或质量保证流程；产品评审才侧重产品质量和阶段工作产出。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-09（判断）</p>
 <p>程评审的评审对象是质量保证流程，以及针对产品质量或其他形式的工作产出。</p>
@@ -2260,7 +2499,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 对软件开发过程的评审；B. 通过对流程的监控，保证SQA组织定义的软件过程在项目中得到了遵循；C. 保证质量保证方针能得到更快更好的执行</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 文档评审分为格式评审和内容评审。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 文档评审分为格式评审和内容评审。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-11（判断）</p>
 <p>文档评审分为格式评审和内容评审。</p>
@@ -2278,7 +2517,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 揭示软件在逻辑、执行以及功能和函数上的错误；B. 验证软件是否符合需求；C. 确保软件的一致性</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 管理评审是对产品以及各阶段的输出内容进行评估。   错误 正确说法：管理评审主要评价质量管理体系、过程执行和管理状态；对产品及阶段输出的评估通常属于技术评审或产品评审。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 管理评审是对产品以及各阶段的输出内容进行评估。 错误 正确说法：管理评审主要评价质量管理体系、过程执行和管理状态；对产品及阶段输出的评估通常属于技术评审或产品评审。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-13（判断）</p>
 <p>管理评审是对产品以及各阶段的输出内容进行评估。</p>
@@ -2287,7 +2526,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：管理评审主要评价质量管理体系、过程执行和管理状态；对产品及阶段输出的评估通常属于技术评审或产品评审。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。 填空1: 适宜；填空2: 有效；填空3: 充分 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。 填空1: 适宜；填空2: 有效；填空3: 充分">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-14（填空）</p>
 <p>管理评审要求各部门对管理体系目前的状况，包括 （填空1） 性、 （填空2） 性、 （填空3） 性等进行评审。</p>
@@ -2314,7 +2553,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 减少修订缺陷的时间；B. 提高编程效率；D. 减少测试和调试时间</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 管理者、开发人员、客户有时都反对评审，因为评审会浪费时间，减缓项目的进度。   错误 正确说法：评审的目的正是尽早发现缺陷、减少返工和降低成本，整体上有助于质量和进度控制。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 管理者、开发人员、客户有时都反对评审，因为评审会浪费时间，减缓项目的进度。 错误 正确说法：评审的目的正是尽早发现缺陷、减少返工和降低成本，整体上有助于质量和进度控制。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-17（判断）</p>
 <p>管理者、开发人员、客户有时都反对评审，因为评审会浪费时间，减缓项目的进度。</p>
@@ -2323,7 +2562,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：评审的目的正是尽早发现缺陷、减少返工和降低成本，整体上有助于质量和进度控制。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 评审是对软件元素或者项目状态的一种评估手段。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 评审是对软件元素或者项目状态的一种评估手段。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-18（判断）</p>
 <p>评审是对软件元素或者项目状态的一种评估手段。</p>
@@ -2332,7 +2571,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 评审是质量控制方面一种非常有效的方法。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 评审是质量控制方面一种非常有效的方法。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-19（判断）</p>
 <p>评审是质量控制方面一种非常有效的方法。</p>
@@ -2341,7 +2580,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 同行评审的主要目标在于检测错误、核对与标准的偏离。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 同行评审的主要目标在于检测错误、核对与标准的偏离。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-20（判断）</p>
 <p>同行评审的主要目标在于检测错误、核对与标准的偏离。</p>
@@ -2359,7 +2598,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. ①②③</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 管理评审由 （填空1） 发起。 填空1: 最高管理者 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 管理评审由 （填空1） 发起。 填空1: 最高管理者">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-22（填空）</p>
 <p>管理评审由 （填空1） 发起。</p>
@@ -2368,7 +2607,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 最高管理者</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 代码评审是检查源代码是否达到模块设计的要求。   错误 正确说法：代码评审不仅检查代码是否符合设计，还要检查逻辑正确性、接口、可读性、编码规范、可维护性和潜在缺陷。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 代码评审是检查源代码是否达到模块设计的要求。 错误 正确说法：代码评审不仅检查代码是否符合设计，还要检查逻辑正确性、接口、可读性、编码规范、可维护性和潜在缺陷。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-23（判断）</p>
 <p>代码评审是检查源代码是否达到模块设计的要求。</p>
@@ -2377,7 +2616,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：代码评审不仅检查代码是否符合设计，还要检查逻辑正确性、接口、可读性、编码规范、可维护性和潜在缺陷。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 技术评审即是一种技术手段，也是一种质量管理手段。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） TF 技术评审即是一种技术手段，也是一种质量管理手段。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-24（判断）</p>
 <p>技术评审即是一种技术手段，也是一种质量管理手段。</p>
@@ -2413,7 +2652,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 避免后期付出高代价</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 。 填空1: 临时评审；填空2: 轮查；填空3: 走查；填空4: 小组评审；填空5: 审查 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第六章课后练习 课后练习（计入总分） FILL 评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 。 填空1: 临时评审；填空2: 轮查；填空3: 走查；填空4: 小组评审；填空5: 审查">
 <div class="sqe-question">
 <p class="sqe-question-title">题 17-28（填空）</p>
 <p>评审的方法包括 （填空1） 、 （填空2） 、 （填空3） 、 （填空4） 、 （填空5） 。</p>
@@ -2429,7 +2668,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第七章课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） FILL 为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1） 填空1: 软件工具的评估 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） FILL 为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1） 填空1: 软件工具的评估">
 <div class="sqe-question">
 <p class="sqe-question-title">题 4-01（填空）</p>
 <p>为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1）</p>
@@ -2438,7 +2677,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 软件工具的评估</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 审核是对工作流程的评审，而评审则主要侧重产品本身。   错误 正确说法：审核关注活动、过程和工作产品是否符合标准与规程；评审也可以评审产品、过程或文档，不能简单归结为“审核看流程、评审看产品”。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 审核是对工作流程的评审，而评审则主要侧重产品本身。 错误 正确说法：审核关注活动、过程和工作产品是否符合标准与规程；评审也可以评审产品、过程或文档，不能简单归结为“审核看流程、评审看产品”。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 4-02（判断）</p>
 <p>审核是对工作流程的评审，而评审则主要侧重产品本身。</p>
@@ -2447,7 +2686,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：审核关注活动、过程和工作产品是否符合标准与规程；评审也可以评审产品、过程或文档，不能简单归结为“审核看流程、评审看产品”。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。   错误 正确说法：软件产品由项目和开发团队生产；SQA负责制定或协助制定质量保证计划、监督过程、审计活动并报告偏差。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。 错误 正确说法：软件产品由项目和开发团队生产；SQA负责制定或协助制定质量保证计划、监督过程、审计活动并报告偏差。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 4-03（判断）</p>
 <p>SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。</p>
@@ -2456,7 +2695,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：软件产品由项目和开发团队生产；SQA负责制定或协助制定质量保证计划、监督过程、审计活动并报告偏差。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。   错误 正确说法：SQA人员可以是全职也可以是兼职，关键是职责明确、具备独立性并能有效执行质量保证活动。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。 错误 正确说法：SQA人员可以是全职也可以是兼职，关键是职责明确、具备独立性并能有效执行质量保证活动。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 4-04（判断）</p>
 <p>为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。</p>
@@ -2474,7 +2713,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 独立的SQA工程师（独立的SQA小组）</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。   错误 正确说法：创建SQA组织要结合企业规模、项目特点、文化和资源情况，ISO、CMMI等标准只能作为参考和裁剪依据。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。 错误 正确说法：创建SQA组织要结合企业规模、项目特点、文化和资源情况，ISO、CMMI等标准只能作为参考和裁剪依据。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 4-06（判断）</p>
 <p>创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。</p>
@@ -2483,7 +2722,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：创建SQA组织要结合企业规模、项目特点、文化和资源情况，ISO、CMMI等标准只能作为参考和裁剪依据。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 软件工程过程组类似于一个“立法”机构，而SQA则类似于一个“监督”机构。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 软件工程过程组类似于一个“立法”机构，而SQA则类似于一个“监督”机构。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 4-07（判断）</p>
 <p>软件工程过程组类似于一个&amp;ldquo;立法&amp;rdquo;机构，而SQA则类似于一个&amp;ldquo;监督&amp;rdquo;机构。</p>
@@ -2492,7 +2731,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 任何不符合客户需求的地方都可以认为是缺陷。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 任何不符合客户需求的地方都可以认为是缺陷。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 4-08（判断）</p>
 <p>任何不符合客户需求的地方都可以认为是缺陷。</p>
@@ -2510,7 +2749,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 软件测试部门；B. 软件质量保证组织</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课上测试 课上测试（计入总分） TF 软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 4-10（判断）</p>
 <p>软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。</p>
@@ -2526,7 +2765,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第七章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">18 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） FILL 为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1） 填空1: 软件工具的评估 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） FILL 为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1） 填空1: 软件工具的评估">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-01（填空）</p>
 <p>为了保证项目组能够采用合适的技术和工具，我们应该进行 （填空1）</p>
@@ -2535,7 +2774,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 软件工具的评估</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 审核是对工作流程的评审，而评审则主要侧重产品本身。   错误 正确说法：审核关注活动、过程和工作产品是否符合标准与规程；评审也可以评审产品、过程或文档，不能简单归结为“审核看流程、评审看产品”。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 审核是对工作流程的评审，而评审则主要侧重产品本身。 错误 正确说法：审核关注活动、过程和工作产品是否符合标准与规程；评审也可以评审产品、过程或文档，不能简单归结为“审核看流程、评审看产品”。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-02（判断）</p>
 <p>审核是对工作流程的评审，而评审则主要侧重产品本身。</p>
@@ -2553,7 +2792,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 了解项目的需求，明确项目SQA计划的要求和范围</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。   错误 正确说法：软件产品由项目和开发团队生产；SQA负责制定或协助制定质量保证计划、监督过程、审计活动并报告偏差。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。 错误 正确说法：软件产品由项目和开发团队生产；SQA负责制定或协助制定质量保证计划、监督过程、审计活动并报告偏差。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-04（判断）</p>
 <p>SQA组织负责生产高质量的软件产品和制定质量计划，责任是审计软件经理和软件工程组的质量活动并鉴别活动中出现的偏差。</p>
@@ -2562,7 +2801,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：软件产品由项目和开发团队生产；SQA负责制定或协助制定质量保证计划、监督过程、审计活动并报告偏差。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF SQA人员与开发工程师本质上是对立的。   错误 正确说法：SQA和开发工程师的共同目标都是交付高质量软件，二者应协作并相互制衡，而不是本质对立。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF SQA人员与开发工程师本质上是对立的。 错误 正确说法：SQA和开发工程师的共同目标都是交付高质量软件，二者应协作并相互制衡，而不是本质对立。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-05（判断）</p>
 <p>SQA人员与开发工程师本质上是对立的。</p>
@@ -2571,7 +2810,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：SQA和开发工程师的共同目标都是交付高质量软件，二者应协作并相互制衡，而不是本质对立。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。   错误 正确说法：SQA人员可以是全职也可以是兼职，关键是职责明确、具备独立性并能有效执行质量保证活动。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。 错误 正确说法：SQA人员可以是全职也可以是兼职，关键是职责明确、具备独立性并能有效执行质量保证活动。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-06（判断）</p>
 <p>为了让SQA人员可以全心投入本职工作，所以SQA人员必须是全职的。</p>
@@ -2598,7 +2837,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 保护SQA工程师的独立性和客观性；D. 有利于资源的共享</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。   错误 正确说法：创建SQA组织要结合企业规模、项目特点、文化和资源情况，ISO、CMMI等标准只能作为参考和裁剪依据。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。 错误 正确说法：创建SQA组织要结合企业规模、项目特点、文化和资源情况，ISO、CMMI等标准只能作为参考和裁剪依据。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-09（判断）</p>
 <p>创建SQA部门的时候，与企业本身实际相比，更重要的是参考业界流行的各种标准（如ISO、CMMI等）。</p>
@@ -2607,7 +2846,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：创建SQA组织要结合企业规模、项目特点、文化和资源情况，ISO、CMMI等标准只能作为参考和裁剪依据。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） FILL 六西格玛组织结构从上到下分为 （填空1） 、 黑带主管(大师)、 （填空2） 、 （填空3） 。 填空1: 倡导者；填空2: 黑带；填空3: 绿带 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） FILL 六西格玛组织结构从上到下分为 （填空1） 、 黑带主管(大师)、 （填空2） 、 （填空3） 。 填空1: 倡导者；填空2: 黑带；填空3: 绿带">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-10（填空）</p>
 <p>六西格玛组织结构从上到下分为 （填空1） 、 黑带主管(大师)、 （填空2） 、 （填空3） 。</p>
@@ -2616,7 +2855,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 倡导者；填空2: 黑带；填空3: 绿带</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 软件工程过程组类似于一个“立法”机构，而SQA则类似于一个“监督”机构。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 软件工程过程组类似于一个“立法”机构，而SQA则类似于一个“监督”机构。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-11（判断）</p>
 <p>软件工程过程组类似于一个&amp;ldquo;立法&amp;rdquo;机构，而SQA则类似于一个&amp;ldquo;监督&amp;rdquo;机构。</p>
@@ -2625,7 +2864,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 任何不符合客户需求的地方都可以认为是缺陷。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 任何不符合客户需求的地方都可以认为是缺陷。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-12（判断）</p>
 <p>任何不符合客户需求的地方都可以认为是缺陷。</p>
@@ -2643,7 +2882,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 软件测试部门；B. 软件质量保证组织</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 所有SQA活动和项目里程碑的完成或项目里程碑的检验是同时发生的。   错误 正确说法：SQA活动贯穿项目生命周期，可以发生在里程碑之前、期间或之后，并不都与里程碑检验同时发生。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 所有SQA活动和项目里程碑的完成或项目里程碑的检验是同时发生的。 错误 正确说法：SQA活动贯穿项目生命周期，可以发生在里程碑之前、期间或之后，并不都与里程碑检验同时发生。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-14（判断）</p>
 <p>所有SQA活动和项目里程碑的完成或项目里程碑的检验是同时发生的。</p>
@@ -2652,7 +2891,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：SQA活动贯穿项目生命周期，可以发生在里程碑之前、期间或之后，并不都与里程碑检验同时发生。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 在整个机构中使用基础设施防护与改进部件的主要目标是在机构积累的SQA经验基础上消除或至少降低出错率。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 在整个机构中使用基础设施防护与改进部件的主要目标是在机构积累的SQA经验基础上消除或至少降低出错率。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-15（判断）</p>
 <p>在整个机构中使用基础设施防护与改进部件的主要目标是在机构积累的SQA经验基础上消除或至少降低出错率。</p>
@@ -2661,7 +2900,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-16（判断）</p>
 <p>软件质量系统之间各不相同，说明机构SQA系统构建存在固有灵活性。</p>
@@ -2670,7 +2909,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 在软件产品制定生产计划阶段,不必进行重大的SQA活动。   错误 正确说法：SQA应从项目计划阶段开始，包括制定SQA计划、确定质量目标、标准、评审和测试安排。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） TF 在软件产品制定生产计划阶段,不必进行重大的SQA活动。 错误 正确说法：SQA应从项目计划阶段开始，包括制定SQA计划、确定质量目标、标准、评审和测试安排。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-17（判断）</p>
 <p>在软件产品制定生产计划阶段,不必进行重大的SQA活动。</p>
@@ -2679,7 +2918,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：SQA应从项目计划阶段开始，包括制定SQA计划、确定质量目标、标准、评审和测试安排。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） FILL （填空1） 是一个动态的过程，需要不断调度、协调，保证项目的均衡发展。 填空1: 项目的进度管理 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第七章课后练习 课后练习（计入总分） FILL （填空1） 是一个动态的过程，需要不断调度、协调，保证项目的均衡发展。 填空1: 项目的进度管理">
 <div class="sqe-question">
 <p class="sqe-question-title">题 3-18（填空）</p>
 <p>（填空1） 是一个动态的过程，需要不断调度、协调，保证项目的均衡发展。</p>
@@ -2695,7 +2934,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第八章课上测试</h3><div><span class="sqe-source-pill">补充自成绩结果接口</span><span class="sqe-source-pill">10 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF 需求分析是将用户需求准确转化为软件系统的唯一途径。 F ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF 需求分析是将用户需求准确转化为软件系统的唯一途径。 F">
 <div class="sqe-question">
 <p class="sqe-question-title">题 1-01（判断）</p>
 <p>需求分析是将用户需求准确转化为软件系统的唯一途径。</p>
@@ -2713,7 +2952,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 概要设计</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF 软件设计的基本原则是设计越简单越好 T ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF 软件设计的基本原则是设计越简单越好 T">
 <div class="sqe-question">
 <p class="sqe-question-title">题 1-03（判断）</p>
 <p>软件设计的基本原则是设计越简单越好</p>
@@ -2731,7 +2970,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 数据耦合、控制耦合、公共环境耦合、内容耦合</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF 软件设计的时候技术远比用户需求重要的多。 F ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF 软件设计的时候技术远比用户需求重要的多。 F">
 <div class="sqe-question">
 <p class="sqe-question-title">题 1-05（判断）</p>
 <p>软件设计的时候技术远比用户需求重要的多。</p>
@@ -2740,7 +2979,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>F</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF 常作验证，早作验证是软件设计的原则之一 T ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF 常作验证，早作验证是软件设计的原则之一 T">
 <div class="sqe-question">
 <p class="sqe-question-title">题 1-06（判断）</p>
 <p>常作验证，早作验证是软件设计的原则之一</p>
@@ -2749,7 +2988,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>T</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF 框架模型主要以一些特殊的问题为目标建立只针对和适应该问题的结构。 T ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF 框架模型主要以一些特殊的问题为目标建立只针对和适应该问题的结构。 T">
 <div class="sqe-question">
 <p class="sqe-question-title">题 1-07（判断）</p>
 <p>框架模型主要以一些特殊的问题为目标建立只针对和适应该问题的结构。</p>
@@ -2767,7 +3006,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 结构模型；B. 功能模型；C. 动态模型；D. 过程模型</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF C/S与B/S软件体系结构相比，除了用户界面的实现方式不同以外，其他没什么差别。 F ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF C/S与B/S软件体系结构相比，除了用户界面的实现方式不同以外，其他没什么差别。 F">
 <div class="sqe-question">
 <p class="sqe-question-title">题 1-09（判断）</p>
 <p>C/S与B/S软件体系结构相比，除了用户界面的实现方式不同以外，其他没什么差别。</p>
@@ -2776,7 +3015,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>F</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF 设计模式使得人们可以更加简单和方便地去复用成功的软件设计和体系结构，从而帮助设计者更快更好地完成系统设计。 T ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课上测试 课上测试（计入总分） TF 设计模式使得人们可以更加简单和方便地去复用成功的软件设计和体系结构，从而帮助设计者更快更好地完成系统设计。 T">
 <div class="sqe-question">
 <p class="sqe-question-title">题 1-10（判断）</p>
 <p>设计模式使得人们可以更加简单和方便地去复用成功的软件设计和体系结构，从而帮助设计者更快更好地完成系统设计。</p>
@@ -2792,7 +3031,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第八章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">25 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 需求分析是将用户需求准确转化为软件系统的唯一途径。   错误 正确说法：需求分析是理解和定义用户需求的重要环节，但需求还需要通过沟通、建模、原型、评审和验证等活动持续澄清。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 需求分析是将用户需求准确转化为软件系统的唯一途径。 错误 正确说法：需求分析是理解和定义用户需求的重要环节，但需求还需要通过沟通、建模、原型、评审和验证等活动持续澄清。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-01（判断）</p>
 <p>需求分析是将用户需求准确转化为软件系统的唯一途径。</p>
@@ -2819,7 +3058,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 数据结构及数据库设计；B. 编写概要设计文档；C. 概要设计文档评审；D. 设计软件系统结构</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 软件设计的基本原则是设计越简单越好   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 软件设计的基本原则是设计越简单越好 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-04（判断）</p>
 <p>软件设计的基本原则是设计越简单越好</p>
@@ -2828,7 +3067,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 软件设计的指导思想是降低模块内聚性，提高模块耦合度。   错误 正确说法：良好软件设计应提高模块内聚性、降低模块耦合度。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 软件设计的指导思想是降低模块内聚性，提高模块耦合度。 错误 正确说法：良好软件设计应提高模块内聚性、降低模块耦合度。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-05（判断）</p>
 <p>软件设计的指导思想是降低模块内聚性，提高模块耦合度。</p>
@@ -2846,7 +3085,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 数据耦合、控制耦合、公共环境耦合、内容耦合</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 任何体系结构都有它自身的优点和缺点，所以我们要有针对性的选择使用。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 任何体系结构都有它自身的优点和缺点，所以我们要有针对性的选择使用。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-07（判断）</p>
 <p>任何体系结构都有它自身的优点和缺点，所以我们要有针对性的选择使用。</p>
@@ -2855,7 +3094,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 软件设计的时候技术远比用户需求重要的多。   错误 正确说法：软件设计应以用户需求和质量目标为核心，技术方案服务于需求，而不是凌驾于需求之上。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 软件设计的时候技术远比用户需求重要的多。 错误 正确说法：软件设计应以用户需求和质量目标为核心，技术方案服务于需求，而不是凌驾于需求之上。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-08（判断）</p>
 <p>软件设计的时候技术远比用户需求重要的多。</p>
@@ -2864,7 +3103,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：软件设计应以用户需求和质量目标为核心，技术方案服务于需求，而不是凌驾于需求之上。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 常作验证，早作验证是软件设计的原则之一   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 常作验证，早作验证是软件设计的原则之一 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-09（判断）</p>
 <p>常作验证，早作验证是软件设计的原则之一</p>
@@ -2891,7 +3130,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 开－闭原则；B. 接口隔离原则；C. 迪米特法则；D. 单一职责原则</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 里氏代换原则中说，任何基类可以出现的地方，子类不一定可以出现。   错误 正确说法：里氏代换原则要求任何基类可以出现的地方，子类都应当可以替换出现，并保持程序行为正确。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 里氏代换原则中说，任何基类可以出现的地方，子类不一定可以出现。 错误 正确说法：里氏代换原则要求任何基类可以出现的地方，子类都应当可以替换出现，并保持程序行为正确。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-12（判断）</p>
 <p>里氏代换原则中说，任何基类可以出现的地方，子类不一定可以出现。</p>
@@ -2909,7 +3148,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 合成/聚合复用原则</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 框架模型主要以一些特殊的问题为目标建立只针对和适应该问题的结构。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 框架模型主要以一些特殊的问题为目标建立只针对和适应该问题的结构。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-14（判断）</p>
 <p>框架模型主要以一些特殊的问题为目标建立只针对和适应该问题的结构。</p>
@@ -2927,7 +3166,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 结构模型；B. 功能模型；C. 动态模型；D. 过程模型</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF C/S与B/S软件体系结构相比，除了用户界面的实现方式不同以外，其他没什么差别。   错误 正确说法：C/S与B/S在部署方式、维护成本、客户端依赖、性能、安全控制和网络交互等方面都有差异。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF C/S与B/S软件体系结构相比，除了用户界面的实现方式不同以外，其他没什么差别。 错误 正确说法：C/S与B/S在部署方式、维护成本、客户端依赖、性能、安全控制和网络交互等方面都有差异。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-16（判断）</p>
 <p>C/S与B/S软件体系结构相比，除了用户界面的实现方式不同以外，其他没什么差别。</p>
@@ -2936,7 +3175,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：C/S与B/S在部署方式、维护成本、客户端依赖、性能、安全控制和网络交互等方面都有差异。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 中间件的多层分布式的体系结构将客户和资源分开，降低了服务器的负载   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 中间件的多层分布式的体系结构将客户和资源分开，降低了服务器的负载 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-17（判断）</p>
 <p>中间件的多层分布式的体系结构将客户和资源分开，降低了服务器的负载</p>
@@ -2945,7 +3184,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 设计模式使得人们可以更加简单和方便地去复用成功的软件设计和体系结构，从而帮助设计者更快更好地完成系统设计。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 设计模式使得人们可以更加简单和方便地去复用成功的软件设计和体系结构，从而帮助设计者更快更好地完成系统设计。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-18（判断）</p>
 <p>设计模式使得人们可以更加简单和方便地去复用成功的软件设计和体系结构，从而帮助设计者更快更好地完成系统设计。</p>
@@ -2972,7 +3211,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 有助于作出有利于系统复用的选择，避免设计损害系统复用性；B. 可以帮助设计者更快更好的完成系统设计；C. 可以更加简单方便的复用成功的设计和体系结构；D. 在工程小组成员之间提供了通用的语义</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF UML语言先建模再编写代码，从一开始就保证系统结构合理   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF UML语言先建模再编写代码，从一开始就保证系统结构合理 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-21（判断）</p>
 <p>UML语言先建模再编写代码，从一开始就保证系统结构合理</p>
@@ -3008,7 +3247,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 必须保持一致性；B. 应有自助功能；C. 界面易懂</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 数据字典是指对数据的数据项、数据结构、数据流、数据存储、处理逻辑、外部实体等进行定义和描述，其目的是对数据流程图中的各个元素做出详细的说明。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第八章课后练习 课后练习（计入总分） TF 数据字典是指对数据的数据项、数据结构、数据流、数据存储、处理逻辑、外部实体等进行定义和描述，其目的是对数据流程图中的各个元素做出详细的说明。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 8-25（判断）</p>
 <p>数据字典是指对数据的数据项、数据结构、数据流、数据存储、处理逻辑、外部实体等进行定义和描述，其目的是对数据流程图中的各个元素做出详细的说明。</p>
@@ -3024,7 +3263,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>第九章课上测试</h3><div><span class="sqe-source-pill">补充自成绩结果接口</span><span class="sqe-source-pill">10 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） TF 注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。 T ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） TF 注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。 T">
 <div class="sqe-question">
 <p class="sqe-question-title">题 21-01（判断）</p>
 <p>注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。</p>
@@ -3033,7 +3272,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>T</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） FILL 建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。 填空1: 版权；填空2: 版本 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） FILL 建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。 填空1: 版权；填空2: 版本">
 <div class="sqe-question">
 <p class="sqe-question-title">题 21-02（填空）</p>
 <p>建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。</p>
@@ -3042,7 +3281,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 版权；填空2: 版本</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） FILL 正常值用 （填空1） 获得，错误标志用 （填空2） 返回。 填空1: 输出参数；填空2: return语句 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） FILL 正常值用 （填空1） 获得，错误标志用 （填空2） 返回。 填空1: 输出参数；填空2: return语句">
 <div class="sqe-question">
 <p class="sqe-question-title">题 21-03（填空）</p>
 <p>正常值用 （填空1） 获得，错误标志用 （填空2） 返回。</p>
@@ -3051,7 +3290,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 输出参数；填空2: return语句</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） TF 边写代码边注释，修改代码同时修改相应的注释 T ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） TF 边写代码边注释，修改代码同时修改相应的注释 T">
 <div class="sqe-question">
 <p class="sqe-question-title">题 21-04（判断）</p>
 <p>边写代码边注释，修改代码同时修改相应的注释</p>
@@ -3069,7 +3308,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. If（ j= =1）；D. If（i〉MAX_NUM）</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下属于Windows程序命名规则的是 A. 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo; 程序中要靠大小写来区分相似的标识符 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_ 常量全用大写的字母，用下划线分割单词">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下属于Windows程序命名规则的是 A. 全局函数的名字应当使用&amp;amp;ldquo;动词&amp;amp;rdquo;或者&amp;amp;ldquo;动词+名词&amp;amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词 全局函数的名字应当使用&amp;amp;ldquo;动词&amp;amp;rdquo;或者&amp;amp;ldquo;动词+名词&amp;amp;rdquo; 程序中要靠大小写来区分相似的标识符 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_ 常量全用大写的字母，用下划线分割单词">
 <div class="sqe-question">
 <p class="sqe-question-title">题 21-06（多选）</p>
 <p>以下属于Windows程序命名规则的是</p>
@@ -3078,7 +3317,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 下列属于函数处理规则的是 A. 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改；B. 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率；C. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回；D. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 下列属于函数处理规则的是 A. 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改；B. 如果输入参数以值传递的方式传递对象，宜改用&amp;amp;ldquo;const &amp;amp; &amp;amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率；C. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回；D. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改 如果输入参数以值传递的方式传递对象，宜改用&amp;amp;ldquo;const &amp;amp; &amp;amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回">
 <div class="sqe-question">
 <p class="sqe-question-title">题 21-07（多选）</p>
 <p>下列属于函数处理规则的是</p>
@@ -3096,7 +3335,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 程序在运行的时候用malloc或new申请动态内存分配，动态内存的生存期由我们决定；D. 静态存储区域在程序的整个运行期间都存在</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下符合基本语句规则的是 A. if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较 if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较 不可在for循环体内修改循环变量 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法 if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下符合基本语句规则的是 A. if语句不可将浮点变量用&amp;amp;ldquo;==&amp;amp;rdquo;或&amp;amp;ldquo;！=&amp;amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;amp;ldquo;半开半闭区间&amp;amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较 if语句不可将浮点变量用&amp;amp;ldquo;==&amp;amp;rdquo;或&amp;amp;ldquo;！=&amp;amp;rdquo;与任何数字比较 不可在for循环体内修改循环变量 建议for语句的循环控制变量的取值采用&amp;amp;ldquo;半开半闭区间&amp;amp;rdquo;写法 if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较">
 <div class="sqe-question">
 <p class="sqe-question-title">题 21-09（多选）</p>
 <p>以下符合基本语句规则的是</p>
@@ -3105,7 +3344,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下说法正确的是 A. const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动；C. void Func(const A &amp;a)的形式可以有效防止参数a被意外修改；D. 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用 const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动 const既能修饰输入参数也能修饰输出参数 void Func(const A &amp;a)的形式可以有效防止参数a被意外修改 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课上测试 课上测试（计入总分） MULTI 以下说法正确的是 A. const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动；C. void Func(const A &amp;amp;a)的形式可以有效防止参数a被意外修改；D. 如果输入参数采用&amp;amp;ldquo;指针传递&amp;amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用 const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动 const既能修饰输入参数也能修饰输出参数 void Func(const A &amp;amp;a)的形式可以有效防止参数a被意外修改 如果输入参数采用&amp;amp;ldquo;指针传递&amp;amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用">
 <div class="sqe-question">
 <p class="sqe-question-title">题 21-10（多选）</p>
 <p>以下说法正确的是</p>
@@ -3121,7 +3360,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>第九章课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">13 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） TF 注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） TF 注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 5-01（判断）</p>
 <p>注释的位置应与被描述的代码相邻，可以放在代码的上方或右方，不可放在下方。</p>
@@ -3130,7 +3369,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） FILL 建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。 填空1: 版权；填空2: 版本 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） FILL 建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。 填空1: 版权；填空2: 版本">
 <div class="sqe-question">
 <p class="sqe-question-title">题 5-02（填空）</p>
 <p>建议文件结构包含三部分内容，包括：定义文件开头处的 （填空1） 和 （填空2） 声明；对一些头文件的引用；程序的实现体（包括数据和代码）。</p>
@@ -3139,7 +3378,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 版权；填空2: 版本</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） FILL 正常值用 （填空1） 获得，错误标志用 （填空2） 返回。 填空1: 输出参数；填空2: return语句 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） FILL 正常值用 （填空1） 获得，错误标志用 （填空2） 返回。 填空1: 输出参数；填空2: return语句">
 <div class="sqe-question">
 <p class="sqe-question-title">题 5-03（填空）</p>
 <p>正常值用 （填空1） 获得，错误标志用 （填空2） 返回。</p>
@@ -3148,7 +3387,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 输出参数；填空2: return语句</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） TF 边写代码边注释，修改代码同时修改相应的注释   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） TF 边写代码边注释，修改代码同时修改相应的注释 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 5-04（判断）</p>
 <p>边写代码边注释，修改代码同时修改相应的注释</p>
@@ -3157,7 +3396,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） TF 建议将浮点变量用“==”或“！=”与数字比较。   错误 正确说法：浮点数存在精度误差，通常应使用允许误差范围的比较方式，而不是直接用 == 或 != 比较。">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） TF 建议将浮点变量用“==”或“！=”与数字比较。 错误 正确说法：浮点数存在精度误差，通常应使用允许误差范围的比较方式，而不是直接用 == 或 != 比较。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 5-05（判断）</p>
 <p>建议将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与数字比较。</p>
@@ -3175,7 +3414,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. If（ j= =1）；D. If（i〉MAX_NUM）</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下属于Windows程序命名规则的是 A. 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo; 程序中要靠大小写来区分相似的标识符 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_ 常量全用大写的字母，用下划线分割单词">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下属于Windows程序命名规则的是 A. 全局函数的名字应当使用&amp;amp;ldquo;动词&amp;amp;rdquo;或者&amp;amp;ldquo;动词+名词&amp;amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词 全局函数的名字应当使用&amp;amp;ldquo;动词&amp;amp;rdquo;或者&amp;amp;ldquo;动词+名词&amp;amp;rdquo; 程序中要靠大小写来区分相似的标识符 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_ 常量全用大写的字母，用下划线分割单词">
 <div class="sqe-question">
 <p class="sqe-question-title">题 5-07（多选）</p>
 <p>以下属于Windows程序命名规则的是</p>
@@ -3184,7 +3423,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 全局函数的名字应当使用&amp;ldquo;动词&amp;rdquo;或者&amp;ldquo;动词+名词&amp;rdquo;；C. 静态变量加前缀s_。如果必须定义使用全局变量，则在全局变量前加g_；D. 常量全用大写的字母，用下划线分割单词</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 下列属于函数处理规则的是 A. 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改；B. 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率；C. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回；D. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改 如果输入参数以值传递的方式传递对象，宜改用&amp;ldquo;const &amp; &amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 下列属于函数处理规则的是 A. 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改；B. 如果输入参数以值传递的方式传递对象，宜改用&amp;amp;ldquo;const &amp;amp; &amp;amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率；C. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回；D. 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 如果参数是指针且仅做输入用，应该在类型前面加const，以防止该指针在函数体内被意外修改 如果输入参数以值传递的方式传递对象，宜改用&amp;amp;ldquo;const &amp;amp; &amp;amp;rdquo;方式来传递，这样可以省去临时对象的构造和析构过程，从而提高效率 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回 不要将正常值和错误标志混在一起返回。正常值用输出参数获得，错误标志用return语句返回">
 <div class="sqe-question">
 <p class="sqe-question-title">题 5-08（多选）</p>
 <p>下列属于函数处理规则的是</p>
@@ -3202,7 +3441,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 尽可能在定义变量的同时初始化该变量；B. 长表达式要在低优先级操作符处拆分成新行，操作符放在新行之首；C. 尽量避免在注释中使用缩写，特别是不常用缩写</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下符合基本语句规则的是 A. if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较 if语句不可将浮点变量用&amp;ldquo;==&amp;rdquo;或&amp;ldquo;！=&amp;rdquo;与任何数字比较 不可在for循环体内修改循环变量 建议for语句的循环控制变量的取值采用&amp;ldquo;半开半闭区间&amp;rdquo;写法 if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下符合基本语句规则的是 A. if语句不可将浮点变量用&amp;amp;ldquo;==&amp;amp;rdquo;或&amp;amp;ldquo;！=&amp;amp;rdquo;与任何数字比较；B. 不可在for循环体内修改循环变量；C. 建议for语句的循环控制变量的取值采用&amp;amp;ldquo;半开半闭区间&amp;amp;rdquo;写法；D. if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较 if语句不可将浮点变量用&amp;amp;ldquo;==&amp;amp;rdquo;或&amp;amp;ldquo;！=&amp;amp;rdquo;与任何数字比较 不可在for循环体内修改循环变量 建议for语句的循环控制变量的取值采用&amp;amp;ldquo;半开半闭区间&amp;amp;rdquo;写法 if语句不可将布尔变量直接与TRUE、FALSE或者1、0进行比较">
 <div class="sqe-question">
 <p class="sqe-question-title">题 5-10（多选）</p>
 <p>以下符合基本语句规则的是</p>
@@ -3229,7 +3468,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 用malloc或new来申请内存，应该用if(p==NULL) 或if(p!=NULL)进行防错处理；B. 内存分配成功后，应尽快对其进行初始化；C. 程序中malloc与free的使用次数一定要相同；D. free和delete只是把指针所指的内存给释放掉，但并没有把指针本身干掉</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下说法正确的是 A. const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动；C. void Func(const A &amp;a)的形式可以有效防止参数a被意外修改；D. 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用 const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动 const既能修饰输入参数也能修饰输出参数 void Func(const A &amp;a)的形式可以有效防止参数a被意外修改 如果输入参数采用&amp;ldquo;指针传递&amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用">
+<article class="sqe-card" data-sqe-card data-sqe-text="第九章课后练习 课后练习（计入总分） MULTI 以下说法正确的是 A. const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动；C. void Func(const A &amp;amp;a)的形式可以有效防止参数a被意外修改；D. 如果输入参数采用&amp;amp;ldquo;指针传递&amp;amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用 const可以修饰函数的参数、返回值，函数的定义体等。修饰的东西受到强制保护，可以预防意外的变动 const既能修饰输入参数也能修饰输出参数 void Func(const A &amp;amp;a)的形式可以有效防止参数a被意外修改 如果输入参数采用&amp;amp;ldquo;指针传递&amp;amp;rdquo;，那么加const修饰可以防止意外地改动该指针，起到保护作用">
 <div class="sqe-question">
 <p class="sqe-question-title">题 5-13（多选）</p>
 <p>以下说法正确的是</p>
@@ -3245,7 +3484,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>实验一课上测试</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">10 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） MULTI &amp;zwnj;以下可以作为单元的是 A. 一个类；B. 一个页面；C. 一个函数；D. 一个窗口 一个类 一个页面 一个函数 一个窗口">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） MULTI &amp;amp;zwnj;以下可以作为单元的是 A. 一个类；B. 一个页面；C. 一个函数；D. 一个窗口 一个类 一个页面 一个函数 一个窗口">
 <div class="sqe-question">
 <p class="sqe-question-title">题 23-01（多选）</p>
 <p>&amp;zwnj;以下可以作为单元的是</p>
@@ -3254,11 +3493,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 一个类；B. 一个页面；C. 一个函数；D. 一个窗口</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 导致软件缺陷的原因有很多，①&amp;mdash;④是可能的原因，其中最主要的原因包括_____
-①软件需求说明书编写的不全面，不完整，不准确，而且经常更改&amp;rlm;&amp;zwnj;　　　　
-②软件设计说明书&amp;rlm;&amp;zwnj;　　　　
-③软件操作人员的水平&amp;rlm;&amp;zwnj;　　　　
-④开发人员不能很好的理解需求说明书和沟通不足 D. ①、④ ①、②、③ ①、③ ②、③ ①、④">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 导致软件缺陷的原因有很多，①&amp;amp;mdash;④是可能的原因，其中最主要的原因包括_____ ①软件需求说明书编写的不全面，不完整，不准确，而且经常更改&amp;amp;rlm;&amp;amp;zwnj; ②软件设计说明书&amp;amp;rlm;&amp;amp;zwnj; ③软件操作人员的水平&amp;amp;rlm;&amp;amp;zwnj; ④开发人员不能很好的理解需求说明书和沟通不足 D. ①、④ ①、②、③ ①、③ ②、③ ①、④">
 <div class="sqe-question">
 <p class="sqe-question-title">题 23-02（单选）</p>
 <p>导致软件缺陷的原因有很多，①&amp;mdash;④是可能的原因，其中最主要的原因包括_____
@@ -3271,12 +3506,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. ①、④</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 一条Bug记录应该包括_____
-①编号
-②Bug描述
-③Bug级别
-④Bug所属模块
-⑤发现人 C. ①②③④⑤ ①②③④ ①② ①②③④⑤ ①②③">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） SINGLE 一条Bug记录应该包括_____ ①编号 ②Bug描述 ③Bug级别 ④Bug所属模块 ⑤发现人 C. ①②③④⑤ ①②③④ ①② ①②③④⑤ ①②③">
 <div class="sqe-question">
 <p class="sqe-question-title">题 23-03（单选）</p>
 <p>一条Bug记录应该包括_____
@@ -3290,7 +3520,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. ①②③④⑤</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） TF 测试人员要坚持原则，缺陷未修复完坚决不予通过。   错误 正确说法：测试人员应依据缺陷严重程度、优先级和发布准则给出质量风险意见，是否允许发布由项目或质量决策流程决定，不要求所有缺陷都修复后才能通过。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） TF 测试人员要坚持原则，缺陷未修复完坚决不予通过。 错误 正确说法：测试人员应依据缺陷严重程度、优先级和发布准则给出质量风险意见，是否允许发布由项目或质量决策流程决定，不要求所有缺陷都修复后才能通过。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 23-04（判断）</p>
 <p>测试人员要坚持原则，缺陷未修复完坚决不予通过。</p>
@@ -3344,7 +3574,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 需求阶段</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） FILL 回归测试的目的是所做的修改 （填空1） ，同时 （填空2） 的正确性。 填空1: 达到了预定的目的；填空2: 不影响软件原有功能 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课上测试 课上测试（计入总分） FILL 回归测试的目的是所做的修改 （填空1） ，同时 （填空2） 的正确性。 填空1: 达到了预定的目的；填空2: 不影响软件原有功能">
 <div class="sqe-question">
 <p class="sqe-question-title">题 23-10（填空）</p>
 <p>回归测试的目的是所做的修改 （填空1） ，同时 （填空2） 的正确性。</p>
@@ -3360,11 +3590,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>实验一课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">87 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 导致软件缺陷的原因有很多，①&amp;mdash;④是可能的原因，其中最主要的原因包括_____
-①软件需求说明书编写的不全面，不完整，不准确，而且经常更改&amp;rlm;&amp;zwnj;　　　　
-②软件设计说明书&amp;rlm;&amp;zwnj;　　　　
-③软件操作人员的水平&amp;rlm;&amp;zwnj;　　　　
-④开发人员不能很好的理解需求说明书和沟通不足 D. ①、④ ①、②、③ ①、③ ②、③ ①、④">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 导致软件缺陷的原因有很多，①&amp;amp;mdash;④是可能的原因，其中最主要的原因包括_____ ①软件需求说明书编写的不全面，不完整，不准确，而且经常更改&amp;amp;rlm;&amp;amp;zwnj; ②软件设计说明书&amp;amp;rlm;&amp;amp;zwnj; ③软件操作人员的水平&amp;amp;rlm;&amp;amp;zwnj; ④开发人员不能很好的理解需求说明书和沟通不足 D. ①、④ ①、②、③ ①、③ ②、③ ①、④">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-01（单选）</p>
 <p>导致软件缺陷的原因有很多，①&amp;mdash;④是可能的原因，其中最主要的原因包括_____
@@ -3377,12 +3603,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. ①、④</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 一条Bug记录应该包括_____
-①编号
-②Bug描述
-③Bug级别
-④Bug所属模块
-⑤发现人 C. ①②③④⑤ ①②③④ ①② ①②③④⑤ ①②③">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 一条Bug记录应该包括_____ ①编号 ②Bug描述 ③Bug级别 ④Bug所属模块 ⑤发现人 C. ①②③④⑤ ①②③④ ①② ①②③④⑤ ①②③">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-02（单选）</p>
 <p>一条Bug记录应该包括_____
@@ -3396,11 +3617,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. ①②③④⑤</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 下面①--④是关于软件评测师工作原则的描述，正确的判断是_____。&amp;zwnj;&amp;zwnj;
-①对于开发人员提交的程序必须进行完全的测试，以确保程序的质量&amp;zwnj;&amp;zwnj;
-②必须合理安排测试任务，做好周密的测试计划，平均分配软件各个模块的测试时间&amp;zwnj;&amp;zwnj;
-③在测试之前需要与开发人员进行详细的交流，明确开发人员的程序设计思路，并以此为依据开展软件测试工作，最大程度地发现程序中与其设计思路不一致的错误&amp;zwnj;&amp;zwnj;
-④要对自己发现的问题负责，确保每一个问题都能被开发人员理解和修改。 B. 无 ①③ 无 ①② ②③">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 下面①--④是关于软件评测师工作原则的描述，正确的判断是_____。&amp;amp;zwnj;&amp;amp;zwnj; ①对于开发人员提交的程序必须进行完全的测试，以确保程序的质量&amp;amp;zwnj;&amp;amp;zwnj; ②必须合理安排测试任务，做好周密的测试计划，平均分配软件各个模块的测试时间&amp;amp;zwnj;&amp;amp;zwnj; ③在测试之前需要与开发人员进行详细的交流，明确开发人员的程序设计思路，并以此为依据开展软件测试工作，最大程度地发现程序中与其设计思路不一致的错误&amp;amp;zwnj;&amp;amp;zwnj; ④要对自己发现的问题负责，确保每一个问题都能被开发人员理解和修改。 B. 无 ①③ 无 ①② ②③">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-03（单选）</p>
 <p>下面①--④是关于软件评测师工作原则的描述，正确的判断是_____。&amp;zwnj;&amp;zwnj;
@@ -3413,11 +3630,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 无</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE &amp;zwnj;测试记录包括
-&amp;zwnj;① 测试计划或包含测试用例的测试规格说明。
-​&amp;zwnj;② 测试期间出现问题的评估与分析。
-​&amp;zwnj;③ 与测试用例相关的所有结果，包括在测试期间出现的所有失败。
-​&amp;zwnj;④ 测试中涉及的人员身份。 B. ① ③ ④ ① ② ③ ① ③ ④ ② ③ ① ② ③ ④">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE &amp;amp;zwnj;测试记录包括 &amp;amp;zwnj;① 测试计划或包含测试用例的测试规格说明。 ​&amp;amp;zwnj;② 测试期间出现问题的评估与分析。 ​&amp;amp;zwnj;③ 与测试用例相关的所有结果，包括在测试期间出现的所有失败。 ​&amp;amp;zwnj;④ 测试中涉及的人员身份。 B. ① ③ ④ ① ② ③ ① ③ ④ ② ③ ① ② ③ ④">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-04（单选）</p>
 <p>&amp;zwnj;测试记录包括
@@ -3439,7 +3652,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 白盒测试又称为逻辑驱动测试</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 需求分析 - 设计－实现－测试，软件测试是软件开发末期才需要做的工作。   错误 正确说法：软件测试活动应贯穿整个软件生命周期，从需求和设计阶段就开始评审、计划和设计测试。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 需求分析 - 设计－实现－测试，软件测试是软件开发末期才需要做的工作。 错误 正确说法：软件测试活动应贯穿整个软件生命周期，从需求和设计阶段就开始评审、计划和设计测试。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-06（判断）</p>
 <p>需求分析 - 设计－实现－测试，软件测试是软件开发末期才需要做的工作。</p>
@@ -3448,7 +3661,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：软件测试活动应贯穿整个软件生命周期，从需求和设计阶段就开始评审、计划和设计测试。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 采用自动化测试工具后一定比手工测试发现的缺陷更多。   错误 正确说法：自动化测试能提高重复执行效率，但发现缺陷的能力取决于测试设计和场景覆盖，并不一定比手工测试发现更多缺陷。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 采用自动化测试工具后一定比手工测试发现的缺陷更多。 错误 正确说法：自动化测试能提高重复执行效率，但发现缺陷的能力取决于测试设计和场景覆盖，并不一定比手工测试发现更多缺陷。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-07（判断）</p>
 <p>采用自动化测试工具后一定比手工测试发现的缺陷更多。</p>
@@ -3457,7 +3670,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：自动化测试能提高重复执行效率，但发现缺陷的能力取决于测试设计和场景覆盖，并不一定比手工测试发现更多缺陷。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 测试人员要坚持原则，缺陷未修复完坚决不予通过。   错误 正确说法：测试人员应依据缺陷严重程度、优先级和发布准则给出质量风险意见，是否允许发布由项目或质量决策流程决定，不要求所有缺陷都修复后才能通过。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 测试人员要坚持原则，缺陷未修复完坚决不予通过。 错误 正确说法：测试人员应依据缺陷严重程度、优先级和发布准则给出质量风险意见，是否允许发布由项目或质量决策流程决定，不要求所有缺陷都修复后才能通过。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-08（判断）</p>
 <p>测试人员要坚持原则，缺陷未修复完坚决不予通过。</p>
@@ -3466,7 +3679,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：测试人员应依据缺陷严重程度、优先级和发布准则给出质量风险意见，是否允许发布由项目或质量决策流程决定，不要求所有缺陷都修复后才能通过。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 自底向上集成需要测试员编写驱动程序。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 自底向上集成需要测试员编写驱动程序。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-09（判断）</p>
 <p>自底向上集成需要测试员编写驱动程序。</p>
@@ -3511,7 +3724,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 自动测试比手工测试发现的缺陷少</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE &amp;lrm;缺陷跟踪就是要确保每个被发现的缺陷最终都能够被_____，而不是不了了之 。 A. 关闭 关闭 改正 隐藏 发现">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE &amp;amp;lrm;缺陷跟踪就是要确保每个被发现的缺陷最终都能够被_____，而不是不了了之 。 A. 关闭 关闭 改正 隐藏 发现">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-14（单选）</p>
 <p>&amp;lrm;缺陷跟踪就是要确保每个被发现的缺陷最终都能够被_____，而不是不了了之 。</p>
@@ -3583,7 +3796,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 分析</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE &amp;zwj;增量式集成测试有3种方式：自顶向下增量测试方法，_____和混合增量测试方式。 C. 自底向上增量测试方法 从大到小增量测试方法 自上向底增量测试方法 自底向上增量测试方法 从小到大增量测试方法">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE &amp;amp;zwj;增量式集成测试有3种方式：自顶向下增量测试方法，_____和混合增量测试方式。 C. 自底向上增量测试方法 从大到小增量测试方法 自上向底增量测试方法 自底向上增量测试方法 从小到大增量测试方法">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-22（单选）</p>
 <p>&amp;zwj;增量式集成测试有3种方式：自顶向下增量测试方法，_____和混合增量测试方式。</p>
@@ -3601,7 +3814,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 代码审查</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） FILL 按照是否需要知道被测试程序的内部结构，测试方法可以分为： （填空1） 测试和 （填空2） 测试。 填空1: 黑盒；填空2: 白盒 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） FILL 按照是否需要知道被测试程序的内部结构，测试方法可以分为： （填空1） 测试和 （填空2） 测试。 填空1: 黑盒；填空2: 白盒">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-24（填空）</p>
 <p>按照是否需要知道被测试程序的内部结构，测试方法可以分为： （填空1） 测试和 （填空2） 测试。</p>
@@ -3610,7 +3823,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 黑盒；填空2: 白盒</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） FILL 动态测试的两个基本要素是 （填空1） 、 （填空2） 。 填空1: 被测试程序；填空2: 测试用例 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） FILL 动态测试的两个基本要素是 （填空1） 、 （填空2） 。 填空1: 被测试程序；填空2: 测试用例">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-25（填空）</p>
 <p>动态测试的两个基本要素是 （填空1） 、 （填空2） 。</p>
@@ -3619,7 +3832,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 被测试程序；填空2: 测试用例</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 发现错误多的模块，残留在模块中的错误也多。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 发现错误多的模块，残留在模块中的错误也多。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-26（判断）</p>
 <p>&amp;zwnj;发现错误多的模块，残留在模块中的错误也多。</p>
@@ -3628,7 +3841,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 一个软件存在哪些缺陷，开发者和用户的立场是一致的。   错误 正确说法：开发者常从内部实现和规格看缺陷，用户从需求、使用效果和业务价值看缺陷，二者立场可能不同。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 一个软件存在哪些缺陷，开发者和用户的立场是一致的。 错误 正确说法：开发者常从内部实现和规格看缺陷，用户从需求、使用效果和业务价值看缺陷，二者立场可能不同。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-27（判断）</p>
 <p>一个软件存在哪些缺陷，开发者和用户的立场是一致的。</p>
@@ -3637,7 +3850,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：开发者常从内部实现和规格看缺陷，用户从需求、使用效果和业务价值看缺陷，二者立场可能不同。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 软件测试针对的是初级程序员编写的程序，资深程序员编写的程序无需测试。   错误 正确说法：任何人编写的软件都可能存在缺陷，资深程序员的代码同样需要测试和评审。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 软件测试针对的是初级程序员编写的程序，资深程序员编写的程序无需测试。 错误 正确说法：任何人编写的软件都可能存在缺陷，资深程序员的代码同样需要测试和评审。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-28（判断）</p>
 <p>软件测试针对的是初级程序员编写的程序，资深程序员编写的程序无需测试。</p>
@@ -3682,7 +3895,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 找到的缺陷越多，软件遗留的缺陷就越少</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 好的测试员不懈追求完美，保证通过测试的软件不会再有缺陷。   错误 正确说法：测试只能证明缺陷存在，不能证明缺陷不存在；好的测试员应关注风险和缺陷发现，而不能保证软件无缺陷。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 好的测试员不懈追求完美，保证通过测试的软件不会再有缺陷。 错误 正确说法：测试只能证明缺陷存在，不能证明缺陷不存在；好的测试员应关注风险和缺陷发现，而不能保证软件无缺陷。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-33（判断）</p>
 <p>&amp;zwnj;好的测试员不懈追求完美，保证通过测试的软件不会再有缺陷。&amp;zwj;</p>
@@ -3691,7 +3904,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：测试只能证明缺陷存在，不能证明缺陷不存在；好的测试员应关注风险和缺陷发现，而不能保证软件无缺陷。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 测试是为了验证软件已正确地实现了用户的要求。   错误 正确说法：软件测试的核心目的是发现缺陷并评价质量，验证需求实现只是测试目标之一，不能把测试理解成只证明软件正确。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 测试是为了验证软件已正确地实现了用户的要求。 错误 正确说法：软件测试的核心目的是发现缺陷并评价质量，验证需求实现只是测试目标之一，不能把测试理解成只证明软件正确。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-34（判断）</p>
 <p>测试是为了验证软件已正确地实现了用户的要求。</p>
@@ -3772,7 +3985,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 测试组织与开发组织为不同公司。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 代码评审员一般由测试员担任。   错误 正确说法：代码评审通常由开发同伴、技术负责人或相关专家担任，测试人员可以参与，但不通常由测试员单独承担。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 代码评审员一般由测试员担任。 错误 正确说法：代码评审通常由开发同伴、技术负责人或相关专家担任，测试人员可以参与，但不通常由测试员单独承担。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-43（判断）</p>
 <p>代码评审员一般由测试员担任。</p>
@@ -3781,11 +3994,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：代码评审通常由开发同伴、技术负责人或相关专家担任，测试人员可以参与，但不通常由测试员单独承担。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 以下属于安全测试方法的是。
-①安全功能验证
-②安全漏洞扫描
-③模拟攻击实验
-④数据侦听 D. ①②③④ ①③ ①②③ ①②④ ①②③④">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 以下属于安全测试方法的是。 ①安全功能验证 ②安全漏洞扫描 ③模拟攻击实验 ④数据侦听 D. ①②③④ ①③ ①②③ ①②④ ①②③④">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-44（单选）</p>
 <p>以下属于安全测试方法的是。
@@ -3798,12 +4007,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. ①②③④</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 编写测试计划的目的是。
-①使测试工作顺利进行
-②使项目参与人员沟通更舒畅
-③使测试工作更加系统化
-④软件过程规范化的要求
-⑤控制软件质量 B. ①②③ ②③⑤ ①②③ ①②④ ①②⑤">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 编写测试计划的目的是。 ①使测试工作顺利进行 ②使项目参与人员沟通更舒畅 ③使测试工作更加系统化 ④软件过程规范化的要求 ⑤控制软件质量 B. ①②③ ②③⑤ ①②③ ①②④ ①②⑤">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-45（单选）</p>
 <p>编写测试计划的目的是。
@@ -3817,12 +4021,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. ①②③</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 对需求说明书评测的内容包括。
-①系统定义的目标是否与用户的要求一致
-②被开发项目的数据流与数据结构是否足够、确定
-③与所有其它系统交互的重要接口是否都已经描述
-④主要功能是否已包含在规定的软件范围之内，是否都已充分说明
-⑤确认软件的内部接口与外部接口是否已明确定义 D. ①②③④ ①③⑤ ②③⑤ ①②④⑤ ①②③④">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 对需求说明书评测的内容包括。 ①系统定义的目标是否与用户的要求一致 ②被开发项目的数据流与数据结构是否足够、确定 ③与所有其它系统交互的重要接口是否都已经描述 ④主要功能是否已包含在规定的软件范围之内，是否都已充分说明 ⑤确认软件的内部接口与外部接口是否已明确定义 D. ①②③④ ①③⑤ ②③⑤ ①②④⑤ ①②③④">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-46（单选）</p>
 <p>对需求说明书评测的内容包括。
@@ -3845,12 +4044,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 白盒测试通过对程序内部结构的分析、检测来寻找问题</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 为了使软件测试更加高效，应遵循的原则包括。
-①所有的软件测试都应追溯到用户需求、充分注意缺陷群集现象
-②尽早地和不断地进行软件测试、回归测试
-③为了证明程序的正确性，尽可能多的开发测试用例
-④应由不同的测试人员对测试所发现的缺陷进行确认
-⑤增量测试，由小到大 D. ①②④⑤ ①②③④ ①③④⑤ ②③④ ①②④⑤">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 为了使软件测试更加高效，应遵循的原则包括。 ①所有的软件测试都应追溯到用户需求、充分注意缺陷群集现象 ②尽早地和不断地进行软件测试、回归测试 ③为了证明程序的正确性，尽可能多的开发测试用例 ④应由不同的测试人员对测试所发现的缺陷进行确认 ⑤增量测试，由小到大 D. ①②④⑤ ①②③④ ①③④⑤ ②③④ ①②④⑤">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-48（单选）</p>
 <p>为了使软件测试更加高效，应遵循的原则包括。
@@ -3900,7 +4094,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 测试过程中某模块中查出的错误越多，该模块残留的错误就越少</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 测试是为了验证软件已正确地实现了用户的要求。   错误 正确说法：软件测试的核心目的是发现缺陷并评价质量，验证需求实现只是测试目标之一，不能把测试理解成只证明软件正确。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 测试是为了验证软件已正确地实现了用户的要求。 错误 正确说法：软件测试的核心目的是发现缺陷并评价质量，验证需求实现只是测试目标之一，不能把测试理解成只证明软件正确。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-53（判断）</p>
 <p>测试是为了验证软件已正确地实现了用户的要求。</p>
@@ -3909,7 +4103,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：软件测试的核心目的是发现缺陷并评价质量，验证需求实现只是测试目标之一，不能把测试理解成只证明软件正确。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） FILL 动态测试技术主要使用的分析方法包括： （填空1） 测试、 （填空2）测试 和 （填空3）测试 。 填空1: 白盒；填空2: 黑盒；填空3: 灰盒 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） FILL 动态测试技术主要使用的分析方法包括： （填空1） 测试、 （填空2）测试 和 （填空3）测试 。 填空1: 白盒；填空2: 黑盒；填空3: 灰盒">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-54（填空）</p>
 <p>动态测试技术主要使用的分析方法包括： （填空1） 测试、 （填空2）测试 和 （填空3）测试 。</p>
@@ -3918,7 +4112,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 白盒；填空2: 黑盒；填空3: 灰盒</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） FILL 回归测试的目的是所做的修改 （填空1） ，同时 （填空2） 的正确性。 填空1: 达到了预定的目的；填空2: 不影响软件原有功能 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） FILL 回归测试的目的是所做的修改 （填空1） ，同时 （填空2） 的正确性。 填空1: 达到了预定的目的；填空2: 不影响软件原有功能">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-55（填空）</p>
 <p>回归测试的目的是所做的修改 （填空1） ，同时 （填空2） 的正确性。</p>
@@ -3963,7 +4157,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 单元测试、集成测试和系统测试</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 在软件测试中, 测试预言是一种检验待测系统在特定执行下是否正确运行的方法。  ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 在软件测试中, 测试预言是一种检验待测系统在特定执行下是否正确运行的方法。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-60（判断）</p>
 <p>在软件测试中, 测试预言是一种检验待测系统在特定执行下是否正确运行的方法。</p>
@@ -3972,7 +4166,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 测试人员说：没有可运行的程序，我无法进行测试工作。   错误 正确说法：没有可运行程序时仍可开展静态测试，如需求评审、设计评审、测试计划和测试用例设计。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 测试人员说：没有可运行的程序，我无法进行测试工作。 错误 正确说法：没有可运行程序时仍可开展静态测试，如需求评审、设计评审、测试计划和测试用例设计。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-61（判断）</p>
 <p>测试人员说：没有可运行的程序，我无法进行测试工作。</p>
@@ -3981,7 +4175,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：没有可运行程序时仍可开展静态测试，如需求评审、设计评审、测试计划和测试用例设计。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 项目立项前测试人员不需要提交任何工件。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 项目立项前测试人员不需要提交任何工件。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-62（判断）</p>
 <p>项目立项前测试人员不需要提交任何工件。</p>
@@ -3990,7 +4184,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 发现错误多的模块，残留在模块中的错误也多。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 发现错误多的模块，残留在模块中的错误也多。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-63（判断）</p>
 <p>发现错误多的模块，残留在模块中的错误也多。</p>
@@ -3999,7 +4193,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 只要能够达到100％的逻辑覆盖率，就可以保证程序的正确性。   错误 正确说法：100%逻辑覆盖只能说明选定结构被执行过，不能保证需求完整、数据正确或程序没有缺陷。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 只要能够达到100％的逻辑覆盖率，就可以保证程序的正确性。 错误 正确说法：100%逻辑覆盖只能说明选定结构被执行过，不能保证需求完整、数据正确或程序没有缺陷。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-64（判断）</p>
 <p>只要能够达到100％的逻辑覆盖率，就可以保证程序的正确性。</p>
@@ -4008,7 +4202,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：100%逻辑覆盖只能说明选定结构被执行过，不能保证需求完整、数据正确或程序没有缺陷。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 测试人员要坚持原则，缺陷未修复完坚决不予通过。   错误 正确说法：测试人员应依据缺陷严重程度、优先级和发布准则给出质量风险意见，是否允许发布由项目或质量决策流程决定，不要求所有缺陷都修复后才能通过。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 测试人员要坚持原则，缺陷未修复完坚决不予通过。 错误 正确说法：测试人员应依据缺陷严重程度、优先级和发布准则给出质量风险意见，是否允许发布由项目或质量决策流程决定，不要求所有缺陷都修复后才能通过。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-65（判断）</p>
 <p>测试人员要坚持原则，缺陷未修复完坚决不予通过。</p>
@@ -4017,7 +4211,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：测试人员应依据缺陷严重程度、优先级和发布准则给出质量风险意见，是否允许发布由项目或质量决策流程决定，不要求所有缺陷都修复后才能通过。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） FILL 动态测试技术主要使用的分析方法包括： （填空1） 测试、 （填空2） 测试和 （填空3） 测试。 填空1: 白盒；填空2: 黑盒；填空3: 灰盒 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） FILL 动态测试技术主要使用的分析方法包括： （填空1） 测试、 （填空2） 测试和 （填空3） 测试。 填空1: 白盒；填空2: 黑盒；填空3: 灰盒">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-66（填空）</p>
 <p>动态测试技术主要使用的分析方法包括： （填空1） 测试、 （填空2） 测试和 （填空3） 测试。</p>
@@ -4026,12 +4220,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 白盒；填空2: 黑盒；填空3: 灰盒</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 某软件公司在招聘软件评测师时，应聘者甲向公司做如下保证：
-① 经过自己测试的软件今后不会再出现问题；
-② 在工作中对所有程序员一视同仁，不会因为在某个程序员编写的程序中发现的问题多，就重点审查该程序，以免不利于团结；
-③ 承诺不需要其他人员，自己就可以独立进行测试工作；
-④ 发扬咬定青山不放松的精神，不把所有问题都找出来，决不罢休；
-你认为应聘者甲的保证 _____。 D. 都不正确 ①、④是正确的 ②是正确的 都是正确的 都不正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） SINGLE 某软件公司在招聘软件评测师时，应聘者甲向公司做如下保证： ① 经过自己测试的软件今后不会再出现问题； ② 在工作中对所有程序员一视同仁，不会因为在某个程序员编写的程序中发现的问题多，就重点审查该程序，以免不利于团结； ③ 承诺不需要其他人员，自己就可以独立进行测试工作； ④ 发扬咬定青山不放松的精神，不把所有问题都找出来，决不罢休； 你认为应聘者甲的保证 _____。 D. 都不正确 ①、④是正确的 ②是正确的 都是正确的 都不正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-67（单选）</p>
 <p>某软件公司在招聘软件评测师时，应聘者甲向公司做如下保证：
@@ -4144,7 +4333,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 软件测试目的是为了改正软件的错误；D. 应用系统开发完毕，再对它进行软件测试</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 软件测试工具可以代替软件测试员。   错误 正确说法：测试工具只能辅助执行、管理或分析测试，不能代替测试人员的判断、设计和质量分析。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 软件测试工具可以代替软件测试员。 错误 正确说法：测试工具只能辅助执行、管理或分析测试，不能代替测试人员的判断、设计和质量分析。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-79（判断）</p>
 <p>软件测试工具可以代替软件测试员。</p>
@@ -4153,7 +4342,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：测试工具只能辅助执行、管理或分析测试，不能代替测试人员的判断、设计和质量分析。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 软件测试等于程序测试。   错误 正确说法：软件测试不仅包括程序执行测试，还包括需求、设计、文档等静态测试和质量评价活动。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 软件测试等于程序测试。 错误 正确说法：软件测试不仅包括程序执行测试，还包括需求、设计、文档等静态测试和质量评价活动。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-80（判断）</p>
 <p>软件测试等于程序测试。</p>
@@ -4162,7 +4351,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：软件测试不仅包括程序执行测试，还包括需求、设计、文档等静态测试和质量评价活动。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 最重要的用户界面要素是软件符合现行标准和规范。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 最重要的用户界面要素是软件符合现行标准和规范。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-81（判断）</p>
 <p>最重要的用户界面要素是软件符合现行标准和规范。</p>
@@ -4171,7 +4360,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 软件测试是有风险的行为，并非所有的软件缺陷都能够被修复。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 软件测试是有风险的行为，并非所有的软件缺陷都能够被修复。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-82（判断）</p>
 <p>软件测试是有风险的行为，并非所有的软件缺陷都能够被修复。</p>
@@ -4180,7 +4369,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 传统测试以发现错误为目的，现在测试已经扩展到了错误预防的范畴。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 传统测试以发现错误为目的，现在测试已经扩展到了错误预防的范畴。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-83（判断）</p>
 <p>传统测试以发现错误为目的，现在测试已经扩展到了错误预防的范畴。</p>
@@ -4189,7 +4378,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 我们有理由相信只要能够设计出尽可能好的测试方案，经过严格测试之后的软件可以没有缺陷。   错误 正确说法：即使测试方案很好，也无法穷尽所有输入、路径和环境，严格测试只能降低风险，不能保证软件没有缺陷。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 我们有理由相信只要能够设计出尽可能好的测试方案，经过严格测试之后的软件可以没有缺陷。 错误 正确说法：即使测试方案很好，也无法穷尽所有输入、路径和环境，严格测试只能降低风险，不能保证软件没有缺陷。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-84（判断）</p>
 <p>我们有理由相信只要能够设计出尽可能好的测试方案，经过严格测试之后的软件可以没有缺陷。</p>
@@ -4198,7 +4387,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：即使测试方案很好，也无法穷尽所有输入、路径和环境，严格测试只能降低风险，不能保证软件没有缺陷。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 设计－实现－测试，软件测试是开发后期的一个阶段。   错误 正确说法：软件测试不是开发后期单一阶段，应从需求阶段开始并贯穿设计、编码、集成和维护全过程。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 设计－实现－测试，软件测试是开发后期的一个阶段。 错误 正确说法：软件测试不是开发后期单一阶段，应从需求阶段开始并贯穿设计、编码、集成和维护全过程。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-85（判断）</p>
 <p>设计－实现－测试，软件测试是开发后期的一个阶段。</p>
@@ -4207,7 +4396,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：软件测试不是开发后期单一阶段，应从需求阶段开始并贯穿设计、编码、集成和维护全过程。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 永远有缺陷类型会在测试的一个层次上被发现，并且能够在另一个层次上逃避检测。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 永远有缺陷类型会在测试的一个层次上被发现，并且能够在另一个层次上逃避检测。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-86（判断）</p>
 <p>永远有缺陷类型会在测试的一个层次上被发现，并且能够在另一个层次上逃避检测。</p>
@@ -4216,7 +4405,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 程序员兼任测试员可以提高工作效率。   错误 正确说法：程序员可以做单元测试，但独立测试能减少认知偏差，不能简单认为由程序员兼任测试员就能提高整体质量和效率。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验一课后练习 课后练习（计入总分） TF 程序员兼任测试员可以提高工作效率。 错误 正确说法：程序员可以做单元测试，但独立测试能减少认知偏差，不能简单认为由程序员兼任测试员就能提高整体质量和效率。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 2-87（判断）</p>
 <p>程序员兼任测试员可以提高工作效率。</p>
@@ -4232,7 +4421,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div><small>课上测试（计入总分） · 云班课 QUIZ</small><h3>实验二课上测试</h3><div><span class="sqe-source-pill">补充自成绩结果接口</span><span class="sqe-source-pill">10 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） TF 基路径测试给出了必需进行的测试的上限。 F ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） TF 基路径测试给出了必需进行的测试的上限。 F">
 <div class="sqe-question">
 <p class="sqe-question-title">题 22-01（判断）</p>
 <p>基路径测试给出了必需进行的测试的上限。</p>
@@ -4241,7 +4430,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>F</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） TF 基路径是指从所有的程序路径中选择一个最小的路径集合，程序中的其它路径都可以由这一组路径进行加法和数乘运算得到。 T ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） TF 基路径是指从所有的程序路径中选择一个最小的路径集合，程序中的其它路径都可以由这一组路径进行加法和数乘运算得到。 T">
 <div class="sqe-question">
 <p class="sqe-question-title">题 22-02（判断）</p>
 <p>基路径是指从所有的程序路径中选择一个最小的路径集合，程序中的其它路径都可以由这一组路径进行加法和数乘运算得到。</p>
@@ -4250,7 +4439,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>T</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE &amp;rlm;一个程序中所含有的路径数与_____有着直接的关系 D. 程序的复杂程度 程序语句行数 程序指令执行时间 程序模块数 程序的复杂程度">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE &amp;amp;rlm;一个程序中所含有的路径数与_____有着直接的关系 D. 程序的复杂程度 程序语句行数 程序指令执行时间 程序模块数 程序的复杂程度">
 <div class="sqe-question">
 <p class="sqe-question-title">题 22-03（单选）</p>
 <p>&amp;rlm;一个程序中所含有的路径数与_____有着直接的关系</p>
@@ -4268,18 +4457,7 @@ ISO模型第一层（质量特性）和第二层（准则）的关系非常清�
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 内部逻辑</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE ​阅读下面这段程序，使用逻辑覆盖法进行测试，请问哪一组关于（a,b,c）的输入值可以达到判定覆盖。
-&amp;lrm;​int func(int a,b,c)
-{&amp;lrm;​
-int k=1;
-&amp;lrm;​if ( (a&gt;0) &amp;&amp;(b&lt;0) &amp;&amp; (a+c&gt;0) )
-k=k+a;&amp;lrm;​
-else
-k=k+b;
-&amp;lrm;​if (c&gt;0)
-k=k+c;&amp;lrm;​
-return k;&amp;lrm;​
-} C. (a,b,c) = (4,-9,-2)、(-4,8,3) (a,b,c) = (2,5,8)、(-4,-9,-5) (a,b,c) = (3,6,1)、(-4,-5,7) (a,b,c) = (4,-9,-2)、(-4,8,3) (a,b,c) = (6,8,-2)、(1,5,4)">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE ​阅读下面这段程序，使用逻辑覆盖法进行测试，请问哪一组关于（a,b,c）的输入值可以达到判定覆盖。 &amp;amp;lrm;​int func(int a,b,c) {&amp;amp;lrm;​ int k=1; &amp;amp;lrm;​if ( (a&amp;gt;0) &amp;amp;&amp;amp;(b&amp;lt;0) &amp;amp;&amp;amp; (a+c&amp;gt;0) ) k=k+a;&amp;amp;lrm;​ else k=k+b; &amp;amp;lrm;​if (c&amp;gt;0) k=k+c;&amp;amp;lrm;​ return k;&amp;amp;lrm;​ } C. (a,b,c) = (4,-9,-2)、(-4,8,3) (a,b,c) = (2,5,8)、(-4,-9,-5) (a,b,c) = (3,6,1)、(-4,-5,7) (a,b,c) = (4,-9,-2)、(-4,8,3) (a,b,c) = (6,8,-2)、(1,5,4)">
 <div class="sqe-question">
 <p class="sqe-question-title">题 22-05（单选）</p>
 <p>​阅读下面这段程序，使用逻辑覆盖法进行测试，请问哪一组关于（a,b,c）的输入值可以达到判定覆盖。
@@ -4299,11 +4477,7 @@ return k;&amp;lrm;​
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. (a,b,c) = (4,-9,-2)、(-4,8,3)</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE &amp;zwnj;针对下面一个程序段：
-If ((M&gt;0) &amp;&amp; (N = = 0)) FUCTION1;
-If ((M = = 10)|| (P &gt; 10)) FUCTION2;
-其中，FUCTION1、FUCTION2均为语句块。
-现在选取测试用例：M=10 N=0 P=3 ，该测试用例满足了 A. 语句覆盖 语句覆盖 判定覆盖 条件组合覆 路径覆盖">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） SINGLE &amp;amp;zwnj;针对下面一个程序段： If ((M&amp;gt;0) &amp;amp;&amp;amp; (N = = 0)) FUCTION1; If ((M = = 10)|| (P &amp;gt; 10)) FUCTION2; 其中，FUCTION1、FUCTION2均为语句块。 现在选取测试用例：M=10 N=0 P=3 ，该测试用例满足了 A. 语句覆盖 语句覆盖 判定覆盖 条件组合覆 路径覆盖">
 <div class="sqe-question">
 <p class="sqe-question-title">题 22-06（单选）</p>
 <p>&amp;zwnj;针对下面一个程序段：
@@ -4334,7 +4508,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 语句覆盖</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） FILL 判定-条件覆盖法要求使得判断中 （填空1） 至少执行一次。 填空1: 每个条件的所有可能取值 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） FILL 判定-条件覆盖法要求使得判断中 （填空1） 至少执行一次。 填空1: 每个条件的所有可能取值">
 <div class="sqe-question">
 <p class="sqe-question-title">题 22-09（填空）</p>
 <p>判定-条件覆盖法要求使得判断中 （填空1） 至少执行一次。</p>
@@ -4343,7 +4517,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 每个条件的所有可能取值</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） TF 在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。 F ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课上测试 课上测试（计入总分） TF 在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。 F">
 <div class="sqe-question">
 <p class="sqe-question-title">题 22-10（判断）</p>
 <p>在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。</p>
@@ -4359,7 +4533,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>实验二课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">25 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） TF 基路径测试给出了必需进行的测试的上限。   错误 正确说法：基路径测试根据圈复杂度给出应覆盖的独立路径数量，通常表示所需测试用例数的下限而不是上限。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） TF 基路径测试给出了必需进行的测试的上限。 错误 正确说法：基路径测试根据圈复杂度给出应覆盖的独立路径数量，通常表示所需测试用例数的下限而不是上限。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-01（判断）</p>
 <p>基路径测试给出了必需进行的测试的上限。</p>
@@ -4368,7 +4542,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：基路径测试根据圈复杂度给出应覆盖的独立路径数量，通常表示所需测试用例数的下限而不是上限。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） TF 基路径是指从所有的程序路径中选择一个最小的路径集合，程序中的其它路径都可以由这一组路径进行加法和数乘运算得到。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） TF 基路径是指从所有的程序路径中选择一个最小的路径集合，程序中的其它路径都可以由这一组路径进行加法和数乘运算得到。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-02（判断）</p>
 <p>基路径是指从所有的程序路径中选择一个最小的路径集合，程序中的其它路径都可以由这一组路径进行加法和数乘运算得到。</p>
@@ -4386,7 +4560,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 条件组合覆盖</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） SINGLE &amp;rlm;一个程序中所含有的路径数与_____有着直接的关系 D. 程序的复杂程度 程序语句行数 程序指令执行时间 程序模块数 程序的复杂程度">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） SINGLE &amp;amp;rlm;一个程序中所含有的路径数与_____有着直接的关系 D. 程序的复杂程度 程序语句行数 程序指令执行时间 程序模块数 程序的复杂程度">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-04（单选）</p>
 <p>&amp;rlm;一个程序中所含有的路径数与_____有着直接的关系</p>
@@ -4395,7 +4569,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 程序的复杂程度</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） SINGLE 条件覆盖的目的是 D. 使程序中的每个判定中每个条件的可能值至少满足一次 使程序中的每个可执行语句至少执行一次 使每个判定的所有可能的条件取值组合至少执行一次 使程序中的每个判定至少都获得一次&amp;ldquo;真&amp;rdquo;值和&amp;ldquo;假&amp;rdquo;值 使程序中的每个判定中每个条件的可能值至少满足一次">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） SINGLE 条件覆盖的目的是 D. 使程序中的每个判定中每个条件的可能值至少满足一次 使程序中的每个可执行语句至少执行一次 使每个判定的所有可能的条件取值组合至少执行一次 使程序中的每个判定至少都获得一次&amp;amp;ldquo;真&amp;amp;rdquo;值和&amp;amp;ldquo;假&amp;amp;rdquo;值 使程序中的每个判定中每个条件的可能值至少满足一次">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-05（单选）</p>
 <p>条件覆盖的目的是</p>
@@ -4413,18 +4587,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 内部逻辑</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） SINGLE ​阅读下面这段程序，使用逻辑覆盖法进行测试，请问哪一组关于（a,b,c）的输入值可以达到判定覆盖。
-&amp;lrm;​int func(int a,b,c)
-{&amp;lrm;​
-int k=1;
-&amp;lrm;​if ( (a&gt;0) &amp;&amp;(b&lt;0) &amp;&amp; (a+c&gt;0) )
-k=k+a;&amp;lrm;​
-else
-k=k+b;
-&amp;lrm;​if (c&gt;0)
-k=k+c;&amp;lrm;​
-return k;&amp;lrm;​
-} C. (a,b,c) = (4,-9,-2)、(-4,8,3) (a,b,c) = (2,5,8)、(-4,-9,-5) (a,b,c) = (3,6,1)、(-4,-5,7) (a,b,c) = (4,-9,-2)、(-4,8,3) (a,b,c) = (6,8,-2)、(1,5,4)">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） SINGLE ​阅读下面这段程序，使用逻辑覆盖法进行测试，请问哪一组关于（a,b,c）的输入值可以达到判定覆盖。 &amp;amp;lrm;​int func(int a,b,c) {&amp;amp;lrm;​ int k=1; &amp;amp;lrm;​if ( (a&amp;gt;0) &amp;amp;&amp;amp;(b&amp;lt;0) &amp;amp;&amp;amp; (a+c&amp;gt;0) ) k=k+a;&amp;amp;lrm;​ else k=k+b; &amp;amp;lrm;​if (c&amp;gt;0) k=k+c;&amp;amp;lrm;​ return k;&amp;amp;lrm;​ } C. (a,b,c) = (4,-9,-2)、(-4,8,3) (a,b,c) = (2,5,8)、(-4,-9,-5) (a,b,c) = (3,6,1)、(-4,-5,7) (a,b,c) = (4,-9,-2)、(-4,8,3) (a,b,c) = (6,8,-2)、(1,5,4)">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-07（单选）</p>
 <p>​阅读下面这段程序，使用逻辑覆盖法进行测试，请问哪一组关于（a,b,c）的输入值可以达到判定覆盖。
@@ -4471,7 +4634,7 @@ return k;&amp;lrm;​
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 程序的环路复杂度</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） SINGLE 如果一个判定中的复合条件表达式为（A &gt; 1）or（B &lt;= 3），则为了达到100%的条件覆盖率，至少需要设计多少个测试用例_____。 D. 2 3 1 4 2">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） SINGLE 如果一个判定中的复合条件表达式为（A &amp;gt; 1）or（B &amp;lt;= 3），则为了达到100%的条件覆盖率，至少需要设计多少个测试用例_____。 D. 2 3 1 4 2">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-11（单选）</p>
 <p>如果一个判定中的复合条件表达式为（A &gt; 1）or（B &lt;= 3），则为了达到100%的条件覆盖率，至少需要设计多少个测试用例_____。</p>
@@ -4480,11 +4643,7 @@ return k;&amp;lrm;​
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 2</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） SINGLE 对下面的计算个人所得税程序中，满足判定覆盖的测试用例是_____。
-&amp;lrm;&amp;rlm;if (income&lt;800) taxrate=0;
-&amp;lrm; else if (income&lt;=1500) taxrate=0.05;
-&amp;lrm; else if (income&lt;2000) taxrate=0.08;
-&amp;lrm; else taxrate=0.1; D. income=(799, 1500, 1999, 2000) income=(799, 1501, 2000, 2001) income=(800, 1499, 2000, 2001) income=(800, 1500, 2000, 2001) income=(799, 1500, 1999, 2000)">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） SINGLE 对下面的计算个人所得税程序中，满足判定覆盖的测试用例是_____。 &amp;amp;lrm;&amp;amp;rlm;if (income&amp;lt;800) taxrate=0; &amp;amp;lrm; else if (income&amp;lt;=1500) taxrate=0.05; &amp;amp;lrm; else if (income&amp;lt;2000) taxrate=0.08; &amp;amp;lrm; else taxrate=0.1; D. income=(799, 1500, 1999, 2000) income=(799, 1501, 2000, 2001) income=(800, 1499, 2000, 2001) income=(800, 1500, 2000, 2001) income=(799, 1500, 1999, 2000)">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-12（单选）</p>
 <p>对下面的计算个人所得税程序中，满足判定覆盖的测试用例是_____。
@@ -4497,11 +4656,7 @@ return k;&amp;lrm;​
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. income=(799, 1500, 1999, 2000)</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） SINGLE &amp;zwnj;针对下面一个程序段：
-If ((M&gt;0) &amp;&amp; (N = = 0)) FUCTION1;
-If ((M = = 10)|| (P &gt; 10)) FUCTION2;
-其中，FUCTION1、FUCTION2均为语句块。
-现在选取测试用例：M=10 N=0 P=3 ，该测试用例满足了 A. 语句覆盖 语句覆盖 判定覆盖 条件组合覆 路径覆盖">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） SINGLE &amp;amp;zwnj;针对下面一个程序段： If ((M&amp;gt;0) &amp;amp;&amp;amp; (N = = 0)) FUCTION1; If ((M = = 10)|| (P &amp;gt; 10)) FUCTION2; 其中，FUCTION1、FUCTION2均为语句块。 现在选取测试用例：M=10 N=0 P=3 ，该测试用例满足了 A. 语句覆盖 语句覆盖 判定覆盖 条件组合覆 路径覆盖">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-13（单选）</p>
 <p>&amp;zwnj;针对下面一个程序段：
@@ -4550,7 +4705,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 语句覆盖</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） TF Beta 测试是验收测试的一种。   正确">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） TF Beta 测试是验收测试的一种。 正确">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-18（判断）</p>
 <p>Beta 测试是验收测试的一种。</p>
@@ -4559,7 +4714,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>正确</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） TF 白盒测试会造成测试用例之间可能存在严重的冗余和未测试的功能漏洞。   错误 正确说法：白盒测试关注内部结构和路径覆盖，可能遗漏未实现的需求功能；实际测试应与黑盒测试结合，不能把冗余和功能漏洞简单归因于白盒测试本身。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） TF 白盒测试会造成测试用例之间可能存在严重的冗余和未测试的功能漏洞。 错误 正确说法：白盒测试关注内部结构和路径覆盖，可能遗漏未实现的需求功能；实际测试应与黑盒测试结合，不能把冗余和功能漏洞简单归因于白盒测试本身。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-19（判断）</p>
 <p>白盒测试会造成测试用例之间可能存在严重的冗余和未测试的功能漏洞。</p>
@@ -4568,7 +4723,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：白盒测试关注内部结构和路径覆盖，可能遗漏未实现的需求功能；实际测试应与黑盒测试结合，不能把冗余和功能漏洞简单归因于白盒测试本身。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） FILL 判定-条件覆盖法要求使得判断中 （填空1） 至少执行一次。 填空1: 每个条件的所有可能取值 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） FILL 判定-条件覆盖法要求使得判断中 （填空1） 至少执行一次。 填空1: 每个条件的所有可能取值">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-20（填空）</p>
 <p>判定-条件覆盖法要求使得判断中 （填空1） 至少执行一次。</p>
@@ -4577,7 +4732,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 每个条件的所有可能取值</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） FILL 白盒测试适合 （填空1） 测试、 （填空2） 测试。 填空1: 单元；填空2: 集成 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） FILL 白盒测试适合 （填空1） 测试、 （填空2） 测试。 填空1: 单元；填空2: 集成">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-21（填空）</p>
 <p>白盒测试适合 （填空1） 测试、 （填空2） 测试。</p>
@@ -4595,7 +4750,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 组合覆盖要求设计足够多的测试用例，使得每个判定中条件结果的所有可能组合最多出现一次。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） TF 在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。   错误 正确说法：覆盖率达到100%也只能说明对应覆盖准则被满足，不能保证所有路径、数据组合、需求缺陷和隐藏缺陷都被揭露。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） TF 在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。 错误 正确说法：覆盖率达到100%也只能说明对应覆盖准则被满足，不能保证所有路径、数据组合、需求缺陷和隐藏缺陷都被揭露。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-23（判断）</p>
 <p>在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。</p>
@@ -4604,7 +4759,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：覆盖率达到100%也只能说明对应覆盖准则被满足，不能保证所有路径、数据组合、需求缺陷和隐藏缺陷都被揭露。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） FILL 满足条件组合覆盖标准的测试数据并不一定能使程序中的 （填空1） 都执行到。 填空1: 每条路径 ">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） FILL 满足条件组合覆盖标准的测试数据并不一定能使程序中的 （填空1） 都执行到。 填空1: 每条路径">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-24（填空）</p>
 <p>满足条件组合覆盖标准的测试数据并不一定能使程序中的 （填空1） 都执行到。</p>
@@ -4613,7 +4768,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>填空1: 每条路径</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） TF 在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。   错误 正确说法：覆盖率达到100%也只能说明对应覆盖准则被满足，不能保证所有路径、数据组合、需求缺陷和隐藏缺陷都被揭露。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验二课后练习 课后练习（计入总分） TF 在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。 错误 正确说法：覆盖率达到100%也只能说明对应覆盖准则被满足，不能保证所有路径、数据组合、需求缺陷和隐藏缺陷都被揭露。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 13-25（判断）</p>
 <p>在白盒测试中，如果覆盖率达到100% ，就基本可以保证把所有的隐藏程序缺陷都已经揭露出来了。</p>
@@ -4638,7 +4793,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 4</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 某系统对每个员工一年的出勤天数进行核算和存储(每月22工作日，一年最多出勤12*22=264天)，使用文本框进行填写。在此文本框的测试用例编写中使用了等价类划分法，则下面划分不准确的是 D. 有效等价类，0&amp;lt;出勤日&amp;lt;264 无效等价类，出勤日&amp;gt;264 无效等价类，出勤日为非数字 无效等价类，出勤日&amp;lt;0 有效等价类，0&amp;lt;出勤日&amp;lt;264">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 某系统对每个员工一年的出勤天数进行核算和存储(每月22工作日，一年最多出勤12*22=264天)，使用文本框进行填写。在此文本框的测试用例编写中使用了等价类划分法，则下面划分不准确的是 D. 有效等价类，0&amp;amp;lt;出勤日&amp;amp;lt;264 无效等价类，出勤日&amp;amp;gt;264 无效等价类，出勤日为非数字 无效等价类，出勤日&amp;amp;lt;0 有效等价类，0&amp;amp;lt;出勤日&amp;amp;lt;264">
 <div class="sqe-question">
 <p class="sqe-question-title">题 24-02（单选）</p>
 <div class="sqe-question-body">某系统对每个员工一年的出勤天数进行核算和存储(每月22工作日，一年最多出勤12*22=264天)，使用文本框进行填写。在此文本框的测试用例编写中使用了等价类划分法，则下面划分不准确的是</div>
@@ -4689,7 +4844,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 4</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 一个程序只有一个输入S，其取值范围是－60&amp;le;S&amp;le;60。现从输入的角度设计了一组测试数据：-200，20，200，设计这组测试用例的方法 A. 等价类划分 等价类划分 因果图 条件覆盖 边界值分析">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 一个程序只有一个输入S，其取值范围是－60&amp;amp;le;S&amp;amp;le;60。现从输入的角度设计了一组测试数据：-200，20，200，设计这组测试用例的方法 A. 等价类划分 等价类划分 因果图 条件覆盖 边界值分析">
 <div class="sqe-question">
 <p class="sqe-question-title">题 24-07（单选）</p>
 <div class="sqe-question-body">一个程序只有一个输入S，其取值范围是－60&le;S&le;60。现从输入的角度设计了一组测试数据：-200，20，200，设计这组测试用例的方法</div>
@@ -4698,7 +4853,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 等价类划分</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 若有一个计算类型的程序，它的输入量只有&amp;mdash;个X，其范围是[-1．0，1．0]，现从输入的角度考虑一组测试用例：-1.001，-1.0，1.0，1.001。设计这组测试用例的方法是 A. 边界值分析法 边界值分析法 等价分类法 条件覆盖法 错误推测法">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 若有一个计算类型的程序，它的输入量只有&amp;amp;mdash;个X，其范围是[-1．0，1．0]，现从输入的角度考虑一组测试用例：-1.001，-1.0，1.0，1.001。设计这组测试用例的方法是 A. 边界值分析法 边界值分析法 等价分类法 条件覆盖法 错误推测法">
 <div class="sqe-question">
 <p class="sqe-question-title">题 24-08（单选）</p>
 <div class="sqe-question-body">若有一个计算类型的程序，它的输入量只有&mdash;个X，其范围是[-1．0，1．0]，现从输入的角度考虑一组测试用例：-1.001，-1.0，1.0，1.001。设计这组测试用例的方法是</div>
@@ -4716,7 +4871,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 黑盒测试</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 用边界值分析法，假定1&amp;lt;X&amp;lt;100，那么整数X在测试中应取的边界值不包括 D. X=0，X=101 X=3，X=98 X=1，X=100 X=2，X=99 X=0，X=101">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课上测试 课上测试（计入总分） SINGLE 用边界值分析法，假定1&amp;amp;lt;X&amp;amp;lt;100，那么整数X在测试中应取的边界值不包括 D. X=0，X=101 X=3，X=98 X=1，X=100 X=2，X=99 X=0，X=101">
 <div class="sqe-question">
 <p class="sqe-question-title">题 24-10（单选）</p>
 <div class="sqe-question-body">用边界值分析法，假定1&lt;X&lt;100，那么整数X在测试中应取的边界值不包括</div>
@@ -4732,7 +4887,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div><small>课后练习（计入总分） · 云班课 QUIZ</small><h3>实验三课后练习</h3><div><span class="sqe-source-pill">题目接口直接导出</span><span class="sqe-source-pill">33 道题</span></div></div>
 </div>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE &amp;rlm;用等价类划分法设计8位长数字类型用户名登录操作的测试用例，应该分成_____个等价区间 A. 4 4 6 2 3">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE &amp;amp;rlm;用等价类划分法设计8位长数字类型用户名登录操作的测试用例，应该分成_____个等价区间 A. 4 4 6 2 3">
 <div class="sqe-question">
 <p class="sqe-question-title">题 16-01（单选）</p>
 <p>&amp;rlm;用等价类划分法设计8位长数字类型用户名登录操作的测试用例，应该分成_____个等价区间</p>
@@ -4741,7 +4896,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 4</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 某系统对每个员工一年的出勤天数进行核算和存储(每月22工作日，一年最多出勤12*22=264天)，使用文本框进行填写。在此文本框的测试用例编写中使用了等价类划分法，则下面划分不准确的是 D. 有效等价类，0&lt;出勤日&lt;264 无效等价类，出勤日&gt;264 无效等价类，出勤日为非数字 无效等价类，出勤日&lt;0 有效等价类，0&lt;出勤日&lt;264">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 某系统对每个员工一年的出勤天数进行核算和存储(每月22工作日，一年最多出勤12*22=264天)，使用文本框进行填写。在此文本框的测试用例编写中使用了等价类划分法，则下面划分不准确的是 D. 有效等价类，0&amp;lt;出勤日&amp;lt;264 无效等价类，出勤日&amp;gt;264 无效等价类，出勤日为非数字 无效等价类，出勤日&amp;lt;0 有效等价类，0&amp;lt;出勤日&amp;lt;264">
 <div class="sqe-question">
 <p class="sqe-question-title">题 16-02（单选）</p>
 <p>某系统对每个员工一年的出勤天数进行核算和存储(每月22工作日，一年最多出勤12*22=264天)，使用文本框进行填写。在此文本框的测试用例编写中使用了等价类划分法，则下面划分不准确的是</p>
@@ -4777,9 +4932,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>D. 尽可能多的</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 某公司员工如果工作超过一年并且达到了之前同意的目标，那么员工可以获得奖金。
-这些事实可以通过以下表格来显示：&amp;zwnj;&amp;lrm; &amp;zwnj;&amp;lrm;
-&amp;lrm;以下哪个测试用例是在现实生活中会发生，但是上面的判定表遗漏了？ B. 条件 1=No，条件 2=Yes，条件 3=No，动作=No 条件 1=Yes，条件 2=Yes，条件 3=No，动作=Yes 条件 1=No，条件 2=Yes，条件 3=No，动作=No 条件 1=Yes，条件 2=No，条件 3=Yes，动作=No 条件 1=No，条件 2=No，条件 3=Yes，动作=No">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 某公司员工如果工作超过一年并且达到了之前同意的目标，那么员工可以获得奖金。 这些事实可以通过以下表格来显示：&amp;amp;zwnj;&amp;amp;lrm; &amp;amp;zwnj;&amp;amp;lrm; &amp;amp;lrm;以下哪个测试用例是在现实生活中会发生，但是上面的判定表遗漏了？ B. 条件 1=No，条件 2=Yes，条件 3=No，动作=No 条件 1=Yes，条件 2=Yes，条件 3=No，动作=Yes 条件 1=No，条件 2=Yes，条件 3=No，动作=No 条件 1=Yes，条件 2=No，条件 3=Yes，动作=No 条件 1=No，条件 2=No，条件 3=Yes，动作=No">
 <div class="sqe-question">
 <p class="sqe-question-title">题 16-06（单选）</p>
 <p>某公司员工如果工作超过一年并且达到了之前同意的目标，那么员工可以获得奖金。
@@ -4790,12 +4943,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 条件 1=No，条件 2=Yes，条件 3=No，动作=No</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 某视频应用有如下需求：该应用应该允许在下面的显示分辨率下播放视频：
-​1. 640*480 &amp;zwnj;​
-2. 1280*720 &amp;zwnj;​
-3. 1600*1200 &amp;zwnj;​
-4. 1920*1080&amp;zwnj;​
-以下哪组测试用例是对该需求进行等价类划分测试技术得到的结果？ B. 验证应用能够在需求中的每个显示尺寸都可以播放视频（4 个测试用例） 验证应用能够在需求中的任意一个显示尺寸可以播放视频（1 个测试用例） 验证应用能够在需求中的每个显示尺寸都可以播放视频（4 个测试用例） 验证应用能够在显示尺寸 640*480 和 1920*1080 下播放视频（2 个测试用例） 验证应用能够在显示尺寸 1920*1080 下播放视频（1 个测试用例）">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 某视频应用有如下需求：该应用应该允许在下面的显示分辨率下播放视频： ​1. 640*480 &amp;amp;zwnj;​ 2. 1280*720 &amp;amp;zwnj;​ 3. 1600*1200 &amp;amp;zwnj;​ 4. 1920*1080&amp;amp;zwnj;​ 以下哪组测试用例是对该需求进行等价类划分测试技术得到的结果？ B. 验证应用能够在需求中的每个显示尺寸都可以播放视频（4 个测试用例） 验证应用能够在需求中的任意一个显示尺寸可以播放视频（1 个测试用例） 验证应用能够在需求中的每个显示尺寸都可以播放视频（4 个测试用例） 验证应用能够在显示尺寸 640*480 和 1920*1080 下播放视频（2 个测试用例） 验证应用能够在显示尺寸 1920*1080 下播放视频（1 个测试用例）">
 <div class="sqe-question">
 <p class="sqe-question-title">题 16-07（单选）</p>
 <p>某视频应用有如下需求：该应用应该允许在下面的显示分辨率下播放视频：
@@ -4809,12 +4957,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 验证应用能够在需求中的每个显示尺寸都可以播放视频（4 个测试用例）</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 需要计算员工的奖金。奖金不能是负数，但是最少可以是 0。
-奖金是根据雇佣的时间：&amp;rlm;
-小于等于 2 年
-&amp;rlm;&amp;rlm;大于 2 年但是小于 5 年
-5年到 10 年（包括 5 和 10），或者超过 10 年
-&amp;rlm;&amp;rlm;为了覆盖奖金计算的所有有效等价类最少需要多少测试用例？ C. 4 3 5 4 2">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 需要计算员工的奖金。奖金不能是负数，但是最少可以是 0。 奖金是根据雇佣的时间：&amp;amp;rlm; 小于等于 2 年 &amp;amp;rlm;&amp;amp;rlm;大于 2 年但是小于 5 年 5年到 10 年（包括 5 和 10），或者超过 10 年 &amp;amp;rlm;&amp;amp;rlm;为了覆盖奖金计算的所有有效等价类最少需要多少测试用例？ C. 4 3 5 4 2">
 <div class="sqe-question">
 <p class="sqe-question-title">题 16-08（单选）</p>
 <p>需要计算员工的奖金。奖金不能是负数，但是最少可以是 0。
@@ -4837,7 +4980,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 0.0、20.0、60.0</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 一个程序只有一个输入S，其取值范围是－60&amp;le;S&amp;le;60。现从输入的角度设计了一组测试数据：-200，20，200，设计这组测试用例的方法 A. 等价类划分 等价类划分 因果图 条件覆盖 边界值分析">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 一个程序只有一个输入S，其取值范围是－60&amp;amp;le;S&amp;amp;le;60。现从输入的角度设计了一组测试数据：-200，20，200，设计这组测试用例的方法 A. 等价类划分 等价类划分 因果图 条件覆盖 边界值分析">
 <div class="sqe-question">
 <p class="sqe-question-title">题 16-10（单选）</p>
 <p>一个程序只有一个输入S，其取值范围是－60&amp;le;S&amp;le;60。现从输入的角度设计了一组测试数据：-200，20，200，设计这组测试用例的方法</p>
@@ -4846,7 +4989,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 等价类划分</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 若有一个计算类型的程序，它的输入量只有&amp;mdash;个X，其范围是[-1．0，1．0]，现从输入的角度考虑一组测试用例：-1.001，-1.0，1.0，1.001。设计这组测试用例的方法是 A. 边界值分析法 边界值分析法 等价分类法 条件覆盖法 错误推测法">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 若有一个计算类型的程序，它的输入量只有&amp;amp;mdash;个X，其范围是[-1．0，1．0]，现从输入的角度考虑一组测试用例：-1.001，-1.0，1.0，1.001。设计这组测试用例的方法是 A. 边界值分析法 边界值分析法 等价分类法 条件覆盖法 错误推测法">
 <div class="sqe-question">
 <p class="sqe-question-title">题 16-11（单选）</p>
 <p>若有一个计算类型的程序，它的输入量只有&amp;mdash;个X，其范围是[-1．0，1．0]，现从输入的角度考虑一组测试用例：-1.001，-1.0，1.0，1.001。设计这组测试用例的方法是</p>
@@ -4864,7 +5007,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 黑盒测试</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 用边界值分析法，假定1&lt;X&lt;100，那么整数X在测试中应取的边界值不包括 D. X=0，X=101 X=3，X=98 X=1，X=100 X=2，X=99 X=0，X=101">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE 用边界值分析法，假定1&amp;lt;X&amp;lt;100，那么整数X在测试中应取的边界值不包括 D. X=0，X=101 X=3，X=98 X=1，X=100 X=2，X=99 X=0，X=101">
 <div class="sqe-question">
 <p class="sqe-question-title">题 16-13（单选）</p>
 <p>用边界值分析法，假定1&lt;X&lt;100，那么整数X在测试中应取的边界值不包括</p>
@@ -4891,7 +5034,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>A. 因果图</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE &amp;zwj;自动化黑盒测试工具中，脚本录制好后，只要执行脚本，就可以把测试过程重做一遍，这被称为 D. 回放 重播 录制 复制 回放">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） SINGLE &amp;amp;zwj;自动化黑盒测试工具中，脚本录制好后，只要执行脚本，就可以把测试过程重做一遍，这被称为 D. 回放 重播 录制 复制 回放">
 <div class="sqe-question">
 <p class="sqe-question-title">题 16-16（单选）</p>
 <p>&amp;zwj;自动化黑盒测试工具中，脚本录制好后，只要执行脚本，就可以把测试过程重做一遍，这被称为</p>
@@ -5017,7 +5160,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>C. 边界值分析</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） TF 由于函数覆盖率是基于代码的，所以也可以把函数覆盖归入黑盒测试的范畴。   错误 正确说法：函数覆盖率基于代码结构统计，属于白盒测试覆盖准则，不属于黑盒测试。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） TF 由于函数覆盖率是基于代码的，所以也可以把函数覆盖归入黑盒测试的范畴。 错误 正确说法：函数覆盖率基于代码结构统计，属于白盒测试覆盖准则，不属于黑盒测试。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 16-30（判断）</p>
 <p>由于函数覆盖率是基于代码的，所以也可以把函数覆盖归入黑盒测试的范畴。</p>
@@ -5026,7 +5169,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>错误。</p><p>正确说法：函数覆盖率基于代码结构统计，属于白盒测试覆盖准则，不属于黑盒测试。</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） TF 黑盒测试的测试用例是根据程序内部逻辑设计的。   错误 正确说法：黑盒测试用例根据需求规格、输入输出和外部行为设计；根据内部逻辑设计的是白盒测试。">
+<article class="sqe-card" data-sqe-card data-sqe-text="实验三课后练习 课后练习（计入总分） TF 黑盒测试的测试用例是根据程序内部逻辑设计的。 错误 正确说法：黑盒测试用例根据需求规格、输入输出和外部行为设计；根据内部逻辑设计的是白盒测试。">
 <div class="sqe-question">
 <p class="sqe-question-title">题 16-31（判断）</p>
 <p>黑盒测试的测试用例是根据程序内部逻辑设计的。</p>
@@ -5078,7 +5221,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 <div class="sqe-answer"><details><summary>参考答案</summary><div class="sqe-answer-body"><p>B. 驱动模块是对原始模块的功能的模拟</p></div></details></div>
 </article>
 
-<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 对于软件的&amp;beta;测试，下列描述正确的是 D. &amp;beta;测试就是在软件公司外部展开的测试，可以由非专业的测试人员执行的测试 &amp;beta;测试就是在软件公司内部展开的测试，由公司专业的测试人员执行的测试 &amp;beta;测试就是在软件公司内部展开的测试，由公司的非专业测试人员执行的测试 &amp;beta;测试就是在软件公司外部展开的测试，由专业的测试人员执行的测试 &amp;beta;测试就是在软件公司外部展开的测试，可以由非专业的测试人员执行的测试">
+<article class="sqe-card" data-sqe-card data-sqe-text="测试相关未分类习题 课后练习（计入总分） SINGLE 对于软件的&amp;amp;beta;测试，下列描述正确的是 D. &amp;amp;beta;测试就是在软件公司外部展开的测试，可以由非专业的测试人员执行的测试 &amp;amp;beta;测试就是在软件公司内部展开的测试，由公司专业的测试人员执行的测试 &amp;amp;beta;测试就是在软件公司内部展开的测试，由公司的非专业测试人员执行的测试 &amp;amp;beta;测试就是在软件公司外部展开的测试，由专业的测试人员执行的测试 &amp;amp;beta;测试就是在软件公司外部展开的测试，可以由非专业的测试人员执行的测试">
 <div class="sqe-question">
 <p class="sqe-question-title">题 25-03（单选）</p>
 <div class="sqe-question-body">对于软件的&beta;测试，下列描述正确的是</div>
@@ -5440,18 +5583,618 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
 
 <script>
 (function () {
+  document.body.classList.add('sqe-study-layout');
+  var page = document.querySelector('.sqe-page');
   var input = document.querySelector('[data-sqe-filter]');
   var clear = document.querySelector('[data-sqe-clear]');
   var cards = Array.prototype.slice.call(document.querySelectorAll('[data-sqe-card]'));
-  if (!input || !cards.length) return;
+  if (!page || !cards.length) return;
+  var LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  var storageKey = 'sqe-exercise-practice-v1';
+
+  function textOf(node) {
+    return (node ? node.textContent : '').replace(/\s+/g, ' ').trim();
+  }
+  function esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
+  function clip(value, size) {
+    var text = String(value || '').replace(/\s+/g, ' ').trim();
+    return text.length > size ? text.slice(0, size - 1) + '…' : text;
+  }
+  function strip(value) {
+    return String(value || '').replace(/\s+/g, '').replace(/[，。；：、,.!?！？:;（）()【】\[\]""'']/g, '');
+  }
+  function visibleTitle(title) {
+    return String(title || '').replace(/（(?:单选|多选)）/g, '（选择题）');
+  }
+  function questionCore(item) {
+    var text = item.questionText || '';
+    return text.replace(/\s*[A-D]\.\s*[\s\S]*$/g, '').replace(/\s+/g, ' ').trim();
+  }
+  function firstKeyword(text) {
+    var src = String(text || '').replace(/\s+/g, ' ');
+    var m = src.match(/质量管理体系|质量管理|质量保证|质量控制|质量策划|质量改进|质量方针|质量特性|质量成本|预防成本|评价成本|内部失效|外部失效|软件缺陷|软件错误|软件失效|测试用例|回归测试|单元测试|集成测试|系统测试|验收测试|黑盒测试|白盒测试|等价类|边界值|因果图|判定表|错误推测|语句覆盖|判定覆盖|条件覆盖|条件组合覆盖|路径覆盖|基本路径|环路复杂度|性能测试|压力测试|负载测试|容量测试|强度测试|恢复测试|容错性|安全性|配置测试|自动化测试|变异测试|数据流测试|程序插桩|驱动模块|桩模块|评审|走查|审查|审核|SQA|SEPG|SPIN|QAI|ISO9126|McCall|Boehm|CMMI|CMM|六西格玛|DMAIC|IDEAL|可维护性|可移植性|可靠性|易用性|效率|功能性|继承|封装|耦合|内聚|野指针|动态内存|头文件|const|引用|J2EE|\.Net|数据库/);
+    return m ? m[0] : clip(src, 18);
+  }
+
+  var phraseConcepts = [
+    [/一组固有特性.*满足.*要求|固有特性满足要求的程度/, '质量定义的关键词是“固有特性”和“要求”：不是价格高、功能多就叫质量高，而是对象本身的特性满足用户或相关方要求。'],
+    [/系统.*部件.*过程.*满足客户|质量是.*系统.*部件.*过程/, '这里考质量对象：系统、部件、过程都可以被评价质量，空格要补完整对象范围。'],
+    [/适合顾客需要/, '“适合顾客需要”对应适用性质量；如果题干说“符合标准/规格”，才偏符合性质量。'],
+    [/随着时间.*变化|要求.*变化/, '题干强调要求会随时间改变，所以质量判断有时效性，不是单纯主观性或广泛性。'],
+    [/质量方面.*指挥.*控制|指挥.*控制.*组织/, '质量管理定义固定抓“指挥”和“控制”：策划、制定只是管理活动的一部分，不是这一定义中的两个关键词。'],
+    [/制定质量目标.*过程.*资源/, '题干说制定质量目标并规定过程和资源，这就是质量策划，不是质量控制或质量保证。'],
+    [/朱兰.*质量策划.*质量控制.*质量改进|质量策划.*质量控制.*质量改进/, '朱兰三步曲按“质量策划、质量控制、质量改进”记，顺序和名称都要对。'],
+    [/最高管理者/, '质量方针代表组织层面的质量宗旨和方向，批准主体是最高管理者，不是质量办公室或技术负责人。'],
+    [/预防.*评价.*内部失效.*外部失效|预防费用|评价费用|内部失效费用|外部失效费用/, '质量成本分两大类：保证/控制成本包括预防和评价；损失/失效成本包括内部失效和外部失效。'],
+    [/可理解性|可测试性|可修改性/, '这些词都在说维护时能不能读懂、修改、验证，因此属于可维护性相关指标。'],
+    [/可移植性/, '可移植性看软件迁移到不同硬件、系统或运行环境的能力，它不是“维护现有系统是否容易”的指标。'],
+    [/软件需求规格说明错误|需求说明书.*不全面|需求.*沟通不足/, '需求错误会把设计、编码、测试全部带偏，所以很多缺陷的主要根源在需求规格和需求沟通。'],
+    [/没有实现.*规格说明.*功能|不应该出现的功能|没有提到的功能/, '缺陷不只包括崩溃；未实现规格要求、多实现规格禁止或未要求的功能，都可能违背需求而成为缺陷。'],
+    [/程序的正确性足以体现软件的价值/, '这个说法错在“足以”：软件价值还包括可靠性、易用性、性能、可维护性、客户满意等，不能只看程序正确。'],
+    [/V\s*模型.*验收测试|V模型.*验收测试/, 'V 模型强调开发阶段和测试阶段的对应关系，缺点是早期需求问题可能到后期验收测试才暴露。'],
+    [/每个拷贝都是完全一样/, '软件复制品逻辑上完全相同；硬件同规格产品仍会有制造差异，这是软硬件可靠性差别。'],
+    [/需求分析.*概要设计.*详细设计|需求规格说明|程序源代码/, '软件测试对象不只是代码，也包括需求、概要设计、详细设计等开发产物。'],
+    [/100%.*测试覆盖率/, '测试工具能提高效率和覆盖深度，但不能保证 100% 覆盖，更不能保证没有缺陷。'],
+    [/每条语句至少.*执行一次|每个可执行语句至少执行一次/, '这描述的是语句覆盖：只要求语句被执行，不要求分支真假或路径都覆盖。'],
+    [/每个判定至少.*真.*假|判定.*真.*假/, '这描述的是判定覆盖：每个判定整体至少出现一次真结果和一次假结果。'],
+    [/每个条件.*真.*假|每个条件.*可能值/, '这描述的是条件覆盖：每个条件自身的真/假取值至少出现一次，不等于所有组合。'],
+    [/所有可能.*条件.*组合|条件取值组合/, '这描述的是条件组合覆盖：同一判定里各条件的组合都要覆盖。'],
+    [/最多出现一次/, '覆盖准则通常要求“至少出现一次”；写成“最多出现一次”把覆盖目标说反了。'],
+    [/环路复杂度|V\(G\)|基本独立路径/, '环路复杂度表示基本独立路径条数，基本路径测试的最少用例数按它来定。'],
+    [/有效等价类.*无效等价类|输入域.*等价类/, '等价类划分把输入分成有效类和无效类，用代表值覆盖同类数据。'],
+    [/边界点|最大值|最小值|刚好越界/, '边界值分析专门抓最小值、最大值、刚好等于边界、刚好越界这些容易出错的点。'],
+    [/因果图.*判定表|原因.*结果/, '因果图处理输入条件和输出结果的组合关系，通常会转成判定表。'],
+    [/错误推测/, '错误推测法依靠经验列出容易出错的特殊情况，是补充测试设计方法。'],
+    [/驱动模块/, '驱动模块模拟上层调用者，用来调用被测模块；自底向上集成常需要它。'],
+    [/桩模块/, '桩模块模拟被测模块调用的下层模块；自顶向下集成常需要它。'],
+    [/Alpha|alpha测试|alpha\s*测试/, 'Alpha 测试通常在开发方场所进行，是验收测试的一种。'],
+    [/Beta|beta测试|beta\s*测试/, 'Beta 测试通常在用户或外部真实环境中进行，也属于验收测试。'],
+    [/压力测试/, '压力测试看系统在异常高负荷或极限负荷下能不能承受，并暴露瓶颈。'],
+    [/性能测试/, '性能测试验证响应时间、吞吐量、并发量、资源占用等指标是否达到要求。'],
+    [/负载测试/, '负载测试看一定工作负荷下的响应时间和系统表现，不一定压到极限。'],
+    [/容量测试/, '容量测试找某项容量指标的极限值，看达到极限时系统能否保持主要功能。'],
+    [/恢复测试/, '恢复测试检查系统故障后能否恢复运行、恢复数据或恢复服务。'],
+    [/容错/, '容错性看异常条件下系统能否自我保护、隔离错误或进行灾难恢复。'],
+    [/安全性/, '安全性关注未授权访问、权限控制和资源保护，常分应用程序级和系统级。'],
+    [/配置测试/, '配置测试用不同硬件、软件、参数环境组合验证软件表现。'],
+    [/回归测试/, '回归测试是在修改后重测，确认新改动没有破坏已有功能。'],
+    [/评审/, '评审属于静态质量活动，目的是早发现缺陷，降低后期返工成本。'],
+    [/走查/, '走查通常由作者讲解，形式比审查轻，重点是发现文档或工作产品问题。'],
+    [/审查/, '审查 Inspection 更正式，记录、检查和跟踪更严格。'],
+    [/管理评审/, '管理评审看质量体系是否适宜、充分、有效。'],
+    [/技术评审/, '技术评审看工作产品是否满足技术要求和需求。'],
+    [/过程评审/, '过程评审看软件过程是否按规定执行。'],
+    [/SQA/, 'SQA 是软件质量保证，核心是监督过程、审计工作产品、记录并跟踪不符合项，不等同于测试组。'],
+    [/SEPG/, 'SEPG 负责组织级软件过程改进的领导和协调。'],
+    [/SPIN/, 'SPIN 是自发的软件过程改进网络，偏交流和推广。'],
+    [/QAI/, 'QAI 偏质量相关咨询、培训、认证服务。'],
+    [/CMMI|CMM/, 'CMM/CMMI 成熟度按初始、可重复、已定义、已管理、优化来记，定量管理对应已管理级。'],
+    [/六西格玛|DMAIC/, '六西格玛改进按 DMAIC 记：界定、测量、分析、改进、控制。'],
+    [/IDEAL/, 'IDEAL 模型按初始化、诊断、建立、行动、学习来记。'],
+    [/ISO9126/, 'ISO9126 六特性常记为功能性、可靠性、易用性、效率、可维护性、可移植性。'],
+    [/McCall/, 'McCall 模型把质量因素分产品运行、产品修订、产品转移等维度。'],
+    [/Boehm/, 'Boehm 模型也是质量模型，强调分层质量特性和可度量准则。'],
+    [/耦合/, '耦合描述模块之间依赖程度，好的设计追求低耦合。'],
+    [/内聚/, '内聚描述模块内部职责集中程度，好的设计追求高内聚。'],
+    [/封装/, '封装隐藏内部实现，减少外部依赖，是面向对象设计原则。'],
+    [/继承|子类/, '继承提高复用，但父类缺陷可能传播到子类。'],
+    [/野指针/, '野指针通常来自未初始化、释放后继续使用或返回局部变量地址。'],
+    [/动态内存/, '动态内存要申请和释放配对，释放后最好置空，避免泄漏和野指针。'],
+    [/头文件|ifndef|define|endif/, '头文件用 ifndef/define/endif 防止重复包含。'],
+    [/const/, 'const 表达不可修改约束，常用于保护参数、返回值或成员函数语义。'],
+    [/引用/, '引用传参可避免拷贝，和 const 配合可防止实参被修改。']
+  ];
+
+  var exactConcepts = [
+    ['质量管理体系', '为实现质量方针和质量目标而建立的管理体系，能帮助组织实现顾客满意，并提供持续改进框架。'],
+    ['质量方针', '组织关于质量的总体宗旨和方向，应由最高管理者批准。'],
+    ['质量策划', '制定质量目标，并规定实现目标需要的运行过程和资源。'],
+    ['质量控制', '关注检查结果、发现偏差并采取纠正措施。'],
+    ['质量保证', '通过有计划、有系统的活动提供“能满足质量要求”的信任。'],
+    ['质量改进', '质量管理的一部分，致力于增强满足质量要求的能力。'],
+    ['质量特性', '产品、过程或体系与要求有关的固有特性，不是只与标准有关。'],
+    ['可维护性', '软件被理解、修改、测试和修复的难易程度。'],
+    ['可理解性', '维护人员能读懂系统结构、代码和文档，是维护前提。'],
+    ['可修改性', '系统被修改、调整和修复的难易程度，是可维护性核心。'],
+    ['可测试性', '修改后能否方便验证和发现问题，是维护闭环的重要指标。'],
+    ['可移植性', '软件迁移到不同硬件、操作系统或运行环境的能力。'],
+    ['可靠性', '软件在规定条件和时间内完成规定功能的能力。'],
+    ['功能性', '软件提供满足明确和隐含需求功能的能力。'],
+    ['效率', '软件在规定条件下使用资源并提供性能的能力。'],
+    ['易用性', '用户理解、学习、使用软件并感到满意的能力。'],
+    ['语句覆盖', '每条可执行语句至少执行一次，是较弱的白盒覆盖准则。'],
+    ['判定覆盖', '每个判定的真、假结果都至少出现一次。'],
+    ['条件覆盖', '每个判定中每个条件的真、假取值都至少出现一次。'],
+    ['判定/条件覆盖', '同时满足判定覆盖和条件覆盖，但不保证覆盖所有条件组合。'],
+    ['条件组合覆盖', '一个判定中各条件结果的所有可能组合至少出现一次。'],
+    ['路径覆盖', '要求程序中路径被覆盖，强于只覆盖语句或判定。'],
+    ['基本路径测试', '基于环路复杂度选择一组基本独立路径设计用例。'],
+    ['环路复杂度', 'McCabe 度量，表示基本独立路径条数。'],
+    ['等价类划分', '把输入划为有效等价类和无效等价类，用代表值代替同类数据。'],
+    ['边界值分析', '选择边界及边界附近值设计测试，专门抓边界错误。'],
+    ['因果图', '描述输入条件和输出结果的因果关系，常转成判定表。'],
+    ['判定表', '把条件组合和动作结果列成表，适合规则组合题。'],
+    ['错误推测法', '凭经验推测容易出错的输入、状态或操作。'],
+    ['黑盒测试', '依据需求、输入输出和外部行为设计测试，不看程序内部结构。'],
+    ['白盒测试', '依据程序内部逻辑、结构、路径、覆盖率设计测试。'],
+    ['单元测试', '测试函数、类、模块等最小可测单元。'],
+    ['集成测试', '测试模块组装后的接口、数据传递和协作。'],
+    ['系统测试', '面对完整系统和运行环境，验证功能和非功能要求。'],
+    ['验收测试', '交付或发布前确认是否满足用户、合同或验收标准。'],
+    ['确认测试', '确认软件是否满足需求规格和用户需要。'],
+    ['回归测试', '修改后重新测试，确认没有引入新问题或破坏旧功能。'],
+    ['性能测试', '验证响应时间、吞吐量、并发量和资源使用等指标。'],
+    ['压力测试', '在极限或异常高负荷下测试系统承受能力。'],
+    ['负载测试', '在一定负荷下观察系统性能和响应时间。'],
+    ['容量测试', '寻找容量指标极限，并验证极限状态下主要功能是否可用。'],
+    ['强度测试', '长时间或高强度运行下观察系统表现。'],
+    ['恢复测试', '检查故障后恢复运行、恢复数据或恢复服务的能力。'],
+    ['安全性测试', '检查权限、访问控制、资源保护等安全要求。'],
+    ['配置测试', '检查不同软硬件和参数配置下的软件表现。'],
+    ['变异测试', '通过制造程序变体评价测试用例发现错误的能力。'],
+    ['数据流测试', '关注变量定义和使用路径，是结构性测试。'],
+    ['程序插桩', '在程序中插入探针，采集执行路径、状态或覆盖信息。'],
+    ['驱动模块', '模拟上层调用者来调用被测模块。'],
+    ['桩模块', '模拟被测模块调用的下层模块。'],
+    ['软件缺陷', '从内部看是开发或维护中的错误、毛病；从外部看是功能失效或违背需求。'],
+    ['软件错误', '人的行为或开发活动造成的问题，可能导致缺陷。'],
+    ['软件失效', '软件运行时不能完成规定功能的外部表现。'],
+    ['测试用例', '为特定目的设计的一组测试输入、执行条件和预期结果。'],
+    ['测试计划', '组织测试工作、分配资源、安排进度和明确测试范围的计划文档。'],
+    ['测试工具', '能提高测试能力、复现缺陷、减少重复工作，但不能替代测试人员或保证无缺陷。'],
+    ['评审', '静态检查工作产品，尽早发现缺陷。'],
+    ['走查', '作者讲解工作产品，参与者提出问题，正式程度较低。'],
+    ['审查', '最正式的同行评审，检查、记录、跟踪更严格。'],
+    ['审核', '独立检查工作产品或过程是否符合标准、规程、要求。'],
+    ['SQA', '软件质量保证，负责计划、监督、审计、记录和跟踪质量活动。'],
+    ['SEPG', '软件工程过程组，负责过程改进。'],
+    ['SPIN', '软件过程改进网络，偏自发交流和推广。'],
+    ['CMM', '软件过程成熟度模型，五级为初始、可重复、已定义、已管理、优化。'],
+    ['CMMI', '能力成熟度模型集成，用于过程改进和能力评价。'],
+    ['优化级', '成熟度最高级，强调持续过程改进。'],
+    ['已管理级', '强调使用度量和定量分析管理过程。'],
+    ['已定义级', '组织级标准过程已建立并文档化。'],
+    ['可重复级', '项目管理过程可重复，但组织级标准化还不充分。'],
+    ['初始级', '过程不可预测，依赖个人能力。'],
+    ['ISO9126', '软件质量模型，包含功能性、可靠性、易用性、效率、可维护性、可移植性。'],
+    ['McCall', '软件质量模型，常分产品运行、产品修订、产品转移。'],
+    ['Boehm', '软件质量模型，用分层因素、准则和度量描述质量。'],
+    ['DMAIC', '六西格玛改进顺序：界定、测量、分析、改进、控制。'],
+    ['IDEAL', '过程改进模型：初始化、诊断、建立、行动、学习。'],
+    ['耦合', '模块之间依赖程度，越低越好。'],
+    ['内聚', '模块内部职责相关程度，越高越好。'],
+    ['封装', '隐藏内部实现并通过接口交互。'],
+    ['继承', '复用父类能力，但父类缺陷也可能传播。'],
+    ['子类', '继承父类的类，可能继承父类缺陷。'],
+    ['野指针', '指向无效内存的指针，常来自未初始化或释放后继续使用。'],
+    ['动态内存', '运行时申请的内存，需要释放配对。'],
+    ['J2EE', '企业级 Java 平台，用于分层企业应用开发。'],
+    ['.Net', '微软应用开发平台，不等同于数据库。'],
+    ['数据库', '持久化和管理数据的系统，不是界面或应用框架。']
+  ];
+
+  var intentRules = [
+    { re: /质量管理是指/, scope: '质量管理定义', focus: '这题问“质量管理”的定义，教材固定写法是“在质量方面指挥和控制组织的协调活动”，所以要找“指挥”和“控制”。' },
+    { re: /质量管理体系可以|质量管理体系是/, scope: '质量管理体系作用', focus: '这题问质量管理体系能带来什么：它服务质量方针和质量目标，帮助顾客满意，也提供持续改进框架。' },
+    { re: /质量特性/, scope: '质量特性定义', focus: '题干关键词是“质量特性”，它与要求有关，而不是只与标准有关。' },
+    { re: /质量改进/, scope: '质量改进定义', focus: '质量改进属于质量管理的一部分，重点是增强满足质量要求的能力。' },
+    { re: /质量策划|制定质量目标/, scope: '质量策划', focus: '题干说制定质量目标、规定过程和资源，这就是质量策划。' },
+    { re: /质量方针/, scope: '质量方针', focus: '质量方针是组织级质量方向，必须由最高管理者批准。' },
+    { re: /朱兰|三步曲/, scope: '朱兰三步曲', focus: '朱兰三步曲按质量策划、质量控制、质量改进来记。' },
+    { re: /质量成本|质量费用|预防|评价|失效/, scope: '质量成本分类', focus: '质量成本分保证/控制成本和损失/失效成本：预防、评价、内部失效、外部失效要分清。' },
+    { re: /可维护性|维护性/, scope: '可维护性评价指标', focus: '可维护性看维护时是否容易理解、修改和测试；可移植性是迁移平台能力，不是维护指标。' },
+    { re: /可移植性/, scope: '可移植性', focus: '可移植性衡量软件迁移到不同环境的能力，是软件质量特性之一。' },
+    { re: /软件缺陷|缺陷/, scope: '软件缺陷', focus: '缺陷不只是崩溃；功能未实现、违背规格、多余功能、异常情况都可能算缺陷。' },
+    { re: /错误产生|主要原因|需求规格|需求说明书/, scope: '软件错误主要原因', focus: '软件错误的主要源头常在需求：需求不完整、不准确、经常变化，或开发人员理解沟通不足。' },
+    { re: /软件质量.*错误|软件质量/, scope: '软件质量判断', focus: '软件质量不能只看程序正确，还要看满足用户需求、可靠性、性能、可维护性等。' },
+    { re: /V\s*模型|V模型/, scope: 'V 模型', focus: 'V 模型强调开发阶段与测试阶段对应，缺点是早期需求问题可能后期才发现。' },
+    { re: /软.*硬件.*可靠性|硬件.*可靠性/, scope: '软硬件可靠性区别', focus: '软件没有物理磨损，同一版本拷贝完全相同；硬件会有制造差异和物理老化。' },
+    { re: /测试的对象/, scope: '软件测试对象', focus: '测试对象不只包括程序源代码，也包括需求、概要设计、详细设计等开发产物。' },
+    { re: /质量保证与测试工作无关|无关/, scope: '质量保证与测试相关角色', focus: '需求、设计、开发都会影响质量和测试依据；销售不是测试与 SQA 的直接技术角色。' },
+    { re: /测试工具.*优点|工具/, scope: '测试工具优点', focus: '测试工具可以扩展测试能力、复现缺陷、减轻重复劳动，但不能保证 100% 覆盖或无缺陷。' },
+    { re: /语句覆盖/, scope: '语句覆盖', focus: '语句覆盖只要求每条可执行语句至少执行一次，不要求分支或条件组合。' },
+    { re: /判定覆盖/, scope: '判定覆盖', focus: '判定覆盖要求每个判定整体出现真、假两种结果。' },
+    { re: /条件覆盖/, scope: '条件覆盖', focus: '条件覆盖看每个条件自身的真/假取值是否至少出现一次。' },
+    { re: /条件组合/, scope: '条件组合覆盖', focus: '条件组合覆盖要求同一判定中各条件取值组合都出现。' },
+    { re: /基本路径|环路复杂度/, scope: '基本路径测试', focus: '基本路径测试用环路复杂度确定基本独立路径条数。' },
+    { re: /覆盖率标准|覆盖准则/, scope: '覆盖率标准', focus: '常见结构覆盖包括语句、判定、条件、路径等；题干若问“不包括”，要找不在本课常见覆盖边界内的项。' },
+    { re: /等价类/, scope: '等价类划分', focus: '等价类按输入是否合理、是否同类划分；范围型输入通常是一段有效类加上下界外和上界外两个无效类。' },
+    { re: /边界值|边界/, scope: '边界值分析', focus: '边界值分析抓边界点及其附近值，尤其是最小、最大、刚好越界。' },
+    { re: /因果图|判定表/, scope: '组合条件测试', focus: '因果图和判定表处理多个输入条件组合导致不同输出的题。' },
+    { re: /黑盒/, scope: '黑盒测试', focus: '黑盒只看外部功能、需求、输入输出；凡是代码结构、路径、覆盖率就是白盒思路。' },
+    { re: /白盒/, scope: '白盒测试', focus: '白盒依据程序内部结构设计测试，包括逻辑覆盖、路径、数据流、插桩、变异等。' },
+    { re: /单元测试|集成测试|系统测试|验收测试/, scope: '测试阶段', focus: '测试阶段按层级记：单元测模块，集成测接口和组装，系统测完整系统，验收测交付确认。' },
+    { re: /性能|压力|负载|容量|强度|并发/, scope: '性能相关测试', focus: '性能看指标，压力看极限，负载看一定负荷，容量看容量极限，强度看长时间或高强度运行。' },
+    { re: /恢复|容错|安全|配置/, scope: '系统测试类型', focus: '系统测试不仅测功能，还测恢复、容错、安全、配置等非功能质量。' },
+    { re: /评审|走查|审查|审核/, scope: '评审与审核', focus: '评审是静态发现缺陷；走查较轻，审查最正式，审核更偏独立检查符合性。' },
+    { re: /SQA|质量保证人员|SEPG|SPIN|QAI/, scope: 'SQA 与过程改进', focus: 'SQA 负责过程监督和质量保证；SEPG 管过程改进，SPIN 偏过程改进网络，QAI 偏培训认证服务。' },
+    { re: /CMMI|CMM|成熟度/, scope: '过程成熟度', focus: 'CMM/CMMI 五级按初始、可重复、已定义、已管理、优化来记。' },
+    { re: /ISO9126|McCall|Boehm|质量模型/, scope: '质量模型', focus: '质量模型题要先分模型和维度：ISO9126 六特性，McCall/Boehm 都是质量因素-准则-度量思路。' },
+    { re: /继承|封装|面向对象|子类/, scope: '面向对象测试', focus: '面向对象题常考封装、继承和类测试；继承会提高复用，也会传播父类缺陷。' },
+    { re: /编码|命名|头文件|内存|指针|const|引用/, scope: '编码规范', focus: '编码规范题常考命名、头文件防重复、const/引用、动态内存成对释放和野指针。' }
+  ];
+
+  function conceptText(text) {
+    var src = String(text || '').replace(/\s+/g, ' ').trim();
+    var compact = strip(src);
+    for (var i = 0; i < phraseConcepts.length; i++) {
+      if (phraseConcepts[i][0].test(src) || phraseConcepts[i][0].test(compact)) return phraseConcepts[i][1];
+    }
+    for (var j = 0; j < exactConcepts.length; j++) {
+      if (compact.indexOf(strip(exactConcepts[j][0])) !== -1) return '「' + exactConcepts[j][0] + '」：' + exactConcepts[j][1];
+    }
+    return '这个选项的关键词是「' + clip(src, 42) + '」，要判断它说的是阶段、方法、指标、角色还是定义本身。';
+  }
+  function intentInfo(item) {
+    var core = questionCore(item);
+    var compact = strip(core + ' ' + item.answerText);
+    var hit = null;
+    for (var i = 0; i < intentRules.length; i++) {
+      if (intentRules[i].re.test(core) || intentRules[i].re.test(compact)) {
+        hit = intentRules[i];
+        break;
+      }
+    }
+    var keyword = firstKeyword(core || item.answerText);
+    return {
+      core: core,
+      keyword: keyword,
+      negative: /不包括|不属于|不正确|错误的是|不准确|不是|无关|不能|除外/.test(core),
+      scope: hit ? hit.scope : keyword,
+      focus: hit ? hit.focus : '这题要先抓题干关键词「' + keyword + '」，再看选项是在回答同一个概念，还是把对象、阶段、方法或评价指标换掉了。'
+    };
+  }
+  function answerLabels(answer) {
+    var labels = [];
+    String(answer || '').replace(/(?:^|[\s；;，,、])([A-D])\./g, function (_, label) {
+      if (labels.indexOf(label) === -1) labels.push(label);
+      return _;
+    });
+    return labels;
+  }
+  function extractCorrection(answer) {
+    var match = String(answer || '').match(/正确说法[:：]\s*([\s\S]+)/);
+    return match ? match[1].trim() : '';
+  }
+  function optionReason(item, option, correct, info) {
+    var prefix = correct ? '选' : '不选';
+    var concept = conceptText(option.text);
+    var optKey = firstKeyword(option.text);
+    if (item.answerText.indexOf('以上') !== -1 && /以上|全部|皆是/.test(option.text)) {
+      return prefix + '：题干问的是范围最全或全部正确的情况。' + concept + (correct ? '它把前面成立的对象都收进来，所以要选。' : '但本题并不是所有前项都成立，所以不能选。');
+    }
+    if (info.negative) {
+      return correct
+        ? prefix + '：题干有“不包括/不属于/错误/无关”这类否定词，所以要找例外项。' + concept + '它没有落在「' + info.scope + '」的范围里，或说法本身把概念说错了，因此正是要选的项。'
+        : prefix + '：这题是在找例外项。' + concept + '它本身属于「' + info.scope + '」范围，或说法是成立的，所以不能把它当成错误项。';
+    }
+    return correct
+      ? prefix + '：' + concept + '题干关键词是「' + info.keyword + '」，这个选项的关键词「' + optKey + '」正好回答了题干限定的对象、阶段或定义，所以要选。'
+      : prefix + '：' + concept + '但题干限定的是「' + info.scope + '」。这个选项要么说的是另一个概念，要么只覆盖局部，要么把阶段/对象换掉了，所以排除。';
+  }
+  function buildExplanation(item, displayOptions) {
+    var info = intentInfo(item);
+    var html = '<div class="sqe-explanation-title">为什么是这个答案</div>';
+    html += '<span class="sqe-exp-tag">' + esc(item.sectionTitle || '云班课题库') + '</span>';
+    html += '<span class="sqe-exp-tag">' + esc(item.displayType) + '</span>';
+    html += '<div class="sqe-exp-block"><b>题目问什么：</b>' + esc(info.focus) + '</div>';
+    if (item.kind === 'choice') {
+      var correctOptions = item.options.filter(function (opt) { return opt.correct; });
+      var correctText = correctOptions.map(function (opt) { return opt.label + '. ' + opt.text; }).join('；');
+      html += '<div class="sqe-exp-block"><b>为什么这样选：</b>参考答案是 ' + esc(item.answerText) + '。题干真正限定的是「' + esc(info.scope) + '」；正确选项说的正好是这个限定下的概念、阶段或分类，其他选项则换成了别的概念、范围不完整，或在否定题里不是例外项。</div>';
+      if (correctText) html += '<div class="sqe-exp-block"><b>原始正确项：</b>' + esc(correctText) + '</div>';
+      var opts = displayOptions || item.options;
+      html += '<div class="sqe-exp-options">';
+      opts.forEach(function (opt) {
+        var label = opt.currentLabel || opt.label;
+        html += '<div class="sqe-exp-option ' + (opt.correct ? 'is-correct' : 'is-wrong') + '"><b>' + esc(label) + '. ' + esc(opt.text) + '</b><span class="sqe-exp-why">' + esc(optionReason(item, opt, opt.correct, info)) + '</span></div>';
+      });
+      html += '</div>';
+    } else if (item.kind === 'tf') {
+      var correction = extractCorrection(item.answerText);
+      html += '<div class="sqe-exp-block"><b>为什么这样判：</b>参考答案是“' + esc(item.tfAnswer ? '正确' : '错误') + '”。' + (item.tfAnswer ? '题干说法与教材边界一致，重点看它没有偷换对象、阶段或定义。' : '题干说法不能直接成立，通常是把对象、阶段、定义或范围说偏了。') + (correction ? ' 正确说法是：' + esc(correction) : '') + '</div>';
+      html += '<div class="sqe-exp-block"><b>考场记法：</b>' + esc(conceptText(item.questionText + ' ' + item.answerText)) + '</div>';
+    } else if (item.kind === 'fill') {
+      html += '<div class="sqe-exp-block"><b>为什么这样填：</b>参考答案是 ' + esc(item.answerText) + '。填空题看空格前后的限定词，它们通常在补一个定义、分类、阶段顺序或固定术语；本题对应的是「' + esc(info.scope) + '」。</div>';
+      html += '<div class="sqe-exp-block"><b>考场记法：</b>' + esc(conceptText(item.questionText + ' ' + item.answerText)) + '</div>';
+    } else {
+      html += '<div class="sqe-exp-block"><b>怎么背评分点：</b>这类简答先答核心定义或区别，再按目的、对象、阶段、方法、优缺点补齐。题干关键词是「' + esc(info.keyword) + '」，答案里的每一段都围绕这个关键词展开。</div>';
+      html += '<div class="sqe-exp-block"><b>答题骨架：</b>' + esc(clip(item.answerText, 260)) + '</div>';
+    }
+    return html;
+  }
+
+  function parseItem(card, index) {
+    var titleEl = card.querySelector('.sqe-question-title');
+    var bodyEl = card.querySelector('.sqe-question-body');
+    var answerBody = card.querySelector('.sqe-answer-body');
+    var chapter = card.closest('.sqe-chapter');
+    var sectionTitle = textOf(chapter && chapter.querySelector('h3'));
+    var rawTitle = textOf(titleEl);
+    var rawType = (rawTitle.match(/（([^）]+)）/) || [])[1] || '';
+    var optionNodes = Array.prototype.slice.call(card.querySelectorAll('.sqe-options li'));
+    var answerText = textOf(answerBody);
+    var labels = answerLabels(answerText);
+    var options = optionNodes.map(function (li) {
+      var strong = li.querySelector('strong');
+      var label = strong ? strong.textContent.replace('.', '').trim() : '';
+      var value = textOf(li).replace(/^[A-D]\.\s*/, '').trim();
+      return { label: label, text: value, correct: labels.indexOf(label) !== -1 };
+    });
+    if (options.length && labels.length === 0) {
+      options.forEach(function (opt) {
+        if (answerText.indexOf(opt.text) !== -1) opt.correct = true;
+      });
+    }
+    var kind = options.length ? 'choice' : (/判断/.test(rawType) ? 'tf' : (/填空/.test(rawType) ? 'fill' : 'short'));
+    var tfAnswer = null;
+    if (kind === 'tf') {
+      if (/^(?:T|正确)\b|^正确|答案[:：]?\s*正确/.test(answerText)) tfAnswer = true;
+      if (/^(?:F|错误)\b|^错误|答案[:：]?\s*错误/.test(answerText)) tfAnswer = false;
+    }
+    return {
+      index: index,
+      card: card,
+      titleEl: titleEl,
+      rawTitle: rawTitle,
+      displayTitle: visibleTitle(rawTitle),
+      rawType: rawType,
+      displayType: kind === 'choice' ? '选择题' : (/判断/.test(rawType) ? '判断题' : (/填空/.test(rawType) ? '填空题' : '简答题')),
+      kind: kind,
+      sectionTitle: sectionTitle,
+      questionHtml: bodyEl ? bodyEl.innerHTML : '',
+      questionText: textOf(bodyEl),
+      answerText: answerText,
+      options: options,
+      tfAnswer: tfAnswer
+    };
+  }
+
+  var items = cards.map(parseItem);
+  items.forEach(function (item) {
+    if (item.titleEl && item.kind === 'choice') item.titleEl.textContent = item.displayTitle;
+    var summary = item.card.querySelector('.sqe-answer summary');
+    var answerBody = item.card.querySelector('.sqe-answer-body');
+    if (summary) summary.textContent = '答案与解析';
+    if (answerBody && !answerBody.querySelector('.sqe-explanation')) {
+      var explain = document.createElement('div');
+      explain.className = 'sqe-explanation';
+      explain.innerHTML = buildExplanation(item);
+      answerBody.appendChild(explain);
+    }
+  });
+
   function apply() {
+    if (!input) return;
     var q = input.value.trim().toLowerCase();
     cards.forEach(function (card) {
       var text = (card.getAttribute('data-sqe-text') || '').toLowerCase();
       card.classList.toggle('is-hidden', q && text.indexOf(q) === -1);
     });
   }
-  input.addEventListener('input', apply);
-  if (clear) clear.addEventListener('click', function () { input.value = ''; apply(); input.focus(); });
+  if (input) input.addEventListener('input', apply);
+  if (clear && input) clear.addEventListener('click', function () { input.value = ''; apply(); input.focus(); });
+
+  function shuffle(list) {
+    var arr = list.slice();
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = tmp;
+    }
+    return arr;
+  }
+  function sameSet(a, b) {
+    if (a.length !== b.length) return false;
+    var map = {};
+    a.forEach(function (x) { map[x] = true; });
+    return b.every(function (x) { return map[x]; });
+  }
+  function loadPracticeState(total) {
+    try {
+      var parsed = JSON.parse(localStorage.getItem(storageKey) || 'null');
+      if (parsed && Array.isArray(parsed.order) && parsed.order.length === total) return parsed;
+    } catch (err) {}
+    return null;
+  }
+  function savePracticeState(state) {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify({
+        order: state.order,
+        index: state.index,
+        answered: state.answered,
+        correct: state.correct
+      }));
+    } catch (err) {}
+  }
+
+  var practice = document.querySelector('[data-sqe-practice]');
+  var practiceStats = document.querySelector('[data-sqe-practice-stats]');
+  var practiceMeta = document.querySelector('[data-sqe-practice-meta]');
+  var practiceQuestion = document.querySelector('[data-sqe-practice-question]');
+  var practiceOptions = document.querySelector('[data-sqe-practice-options]');
+  var practiceFeedback = document.querySelector('[data-sqe-practice-feedback]');
+  var practiceExplain = document.querySelector('[data-sqe-practice-explain]');
+  var submitBtn = document.querySelector('[data-sqe-submit]');
+  var nextBtn = document.querySelector('[data-sqe-next]');
+  var resetBtn = document.querySelector('[data-sqe-reset]');
+  var modeButtons = Array.prototype.slice.call(document.querySelectorAll('[data-sqe-mode]'));
+  var practicePool = items.filter(function (item) {
+    if (item.kind === 'choice') return item.options.length >= 2 && item.options.some(function (opt) { return opt.correct; });
+    return item.kind === 'tf' && item.tfAnswer !== null;
+  });
+  var practiceState = null;
+  var currentPractice = null;
+
+  function newRound() {
+    practiceState = {
+      order: shuffle(practicePool.map(function (_, idx) { return idx; })),
+      index: 0,
+      answered: 0,
+      correct: 0
+    };
+    savePracticeState(practiceState);
+    renderPractice();
+  }
+  function ensurePracticeState() {
+    if (!practicePool.length) return;
+    if (!practiceState) {
+      practiceState = loadPracticeState(practicePool.length) || {
+        order: shuffle(practicePool.map(function (_, idx) { return idx; })),
+        index: 0,
+        answered: 0,
+        correct: 0
+      };
+      if (practiceState.index >= practiceState.order.length) practiceState.index = practiceState.order.length - 1;
+      savePracticeState(practiceState);
+    }
+  }
+  function renderPractice() {
+    if (!practice) return;
+    ensurePracticeState();
+    if (!practicePool.length) {
+      if (practiceStats) practiceStats.textContent = '没有可刷的选择题或判断题';
+      return;
+    }
+    if (practiceState.index >= practiceState.order.length) {
+      if (practiceStats) practiceStats.textContent = '已完成 ' + practiceState.answered + ' 题 · 答对 ' + practiceState.correct + ' 题';
+      if (practiceMeta) practiceMeta.innerHTML = '<span>本轮完成</span>';
+      if (practiceQuestion) practiceQuestion.textContent = '本轮已经刷完。';
+      if (practiceOptions) practiceOptions.innerHTML = '';
+      if (practiceFeedback) {
+        practiceFeedback.className = 'sqe-practice-feedback is-ok';
+        practiceFeedback.textContent = '可以重置进度后重新打乱。';
+      }
+      if (practiceExplain) {
+        practiceExplain.className = 'sqe-practice-explain';
+        practiceExplain.innerHTML = '';
+      }
+      return;
+    }
+    var item = practicePool[practiceState.order[practiceState.index]];
+    var rawOptions = item.kind === 'choice'
+      ? item.options.map(function (opt) { return { label: opt.label, text: opt.text, correct: opt.correct }; })
+      : [
+        { label: 'T', text: '正确', correct: item.tfAnswer === true },
+        { label: 'F', text: '错误', correct: item.tfAnswer === false }
+      ];
+    var renderedOptions = shuffle(rawOptions).map(function (opt, idx) {
+      opt.currentLabel = LETTERS[idx];
+      return opt;
+    });
+    currentPractice = {
+      item: item,
+      options: renderedOptions,
+      selected: [],
+      submitted: false
+    };
+    if (practiceStats) practiceStats.textContent = '第 ' + (practiceState.index + 1) + ' / ' + practiceState.order.length + ' 题 · 已答 ' + practiceState.answered + ' · 答对 ' + practiceState.correct;
+    if (practiceMeta) practiceMeta.innerHTML = '<span>' + esc(item.displayType) + '</span><span>' + esc(item.sectionTitle || '云班课题库') + '</span><span>' + esc(item.displayTitle.replace(/^题\s*/, '题 ')) + '</span>';
+    if (practiceQuestion) practiceQuestion.innerHTML = item.questionHtml;
+    if (practiceFeedback) {
+      practiceFeedback.className = 'sqe-practice-feedback';
+      practiceFeedback.textContent = '';
+    }
+    if (practiceExplain) {
+      practiceExplain.className = 'sqe-practice-explain';
+      practiceExplain.innerHTML = '';
+    }
+    if (practiceOptions) {
+      practiceOptions.innerHTML = renderedOptions.map(function (opt, idx) {
+        return '<button type="button" class="sqe-practice-option" data-sqe-option="' + idx + '"><b>' + esc(opt.currentLabel) + '.</b> ' + esc(opt.text) + '</button>';
+      }).join('');
+    }
+  }
+  function markPracticeOptions() {
+    if (!currentPractice || !practiceOptions) return;
+    Array.prototype.slice.call(practiceOptions.querySelectorAll('[data-sqe-option]')).forEach(function (button) {
+      var idx = Number(button.getAttribute('data-sqe-option'));
+      var opt = currentPractice.options[idx];
+      var selected = currentPractice.selected.indexOf(idx) !== -1;
+      button.classList.toggle('is-selected', selected && !currentPractice.submitted);
+      button.classList.toggle('is-correct', currentPractice.submitted && opt.correct);
+      button.classList.toggle('is-wrong', currentPractice.submitted && selected && !opt.correct);
+    });
+  }
+  if (practiceOptions) {
+    practiceOptions.addEventListener('click', function (event) {
+      var button = event.target.closest('[data-sqe-option]');
+      if (!button || !currentPractice || currentPractice.submitted) return;
+      var idx = Number(button.getAttribute('data-sqe-option'));
+      var pos = currentPractice.selected.indexOf(idx);
+      if (currentPractice.item.kind === 'choice') {
+        if (pos === -1) currentPractice.selected.push(idx);
+        else currentPractice.selected.splice(pos, 1);
+      } else {
+        currentPractice.selected = [idx];
+      }
+      markPracticeOptions();
+    });
+  }
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function () {
+      if (!currentPractice) return;
+      if (!currentPractice.selected.length) {
+        if (practiceFeedback) {
+          practiceFeedback.className = 'sqe-practice-feedback is-bad';
+          practiceFeedback.textContent = '先选择选项。';
+        }
+        return;
+      }
+      var correctIndexes = currentPractice.options.map(function (opt, idx) { return opt.correct ? idx : -1; }).filter(function (idx) { return idx >= 0; });
+      var ok = sameSet(currentPractice.selected.slice().sort(), correctIndexes.slice().sort());
+      var correctLabels = correctIndexes.map(function (idx) { return currentPractice.options[idx].currentLabel; }).join('、');
+      if (!currentPractice.submitted) {
+        practiceState.answered += 1;
+        if (ok) practiceState.correct += 1;
+        savePracticeState(practiceState);
+      }
+      currentPractice.submitted = true;
+      markPracticeOptions();
+      if (practiceStats) practiceStats.textContent = '第 ' + (practiceState.index + 1) + ' / ' + practiceState.order.length + ' 题 · 已答 ' + practiceState.answered + ' · 答对 ' + practiceState.correct;
+      if (practiceFeedback) {
+        practiceFeedback.className = 'sqe-practice-feedback ' + (ok ? 'is-ok' : 'is-bad');
+        practiceFeedback.textContent = (ok ? '答对了。' : '还没背牢。') + '正确答案：' + correctLabels;
+      }
+      if (practiceExplain) {
+        practiceExplain.className = 'sqe-practice-explain is-visible';
+        practiceExplain.innerHTML = buildExplanation(currentPractice.item, currentPractice.options);
+      }
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function () {
+      ensurePracticeState();
+      practiceState.index += 1;
+      savePracticeState(practiceState);
+      renderPractice();
+    });
+  }
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function () {
+      try { localStorage.removeItem(storageKey); } catch (err) {}
+      newRound();
+    });
+  }
+  function setMode(mode) {
+    var usePractice = mode === 'practice';
+    page.classList.toggle('is-practice', usePractice);
+    if (practice) practice.hidden = !usePractice;
+    modeButtons.forEach(function (button) {
+      button.setAttribute('aria-selected', button.getAttribute('data-sqe-mode') === mode ? 'true' : 'false');
+    });
+    if (usePractice) renderPractice();
+  }
+  modeButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      setMode(button.getAttribute('data-sqe-mode'));
+    });
+  });
+  if (practiceStats && practicePool.length) practiceStats.textContent = '共 ' + practicePool.length + ' 道选择/判断题';
 })();
 </script>
