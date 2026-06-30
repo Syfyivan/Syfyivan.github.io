@@ -30,7 +30,7 @@ html[data-user-color-scheme="dark"] .aim-tag{color:#6abb8a}
 
 <div class="aim-key-note"><strong>这门课不教你先背语法。</strong>它带你用一个月、做中学，<strong>独立</strong>做出并上线一个带 AI 的个人作品——而且东西坏了你能自己修、AI 说错了你能看出来。真·零基础，完全 OK。十四讲，两条路线，挑你顺手的走。</div>
 
-<input class="aim-route" type="radio" name="aim-route" id="aim-seq-r" checked><input class="aim-route" type="radio" name="aim-route" id="aim-skill-r"><div class="aim-tabs"><label for="aim-seq-r">第一次学 · 按顺序</label><label for="aim-skill-r">回来查 · 按能力</label></div><div class="aim-panel aim-panel-seq"><p class="aim-route-note">从 00 一路做到 13。每讲 30–60 分钟，主线必做、选学可跳。第一次学，走这条。</p><div class="aim-week">开篇</div>
+<div class="aim-course-shell"><input class="aim-route" type="radio" name="aim-route" id="aim-seq-r" checked><input class="aim-route" type="radio" name="aim-route" id="aim-skill-r"><div class="aim-tabs"><label for="aim-seq-r">第一次学 · 按顺序</label><label for="aim-skill-r">回来查 · 按能力</label></div><div class="aim-panel aim-panel-seq"><p class="aim-route-note">从 00 一路做到 13。每讲 30–60 分钟，主线必做、选学可跳。第一次学，走这条。</p><div class="aim-week">开篇</div>
 <a class="aim-row" href="/2026/06/29/ai-maker-00-start/"><span class="aim-num">00</span><div class="aim-rt"><h4>序：你不需要先成为程序员</h4><p>定调 + 4 个不过时的能力 + 准备清单 + 写下你的点子</p></div><span class="aim-tag">✔</span></a>
 <div class="aim-week">第 1 周 · 上瘾</div>
 <a class="aim-row" href="/2026/06/29/ai-maker-01-first-page/"><span class="aim-num">01</span><div class="aim-rt"><h4>半小时，让你的第一张网页活过来</h4><p>零安装，描述一句就出现；养成习惯 #1：先猜后做</p></div><span class="aim-tag">✔</span></a>
@@ -60,4 +60,4 @@ html[data-user-color-scheme="dark"] .aim-tag{color:#6abb8a}
 <a class="aim-row" href="/2026/06/29/ai-maker-11-deploy/"><span class="aim-num">11</span><div class="aim-rt"><h4>我想发布、让别人能打开</h4><p>一键上线，拿到公开网址</p></div><span class="aim-tag">→</span></a>
 <a class="aim-row" href="/2026/06/29/ai-maker-12-judge-ai/"><span class="aim-num">12</span><div class="aim-rt"><h4>怎么判断 AI 说得对不对、该不该信</h4><p>幻觉、安全红线、低成本验证</p></div><span class="aim-tag">→</span></a>
 <a class="aim-row" href="/2026/06/29/ai-maker-13-whats-next/"><span class="aim-num">13</span><div class="aim-rt"><h4>学完了，接下来该往哪走</h4><p>五能力地图 + 三条路线</p></div><span class="aim-tag">→</span></a>
-</div>
+</div></div>
