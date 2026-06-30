@@ -405,7 +405,7 @@ html[data-user-color-scheme="dark"] .sqe-exp-option,
 html[data-user-color-scheme="dark"] .sqe-practice {
   background: rgba(255, 255, 255, 0.045);
 }
-@media (min-width: 761px) and (max-width: 1319px) {
+@media (min-width: 761px) and (max-width: 1449px) {
   .sqe-nav {
     position: sticky;
     top: 86px;
