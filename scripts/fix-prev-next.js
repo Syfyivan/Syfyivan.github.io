@@ -16,6 +16,9 @@
 //   software-quality-xianxia-00 -> ... -> software-quality-xianxia-09
 //   software-quality-fables-00  -> ... -> software-quality-fables-09
 //
+// Single-track course posts such as `gaokao-coding-NN-...` and
+// `ai-maker-NN-...` are chained by their leading NN number.
+//
 // Non-course posts fall back to date order, with the chronologically earlier
 // post on the left (上一篇) and the later one on the right (下一篇). Hexo's
 // `page.prev` is the newer post and `page.next` the older one, so we swap them.
@@ -34,6 +37,15 @@ function courseKey(post) {
       course: 'ai-agent-fables',
       lesson: parseInt(m[1], 10),
       chapter: chMatch ? parseInt(chMatch[1], 10) : 0
+    };
+  }
+
+  m = slug.match(/^(gaokao-coding|ai-maker)-(\d{2})-/);
+  if (m) {
+    return {
+      course: m[1],
+      lesson: parseInt(m[2], 10),
+      chapter: 0
     };
   }
 
