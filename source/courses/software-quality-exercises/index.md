@@ -5752,6 +5752,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     [/ISO9126/, 'ISO9126 六特性常记为功能性、可靠性、易用性、效率、可维护性、可移植性。'],
     [/McCall/, 'McCall 模型把质量因素分产品运行、产品修订、产品转移等维度。'],
     [/Boehm/, 'Boehm 模型也是质量模型，强调分层质量特性和可度量准则。'],
+    [/McCabe.*语法构造.*独立模块.*耦合|McCabe.*不能考虑.*耦合/, 'McCabe 度量和语法构造方法看的是模块内部结构或复杂度；耦合看模块之间的依赖关系，所以这些内部度量不能衡量模块间耦合。'],
     [/耦合/, '耦合描述模块之间依赖程度，好的设计追求低耦合。'],
     [/内聚/, '内聚描述模块内部职责集中程度，好的设计追求高内聚。'],
     [/封装/, '封装隐藏内部实现，减少外部依赖，是面向对象设计原则。'],
@@ -5906,7 +5907,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     for (var j = 0; j < exactConcepts.length; j++) {
       if (compact.indexOf(strip(exactConcepts[j][0])) !== -1) return '「' + exactConcepts[j][0] + '」：' + exactConcepts[j][1];
     }
-    return '关键词是「' + clip(src, 42) + '」，要判断它说的是阶段、方法、指标、角色还是定义本身，再看它有没有把题干范围换掉。';
+    return '看关键词「' + clip(src, 42) + '」和教材概念是否一致。';
   }
   function intentInfo(item) {
     var core = questionCore(item);
@@ -5942,51 +5943,33 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
   function optionReason(item, option, correct, info) {
     var prefix = correct ? '选' : '不选';
     var concept = conceptText(option.text);
-    var optKey = firstKeyword(option.text);
-    var stem = clip(info.core || item.questionText, 90);
     if (item.answerText.indexOf('以上') !== -1 && /以上|全部|皆是/.test(option.text)) {
-      return prefix + '：题干问的是范围最全或全部正确的情况。' + concept + (correct ? '它把题干涉及的正确对象都收进来，没有漏项，所以要选。' : '但本题并不是所有前项都成立，或题干没有要求选全集，所以不能选。');
+      return prefix + '：' + (correct ? '前面成立的项都被包含进来了。' : '本题不是所有前项都成立，不能直接选“以上/全部”。');
     }
     if (info.negative) {
       return correct
-        ? prefix + '：题干是反向问法，要找“不符合”的例外项。' + concept + '把它放回题干「' + stem + '」看，它没有落在「' + info.scope + '」范围里，或把概念说错了，所以正是要选的项。'
-        : prefix + '：题干是在找例外项。' + concept + '把它放回题干「' + stem + '」看，它属于「' + info.scope + '」范围，或说法本身成立，所以不能当作错误项。';
+        ? prefix + '：题干在找“不属于/错误”的项。' + concept
+        : prefix + '：这个说法本身是对的，不能当作例外项。' + concept;
     }
     return correct
-      ? prefix + '：这个选项说的是「' + option.text + '」。' + concept + '题干关键词是「' + info.keyword + '」，选项关键词「' + optKey + '」正好回答题干限定的对象、阶段、方法或定义，所以要选。'
-      : prefix + '：这个选项说的是「' + option.text + '」。' + concept + '但题干限定的是「' + info.scope + '」，它要么说的是另一个概念，要么范围不完整，要么把阶段/对象换掉了，所以排除。';
-  }
-  function tfOptionReason(item, option, correct) {
-    var statement = clip(item.questionText, 120);
-    var answerWord = item.tfAnswer ? '正确' : '错误';
-    var reason = conceptText(item.questionText + ' ' + item.answerText);
-    if (correct) {
-      return '选：题干这整句话应判为“' + answerWord + '”。选择“' + option.text + '”是在表达：我认可这个判断结果。关键依据是：' + reason + ' 题干原文是「' + statement + '」。';
-    }
-    return '不选：如果选“' + option.text + '”，就等于把题干「' + statement + '」判成相反结果；但关键依据是：' + reason + ' 因此参考答案判为“' + answerWord + '”，这个选项不能选。';
+      ? prefix + '：' + concept
+      : prefix + '：' + concept + '但它不是本题要找的「' + info.scope + '」。';
   }
   function tfDecisionReason(item) {
     var reason = conceptText(item.questionText + ' ' + item.answerText);
     var correction = extractCorrection(item.answerText);
     if (item.tfAnswer) {
-      return '参考答案是“正确”。题干这句话成立的关键依据是：' + reason;
+      return '这句话是正确的。' + reason;
     }
-    return '参考答案是“错误”。错点要落到题干原文里看：' + reason + (correction ? ' 正确说法是：' + correction : '');
+    return '这句话是错误的。' + (correction ? '应改为：' + correction : reason);
   }
   function buildExplanation(item, displayOptions) {
     var info = intentInfo(item);
-    var stem = clip(info.core || item.questionText, 220);
     var html = '<div class="sqe-explanation-title">为什么是这个答案</div>';
-    html += '<span class="sqe-exp-tag">' + esc(item.sectionTitle || '云班课题库') + '</span>';
-    html += '<span class="sqe-exp-tag">' + esc(item.displayType) + '</span>';
-    if (stem) html += '<div class="sqe-exp-block"><b>题干原文：</b>' + esc(stem) + '</div>';
-    html += '<div class="sqe-exp-block"><b>题目问什么：</b>' + esc(info.focus) + '</div>';
     if (item.kind === 'choice') {
       var correctOptions = item.options.filter(function (opt) { return opt.correct; });
       var correctText = correctOptions.map(function (opt) { return opt.label + '. ' + opt.text; }).join('；');
-      html += '<div class="sqe-exp-block"><b>做题方法：</b>先看题干是不是反向问法，再锁定它限定的对象或概念。本题限定的是「' + esc(info.scope) + '」。所以不是看哪个词眼熟，而是把每个选项逐个代回题干，看它是否回答同一个限定。</div>';
-      html += '<div class="sqe-exp-block"><b>为什么这样选：</b>参考答案是 ' + esc(item.answerText) + '。正确项直接落在「' + esc(info.scope) + '」这个限定里；错误项的问题通常是换了概念、换了阶段、只说了局部，或在反向题里并不是例外项。</div>';
-      if (correctText) html += '<div class="sqe-exp-block"><b>原始正确项：</b>' + esc(correctText) + '</div>';
+      html += '<div class="sqe-exp-block"><b>解析：</b>答案是 ' + esc(item.answerText) + '。' + esc(info.negative ? '这题问的是“不属于/错误”的例外项。' : '这题要选和题干概念对应的项。') + (correctText ? '正确项：' + esc(correctText) + '。' : '') + '</div>';
       var opts = displayOptions || item.options;
       html += '<div class="sqe-exp-options">';
       opts.forEach(function (opt) {
@@ -5995,26 +5978,11 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
       });
       html += '</div>';
     } else if (item.kind === 'tf') {
-      html += '<div class="sqe-exp-block"><b>做题方法：</b>判断题不是看“正确”这个词，而是判断题干整句话是否成立。先把题干拆成三块：对象是什么、它被说成了什么、有没有限定阶段/范围。然后和教材定义对照。</div>';
-      html += '<div class="sqe-exp-block"><b>为什么这样判：</b>' + esc(tfDecisionReason(item)) + '</div>';
-      html += '<div class="sqe-exp-block"><b>涉及概念：</b>' + esc(conceptText(item.questionText + ' ' + item.answerText)) + '</div>';
-      var tfOpts = displayOptions || [
-        { currentLabel: 'A', text: '错误', correct: item.tfAnswer === false },
-        { currentLabel: 'B', text: '正确', correct: item.tfAnswer === true }
-      ];
-      html += '<div class="sqe-exp-options">';
-      tfOpts.forEach(function (opt) {
-        var label = opt.currentLabel || opt.label;
-        html += '<div class="sqe-exp-option ' + (opt.correct ? 'is-correct' : 'is-wrong') + '"><b>' + esc(label) + '. ' + esc(opt.text) + '</b><span class="sqe-exp-why">' + esc(tfOptionReason(item, opt, opt.correct)) + '</span></div>';
-      });
-      html += '</div>';
+      html += '<div class="sqe-exp-block"><b>解析：</b>' + esc(tfDecisionReason(item)) + '</div>';
     } else if (item.kind === 'fill') {
-      html += '<div class="sqe-exp-block"><b>做题方法：</b>填空题看空格前后的限定词：它是在补定义、补分类、补阶段顺序，还是补固定术语。本题对应的是「' + esc(info.scope) + '」。</div>';
-      html += '<div class="sqe-exp-block"><b>为什么这样填：</b>参考答案是 ' + esc(item.answerText) + '。这些词能把题干原文补成教材里的完整表述。</div>';
-      html += '<div class="sqe-exp-block"><b>涉及概念：</b>' + esc(conceptText(item.questionText + ' ' + item.answerText)) + '</div>';
+      html += '<div class="sqe-exp-block"><b>解析：</b>这里填 ' + esc(item.answerText) + '。' + esc(conceptText(item.questionText + ' ' + item.answerText)) + '</div>';
     } else {
-      html += '<div class="sqe-exp-block"><b>怎么背评分点：</b>这类简答先答核心定义或区别，再按目的、对象、阶段、方法、优缺点补齐。题干关键词是「' + esc(info.keyword) + '」，答案里的每一段都应该回到这个关键词。</div>';
-      html += '<div class="sqe-exp-block"><b>答题骨架：</b>' + esc(clip(item.answerText, 260)) + '</div>';
+      html += '<div class="sqe-exp-block"><b>解析：</b>这题抓住「' + esc(info.keyword) + '」回答即可。参考答案要点：' + esc(clip(item.answerText, 260)) + '</div>';
     }
     return html;
   }
