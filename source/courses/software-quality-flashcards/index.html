@@ -110,6 +110,11 @@
   .qa{margin-top:8px;padding:8px 11px;background:rgba(61,220,132,.08);border:1px solid rgba(61,220,132,.28);
     border-radius:7px;font-size:13px;color:#c2ead2;line-height:1.7}
   .qa b{color:#9be3b4}
+  .answer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .explainbtn{background:rgba(126,200,227,.13);border:1px solid rgba(126,200,227,.42);color:var(--accent2);
+    border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer}
+  .explainbtn:hover{border-color:var(--accent2);color:var(--text)}
+  body.flip .hideable:not(.show) .answer-actions{display:none}
   .card.hasq{border-color:rgba(126,200,227,.35)}
   .hint{color:var(--muted);font-size:12px;margin:2px 0 0}
   .mnemo{margin-top:9px;padding:8px 11px;background:rgba(245,166,35,.12);border:1px dashed rgba(245,166,35,.55);
@@ -120,6 +125,29 @@
   .tip b{color:var(--accent2)}
   .trap{border-left:3px solid var(--p0)}
   .full{grid-column:1/-1}
+  .explain-modal{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;
+    padding:18px;background:rgba(4,8,16,.62);backdrop-filter:blur(5px)}
+  .explain-modal.show{display:flex}
+  .explain-panel{width:min(720px,100%);max-height:min(82vh,760px);overflow:auto;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.38)}
+  .explain-top{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--line);
+    padding:13px 15px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .explain-kicker{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px}
+  .explain-title{margin:2px 0 0;font-size:16px;line-height:1.45;color:var(--text)}
+  .explain-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);
+    color:var(--muted);cursor:pointer;font-size:18px;line-height:1}
+  .explain-close:hover{color:var(--text);border-color:var(--accent)}
+  .explain-body{padding:14px 16px 16px;font-size:13.5px;color:var(--text);line-height:1.75}
+  .exp-tag{display:inline-block;margin:0 0 10px;padding:2px 8px;border-radius:999px;border:1px solid rgba(126,200,227,.38);
+    color:var(--accent2);background:rgba(126,200,227,.1);font-size:12px}
+  .exp-block{margin:10px 0;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--inset)}
+  .exp-block b{color:var(--accent2)}
+  .option-list{display:grid;gap:7px;margin-top:8px}
+  .opt-row{padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2)}
+  .opt-row b{margin-right:6px}
+  .opt-ok{border-color:rgba(61,220,132,.45);background:rgba(61,220,132,.09)}
+  .opt-bad{opacity:.88}
+  .opt-why{display:block;margin-top:3px;color:var(--muted);font-size:12.5px}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:30px 10px}
   ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#2a3550;border-radius:6px}
   .x{color:var(--p0);font-weight:700}.v{color:var(--ok);font-weight:700}
@@ -148,6 +176,18 @@
 </header>
 <nav id="nav"></nav>
 <main id="app"></main>
+<div class="explain-modal" id="explainModal" aria-hidden="true">
+  <div class="explain-panel" role="dialog" aria-modal="true" aria-labelledby="explainTitle">
+    <div class="explain-top">
+      <div>
+        <div class="explain-kicker">题目解析</div>
+        <h2 class="explain-title" id="explainTitle">查看解析</h2>
+      </div>
+      <button class="explain-close" id="explainClose" type="button" aria-label="关闭解析">×</button>
+    </div>
+    <div class="explain-body" id="explainBody"></div>
+  </div>
+</div>
 <footer>🔄 蓝色边框的卡片＝已绑定云班课练习题（来自你练习区导入的云班课 quiz，按关键词匹配到对应知识点）：默认显示题目，先做、再点「🔄 看知识点」翻面对答案 · 数据存本机浏览器 · 可 Ctrl/⌘+P 打印</footer>
 
 <script>
@@ -819,11 +859,87 @@ const QBANK=[
 
 /* ============== 渲染 & 交互 ============== */
 const app=document.getElementById('app'),nav=document.getElementById('nav');
+const explainModal=document.getElementById('explainModal'),explainTitle=document.getElementById('explainTitle'),explainBody=document.getElementById('explainBody');
 const KEY='swtest_done_v1';
 let done=JSON.parse(localStorage.getItem(KEY)||'{}');
 let total=0;
-const CARDS=[];
+const CARDS=[],EXPLAIN=[];
 const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const strip=s=>(s||'').replace(/<style[\s\S]*?<\/style>/g,'').replace(/<script[\s\S]*?<\/script>/g,'').replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/\s+/g,' ').trim();
+const clip=(s,n)=>{s=strip(s);return s.length>n?s.slice(0,n-1)+'…':s;};
+const parseOptions=stem=>{
+  const opts=[],re=/(?:^|\s)([A-D])\.\s*([\s\S]*?)(?=\s+[A-D]\.\s*|$)/g;let m;
+  while((m=re.exec(stem||'')))opts.push({k:m[1],v:m[2].trim()});
+  return opts;
+};
+const answerLetters=ans=>{
+  const set=new Set();(ans||'').replace(/[A-D](?=\.)/g,m=>set.add(m));
+  return set;
+};
+const questionCore=stem=>{
+  const idx=(stem||'').search(/\sA\.\s*/);
+  return idx>=0?stem.slice(0,idx).trim():(stem||'').trim();
+};
+const explainRules=[
+  {re:/质量.*定义|固有特性|满足.*要求/,v:'质量定义题先抓「固有特性满足要求的程度」，不是单纯高级、昂贵或零缺陷。'},
+  {re:/客户|用户|满意|期望/,v:'客户/用户相关题要站在使用者视角：质量最终由客户是否满意、是否满足期望来判定。'},
+  {re:/成本|预防|评价|失效|损失|PONC|COPQ|发布/,v:'质量成本分保证成本和损失成本；保证成本=预防+评价，损失成本=内部失效+外部失效。'},
+  {re:/6σ|DMAIC|界定|测量|分析|改进|控制|西格玛/,v:'6σ 改进按 DMAIC 顺序记：界定、测量、分析、改进、控制。'},
+  {re:/IDEAL|初始化|诊断|建立|行动|学习/,v:'IDEAL 模型按 I-D-E-A-L 记：初始化、诊断、建立、行动、学习。'},
+  {re:/ISO9126|功能性|可靠性|易用性|效率|可维护|可移植/,v:'ISO9126 六特性口诀是「功靠用，效维移」：功能性、可靠性、易用性、效率、可维护性、可移植性。'},
+  {re:/3A|Accountability|Availability|Accessibility|可说明|有效性|易用性/,v:'软件质量 3A 是可说明性、有效性、易用性，看到三个 A 英文词要直接对应中文含义。'},
+  {re:/评审|审查|走查|技术评审|管理评审|过程评审/,v:'评审题先分对象：管理评审看质量体系，技术评审看工作产品，过程评审看过程是否被遵守。'},
+  {re:/SQA|质量保证|SEPG|SPIN|QAI|审计|审核/,v:'SQA 负责过程监督和质量保证，不等于测试组；SEPG 管过程改进，SPIN 是自发改进网络。'},
+  {re:/编码|命名|头文件|ifndef|内存|指针|const|引用/,v:'编码规范题通常考命名、头文件防重复、const/引用、动态内存成对释放和野指针来源。'},
+  {re:/黑盒|等价类|边界值|因果图|判定表|错误推测|场景法|正交/,v:'黑盒测试只看外部功能和输入输出；等价类先划分，边界值最容易发现边界错误，因果图/判定表处理组合。'},
+  {re:/白盒|语句覆盖|判定覆盖|条件覆盖|路径|逻辑覆盖|环路|基本路径|控制流/,v:'白盒测试看程序内部结构；路径、覆盖率、控制流、环路复杂度都属于白盒思路。'},
+  {re:/单元测试|集成测试|系统测试|验收测试|alpha|beta|驱动模块|桩模块|组装/,v:'测试阶段题先定位层级：单元测模块，集成测接口和组装，系统测完整系统，验收测交付前用户确认。'},
+  {re:/性能|压力|负载|容量|并发|恢复|安全|配置|容错/,v:'系统测试里的非功能测试要区分：性能看指标，压力看极限负荷，恢复/容错看故障后能否保护和恢复。'},
+  {re:/自动化测试|测试工具|录制|脚本|插桩/,v:'自动化/工具题不要默认“越自动越省事”；脚本维护、录制回放、插桩采集信息都是常见考点。'},
+  {re:/变异测试|程序变异|数据流测试|覆盖率|函数覆盖/,v:'变异测试用于评价测试用例集的错误检测能力；覆盖率和数据流属于基于代码结构的白盒指标。'},
+  {re:/面向对象|继承|子类|类的测试|封装/,v:'面向对象测试要注意继承会传播缺陷，类应在被其他部分使用前先测。'},
+  {re:/软件危机|软件工程|可维护|可移植/,v:'软件工程相关题常把概念提出、可维护性指标、可移植性度量混在一起，先看题干问的是原因还是质量属性。'},
+  {re:/缺陷|错误|失效|需求规格/,v:'缺陷题要区分内部错误和外部失效；很多缺陷根因来自需求规格说明错误。'}
+];
+function ruleHints(q,c){
+  const s=(q.q+' '+q.a+' '+c.title).replace(/\s+/g,'');
+  return explainRules.filter(r=>r.re.test(s)).map(r=>r.v).slice(0,2);
+}
+function buildExplanation(q,c){
+  const opts=parseOptions(q.q),letters=answerLetters(q.a),core=questionCore(q.q),hints=ruleHints(q,c);
+  const kind=q.t||'题目',answer=esc(q.a),topic=esc(c.title),summary=esc(clip(c.btext,230));
+  let why='';
+  if(/判断/.test(kind)){
+    const right=(q.a.match(/正确说法[:：]\s*(.*)$/)||[])[1];
+    why=/错误/.test(q.a)?`这道判断题的题干不能直接成立。${right?`正确说法是：${esc(right)}。`:''}判断题重点看它有没有偷换对象、阶段、定义或说得过于绝对。`
+      :`这道判断题成立。判断时先看题干有没有偷换对象、阶段或概念边界；本题的说法和参考答案边界一致。`;
+  }else if(/填空/.test(kind)){
+    why=`填空题先抓题干关键词，再回到卡片里的定义或分类。这里应填 ${answer}，因为它正好补上题干所限定的概念。`;
+  }else{
+    why=`选择题先看题干限定的对象，再排除概念换类、范围过大或测试阶段混淆的选项。参考答案 ${answer} 与题干关键词和考点边界匹配。`;
+  }
+  const optionHtml=opts.length&&letters.size?`<div class="exp-block"><b>选项怎么排：</b><div class="option-list">`+
+    opts.map(o=>{
+      const ok=letters.has(o.k);
+      const whyOpt=ok?`对：${o.k} 项出现在参考答案中，和题干限定的对象一致。`
+        :`${/多选/.test(kind)?'不选：多选题只选与题干限定完全匹配的项。':'不选：单选题只保留最贴合题干关键词的一项。'}这一项不是本题参考答案，对照知识点边界排除。`;
+      return `<div class="opt-row ${ok?'opt-ok':'opt-bad'}"><b>${esc(o.k)}.</b>${esc(o.v)}<span class="opt-why">${esc(whyOpt)}</span></div>`;
+    }).join('')+`</div></div>`:'';
+  const memo=hints.length?hints.join(' '):'先定位题干关键词，再对照卡片里的定义、分类、适用场景；判断题重点看题干是否偷换对象或说得过绝对。';
+  return `<span class="exp-tag">关联复习卡片：${topic}</span>
+    <div class="exp-block"><b>题目问什么：</b>${esc(clip(core,160))}</div>
+    <div class="exp-block"><b>为什么是这个答案：</b>${why}</div>
+    ${optionHtml}
+    <div class="exp-block"><b>考场记法：</b>${esc(memo)}</div>
+    <div class="exp-block"><b>对应卡片摘要：</b>${summary}</div>`;
+}
+function openExplain(id){
+  const row=EXPLAIN[id];if(!row)return;
+  explainTitle.textContent=`${row.q.t} · 云班课 quiz-${row.q.z} · 题${row.q.i}`;
+  explainBody.innerHTML=buildExplanation(row.q,row.c);
+  explainModal.classList.add('show');explainModal.setAttribute('aria-hidden','false');
+}
+function closeExplain(){explainModal.classList.remove('show');explainModal.setAttribute('aria-hidden','true');}
 
 nav.innerHTML='<div class="nt">📑 目录 · 点击跳转</div>';
 D.forEach((sec,si)=>{
@@ -890,7 +1006,10 @@ CARDS.forEach(c=>{
     boundN+=c.qs.length;c.card.classList.add('hasq');
     const fq=document.createElement('div');fq.className='face fq';
     fq.innerHTML=`<div class="qhead">📝 云班课练习题 · ${c.qs.length} 题（来自你练习区导入的云班课 quiz，先做再翻面对知识点）</div>`+
-      c.qs.map(q=>`<div class="qitem"><div class="qt"><span class="qtype">${esc(q.t)}</span><span class="qid">云班课 quiz-${esc(q.z)} · 题${esc(q.i)}</span></div><div class="qstem">${esc(q.q)}</div><div class="qa hideable"><b>参考答案：</b>${esc(q.a)}</div></div>`).join('');
+      c.qs.map(q=>{
+        const eid=EXPLAIN.push({q,c})-1;
+        return `<div class="qitem"><div class="qt"><span class="qtype">${esc(q.t)}</span><span class="qid">云班课 quiz-${esc(q.z)} · 题${esc(q.i)}</span></div><div class="qstem">${esc(q.q)}</div><div class="qa hideable"><b>参考答案：</b>${esc(q.a)}<div class="answer-actions"><button class="explainbtn" type="button" data-eid="${eid}">查看解析</button></div></div></div>`;
+      }).join('');
     faces.insertBefore(fq,faces.firstChild);
     fa.style.display='none';btn.style.display='';btn.textContent='🔄 看知识点';
     let showQ=true;
@@ -906,6 +1025,13 @@ CARDS.forEach(c=>{
 function wireHide(){document.querySelectorAll('.hideable').forEach(el=>{if(el._w)return;el._w=1;
   el.onclick=ev=>{ev.stopPropagation();if(document.body.classList.contains('flip'))el.classList.toggle('show');};});}
 wireHide();
+app.addEventListener('click',ev=>{
+  const btn=ev.target.closest('.explainbtn');if(!btn)return;
+  ev.preventDefault();ev.stopPropagation();openExplain(btn.dataset.eid);
+},true);
+document.getElementById('explainClose').onclick=closeExplain;
+explainModal.onclick=ev=>{if(ev.target===explainModal)closeExplain();};
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&explainModal.classList.contains('show'))closeExplain();});
 
 function updateProg(){
   const n=Object.keys(done).length;
