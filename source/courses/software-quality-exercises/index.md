@@ -5608,7 +5608,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     return String(value || '').replace(/\s+/g, '').replace(/[，。；：、,.!?！？:;（）()【】\[\]""'']/g, '');
   }
   function visibleTitle(title) {
-    return String(title || '').replace(/（(?:单选|多选)）/g, '（选择题）');
+    return String(title || '').replace(/[（(�]*(?:单选|多选)[）)]?/g, '（选择题）');
   }
   function questionCore(item) {
     var text = item.questionText || '';
