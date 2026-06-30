@@ -5662,6 +5662,18 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
   function visibleTitle(title) {
     return String(title || '').replace(/[（(�]*(?:单选|多选)[）)]?/g, '（选择题）');
   }
+  function questionContent(card, bodyEl) {
+    if (bodyEl) return { html: bodyEl.innerHTML, text: textOf(bodyEl) };
+    var box = card.querySelector('.sqe-question');
+    if (!box) return { html: '', text: '' };
+    var nodes = Array.prototype.slice.call(box.children).filter(function (node) {
+      return !node.classList.contains('sqe-question-title') && !node.classList.contains('sqe-options');
+    });
+    return {
+      html: nodes.map(function (node) { return node.outerHTML; }).join(''),
+      text: nodes.map(textOf).join(' ').replace(/\s+/g, ' ').trim()
+    };
+  }
   function questionCore(item) {
     var text = item.questionText || '';
     return text.replace(/\s*[A-D]\.\s*[\s\S]*$/g, '').replace(/\s+/g, ' ').trim();
@@ -5678,6 +5690,10 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     [/适合顾客需要/, '“适合顾客需要”对应适用性质量；如果题干说“符合标准/规格”，才偏符合性质量。'],
     [/随着时间.*变化|要求.*变化/, '题干强调要求会随时间改变，所以质量判断有时效性，不是单纯主观性或广泛性。'],
     [/质量方面.*指挥.*控制|指挥.*控制.*组织/, '质量管理定义固定抓“指挥”和“控制”：策划、制定只是管理活动的一部分，不是这一定义中的两个关键词。'],
+    [/顾客抱怨|顾客投诉/, '顾客抱怨说明顾客期望没有被满足，它不是噪声，而是发现需求偏差、改进产品和提升服务的重要输入。'],
+    [/受控制状态.*不会波动|质量.*不会波动/, '过程受控不等于质量完全不波动；受控只表示波动处在可预期、可管理范围内，仍然存在正常随机波动。'],
+    [/符合标准.*合格|符合标准.*质量/, '“符合标准”只说明符合性，不能推出一定满足顾客真实需要；质量还要看适用性、满意度和隐含需求。'],
+    [/服务.*产品类别/, '在质量管理语境里，产品可以包括硬件、软件、流程性材料和服务，所以“服务是产品类别中的一类”是成立的。'],
     [/制定质量目标.*过程.*资源/, '题干说制定质量目标并规定过程和资源，这就是质量策划，不是质量控制或质量保证。'],
     [/朱兰.*质量策划.*质量控制.*质量改进|质量策划.*质量控制.*质量改进/, '朱兰三步曲按“质量策划、质量控制、质量改进”记，顺序和名称都要对。'],
     [/最高管理者/, '质量方针代表组织层面的质量宗旨和方向，批准主体是最高管理者，不是质量办公室或技术负责人。'],
@@ -5690,6 +5706,12 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     [/V\s*模型.*验收测试|V模型.*验收测试/, 'V 模型强调开发阶段和测试阶段的对应关系，缺点是早期需求问题可能到后期验收测试才暴露。'],
     [/每个拷贝都是完全一样/, '软件复制品逻辑上完全相同；硬件同规格产品仍会有制造差异，这是软硬件可靠性差别。'],
     [/需求分析.*概要设计.*详细设计|需求规格说明|程序源代码/, '软件测试对象不只是代码，也包括需求、概要设计、详细设计等开发产物。'],
+    [/软件测试.*风险|测试.*有风险|所有的软件缺陷.*修复|并非所有.*缺陷.*修复/, '软件测试有风险，是因为测试受时间、成本、输入组合和环境限制，不能证明“没有缺陷”；发现缺陷后也要按严重程度、修复成本和发布风险决定是否修复，所以不是所有缺陷都能或都值得修复。'],
+    [/完全测试.*不可能|穷尽测试|所有可能.*测试/, '完全测试不可能，是因为输入、路径、状态和环境组合数量巨大，实际项目只能用风险优先、等价类、边界值等方法抽样测试。'],
+    [/测试无法.*所有.*缺陷|无法找出所有.*缺陷|无法显示潜伏.*缺陷|不能证明.*没有缺陷/, '测试只能证明缺陷存在，不能证明缺陷不存在；没有测出来，可能只是用例没有覆盖到对应路径、数据或环境。'],
+    [/找到.*缺陷.*越多.*遗留.*越少|找到.*缺陷.*越多.*残留.*越少/, '这句话把测试原则说反了。缺陷多的模块通常更复杂或质量更差，已经发现很多缺陷时，残留缺陷风险往往也更高，而不是更低。'],
+    [/测试人员.*需求阶段|生命周期.*需求阶段|测试.*尽早介入/, '测试人员越早介入越好，需求阶段就能发现需求歧义、遗漏和不可测试点；等到编码或系统集成后再介入，修复成本会明显上升。'],
+    [/传统测试.*发现错误.*错误预防|测试.*错误预防/, '软件测试的目标已经从单纯“找错”扩展到“预防错误”：越早通过评审、需求澄清和测试设计发现问题，后期返工越少。'],
     [/100%.*测试覆盖率/, '测试工具能提高效率和覆盖深度，但不能保证 100% 覆盖，更不能保证没有缺陷。'],
     [/每条语句至少.*执行一次|每个可执行语句至少执行一次/, '这描述的是语句覆盖：只要求语句被执行，不要求分支真假或路径都覆盖。'],
     [/每个判定至少.*真.*假|判定.*真.*假/, '这描述的是判定覆盖：每个判定整体至少出现一次真结果和一次假结果。'],
@@ -5798,6 +5820,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     ['测试用例', '为特定目的设计的一组测试输入、执行条件和预期结果。'],
     ['测试计划', '组织测试工作、分配资源、安排进度和明确测试范围的计划文档。'],
     ['测试工具', '能提高测试能力、复现缺陷、减少重复工作，但不能替代测试人员或保证无缺陷。'],
+    ['测试原则', '常见原则包括测试有风险、完全测试不可能、测试只能证明缺陷存在、尽早测试、缺陷具有聚集性。'],
     ['评审', '静态检查工作产品，尽早发现缺陷。'],
     ['走查', '作者讲解工作产品，参与者提出问题，正式程度较低。'],
     ['审查', '最正式的同行评审，检查、记录、跟踪更严格。'],
@@ -5832,6 +5855,8 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
   var intentRules = [
     { re: /质量管理是指/, scope: '质量管理定义', focus: '这题问“质量管理”的定义，教材固定写法是“在质量方面指挥和控制组织的协调活动”，所以要找“指挥”和“控制”。' },
     { re: /质量管理体系可以|质量管理体系是/, scope: '质量管理体系作用', focus: '这题问质量管理体系能带来什么：它服务质量方针和质量目标，帮助顾客满意，也提供持续改进框架。' },
+    { re: /顾客抱怨|顾客投诉/, scope: '顾客满意与持续改进', focus: '这题问顾客抱怨应不应该被重视。抱怨说明顾客期望没有被满足，是发现需求偏差、改进产品和提升服务的线索。' },
+    { re: /受控制状态.*不会波动|质量.*不会波动/, scope: '过程受控与质量波动', focus: '这题问“受控”是不是等于“不波动”。受控只说明波动在可管理范围内，不等于产品质量完全没有随机波动。' },
     { re: /质量特性/, scope: '质量特性定义', focus: '题干关键词是“质量特性”，它与要求有关，而不是只与标准有关。' },
     { re: /质量改进/, scope: '质量改进定义', focus: '质量改进属于质量管理的一部分，重点是增强满足质量要求的能力。' },
     { re: /质量策划|制定质量目标/, scope: '质量策划', focus: '题干说制定质量目标、规定过程和资源，这就是质量策划。' },
@@ -5840,6 +5865,8 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     { re: /质量成本|质量费用|预防|评价|失效/, scope: '质量成本分类', focus: '质量成本分保证/控制成本和损失/失效成本：预防、评价、内部失效、外部失效要分清。' },
     { re: /可维护性|维护性/, scope: '可维护性评价指标', focus: '可维护性看维护时是否容易理解、修改和测试；可移植性是迁移平台能力，不是维护指标。' },
     { re: /可移植性/, scope: '可移植性', focus: '可移植性衡量软件迁移到不同环境的能力，是软件质量特性之一。' },
+    { re: /测试原则|不属于测试原则|完全测试|测试.*风险|无法.*缺陷|遗留.*缺陷|残留.*缺陷/, scope: '软件测试原则', focus: '这题问软件测试原则。要记住：测试有风险、完全测试不可能、测试只能说明缺陷存在、发现缺陷多的地方残留风险也高；如果选项说“缺陷越多残留越少”，就是把原则说反了。' },
+    { re: /测试人员.*生命周期|需求阶段|尽早介入/, scope: '测试尽早介入', focus: '这题问测试人员什么时候介入最好。测试应从需求阶段就介入，因为需求错误越晚发现，修复成本越高。' },
     { re: /软件缺陷|缺陷/, scope: '软件缺陷', focus: '缺陷不只是崩溃；功能未实现、违背规格、多余功能、异常情况都可能算缺陷。' },
     { re: /错误产生|主要原因|需求规格|需求说明书/, scope: '软件错误主要原因', focus: '软件错误的主要源头常在需求：需求不完整、不准确、经常变化，或开发人员理解沟通不足。' },
     { re: /软件质量.*错误|软件质量/, scope: '软件质量判断', focus: '软件质量不能只看程序正确，还要看满足用户需求、可靠性、性能、可维护性等。' },
@@ -5879,7 +5906,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     for (var j = 0; j < exactConcepts.length; j++) {
       if (compact.indexOf(strip(exactConcepts[j][0])) !== -1) return '「' + exactConcepts[j][0] + '」：' + exactConcepts[j][1];
     }
-    return '这个选项的关键词是「' + clip(src, 42) + '」，要判断它说的是阶段、方法、指标、角色还是定义本身。';
+    return '关键词是「' + clip(src, 42) + '」，要判断它说的是阶段、方法、指标、角色还是定义本身，再看它有没有把题干范围换掉。';
   }
   function intentInfo(item) {
     var core = questionCore(item);
@@ -5916,28 +5943,49 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
     var prefix = correct ? '选' : '不选';
     var concept = conceptText(option.text);
     var optKey = firstKeyword(option.text);
+    var stem = clip(info.core || item.questionText, 90);
     if (item.answerText.indexOf('以上') !== -1 && /以上|全部|皆是/.test(option.text)) {
-      return prefix + '：题干问的是范围最全或全部正确的情况。' + concept + (correct ? '它把前面成立的对象都收进来，所以要选。' : '但本题并不是所有前项都成立，所以不能选。');
+      return prefix + '：题干问的是范围最全或全部正确的情况。' + concept + (correct ? '它把题干涉及的正确对象都收进来，没有漏项，所以要选。' : '但本题并不是所有前项都成立，或题干没有要求选全集，所以不能选。');
     }
     if (info.negative) {
       return correct
-        ? prefix + '：题干有“不包括/不属于/错误/无关”这类否定词，所以要找例外项。' + concept + '它没有落在「' + info.scope + '」的范围里，或说法本身把概念说错了，因此正是要选的项。'
-        : prefix + '：这题是在找例外项。' + concept + '它本身属于「' + info.scope + '」范围，或说法是成立的，所以不能把它当成错误项。';
+        ? prefix + '：题干是反向问法，要找“不符合”的例外项。' + concept + '把它放回题干「' + stem + '」看，它没有落在「' + info.scope + '」范围里，或把概念说错了，所以正是要选的项。'
+        : prefix + '：题干是在找例外项。' + concept + '把它放回题干「' + stem + '」看，它属于「' + info.scope + '」范围，或说法本身成立，所以不能当作错误项。';
     }
     return correct
-      ? prefix + '：' + concept + '题干关键词是「' + info.keyword + '」，这个选项的关键词「' + optKey + '」正好回答了题干限定的对象、阶段或定义，所以要选。'
-      : prefix + '：' + concept + '但题干限定的是「' + info.scope + '」。这个选项要么说的是另一个概念，要么只覆盖局部，要么把阶段/对象换掉了，所以排除。';
+      ? prefix + '：这个选项说的是「' + option.text + '」。' + concept + '题干关键词是「' + info.keyword + '」，选项关键词「' + optKey + '」正好回答题干限定的对象、阶段、方法或定义，所以要选。'
+      : prefix + '：这个选项说的是「' + option.text + '」。' + concept + '但题干限定的是「' + info.scope + '」，它要么说的是另一个概念，要么范围不完整，要么把阶段/对象换掉了，所以排除。';
+  }
+  function tfOptionReason(item, option, correct) {
+    var statement = clip(item.questionText, 120);
+    var answerWord = item.tfAnswer ? '正确' : '错误';
+    var reason = conceptText(item.questionText + ' ' + item.answerText);
+    if (correct) {
+      return '选：题干这整句话应判为“' + answerWord + '”。选择“' + option.text + '”是在表达：我认可这个判断结果。关键依据是：' + reason + ' 题干原文是「' + statement + '」。';
+    }
+    return '不选：如果选“' + option.text + '”，就等于把题干「' + statement + '」判成相反结果；但关键依据是：' + reason + ' 因此参考答案判为“' + answerWord + '”，这个选项不能选。';
+  }
+  function tfDecisionReason(item) {
+    var reason = conceptText(item.questionText + ' ' + item.answerText);
+    var correction = extractCorrection(item.answerText);
+    if (item.tfAnswer) {
+      return '参考答案是“正确”。题干这句话成立的关键依据是：' + reason;
+    }
+    return '参考答案是“错误”。错点要落到题干原文里看：' + reason + (correction ? ' 正确说法是：' + correction : '');
   }
   function buildExplanation(item, displayOptions) {
     var info = intentInfo(item);
+    var stem = clip(info.core || item.questionText, 220);
     var html = '<div class="sqe-explanation-title">为什么是这个答案</div>';
     html += '<span class="sqe-exp-tag">' + esc(item.sectionTitle || '云班课题库') + '</span>';
     html += '<span class="sqe-exp-tag">' + esc(item.displayType) + '</span>';
+    if (stem) html += '<div class="sqe-exp-block"><b>题干原文：</b>' + esc(stem) + '</div>';
     html += '<div class="sqe-exp-block"><b>题目问什么：</b>' + esc(info.focus) + '</div>';
     if (item.kind === 'choice') {
       var correctOptions = item.options.filter(function (opt) { return opt.correct; });
       var correctText = correctOptions.map(function (opt) { return opt.label + '. ' + opt.text; }).join('；');
-      html += '<div class="sqe-exp-block"><b>为什么这样选：</b>参考答案是 ' + esc(item.answerText) + '。题干真正限定的是「' + esc(info.scope) + '」；正确选项说的正好是这个限定下的概念、阶段或分类，其他选项则换成了别的概念、范围不完整，或在否定题里不是例外项。</div>';
+      html += '<div class="sqe-exp-block"><b>做题方法：</b>先看题干是不是反向问法，再锁定它限定的对象或概念。本题限定的是「' + esc(info.scope) + '」。所以不是看哪个词眼熟，而是把每个选项逐个代回题干，看它是否回答同一个限定。</div>';
+      html += '<div class="sqe-exp-block"><b>为什么这样选：</b>参考答案是 ' + esc(item.answerText) + '。正确项直接落在「' + esc(info.scope) + '」这个限定里；错误项的问题通常是换了概念、换了阶段、只说了局部，或在反向题里并不是例外项。</div>';
       if (correctText) html += '<div class="sqe-exp-block"><b>原始正确项：</b>' + esc(correctText) + '</div>';
       var opts = displayOptions || item.options;
       html += '<div class="sqe-exp-options">';
@@ -5947,14 +5995,25 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
       });
       html += '</div>';
     } else if (item.kind === 'tf') {
-      var correction = extractCorrection(item.answerText);
-      html += '<div class="sqe-exp-block"><b>为什么这样判：</b>参考答案是“' + esc(item.tfAnswer ? '正确' : '错误') + '”。' + (item.tfAnswer ? '题干说法与教材边界一致，重点看它没有偷换对象、阶段或定义。' : '题干说法不能直接成立，通常是把对象、阶段、定义或范围说偏了。') + (correction ? ' 正确说法是：' + esc(correction) : '') + '</div>';
-      html += '<div class="sqe-exp-block"><b>考场记法：</b>' + esc(conceptText(item.questionText + ' ' + item.answerText)) + '</div>';
+      html += '<div class="sqe-exp-block"><b>做题方法：</b>判断题不是看“正确”这个词，而是判断题干整句话是否成立。先把题干拆成三块：对象是什么、它被说成了什么、有没有限定阶段/范围。然后和教材定义对照。</div>';
+      html += '<div class="sqe-exp-block"><b>为什么这样判：</b>' + esc(tfDecisionReason(item)) + '</div>';
+      html += '<div class="sqe-exp-block"><b>涉及概念：</b>' + esc(conceptText(item.questionText + ' ' + item.answerText)) + '</div>';
+      var tfOpts = displayOptions || [
+        { currentLabel: 'A', text: '错误', correct: item.tfAnswer === false },
+        { currentLabel: 'B', text: '正确', correct: item.tfAnswer === true }
+      ];
+      html += '<div class="sqe-exp-options">';
+      tfOpts.forEach(function (opt) {
+        var label = opt.currentLabel || opt.label;
+        html += '<div class="sqe-exp-option ' + (opt.correct ? 'is-correct' : 'is-wrong') + '"><b>' + esc(label) + '. ' + esc(opt.text) + '</b><span class="sqe-exp-why">' + esc(tfOptionReason(item, opt, opt.correct)) + '</span></div>';
+      });
+      html += '</div>';
     } else if (item.kind === 'fill') {
-      html += '<div class="sqe-exp-block"><b>为什么这样填：</b>参考答案是 ' + esc(item.answerText) + '。填空题看空格前后的限定词，它们通常在补一个定义、分类、阶段顺序或固定术语；本题对应的是「' + esc(info.scope) + '」。</div>';
-      html += '<div class="sqe-exp-block"><b>考场记法：</b>' + esc(conceptText(item.questionText + ' ' + item.answerText)) + '</div>';
+      html += '<div class="sqe-exp-block"><b>做题方法：</b>填空题看空格前后的限定词：它是在补定义、补分类、补阶段顺序，还是补固定术语。本题对应的是「' + esc(info.scope) + '」。</div>';
+      html += '<div class="sqe-exp-block"><b>为什么这样填：</b>参考答案是 ' + esc(item.answerText) + '。这些词能把题干原文补成教材里的完整表述。</div>';
+      html += '<div class="sqe-exp-block"><b>涉及概念：</b>' + esc(conceptText(item.questionText + ' ' + item.answerText)) + '</div>';
     } else {
-      html += '<div class="sqe-exp-block"><b>怎么背评分点：</b>这类简答先答核心定义或区别，再按目的、对象、阶段、方法、优缺点补齐。题干关键词是「' + esc(info.keyword) + '」，答案里的每一段都围绕这个关键词展开。</div>';
+      html += '<div class="sqe-exp-block"><b>怎么背评分点：</b>这类简答先答核心定义或区别，再按目的、对象、阶段、方法、优缺点补齐。题干关键词是「' + esc(info.keyword) + '」，答案里的每一段都应该回到这个关键词。</div>';
       html += '<div class="sqe-exp-block"><b>答题骨架：</b>' + esc(clip(item.answerText, 260)) + '</div>';
     }
     return html;
@@ -5963,6 +6022,7 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
   function parseItem(card, index) {
     var titleEl = card.querySelector('.sqe-question-title');
     var bodyEl = card.querySelector('.sqe-question-body');
+    var content = questionContent(card, bodyEl);
     var answerBody = card.querySelector('.sqe-answer-body');
     var chapter = card.closest('.sqe-chapter');
     var sectionTitle = textOf(chapter && chapter.querySelector('h3'));
@@ -5998,8 +6058,8 @@ If ((M = = 10)|| (P &gt; 10)) FUCTION2;
       displayType: kind === 'choice' ? '选择题' : (/判断/.test(rawType) ? '判断题' : (/填空/.test(rawType) ? '填空题' : '简答题')),
       kind: kind,
       sectionTitle: sectionTitle,
-      questionHtml: bodyEl ? bodyEl.innerHTML : '',
-      questionText: textOf(bodyEl),
+      questionHtml: content.html,
+      questionText: content.text,
       answerText: answerText,
       options: options,
       tfAnswer: tfAnswer
