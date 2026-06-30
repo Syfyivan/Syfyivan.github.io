@@ -414,11 +414,11 @@ html[data-user-color-scheme="dark"] .sqe-practice {
   .sqe-page :target,
   .sqe-chapter { scroll-margin-top: 150px; }
 }
-@media (min-width: 1500px) {
+@media (min-width: 1450px) {
   .sqe-side-toc {
     position: fixed;
     top: 108px;
-    right: max(14px, calc((100vw - 1460px) / 2));
+    right: max(14px, calc((100vw - 1450px) / 2));
     z-index: 18;
     display: block;
     width: 170px;
