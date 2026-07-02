@@ -335,7 +335,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>14</strong>
+        <strong>15</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
@@ -585,9 +585,18 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>服务端与网络</h2>
         <p>把“一个请求怎么跑起来”和“网络代理为什么这样工作”放在同一类，方便顺着工程链路学。</p>
       </div>
-      <span class="course-category-count">3 门</span>
+      <span class="course-category-count">4 门</span>
     </div>
     <div class="course-grid">
+      <article class="course-card">
+        <span class="course-badge is-ai">14 讲 · 秋招实战</span>
+        <h3>秋招计网面试实战课</h3>
+        <p>不按协议章节排，而是按“面试官会怎么问”排：从一次请求讲透 HTTP、TCP、HTTPS。每讲配核心八股、场景追问、高频翻车点和可背诵的话术模板，扛得住一路追问。经典八股 40% + 流程串联 30% + 场景排查 20% + 工程实践 10%。</p>
+        <div class="course-card-footer">
+          <span>适合：准备秋招/校招、怕八股被追问打穿的人</span>
+          <a class="course-link" href="/courses/net-interview/">进入课程</a>
+        </div>
+      </article>
       <article class="course-card">
         <span class="course-badge">进行中</span>
         <h3>Go 与服务端学习路线</h3>
