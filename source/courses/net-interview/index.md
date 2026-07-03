@@ -24,7 +24,7 @@ html[data-user-color-scheme="dark"] .niv-key-note{background:rgba(183,58,44,.22)
 
 <div class="niv-why"><strong>这门课和纯教材、纯题库有什么不同？</strong>每一讲都按同一套结构展开：先讲清核心八股的定义与原理，再给出面试官会顺着问的<strong>场景追问</strong>，标出高频<strong>翻车点</strong>，最后附一段能直接背诵的<strong>话术模板</strong>。配比是：经典八股 40% + 流程串联 30% + 场景排查 20% + 工程实践 10%。目标不是让你背会，而是让你「问到一个点，能先讲定义，再讲原因，再讲流程，最后落到项目场景」。</div>
 
-按顺序从 01 跟到 14，也可按你薄弱的专题跳读。徽章含义：<strong>高频必背</strong> = 面试官最爱问、<strong>场景追问</strong> = 拉开差距处、<strong>进阶加分</strong> = 答上来更亮眼。
+按顺序从 01 跟到 15，也可按你薄弱的专题跳读。徽章含义：<strong>高频必背</strong> = 面试官最爱问、<strong>场景追问</strong> = 拉开差距处、<strong>进阶加分</strong> = 答上来更亮眼。第 15 讲是代理专题加餐，AI 时代高频，值得单独看。
 
 <a class="niv-row" href="/2026/07/09/net-interview-01/"><span class="niv-num">01</span><div class="niv-rt"><h4>计网面试到底怎么考：不是背协议，是讲清一次请求</h4><p>面试三层结构、答题四段式，以及一张 60/80/90 分自测表——先摆正方向再开学。</p></div></a>
 <a class="niv-row" href="/2026/07/09/net-interview-02/"><span class="niv-num">02</span><div class="niv-rt"><h4>一次 HTTP 请求的完整链路</h4><p>URL 解析→DNS→TCP→TLS→HTTP→渲染→连接复用，把整条主线串起来，每段慢了怎么定位。</p></div></a>
@@ -40,6 +40,7 @@ html[data-user-color-scheme="dark"] .niv-key-note{background:rgba(183,58,44,.22)
 <a class="niv-row" href="/2026/07/09/net-interview-12/"><span class="niv-num">12</span><div class="niv-rt"><h4>网络问题排查</h4><p>接口超时、502/504、解析失败、证书错误、跨域，配 curl/ping/traceroute。</p></div></a>
 <a class="niv-row" href="/2026/07/09/net-interview-13/"><span class="niv-num">13</span><div class="niv-rt"><h4>高频综合题专项</h4><p>输入 URL 后发生了什么、HTTPS 全过程、接口慢排查、TCP/UDP 选型、H1/H2/H3 对比。</p></div></a>
 <a class="niv-row" href="/2026/07/09/net-interview-14/"><span class="niv-num">14</span><div class="niv-rt"><h4>模拟面试题库</h4><p>基础题、追问题、场景题、项目结合题，附折叠参考答案与项目结合话术。</p></div></a>
+<a class="niv-row" href="/2026/07/09/net-interview-15/"><span class="niv-num">15</span><div class="niv-rt"><h4>代理专题（加餐）：正向/反向代理、抓包中间人与 AI 时代的 API 代理</h4><p>正向 vs 反向代理、代理与网关的区别、CONNECT 隧道、SOCKS vs HTTP 代理、MITM 抓包原理，以及给大模型 API 配代理。</p></div></a>
 
 <div class="niv-key-note"><strong>怎么判断自己「够不够用」？</strong>下面这张表对着看，你就知道现在处在哪一档、还差什么。</div>
 
