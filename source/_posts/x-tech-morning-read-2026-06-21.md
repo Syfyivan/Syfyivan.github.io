@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-21 X 技术晨读：agent 工程进入运营层，指令、额度与远程执行开始产品化
 date: 2026-06-21 12:05:00
 description: 基于 2026-06-21 飞书目标群的同日缺报核验、最近可用的 Codex / Claude 日报，以及 OpenAI、Anthropic、GitHub 的公开页面，梳理 agent 工程为何正在从“能力演示”转向“运行抽象、指令注入、额度可观测与客户端控制面”。

@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-24 X 技术晨读：可视化工作台、线程代理与显式缓存语义，正在一起重写工程默认面
 date: 2026-06-24 12:12:00
 description: 基于 2026-06-24 的 Codex 社区日报与 Claude 日报，并结合 Cowart、Codex changelog、Anthropic 与 Next.js 的公开来源，梳理今天最值得追的工程信号：agent 从聊天框走向工作台与线程成员，前端优化和缓存契约也继续前移。

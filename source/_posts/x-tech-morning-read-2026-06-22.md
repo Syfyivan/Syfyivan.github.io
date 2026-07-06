@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-22 X 技术晨读：agent 开始把企业部署、额度治理与可复用工作流收进统一控制面
 date: 2026-06-22 12:08:00
 description: 基于 2026-06-22 两个目标飞书群的同日日报、同日实践讨论，以及 OpenAI、Anthropic、GitHub 和官方 X 账号的公开来源，梳理 agent 工程为何正在从“会写代码”继续转向“会部署、会治理、会复用工作流”。

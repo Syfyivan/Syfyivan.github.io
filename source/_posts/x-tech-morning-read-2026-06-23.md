@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-23 X 技术晨读：skill 正在从聊天附件变成跨 agent 资产，前端性能与安全边界也一起前移
 date: 2026-06-23 12:20:00
 description: 基于 2026-06-23 的 Codex 群同日日报、可见的 AI/前端日报补充，以及 OpenAI、GitHub、React、Next.js 和安全研究方的公开来源，梳理今天最值得追的技术信号：workflow 资产化、编译器接管重复优化，以及 agent 工程必须补上的信任边界。

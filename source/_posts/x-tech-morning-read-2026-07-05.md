@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-07-05 X 技术晨读：当同日群报空窗，公开信号反而更清楚地指向 agent 的三块新控制面
 date: 2026-07-05 12:24:00
 description: 基于 2026-07-05 的飞书同日核验空窗、最近可用的 Codex/Claude 日报卡片，以及 WebKit、OpenAI、Anthropic、Next.js、Claude Code 官方公开材料，梳理今天最值得追的三条线：浏览器现场接入、后台代理可靠性补课、研究与编码工作台同构。

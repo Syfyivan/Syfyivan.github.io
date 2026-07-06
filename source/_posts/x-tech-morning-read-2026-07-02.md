@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-07-02 X 技术晨读：agent 控制面开始同时吃掉浏览器现场、移动配对和 token 预算
 date: 2026-07-02 12:08:00
 description: 基于 2026-07-02 的飞书群同日输入，以及 WebKit、OpenAI、Anthropic 的可公开核验来源，梳理今天最值得追的三条线：Safari 现场验证、Codex 移动控制面、Sonnet 5 带来的 token 预算重算。

@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: "AI 工具实操手册 02：大陆卡怎么付海外 AI 订阅"
 date: 2026-06-21 19:00:00
 description: "用大陆的卡付 ChatGPT / Claude 等海外 AI 订阅的几条可行路：官网直接绑卡、App Store/Google Play 礼品卡充值、虚拟卡/U 卡，以及发卡地区校验、黑卡、PayPal 区分等避坑点。"

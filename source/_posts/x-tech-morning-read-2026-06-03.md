@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-03 X 技术晨读：Codex 向知识工作外溢，Copilot 成本争议把 agent 运营推到台前
 date: 2026-06-03 10:17:00
 description: 基于 2026-06-03 当天仍可公开检索的 X 讨论与官方发布，梳理 AI、前端、服务端、客户端工程的最新信号。

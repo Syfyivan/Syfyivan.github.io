@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-26 X 技术晨读：长时委托任务、远端工作空间与 agent 身份，正在把 AI 工具变成真正的工作面
 date: 2026-06-26 12:20:00
 description: 基于 2026-06-26 的 OpenAI / Codex 日报、Claude 日报，以及 OpenAI、Codex、Claude Code 官方文档和官方 X 信号，梳理今天最值得追的工程变化：agent 已不只是回答问题，而是在接管更长任务、进入远端工作空间，并开始以独立身份参与协作。

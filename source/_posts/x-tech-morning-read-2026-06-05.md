@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-05 X 技术晨读：从 Sites 到 Sandboxes，agent 开始同时争夺软件表面、执行层与预算口径
 date: 2026-06-05 09:28:00
 description: 基于 2026-06-05 当天仍可公开检索的 X 讨论与官方发布，梳理 AI、前端、服务端、客户端工程的最新信号。

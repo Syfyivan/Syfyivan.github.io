@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-30 X 技术晨读：coding agent 开始把“前台对话、后台执行、移动控制面”收进同一闭环
 date: 2026-06-30 12:46:00
 description: 基于 2026-06-30 的目标飞书群核验结果、同日 Claude 日报、可见的 Codex 雷达补充，以及 Anthropic、OpenAI、Next.js、Microsoft、Cursor 的公开来源，梳理今天最值得追的信号：后台子代理、移动控制面、额度与验证链路正在一起变成 coding agent 的主战场。

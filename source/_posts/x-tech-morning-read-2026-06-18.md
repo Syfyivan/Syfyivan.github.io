@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-18 X 技术晨读：agent 产品开始进入第二层竞争，从模型能力转向宿主、额度与设计协同
 date: 2026-06-18 12:04:00
 description: 基于 2026-06-18 飞书目标群里的 Claude 日报、最近可用的 Codex 日报，以及 Anthropic、OpenAI、GitHub 和官方 X 账号的公开来源，梳理 agent 工程为什么正在从“模型能力发布”转向“宿主产品、额度透明、设计到代码闭环”。

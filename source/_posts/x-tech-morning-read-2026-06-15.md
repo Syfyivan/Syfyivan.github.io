@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-15 X 技术晨读：agent 平台开始从“会写代码”转向“会交付、会治理、会托管”
 date: 2026-06-15 12:06:00
 description: 基于 2026-06-15 当天可读取到的飞书 Codex 日报，以及 OpenAI、Anthropic、Apple 与 X 上可追溯公开来源，梳理 agent 产品如何从模型调用层继续上移到企业交付、预算治理、宿主工具与安全边界。

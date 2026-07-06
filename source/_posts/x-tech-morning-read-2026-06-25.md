@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-25 X 技术晨读：skill 目录化、团队常驻 agent 与修补闭环，正在把工程默认面再往前推一层
 date: 2026-06-25 12:26:00
 description: 基于 2026-06-25 的 Codex 社区日报、Claude Code闲聊群缺失同日日报后的最近回退卡片，以及 GitHub、Anthropic、OpenAI、Google 和官方 X 讨论入口的公开来源，梳理今天最值得追的工程信号：workflow 资产化、线程常驻 agent，以及从发现问题到落补丁的服务闭环。

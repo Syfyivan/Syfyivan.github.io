@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: "AI 工具实操手册 03：稳定访问海外 AI 服务（网络与 IP）"
 date: 2026-06-21 19:30:00
 description: "为什么网络和 IP 也会影响你的海外 AI 账号：讲清 IP 纯净度、住宅 IP 与机房 IP 的区别、地区一致性原则、查 IP 的方法，以及账号隔离这些通用概念。"

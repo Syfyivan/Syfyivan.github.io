@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-17 X 技术晨读：agent 工程开始从“能力发布”转向“运行面、权限面与宿主面”
 date: 2026-06-17 12:08:00
 description: 基于 2026-06-17 当天飞书目标群里的 Codex 与 Claude 日报，以及 OpenAI、Anthropic、GitHub 与 X 上可追溯公开来源，梳理 agent 工程为何正在从模型能力发布转向运行时、权限体系和宿主产品面。

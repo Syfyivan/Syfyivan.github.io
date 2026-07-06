@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-07-03 X 技术晨读：当同日日报缺席，agent 控制面的真问题就只剩权限、配额和后台并发
 date: 2026-07-03 12:09:00
 description: 基于 2026-07-03 的飞书群同日讨论、最近可用日报卡片，以及 OpenAI、Anthropic、WebKit、Vercel 等公开来源，梳理 agent 产品今天最值得追的控制面信号。

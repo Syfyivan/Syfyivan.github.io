@@ -1,4 +1,5 @@
 ---
+visibility: private
 title: 2026-06-16 X 技术晨读：agent 工程开始从“会写任务”转向“会封装技能、会接宿主、会跑长期流程”
 date: 2026-06-16 12:01:00
 description: 基于 2026-06-16 当天飞书目标群的可读信号、最近可用的 Codex/Claude 日报，以及 Google、OpenAI、Anthropic、Apple 的公开资料，梳理 agent 工程如何从单次对话走向技能化、宿主化和长期运行。
