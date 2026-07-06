@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>北京年轻人室内玩乐地图</title>
+    <meta name="description" content="不去博物馆和故宫，专挑有意思、偏室内避暑、适合年轻人的北京玩乐清单。潮流商场、沉浸式娱乐、室内运动、Livehouse、吃喝夜生活、网红书店、潮流艺术区、避暑特调。" />
+    <link rel="icon" href="data:," />
+    <style>
+      :root {
+        --bg: #0e0f13;
+        --bg2: #14161c;
+        --card: #191c24;
+        --card-h: #20242e;
+        --line: #262b36;
+        --text: #eef1f6;
+        --muted: #9aa3b2;
+        --dim: #6b7383;
+        --accent: #ff6b6b;
+        --accent2: #ffd166;
+        --accent3: #4dd6c1;
+        --grad: linear-gradient(120deg, #ff6b6b, #ffd166);
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(1100px 520px at 82% -8%, rgba(255,107,107,.16), transparent 60%),
+          radial-gradient(900px 480px at 8% 4%, rgba(77,214,193,.12), transparent 55%),
+          var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+      .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px 80px; }
+
+      /* Header */
+      header.hero { padding: 62px 0 26px; }
+      .kicker {
+        display: inline-block;
+        font-size: 13px;
+        letter-spacing: .14em;
+        color: var(--accent2);
+        border: 1px solid rgba(255,209,102,.3);
+        border-radius: 999px;
+        padding: 5px 14px;
+        margin-bottom: 20px;
+      }
+      h1 {
+        font-size: clamp(30px, 6vw, 52px);
+        line-height: 1.12;
+        margin: 0 0 16px;
+        letter-spacing: -.01em;
+      }
+      h1 .g {
+        background: var(--grad);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .lede { font-size: 17px; color: var(--muted); max-width: 660px; margin: 0 0 8px; }
+      .lede b { color: var(--text); font-weight: 600; }
+      .legend { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px 18px; font-size: 13.5px; color: var(--dim); }
+      .legend span b { color: var(--muted); font-weight: 500; }
+
+      /* Controls */
+      .controls {
+        position: sticky; top: 0; z-index: 20;
+        background: rgba(14,15,19,.82);
+        backdrop-filter: saturate(140%) blur(12px);
+        -webkit-backdrop-filter: saturate(140%) blur(12px);
+        border-bottom: 1px solid var(--line);
+        margin: 26px -20px 0;
+        padding: 14px 20px;
+      }
+      .controls-inner { max-width: 1080px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+      .chip {
+        cursor: pointer;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--muted);
+        border-radius: 999px;
+        padding: 7px 15px;
+        font-size: 14px;
+        transition: .16s;
+        white-space: nowrap;
+        user-select: none;
+      }
+      .chip:hover { background: var(--card-h); color: var(--text); }
+      .chip.active { background: var(--grad); color: #201400; border-color: transparent; font-weight: 600; }
+      .spacer { flex: 1 1 20px; }
+      .toggle {
+        cursor: pointer; user-select: none;
+        display: inline-flex; align-items: center; gap: 9px;
+        font-size: 14px; color: var(--muted);
+      }
+      .toggle .box {
+        width: 42px; height: 24px; border-radius: 999px;
+        background: var(--line); position: relative; transition: .18s;
+      }
+      .toggle .box::after {
+        content: ""; position: absolute; top: 3px; left: 3px;
+        width: 18px; height: 18px; border-radius: 50%;
+        background: #fff; transition: .18s;
+      }
+      .toggle.on .box { background: var(--accent3); }
+      .toggle.on .box::after { transform: translateX(18px); }
+      .toggle.on { color: var(--text); }
+
+      /* Sections */
+      .count { margin: 22px 2px 6px; font-size: 13.5px; color: var(--dim); }
+      section.cat { margin-top: 30px; scroll-margin-top: 80px; }
+      .cat-head { display: flex; align-items: baseline; gap: 12px; margin: 0 2px 14px; }
+      .cat-head h2 { font-size: 21px; margin: 0; letter-spacing: -.01em; }
+      .cat-head .emoji { font-size: 22px; }
+      .cat-head .sub { font-size: 13.5px; color: var(--dim); }
+
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 18px 18px 16px;
+        transition: .18s;
+        position: relative;
+        overflow: hidden;
+      }
+      .card::before {
+        content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+        background: var(--grad); opacity: 0; transition: .18s;
+      }
+      .card:hover { background: var(--card-h); border-color: #333a48; transform: translateY(-2px); }
+      .card:hover::before { opacity: 1; }
+      .card h3 { margin: 0 0 4px; font-size: 17px; letter-spacing: -.01em; }
+      .card .area { font-size: 13px; color: var(--accent3); margin-bottom: 9px; }
+      .card p { margin: 0; font-size: 14.5px; color: var(--muted); }
+      .tags { margin-top: 11px; display: flex; flex-wrap: wrap; gap: 6px; }
+      .tag { font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); }
+      .tag.cool { color: #7fe3d2; border-color: rgba(77,214,193,.35); }
+      .tag.night { color: #b9a8ff; border-color: rgba(150,130,255,.35); }
+      .tag.photo { color: #ffc07f; border-color: rgba(255,180,90,.35); }
+      .tag.book { color: #ff9db0; border-color: rgba(255,120,150,.35); }
+
+      /* Plans */
+      .plans { margin-top: 54px; }
+      .plans h2 { font-size: 22px; margin: 0 0 16px; }
+      .table-scroll { overflow-x: auto; border-radius: 14px; border: 1px solid var(--line); }
+      table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14.5px; }
+      th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+      th { background: var(--bg2); color: var(--accent2); font-weight: 600; white-space: nowrap; }
+      td:first-child { font-weight: 600; color: var(--text); white-space: nowrap; }
+      td { color: var(--muted); }
+      tr:last-child td { border-bottom: none; }
+
+      .note {
+        margin-top: 30px; padding: 16px 18px; border-radius: 14px;
+        background: rgba(255,209,102,.06); border: 1px solid rgba(255,209,102,.2);
+        font-size: 14px; color: var(--muted);
+      }
+      .note b { color: var(--accent2); }
+
+      footer { margin-top: 54px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--dim); font-size: 13.5px; }
+      footer a { color: var(--muted); }
+
+      .empty { text-align: center; color: var(--dim); padding: 50px 0; display: none; }
+
+      @media (max-width: 560px) {
+        header.hero { padding: 44px 0 18px; }
+        .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="hero">
+        <span class="kicker">夏日避暑特供 · 不含博物馆/故宫</span>
+        <h1>北京<span class="g">年轻人室内玩乐</span>地图</h1>
+        <p class="lede">专挑<b>有意思、适合年轻人</b>的地方，<b>尽量室内避暑</b>，绕开博物馆和故宫那种建筑景点。不按天数排，全部摊开——你想去哪天挑哪天。</p>
+        <div class="legend">
+          <span>🧊 <b>全程空调避暑</b></span>
+          <span>🌃 <b>夜里更好玩</b></span>
+          <span>📸 <b>出片打卡</b></span>
+          <span>🎟️ <b>建议提前订票</b></span>
+        </div>
+      </header>
+
+      <div class="controls">
+        <div class="controls-inner">
+          <div class="chip active" data-filter="all">全部</div>
+          <div class="chip" data-filter="mall">🛍️ 商场地标</div>
+          <div class="chip" data-filter="immersive">🎮 沉浸式娱乐</div>
+          <div class="chip" data-filter="sport">🏂 室内运动</div>
+          <div class="chip" data-filter="show">🎭 演出现场</div>
+          <div class="chip" data-filter="food">🍜 吃喝夜生活</div>
+          <div class="chip" data-filter="book">📚 书店文艺</div>
+          <div class="chip" data-filter="art">🎨 潮流艺术区</div>
+          <div class="chip" data-filter="cool">🐠 避暑特调</div>
+          <div class="spacer"></div>
+          <div class="toggle" id="coolToggle"><span class="box"></span><span>只看全程空调 🧊</span></div>
+        </div>
+      </div>
+
+      <div class="count" id="count"></div>
+      <div id="sections"></div>
+      <div class="empty" id="empty">没有符合条件的地方，换个筛选试试～</div>
+
+      <div class="plans">
+        <h2>🗺️ 懒人一日模板</h2>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>主题</th><th>上午</th><th>下午</th><th>晚上</th></tr></thead>
+            <tbody>
+              <tr><td>潮流暴走</td><td>SKP-S 拍照</td><td>THE BOX 逛潮店</td><td>三里屯酒吧 / 天台</td></tr>
+              <tr><td>朋友开黑</td><td>剧本杀 / 密室</td><td>岩时攀岩</td><td>合生汇 21 街区吃夜宵</td></tr>
+              <tr><td>文艺慢逛</td><td>钟书阁看书</td><td>798 逛画廊</td><td>School / DDC 看 Livehouse</td></tr>
+              <tr><td>纯避暑躺平</td><td>海洋馆</td><td>温泉洗浴汗蒸</td><td>杜比厅看片</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <b>小提示：</b>剧本杀、沉浸剧、VR、Livehouse、脱口秀、热门展 <b>一定提前订票</b>（大众点评 / 猫眼 / 小程序），周末尤其满。夏天带好防晒和充电宝，室内之间转场打车最省事。
+        </div>
+      </div>
+
+      <footer>
+        更完整的文字版在博客文章里 · 一凡的博客 · <a href="https://Syfyivan.github.io/">Syfyivan.github.io</a>
+      </footer>
+    </div>
+
+    <script>
+      const CATS = [
+        { key: "mall", emoji: "🛍️", title: "潮流商场 & 网红地标", sub: "逛吃拍照，全空调" },
+        { key: "immersive", emoji: "🎮", title: "沉浸式娱乐", sub: "剧本杀 / 密室 / VR / 沉浸展" },
+        { key: "sport", emoji: "🏂", title: "室内运动 & 玩乐", sub: "夏天照样出汗" },
+        { key: "show", emoji: "🎭", title: "演出 & 现场", sub: "花几十块看一晚" },
+        { key: "food", emoji: "🍜", title: "吃喝 & 夜生活", sub: "越晚越好玩" },
+        { key: "book", emoji: "📚", title: "网红书店 & 文艺空间", sub: "安静避暑" },
+        { key: "art", emoji: "🎨", title: "潮流艺术区", sub: "是艺术区，不是传统博物馆" },
+        { key: "cool", emoji: "🐠", title: "避暑特调", sub: "天太热就来这几招" },
+      ];
+
+      // t: c=空调 n=夜 p=出片 k=订票  (cool flag = has 空调 for the toggle)
+      const P = [
+        // 商场地标
+        { c:"mall", n:"三里屯太古里", a:"三里屯 / 团结湖站", d:"北区顶奢潮牌、南区网红餐饮，苹果亚洲旗舰店，出门就是酒吧街。北京年轻人默认集合点。", t:["c","p"] },
+        { c:"mall", n:"SKP-S", a:"大望路 / 国贸站", d:"地下火星主题艺术装置，机械绵羊、太空舱，免费逛超出片，比很多展都好看。", t:["c","p"] },
+        { c:"mall", n:"侨福芳草地 Parkview Green", a:"东大桥 / 团结湖站", d:"玻璃金字塔中庭，达利真迹雕塑散落各层，还有室内滑雪 SNOW51，艺术商场天花板。", t:["c","p"] },
+        { c:"mall", n:"THE BOX 朝外", a:"朝阳门 / 东大桥站", d:"“年轻力中心”，室内滑板池、涂鸦墙、买手店、天台，全北京最潮的商场之一。", t:["c","p","n"] },
+        { c:"mall", n:"隆福寺", a:"东四 / 美术馆站", d:"老庙改的文创街区，木木美术馆、更读书社，隆福大厦天台远眺紫禁城夜景。", t:["p","n"] },
+        { c:"mall", n:"合生汇", a:"双井 / 九龙山站", d:"“21 街区”深夜食堂是网红餐饮天花板，还有电玩、密室、影院，一栋楼泡一整天。", t:["c","n"] },
+        { c:"mall", n:"三源里菜市场", a:"三元桥站", d:"“全北京最文艺菜市场”，名厨采购地，墙上全是文案涂鸦，拍照打卡。", t:["p"] },
+        { c:"mall", n:"首钢六工汇 / 首钢园", a:"古城站", d:"工业风改造，室内商场配冬奥大跳台，机能风穿搭拍照圣地（正午避开户外）。", t:["p"] },
+        { c:"mall", n:"王府中环 WF Central", a:"王府井站", d:"高端商场、Dior 之家，紧邻故宫但本身全室内，逛街不晒。", t:["c"] },
+        // 沉浸式娱乐
+        { c:"immersive", n:"剧本杀 & 密室逃脱", a:"合生汇 / 三里屯 / 五道口", d:"恐怖本、情感本、机械机关本任选，一局 3–5 小时，出门天已经黑刚好避暑。", t:["c"] },
+        { c:"immersive", n:"沉浸式戏剧《南门客栈》《金乡》类", a:"多处实景剧场", d:"观众走进实景跟演员互动，不是坐着看，是“活在剧里”。", t:["k"] },
+        { c:"immersive", n:"SoReal 焕真·北京", a:"798 艺术区", d:"大空间 VR，戴头显在真实房间里自由行走，太空 / 古墓主题多人联机。", t:["c","k"] },
+        { c:"immersive", n:"VR 大空间（寻境敦煌 / X-META 类）", a:"多处体验馆", d:"沉浸式行走探险，比游乐场刺激，比展览好玩。", t:["c","k"] },
+        { c:"immersive", n:"teamLab / 数字光影沉浸展", a:"三里屯 / 侨福等档期", d:"互动数字艺术，随季节换展，出片率极高。", t:["p","k"] },
+        { c:"immersive", n:"Meland Club 超级乐园", a:"合生汇 / 荟聚", d:"室内蹦床、旋转滑梯、网红设施，成人也能玩，纯放电。", t:["c"] },
+        // 室内运动
+        { c:"sport", n:"岩时攀岩馆", a:"常营 / 双井等多店", d:"抱石 + 难度线，新手友好，当下最潮的社交运动之一。", t:["c"] },
+        { c:"sport", n:"SNOW51 室内滑雪", a:"侨福芳草地 / 合生汇", d:"室内滑雪机，教练带练，夏天也能滑雪。", t:["c"] },
+        { c:"sport", n:"室内卡丁车", a:"星恒卡丁车·酒仙桥等", d:"室内赛道飙车，团建 / 朋友局都合适。", t:["c"] },
+        { c:"sport", n:"室内蹦床 & 攀爬公园", a:"飞跃丛林 / Jump", d:"蹦床、忍者跑酷、海洋球，解压神器。", t:["c"] },
+        { c:"sport", n:"深潜 DeepDive 室内潜水", a:"国贸", d:"亚洲最深室内泳池之一，零基础体验潜水。", t:["c","k"] },
+        { c:"sport", n:"电竞馆 / 电竞酒店", a:"多处", d:"网鱼网咖等，开黑通宵。", t:["c","n"] },
+        { c:"sport", n:"台球 / 保龄 / 飞镖酒吧", a:"三里屯、工体周边", d:"喝一杯 + 玩一晚。", t:["c","n"] },
+        // 演出现场
+        { c:"show", n:"Livehouse：School / DDC / 乐空间 / 疆进酒", a:"南锣 / 山老胡同 / 五棵松", d:"独立音乐、摇滚现场，北京地下音乐主场。", t:["n","k"] },
+        { c:"show", n:"脱口秀开放麦（单立人等）", a:"多处小剧场", d:"几十块看一晚，年轻人最爱的低价高乐。", t:["n","k"] },
+        { c:"show", n:"相声：德云社 / 嘻哈包袱铺", a:"三里屯 / 广德楼", d:"茶馆式室内演出，笑到肚子疼。", t:["c","k"] },
+        { c:"show", n:"小剧场话剧：蜂巢 / 鼓楼西", a:"东直门 / 鼓楼", d:"孟京辉《恋爱的犀牛》等，文艺青年必刷。", t:["k"] },
+        { c:"show", n:"音乐剧：天桥艺术中心", a:"西城 / 珠市口", d:"大戏引进地，音乐剧迷据点。", t:["k"] },
+        { c:"show", n:"杜比 / 巨幕影院", a:"三里屯 CGV / 朝阳大悦城", d:"天太热就一头扎进影院，杜比厅体验拉满。", t:["c"] },
+        // 吃喝夜生活
+        { c:"food", n:"簋街", a:"北新桥站", d:"小龙虾 / 麻辣香锅深夜食堂，胡大排队盛况，基本 24 小时。", t:["n"] },
+        { c:"food", n:"牛街", a:"广安门内", d:"清真小吃一条街，牛街超市、洪记、白记年糕，边走边吃。", t:["p"] },
+        { c:"food", n:"精酿啤酒：京 A / 大跃", a:"三里屯 / 工体 / 胡同", d:"北京精酿双巨头，胡同店超有味道。", t:["n"] },
+        { c:"food", n:"工体夜店：One Third / SIR TEEN", a:"工人体育场", d:"重装后的北京夜店中心。", t:["n"] },
+        { c:"food", n:"天台酒吧：Migas / Atmosphere", a:"三里屯 / 国贸 80 层", d:"高空看夜景喝一杯，出片。", t:["n","p"] },
+        { c:"food", n:"胡同小酒馆", a:"五道营 / 方家 / 杨梅竹斜街", d:"咖啡 + 精酿 + 买手店，慢慢逛，日落后最舒服。", t:["p","n"] },
+        // 书店文艺
+        { c:"book", n:"钟书阁", a:"中骏世界城等", d:"“最美书店”，镜面天花板 + 盘旋书墙，拍照圣地。", t:["c","p"] },
+        { c:"book", n:"PageOne", a:"前门 / 三里屯", d:"前门店天台正对正阳门，日落绝美；三里屯店 24 小时。", t:["c","p"] },
+        { c:"book", n:"单向空间", a:"郎园 / 朝阳大悦城", d:"许知远的书店，讲座沙龙多。", t:["c"] },
+        { c:"book", n:"模范书局·诗空间", a:"佟麟阁路", d:"百年教堂改的书店，穹顶超美。", t:["p"] },
+        { c:"book", n:"SKP RENDEZ-VOUS", a:"SKP 内", d:"顶奢商场里的设计书店，装置感极强。", t:["c","p"] },
+        // 潮流艺术区
+        { c:"art", n:"798 & 751 艺术区", a:"酒仙桥", d:"画廊、潮店、咖啡、涂鸦墙、工业管道，年轻人拍照社交主场，画廊多为室内。", t:["p","c"] },
+        { c:"art", n:"郎园 Vintage / Station", a:"CBD / 半壁店", d:"文创园，市集 + 书店 + Livehouse + 咖啡。", t:["p"] },
+        { c:"art", n:"UCCA 尤伦斯当代艺术中心", a:"798 内", d:"大型沉浸装置展，跟传统博物馆完全两种玩法。", t:["c","k"] },
+        { c:"art", n:"木木美术馆", a:"隆福寺 / 798", d:"网红当代艺术，展陈很潮，出片。", t:["c","p"] },
+        // 避暑特调
+        { c:"cool", n:"海洋馆 / 富国海底世界", a:"动物园内 / 工体", d:"室内水族，鲨鱼与美人鱼表演，凉快又出片。", t:["c","p"] },
+        { c:"cool", n:"温泉洗浴 / 汗蒸", a:"清水湾 / 九华山庄等", d:"北京年轻人的“洗浴社交”，搓澡 + 自助 + 躺着看电影泡一整天，避暑天花板。", t:["c"] },
+        { c:"cool", n:"猫咖 / 宠物咖啡", a:"多处", d:"撸猫撸狗撸水獭，边喝咖啡边治愈（选正规、动物状态好的店）。", t:["c"] },
+        { c:"cool", n:"手作工坊", a:"各大商场内", d:"陶艺、扎染、香薰、油画 DIY，动手做点东西带走。", t:["c"] },
+      ];
+
+      const TAGMAP = {
+        c: { cls:"cool", label:"🧊 空调避暑" },
+        n: { cls:"night", label:"🌃 夜生活" },
+        p: { cls:"photo", label:"📸 出片" },
+        k: { cls:"", label:"🎟️ 需订票" },
+      };
+
+      let curFilter = "all";
+      let coolOnly = false;
+
+      const sectionsEl = document.getElementById("sections");
+      const countEl = document.getElementById("count");
+      const emptyEl = document.getElementById("empty");
+
+      function cardHTML(p) {
+        const tags = p.t.map(k => `<span class="tag ${TAGMAP[k].cls}">${TAGMAP[k].label}</span>`).join("");
+        return `<div class="card">
+          <h3>${p.n}</h3>
+          <div class="area">📍 ${p.a}</div>
+          <p>${p.d}</p>
+          <div class="tags">${tags}</div>
+        </div>`;
+      }
+
+      function render() {
+        let total = 0;
+        let html = "";
+        for (const cat of CATS) {
+          if (curFilter !== "all" && curFilter !== cat.key) continue;
+          let items = P.filter(p => p.c === cat.key);
+          if (coolOnly) items = items.filter(p => p.t.includes("c"));
+          if (!items.length) continue;
+          total += items.length;
+          html += `<section class="cat" data-cat="${cat.key}">
+            <div class="cat-head"><span class="emoji">${cat.emoji}</span><h2>${cat.title}</h2><span class="sub">${cat.sub}</span></div>
+            <div class="grid">${items.map(cardHTML).join("")}</div>
+          </section>`;
+        }
+        sectionsEl.innerHTML = html;
+        countEl.textContent = `共 ${total} 个地方` + (coolOnly ? "（仅全程空调）" : "");
+        emptyEl.style.display = total ? "none" : "block";
+      }
+
+      document.querySelectorAll(".chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          curFilter = chip.dataset.filter;
+          render();
+        });
+      });
+
+      const coolToggle = document.getElementById("coolToggle");
+      coolToggle.addEventListener("click", () => {
+        coolOnly = !coolOnly;
+        coolToggle.classList.toggle("on", coolOnly);
+        render();
+      });
+
+      render();
+    </script>
+  </body>
+</html>
