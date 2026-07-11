@@ -40,6 +40,7 @@ skip_render:
   - software-quality-memory-palace/**
   - courses/software-quality-flashcards/**
   - interview-prep/**
+  - courses/novel-activity-workflow/**
 
 # Writing
 new_post_name: :title.md # File name of new posts

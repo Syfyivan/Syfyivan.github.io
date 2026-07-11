@@ -335,7 +335,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
     </div>
     <div class="course-stats" aria-label="课程统计">
       <div class="course-stat">
-        <strong>15</strong>
+        <strong>16</strong>
         <span>已建课程</span>
       </div>
       <div class="course-stat">
@@ -388,7 +388,7 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>AI 与 Agent</h2>
         <p>先从 AI 导论、数据与机器学习讲起，再进入 LLM、RAG、MCP、Skill、Agent Loop、vibe coding、SDD、评测、安全治理、多模态、多 Agent 和产品化工程。</p>
       </div>
-      <span class="course-category-count">9 项</span>
+      <span class="course-category-count">10 项</span>
     </div>
     <div class="course-grid">
       <article class="course-card">
@@ -443,6 +443,15 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <div class="course-card-footer">
           <span>适合：想搞懂“同时开很多 agent”怎么做、值不值的人</span>
           <a class="course-link" href="/courses/multi-agent-orchestration/">进入课程</a>
+        </div>
+      </article>
+      <article class="course-card">
+        <span class="course-badge is-ai">加密课程 · 11 章</span>
+        <h3>证据驱动的 AI 活动研发 Workflow</h3>
+        <p>把 Agent 从“会写代码”推到“能证明交付”：开发自由与验收依赖分离、provisional、动态 scope、gate 级 OR 证据、精确失效、并发 ledger 和 Figma→Lynx 真实链路。配简历 bullet、STAR 故事、白板讲法与高频追问。</p>
+        <div class="course-card-footer">
+          <span>适合：准备 Agent 工程、平台工程、研发效能方向面试的人</span>
+          <a class="course-link" href="/courses/novel-activity-workflow/">密码进入</a>
         </div>
       </article>
       <article class="course-card">

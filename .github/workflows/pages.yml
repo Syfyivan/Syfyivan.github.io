@@ -13,15 +13,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '18'
-          package-manager-cache: false
+          node-version: '22'
+          cache: 'npm'
       - name: Install Dependencies
-        run: |
-          rm -rf package-lock.json yarn.lock node_modules
-          npm install --force
-          npm install hexo
+        run: npm ci
       - name: Build Hexo
-        run: npx hexo generate
+        run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
