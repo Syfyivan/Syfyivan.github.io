@@ -17,11 +17,13 @@ jobs:
           # with "Exit handler never called" on this lockfile. Pin the last
           # verified runtime so Pages remains reproducible.
           node-version: '22.22.0'
-          cache: 'npm'
       - name: Install Dependencies
         # The only install hooks are fsevents (macOS-only) and hexo-util's
         # already-published highlight alias generator. Skipping lifecycle hooks
         # avoids the hosted runner's reproducible npm exit-handler deadlock.
+        # Do not restore setup-node's npm cache here. The hosted runner reused a
+        # poisoned cache for this lockfile across three otherwise clean runs,
+        # and npm aborted after extraction with "Exit handler never called".
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Build Hexo
         run: npm run build
