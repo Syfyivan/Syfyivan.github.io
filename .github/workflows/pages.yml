@@ -19,7 +19,10 @@ jobs:
           node-version: '22.22.0'
           cache: 'npm'
       - name: Install Dependencies
-        run: npm ci
+        # The only install hooks are fsevents (macOS-only) and hexo-util's
+        # already-published highlight alias generator. Skipping lifecycle hooks
+        # avoids the hosted runner's reproducible npm exit-handler deadlock.
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Build Hexo
         run: npm run build
       - name: Upload artifact
