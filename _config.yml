@@ -35,6 +35,7 @@ skip_render:
   - mahjong/**
   - painters-guild/**
   - electronic-information-careers/**
+  - home-inventory/**
   - docs/**
   - software-architecture-2020c-review/**
   - software-quality-memory-palace/**
