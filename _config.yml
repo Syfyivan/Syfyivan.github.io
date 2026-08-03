@@ -42,6 +42,7 @@ skip_render:
   - courses/software-quality-flashcards/**
   - interview-prep/**
   - courses/novel-activity-workflow/**
+  - road-trip-2026/**
 
 # Writing
 new_post_name: :title.md # File name of new posts
