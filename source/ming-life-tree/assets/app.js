@@ -63,6 +63,27 @@
     });
   }
 
+  // ── 布局：由 col(阶段列) + band(同列纵向序) 自动换算像素坐标 ──
+  // 每一阶段列固定 x 间距；同列内各节点按 band 值定 y，并整体居中，节点再多也不重叠。
+  var COL_W = 300;   // 列间距（横向：人生阶段推进）
+  var ROW_H = 78;    // 行间距（纵向：同列不同选择）
+  var layout = (function () {
+    var map = {};
+    // 收集每列的 band 值，做居中偏移
+    var byCol = {};
+    D.nodes.forEach(function (nd) { (byCol[nd.col] = byCol[nd.col] || []).push(nd.band); });
+    var colMid = {};
+    Object.keys(byCol).forEach(function (c) {
+      var arr = byCol[c];
+      var mn = Math.min.apply(null, arr), mx = Math.max.apply(null, arr);
+      colMid[c] = (mn + mx) / 2;
+    });
+    D.nodes.forEach(function (nd) {
+      map[nd.id] = { x: nd.col * COL_W, y: (nd.band - colMid[nd.col]) * ROW_H };
+    });
+    return map;
+  })();
+
   // ── ECharts 实例 ─────────────────────────────────────
   var chart = echarts.init(document.getElementById('graph'), null, { renderer: 'canvas' });
 
@@ -74,8 +95,9 @@
       var isCur = nd.id === atNode;
       var isVisited = visited.indexOf(nd.id) >= 0;
       var col = catColors[nd.category];
+      var pos = layout[nd.id];
       return {
-        id: nd.id, name: nd.name, x: nd.x, y: nd.y, category: nd.category,
+        id: nd.id, name: nd.name, x: pos.x, y: pos.y, category: nd.category,
         symbolSize: isCur ? 30 : (nd.category === 6 || nd.category === 0 ? 22 : 18),
         itemStyle: {
           color: isVisited ? col : C.bg,
@@ -140,7 +162,7 @@
         itemWidth: 14, itemHeight: 10, itemGap: 12
       }],
       series: [{
-        type: 'graph', layout: 'none', roam: true, zoom: 0.85,
+        type: 'graph', layout: 'none', roam: true, zoom: 0.42, center: [3 * 300, 0],
         focusNodeAdjacency: false,
         categories: D.categories.map(function (c, i) { return { name: c.name, itemStyle: { color: catColors[i] } }; }),
         label: { show: true, position: 'bottom', fontSize: 11, fontFamily: 'inherit' },
@@ -264,7 +286,7 @@
     generation = 1; initState(); render(); renderPanel();
   });
   document.getElementById('btn-fit').addEventListener('click', function () {
-    chart.setOption({ series: [{ zoom: 0.85, center: null }] }); render();
+    chart.setOption({ series: [{ zoom: 0.42, center: [3 * 300, 0] }] }); render();
   });
 
   window.addEventListener('resize', function () { chart.resize(); });
