@@ -59,6 +59,9 @@ mark.ok{background:none;color:var(--accent2);font-weight:700;}
 .callout.warn .callout-title{color:var(--warn);}
 .callout.danger .callout-title{color:var(--danger);}
 .callout p:last-child{margin-bottom:0;}
+.tab-btn{padding:8px 20px;border:2px solid var(--accent);border-radius:20px;background:transparent;color:var(--accent);font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.tab-btn.active{background:var(--accent);color:#fff;}
+.tab-btn:hover{background:var(--accent-light, rgba(199,91,57,0.1));}
 .table-wrap{overflow-x:auto;overflow-y:auto;max-height:600px;margin:16px 0;border-radius:8px;border:1px solid var(--rule);}
 table{width:100%;border-collapse:collapse;background:var(--bg2);font-size:0.88rem;min-width:540px;}
 thead{background:var(--ink);color:#fff;}
@@ -151,7 +154,7 @@ sup a:hover{text-decoration:underline;}
     <div class="container">
       <div class="hero-eyebrow">Self-Drive Expedition · 2026 Sept 18 → Dec 11</div>
       <h1>从北京出发自驾到云南：一路向西的85天</h1>
-      <p class="hero-sub">2人同行·单人驾驶经济版攻略 · 四驱SUV+床车模式 · 一嗨租车全程（0元异地还车）· 高速日均≤600km · 含甘青大环线+12条徒步路线+床车露营攻略 · 2人总预算7万元</p>
+      <p class="hero-sub">2人床车经济版（7万，人均3.5万）· 4人民宿混合版（11.5万，人均2.88万）· 大5座硬派越野优先·一嗨租车0元异地还车·高速日均≤600km·含甘青大环线+12条徒步+床车/民宿攻略</p>
     </div>
   </div>
 </div>
@@ -377,7 +380,7 @@ flowchart LR
     style N fill:#8B5E3C,color:#fff,stroke:none
     style O fill:#8B5E3C,color:#fff,stroke:none
     </pre>
-    <figcaption>图：全程路线流向。蓝色节点为甘青大环线（祁连、青海湖、茶卡、大柴旦、G315）；实线为方案A（85天，北京取→丽江还0元异地费，总预算7万）；橙色虚线为方案D（91天，北京取还，总预算约7.5万）</figcaption>
+    <figcaption>图：全程路线流向。蓝色节点为甘青大环线（祁连、青海湖、茶卡、大柴旦、G315）；实线为方案A（85天，北京取→丽江还0元异地费，2人版总预算7万/4人版约12.3万）；橙色虚线为方案D（北京取还，总预算多5,000元）</figcaption>
   </div>
 
   <div class="callout green">
@@ -893,102 +896,192 @@ flowchart LR
 <!-- Budget -->
 <section id="budget">
   <div class="section-num">Budget</div>
-  <h2>费用预算（2人同行·单人驾驶，总预算7万元）</h2>
+  <h2>费用预算</h2>
 
   <div class="callout green">
-    <div class="callout-title">7万预算核心原则：住舒服、吃实在、床车最大化、不凑数</div>
-    <p>以下预算为<strong>自下而上逐项核算</strong>，每一项都有计算依据，不是倒凑数字。总行程85天（9月18日-12月11日）= 84个晚上，其中<strong>50晚住店（独立卫浴，平均200元/晚）、34晚床车（0元）</strong>。有车时以卡式炉自炊为主，还车后云南段19天因无厨房必须外食。高海拔（3500m+）不住车，安全第一。</p>
+    <div class="callout-title">为什么酒店晚数看起来多？</div>
+    <p>85天共84个晚上，其中三大块<strong>必须住店、没法省</strong>：①新藏线+阿里高海拔（3500m+）约13晚，夜间-10°C至-20°C，睡车有失温/高反风险，不能省；②车进不去的景区（喀纳斯/禾木/雨崩/虎跳峡徒步中）约8晚，车停在景区外必须住村里客栈；③丽江还车后云南段19晚，没车=没法床车。这三项加起来就40晚了。其余城市停靠点（包头、敦煌、伊宁等）采用<strong>床车+洗浴中心洗澡（30-50元/人）</strong>的方式，不住店也能解决清洁问题。</p>
   </div>
 
-  <h3>总费用明细（2人合计，逐项可查）</h3>
+  <div style="display:flex;gap:12px;margin:20px 0 8px;flex-wrap:wrap">
+    <button class="tab-btn" onclick="switchBudget('p2')" id="tab-p2">2人版（床车）</button>
+    <button class="tab-btn active" onclick="switchBudget('p4')" id="tab-p4">4人版（推荐）</button>
+  </div>
+
+  <!-- ============ 2人版 ============ -->
+  <div id="budget-p2" style="display:none">
+  <h3>方案A：2人同行·床车经济版（总预算7万元）</h3>
+  <p style="font-size:0.88rem;color:var(--muted);margin:4px 0 14px">39晚住酒店/客栈（高海拔供氧房+云南好客栈，平均218元/间）+ 45晚床车 · 一人开车 · 四驱SUV · 丽江还车 · 人均35,000元</p>
+
   <div class="table-wrap">
     <table>
-      <thead><tr><th>项目</th><th>费用（2人合计）</th><th>人均</th><th>具体说明与计算依据</th></tr></thead>
+      <thead><tr><th>项目</th><th>2人合计</th><th>人均</th><th>计算依据</th></tr></thead>
       <tbody>
-        <tr><td><strong>租车费（85天含全险）</strong></td><td>23,800元</td><td>11,900元</td><td>经济型四驱SUV（哈弗H6/瑞虎8），一嗨长租折扣约280元/天含超级补充全险（裸车约220+全险约60）；280×85=23,800；提前1个月订车锁定长租价</td></tr>
-        <tr><td><strong>油费</strong></td><td>12,000元</td><td>6,000元</td><td>总里程约18,500km；四驱SUV高原山路综合油耗约8.5L/100km；92号油平均约7.6元/L（新藏线/西藏油价贵、新疆便宜拉平）；18,500×0.085×7.6≈11,950元</td></tr>
-        <tr><td><strong>过路费（ETC）</strong></td><td>3,000元</td><td>1,500元</td><td>G7京新高速（北京-额济纳）约750元+G30连霍（嘉峪关-瓜州）约300元+G3011（敦煌-哈密）约200元+新疆高速约800元+其他零星约950元；独库/新藏线/滇藏线/国道基本无过路费</td></tr>
-        <tr><td><strong>住宿费（50晚）</strong></td><td>10,000元</td><td>5,000元</td><td>50晚住店×平均200元=10,000元，余34晚床车。详见下方住宿明细：新藏线偏远贵（280元）、云南淡季便宜（150元）、城市连锁中间价（180元），加权平均约200元</td></tr>
-        <tr><td><strong>餐饮费</strong></td><td>7,000元</td><td>3,500元</td><td>分三段算：①有车66天（D1-D66）严格自炊，早4元+午20元+晚11元=35元/人/天→66×2×35=4,620元；②还车后19天（D67-D85）无厨房必须外食，云南小馆便宜约50元/人/天→19×2×50=1,900元；③每周1顿改善餐约80元/2人，约12顿=480元；合计约7,000元</td></tr>
-        <tr><td><strong>门票+景区区间车</strong></td><td>4,800元</td><td>2,400元</td><td>逐项核算：额济纳480+张掖150+莫高窟应急票200+鸣沙山220+喀纳斯460+禾木220+赛里木湖290+夏塔160+古格400+冈仁波齐300+珠峰约800（进山费+门票+环保车）+布宫淡季200+雨崩520+虎跳峡90+嘉峪关220=4,710元；青海湖走牧民道(10元)、翡翠湖免费、帕米尔观景台免费、不进水上雅丹</td></tr>
-        <tr><td><strong>床车装备（一次性购置）</strong></td><td>2,200元</td><td>1,100元</td><td>明细加总：睡眠（充气床垫250+两条-10°C睡袋700=950）+炊具（卡式炉80+套锅100+菜板锅铲50+碗筷30+首罐气20+保温箱80+洗涤20=380）+隐私帘150+储水50+照明（头灯2+营地灯=130）+桌椅200+其他（储物100+尿袋急救80+逆变器120=300）=2,160元≈2,200元</td></tr>
-        <tr><td><strong>防滑链+高反药+氧气</strong></td><td>1,000元</td><td>500元</td><td>防滑链200元（10月新藏线可能下雪必备）；高反药（红景天/高原安/葡萄糖/布洛芬）300元；氧气罐沿途县城购买约500元（不在景区买，景区贵3倍）</td></tr>
-        <tr><td><strong>异地还车费</strong></td><td><mark class="ok">0元</mark></td><td>0元</td><td>一嗨2026年热门航线免异地还车费政策（出发前必须严格按5步验证法确认，留录音截图证据）</td></tr>
-        <tr><td><strong>道路救援</strong></td><td>已含在全险中</td><td>--</td><td>超级补充全险通常含全国道路救援，下单时确认条款</td></tr>
-        <tr><td><strong>云南段交通（还车后）</strong></td><td>1,000元</td><td>500元</td><td>丽江→大理（普速火车约50元）→昆明（普速/大巴约150元），加上市内公交/打车，约500元/人</td></tr>
-        <tr><td><strong>机票（丽江→北京）</strong></td><td>1,600元</td><td>800元</td><td>12月丽江旅游淡季，提前2个月订，700-900元/人可拿到直飞或经停特价票</td></tr>
-        <tr><td><strong>旅行保险（2人）</strong></td><td>600元</td><td>300元</td><td>保3个月（约90天），含高海拔徒步（5000m+）、紧急救援、医疗运送，约300元/人（普通旅游险不含高海拔，必须买专门的户外险）</td></tr>
-        <tr><td><strong>徒步应急备用</strong></td><td>500元</td><td>250元</td><td>不请背夫向导，轻装徒步；预留500元应对雨崩/转山体力不支时单程骑马/牦牛</td></tr>
-        <tr><td><strong>机动/应急备用</strong></td><td>2,500元</td><td>1,250元</td><td>新藏线天气滞留封路（可能堵2-3天，需额外住宿餐饮）、车辆小问题（补胎/换胎/小修）、计划外住宿、偶尔想改善伙食</td></tr>
-        <tr style="background:var(--accent2-light)"><td><strong>合计（2人总预算）</strong></td><td><strong>70,000元整</strong></td><td><strong>35,000元/人</strong></td><td>约824元/天（2人合计），人均约412元/天。预算偏紧但可执行，前提是严格执行下方铁则</td></tr>
+        <tr><td><strong>租车（85天含全险）</strong></td><td>23,800</td><td>11,900</td><td>经济型四驱SUV（哈弗H6/瑞虎8），一嗨长租约280元/天含超级补充全险；280×85=23,800</td></tr>
+        <tr><td><strong>油费</strong></td><td>12,000</td><td>6,000</td><td>18,500km；四驱SUV高原综合油耗8.5L/100km；92号油均价7.6元/L；18,500×0.085×7.6≈11,950</td></tr>
+        <tr><td><strong>过路费（ETC）</strong></td><td>3,000</td><td>1,500</td><td>G7京新高速约750+G30连霍约300+G3011约200+新疆高速约800+零星950；独库/新藏/滇藏/国道无过路费</td></tr>
+        <tr><td><strong>住宿（39晚）</strong></td><td>8,500</td><td>4,250</td><td>见下方明细：高海拔12晚×300（选供氧/电热毯房）+景区4晚×220+虎跳峡1晚×150+塔县1晚×280+拉萨2晚×250+云南19晚×160=8,450→取8,500</td></tr>
+        <tr><td><strong>餐饮</strong></td><td>7,000</td><td>3,500</td><td>有车64天自炊35元/人/天（早4+午20+晚11）=4,480；还车后20天外食50元/人/天（云南米线/小馆）=2,000；每周1顿改善餐约80元×12次=520；合计7,000</td></tr>
+        <tr><td><strong>门票+区间车</strong></td><td>4,800</td><td>2,400</td><td>逐项：额济纳480+张掖150+莫高窟应急票200+鸣沙山220+喀纳斯460+禾木220+赛里木湖290+夏塔160+古格400+冈仁波齐300+珠峰800+布宫淡季200+雨崩520+虎跳峡90+嘉峪关220=4,710</td></tr>
+        <tr><td><strong>床车装备</strong></td><td>2,200</td><td>1,100</td><td>睡眠(充气床250+两条-10°C睡袋700)+炊具(卡式炉80+套锅100+菜板铲50+碗筷30+首罐气20+保温箱80+洗涤20)+隐私帘150+储水50+照明(头灯2+营灯=130)+桌椅200+其他(储物+尿袋+急救+逆变器=300)=2,160</td></tr>
+        <tr><td><strong>防滑链+高反药+氧气</strong></td><td>1,000</td><td>500</td><td>防滑链200+高反药300+氧气罐500（县城买，不在景区买）</td></tr>
+        <tr><td><strong>异地还车费</strong></td><td><mark class="ok">0</mark></td><td>0</td><td>一嗨2026热门航线免异地费（出发前按5步验证法确认，留截图录音）</td></tr>
+        <tr><td><strong>云南交通（还车后）</strong></td><td>1,000</td><td>500</td><td>丽江→大理→昆明普速+大巴，约500/人</td></tr>
+        <tr><td><strong>机票（丽江→北京）</strong></td><td>1,600</td><td>800</td><td>12月淡季提前2个月订，700-900/人</td></tr>
+        <tr><td><strong>旅行保险</strong></td><td>600</td><td>300</td><td>3个月户外险含高海拔+紧急救援，300/人</td></tr>
+        <tr><td><strong>徒步应急</strong></td><td>500</td><td>250</td><td>体力不支时单程骑马备用</td></tr>
+        <tr><td><strong>机动/应急</strong></td><td>4,000</td><td>2,000</td><td>新藏线封路滞留、车辆小修（补胎等）、计划外住宿</td></tr>
+        <tr style="background:var(--accent2-light)"><td><strong>合计</strong></td><td><strong>70,000元</strong></td><td><strong>35,000元/人</strong></td><td>约824元/天（2人），人均约412元/天</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>39晚必须住店明细（已修正天数/晚数错误）</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>类别</th><th>晚数</th><th>原因</th><th>均价</th><th>小计</th></tr></thead>
+      <tbody>
+        <tr><td>G219新藏线高海拔（D35-D46共12晚，含转山3晚）</td><td>12晚</td><td>海拔3600-5200m，夜间-10~-20°C，必须住有供暖/供氧的宾馆，选好点的房间休息好</td><td>300元</td><td>3,600</td></tr>
+        <tr><td>车不能进的景区（喀纳斯/禾木2晚+雨崩2晚）</td><td>4晚</td><td>车停景区外坐区间车进村，必须住村内客栈，选独立卫浴标间</td><td>220元</td><td>880</td></tr>
+        <tr><td>虎跳峡徒步中途（D64）</td><td>1晚</td><td>人在高路徒步路线上（Halfway中途客栈），远离车辆</td><td>150元</td><td>150</td></tr>
+        <tr><td>塔县（D29）</td><td>1晚</td><td>帕米尔高原海拔3200m，住1晚洗澡充电休整，D30可床车</td><td>280元</td><td>280</td></tr>
+        <tr><td>拉萨休整（D47-D48）</td><td>2晚</td><td>连续12天高海拔行驶后需要好酒店+热水澡恢复体力</td><td>250元</td><td>500</td></tr>
+        <tr><td>云南段还车后（D66-D84共19晚）</td><td>19晚</td><td>已还车无车可睡，丽江/大理/昆明淡季选好点的客栈（有空调/热水）</td><td>160元</td><td>3,040</td></tr>
+        <tr style="background:var(--accent2-light)"><td><strong>合计</strong></td><td><strong>39晚</strong></td><td colspan="2"></td><td><strong>8,450→8,500元</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:0.82rem;color:var(--muted);margin-top:4px">* 之前的错误：把「天数」当成了「晚数」（3天只有2晚），且喀什/叶城等低海拔地方没必要住店（喀什海拔1200m，10月夜间10°C左右床车很舒服，洗澡去洗浴中心20-30元/人）。其他所有停靠点（包头、额济纳、巴彦淖尔、张掖、祁连、青海湖、德令哈、大柴旦、敦煌、哈密、奇台、可可托海、布尔津、乌尔禾、伊宁、特克斯、库车、阿克苏、喀什、叶城、林芝、八宿、然乌、香格里拉等）共45晚全部床车。</p>
+  </div>
+
+  <!-- ============ 4人版 ============ -->
+  <div id="budget-p4">
+  <h3>方案B：4人同行·大5座硬派越野·民宿混合版（总预算约11.5万元）</h3>
+  <p style="font-size:0.88rem;color:var(--muted);margin:4px 0 14px">12晚酒店+27晚两居室民宿（有厨房能做饭）+45晚1间房+2人床车 · 大5座硬派四驱越野（坦克300/哈弗H9/途达）· 4人分摊车费 · 建议至少2人会开车 · 丽江还车 · 人均约28,750元</p>
+
+  <div class="callout" style="margin-bottom:14px">
+    <p><strong>4人版核心思路</strong>：租大5座硬派四驱越野（而非7座SUV），4个人坐5座完全不挤，后备箱放行李，后排放倒纯平可以睡2个成年人。硬派越野通过性比城市SUV好很多，新藏线/丙察察/独库公路更安全。低海拔好天气时2人睡车上+1间房，高海拔/景区/云南段开2间房，比全程2间房省7,000元住宿费。租车/油费4人分摊后人均比2人版便宜5,500元。</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>项目</th><th>4人合计</th><th>人均</th><th>计算依据</th></tr></thead>
+      <tbody>
+        <tr><td><strong>租车（85天含全险）</strong></td><td>34,000</td><td>8,500</td><td>大5座硬派四驱越野（坦克300/哈弗H9/日产途达级），一嗨长租约400元/天含超级补充全险；400×85=34,000；4人分摊人均仅8,500</td></tr>
+        <tr><td><strong>油费</strong></td><td>14,000</td><td>3,500</td><td>硬派越野高原综合油耗约10L/100km（和7座SUV差不多）；18,500×0.10×7.6≈14,000</td></tr>
+        <tr><td><strong>过路费（ETC）</strong></td><td>3,000</td><td>750</td><td>同2人版，与人数无关</td></tr>
+        <tr><td><strong>住宿（12晚酒店+27晚两居民宿+45晚1间+2人床车）</strong></td><td>23,000</td><td>5,750</td><td>新藏线12晚酒店2间7,680+27晚两居民宿7,560+低海拔45晚1间7,650≈23,000；民宿有厨房可做饭，更省餐饮费</td></tr>
+        <tr><td><strong>餐饮</strong></td><td>11,000</td><td>2,750</td><td>有车64天自炊28元/人/天（4人做饭更省，大宗食材分摊）=7,168；还车后20天外食40元/人/天（4人分菜省）=3,200；改善餐约632；合计11,000</td></tr>
+        <tr><td><strong>门票+区间车</strong></td><td>9,600</td><td>2,400</td><td>同2人版×4人=4,800×2=9,600</td></tr>
+        <tr><td><strong>装备</strong></td><td>4,000</td><td>1,000</td><td>4个-10°C睡袋1,400+2个充气床垫400（后排和后备箱各一个）+大卡式炉150+大套锅/烧水壶200+菜板锅铲60+碗筷勺4人份50+气罐30+保温冷藏箱120+洗涤40+全车隐私帘200+2个折叠水桶80+头灯4个+营灯2个200+折叠桌+4椅400+2个储物箱200+尿袋急救包120+逆变器200=4,000</td></tr>
+        <tr><td><strong>防滑链+高反药+氧气</strong></td><td>1,900</td><td>475</td><td>大尺寸越野胎防滑链300+高反药400（4人份）+氧气罐1,200（4人用量，县城买）</td></tr>
+        <tr><td><strong>异地还车费</strong></td><td><mark class="ok">0</mark></td><td>0</td><td>同2人版</td></tr>
+        <tr><td><strong>云南交通（还车后）</strong></td><td>2,000</td><td>500</td><td>火车+大巴约500/人×4</td></tr>
+        <tr><td><strong>机票（丽江→北京）</strong></td><td>3,200</td><td>800</td><td>淡季800/人×4</td></tr>
+        <tr><td><strong>旅行保险</strong></td><td>1,200</td><td>300</td><td>户外险300/人×4</td></tr>
+        <tr><td><strong>徒步应急</strong></td><td>800</td><td>200</td><td>4人骑马备用</td></tr>
+        <tr><td><strong>机动/应急</strong></td><td>7,300</td><td>1,825</td><td>4人物资多，硬派越野维护成本略高，新藏线偏远地区住宿可能超支，备用金充裕</td></tr>
+        <tr style="background:var(--accent2-light)"><td><strong>合计</strong></td><td><strong>约115,000元</strong></td><td><strong>约28,750元/人</strong></td><td>约1,353元/天（4人），人均约338元/天（比2人版便宜6,250元）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:16px">4人版住宿分配说明（优先民宿）</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>住宿类型</th><th>晚数</th><th>安排</th><th>价格</th></tr></thead>
+      <tbody>
+        <tr><td>酒店2间（无民宿地区）</td><td>12晚</td><td>新藏线高海拔偏远地区（三十里营房、大红柳滩、玛旁雍错、仲巴、萨嘎等），只有简易宾馆/招待所，选有供暖/电热毯的标间</td><td>320元/间×2间×12晚=7,680</td></tr>
+        <tr><td>两居室民宿（推荐）</td><td>27晚</td><td>喀纳斯/禾木、雨崩、塔县、拉萨、云南段（丽江/大理/昆明），选整套两居室民宿，有厨房能自己做饭、有客厅能休息、能洗衣服，比开2间酒店标间划算</td><td>280元/套×27晚=7,560</td></tr>
+        <tr><td>1间房+2人床车</td><td>45晚</td><td>甘青大环线、北疆低海拔、伊犁、南疆喀什/库车、滇藏线林芝/香格里拉等低海拔县城/景区停车场，2人睡车上、2人住标间/一居室民宿轮流洗澡充电</td><td>170元/间×45晚=7,650</td></tr>
+        <tr style="background:var(--accent2-light)"><td><strong>合计</strong></td><td><strong>84晚</strong></td><td colspan="2"><strong>约22,890≈23,000元</strong>（含民宿有厨房可自炊，进一步省餐饮费）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:20px">5人版两个方案对比</h4>
+  <p style="font-size:0.88rem;color:var(--muted);margin:4px 0 14px">5个人大5座越野坐5人理论上可以，但85天长途满载行李+装备+食材会比较挤，建议以下两个方案：</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>对比项</th><th>方案A：两辆大5座越野</th><th>方案B：一辆9座MPV床车（最省）</th></tr></thead>
+      <tbody>
+        <tr><td>车型</td><td>2辆坦克300/哈弗H9级硬派越野</td><td>1辆福特全顺/大通V80（C本可开9座）</td></tr>
+        <tr><td>租车费</td><td>34,000×2=68,000元</td><td>500元/天×85=42,500元</td></tr>
+        <tr><td>油费</td><td>14,000×2=28,000元</td><td>18,500×0.12×7.6≈17,000元</td></tr>
+        <tr><td>过路费</td><td>3,000×2=6,000元</td><td>3,500元（9座高速费略高）</td></tr>
+        <tr><td>住宿</td><td>按4人版×1.25，约50,000元（2-3间房）</td><td>后排放平能睡3-4人，只需要1-2间房，约22,000元</td></tr>
+        <tr><td>餐饮/门票/保险/机票等</td><td>按5人算约28,000元</td><td>按5人算约28,000元</td></tr>
+        <tr><td>装备</td><td>约5,500元</td><td>约5,500元（含车床垫）</td></tr>
+        <tr><td>机动/应急</td><td>8,000元</td><td>6,500元</td></tr>
+        <tr style="background:var(--accent2-light)"><td><strong>总预算</strong></td><td><strong>约193,500元</strong></td><td><strong>约125,000元</strong></td></tr>
+        <tr style="background:var(--accent2-light)"><td><strong>人均</strong></td><td><strong>约38,700元/人</strong></td><td><strong>约25,000元/人</strong>（最便宜）</td></tr>
+        <tr><td>司机要求</td><td>至少需要2个司机轮换</td><td>1-2个司机即可，MPV高速好开</td></tr>
+        <tr><td>通过性</td><td>最好，烂路无压力</td><td>底盘低，丙察察/新藏线部分烂路需慢行</td></tr>
+        <tr><td>缺点</td><td>费用高，需要两个司机</td><td>山路操控不如越野车灵活，停车需找大车位</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout" style="margin-top:12px">
+    <p><strong>省钱升级版</strong>：4人版如果天气好，在低海拔景区停车场（青海湖、赛里木湖、纳帕海等）搭4人帐篷露营，4人帐篷约300-500元，再多睡10-15晚4人都不进店，可省1间房×12晚×180元=2,160元，人均再省540元。</p>
+    <p><strong>5人版建议</strong>：如果5人都是年轻人能吃苦，优先方案B（9座MPV床车），人均仅2.5万最便宜；如果担心MPV烂路通过性，选方案A两辆硬派越野，人均约3.9万但最安全舒适。确定人数后再细化。</p>
+  </div>
+  </div>
+
+  <!-- ============ 两版本对比表 ============ -->
+  <h3>两版本对比</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>对比项</th><th>2人床车经济版</th><th>4人民宿混合版（推荐）</th></tr></thead>
+      <tbody>
+        <tr><td>总预算</td><td>70,000元</td><td>约115,000元</td></tr>
+        <tr><td>人均费用</td><td>35,000元/人</td><td><strong>约28,750元/人</strong>（便宜6,250元）</td></tr>
+        <tr><td>车型</td><td>紧凑型5座四驱SUV（H6/瑞虎8）</td><td>大5座硬派四驱越野（坦克300/H9/途达，通过性更好）</td></tr>
+        <tr><td>住宿</td><td>39晚住店+45晚床车</td><td>12晚酒店+27晚两居民宿+45晚1间房+2人床车</td></tr>
+        <tr><td>住宿体验</td><td>45晚睡车里，住店选经济型标间</td><td>优先两居民宿有厨房能做饭/洗衣/客厅，低海拔轮换睡车上</td></tr>
+        <tr><td>驾驶压力</td><td>1人开完全程（累）</td><td>建议2人轮换开（轻松安全）</td></tr>
+        <tr><td>做饭效率</td><td>2人做饭量少不好搭配</td><td>民宿有厨房+户外卡式炉，4人做饭食材不浪费</td></tr>
+        <tr><td>社交/氛围</td><td>两人世界安静</td><td>人多热闹，长途不闷，拍照有人帮忙</td></tr>
+        <tr><td>灵活性</td><td>说走就走，决策快</td><td>需协调4人时间/偏好</td></tr>
+        <tr><td>适合场景</td><td>情侣/死党，能吃苦享受独处</td><td>朋友结伴，想省钱又要一定舒适度</td></tr>
       </tbody>
     </table>
   </div>
 
   <div class="callout warn">
-    <div class="callout-title">7万预算的风险点与底线</div>
+    <div class="callout-title">预算风险提示</div>
     <ul style="padding-left:20px; font-size:0.88rem; line-height:1.8; margin:8px 0">
-      <li><strong>租车价格是最大变量</strong>：280元/天含全险需提前1个月锁定长租折扣，若涨到320元/天（+3,400元），需砍：云南缩短4天（省住宿+餐饮约1,400元）+放弃赛里木湖/古格王朝2个景区（省约700元）+从机动费出1,300元</li>
-      <li><strong>新藏线住宿可能超支</strong>：三十里营房/狮泉河/塔尔钦10月下旬可能300-400元/晚，超支部分从2,500元机动费中扣</li>
-      <li><strong>餐饮是最大纪律项</strong>：有车时必须坚持自炊，午餐只在县城/小镇吃（20元以内拉面/炒饭），不在景区内吃饭（景区一份面40-60元）；还车后云南段吃路边小馆/饵丝/米线（15-25元/份可解决）</li>
-      <li><strong>冈仁波齐转山不请背夫</strong>：背夫约1,500元/3天，严重超预算；轻装（只带水+干粮+冲锋衣）可完成，体力不支就缩短为2天外线或放弃</li>
-      <li><strong>终极压缩方案（超支时启用）</strong>：云南段从19天压缩到12天（省7晚住宿+7天餐饮+机票改早≈省3,000元），或跳过珠峰（省门票+2晚住宿≈1,500元）</li>
+      <li><strong>租车价格是最大变量</strong>：280/400元/天含全险需提前1个月锁定长租折扣，若涨10%则人均+1,000~1,200元</li>
+      <li><strong>新藏线住宿可能超支</strong>：偏远地区10月下旬可能300-400元/晚，超支从机动费中扣</li>
+      <li><strong>2人版餐饮纪律最关键</strong>：必须坚持自炊+不在景区吃饭，否则餐饮可能超2,000+</li>
+      <li><strong>4人版建议至少2人会开车</strong>：一个人开85天18,500km太累，尤其是新藏线/滇藏线山路</li>
     </ul>
   </div>
 
-  <h3>7万预算必须遵守的铁则</h3>
+  <h3>省钱铁则（两个版本通用）</h3>
   <div class="two-col">
     <div class="col-card">
-      <h4>住宿铁则（50晚住店/34晚床车）</h4>
+      <h4>住宿省钱</h4>
       <ul style="padding-left:18px; font-size:0.86rem; line-height:1.75">
-        <li><strong>海拔3500m以上必须住店</strong>（新藏线+阿里+珠峰+然乌约16晚，保命，这部分住宿最贵但不能省）</li>
-        <li><strong>车不能进的景区必须住店</strong>（喀纳斯/禾木3晚、雨崩3晚，车停景区外坐区间车进村）</li>
-        <li><strong>徒步节点住店</strong>（虎跳峡2晚、塔县2晚，住客栈方便第二天早出发）</li>
-        <li><strong>大城市休整住店</strong>（约6晚：包头、敦煌、伊宁、喀什、拉萨等，选连锁酒店150-200元，洗澡充电补给）</li>
-        <li><strong>还车后云南段19晚必须住店</strong>（丽江/大理/昆明，选淡季客栈120-180元，青旅单间/经济型酒店）</li>
-        <li><strong>其余34晚全部睡车</strong>，选服务区/景区停车场/政府门口/派出所旁/24小时加油站</li>
-        <li>住店选独立卫浴标间/单间，不住多人间，保证睡眠</li>
+        <li>高海拔（3500m+）必须住店，选有供暖/电热毯/氧气的宾馆，不省这个钱</li>
+        <li>城市/低海拔住店选如家/汉庭/7天等连锁（150-200元），不选景区门口酒店</li>
+        <li>云南12月是淡季，丽江/大理客栈120-180元就能住到不错的，到店谈价比APP便宜</li>
+        <li>2人版低海拔城市用床车+洗浴中心（30-50元/人洗澡），比开一间房便宜</li>
+        <li>住店选独立卫浴标间，不住多人间</li>
       </ul>
     </div>
     <div class="col-card">
-      <h4>餐饮铁则（有车自炊35元/人/天，无车外食50元/人/天）</h4>
+      <h4>餐饮省钱</h4>
       <ul style="padding-left:18px; font-size:0.86rem; line-height:1.75">
-        <li>出发前从北京带耐储物资：酱油、醋、盐、火锅底料、挂面10斤、大米5斤、老干妈、压缩饼干、巧克力（徒步用）</li>
-        <li>每到县城/地级市去大型超市/菜市场采购：鸡蛋、土豆、洋葱、胡萝卜、白菜、猪肉/鸡肉、馒头/馕，比景区便宜50%以上</li>
-        <li>有车时：早餐自炊（粥+蛋+馒头/面条，4元/人），午餐县城小馆（拉面/炒饭，20元/人），晚餐驻车后自炊（炒菜/煮面/火锅，11元/人）</li>
-        <li>还车后云南段：吃路边小馆/饵丝/米线/炒饭（15-25元/份），不进装修好的餐厅</li>
-        <li>气罐在哈密/乌鲁木齐/喀什等大城市户外店买，不在北京带（新疆检查站查气罐严），不在小加油站买（假货多）</li>
-        <li>每周最多1顿改善餐（大盘鸡/烤串/藏餐），从机动费支出</li>
-        <li><strong>绝对不在景区内/高速服务区吃饭</strong>（价格是县城2-3倍）</li>
+        <li>出发前从北京带耐储物资：调料、挂面、大米、老干妈、压缩饼干、巧克力</li>
+        <li>每到县城去大型超市/菜市场采购：鸡蛋、土豆、洋葱、胡萝卜、白菜、猪肉/鸡肉、馒头/馕</li>
+        <li>午餐只在县城/小镇吃拉面/炒饭（15-20元），不在景区/服务区吃饭（贵2-3倍）</li>
+        <li>有车时早晚自炊：粥+蛋+馒头+炒菜/面条/火锅</li>
+        <li>气罐在哈密/乌鲁木齐/喀什等大城市户外店买，不在小加油站买假货</li>
       </ul>
     </div>
   </div>
-
-  <h3>50晚住店明细（按路段加权平均约200元/晚）</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>路段</th><th>住店夜晚</th><th>晚数</th><th>类型</th><th>预估均价</th><th>小计</th></tr></thead>
-      <tbody>
-        <tr><td>高海拔（新藏线+阿里+珠峰+然乌）</td><td>D35-D46（三十里营房→狮泉河→塔尔钦→萨嘎→定日）</td><td>12晚</td><td><strong>海拔3500-5200m，必须住店</strong></td><td>280元/晚</td><td>3,360元</td></tr>
-        <tr><td>拉萨+日喀则城市休整</td><td>D47-D51（拉萨5天）+D45定日1晚</td><td>6晚</td><td>城市连锁/经济型酒店</td><td>220元/晚</td><td>1,320元</td></tr>
-        <tr><td>新疆景区（喀纳斯+禾木+塔县）</td><td>D19-D21喀纳斯/禾木+D29-D30塔县</td><td>5晚</td><td>景区内客栈/高原小城</td><td>250元/晚</td><td>1,250元</td></tr>
-        <tr><td>徒步客栈（雨崩+虎跳峡）</td><td>D58-D60雨崩+D64-D65虎跳峡</td><td>5晚</td><td>徒步线客栈（多人间但选单间）</td><td>160元/晚</td><td>800元</td></tr>
-        <tr><td>甘青/新疆城市补给</td><td>D1包头+D4额济纳+D14敦煌+D23伊宁+D26库车</td><td>5晚</td><td>城市连锁酒店，洗澡充电补给</td><td>180元/晚</td><td>900元</td></tr>
-        <tr><td>转山途中客栈</td><td>D41-D42（止热寺+尊最普寺）</td><td>2晚</td><td>山上简易客栈，条件差但必须住</td><td>100元/晚</td><td>200元</td></tr>
-        <tr><td>云南（还车后无车）</td><td>D66-D84丽江/大理/昆明</td><td>19晚</td><td>淡季客栈/青旅单间/经济型酒店</td><td>150元/晚</td><td>2,850元</td></tr>
-        <tr style="background:var(--accent2-light)"><td><strong>合计</strong></td><td></td><td><strong>50晚</strong></td><td></td><td><strong>加权平均200元/晚</strong></td><td><strong>约10,680→取整10,000元（部分晚找更便宜的/淡季打折）</strong></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <p style="font-size:0.82rem;color:var(--muted);margin-top:8px">* 实际执行时，新藏线偏远住宿可能比280元贵，云南淡季可能比150元便宜，两者大致抵消。住宿预算按略高估计入，留出谈判/淡季折扣空间。</p>
-
-  <h3>方案D（北京取还开回京）费用</h3>
-  <div class="callout">
-    <p>如选择最稳妥的方案D（北京取→北京还，最后6天从丽江开回北京），额外增加约5,000元（租车多6天约1,700元+油费过路费约2,200元+住3晚约600元+餐饮约500元），总预算需约7.5万。若想控制在7万内，需将云南段从19天压缩到9天（省10晚住宿+10天餐饮+10天租车≈省5,000元），总行程缩短至85天不变。</p>
-  </div>
-
-  <p style="font-size:0.85rem;color:var(--muted);margin-top:16px">* 本预算为<strong>逐项自下而上核算</strong>，非倒凑数字。核心逻辑：油费/过路费按里程×油耗×油价硬算，住宿按各路段实际价位加权平均，餐饮分有车/无车两段分别估算，门票逐项列清单。最大风险项是租车价格和新藏线住宿，已在机动费中预留2,500元缓冲。<strong>吃可以省（自炊为主），住必须干净有独立卫浴，高海拔不住车，风景在路上大部分免费</strong>。</p>
 </section>
 
 <!-- Car Camper -->
@@ -1091,8 +1184,8 @@ flowchart LR
     </ul>
   </div>
 
-  <h3>床车vs住店的路段分配（34晚床车/50晚住店）</h3>
-  <p style="font-size:0.88rem;color:var(--muted);margin-bottom:12px">具体每晚安排已在上方"50晚住店明细"表中列出，以下为34晚床车分布和驻车选址建议。</p>
+  <h3>床车vs住店的路段分配（39晚床车/45晚住店，2人版）</h3>
+  <p style="font-size:0.88rem;color:var(--muted);margin-bottom:12px">以下为2人版39晚床车分布和驻车选址建议。4人版全程住店，无需参考此节。</p>
   <div class="two-col">
     <div class="col-card">
       <h4>睡车的34晚分布（0元住宿）</h4>
@@ -1198,7 +1291,7 @@ flowchart LR
     </div>
     <div class="disclaimer">
       <p><strong>免责声明</strong>：本攻略基于2025-2026年公开网络资料整理。公路封闭时间（特别是独库公路）每年根据天气略有不同，一嗨免异地还车费政策请在下单前严格按照"5步零风险验证法"以APP结算页和客服确认为准，租车进藏许可务必提前电话确认并留存证据。10月底新藏线天气变化剧烈，请根据实时天气和路况灵活调整行程。床车露营涉及高原安全、驻车安全和个人健康风险，请充分评估自身体能和车辆状况，海拔4000m以上严禁睡车，绝不怠速开空调睡觉。经济型四驱SUV走新藏线必须携带防滑链，建议加购道路救援服务。购买含紧急救援和高原反应的旅行保险。本攻略仅供参考，不对实际出行中的任何意外承担责任。</p>
-      <p style="margin-top:12px">Generated by Trae Work · 2026年8月 · 2人同行单人驾驶经济舒适版（85天，含甘青大环线+12条徒步+床车露营）· 总预算7万元（人均3.5万）· 50晚住干净舒适酒店/客栈（独立卫浴，平均200元/间）+34晚床车·燃油四驱SUV·不租电车·自炊为主·风景在路上大部分免费</p>
+      <p style="margin-top:12px">Generated by Trae Work · 2026年8月 · 北京→新疆→西藏→云南自驾攻略（85天，含甘青大环线+12条徒步）· 2人床车版总预算7万元（人均3.5万）/ 4人全住店版约12.3万元（人均3.1万）· 燃油四驱SUV·不租电车·风景在路上大部分免费</p>
     </div>
   </div>
 </footer>
@@ -1229,5 +1322,13 @@ if (document.readyState === 'loading') {
 }
 </script>
 <script src="assets/charts.js"></script>
+<script>
+function switchBudget(ver) {
+  document.getElementById('budget-p2').style.display = ver === 'p2' ? 'block' : 'none';
+  document.getElementById('budget-p4').style.display = ver === 'p4' ? 'block' : 'none';
+  document.getElementById('tab-p2').classList.toggle('active', ver === 'p2');
+  document.getElementById('tab-p4').classList.toggle('active', ver === 'p4');
+}
+</script>
 </body>
 </html>
