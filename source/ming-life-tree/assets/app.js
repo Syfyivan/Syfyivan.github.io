@@ -26,13 +26,28 @@
 
   // ── 玩家状态（属性）──────────────────────────────────
   var ATTRS = ['学识', '体魄', '家族', '白银', '铜钱', '存米'];
-  var state, visited, generation, atNode;
+  // 计入流水的资源与单位（逐人资源守恒台账）
+  var LEDGER_KEYS = [
+    { k: '白银', unit: '两' }, { k: '铜钱', unit: '文' }, { k: '存米', unit: '石' },
+    { k: '学识', unit: '' }, { k: '体魄', unit: '' }, { k: '家族', unit: '' }
+  ];
+  var state, visited, generation, atNode, ledger, seq;
 
-  function initState() {
+  function initState(carry) {
     state = { 年龄: 16, 学识: 20, 体魄: 90, 家族: 60, 身份: '民籍·白身', 白银: 0, 铜钱: 0, 存米: 0, 功名: '无' };
+    // 下一代承接：期初结余由上一代真实结余决定，不重置
+    if (carry) {
+      state.白银 = Math.max(0, carry.白银 || 0);
+      state.存米 = Math.max(0, carry.存米 || 0);
+      state.家族 = Math.max(20, Math.min(80, carry.家族 == null ? 60 : carry.家族));
+    }
     visited = ['start'];
     atNode = 'start';
+    ledger = [];
+    seq = 0;
     if (generation == null) generation = 1;
+    // 起点开账：记一笔期初
+    recordEntry(nodeById['start'], null);
   }
 
   var nodeById = {};
@@ -53,13 +68,41 @@
 
   // ── 到达某节点后的结算 ───────────────────────────────
   function applyArrive(nd) {
-    var a = nd.arrive; if (!a) return;
-    if (a.set) Object.keys(a.set).forEach(function (k) { state[k] = a.set[k]; });
-    if (a.add) Object.keys(a.add).forEach(function (k) { state[k] = (state[k] || 0) + a.add[k]; });
-    if (a.setStatus) state.功名 = a.setStatus;
-    // 属性夹在 0-100（年龄/身份/白银/存米不夹）
-    ['学识', '体魄', '家族'].forEach(function (k) {
-      if (state[k] < 0) state[k] = 0; if (state[k] > 100) state[k] = 100;
+    var before = snapshot();
+    var a = nd.arrive;
+    if (a) {
+      if (a.set) Object.keys(a.set).forEach(function (k) { state[k] = a.set[k]; });
+      if (a.add) Object.keys(a.add).forEach(function (k) { state[k] = (state[k] || 0) + a.add[k]; });
+      if (a.setStatus) state.功名 = a.setStatus;
+      // 属性夹在 0-100（年龄/身份/白银/存米不夹）
+      ['学识', '体魄', '家族'].forEach(function (k) {
+        if (state[k] < 0) state[k] = 0; if (state[k] > 100) state[k] = 100;
+      });
+    }
+    // 记一笔流水：本步骤造成的真实资源增减（逐人守恒）
+    recordEntry(nd, before);
+  }
+
+  // ── 流水账（资源守恒台账）─────────────────────────────
+  function snapshot() {
+    var s = {};
+    LEDGER_KEYS.forEach(function (o) { s[o.k] = state[o.k] || 0; });
+    s.年龄 = state.年龄;
+    return s;
+  }
+  // 记一笔：对比 before/after，算出各资源 Δ；before 为 null 表示期初
+  function recordEntry(nd, before) {
+    seq += 1;
+    var after = snapshot();
+    var deltas = LEDGER_KEYS.map(function (o) {
+      var d = before ? (after[o.k] - before[o.k]) : 0;
+      return { k: o.k, unit: o.unit, d: d, val: after[o.k] };
+    });
+    ledger.push({
+      seq: seq, id: nd.id, name: nd.name, stage: nd.stage,
+      cat: nd.category, age: state.年龄, status: state.身份,
+      deltas: deltas,
+      note: (nd.arrive && nd.arrive.note) ? nd.arrive.note : ''
     });
   }
 
@@ -227,6 +270,48 @@
     Array.prototype.forEach.call(document.querySelectorAll('.choice:not(.locked)'), function (btn) {
       btn.addEventListener('click', function () { choose(btn.getAttribute('data-t')); });
     });
+
+    renderLedger();
+  }
+
+  // ── 人生流水账渲染（逐人资源守恒台账）─────────────────
+  function fmtDelta(o) {
+    if (o.d > 0) return '<span class="lg-up">' + o.k + ' +' + o.d + o.unit + '</span>';
+    if (o.d < 0) return '<span class="lg-down">' + o.k + ' ' + o.d + o.unit + '</span>';
+    return '';
+  }
+  function renderLedger() {
+    var box = document.getElementById('ledger');
+    if (!box) return;
+    // 期末结余汇总
+    var sum = LEDGER_KEYS.filter(function (o) {
+      return ['白银', '铜钱', '存米'].indexOf(o.k) >= 0;
+    }).map(function (o) {
+      return o.k + ' <b>' + (state[o.k] || 0) + '</b>' + o.unit;
+    }).join(' · ');
+
+    var h = '';
+    h += '<div class="ledger-head"><span>人生流水账 · 逐人守恒</span>' +
+      '<span class="ledger-sum">共 ' + ledger.length + ' 笔</span></div>';
+    h += '<div class="ledger-sum" style="margin:-.2rem 0 .5rem">期末结余：' + sum + '</div>';
+    h += '<div class="ledger-list">';
+    // 最新在上
+    for (var i = ledger.length - 1; i >= 0; i--) {
+      var en = ledger[i];
+      var changed = en.deltas.filter(function (o) { return o.d !== 0; });
+      var deltaHtml = changed.map(fmtDelta).join('');
+      if (en.seq === 1) deltaHtml = '<span class="lg-flat">期初开账</span>';
+      else if (!deltaHtml) deltaHtml = '<span class="lg-flat">资源无增减（记录处境）</span>';
+      h += '<div class="lg-item" style="border-left-color:' + catColors[en.cat] + '">' +
+        '<div class="lg-top"><span>#' + en.seq + ' · ' + en.stage + '</span>' +
+        '<span>' + en.age + '岁 · ' + en.status + '</span></div>' +
+        '<div class="lg-name" style="color:' + catColors[en.cat] + '">' + en.name + '</div>' +
+        '<div class="lg-deltas">' + deltaHtml + '</div>' +
+        (en.note ? '<div class="lg-note">守恒/说明：' + en.note + '</div>' : '') +
+        '</div>';
+    }
+    h += '</div>';
+    box.innerHTML = h;
   }
 
   // ── 做选择 ───────────────────────────────────────────
@@ -234,11 +319,8 @@
     var nd = nodeById[targetId];
     if (targetId === 'start') { // 递归下一代重开
       generation += 1;
-      var carry = { 白银: state.白银, 存米: state.存米, 家族: state.家族 }; // 起点由上一代真实结余决定（简化承接）
-      initStateKeepGen();
-      state.白银 = Math.max(0, carry.白银);
-      state.存米 = Math.max(0, carry.存米);
-      state.家族 = Math.max(20, Math.min(80, carry.家族));
+      var carry = { 白银: state.白银, 存米: state.存米, 家族: state.家族 }; // 起点由上一代真实结余决定
+      initState(carry);
       render(); renderPanel(); focusNode('start'); return;
     }
     atNode = targetId;
@@ -246,8 +328,6 @@
     applyArrive(nd);
     render(); renderPanel(); focusNode(targetId);
   }
-
-  function initStateKeepGen() { var g = generation; generation = g; initState(); }
 
   function focusNode(id) {
     var nd = nodeById[id];
@@ -290,6 +370,32 @@
   });
 
   window.addEventListener('resize', function () { chart.resize(); });
+
+  // ── 注入流水账面板 DOM + 样式（不改 HTML，保持线上/本地一致）──
+  (function injectLedger() {
+    var css = document.createElement('style');
+    css.textContent =
+      '#ledger{margin-top:1rem;border-top:1px dashed var(--rule);padding-top:.7rem;}' +
+      '.ledger-head{display:flex;justify-content:space-between;align-items:baseline;font-size:.8rem;color:var(--accent);letter-spacing:.05em;margin-bottom:.5rem;}' +
+      '.ledger-sum{font-family:var(--font-mono);font-size:.72rem;color:var(--muted);}' +
+      '.ledger-sum b{color:var(--accent);}' +
+      '.ledger-list{display:flex;flex-direction:column;gap:.4rem;max-height:42vh;overflow-y:auto;padding-right:2px;}' +
+      '.ledger-list::-webkit-scrollbar{width:6px;}' +
+      '.ledger-list::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px;}' +
+      '.lg-item{font-size:.76rem;background:var(--bg);border:1px solid var(--rule);border-left:3px solid var(--rule);border-radius:0 6px 6px 0;padding:.4rem .55rem;}' +
+      '.lg-top{display:flex;justify-content:space-between;gap:.5rem;color:var(--muted);font-family:var(--font-mono);font-size:.68rem;}' +
+      '.lg-name{font-weight:700;font-size:.82rem;margin:.12rem 0 .28rem;}' +
+      '.lg-deltas{display:flex;flex-wrap:wrap;gap:.28rem .6rem;font-family:var(--font-mono);font-size:.74rem;}' +
+      '.lg-up{color:var(--c1);}.lg-down{color:var(--c6);}.lg-flat{color:var(--muted);}' +
+      '.lg-note{color:var(--muted);font-size:.68rem;margin-top:.3rem;line-height:1.45;}';
+    document.head.appendChild(css);
+    // 把 #ledger 挂到侧栏（.hint 之前，若无则追加到 aside）
+    var box = document.createElement('div');
+    box.id = 'ledger';
+    var hint = document.querySelector('aside .hint');
+    if (hint) hint.parentNode.insertBefore(box, hint);
+    else { var aside = document.querySelector('aside'); if (aside) aside.appendChild(box); }
+  })();
 
   // ── 启动 ─────────────────────────────────────────────
   initState();
