@@ -14,7 +14,18 @@
   var HARVEST_XUN = 8;
   var AP_PER_XUN = 4;
   var GROW_TARGET = 12;
-  var CHILD_STEPS = 4;   // 幼年阶段步数：襁褓→蒙童→半大小子→成丁前夕
+
+  // ── 幼年阶段：分段 + 每段行动点循环（与农事同构）──
+  // 每一"段"代表一个成长年龄区间；每段内有若干"轮"日常活计，每轮分配行动点。
+  // 段末自动跑一次"家计结算"（父母耕田进米−佃租−全家口粮），让存米逐龄真实涨落。
+  var CHILD_AP = 3;      // 幼年每一轮的行动点（比成丁略少：孩子力气小）
+  var CHILD_STAGES = [
+    { key: 'baby',   name: '襁褓', age: 1,  rounds: 2, mouths: 5, note: '两三岁前最难养，一场时疫风寒都可能夭折。' },
+    { key: 'tot',    name: '蒙童', age: 7,  rounds: 3, mouths: 6, note: '能跑能跳，可放牛拾柴帮补，也可开蒙识字。' },
+    { key: 'kid',    name: '半大', age: 11, rounds: 3, mouths: 6, note: '顶半个劳力，可拜师学艺，也可随父下田。' },
+    { key: 'teen',   name: '将成丁', age: 15, rounds: 3, mouths: 6, note: '明年入黄册成丁，最后一年为立身打底。' }
+  ];
+  var CHILD_STAGE_N = CHILD_STAGES.length;
 
   var WEATHERS = [
     { k: '晴', w: 34, grow: 1, note: '日头足，秧苗稳长' },
@@ -30,7 +41,11 @@
   var generation = 0;        // 第几代
   var carryOver = null;      // 上一代传下的期初结余
   var curStage = null;       // 当前人生阶段卡（非农事时）
-  var childStep = 0;         // 幼年阶段第几步
+  var childStage = 0;        // 幼年第几段（0..CHILD_STAGE_N-1）
+  var childRound = 0;        // 本段第几轮
+  var childPicks = [];       // 本轮已排的幼年活计
+  var childResolved = null;  // 本轮结算文本
+  var curChildEvents = [];   // 本轮随机事件
 
   function initState(carry) {
     S = {
@@ -39,7 +54,7 @@
       白银: 1, 铜钱: 1200, 存米: 3,
       秧苗进度: 0, 已插秧: false, 田亩: 4, 租额石: 3, 菜圃进度: 0, 母出工: true,
       // 幼年字段
-      识字: false, 技艺: '无', 兄弟序: 1,
+      识字: false, 技艺: '无', 兄弟序: 1, 农事历练: 0, 家务历练: 0, 识字进度: 0, 技艺进度: 0,
       // 人生链路字段
       妻室: false, 子数: 0, 女数: 0, 负债银: 0, 口食田: 0, 分家: false, 应役: '未役'
     };
@@ -51,10 +66,13 @@
       S.家族 = Math.max(20, Math.min(80, carry.家族 == null ? 60 : carry.家族));
     }
     ledger = []; seq = 0; xunIndex = 0; picks = []; resolved = null; gameOver = false;
-    phase = 'childhood'; childStep = 0; curStage = childhoodStage(0);
+    phase = 'childhood';
+    childStage = 0; childRound = 0; childPicks = []; childResolved = null;
+    S.年龄 = CHILD_STAGES[0].age;
     recordEntry('出生开账', null,
       generation > 1 ? ('第' + generation + '代降生：这一户现有田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两，你排行次子，全赖父母养育。')
         : '出生：降生于江南民籍佃农之家，排行次子。这户现有薄田4亩、存米3石、少量现钱。');
+    rollChildRound();
   }
 
   // ── 资源守恒台账 ─────────────────────────────────
@@ -72,6 +90,7 @@
     ledger.push({ seq: seq, name: name, solar: curLabel(), age: S.年龄, deltas: deltas, note: note || '' });
   }
   function curLabel() {
+    if (phase === 'childhood') { var cs = CHILD_STAGES[childStage]; return cs.name + '·' + cs.age + '岁'; }
     if (phase !== 'farm') return curStage ? curStage.label : (S.年龄 + '岁');
     if (xunIndex >= TOTAL_XUN) return '一季终';
     return SOLAR[Math.floor(xunIndex / 3)] + '·' + XUN[xunIndex % 3];
@@ -171,6 +190,7 @@
 
   // ═══════════════ 农事阶段渲染（旬循环）═══════════════
   function renderStage() {
+    if (phase === 'childhood') { renderChildhood(); return; }
     if (phase !== 'farm') { renderLifeStage(); return; }
     if (gameOver) return;
     var last = (xunIndex === HARVEST_XUN);
@@ -325,6 +345,272 @@
     enterPhase('marriage');
   }
 
+  // ═══════════════ 幼年阶段（分段行动点循环，与农事同构）═══════════════
+  // 每段有若干"轮"日常活计，每轮分配行动点；段末自动跑一次"家计结算"（父母耕田−佃租−全家口粮），
+  // 让存米随年岁真实涨落；早夭为跨童年的概率分支（Coale-Demeny），非惩罚分。
+
+  function childSpent() { return childPicks.reduce(function (a, p) { return a + p.cost; }, 0); }
+  function childRemainAP() { return CHILD_AP - childSpent(); }
+
+  function rollChildRound() {
+    curChildEvents = [];
+    var st = CHILD_STAGES[childStage];
+    if (st.key === 'baby') curChildEvents.push({ t: 'rel', tag: '[抚育]', txt: '襁褓最难养：母亲若停下农活精养你，活下来的机会大些，但家里就少一个下田的劳力。' });
+    else if (st.key === 'tot') curChildEvents.push({ t: 'rand', tag: '[蒙学]', txt: '识字是佃农子跳出田亩的跳板；可对次子而言，多一双帮补的手也很实在。累计入塾 2 次即开蒙。' });
+    else if (st.key === 'kid') curChildEvents.push({ t: 'rel', tag: '[立身]', txt: '一门手艺农闲能挣现钱、荒年不至饿死；累计随师 2 次即学成傍身。' });
+    else curChildEvents.push({ t: 'rand', tag: '[立身]', txt: '明年成丁入黄册，即接手佃田一季。这一年攒下的身子、识字、手艺，都会化成下田的底子。' });
+    if (childRound === st.rounds - 1) curChildEvents.push({ t: 'nong', tag: '[家计]', txt: '这一段的年月将尽，段末要结一次家计账：父母耕田进米，扣佃租、全家口粮，存米随之涨落。' });
+  }
+
+  // 幼年活计（eff = 显式点数标注）；cost 多为 1 点
+  function childActions() {
+    var st = CHILD_STAGES[childStage], A = [];
+    if (st.key === 'baby') {
+      A.push({ id: 'c_fine', name: '母亲停农·精养', cost: 2, eff: '体魄+8·家族+2·夭折率↓', desc: '母亲停下田里的活精心哺育（少一劳力）。', can: true, once: true });
+      A.push({ id: 'c_nurse', name: '寻常哺乳', cost: 1, eff: '体魄+3', desc: '照旧粗养，母亲仍能下田帮工。', can: true, once: true });
+      A.push({ id: 'c_herb', name: '求医问药', cost: 1, money: 60, eff: '铜钱-60·体魄+6·夭折率↓', desc: '请郎中抓药，度过时疫风寒。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文' });
+      A.push({ id: 'c_sib', name: '兄姊帮看顾', cost: 1, eff: '家族+3·体魄+1', desc: '哥哥姐姐轮流照看，母亲得空。', can: true });
+      A.push({ id: 'c_rest', name: '安睡将养', cost: 1, eff: '体魄+4', desc: '好生睡觉长身子。', can: true });
+    } else if (st.key === 'tot') {
+      A.push({ id: 'c_study', name: '入村塾·开蒙', cost: 2, money: 150, eff: '铜钱-150·识字进度+1(满2开蒙)', desc: '交束脩随蒙师认字。累计2次即识字。', can: S.铜钱 >= 150, why: S.铜钱 >= 150 ? '' : '铜钱不足150文' });
+      A.push({ id: 'c_cow', name: '放牛·拾柴', cost: 1, eff: '铜钱+20·家务历练+1', desc: '给人放牛、拾柴换几个钱，帮补家用。', can: true });
+      A.push({ id: 'c_pig', name: '打猪草·喂猪', cost: 1, eff: '家务历练+1·家族+1', desc: '割猪草喂猪，添个进项的指望。', can: true });
+      A.push({ id: 'c_field', name: '田头·帮工', cost: 1, eff: '农事历练+1·体魄+2', desc: '跟着大人在田头递秧送水。', can: true });
+      A.push({ id: 'c_care', name: '带弟妹', cost: 1, eff: '家族+3', desc: '照看更小的弟妹，母亲得空下田。', can: true });
+      A.push({ id: 'c_rest', name: '玩耍将养', cost: 1, eff: '体魄+4', desc: '孩子也得歇，长身子。', can: true });
+    } else if (st.key === 'kid') {
+      A.push({ id: 'c_appr', name: '拜师·学手艺', cost: 2, money: 100, eff: '铜钱-100·技艺进度+1(满2学成)', desc: '贴师父饭食随师学篾木泥水。累计2次学成。', can: S.铜钱 >= 100, why: S.铜钱 >= 100 ? '' : '铜钱不足100文' });
+      A.push({ id: 'c_study2', name: '继续读书', cost: 2, money: 150, eff: '铜钱-150·识字进度+1', desc: '继续入塾进学（累计2次开蒙）。', can: S.铜钱 >= 150, why: S.铜钱 >= 150 ? '' : '铜钱不足150文' });
+      A.push({ id: 'c_plow', name: '随父·下田', cost: 1, eff: '农事历练+1·体魄+3', desc: '正经跟父亲学庄稼把式。', can: true });
+      A.push({ id: 'c_chore', name: '挑水·舂米', cost: 1, eff: '家务历练+1·体魄+2', desc: '担起家里的重活。', can: true });
+      A.push({ id: 'c_hire', name: '打零工', cost: 1, eff: '铜钱+50·体魄-2', desc: '给殷实人家做零活挣现钱。', can: true });
+      A.push({ id: 'c_rest', name: '歇息将养', cost: 1, eff: '体魄+4', desc: '别把半大身子累垮。', can: true });
+    } else { // teen
+      A.push({ id: 'c_strong', name: '强身·习劳', cost: 2, eff: '存米-1·体魄+10', desc: '卯足劲儿长成壮劳力（吃得多）。', can: S.存米 >= 1, why: S.存米 >= 1 ? '' : '存米不足1石', once: true });
+      A.push({ id: 'c_plow', name: '下田·历练', cost: 1, eff: '农事历练+1·体魄+3', desc: '成丁前把田里把式练扎实。', can: true });
+      A.push({ id: 'c_craft', name: '精进·手艺', cost: 1, eff: (S.技艺进度 > 0 || S.技艺 !== '无') ? '技艺进度+1·铜钱+40' : '（尚无手艺根底）', desc: '接零活磨手艺、挣现钱。', can: S.技艺进度 > 0 || S.技艺 !== '无', why: (S.技艺进度 > 0 || S.技艺 !== '无') ? '' : '未曾学过手艺' });
+      A.push({ id: 'c_study3', name: '温书·习字', cost: 1, eff: '识字进度+1', desc: '把认得的字记牢，日后记账当役不吃亏。', can: true });
+      A.push({ id: 'c_hire', name: '打短工·攒钱', cost: 1, eff: '铜钱+80·体魄-2', desc: '给人打短工攒点防身钱。', can: true });
+      A.push({ id: 'c_rest', name: '歇息将养', cost: 1, eff: '体魄+4', desc: '养回体魄。', can: true });
+    }
+    return A;
+  }
+
+  function isChildOnce(id) {
+    var a = childActions().filter(function (x) { return x.id === id; })[0];
+    return a && a.once;
+  }
+
+  function addChildPick(id) {
+    var a = childActions().filter(function (x) { return x.id === id; })[0];
+    if (!a || !a.can || a.cost > childRemainAP()) return;
+    if (a.once && childPicks.some(function (p) { return p.id === id; })) return;
+    childPicks.push({ id: a.id, name: a.name, cost: a.cost, money: a.money || 0 });
+    renderChildhood();
+  }
+
+  // 成长档案条：识字/技艺/历练进度可视化
+  function childDossier() {
+    var rows = [
+      { label: '识字开蒙', cur: S.识字 ? 2 : S.识字进度, max: 2, done: S.识字, doneTxt: '已识字', cls: 'g-ok' },
+      { label: '手艺傍身', cur: S.技艺 !== '无' ? 2 : S.技艺进度, max: 2, done: S.技艺 !== '无', doneTxt: '已学成', cls: 'g-good' },
+      { label: '农事历练', cur: Math.min(6, S.农事历练), max: 6, done: false, cls: 'g-thin' },
+      { label: '家务历练', cur: Math.min(6, S.家务历练), max: 6, done: false, cls: 'g-thin' }
+    ];
+    var h = '<div class="crop-bar g-ok"><div class="cb-head"><span class="cb-title">🧒 成长档案 · 这些年攒下的底子</span>' +
+      '<span class="cb-val">体魄 ' + S.体魄 + '</span></div>';
+    rows.forEach(function (r) {
+      var pct = Math.round(r.cur / r.max * 100);
+      h += '<div style="margin:.25rem 0"><div class="cb-head" style="font-size:.85em"><span>' + r.label + '</span>' +
+        '<span class="cb-val">' + (r.done ? r.doneTxt : (r.cur + '/' + r.max)) + '</span></div>' +
+        '<div class="cb-track"><i style="width:' + pct + '%"></i></div></div>';
+    });
+    h += '</div>';
+    return h;
+  }
+
+  function renderChildhood() {
+    if (gameOver) return;
+    var st = CHILD_STAGES[childStage];
+    var isLast = (childRound === st.rounds - 1);
+    var h = '';
+    h += '<div class="season-line phase">◆ 幼年 · ' + st.name + '（' + st.age + '岁）｜ 第 ' + (childRound + 1) + ' / ' + st.rounds + ' 轮</div>';
+    h += '<div class="phase-note">' + st.note + '</div>';
+    h += childDossier();
+
+    var narr;
+    if (childStage === 0 && childRound === 0) narr = '你降生在江南一户民籍佃农家，<span class="em">排行次子</span>。这户有薄田 ' + S.田亩 + ' 亩、存米 ' + S.存米 + ' 石。往后十几年，你一天天长大，家里也一年年在耕、在缴租、在吃饭——你的每一样活计，都掺进这本家计账里。';
+    else if (isLast) narr = '这一段的日子将到头。手里还有几分气力，是再学一学、练一练，还是帮衬家里？段末就要结这几年的家计账了。';
+    else narr = '日子一天天地过。你掂量着这点力气：是去认几个字、学门手艺，还是下田、帮补家用、带弟妹？';
+    h += '<div class="narr">' + narr + '</div>';
+
+    h += '<div class="events">';
+    curChildEvents.forEach(function (e) { h += '<div class="evt ' + e.t + '"><span class="tag">' + e.tag + '</span>' + e.txt + '</div>'; });
+    h += '</div>';
+
+    if (childResolved) {
+      h += childResolved;
+      var btnLabel;
+      if (S._childDied) btnLabel = '这一世早夭 · 由弟妹接续（递归重开）→';
+      else if (childStage >= CHILD_STAGE_N - 1 && isLast) btnLabel = '十六成丁 · 下田立身 →';
+      else if (isLast) btnLabel = '长大几岁 · 步入 ' + CHILD_STAGES[childStage + 1].name + ' →';
+      else btnLabel = '过些日子 · 下一轮 →';
+      h += '<div class="commit"><button id="btn-cnext">' + btnLabel + '</button></div>';
+      $('stage').innerHTML = h;
+      var nb = $('btn-cnext'); if (nb) nb.addEventListener('click', nextChildRound);
+      return;
+    }
+
+    h += '<div class="ap-head"><h3>' + (isLast ? '这一轮（段末）· 分配行动点' : '这一轮 · 分配行动点') + '</h3>' +
+      '<span class="ap-dots">剩余 <b>' + childRemainAP() + '</b> / ' + CHILD_AP + ' 点</span></div>';
+    h += '<div class="actions">';
+    childActions().forEach(function (a) {
+      var picked = childPicks.filter(function (p) { return p.id === a.id; }).length;
+      var disabled = !a.can || a.cost > childRemainAP() || (picked > 0 && a.once);
+      h += '<button class="act" data-id="' + a.id + '"' + (disabled ? ' disabled' : '') + '>' +
+        '<span class="a-top"><span class="a-name">' + a.name + '</span>' +
+        '<span class="a-cost">' + a.cost + '点' + (a.money ? ' -' + a.money + '文' : '') + '</span></span>' +
+        '<span class="a-eff">▸ ' + a.eff + '</span>' +
+        '<span class="a-desc">' + a.desc + (a.can ? '' : '（' + (a.why || '不可选') + '）') + '</span>' +
+        (picked ? '<span class="a-picked">已选 ×' + picked + '</span>' : '') +
+        '</button>';
+    });
+    h += '</div>';
+    h += '<div class="commit">';
+    h += '<button id="btn-ccommit"' + (childPicks.length ? '' : ' disabled') + '>' + (isLast ? '结算这一轮并结家计账 →' : '结算这一轮 →') + '</button>';
+    h += '<span class="hint">' + (childPicks.length ? ('已排：' + childPicks.map(function (p) { return p.name; }).join('、')) : '点上面的活计来安排这一轮。行动点用不完也可提前结算。') + '</span>';
+    h += '</div>';
+
+    $('stage').innerHTML = h;
+    Array.prototype.forEach.call(document.querySelectorAll('.act:not(:disabled)'), function (btn) {
+      btn.addEventListener('click', function () { addChildPick(btn.getAttribute('data-id')); });
+    });
+    var cb = $('btn-ccommit'); if (cb) cb.addEventListener('click', commitChildRound);
+  }
+
+  function commitChildRound() {
+    var before = snapshot();
+    var log = [];
+    var wellCared = false;
+    childPicks.forEach(function (p) {
+      switch (p.id) {
+        case 'c_fine': S.体魄 += 8; S.家族 += 2; wellCared = true; S.母出工 = false; log.push(['母亲停农精养，体魄+8、家族+2（少一劳力，夭折率↓）', 'good']); break;
+        case 'c_nurse': S.体魄 += 3; log.push(['寻常哺乳，体魄+3', 'good']); break;
+        case 'c_herb': S.铜钱 -= p.money; S.体魄 += 6; wellCared = true; log.push(['求医问药，铜钱-60、体魄+6（夭折率↓）', 'good']); break;
+        case 'c_sib': S.家族 += 3; S.体魄 += 1; log.push(['兄姊帮看顾，家族+3、体魄+1', 'good']); break;
+        case 'c_care': S.家族 += 3; log.push(['带弟妹，家族+3', 'good']); break;
+        case 'c_cow': S.铜钱 += 20; S.家务历练 += 1; log.push(['放牛拾柴，铜钱+20、家务历练+1', 'good']); break;
+        case 'c_pig': S.家务历练 += 1; S.家族 += 1; log.push(['打猪草喂猪，家务历练+1、家族+1', 'good']); break;
+        case 'c_field': S.农事历练 += 1; S.体魄 += 2; log.push(['田头帮工，农事历练+1、体魄+2', 'good']); break;
+        case 'c_plow': S.农事历练 += 1; S.体魄 += 3; log.push(['随父下田，农事历练+1、体魄+3', 'good']); break;
+        case 'c_chore': S.家务历练 += 1; S.体魄 += 2; log.push(['挑水舂米，家务历练+1、体魄+2', 'good']); break;
+        case 'c_hire': S.铜钱 += 50; S.体魄 -= 2; log.push(['打零工，铜钱+50、体魄-2', 'good']); break;
+        case 'c_study': case 'c_study2':
+          S.铜钱 -= p.money; S.识字进度 += 1;
+          if (!S.识字 && S.识字进度 >= 2) { S.识字 = true; log.push(['入塾进学，识字进度满 2 —— 开蒙识字！铜钱-' + p.money, 'good']); }
+          else log.push(['入塾进学，识字进度+1（' + Math.min(2, S.识字进度) + '/2），铜钱-' + p.money, 'good']); break;
+        case 'c_study3': S.识字进度 += 1; if (!S.识字 && S.识字进度 >= 2) { S.识字 = true; log.push(['温书习字，识字进度满 2 —— 开蒙识字！', 'good']); } else log.push(['温书习字，识字进度+1（' + Math.min(2, S.识字进度) + '/2）', 'good']); break;
+        case 'c_appr':
+          S.铜钱 -= p.money; S.技艺进度 += 1;
+          if (S.技艺 === '无' && S.技艺进度 >= 2) { S.技艺 = '手艺'; log.push(['随师满 2 次 —— 学成一门手艺（篾木泥水）傍身！铜钱-100', 'good']); }
+          else log.push(['拜师学艺，技艺进度+1（' + Math.min(2, S.技艺进度) + '/2），铜钱-100', 'good']); break;
+        case 'c_craft': S.技艺进度 += 1; S.铜钱 += 40; if (S.技艺 === '无' && S.技艺进度 >= 2) { S.技艺 = '手艺'; log.push(['精进手艺满 2 —— 学成手艺傍身！铜钱+40', 'good']); } else log.push(['精进手艺，技艺进度+1、铜钱+40', 'good']); break;
+        case 'c_strong': S.存米 -= 1; S.体魄 += 10; log.push(['强身习劳，体魄+10（存米-1）', 'good']); break;
+        case 'c_rest': S.体魄 += 4; log.push(['歇息将养，体魄+4', 'good']); break;
+      }
+    });
+    clampAttr('体魄'); clampAttr('家族');
+
+    var st = CHILD_STAGES[childStage];
+    var isLast = (childRound === st.rounds - 1);
+    if (isLast) {
+      settleHousehold(log, wellCared);          // 段末家计结算（存米涨落）
+      if (!S._childDied) rollChildMortality(log, wellCared); // 段末早夭概率分支
+    }
+
+    if (S.存米 < 0) S.存米 = 0;
+    recordEntry(childPicks.length ? (st.name + '：' + childPicks.map(function (p) { return p.name; }).join('、')) : (st.name + '·无所事事'), before, isLast ? ('第' + (childStage + 1) + '段家计已结') : '');
+
+    var rh = '<div class="resolve"><h4>结算 · ' + st.name + '（' + st.age + '岁）· 第 ' + (childRound + 1) + '/' + st.rounds + ' 轮</h4>';
+    if (!log.length) rh += '<div class="line">这一轮无所作为，光阴空过。</div>';
+    log.forEach(function (l) { rh += '<div class="line ' + l[1] + '">· ' + l[0] + '</div>'; });
+    var after = snapshot();
+    rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">守恒：铜钱 ' + before.铜钱 + '→' + after.铜钱 + ' ｜ 存米 ' + before.存米 + '→' + after.存米 + ' ｜ 体魄 ' + before.体魄 + '→' + after.体魄 + '</div>';
+    rh += '</div>';
+    childResolved = rh;
+    renderChildhood(); renderLedger(); renderStatus();
+  }
+
+  // 段末家计结算：父母耕田毛产 − 佃租 − 全家口粮（占位：亩产~2石/年、每口~1石/年）
+  function settleHousehold(log, wellCared) {
+    var st = CHILD_STAGES[childStage];
+    var nextAge = (childStage < CHILD_STAGE_N - 1) ? CHILD_STAGES[childStage + 1].age : 16;
+    var years = Math.max(1, nextAge - st.age);
+    var gross = S.田亩 * 2 * years;                    // 父母耕作毛产
+    var wr = rollProb([{ p: 0.30, r: '丰' }, { p: 0.45, r: '平' }, { p: 0.25, r: '歉' }]);
+    var wd = wr === '丰' ? Math.round(gross * 0.2) : wr === '歉' ? -Math.round(gross * 0.2) : 0;
+    gross += wd;
+    var rent = S.租额石 * years;
+    // 母亲精养/求医这一段少了一个劳力，口粮照吃：多耗一点
+    var food = st.mouths * years + (wellCared ? years : 0);
+    var net = gross - rent - food;
+    S.存米 += net;
+    log.push(['〔家计·经历' + years + '年〕父母耕' + S.田亩 + '亩毛产' + gross + '石（' + wr + '年）− 佃租' + rent + '石 − 全家口粮' + food + '石 = 存米' + (net >= 0 ? '+' + net : net) + '石',
+      net >= 0 ? 'good' : 'bad']);
+    if (S.存米 < 0) {
+      var借 = -S.存米; S.存米 = 0; S.负债银 += Math.ceil(借 / 3); S.家族 -= 4;
+      log.push(['存米见底，青黄不接只得借贷度荒：负债+' + Math.ceil(借 / 3) + '两、家族-4', 'bad']);
+    }
+  }
+
+  // 段末早夭概率分支（Coale-Demeny：越小越危险；体魄/精养可降低）
+  function rollChildMortality(log, wellCared) {
+    var st = CHILD_STAGES[childStage];
+    var base = { baby: 0.16, tot: 0.06, kid: 0.03, teen: 0.01 }[st.key] || 0.02;
+    if (wellCared) base *= 0.5;
+    if (S.体魄 >= 70) base *= 0.7;
+    var pct = Math.round(base * 100);
+    if (rollProb([{ p: base, r: 'die' }, { p: 1 - base, r: 'live' }]) === 'die') { childDeath(log); }
+    else { log.push(['〔天命·' + st.name + '〕闯过这一段的疫病风寒（本段夭折概率约 ' + pct + '%），平安长大。', 'good']); }
+  }
+
+  // 早夭：真实概率分支，非惩罚；本户资源原样传给接续的弟妹（递归重开）
+  function childDeath(log) {
+    var st = CHILD_STAGES[childStage];
+    S._childDied = true;
+    S._carry = { 白银: S.白银, 存米: Math.max(0, S.存米), 铜钱: S.铜钱, 田亩: S.田亩, 家族: Math.max(20, S.家族 - 4) };
+    log.push(['幼殇于' + st.name + '（' + st.age + '岁）——依 Coale-Demeny 模型(出生预期寿命≈30岁)，约半数孩子活不到二十岁。这不是你的过错，是那个时代的真实概率。本户田产由弟妹接续。', 'bad']);
+  }
+
+  function nextChildRound() {
+    if (S._childDied) { startNextGeneration(); return; }
+    childResolved = null; childPicks = [];
+    var st = CHILD_STAGES[childStage];
+    if (childRound < st.rounds - 1) {
+      childRound += 1; rollChildRound();
+      renderChildhood(); renderStatus(); renderLedger();
+    } else if (childStage < CHILD_STAGE_N - 1) {
+      childStage += 1; childRound = 0; S.年龄 = CHILD_STAGES[childStage].age; rollChildRound();
+      renderChildhood(); renderStatus(); renderLedger();
+    } else {
+      enterFarm();
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 幼年结束 → 十六成丁，步入佃田一季（沿用旬循环）
+  function enterFarm() {
+    phase = 'farm'; S.年龄 = 16; S.身份 = '民籍·佃农子'; picks = []; resolved = null; curStage = null;
+    var 底子 = [];
+    if (S.识字) 底子.push('略识文字（记账当役不吃亏）');
+    if (S.技艺 !== '无') 底子.push('有手艺傍身（可退可进的后路）');
+    if (S.农事历练 >= 3) 底子.push('农活扎实（下田更耐劳）');
+    if (S.家务历练 >= 3) 底子.push('家务麻利');
+    recordEntry('十六成丁·立身开账', snapshot(), '幼年既过，成丁下田。' + (底子.length ? '这些年攒下：' + 底子.join('、') + '。' : '这些年不曾攒下特别的底子，只识些寻常农事。'));
+    rollXun(); renderStatus(); renderStage(); renderLedger();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   // ═══════════════ 人生阶段决策机 ═══════════════
   function enterPhase(p) {
     phase = p; picks = []; resolved = null;
@@ -333,26 +619,6 @@
     else if (p === 'elder') { S.年龄 = 55; curStage = stageElder(); }
     else if (p === 'death') { S.年龄 = S._deathAge || 58; curStage = stageDeath(); }
     renderStatus(); renderLifeStage(); renderLedger();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  // 幼年推进：下一步 or 步入农事立身
-  function advanceChildhood() {
-    if (S._childDied) { startNextGeneration(); return; }
-    childStep += 1;
-    if (childStep < CHILD_STEPS) {
-      curStage = childhoodStage(childStep);
-      renderStatus(); renderLifeStage(); renderLedger();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      enterFarm();
-    }
-  }
-  // 幼年结束 → 十六成丁，步入佃田一季（沿用旬循环）
-  function enterFarm() {
-    phase = 'farm'; S.年龄 = 16; S.身份 = '民籍·佃农子'; picks = []; resolved = null; curStage = null;
-    recordEntry('十六成丁·立身开账', snapshot(), '幼年既过，成丁下田。' + (S.识字 ? '略识文字，日后记账当役不吃亏。' : '未曾识字，只识农事。') + (S.技艺 !== '无' ? '习得' + S.技艺 + '，是条可退可进的后路。' : ''));
-    rollXun(); renderStatus(); renderStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -429,123 +695,6 @@
     S.子数 = sons; S.女数 = daus; S.存米 = Math.max(0, S.存米 - sons - daus); // 养育耗口粮
     log.push(['生育结算（概率）：育成 ' + sons + ' 男 ' + daus + ' 女，养育耗存米 ' + (sons + daus) + ' 石', sons > 0 ? 'good' : 'bad']);
     if (sons === 0) log.push(['暂无育成男丁——夭折是概率非惩罚，日后或需过继立嗣', 'bad']);
-  }
-
-  // ── 幼年阶段（出生→成丁，共4步）──
-  // 早夭是明代极高的真实概率分支，不是"失败评分"；夭折则由同胞弟妹接续本户（递归重开）。
-  function childDeath(log) {
-    S._childDied = true;
-    // 夭折不改变家产，本户资源原样传给接续的弟妹
-    S._carry = { 白银: S.白银, 存米: Math.max(0, S.存米), 铜钱: S.铜钱, 田亩: S.田亩, 家族: Math.max(20, S.家族 - 4) };
-    log.push(['幼殇——依 Coale-Demeny 模型(出生预期寿命≈30岁)，约半数孩子活不到二十岁。这不是你的过错，是那个时代的真实概率。', 'bad']);
-  }
-  function childhoodStage(step) {
-    if (step === 0) {
-      S.年龄 = 1;
-      return {
-        title: '襁褓 · 一岁', label: '襁褓', next: 'childhood', nextLabel: '熬过襁褓 · 长到七岁 →',
-        note: '明代婴幼儿死亡率极高〔CONFIRMED 模型层面／存疑 明代适用性〕。此处早夭为概率分支，非惩罚分。',
-        narrative: '你降生在江南一户民籍佃农家，<span class="em">排行次子</span>。头两年最难养——一场时疫、一次风寒都可能夭折。母亲要不要停下田里的活、精心照护你，是这户人家第一道取舍。',
-        events: [{ t: 'rel', tag: '[抚育]', txt: '母亲若专心哺育你，便要少一个下田帮工的劳力；若忙于农事粗养，你活下来的机会就低些。' }],
-        prompt: '这一岁，如何抚育？（择一）',
-        choices: [
-          {
-            name: '母亲专心哺育·精养', cost: '存米1石（少一劳力）', gain: '体魄+15、家族+4',
-            prob: '平安存活 95% ｜ 夭折 5%',
-            can: S.存米 >= 1, why: '需存米≥1石',
-            run: function (log) {
-              S.存米 -= 1;
-              if (rollProb([{ p: 0.95, r: 'live' }, { p: 0.05, r: 'die' }]) === 'live') { S.体魄 += 15; S.家族 += 4; log.push(['母亲精心哺育，平安度过襁褓。体魄+15、家族+4（存米-1）', 'good']); }
-              else childDeath(log);
-            }
-          },
-          {
-            name: '粗养·母亲照旧下田', cost: '不花钱（省一劳力）', gain: '体魄+6',
-            prob: '平安存活 80% ｜ 夭折 20%',
-            can: true,
-            run: function (log) {
-              if (rollProb([{ p: 0.80, r: 'live' }, { p: 0.20, r: 'die' }]) === 'live') { S.体魄 += 6; log.push(['粗养也熬了过来，母亲得以下田帮工。体魄+6', 'good']); }
-              else childDeath(log);
-            }
-          }
-        ]
-      };
-    }
-    if (step === 1) {
-      S.年龄 = 7;
-      return {
-        title: '蒙童 · 七岁', label: '蒙童', next: 'childhood', nextLabel: '再长几岁 · 半大小子 →',
-        note: '识字与否影响日后记账、当役、经商的可能。〔机制事实／束脩银额为占位〕',
-        narrative: '你已<span class="em">七岁</span>，能跑能跳。村里有蒙师开馆，也有人家早早让孩子放牛拾柴、帮补家用。识几个字，将来当役记账、进城谋生都吃得开；可束脩要花钱，家里未必舍得。',
-        events: [{ t: 'rand', tag: '[蒙学]', txt: '识字是佃农子跳出田亩的第一块跳板，但对次子而言，多一双下田的手也很实在。' }],
-        prompt: '这几年怎么过？（择一）',
-        choices: [
-          {
-            name: '入村塾·开蒙识字', cost: '铜钱400文（束脩）', gain: '识字、家族+6',
-            prob: '必然：读书识字（日后记账/当役/经商更有底气）',
-            can: S.铜钱 >= 400, why: '需铜钱≥400文',
-            run: function (log) { S.铜钱 -= 400; S.识字 = true; S.家族 += 6; log.push(['入村塾开蒙，粗识文字。铜钱-400、家族+6，识字=已启蒙', 'good']); }
-          },
-          {
-            name: '在家放牛·帮补农活', cost: '不花钱', gain: '存米+1、体魄+4',
-            prob: '必然：不识字，但早早历练农事',
-            can: true,
-            run: function (log) { S.存米 += 1; S.体魄 += 4; log.push(['放牛拾柴、帮补家用，早识农事。存米+1、体魄+4（未识字）', 'good']); }
-          }
-        ]
-      };
-    }
-    if (step === 2) {
-      S.年龄 = 11;
-      return {
-        title: '半大小子 · 十一岁', label: '半大', next: 'childhood', nextLabel: '将近成丁 →',
-        note: '一门手艺是佃农子"可退可进"的后路。〔机制事实／学徒年限银额为占位〕',
-        narrative: '你已是<span class="em">十一岁</span>的半大小子，开始能顶半个劳力。是拜个师傅学门手艺（篾、木、泥水），给自己留条田亩之外的活路；还是跟着父亲下田，把庄稼把式学扎实？',
-        events: [{ t: 'rel', tag: '[立身]', txt: '手艺人农闲可挣现钱、荒年不至饿死；但学徒几年要贴饭食、且未必学成。' }],
-        prompt: '往哪条路上使劲？（择一）',
-        choices: [
-          {
-            name: '拜师学一门手艺', cost: '铜钱300文（贴师父饭食）', gain: '技艺=手艺（篾木泥水）、家族+3',
-            prob: '学成 80%（技艺傍身）｜ 半途而废 20%（钱花了没学成）',
-            can: S.铜钱 >= 300, why: '需铜钱≥300文',
-            run: function (log) {
-              S.铜钱 -= 300; S.家族 += 3;
-              if (rollProb([{ p: 0.80, r: 'ok' }, { p: 0.20, r: 'no' }]) === 'ok') { S.技艺 = '手艺'; log.push(['拜师学成一门手艺！铜钱-300、家族+3，技艺=手艺（农闲可挣现钱）', 'good']); }
-              else log.push(['学徒半途而废，铜钱-300、家族+3，技艺仍无（师徒缘浅）', 'bad']);
-            }
-          },
-          {
-            name: '随父下田·练庄稼把式', cost: '不花钱', gain: '体魄+10、存米+1',
-            prob: '必然：农活扎实（下田一季更耐劳）',
-            can: true,
-            run: function (log) { S.体魄 += 10; S.存米 += 1; log.push(['随父下田，庄稼把式渐熟。体魄+10、存米+1', 'good']); }
-          }
-        ]
-      };
-    }
-    // step 3
-    S.年龄 = 15;
-    return {
-      title: '成丁前夕 · 十五岁', label: '将成丁', next: 'childhood', nextLabel: '十六成丁 · 下田立身 →',
-      note: '成丁在即，最后一年为立身打底。次子分不到多少田，出路全看这十几年攒下的身子、识字与手艺。',
-      narrative: '你<span class="em">十五岁</span>了，明年便要成丁入黄册、正式承担赋役。回望这一路：' + (S.识字 ? '识得几个字，' : '不曾识字，') + (S.技艺 !== '无' ? '有一门手艺傍身，' : '无甚手艺，') + '眼下体魄 ' + S.体魄 + '。最后一年，是把身子练得更结实，还是先攒点钱防身？',
-      events: [{ t: 'rand', tag: '[立身]', txt: '成丁后即接手佃田一季——你在幼年攒下的一切，都会化成下田那一季的底子。' }],
-      prompt: '成丁前的最后一年怎么过？（择一）',
-      choices: [
-        {
-          name: '强身习劳·练壮身子', cost: '存米1石（吃得多）', gain: '体魄+16',
-          prob: '必然：成丁时身强力壮（下田耐得住）',
-          can: S.存米 >= 1, why: '需存米≥1石',
-          run: function (log) { S.存米 -= 1; S.体魄 += 16; log.push(['卯足劲儿强身习劳，长成壮劳力。体魄+16（存米-1）', 'good']); }
-        },
-        {
-          name: '打短工·攒点防身钱', cost: '体魄-4（累）', gain: '铜钱+300',
-          prob: '必然：攒下现钱，但身子略透支',
-          can: true,
-          run: function (log) { S.体魄 -= 4; S.铜钱 += 300; log.push(['给人打短工攒钱，铜钱+300、体魄-4（成丁下田先垫着）', 'bad']); }
-        }
-      ]
-    };
   }
 
   // ── 成家（20岁）──
