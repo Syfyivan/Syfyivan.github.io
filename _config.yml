@@ -45,6 +45,7 @@ skip_render:
   - road-trip-2026/**
   - ming-life-tree/**
   - ming-life-sim-gdd/**
+  - ming-demo/**
 
 # Writing
 new_post_name: :title.md # File name of new posts
