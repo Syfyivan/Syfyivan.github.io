@@ -166,7 +166,7 @@
       var disabled = !a.can || a.cost > remainAP() || (picked > 0 && a.once !== false && isOnce(a.id));
       h += '<button class="act" data-id="' + a.id + '"' + (disabled ? ' disabled' : '') + '>' +
         '<span class="a-top"><span class="a-name">' + a.name + '</span>' +
-        '<span class="a-cost">' + a.cost + '点' + (a.money ? ' +' + a.money + '文' : '') + '</span></span>' +
+        '<span class="a-cost">' + a.cost + '点' + (a.money ? ' -' + a.money + '文' : '') + '</span></span>' +
         '<span class="a-desc">' + a.desc + (a.can ? '' : '（' + (a.why || '不可选') + '）') + '</span>' +
         (picked ? '<span class="a-picked">已选 ×' + picked + '</span>' : '') +
         '</button>';
