@@ -14,6 +14,11 @@
   var HARVEST_XUN = 8;
   var AP_PER_XUN = 4;
   var GROW_TARGET = 12;
+  var FARM_YEARS = 3;      // 成丁后佃田耕作的农年数（16→18岁），每年秋收强制结算佃约
+  var YEAR_KOULIANG = 3;   // 全家一年口粮消耗（石·占位）
+  var RENT_SEIZE_P = 0.35; // 欠租被夺佃概率（占位）
+  var CORVEE_P = 0.40;     // 里甲赋役佥派概率（占位）
+  var DEBT_RATE = 0.2;     // 旧债年息（占位）
 
   // ── 幼年阶段：分段 + 每段行动点循环（与农事同构）──
   // 每一"段"代表一个成长年龄区间；每段内有若干"轮"日常活计，每轮分配行动点。
@@ -37,6 +42,7 @@
 
   // ── 全局状态 ───────────────────────────────────
   var S, ledger, seq, xunIndex, picks, resolved, gameOver;
+  var _yearEndNext = null;   // 年终结账面板之后要去的地方：'newyear' | 'marriage'
   var phase;                 // 'childhood' | 'farm' | 'marriage' | 'household' | 'elder' | 'death'
   var generation = 0;        // 第几代
   var carryOver = null;      // 上一代传下的期初结余
@@ -52,7 +58,7 @@
       年龄: 1, 身份: '民籍·佃农子(孩提)',
       体魄: 60, 家族: 60,
       白银: 1, 铜钱: 1200, 存米: 3,
-      秧苗进度: 0, 已插秧: false, 田亩: 4, 租额石: 3, 菜圃进度: 0, 母出工: true,
+      秧苗进度: 0, 已插秧: false, 田亩: 4, 租额石: 3, 菜圃进度: 0, 母出工: true, 农年: 1,
       // 幼年字段
       识字: false, 技艺: '无', 兄弟序: 1, 农事历练: 0, 家务历练: 0, 识字进度: 0, 技艺进度: 0,
       // 人生链路字段
@@ -66,6 +72,7 @@
       S.家族 = Math.max(20, Math.min(80, carry.家族 == null ? 60 : carry.家族));
     }
     ledger = []; seq = 0; xunIndex = 0; picks = []; resolved = null; gameOver = false;
+    _yearEndNext = null;
     phase = 'childhood';
     childStage = 0; childRound = 0; childPicks = []; childResolved = null;
     S.年龄 = CHILD_STAGES[0].age;
@@ -163,7 +170,7 @@
     curEvents = [];
     if (!S.已插秧 && xunIndex <= 2) curEvents.push({ t: 'nong', tag: '[农时]', txt: '秧苗待插，立夏正是插秧时。错过则误农时、影响收成。' });
     if (S.已插秧 && xunIndex >= 2 && xunIndex < HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[农时]', txt: '禾苗生长中，需时时看水、除草。当前生长 ' + S.秧苗进度 + '/' + GROW_TARGET + '。' });
-    if (xunIndex === HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[农时]', txt: '夏至已过，稻谷成熟，正是收割结算之时！' });
+    if (xunIndex === HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[农时]', txt: '夏至已过，稻谷成熟，正是收割之时！秋收之后便是<b>年终结账</b>：佃租照约要缴、全家口粮照吃，缴不出便得折银举债，甚至被夺佃——由不得你选。' });
     if (xunIndex === 3 && S.母出工) curEvents.push({ t: 'rel', tag: '[关系]', txt: '母亲腰痛加重。若这一旬去照护，可稳住她的身子（家族+4），否则她将无法帮工。' });
     S._米价 = (Math.random() < 0.5) ? '低' : '高';
     curEvents.push({ t: 'rand', tag: '[随机]', txt: '米行传来消息：今旬新米价走' + S._米价 + '。' + (S._米价 === '高' ? '若有余米，正是好价钱（1石≈550文）。' : '此时卖米不划算（1石≈350文），可压仓。') });
@@ -175,7 +182,6 @@
     if (xunIndex === HARVEST_XUN) {
       A.push({ id: 'harvest', name: '收割稻谷', cost: 2, eff: '体魄-6·得米按长势(1~7石)', desc: '召集人手抢收。收成取决于这一季的生长与天气。', can: S.已插秧, why: S.已插秧 ? '' : '未曾插秧，无可收' });
       A.push({ id: 'hire_harvest', name: '雇短工助收', cost: 1, money: 100, eff: '铜钱-100·收成+1石', desc: '花100文雇人，抢在天变前收完，减少损耗。', can: S.铜钱 >= 100, why: S.铜钱 >= 100 ? '' : '铜钱不足100文' });
-      A.push({ id: 'pay_rent', name: '向地主缴租', cost: 1, eff: '存米-' + S.租额石 + '石(不足则家族-8)', desc: '按佃约缴租' + S.租额石 + '石米。这是佃田的本分，也是守恒的一环。', can: true });
       A.push({ id: 'rest', name: '歇息养身', cost: 1, eff: '体魄+6', desc: '养回体魄，收割季尤其耗人。', can: true });
     } else {
       A.push({ id: 'plant', name: '水田·插秧', cost: 2, eff: '体魄-4·生长+1·开启生长期', desc: '把秧插下，作物才进入生长期。越早插越好。', can: !S.已插秧, why: S.已插秧 ? '已插过秧' : '' });
@@ -251,6 +257,7 @@
     h += '<span class="chip">田产 <b>' + S.田亩 + '</b>亩</span>';
     if (phase === 'farm') {
       var g = growthInfo();
+      h += '<span class="chip">佃田 <b>第' + S.农年 + '/' + FARM_YEARS + '</b>年</span>';
       h += '<span class="chip crop"><span class="g-dot ' + g.cls + '"></span>庄稼 <b>' + (g.planted ? g.label + ' ' + g.pct + '%' : '未插秧') + '</b></span>';
     } else if (phase === 'childhood') {
       h += '<span class="chip">识字 <b>' + (S.识字 ? '已启蒙' : '未识字') + '</b></span>';
@@ -294,7 +301,7 @@
 
     if (resolved) {
       h += resolved;
-      h += '<div class="commit"><button id="btn-next">' + (xunIndex >= TOTAL_XUN ? '一季终了 · 步入人生下一程 →' : '进入下一旬 →') + '</button></div>';
+      h += '<div class="commit"><button id="btn-next">' + (xunIndex >= HARVEST_XUN ? (S.农年 < FARM_YEARS ? '年终结账 · 缴租嚼用当差 →' : '末年结账 · 步入成家 →') : '进入下一旬 →') + '</button></div>';
       $('stage').innerHTML = h;
       return;
     }
@@ -323,7 +330,7 @@
     $('stage').innerHTML = h;
   }
 
-  function isOnce(id) { return ['plant', 'hire_plant', 'care', 'harvest', 'hire_harvest', 'pay_rent', 'rest', 'exchange'].indexOf(id) >= 0; }
+  function isOnce(id) { return ['plant', 'hire_plant', 'care', 'harvest', 'hire_harvest', 'rest', 'exchange'].indexOf(id) >= 0; }
 
   function narrative() {
     if (xunIndex === 0) return '你是<span class="em">陈阿二</span>' + (generation > 1 ? '（第' + generation + '代）' : '') + '，江南某县民籍佃农之子，十六岁成丁。父兄承了祖业薄田，你分得<span class="em">' + S.田亩 + '亩水田</span>与口粮，向本村地主佃田耕作。这一季从插秧到秋收，能落下多少米、缴完租还剩几何，全看你如何安排这有限的人手与光阴。';
@@ -362,10 +369,6 @@
         case 'rest': S.体魄 += 6; log.push(['歇息养身，体魄+6', 'good']); break;
         case 'harvest': didHarvest = true; S.体魄 -= 6; break;
         case 'hire_harvest': S.铜钱 -= p.money; hiredHarvest = true; log.push(['雇短工助收，付 ' + p.money + ' 文（铜钱-100）', 'bad']); break;
-        case 'pay_rent':
-          if (S.存米 >= S.租额石) { S.存米 -= S.租额石; log.push(['向地主缴租 ' + S.租额石 + ' 石，佃约了讫（存米-' + S.租额石 + '）', 'bad']); }
-          else { S.家族 -= 8; log.push(['存米不足缴租！欠租，家族-8（来年恐失佃权）', 'bad']); }
-          break;
       }
     });
 
@@ -404,6 +407,7 @@
   }
 
   function nextXun() {
+    if (_yearEndNext) { afterYearEnd(); return; } // 年终结账面板 → 续耕/成家
     resolved = null; picks = [];
     xunIndex += 1;
     if (xunIndex >= TOTAL_XUN) { endSeason(); return; }
@@ -412,16 +416,103 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // 农事一季结束 → 结算并步入人生阶段（不再是终局）
+  // 农事一年结束 → 强制结算佃约义务（租/口粮/赋役/债息），再决定续耕或步入成家
+  // 这些义务外生于玩家的行动点选择：不是"选了才缴"，而是"到期照缴，缴不出就折银举债/夺佃"。
   function endSeason() {
     var before = snapshot();
+    var log = [];
+    var 银价 = 550; // 1石米折银占位（文/石，用于折银缴租）
+
+    // ① 佃租：照约必缴（制度义务，非可选）
+    if (S.存米 >= S.租额石) {
+      S.存米 -= S.租额石;
+      log.push(['〔佃租〕按约缴租 ' + S.租额石 + ' 石，佃约了讫（存米-' + S.租额石 + '）', 'bad']);
+    } else {
+      var 欠 = S.租额石 - S.存米;
+      var 缴 = S.存米;
+      S.存米 = 0;
+      // 不足部分折银举债抵租
+      S.负债银 += 欠; // 每欠1石米折银约1两举债（占位）
+      log.push(['〔佃租〕存米仅 ' + 缴 + ' 石，不足租额 ' + S.租额石 + ' 石；欠 ' + 欠 + ' 石折银举债抵租（负债银+' + 欠 + '）', 'bad']);
+      if (Math.random() < RENT_SEIZE_P) {
+        S.田亩 = Math.max(1, S.田亩 - 1);
+        S.家族 -= 6;
+        log.push(['〔夺佃〕两年欠租，地主收回佃田 1 亩、乡里失信（田亩-1、家族-6）——制度性风险，不是你的无能', 'bad']);
+      } else {
+        log.push(['〔宽限〕地主念佃约旧情，暂缓夺佃，但债已挂在账上', 'warn']);
+      }
+    }
+
+    // ② 全家口粮：照吃不误（制度/生理义务）
+    if (S.存米 >= YEAR_KOULIANG) {
+      S.存米 -= YEAR_KOULIANG;
+      log.push(['〔口粮〕全家一年嚼用 ' + YEAR_KOULIANG + ' 石（存米-' + YEAR_KOULIANG + '）', 'bad']);
+    } else {
+      var 缺 = YEAR_KOULIANG - S.存米;
+      var 补钱 = 缺 * 银价;
+      log.push(['〔口粮〕存米不足嚼用，缺 ' + 缺 + ' 石', 'bad']);
+      S.存米 = 0;
+      if (S.铜钱 >= 补钱) { S.铜钱 -= 补钱; log.push(['沽米补口粮，付 ' + 补钱 + ' 文（铜钱-' + 补钱 + '）', 'bad']); }
+      else { S.负债银 += 缺; S.体魄 -= 6; log.push(['无钱沽米，举债糊口并饿了肚子（负债银+' + 缺 + '、体魄-6）', 'bad']); }
+    }
+
+    // ③ 里甲赋役：概率佥派，外生强制
+    if (Math.random() < CORVEE_P) {
+      var 免 = S.识字;
+      if (免 && S.铜钱 >= 200) { S.铜钱 -= 200; log.push(['〔赋役〕本甲轮派差役，识字应吏、纳银代役 200 文脱身（铜钱-200）', 'warn']); }
+      else if (S.白银 >= 1) { S.白银 -= 1; log.push(['〔赋役〕本甲轮派差役，纳银 1 两代役（白银-1）', 'bad']); }
+      else { S.体魄 -= 8; S.家族 -= 3; log.push(['〔赋役〕本甲轮派差役，无银代役只得亲身应役，误了农时（体魄-8、家族-3）', 'bad']); }
+    }
+
+    // ④ 旧债滚息
+    if (S.负债银 > 0) {
+      var 息 = Math.ceil(S.负债银 * DEBT_RATE);
+      S.负债银 += 息;
+      log.push(['〔债息〕旧债 ' + (S.负债银 - 息) + ' 两滚息 ' + 息 + ' 两（负债银→' + S.负债银 + '）', 'bad']);
+    }
+
+    clampAttr('体魄'); clampAttr('家族');
     var comment;
-    if (S.存米 >= 5) comment = '这一季经营得法，缴租之后仓中尚有余粮，可安稳过冬。';
-    else if (S.存米 >= 2) comment = '勉强温饱，缴租后所剩无多。一分耕耘一分收成，看天亦看人。';
-    else if (S.存米 >= 0) comment = '这一季过得紧巴，几乎无米过冬，怕是要向人借贷或打短工补贴。';
-    else comment = '入不敷出，已然欠债。佃农一遇歉年便是如此艰难。';
-    recordEntry('一季秋收了结', before, comment);
-    enterPhase('marriage');
+    if (S.负债银 > 0) comment = '缴租、嚼用、当差之后，账上还挂着 ' + S.负债银 + ' 两债——佃农一遇歉年便是如此，债滚债最是磨人。';
+    else if (S.存米 >= 3) comment = '这一年经营得法，缴租、嚼用、当差之后仓中尚有 ' + S.存米 + ' 石余粮，可安稳过冬。';
+    else comment = '勉强温饱，缴租嚼用之后所剩无多。一分耕耘一分收成，看天亦看人。';
+    recordEntry('第 ' + S.农年 + ' 农年·年终结账（缴租/口粮/赋役/债息）', before, comment);
+
+    // 把强制结算显示给玩家（并保持台账"存米 A→B"连续），再由续耕/成家按钮推进
+    var after = snapshot();
+    var moreYear = (S.农年 < FARM_YEARS);
+    var rh = '<div class="resolve"><h4>第 ' + S.农年 + ' 农年 · 年终结账（照约强制）</h4>';
+    log.forEach(function (l) { rh += '<div class="line ' + (l[1] === 'warn' ? 'good' : l[1]) + '">· ' + l[0] + '</div>'; });
+    rh += '<div class="line" style="margin-top:.4rem">· ' + comment + '</div>';
+    rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">守恒：白银 ' + before.白银 + '→' + after.白银 + ' ｜ 铜钱 ' + before.铜钱 + '→' + after.铜钱 + ' ｜ 存米 ' + before.存米 + '→' + after.存米 + (S.负债银 > 0 ? ' ｜ 负债 ' + S.负债银 + '两' : '') + '</div>';
+    rh += '</div>';
+    resolved = rh;
+    _yearEndNext = moreYear ? 'newyear' : 'marriage';
+    xunIndex = HARVEST_XUN; // 让 renderStage 显示"结账续耕"按钮
+    renderStage(); renderStatus(); renderLedger();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 年终结账面板之后：续下一农年 或 步入成家
+  function afterYearEnd() {
+    resolved = null; picks = [];
+    var nx = _yearEndNext; _yearEndNext = null;
+    if (nx === 'newyear') {
+      S.农年 += 1; S.年龄 = 16 + (S.农年 - 1);
+      startFarmYear();
+    } else {
+      enterPhase('marriage');
+    }
+  }
+
+  // 开一个新的农年：重置旬与庄稼，保留三币种/负债/田亩等跨年账
+  function startFarmYear() {
+    xunIndex = 0; picks = []; resolved = null;
+    S.秧苗进度 = 0; S.已插秧 = false; S.菜圃进度 = 0; S.母出工 = true;
+    recordEntry('第 ' + S.农年 + ' 农年·春耕开账（' + S.年龄 + '岁）', snapshot(),
+      '又是一年立夏。' + (S.负债银 > 0 ? '债还挂在账上（负债 ' + S.负债银 + ' 两），这一年得多挣些米还债、缴租。' : '这一年仍要缴租 ' + S.租额石 + ' 石、供全家嚼用，能落下多少全看安排。'));
+    rollXun(); renderStatus(); renderStage(); renderLedger();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ═══════════════ 幼年阶段（分段行动点循环，与农事同构）═══════════════
