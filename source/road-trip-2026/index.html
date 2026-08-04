@@ -150,6 +150,13 @@ sup a:hover{text-decoration:underline;}
 .leaflet-popup-content{margin:12px 16px;font-size:0.88rem;}
 .map-legend{background:white;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.2);font-size:0.82rem;line-height:1.6;}
 .map-legend b{color:var(--accent);}
+/* 粘性章节导航 */
+.section-nav{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:8px 0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;}
+.section-nav::-webkit-scrollbar{height:0;}
+.section-nav-inner{display:flex;gap:6px;}
+.section-nav a{display:inline-block;padding:6px 14px;border-radius:20px;font-size:0.82rem;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid transparent;transition:all 0.2s;flex-shrink:0;}
+.section-nav a:hover{color:var(--accent);background:var(--accent2-light);}
+.section-nav a.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 </style>
 </head>
 <body>
@@ -201,6 +208,24 @@ sup a:hover{text-decoration:underline;}
     </div>
   </div>
 </div>
+
+<!-- 粘性章节导航 -->
+<nav class="section-nav" id="sectionNav">
+  <div class="container">
+    <div class="section-nav-inner">
+      <a href="#key-points" class="active">出发时间</a>
+      <a href="#rental">租车方案</a>
+      <a href="#overview">路线地图</a>
+      <a href="#time-chart">时间分配</a>
+      <a href="#seg1">每日行程</a>
+      <a href="#hiking">徒步路线</a>
+      <a href="#budget">费用预算</a>
+      <a href="#packing">出行清单</a>
+      <a href="#camper">床车参考</a>
+      <a href="#prep">行前准备</a>
+    </div>
+  </div>
+</nav>
 
 <div class="container">
 
@@ -1279,6 +1304,189 @@ flowchart LR
   </div>
 </section>
 
+<!-- Packing List -->
+<section id="packing">
+  <div class="section-num">Packing List</div>
+  <h2>出行清单</h2>
+  <p class="lead">分两类：<strong>公共装备</strong>4个人只需要带一份，出发前统一采购分摊费用；<strong>个人物品</strong>每人自己准备自己的，按个人需求调整。</p>
+
+  <div style="display:flex;gap:12px;margin:20px 0 8px;flex-wrap:wrap">
+    <button class="tab-btn active" onclick="switchPacking('shared')" id="tab-shared">公共装备（4人共用1份）</button>
+    <button class="tab-btn" onclick="switchPacking('personal')" id="tab-personal">个人物品（每人自备）</button>
+  </div>
+
+  <!-- 公共装备 -->
+  <div id="packing-shared">
+  <div class="callout" style="margin-bottom:14px">
+    <p><strong>公共装备采购原则</strong>：出发前在北京统一采购，费用4人均摊（约925元/人，已计入预算）；优先选轻便耐造的，不要带多余东西；小铁锅/小菜刀可以从家里凑，能省则省。</p>
+  </div>
+
+  <h4 style="margin-top:16px">炊具/餐具</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>物品</th><th>数量</th><th>说明</th><th>谁来带/买</th></tr></thead>
+      <tbody>
+        <tr><td>卡式炉（大火力3.5kW+）</td><td>1个</td><td>岩谷/脉鲜，高原能用</td><td>统一买</td></tr>
+        <tr><td>丁烷气罐</td><td>首购4个</td><td>250g，沿途县城五金店补给（8-10元/罐）</td><td>首购统一买</td></tr>
+        <tr><td>户外高压锅（2-3L）</td><td>1个</td><td><strong>高原必备</strong>，否则米饭煮不熟，卡式炉上10分钟焖饭炖肉</td><td>统一买</td></tr>
+        <tr><td>户外套锅（炒锅+汤锅+煎锅+锅盖）</td><td>1套</td><td>火枫/爱路客，铝合金轻便（1斤多）</td><td>统一买</td></tr>
+        <tr><td>不锈钢烧水壶（1L）</td><td>1个</td><td>卡式炉上2分钟烧开水泡茶泡咖啡</td><td>统一买</td></tr>
+        <tr><td>折叠烧烤炉+碳夹</td><td>1套</td><td>便携折叠款（A4大小），偶尔在允许生火的地方烧烤，不能完全代替卡式炉（很多地方禁明火）</td><td>统一买（约80元）</td></tr>
+        <tr><td>木炭+引火块</td><td>少量</td><td>不要从北京带，沿途县城买，用多少买多少</td><td>沿途采购</td></tr>
+        <tr><td>小铁锅（1-2斤）</td><td>1个</td><td>家里有就带，没有就用套锅的炒锅也行</td><td>谁家里有谁带</td></tr>
+        <tr><td>小菜刀+竹/塑料菜板</td><td>1套</td><td>家里的小菜刀比户外刀好用，用毛巾包好</td><td>谁家里有谁带</td></tr>
+        <tr><td>锅铲+汤勺+削皮刀+开瓶器</td><td>1套</td><td>超市买轻便的</td><td>统一买</td></tr>
+        <tr><td>304不锈钢碗筷勺杯</td><td>4人份</td><td>不要带陶瓷/玻璃，必碎；家里有不锈钢餐具直接带</td><td>统一买或家里凑</td></tr>
+        <tr><td>保温冷藏箱（20-30L）</td><td>1个</td><td>晚上放几瓶冻矿泉水能保冷2-3天，放肉/水果/酸奶</td><td>统一买</td></tr>
+        <tr><td>调料小瓶套装</td><td>1套</td><td>酱油/醋/盐/糖/油/花椒大料，用小分装瓶，从家里装</td><td>家里分装带</td></tr>
+        <tr><td>洗洁精+自己的洗碗布/钢丝球</td><td>1套</td><td>不用民宿的抹布，自己带干净</td><td>统一买</td></tr>
+        <tr><td>84消毒液泡腾片</td><td>1瓶</td><td>消毒锅具餐具擦桌子，十几块钱</td><td>统一买</td></tr>
+        <tr><td>折叠水桶（15L）</td><td>2个</td><td>装水/洗菜/洗碗</td><td>统一买</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:16px">露营/户外</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>物品</th><th>数量</th><th>说明</th><th>谁来带/买</th></tr></thead>
+      <tbody>
+        <tr><td>-10°C~-15°C信封式睡袋</td><td>4个</td><td>迪卡侬TREK500/黑冰G700；全程住店但宾馆被子可能不够厚时加一层，也能午休用</td><td>每人一个，可自己买或统一买</td></tr>
+        <tr><td>保暖抓绒内胆</td><td>4个</td><td>睡袋里加一层，新藏线-20°C也够用</td><td>每人一个</td></tr>
+        <tr><td>折叠桌椅套装</td><td>1桌4椅</td><td>户外做饭吃饭休息用，折叠后很薄</td><td>统一买</td></tr>
+        <tr><td>营灯/露营灯</td><td>2个</td><td>晚上户外照明/停电应急</td><td>统一买</td></tr>
+        <tr><td>汽车遮阳帘</td><td>1套</td><td>侧窗+后挡，开车挡太阳、临时换衣服用</td><td>统一买</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:16px">工具/安全/应急</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>物品</th><th>数量</th><th>说明</th><th>谁来带/买</th></tr></thead>
+      <tbody>
+        <tr><td>防滑链（对应租车型号）</td><td>1套（4条）</td><td>10-12月新藏线/滇藏线可能下雪必备，轮胎店买或租车行租</td><td>出发前/到成都/叶城买</td></tr>
+        <tr><td>车载充气泵</td><td>1个</td><td>轮胎缺气补气用</td><td>统一买或租车行要</td></tr>
+        <tr><td>拖车绳+搭电线</td><td>1套</td><td>陷车/电瓶没电应急</td><td>统一买</td></tr>
+        <tr><td>补胎工具套装</td><td>1套</td><td>偏远地区扎胎临时补胎用</td><td>统一买</td></tr>
+        <tr><td>车载逆变器（12V转220V 300W）</td><td>1个</td><td>给电脑/相机/手机充电，带不动大功率电器</td><td>统一买</td></tr>
+        <tr><td>2个折叠储物箱（约60L）</td><td>2个</td><td>带盖能当凳子坐，放装备/食材/工具分层收纳</td><td>统一买</td></tr>
+        <tr><td>睡袋压缩袋+打包带/弹力绳</td><td>若干</td><td>压缩袋把睡袋压到A4大小，打包绳固定行李防刹车乱飞</td><td>统一买</td></tr>
+        <tr><td>垃圾袋+纸巾+湿纸巾</td><td>大量</td><td>多带垃圾袋，产生垃圾自己带走</td><td>沿途采购</td></tr>
+        <tr><td>应急尿袋+一次性马桶袋</td><td>20个</td><td>新藏线几百公里没厕所必备</td><td>统一买</td></tr>
+        <tr><td>急救包</td><td>1个</td><td>创可贴/碘伏/纱布/绷带/晕车药/肠胃药/感冒药/止痛药</td><td>统一买</td></tr>
+        <tr><td>高反药（红景天/高原安/葡萄糖）</td><td>4人份</td><td>提前一周开始吃红景天，拉萨/叶城买</td><td>到高原前买</td></tr>
+        <tr><td>便携氧气罐</td><td>8-10瓶</td><td>县城买（15-20元/瓶），不要在景区买贵的</td><td>狮泉河/叶城/拉萨买</td></tr>
+        <tr><td>灭火器+三角警示牌</td><td>各1</td><td>租的车一般自带，取车时检查</td><td>租车自带</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:16px">其他公共物品</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>物品</th><th>数量</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>矿泉水/大桶水</td><td>若干</td><td>沿途县城超市买，不要一次买太多占地方</td></tr>
+        <tr><td>公用零食（坚果/巧克力/牛肉干）</td><td>若干</td><td>开车提神补充体力，县城大采购</td></tr>
+        <tr><td>扑克牌/桌游</td><td>1-2副</td><td>晚上民宿没事干的时候玩</td></tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+
+  <!-- 个人物品 -->
+  <div id="packing-personal" style="display:none">
+  <div class="callout" style="margin-bottom:14px">
+    <p><strong>个人物品原则</strong>：每个人自己准备自己的，用软包/登山包装，不要用硬壳行李箱（省空间）；衣服带够保暖的，高原很冷；以下是参考清单，按个人习惯增减。</p>
+  </div>
+
+  <h4 style="margin-top:16px">证件/钱卡（最重要！）</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>物品</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><strong>身份证</strong></td><td>必带！新疆/西藏到处查身份证，没身份证寸步难行</td></tr>
+        <tr><td>驾驶证（司机带）</td><td>至少1个司机带，建议2个以上会开车的都带上</td></tr>
+        <tr><td>学生证（如有）</td><td>很多景区门票半价，能省几百元</td></tr>
+        <tr><td>银行卡+少量现金</td><td>大部分地方能微信支付宝，但偏远地区/信号差的地方备1000-2000元现金</td></tr>
+        <tr><td>手机+充电器+充电宝（20000mAh）</td><td>充电宝必须带，新藏线经常一整天没地方充电</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:16px">衣物（带够保暖的！10-12月高原很冷）</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>物品</th><th>数量</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><strong>羽绒服/冲锋衣（厚款）</strong></td><td>1件</td><td>新藏线/珠峰/喀纳斯早晚-10°C到-20°C必备，选防风防水的</td></tr>
+        <tr><td>抓绒衣/薄羽绒内胆</td><td>1件</td><td>叠穿在冲锋衣里面，灵活增减</td></tr>
+        <tr><td>长袖速干衣/T恤</td><td>4-5件</td><td>别带纯棉的，出汗湿了冷；速干的洗了一晚上能干</td></tr>
+        <tr><td>厚毛衣/卫衣</td><td>1-2件</td><td>城市/民宿里穿</td></tr>
+        <tr><td>厚裤子（加绒冲锋裤/抓绒裤）</td><td>2条</td><td>防风保暖，徒步也能穿</td></tr>
+        <tr><td>秋裤/保暖内衣</td><td>2套</td><td>高原冷，别嫌丑</td></tr>
+        <tr><td>牛仔裤/休闲裤</td><td>1条</td><td>城市里穿舒服</td></tr>
+        <tr><td><strong>防水徒步鞋（中高帮）</strong></td><td>1双</td><td>徒步必备，一定要穿旧的合脚的，别穿新鞋磨脚</td></tr>
+        <tr><td>拖鞋/凉鞋</td><td>1双</td><td>民宿里穿，开车也能换</td></tr>
+        <tr><td>厚袜子（羊毛/速干）</td><td>5-6双</td><td>徒步穿，别带纯棉的</td></tr>
+        <tr><td>内衣裤</td><td>7-10条</td><td>可以买一次性的，85天懒得天天洗</td></tr>
+        <tr><td>帽子（保暖+防晒）</td><td>各1顶</td><td>厚针织帽冷的时候戴，遮阳帽防晒用</td></tr>
+        <tr><td>保暖手套</td><td>1副</td><td>下雪/拍照/徒步冷的时候必备</td></tr>
+        <tr><td>围巾/魔术头巾</td><td>1-2条</td><td>防风沙防晒保暖，万能</td></tr>
+        <tr><td>墨镜</td><td>1副</td><td>高原紫外线强，雪山反光刺眼必备</td></tr>
+        <tr><td>雨衣/一次性雨披</td><td>2件</td><td>徒步/下雨用，比雨伞方便</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:16px">洗漱/护肤</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>物品</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>牙刷牙膏</td><td>自己带，民宿的不好用</td></tr>
+        <tr><td>毛巾/速干毛巾</td><td>至少2条，速干的好带</td></tr>
+        <tr><td>洗面奶/护肤品</td><td>旅行装分装</td></tr>
+        <tr><td><strong>防晒霜（SPF50+）</strong></td><td>高原紫外线极强，不防晒会脱皮</td></tr>
+        <tr><td>润唇膏</td><td>高原干燥必带，嘴唇会裂</td></tr>
+        <tr><td>保湿霜/护手霜</td><td>高原非常干燥</td></tr>
+        <tr><td>洗发水/沐浴露</td><td>旅行装分装或者到当地买小瓶</td></tr>
+        <tr><td>剃须刀（男生）</td><td>个人用品</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:16px">电子设备</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>物品</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>手机+充电器</td><td>必备，提前下好离线地图</td></tr>
+        <tr><td><strong>充电宝20000mAh</strong></td><td>必备，新藏线经常一天没地方充电</td></tr>
+        <tr><td>充电线（多带一根备用）</td><td>线容易坏/丢</td></tr>
+        <tr><td>相机+存储卡+电池（可选）</td><td>喜欢拍照的带，手机也够用</td></tr>
+        <tr><td>耳机</td><td>开车/休息时用</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:16px">徒步/个人药品</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>物品</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>登山杖（可选）</td><td>徒步省力，雨崩/冈仁波齐转山有用；可到当地买木棍代替</td></tr>
+        <tr><td>护膝（可选）</td><td>下山保护膝盖</td></tr>
+        <tr><td>保温杯（500ml左右）</td><td>高原多喝热水，自己带一个</td></tr>
+        <tr><td>个人常用药</td><td>如果有长期吃的药一定要带够85天的量</td></tr>
+        <tr><td>头灯/小手电</td><td>每人一个，晚上/停电/徒步用</td></tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+</section>
+
 <!-- Car Camper -->
 <section id="camper">
   <div class="section-num">Car Camper</div>
@@ -1620,6 +1828,34 @@ function switchBudget(ver) {
   document.getElementById('tab-p2').classList.toggle('active', ver === 'p2');
   document.getElementById('tab-p4').classList.toggle('active', ver === 'p4');
 }
+function switchPacking(tab) {
+  document.getElementById('packing-shared').style.display = tab === 'shared' ? 'block' : 'none';
+  document.getElementById('packing-personal').style.display = tab === 'personal' ? 'block' : 'none';
+  document.getElementById('tab-shared').classList.toggle('active', tab === 'shared');
+  document.getElementById('tab-personal').classList.toggle('active', tab === 'personal');
+}
+
+// 导航滚动高亮
+(function() {
+  const navLinks = document.querySelectorAll('.section-nav a');
+  const sections = [];
+  navLinks.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const sec = document.getElementById(id);
+    if (sec) sections.push({id, el: sec, link});
+  });
+  function onScroll() {
+    const scrollPos = window.scrollY || document.documentElement.scrollTop;
+    let current = sections[0];
+    for (const s of sections) {
+      if (s.el.offsetTop - 120 <= scrollPos) current = s;
+    }
+    navLinks.forEach(l => l.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', onScroll, {passive: true});
+  onScroll();
+})();
 </script>
 </body>
 </html>
