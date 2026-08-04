@@ -39,6 +39,30 @@
   .chip b{ color:var(--accent); }
   .chip.hp b{ color:var(--accent2); }
   .chip.coin b{ color:var(--info); }
+  .chip.crop{ display:inline-flex; align-items:center; gap:.35rem; }
+  .g-dot{ width:.55rem; height:.55rem; border-radius:50%; display:inline-block; background:var(--muted); }
+  .g-dot.g-none{ background:var(--muted); }
+  .g-dot.g-bad{ background:var(--danger); }
+  .g-dot.g-thin{ background:var(--accent); }
+  .g-dot.g-ok{ background:var(--accent2); }
+  .g-dot.g-good{ background:var(--accent2); box-shadow:0 0 6px var(--accent2); }
+
+  /* 庄稼长势条 */
+  .crop-bar{ background:var(--bg3); border:1px solid var(--rule); border-left:3px solid var(--accent2); border-radius:0 8px 8px 0; padding:.5rem .7rem; margin-bottom:.7rem; }
+  .crop-bar.g-none{ border-left-color:var(--muted); }
+  .crop-bar.g-bad{ border-left-color:var(--danger); }
+  .crop-bar.g-thin{ border-left-color:var(--accent); }
+  .crop-bar.g-ok,.crop-bar.g-good{ border-left-color:var(--accent2); }
+  .cb-head{ display:flex; justify-content:space-between; align-items:baseline; gap:.5rem; flex-wrap:wrap; }
+  .cb-title{ font-size:.84rem; color:var(--ink); }
+  .cb-val{ font-family:var(--mono); font-size:.78rem; color:var(--accent2); }
+  .crop-bar.g-none .cb-val{ color:var(--muted); }
+  .crop-bar.g-bad .cb-val{ color:var(--danger); }
+  .crop-bar.g-thin .cb-val{ color:var(--accent); }
+  .cb-track{ height:8px; background:var(--bg); border-radius:5px; margin:.4rem 0 .35rem; overflow:hidden; border:1px solid var(--rule); }
+  .cb-track i{ display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .3s; }
+  .crop-bar.g-bad .cb-track i{ background:var(--danger); }
+  .cb-tip{ font-size:.72rem; color:var(--muted); }
 
   .main{ display:grid; grid-template-columns:1fr 320px; gap:16px; padding:.4rem 0 2rem; flex:1; }
   @media(max-width:820px){ .main{ grid-template-columns:1fr; } }

@@ -73,6 +73,19 @@
   }
   function clampAttr(k) { if (S[k] < 0) S[k] = 0; if (S[k] > 100) S[k] = 100; }
 
+  // ── 庄稼长势判定（统一口径，状态栏/叙事区/收成公式共用）──
+  function growthInfo() {
+    if (!S.已插秧) return { planted: false, ratio: 0, pct: 0, label: '未插秧', cls: 'g-none', tip: '尚未插秧，作物还没进入生长期' };
+    var ratio = S.秧苗进度 / GROW_TARGET;
+    var pct = Math.max(0, Math.min(100, Math.round(ratio * 100)));
+    var label, cls;
+    if (ratio >= 1) { label = '长足'; cls = 'g-good'; }
+    else if (ratio >= 0.7) { label = '尚可'; cls = 'g-ok'; }
+    else if (ratio >= 0.4) { label = '偏薄'; cls = 'g-thin'; }
+    else { label = '瘦弱'; cls = 'g-bad'; }
+    return { planted: true, ratio: ratio, pct: pct, label: label, cls: cls, tip: '禾苗生长 ' + S.秧苗进度 + '/' + GROW_TARGET + '，长势' + label };
+  }
+
   // ── 本旬天气与事件（每进入一旬生成一次）──────────────
   var curWeather, curEvents;
   function rollXun() {
@@ -122,6 +135,9 @@
     h += '<span class="chip">' + curLabel() + '</span>';
     h += '<span class="chip">年龄 <b>' + S.年龄 + '</b></span>';
     h += '<span class="chip">身份 <b>' + S.身份 + '</b></span>';
+    h += '<span class="chip">佃田 <b>' + S.田亩 + '</b>亩</span>';
+    var g = growthInfo();
+    h += '<span class="chip crop"><span class="g-dot ' + g.cls + '"></span>庄稼 <b>' + (g.planted ? g.label + ' ' + g.pct + '%' : '未插秧') + '</b></span>';
     h += '<span class="chip hp">体魄 <b>' + S.体魄 + '</b></span>';
     h += '<span class="chip">家族 <b>' + S.家族 + '</b></span>';
     h += '<span class="chip coin">白银 <b>' + S.白银 + '</b>两</span>';
@@ -139,6 +155,14 @@
     var last = (xunIndex === HARVEST_XUN);
     var h = '';
     h += '<div class="season-line">◆ ' + curLabel() + ' ｜ 天气：' + curWeather.k + '（' + curWeather.note + '）</div>';
+    // 庄稼长势条：一眼看清插了多少、长到几成
+    var g = growthInfo();
+    h += '<div class="crop-bar ' + g.cls + '">' +
+      '<div class="cb-head"><span class="cb-title">🌾 田亩 ' + S.田亩 + ' 亩 · 庄稼长势</span>' +
+      '<span class="cb-val">' + (g.planted ? (g.label + '（' + S.秧苗进度 + '/' + GROW_TARGET + '，' + g.pct + '%）') : '尚未插秧') + '</span></div>' +
+      '<div class="cb-track"><i style="width:' + g.pct + '%"></i></div>' +
+      '<div class="cb-tip">' + (g.planted ? (S.秧苗进度 >= GROW_TARGET ? '禾苗已<b>长足封顶（12/12）</b>，再看水也不会长了——把人手匀去挣钱或顾家更划算。' : '离"长足丰收（12/12）"还差 ' + (GROW_TARGET - S.秧苗进度) + ' 点生长；勤看水除草、遇喜雨可加快。到 12 即封顶。') : '立夏正是插秧时，越早插下，可生长的旬数越多（生长满 12 即达丰收上限）。') + '</div>' +
+      '</div>';
     h += '<div class="narr">' + narrative() + '</div>';
 
     // 事件
@@ -214,7 +238,10 @@
       switch (p.id) {
         case 'plant': S.已插秧 = true; S.秧苗进度 += 1; S.体魄 -= 4; didPlantThisXun = true; log.push(['插秧完成，禾苗入田', 'good']); break;
         case 'hire_plant': S.铜钱 -= p.money; hiredPlant = true; log.push(['雇短工帮插秧，付 ' + p.money + ' 文', 'bad']); break;
-        case 'tend': S.秧苗进度 += (1 + (curWeather.grow >= 2 ? 1 : 0)); S.体魄 -= 2; tendCount++; log.push(['看水除草，禾苗生长', 'good']); break;
+        case 'tend':
+          if (S.秧苗进度 >= GROW_TARGET) { log.push(['禾苗已长足，本旬看水无额外增长（宜把人手匀去别处）', 'good']); }
+          else { S.秧苗进度 += (1 + (curWeather.grow >= 2 ? 1 : 0)); S.体魄 -= 2; tendCount++; log.push(['看水除草，禾苗生长', 'good']); }
+          break;
         case 'garden': S.菜圃进度 += 1; S.体魄 -= 1; if (S.菜圃进度 >= 3) { S.存米 += 1; S.菜圃进度 = 0; log.push(['菜圃收了一茬，存米+1石', 'good']); } else { log.push(['浇灌菜圃（' + S.菜圃进度 + '/3）', 'good']); } break;
         case 'care': S.家族 += 4; if (curEvents.some(function (e) { return e.t === 'rel'; })) { S.母出工 = true; log.push(['照护母亲，腰痛稳住，家族+4', 'good']); } else { log.push(['照护家人，家族+4', 'good']); } break;
         case 'exchange': S.家族 += 3; S.体魄 -= 2; log.push(['与邻里换工，家族+3（日后有人还工）', 'good']); break;
@@ -251,6 +278,7 @@
     }
 
     clampAttr('体魄'); clampAttr('家族');
+    if (S.秧苗进度 > GROW_TARGET) S.秧苗进度 = GROW_TARGET;  // 长足即封顶，超出无益
     recordEntry(picks.length ? ('本旬：' + picks.map(function (p) { return p.name; }).join('、')) : '本旬歇息', before, '');
 
     // 生成结算面板
