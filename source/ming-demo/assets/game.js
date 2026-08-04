@@ -14,6 +14,7 @@
   var HARVEST_XUN = 8;
   var AP_PER_XUN = 4;
   var GROW_TARGET = 12;
+  var CHILD_STEPS = 4;   // 幼年阶段步数：襁褓→蒙童→半大小子→成丁前夕
 
   var WEATHERS = [
     { k: '晴', w: 34, grow: 1, note: '日头足，秧苗稳长' },
@@ -25,17 +26,20 @@
 
   // ── 全局状态 ───────────────────────────────────
   var S, ledger, seq, xunIndex, picks, resolved, gameOver;
-  var phase;                 // 'farm' | 'marriage' | 'household' | 'elder' | 'death'
+  var phase;                 // 'childhood' | 'farm' | 'marriage' | 'household' | 'elder' | 'death'
   var generation = 0;        // 第几代
   var carryOver = null;      // 上一代传下的期初结余
   var curStage = null;       // 当前人生阶段卡（非农事时）
+  var childStep = 0;         // 幼年阶段第几步
 
   function initState(carry) {
     S = {
-      年龄: 16, 身份: '民籍·佃农子',
-      体魄: 88, 家族: 60,
+      年龄: 1, 身份: '民籍·佃农子(孩提)',
+      体魄: 60, 家族: 60,
       白银: 1, 铜钱: 1200, 存米: 3,
       秧苗进度: 0, 已插秧: false, 田亩: 4, 租额石: 3, 菜圃进度: 0, 母出工: true,
+      // 幼年字段
+      识字: false, 技艺: '无', 兄弟序: 1,
       // 人生链路字段
       妻室: false, 子数: 0, 女数: 0, 负债银: 0, 口食田: 0, 分家: false, 应役: '未役'
     };
@@ -47,10 +51,10 @@
       S.家族 = Math.max(20, Math.min(80, carry.家族 == null ? 60 : carry.家族));
     }
     ledger = []; seq = 0; xunIndex = 0; picks = []; resolved = null; gameOver = false;
-    phase = 'farm'; curStage = null;
-    recordEntry('立身开账', null,
-      generation > 1 ? ('第' + generation + '代次子立身：承上一代遗产分得田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两。')
-        : '期初：分得薄田4亩、存米3石、少量现钱，母可帮工。');
+    phase = 'childhood'; childStep = 0; curStage = childhoodStage(0);
+    recordEntry('出生开账', null,
+      generation > 1 ? ('第' + generation + '代降生：这一户现有田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两，你排行次子，全赖父母养育。')
+        : '出生：降生于江南民籍佃农之家，排行次子。这户现有薄田4亩、存米3石、少量现钱。');
   }
 
   // ── 资源守恒台账 ─────────────────────────────────
@@ -146,6 +150,9 @@
     if (phase === 'farm') {
       var g = growthInfo();
       h += '<span class="chip crop"><span class="g-dot ' + g.cls + '"></span>庄稼 <b>' + (g.planted ? g.label + ' ' + g.pct + '%' : '未插秧') + '</b></span>';
+    } else if (phase === 'childhood') {
+      h += '<span class="chip">识字 <b>' + (S.识字 ? '已启蒙' : '未识字') + '</b></span>';
+      h += '<span class="chip">技艺 <b>' + S.技艺 + '</b></span>';
     } else {
       h += '<span class="chip">妻室 <b>' + (S.妻室 ? '已娶' : '未娶') + '</b></span>';
       h += '<span class="chip">子嗣 <b>' + S.子数 + '</b>男' + S.女数 + '女</span>';
@@ -329,11 +336,32 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // 幼年推进：下一步 or 步入农事立身
+  function advanceChildhood() {
+    if (S._childDied) { startNextGeneration(); return; }
+    childStep += 1;
+    if (childStep < CHILD_STEPS) {
+      curStage = childhoodStage(childStep);
+      renderStatus(); renderLifeStage(); renderLedger();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      enterFarm();
+    }
+  }
+  // 幼年结束 → 十六成丁，步入佃田一季（沿用旬循环）
+  function enterFarm() {
+    phase = 'farm'; S.年龄 = 16; S.身份 = '民籍·佃农子'; picks = []; resolved = null; curStage = null;
+    recordEntry('十六成丁·立身开账', snapshot(), '幼年既过，成丁下田。' + (S.识字 ? '略识文字，日后记账当役不吃亏。' : '未曾识字，只识农事。') + (S.技艺 !== '无' ? '习得' + S.技艺 + '，是条可退可进的后路。' : ''));
+    rollXun(); renderStatus(); renderStage(); renderLedger();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   // 阶段卡通用渲染：叙事 + 事件 + 选项（每项显式点数/概率）
   function renderLifeStage() {
     var st = curStage; if (!st) return;
     var h = '';
-    h += '<div class="season-line phase">◆ 人生阶段 · ' + st.title + ' ｜ ' + S.年龄 + ' 岁</div>';
+    var kind = (phase === 'childhood') ? '幼年阶段' : '人生阶段';
+    h += '<div class="season-line phase">◆ ' + kind + ' · ' + st.title + ' ｜ ' + S.年龄 + ' 岁</div>';
     h += '<div class="phase-note">' + st.note + '</div>';
     h += '<div class="narr">' + st.narrative + '</div>';
     if (st.events && st.events.length) {
@@ -343,11 +371,18 @@
     }
     if (st.outcome) {
       h += st.outcome;
+      var isChild = (phase === 'childhood');
       var isLast = (st.next === null);
-      h += '<div class="commit"><button id="btn-pnext">' + (isLast ? '以次子身份 · 递归重开新一生 →' : (st.nextLabel || '继续 →')) + '</button></div>';
+      var label;
+      if (isChild) label = S._childDied ? '这一世早夭 · 由弟妹接续（递归重开）→' : (st.nextLabel || '长大一岁 →');
+      else label = isLast ? '以次子身份 · 递归重开新一生 →' : (st.nextLabel || '继续 →');
+      h += '<div class="commit"><button id="btn-pnext">' + label + '</button></div>';
       $('stage').innerHTML = h;
       var pn = $('btn-pnext');
-      if (pn) pn.addEventListener('click', function () { isLast ? startNextGeneration() : enterPhase(st.next); });
+      if (pn) pn.addEventListener('click', function () {
+        if (isChild) advanceChildhood();
+        else isLast ? startNextGeneration() : enterPhase(st.next);
+      });
       return;
     }
     h += '<div class="ap-head"><h3>' + st.prompt + '</h3></div>';
@@ -394,6 +429,123 @@
     S.子数 = sons; S.女数 = daus; S.存米 = Math.max(0, S.存米 - sons - daus); // 养育耗口粮
     log.push(['生育结算（概率）：育成 ' + sons + ' 男 ' + daus + ' 女，养育耗存米 ' + (sons + daus) + ' 石', sons > 0 ? 'good' : 'bad']);
     if (sons === 0) log.push(['暂无育成男丁——夭折是概率非惩罚，日后或需过继立嗣', 'bad']);
+  }
+
+  // ── 幼年阶段（出生→成丁，共4步）──
+  // 早夭是明代极高的真实概率分支，不是"失败评分"；夭折则由同胞弟妹接续本户（递归重开）。
+  function childDeath(log) {
+    S._childDied = true;
+    // 夭折不改变家产，本户资源原样传给接续的弟妹
+    S._carry = { 白银: S.白银, 存米: Math.max(0, S.存米), 铜钱: S.铜钱, 田亩: S.田亩, 家族: Math.max(20, S.家族 - 4) };
+    log.push(['幼殇——依 Coale-Demeny 模型(出生预期寿命≈30岁)，约半数孩子活不到二十岁。这不是你的过错，是那个时代的真实概率。', 'bad']);
+  }
+  function childhoodStage(step) {
+    if (step === 0) {
+      S.年龄 = 1;
+      return {
+        title: '襁褓 · 一岁', label: '襁褓', next: 'childhood', nextLabel: '熬过襁褓 · 长到七岁 →',
+        note: '明代婴幼儿死亡率极高〔CONFIRMED 模型层面／存疑 明代适用性〕。此处早夭为概率分支，非惩罚分。',
+        narrative: '你降生在江南一户民籍佃农家，<span class="em">排行次子</span>。头两年最难养——一场时疫、一次风寒都可能夭折。母亲要不要停下田里的活、精心照护你，是这户人家第一道取舍。',
+        events: [{ t: 'rel', tag: '[抚育]', txt: '母亲若专心哺育你，便要少一个下田帮工的劳力；若忙于农事粗养，你活下来的机会就低些。' }],
+        prompt: '这一岁，如何抚育？（择一）',
+        choices: [
+          {
+            name: '母亲专心哺育·精养', cost: '存米1石（少一劳力）', gain: '体魄+15、家族+4',
+            prob: '平安存活 95% ｜ 夭折 5%',
+            can: S.存米 >= 1, why: '需存米≥1石',
+            run: function (log) {
+              S.存米 -= 1;
+              if (rollProb([{ p: 0.95, r: 'live' }, { p: 0.05, r: 'die' }]) === 'live') { S.体魄 += 15; S.家族 += 4; log.push(['母亲精心哺育，平安度过襁褓。体魄+15、家族+4（存米-1）', 'good']); }
+              else childDeath(log);
+            }
+          },
+          {
+            name: '粗养·母亲照旧下田', cost: '不花钱（省一劳力）', gain: '体魄+6',
+            prob: '平安存活 80% ｜ 夭折 20%',
+            can: true,
+            run: function (log) {
+              if (rollProb([{ p: 0.80, r: 'live' }, { p: 0.20, r: 'die' }]) === 'live') { S.体魄 += 6; log.push(['粗养也熬了过来，母亲得以下田帮工。体魄+6', 'good']); }
+              else childDeath(log);
+            }
+          }
+        ]
+      };
+    }
+    if (step === 1) {
+      S.年龄 = 7;
+      return {
+        title: '蒙童 · 七岁', label: '蒙童', next: 'childhood', nextLabel: '再长几岁 · 半大小子 →',
+        note: '识字与否影响日后记账、当役、经商的可能。〔机制事实／束脩银额为占位〕',
+        narrative: '你已<span class="em">七岁</span>，能跑能跳。村里有蒙师开馆，也有人家早早让孩子放牛拾柴、帮补家用。识几个字，将来当役记账、进城谋生都吃得开；可束脩要花钱，家里未必舍得。',
+        events: [{ t: 'rand', tag: '[蒙学]', txt: '识字是佃农子跳出田亩的第一块跳板，但对次子而言，多一双下田的手也很实在。' }],
+        prompt: '这几年怎么过？（择一）',
+        choices: [
+          {
+            name: '入村塾·开蒙识字', cost: '铜钱400文（束脩）', gain: '识字、家族+6',
+            prob: '必然：读书识字（日后记账/当役/经商更有底气）',
+            can: S.铜钱 >= 400, why: '需铜钱≥400文',
+            run: function (log) { S.铜钱 -= 400; S.识字 = true; S.家族 += 6; log.push(['入村塾开蒙，粗识文字。铜钱-400、家族+6，识字=已启蒙', 'good']); }
+          },
+          {
+            name: '在家放牛·帮补农活', cost: '不花钱', gain: '存米+1、体魄+4',
+            prob: '必然：不识字，但早早历练农事',
+            can: true,
+            run: function (log) { S.存米 += 1; S.体魄 += 4; log.push(['放牛拾柴、帮补家用，早识农事。存米+1、体魄+4（未识字）', 'good']); }
+          }
+        ]
+      };
+    }
+    if (step === 2) {
+      S.年龄 = 11;
+      return {
+        title: '半大小子 · 十一岁', label: '半大', next: 'childhood', nextLabel: '将近成丁 →',
+        note: '一门手艺是佃农子"可退可进"的后路。〔机制事实／学徒年限银额为占位〕',
+        narrative: '你已是<span class="em">十一岁</span>的半大小子，开始能顶半个劳力。是拜个师傅学门手艺（篾、木、泥水），给自己留条田亩之外的活路；还是跟着父亲下田，把庄稼把式学扎实？',
+        events: [{ t: 'rel', tag: '[立身]', txt: '手艺人农闲可挣现钱、荒年不至饿死；但学徒几年要贴饭食、且未必学成。' }],
+        prompt: '往哪条路上使劲？（择一）',
+        choices: [
+          {
+            name: '拜师学一门手艺', cost: '铜钱300文（贴师父饭食）', gain: '技艺=手艺（篾木泥水）、家族+3',
+            prob: '学成 80%（技艺傍身）｜ 半途而废 20%（钱花了没学成）',
+            can: S.铜钱 >= 300, why: '需铜钱≥300文',
+            run: function (log) {
+              S.铜钱 -= 300; S.家族 += 3;
+              if (rollProb([{ p: 0.80, r: 'ok' }, { p: 0.20, r: 'no' }]) === 'ok') { S.技艺 = '手艺'; log.push(['拜师学成一门手艺！铜钱-300、家族+3，技艺=手艺（农闲可挣现钱）', 'good']); }
+              else log.push(['学徒半途而废，铜钱-300、家族+3，技艺仍无（师徒缘浅）', 'bad']);
+            }
+          },
+          {
+            name: '随父下田·练庄稼把式', cost: '不花钱', gain: '体魄+10、存米+1',
+            prob: '必然：农活扎实（下田一季更耐劳）',
+            can: true,
+            run: function (log) { S.体魄 += 10; S.存米 += 1; log.push(['随父下田，庄稼把式渐熟。体魄+10、存米+1', 'good']); }
+          }
+        ]
+      };
+    }
+    // step 3
+    S.年龄 = 15;
+    return {
+      title: '成丁前夕 · 十五岁', label: '将成丁', next: 'childhood', nextLabel: '十六成丁 · 下田立身 →',
+      note: '成丁在即，最后一年为立身打底。次子分不到多少田，出路全看这十几年攒下的身子、识字与手艺。',
+      narrative: '你<span class="em">十五岁</span>了，明年便要成丁入黄册、正式承担赋役。回望这一路：' + (S.识字 ? '识得几个字，' : '不曾识字，') + (S.技艺 !== '无' ? '有一门手艺傍身，' : '无甚手艺，') + '眼下体魄 ' + S.体魄 + '。最后一年，是把身子练得更结实，还是先攒点钱防身？',
+      events: [{ t: 'rand', tag: '[立身]', txt: '成丁后即接手佃田一季——你在幼年攒下的一切，都会化成下田那一季的底子。' }],
+      prompt: '成丁前的最后一年怎么过？（择一）',
+      choices: [
+        {
+          name: '强身习劳·练壮身子', cost: '存米1石（吃得多）', gain: '体魄+16',
+          prob: '必然：成丁时身强力壮（下田耐得住）',
+          can: S.存米 >= 1, why: '需存米≥1石',
+          run: function (log) { S.存米 -= 1; S.体魄 += 16; log.push(['卯足劲儿强身习劳，长成壮劳力。体魄+16（存米-1）', 'good']); }
+        },
+        {
+          name: '打短工·攒点防身钱', cost: '体魄-4（累）', gain: '铜钱+300',
+          prob: '必然：攒下现钱，但身子略透支',
+          can: true,
+          run: function (log) { S.体魄 -= 4; S.铜钱 += 300; log.push(['给人打短工攒钱，铜钱+300、体魄-4（成丁下田先垫着）', 'bad']); }
+        }
+      ]
+    };
   }
 
   // ── 成家（20岁）──
