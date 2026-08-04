@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>明·江南一生 · 文字版 Demo v1</title>
+<title>明·江南一生 · 文字版 Demo v2</title>
 <style>
   @font-face{ font-family:'Pixel'; src:url('./assets/fonts/PixelifySans-Medium.ttf') format('truetype'); font-weight:400 700; }
   @font-face{ font-family:'Mono'; src:url('./assets/fonts/DMMono-Regular.ttf') format('truetype'); font-weight:400; }
@@ -39,6 +39,8 @@
   .chip b{ color:var(--accent); }
   .chip.hp b{ color:var(--accent2); }
   .chip.coin b{ color:var(--info); }
+  .chip.debt{ border-color:var(--danger); }
+  .chip.debt b{ color:var(--danger); }
   .chip.crop{ display:inline-flex; align-items:center; gap:.35rem; }
   .g-dot{ width:.55rem; height:.55rem; border-radius:50%; display:inline-block; background:var(--muted); }
   .g-dot.g-none{ background:var(--muted); }
@@ -91,6 +93,7 @@
   .act .a-top{ display:flex; justify-content:space-between; align-items:center; gap:.5rem; }
   .act .a-name{ font-size:.9rem; }
   .act .a-cost{ font-family:var(--mono); font-size:.72rem; color:var(--accent); }
+  .act .a-eff{ font-family:var(--mono); font-size:.72rem; color:var(--accent2); }
   .act .a-desc{ font-size:.76rem; color:var(--muted); }
   .act .a-picked{ font-family:var(--mono); font-size:.72rem; color:var(--accent2); }
 
@@ -105,6 +108,20 @@
   .resolve .line{ font-family:var(--mono); font-size:.78rem; margin:.15rem 0; }
   .resolve .good{ color:var(--accent2); }
   .resolve .bad{ color:var(--danger); }
+
+  /* 人生阶段决策卡 */
+  .season-line.phase{ color:var(--accent); font-size:.82rem; border-left:3px solid var(--accent); padding-left:.5rem; }
+  .phase-note{ font-size:.74rem; color:var(--muted); background:var(--bg3); border:1px dashed var(--rule); border-radius:6px; padding:.4rem .6rem; margin:.4rem 0 .7rem; }
+  .choices{ display:flex; flex-direction:column; gap:.6rem; }
+  .choice{ text-align:left; font-family:var(--font); cursor:pointer; color:var(--ink); background:var(--bg3); border:1px solid var(--rule); border-left:3px solid var(--accent); border-radius:0 8px 8px 0; padding:.6rem .8rem; transition:.12s; display:flex; flex-direction:column; gap:.2rem; }
+  .choice:hover:not(:disabled){ border-color:var(--accent); transform:translateX(2px); box-shadow:0 2px 10px rgba(0,0,0,.25); }
+  .choice:disabled{ opacity:.4; cursor:not-allowed; border-left-color:var(--rule); }
+  .choice .ch-name{ font-size:.92rem; color:var(--accent); }
+  .choice .ch-line{ font-family:var(--mono); font-size:.74rem; }
+  .choice .ch-cost{ color:var(--danger); }
+  .choice .ch-gain{ color:var(--accent2); }
+  .choice .ch-prob{ color:var(--info); }
+  .choice .ch-desc{ font-family:var(--font); font-size:.76rem; color:var(--muted); }
 
   /* 侧栏流水账 */
   aside{ background:var(--bg2); border:1px solid var(--rule); border-radius:10px; padding:.8rem; align-self:start; position:sticky; top:118px; max-height:calc(100vh - 130px); overflow:auto; }
@@ -131,7 +148,7 @@
   <div class="topbar">
     <header>
       <h1>明·江南一生</h1>
-      <span class="sub">文字版 Demo v1 · 佃田一季 · 一旬一操作</span>
+      <span class="sub">文字版 Demo v2 · 佃田一季 → 成家 → 当户 → 养老 → 传承 · 全点数标注</span>
       <span class="spacer"></span>
       <button id="btn-restart">重开一生</button>
     </header>
