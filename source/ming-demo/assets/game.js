@@ -159,6 +159,55 @@
   // ── DOM ────────────────────────────────────────
   var $ = function (id) { return document.getElementById(id); };
 
+  // ── 事件委托：在永不销毁的 #stage 容器上挂唯一监听器 ──
+  // 修复根因：旧写法每次 re-render 都重查 DOM + 重新 addEventListener，
+  // 导致（a）某些轮次按钮绑定时机错位 → 点不动；（b）重复绑定 → 单击触发两次
+  // → 段末家计结算跑两遍 → 全家口粮被扣两次 → 存米被压成负数（再钳到 0/借贷）。
+  // 委托只在 #stage 上挂一个监听器，任何 re-render 都不影响，单击必定只派发一次。
+  var _delegated = false;
+  function installDelegation() {
+    if (_delegated) return;
+    var stage = $('stage'); if (!stage) return;
+    _delegated = true;
+    stage.addEventListener('click', function (ev) {
+      var t = ev.target;
+      while (t && t !== stage) {
+        if (t.nodeType === 1) {
+          if (t.classList.contains('act') || t.classList.contains('choice') ||
+            (t.id && t.id.indexOf('btn-') === 0)) break;
+        }
+        t = t.parentNode;
+      }
+      if (!t || t === stage) return;
+      if (t.disabled) return;
+      if (t.classList.contains('act')) {
+        var id = t.getAttribute('data-id');
+        if (phase === 'childhood') addChildPick(id);
+        else if (phase === 'farm') addPick(id);
+        else addLifePick(id);
+        return;
+      }
+      if (t.classList.contains('choice')) {
+        resolveChoice(parseInt(t.getAttribute('data-i'), 10));
+        return;
+      }
+      switch (t.id) {
+        case 'btn-commit': commitXun(); break;
+        case 'btn-next': nextXun(); break;
+        case 'btn-ccommit': commitChildRound(); break;
+        case 'btn-cnext': nextChildRound(); break;
+        case 'btn-lcommit': commitLifeRound(); break;
+        case 'btn-pnext': handlePNext(); break;
+      }
+    });
+  }
+  // 统一处理"继续/下一程"按钮，不再依赖渲染闭包（旧代码此处调用了未定义的 advanceChildhood）
+  function handlePNext() {
+    if (phase === 'childhood') { nextChildRound(); return; }
+    var st = curStage; if (!st) return;
+    if (st.next === null) startNextGeneration(); else enterPhase(st.next);
+  }
+
   function renderStatus() {
     var h = '';
     h += '<span class="chip">第 <b>' + generation + '</b> 代</span>';
@@ -213,7 +262,6 @@
       h += resolved;
       h += '<div class="commit"><button id="btn-next">' + (xunIndex >= TOTAL_XUN ? '一季终了 · 步入人生下一程 →' : '进入下一旬 →') + '</button></div>';
       $('stage').innerHTML = h;
-      var nb = $('btn-next'); if (nb) nb.addEventListener('click', nextXun);
       return;
     }
 
@@ -239,10 +287,6 @@
     h += '</div>';
 
     $('stage').innerHTML = h;
-    Array.prototype.forEach.call(document.querySelectorAll('.act:not(:disabled)'), function (btn) {
-      btn.addEventListener('click', function () { addPick(btn.getAttribute('data-id')); });
-    });
-    var cb = $('btn-commit'); if (cb) cb.addEventListener('click', commitXun);
   }
 
   function isOnce(id) { return ['plant', 'hire_plant', 'care', 'harvest', 'hire_harvest', 'pay_rent', 'rest', 'exchange'].indexOf(id) >= 0; }
@@ -262,6 +306,7 @@
   }
 
   function commitXun() {
+    if (resolved) return; // 防重复结算
     var before = snapshot();
     var log = [];
     var didPlantThisXun = false, hiredPlant = false, tendCount = 0, didHarvest = false, hiredHarvest = false;
@@ -457,7 +502,6 @@
       else btnLabel = '过些日子 · 下一轮 →';
       h += '<div class="commit"><button id="btn-cnext">' + btnLabel + '</button></div>';
       $('stage').innerHTML = h;
-      var nb = $('btn-cnext'); if (nb) nb.addEventListener('click', nextChildRound);
       return;
     }
 
@@ -482,13 +526,10 @@
     h += '</div>';
 
     $('stage').innerHTML = h;
-    Array.prototype.forEach.call(document.querySelectorAll('.act:not(:disabled)'), function (btn) {
-      btn.addEventListener('click', function () { addChildPick(btn.getAttribute('data-id')); });
-    });
-    var cb = $('btn-ccommit'); if (cb) cb.addEventListener('click', commitChildRound);
   }
 
   function commitChildRound() {
+    if (childResolved) return; // 防重复结算：已结算过就不再跑一遍（避免家计账/口粮被扣两次）
     var before = snapshot();
     var log = [];
     var wellCared = false;
@@ -612,8 +653,42 @@
   }
 
   // ═══════════════ 人生阶段决策机 ═══════════════
+  // 人生阶段行动点循环所用的临时状态（成家/当户/养老已升级为多维循环）
+  var lifePicks = [];
+  function lifeAP() { return (curStage && curStage.ap) || 4; }
+  function lifeSpent() { return lifePicks.reduce(function (a, p) { return a + p.cost; }, 0); }
+  function lifeRemainAP() { return lifeAP() - lifeSpent(); }
+  function lifeActions() { return (curStage && curStage.actions) ? curStage.actions() : []; }
+  function addLifePick(id) {
+    var a = lifeActions().filter(function (x) { return x.id === id; })[0];
+    if (!a || a.can === false || a.cost > lifeRemainAP()) return;
+    if (a.once && lifePicks.some(function (p) { return p.id === id; })) return;
+    lifePicks.push({ id: a.id, name: a.name, cost: a.cost });
+    renderLifeStage();
+  }
+  function commitLifeRound() {
+    var st = curStage; if (!st || st.outcome) return; // 防重复结算
+    var before = snapshot();
+    var log = [];
+    lifePicks.forEach(function (p) {
+      var a = lifeActions().filter(function (x) { return x.id === p.id; })[0];
+      if (a && a.run) a.run(log);
+    });
+    if (st.settle) st.settle(log);       // 该阶段的收尾结算（概率分支等）
+    clampAttr('体魄'); clampAttr('家族');
+    recordEntry(st.title + '：' + (lifePicks.length ? lifePicks.map(function (p) { return p.name; }).join('、') : '未作安排'), before, '');
+    var rh = '<div class="resolve"><h4>结算 · ' + st.title + '（' + S.年龄 + '岁）</h4>';
+    if (!log.length) rh += '<div class="line">这一程未作特别安排。</div>';
+    log.forEach(function (l) { rh += '<div class="line ' + l[1] + '">· ' + l[0] + '</div>'; });
+    var after = snapshot();
+    rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">守恒：白银 ' + before.白银 + '→' + after.白银 + ' ｜ 铜钱 ' + before.铜钱 + '→' + after.铜钱 + ' ｜ 存米 ' + before.存米 + '→' + after.存米 + '</div>';
+    rh += '</div>';
+    st.outcome = rh;
+    renderStatus(); renderLifeStage(); renderLedger();
+  }
+
   function enterPhase(p) {
-    phase = p; picks = []; resolved = null;
+    phase = p; picks = []; resolved = null; lifePicks = [];
     if (p === 'marriage') { S.年龄 = 20; curStage = stageMarriage(); }
     else if (p === 'household') { S.年龄 = 35; curStage = stageHousehold(); }
     else if (p === 'elder') { S.年龄 = 55; curStage = stageElder(); }
@@ -644,11 +719,32 @@
       else label = isLast ? '以次子身份 · 递归重开新一生 →' : (st.nextLabel || '继续 →');
       h += '<div class="commit"><button id="btn-pnext">' + label + '</button></div>';
       $('stage').innerHTML = h;
-      var pn = $('btn-pnext');
-      if (pn) pn.addEventListener('click', function () {
-        if (isChild) advanceChildhood();
-        else isLast ? startNextGeneration() : enterPhase(st.next);
+      return;
+    }
+    // ── 多维行动点循环（成家/当户/养老已升级为此模式）──
+    if (st.actions) {
+      if (st.dossier) h += st.dossier();
+      h += '<div class="ap-head"><h3>' + st.prompt + '</h3>' +
+        '<span class="ap-dots">剩余 <b>' + lifeRemainAP() + '</b> / ' + lifeAP() + ' 点</span></div>';
+      h += '<div class="actions">';
+      lifeActions().forEach(function (a) {
+        var picked = lifePicks.filter(function (p) { return p.id === a.id; }).length;
+        var disabled = a.can === false || a.cost > lifeRemainAP() || (picked > 0 && a.once);
+        h += '<button class="act" data-id="' + a.id + '"' + (disabled ? ' disabled' : '') + '>' +
+          '<span class="a-top"><span class="a-name">' + a.name + '</span>' +
+          '<span class="a-cost">' + a.cost + '点</span></span>' +
+          '<span class="a-eff">▸ ' + a.eff + '</span>' +
+          (a.prob ? '<span class="a-eff" style="color:var(--info)">概率 ' + a.prob + '</span>' : '') +
+          '<span class="a-desc">' + a.desc + (a.can === false ? '（' + (a.why || '不可选') + '）' : '') + '</span>' +
+          (picked ? '<span class="a-picked">已选 ×' + picked + '</span>' : '') +
+          '</button>';
       });
+      h += '</div>';
+      h += '<div class="commit">';
+      h += '<button id="btn-lcommit">' + (st.commitLabel || '定夺这一程 →') + '</button>';
+      h += '<span class="hint">' + (lifePicks.length ? ('已排：' + lifePicks.map(function (p) { return p.name; }).join('、')) : '点上面的安排来定夺这一程；行动点用不完也可提前结算。') + '</span>';
+      h += '</div>';
+      $('stage').innerHTML = h;
       return;
     }
     h += '<div class="ap-head"><h3>' + st.prompt + '</h3></div>';
@@ -665,14 +761,12 @@
     });
     h += '</div>';
     $('stage').innerHTML = h;
-    Array.prototype.forEach.call(document.querySelectorAll('.choice:not(:disabled)'), function (btn) {
-      btn.addEventListener('click', function () { resolveChoice(parseInt(btn.getAttribute('data-i'), 10)); });
-    });
   }
 
   function resolveChoice(i) {
     var st = curStage, c = st.choices[i];
     if (!c || c.can === false) return;
+    if (st.outcome) return; // 防重复结算
     var before = snapshot();
     var log = [];
     c.run(log);          // 应用点数 + 概率 + 改状态
@@ -697,78 +791,123 @@
     if (sons === 0) log.push(['暂无育成男丁——夭折是概率非惩罚，日后或需过继立嗣', 'bad']);
   }
 
-  // ── 成家（20岁）──
+  // 人生阶段"共享状态账"面板：把幼年至今攒下的底子显性摆出来，让玩家看清路径依赖
+  function lifeDossier(extra) {
+    var tags = [];
+    tags.push(S.识字 ? '识字·已启蒙' : '识字·无');
+    tags.push(S.技艺 !== '无' ? '手艺·傍身' : '手艺·无');
+    tags.push('农事历练 ' + S.农事历练);
+    tags.push('家族声望 ' + S.家族);
+    if (S.负债银 > 0) tags.push('负债 ' + S.负债银 + '两');
+    var h = '<div class="crop-bar g-ok"><div class="cb-head">' +
+      '<span class="cb-title">📇 共享状态账 · 这本账一路带到底</span>' +
+      '<span class="cb-val">体魄 ' + S.体魄 + '</span></div>' +
+      '<div class="cb-tip">' + tags.join(' ｜ ') + (extra ? ('<br>' + extra) : '') + '</div></div>';
+    return h;
+  }
+
+  // ── 成家（20岁）：多维行动点循环 —— 攒聘礼/托媒/凭识字手艺增议亲筹码 ──
   function stageMarriage() {
     return {
       title: '成家 · 议亲', label: '成家', next: 'household', nextLabel: '步入中年 · 当户 →',
-      note: '聘礼是成家路上第一笔大额外流。〔玩法占位：明代平民聘礼/嫁妆货币规模缺权威史料，此处为设计区间，非史实点值〕',
-      narrative: '立身数年，你已<span class="em">二十岁</span>。父母张罗着说一门亲事。走"六礼"框架（平民多简化合并），聘礼从哪来，决定这门亲事成不成。<span class="em">聘礼是真实外流，须记入女方家账（镜像记账）；嫁妆则随妻流入小家庭账。</span>',
-      events: [{ t: 'rel', tag: '[关系]', txt: '媒人往来，女方索聘。凑得齐则风光正娶，凑不齐只能借贷、或延后婚事。' }],
-      prompt: '如何操办这门亲事？（择一）',
-      choices: [
-        {
-          name: '倾力筹办·正娶', cost: '白银4两 + 存米2石', gain: '妻室（嫁妆铜钱+800）、家族+10',
-          prob: '成婚 90% ｜ 议亲告吹·婚事推迟 10%（告吹退回半数聘礼）',
-          can: S.白银 >= 4 && S.存米 >= 2, why: '需白银≥4两且存米≥2石',
-          run: function (log) {
-            S.白银 -= 4; S.存米 -= 2;
-            var r = rollProb([{ p: 0.90, r: 'wed' }, { p: 0.10, r: 'fail' }]);
-            if (r === 'wed') { S.妻室 = true; S.家族 += 10; S.铜钱 += 800; log.push(['成婚！聘礼外流(白银-4、米-2)，妻带奁产铜钱+800，家族+10', 'good']); bearChildren(log); }
-            else { S.白银 += 2; log.push(['议亲告吹，婚事推迟。退回半数聘礼(白银+2)，家族无进益', 'bad']); }
+      ap: 4, commitLabel: '下聘·定亲事 →',
+      note: '成家不是一次"选套餐"，而是几年里一步步攒钱、托媒、抬身价：聘礼是真实外流（镜像入女方家账），识字/手艺会抬高你在媒人眼里的行情。〔货币规模为玩法占位，非史实点值〕',
+      narrative: '立身数年，你已<span class="em">二十岁</span>。父母张罗说亲。走"六礼"框架（平民多简化合并）——这一程你有 <span class="em">4 个行动点</span>，用来筹聘礼、托媒人、办酒席。你这些年攒下的<span class="em">识字、手艺、家族声望</span>，都会折进议亲的成算里。',
+      dossier: function () { return lifeDossier('议亲成算 = 基础 + 聘礼档 + 识字/手艺加成 + 家族声望；下聘时按当前筹码一次性 roll。'); },
+      events: [{ t: 'rel', tag: '[关系]', txt: '女方是邻村自耕农之女，有自己的意愿：她与父母看重的是这户的家底与后生的本分，不是你单方面"提亲"就能定。' }],
+      prompt: '这几年怎么张罗亲事？（分配 4 点，末了一次下聘）',
+      actions: function () {
+        var A = [];
+        A.push({ id: 'm_save', name: '卖粮·攒聘礼', cost: 1, eff: '存米-1·白银+1（备聘）', desc: '把余粮换成硬通货备作聘礼。', can: S.存米 >= 1, why: S.存米 >= 1 ? '' : '无存米可卖' });
+        A.push({ id: 'm_gift', name: '厚备聘礼', cost: 2, eff: '白银-3·聘礼档↑↑·成算+', desc: '以银三两下重聘，风光正娶，行情最高。', can: S.白银 >= 3, why: S.白银 >= 3 ? '' : '白银不足3两', once: true });
+        A.push({ id: 'm_gift1', name: '薄备聘礼', cost: 1, eff: '白银-1·聘礼档↑·成算+', desc: '尽力凑一份体面的薄聘。', can: S.白银 >= 1, why: S.白银 >= 1 ? '' : '白银不足1两', once: true });
+        A.push({ id: 'm_borrow', name: '向义庄借银', cost: 1, eff: '负债+3两·白银+3（供下聘）', desc: '宗族义庄借贷办婚，先成家后还债。', can: true, once: true });
+        A.push({ id: 'm_match', name: '托媒·多方相看', cost: 1, eff: '家族+2·成算+（媒妁之言）', desc: '多走几家媒人，抬一抬相看的成算。', can: true });
+        A.push({ id: 'm_show', name: '显本事·亮身价', cost: 1, eff: (S.识字 || S.技艺 !== '无') ? '成算+（识字/手艺抬行情）' : '（无识字手艺可亮）', desc: '让女方家看到你识字或有手艺——佃农子跳板。', can: S.识字 || S.技艺 !== '无', why: (S.识字 || S.技艺 !== '无') ? '' : '尚无识字或手艺' });
+        A.push({ id: 'm_wait', name: '暂缓·先积累', cost: 1, eff: '体魄+4（不催婚）', desc: '这一程先不急，养身攒钱。', can: true });
+        return A;
+      },
+      settle: function (log) {
+        // 议亲成算：基础 + 聘礼档 + 加成；下聘时一次性 roll（女方独立回应）
+        var giftTier = 0, chance = 0.35;
+        lifePicks.forEach(function (p) {
+          switch (p.id) {
+            case 'm_save': S.存米 -= 1; S.白银 += 1; log.push(['卖粮备聘：存米-1、白银+1', 'good']); break;
+            case 'm_gift': S.白银 -= 3; giftTier = 2; chance += 0.40; log.push(['厚备聘礼：银-3下重聘（成算大增）', 'bad']); break;
+            case 'm_gift1': S.白银 -= 1; giftTier = Math.max(giftTier, 1); chance += 0.20; log.push(['薄备聘礼：银-1（成算增）', 'bad']); break;
+            case 'm_borrow': S.负债银 += 3; S.白银 += 3; log.push(['义庄借银3两供下聘（负债+3、白银+3）', 'bad']); break;
+            case 'm_match': S.家族 += 2; chance += 0.12; log.push(['托媒多方相看：家族+2（成算增）', 'good']); break;
+            case 'm_show': chance += (S.识字 ? 0.12 : 0) + (S.技艺 !== '无' ? 0.12 : 0); log.push(['亮出' + (S.识字 ? '识字' : '') + (S.识字 && S.技艺 !== '无' ? '、' : '') + (S.技艺 !== '无' ? '手艺' : '') + '身价（成算增）', 'good']); break;
+            case 'm_wait': S.体魄 += 4; log.push(['暂缓催婚，养身：体魄+4', 'good']); break;
           }
-        },
-        {
-          name: '向宗族义庄借助·成婚', cost: '白银1两，另借银3两（计入负债）', gain: '妻室（嫁妆铜钱+600）、家族+6',
-          prob: '成婚 85% ｜ 婚事推迟 15%',
-          can: S.白银 >= 1, why: '需白银≥1两',
-          run: function (log) {
-            S.白银 -= 1; S.负债银 += 3;
-            var r = rollProb([{ p: 0.85, r: 'wed' }, { p: 0.15, r: 'fail' }]);
-            if (r === 'wed') { S.妻室 = true; S.家族 += 6; S.铜钱 += 600; log.push(['借义庄银成婚！自付白银-1、负债+3两，妻带奁产铜钱+600，家族+6', 'good']); bearChildren(log); }
-            else { log.push(['婚事仍告吹，白银-1已花、负债+3仍在，家族无进益', 'bad']); }
-          }
-        },
-        {
-          name: '暂缓婚事·先积累', cost: '不花钱', gain: '保留现钱',
-          prob: '必然：不成家、家族-2（村中风言），日后成家更难',
-          can: true,
-          run: function (log) { S.家族 -= 2; log.push(['暂缓婚事，攒下现钱。家族-2，仍是单身汉（后续养老、传承将更艰难）', 'bad']); }
+        });
+        chance += Math.min(0.10, S.家族 >= 70 ? 0.10 : 0); // 家族声望高更好说亲
+        chance = Math.max(0.05, Math.min(0.95, chance));
+        var pct = Math.round(chance * 100);
+        if (giftTier === 0) {
+          S.家族 -= 2;
+          log.push(['这一程没备下聘礼，媒人无从说合——婚事推迟，家族-2（单身汉在村中难免风言）。日后可再攒。', 'bad']);
+          return;
         }
-      ]
+        var r = rollProb([{ p: chance, r: 'wed' }, { p: 1 - chance, r: 'fail' }]);
+        if (r === 'wed') {
+          S.妻室 = true;
+          var dowry = giftTier === 2 ? 800 : 500;
+          S.铜钱 += dowry; S.家族 += giftTier === 2 ? 10 : 6;
+          log.push(['〔女方应允〕成婚成算约 ' + pct + '%，命中！妻带奁产铜钱+' + dowry + '、家族+' + (giftTier === 2 ? 10 : 6), 'good']);
+          bearChildren(log);
+        } else {
+          if (giftTier === 2) { S.白银 += 1; log.push(['〔女方另议〕成算约 ' + pct + '%，未成。退回部分重聘白银+1，婚事推迟（聘礼档在，来生仍可再议）', 'bad']); }
+          else log.push(['〔女方另议〕成算约 ' + pct + '%，未成。薄聘已花，婚事推迟', 'bad']);
+        }
+      }
     };
   }
 
-  // ── 当户（35岁）：分家均分 + 里甲当役 ──
+  // ── 当户（35岁）：多维行动点循环 —— 分家立户后，一整轮应役经营 ──
   function stageHousehold() {
     return {
       title: '当户 · 分家与应役', label: '当户', next: 'elder', nextLabel: '步入老年 →',
-      note: '这是全生命周期最关键的守恒节点：诸子均分在父账与子账同步结算；里甲当役是概率性高风险事件。〔均分与破家为制度事实，具体银额为占位〕',
-      narrative: '你已<span class="em">三十五岁</span>。父陈老栓年迈，家产按<span class="em">诸子"品搭均分"</span>分家，你正式立户、进入里甲黄册。立户便要<span class="em">轮值当役</span>——这是明代中期最典型的"当役破家"风险所在。',
+      ap: 4, commitLabel: '了此一役 · 定当户之局 →',
+      note: '这是全生命周期最关键的守恒节点：诸子均分在父账/子账同步结算；里甲当役是概率性高风险事件。你能否躲过"当役破家"，取决于识字（应付吏胥）、家族声望（乡里担保）、现银（纳银代役）这本一路带来的账。〔均分与破家为制度事实，具体银额为占位〕',
+      narrative: '你已<span class="em">三十五岁</span>。父陈老栓年迈，家产按<span class="em">诸子"品搭均分"</span>分家，你正式立户、进入里甲黄册。立户便要<span class="em">轮值当役</span>——明代中期最典型的"当役破家"风险所在。这一程 <span class="em">4 个行动点</span>，用来把风险压到最低。',
+      dossier: function () { return lifeDossier('应役赔累风险 = 基础风险 − 纳银 − 识字应吏 − 家族担保；末了按当前风险 roll 平安/赔累/破家。'); },
       events: [
         { t: 'rel', tag: '[分家]', txt: '立阄书、品搭均分：好田差田搭配成价值相当数份，拈阄定份。你分得田产正式归户，养老田另立专账不入你可支配。' },
-        { t: 'rand', tag: '[赋役]', txt: '今年恰轮到你这一甲"见年"当役。民收民解，遇官府需索、吏胥勒索，赔累破家者不在少数。' }
+        { t: 'rand', tag: '[赋役]', txt: '今年恰轮到你这一甲"见年"当役。民收民解，遇官府需索、吏胥勒索，赔累破家者不在少数——你并非当役对象的选择者，制度把风险摊到了你头上。' }
       ],
-      prompt: '面对轮值当役，如何应对？（分家所得已自动结算，择一应役）',
-      choices: [
-        {
-          name: '亲身应役', cost: '不花钱（担风险）', gain: '平安则家族+5',
-          prob: '平安 60% ｜ 加派赔累(铜钱-1500) 30% ｜ 破家(失田2亩+负债2两) 10%',
-          can: true,
-          run: function (log) {
-            doInherit(log);
-            var r = rollProb([{ p: 0.60, r: 'safe' }, { p: 0.30, r: 'levy' }, { p: 0.10, r: 'ruin' }]);
-            if (r === 'safe') { S.家族 += 5; S.应役 = '平安应役'; log.push(['应役平安了讫，乡里称许，家族+5', 'good']); }
-            else if (r === 'levy') { S.铜钱 = Math.max(0, S.铜钱 - 1500); S.应役 = '赔累'; log.push(['遭加派赔累！解运垫赔，铜钱-1500', 'bad']); }
-            else { S.田亩 = Math.max(1, S.田亩 - 2); S.负债银 += 2; S.应役 = '破家'; log.push(['当役破家！失田2亩、负债+2两——制度性风险落到个人账上（不是你的无能）', 'bad']); }
+      prompt: '这一任当户怎么当？（分配 4 点压低赔累风险）',
+      actions: function () {
+        var A = [];
+        A.push({ id: 'h_pay', name: '纳银代役', cost: 2, eff: '白银-2·赔累风险大降', desc: '花钱买平安，正差雇人代解。', can: S.白银 >= 2, why: S.白银 >= 2 ? '' : '白银不足2两', once: true });
+        A.push({ id: 'h_literate', name: '识字·亲核账册', cost: 1, eff: S.识字 ? '风险降·防吏胥虚加' : '（不识字·无从核账）', desc: '亲自核对黄册税则，吏胥难以虚报勒索。', can: S.识字, why: S.识字 ? '' : '不识字，看不懂账册', once: true });
+        A.push({ id: 'h_clan', name: '托家族·乡里担保', cost: 1, eff: '家族≥60则风险降·家族+3', desc: '倚仗宗族与乡邻，摊派时有人分担、说话。', can: true, once: true });
+        A.push({ id: 'h_hire', name: '雇工·顾住农事', cost: 1, eff: '铜钱-300·当役误工不减产', desc: '当役耗时，雇短工顶上，田里不至于荒。', can: S.铜钱 >= 300, why: S.铜钱 >= 300 ? '' : '铜钱不足300文' });
+        A.push({ id: 'h_side', name: '农闲营生', cost: 1, eff: S.技艺 !== '无' ? '手艺副业·铜钱+400' : '（无手艺·仅+120）', desc: '当户之年也要养家，凭手艺或杂工挣现钱。', can: true });
+        A.push({ id: 'h_rest', name: '将养身子', cost: 1, eff: '体魄+5', desc: '中年劳碌，别把身子熬垮。', can: true });
+        return A;
+      },
+      settle: function (log) {
+        doInherit(log);
+        var risk = 0.40; var paid = false, guarded = false;
+        lifePicks.forEach(function (p) {
+          switch (p.id) {
+            case 'h_pay': S.白银 -= 2; S.应役 = '纳银代役'; risk -= 0.35; paid = true; log.push(['纳银代役：白银-2，赔累风险大降', 'good']); break;
+            case 'h_literate': risk -= 0.15; log.push(['识字亲核账册：吏胥难虚加，赔累风险降', 'good']); break;
+            case 'h_clan': S.家族 += 3; guarded = true; if (S.家族 >= 60) risk -= 0.12; log.push(['托家族乡里担保：家族+3' + (S.家族 >= 60 ? '，摊派有人分担（风险降）' : '（家族声望尚浅，担保有限）'), 'good']); break;
+            case 'h_hire': S.铜钱 = Math.max(0, S.铜钱 - 300); log.push(['雇工顾农事：铜钱-300，当役误工不减产', 'bad']); break;
+            case 'h_side': var g = S.技艺 !== '无' ? 400 : 120; S.铜钱 += g; log.push(['农闲营生：' + (S.技艺 !== '无' ? '凭手艺' : '打杂工') + '铜钱+' + g, 'good']); break;
+            case 'h_rest': S.体魄 += 5; log.push(['将养身子：体魄+5', 'good']); break;
           }
-        },
-        {
-          name: '纳银代役', cost: '白银2两', gain: '免除当役风险',
-          prob: '必然：平安免役（花钱买平安）',
-          can: S.白银 >= 2, why: '需白银≥2两',
-          run: function (log) { doInherit(log); S.白银 -= 2; S.应役 = '纳银代役'; log.push(['纳银代役，白银-2，平安免除赔累风险', 'good']); }
-        }
-      ]
+        });
+        risk = Math.max(0.03, Math.min(0.85, risk));
+        var levyP = risk * 0.75, ruinP = risk * 0.25, safeP = 1 - risk;
+        var r = rollProb([{ p: safeP, r: 'safe' }, { p: levyP, r: 'levy' }, { p: ruinP, r: 'ruin' }]);
+        var pct = Math.round(risk * 100);
+        if (r === 'safe') { S.家族 += 5; if (!S.应役 || S.应役 === '未役') S.应役 = '平安应役'; log.push(['〔当役了讫〕赔累风险约 ' + pct + '%，平安过关！乡里称许，家族+5', 'good']); }
+        else if (r === 'levy') { S.铜钱 = Math.max(0, S.铜钱 - 1500); S.应役 = '赔累'; log.push(['〔遭加派〕赔累风险约 ' + pct + '%命中：解运垫赔，铜钱-1500', 'bad']); }
+        else { S.田亩 = Math.max(1, S.田亩 - 2); S.负债银 += 2; S.应役 = '破家'; log.push(['〔当役破家〕失田2亩、负债+2两——制度性风险落到个人账上（不是你的无能）', 'bad']); }
+      }
     };
   }
   // 分家均分结算（进入当户即自动发生一次）
@@ -779,31 +918,49 @@
     log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩(口食田，不入可支配)', 'good']);
   }
 
-  // ── 养老（55岁）──
+  // ── 养老（55岁）：多维行动点循环 —— 与诸子协商奉养，逐人记账 ──
   function stageElder() {
     return {
       title: '养老', label: '养老', next: 'death', nextLabel: '走向人生终点 →',
-      note: '功能容量随龄下降，劳作让位于休息医药。养老靠口食田收租＋诸子轮养协商——奉养是协商结果不是默认义务，逐人记账。〔机制事实，标准为占位〕',
-      narrative: '你已<span class="em">五十五岁</span>，在明代平民已属高寿门槛。身子大不如前，' + (S.子数 > 0 ? '育有 ' + S.子数 + ' 子，可商议轮养。' : '膝下无育成之子，养老无所依。') + '如何安度晚年？',
-      events: [{ t: 'rel', tag: '[养老]', txt: S.子数 > 0 ? '诸子就"谁出米、谁出工"协商轮养，须双方同意、镜像入各自账本。' : '无子可依，只能靠口食田薄租与自身积蓄，或变卖田产。' }],
-      prompt: '如何安排养老？（择一）',
-      choices: [
-        {
-          name: '依口食田与诸子轮养', cost: '不花钱', gain: S.子数 > 0 ? ('诸子供养存米+' + (2 * S.子数) + '石、家族+8') : '（无子·供养有限）存米+1',
-          prob: '必然（供养多寡取决于子数）',
-          can: true,
-          run: function (log) {
-            if (S.子数 > 0) { var mi = 2 * S.子数; S.存米 += mi; S.家族 += 8; S.体魄 -= 4; log.push(['诸子轮养：' + S.子数 + '子供养存米+' + mi + '，家族+8，体魄-4（自然衰老）', 'good']); }
-            else { S.存米 += 1; S.体魄 -= 8; log.push(['无子轮养，仅靠口食田薄租存米+1，体魄-8，晚景清苦', 'bad']); }
+      ap: 3, commitLabel: '安顿晚景 →',
+      note: '功能容量随龄下降，劳作让位于休息医药。奉养是与诸子协商的结果、不是默认义务——你提，儿子未必都应；识字/家族声望影响协商的成算，逐人镜像入账。〔机制事实，标准为占位〕',
+      narrative: '你已<span class="em">五十五岁</span>，在明代平民已属高寿门槛。身子大不如前，' + (S.子数 > 0 ? '育有 ' + S.子数 + ' 子，可商议轮养——但奉养多寡是协商出来的。' : '膝下无育成之子，养老无所依，只能靠口食田与积蓄。') + '这一程 <span class="em">3 个行动点</span>安顿晚景。',
+      dossier: function () { return lifeDossier(S.子数 > 0 ? ('诸子 ' + S.子数 + ' 人各有小家，是否足额奉养要看协商成算（家族声望↑更顺）。') : '无子可依，奉养这条路走不通，须自筹。'); },
+      events: [{ t: 'rel', tag: '[养老]', txt: S.子数 > 0 ? '诸子就"谁出米、谁出工"各持立场——他们也有自己的妻儿要养，奉养须双方同意、镜像入各自账本。' : '无子可依，只能靠口食田薄租、自身积蓄，或变卖田产。' }],
+      prompt: '如何安顿晚年？（分配 3 点）',
+      actions: function () {
+        var A = [];
+        A.push({ id: 'e_negotiate', name: '与诸子协商轮养', cost: 2, eff: S.子数 > 0 ? '按成算得诸子供养·家族+' : '（无子·此路不通）', desc: '召集诸子议定谁出米谁出工——他们可应可辞。', can: S.子数 > 0, why: S.子数 > 0 ? '' : '膝下无育成之子', once: true, prob: S.子数 > 0 ? '足额 / 半额 / 只象征奉养' : '' });
+        A.push({ id: 'e_sell', name: '变卖田产养老', cost: 1, eff: '田-1亩·白银+2·存米+2', desc: '换现钱防身，但下一代可分田减少。', can: S.田亩 >= 2, why: S.田亩 >= 2 ? '' : '需田产≥2亩', once: true });
+        A.push({ id: 'e_rent', name: '收口食田薄租', cost: 1, eff: '存米+2（养老田进项）', desc: '当年立户分得的养老田，此时收租过活。', can: S.口食田 > 0, why: S.口食田 > 0 ? '' : '未有养老田', once: true });
+        A.push({ id: 'e_med', name: '延医问药·调养', cost: 1, eff: '铜钱-500·体魄+8', desc: '花钱请郎中调养，延一延寿数。', can: S.铜钱 >= 500, why: S.铜钱 >= 500 ? '' : '铜钱不足500文' });
+        A.push({ id: 'e_rest', name: '静养含饴', cost: 1, eff: '体魄+4·家族+2', desc: '不再劳作，含饴弄孙，安养身心。', can: true });
+        return A;
+      },
+      settle: function (log) {
+        var didProvide = false;
+        lifePicks.forEach(function (p) {
+          switch (p.id) {
+            case 'e_negotiate':
+              didProvide = true;
+              var base = 0.30 + (S.家族 >= 65 ? 0.25 : 0.10) + (S.识字 ? 0.10 : 0);
+              base = Math.min(0.9, base);
+              var out = rollProb([{ p: base, r: 'full' }, { p: (1 - base) * 0.6, r: 'half' }, { p: (1 - base) * 0.4, r: 'token' }]);
+              if (out === 'full') { var m = 2 * S.子数; S.存米 += m; S.家族 += 8; log.push(['〔诸子应允〕协商成算约 ' + Math.round(base * 100) + '%：足额轮养，存米+' + m + '、家族+8', 'good']); }
+              else if (out === 'half') { var m2 = S.子数; S.存米 += m2; S.家族 += 3; log.push(['〔各有难处〕诸子只能半额奉养：存米+' + m2 + '、家族+3', 'bad']); }
+              else { S.存米 += 1; S.家族 -= 2; log.push(['〔诸子推辞〕只象征性奉养：存米+1、家族-2（他们也有自己的妻儿要养）', 'bad']); }
+              break;
+            case 'e_sell': S.田亩 -= 1; S.白银 += 2; S.存米 += 2; log.push(['变卖田1亩养老：田-1、白银+2、存米+2（下一代起点降低）', 'bad']); break;
+            case 'e_rent': S.存米 += 2; log.push(['收口食田薄租：存米+2', 'good']); break;
+            case 'e_med': S.铜钱 = Math.max(0, S.铜钱 - 500); S.体魄 += 8; log.push(['延医问药：铜钱-500、体魄+8（益寿）', 'good']); break;
+            case 'e_rest': S.体魄 += 4; S.家族 += 2; log.push(['静养含饴：体魄+4、家族+2', 'good']); break;
           }
-        },
-        {
-          name: '变卖部分田产养老', cost: '田产-1亩', gain: '白银+2、存米+2',
-          prob: '必然（换现钱防身，田少则后代起点低）',
-          can: S.田亩 >= 2, why: '需田产≥2亩',
-          run: function (log) { S.田亩 -= 1; S.白银 += 2; S.存米 += 2; S.体魄 -= 4; log.push(['变卖田1亩换养老：田产-1、白银+2、存米+2、体魄-4（下一代可分田减少）', 'bad']); }
-        }
-      ]
+        });
+        S.体魄 -= 4; // 自然衰老
+        if (!didProvide && S.子数 > 0) log.push(['这一程未与诸子协商奉养——晚景多靠自筹', 'bad']);
+        if (S.子数 === 0 && !lifePicks.some(function (p) { return p.id === 'e_sell' || p.id === 'e_rent'; })) log.push(['无子无进项，晚景清苦，体魄再-4', 'bad']), S.体魄 -= 4;
+        log.push(['岁月不居，自然衰老：体魄-4', 'bad']);
+      }
     };
   }
 
@@ -885,8 +1042,9 @@
   }
 
   // ── 启动 ────────────────────────────────────────
-  function restart() { generation = 1; carryOver = null; initState(null); rollXun(); renderStatus(); renderStage(); renderLedger(); window.scrollTo({ top: 0 }); }
+  function restart() { installDelegation(); generation = 1; carryOver = null; initState(null); rollXun(); renderStatus(); renderStage(); renderLedger(); window.scrollTo({ top: 0 }); }
   document.getElementById('btn-restart').addEventListener('click', restart);
+  installDelegation();
   restart();
 
   // 死亡阶段无选项，进入即自动展示传承 outcome
