@@ -599,8 +599,8 @@
     log.push(['〔家计·经历' + years + '年〕父母耕' + S.田亩 + '亩毛产' + gross + '石（' + wr + '年）− 佃租' + rent + '石 − 全家口粮' + food + '石 = 存米' + (net >= 0 ? '+' + net : net) + '石',
       net >= 0 ? 'good' : 'bad']);
     if (S.存米 < 0) {
-      var借 = -S.存米; S.存米 = 0; S.负债银 += Math.ceil(借 / 3); S.家族 -= 4;
-      log.push(['存米见底，青黄不接只得借贷度荒：负债+' + Math.ceil(借 / 3) + '两、家族-4', 'bad']);
+      var deficit = -S.存米; S.存米 = 0; S.负债银 += Math.ceil(deficit / 3); S.家族 -= 4;
+      log.push(['存米见底，青黄不接只得借贷度荒：负债+' + Math.ceil(deficit / 3) + '两、家族-4', 'bad']);
     }
   }
 
