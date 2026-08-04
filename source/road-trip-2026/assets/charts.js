@@ -7,7 +7,7 @@
   var rule = style.getPropertyValue('--rule').trim();
   var bg2 = style.getPropertyValue('--bg2').trim();
 
-  // --- Chart: Days allocation pie (83-day version) ---
+  // --- Chart: Days allocation pie (85-day version) ---
   var el = document.getElementById('chart-days');
   if (el) {
     var chart = echarts.init(el, null, { renderer: 'svg' });
@@ -25,7 +25,7 @@
         textStyle: { color: ink, fontSize: 12 },
         itemGap: 10
       },
-      color: [accent, '#5B7FA6', '#D4880F', '#8B5E3C', '#6B8E7A', accent2, '#B8866B'],
+      color: [accent, '#5B7FA6', '#D4880F', '#8B5E3C', '#6B8E7A', accent2, '#B8866B', '#9B8FB0'],
       series: [{
         type: 'pie',
         radius: ['40%', '68%'],
@@ -45,12 +45,13 @@
         labelLine: { lineStyle: { color: rule } },
         data: [
           { value: 6,  name: 'G7北京→额济纳' },
-          { value: 8,  name: '甘青大环线（新增）' },
-          { value: 9,  name: '北疆喀纳斯金秋' },
-          { value: 7,  name: '伊犁+夏塔+独库' },
-          { value: 9,  name: '南疆帕米尔' },
-          { value: 23, name: '新藏线+阿里+转山+拉萨' },
-          { value: 21, name: '滇藏线+云南徒步' }
+          { value: 8,  name: '甘青大环线' },
+          { value: 10, name: '北疆喀纳斯金秋' },
+          { value: 7,  name: '伊犁+独库+南疆帕米尔' },
+          { value: 9,  name: '新藏线G219→阿里' },
+          { value: 14, name: '转山+珠峰+拉萨+林芝' },
+          { value: 12, name: '滇藏线+雨崩+虎跳峡' },
+          { value: 19, name: '云南慢旅行' }
         ]
       }]
     });

@@ -146,7 +146,7 @@ sup a:hover{text-decoration:underline;}
 }
 <style>
 #route-map{width:100%;max-width:900px;margin:20px auto;border-radius:12px;border:2px solid var(--border);background:#faf8f5;padding:10px;overflow:hidden;}
-#route-map svg{width:100%;height:auto;display:block;}
+#route-map img{width:100%;height:auto;display:block;border-radius:8px;}
 .map-legend{background:white;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.1);font-size:0.82rem;line-height:1.6;margin:0 auto 20px;max-width:500px;}
 .map-legend b{color:var(--accent);}
 /* 粘性章节导航 */
@@ -376,194 +376,16 @@ sup a:hover{text-decoration:underline;}
   <p class="lead">路线逻辑：<strong>从北向南追着秋天走</strong>。先到额济纳看胡杨（10月初），再到喀纳斯看金秋（10月3-6日），赶在封路前走独库（10月8日前），然后南疆帕米尔（10月中旬），10月底前穿新藏线到西藏，11月拉萨-林芝走滇藏线到云南，11-12月在云南享受旱季徒步天堂。</p>
 
   <div id="route-map">
-    <svg viewBox="0 0 900 700" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif">
-      <rect x="0" y="0" width="900" height="700" fill="#faf8f5"/>
-
-      <!-- 中国大陆轮廓 - 标准雄鸡形状 -->
-      <path d="
-        M 740,200
-        L 750,185 L 765,170 L 780,155 L 795,150 L 810,158 L 820,175 L 828,195 L 830,215
-        L 825,235 L 815,250 L 800,258 L 795,275 L 800,295 L 805,310 L 800,325 L 785,330
-        L 770,325 L 760,340 L 755,360 L 760,380 L 770,400 L 765,420 L 750,430 L 740,425
-        L 735,440 L 740,460 L 750,480 L 755,500 L 745,515 L 730,520 L 715,515 L 700,525
-        L 690,540 L 700,555 L 695,570 L 680,578 L 665,570 L 650,560 L 635,570 L 620,575
-        L 600,568 L 585,555 L 570,550 L 555,555 L 540,550 L 525,535 L 510,525 L 495,530
-        L 480,535 L 465,525 L 450,510 L 435,505 L 420,510 L 400,515 L 380,508 L 360,495
-        L 340,500 L 320,508 L 300,515 L 280,508 L 265,495 L 250,480 L 240,460 L 235,440
-        L 225,420 L 210,400 L 195,380 L 180,355 L 165,325 L 150,295 L 135,260 L 125,225
-        L 120,195 L 125,170 L 140,150 L 160,140 L 180,145 L 200,150 L 220,140 L 245,130
-        L 270,115 L 295,105 L 320,100 L 345,95 L 370,88 L 395,82 L 420,78 L 440,70 L 460,65
-        L 480,70 L 495,80 L 510,85 L 530,75 L 550,70 L 570,78 L 590,85 L 610,88 L 635,95
-        L 660,100 L 685,105 L 710,115 L 730,130 L 745,150 L 750,170 L 745,190 Z
-      " fill="#e8e0d0" stroke="#8b7355" stroke-width="2.5" stroke-linejoin="round"/>
-
-      <!-- 东北突出（鸡头部分，更明显） -->
-      <path d="
-        M 740,200 L 760,175 L 785,152 L 800,135 L 815,125 L 830,135 L 840,155 L 838,175
-        L 830,190 L 820,180 L 810,165 L 795,152 L 775,160 L 755,180 L 745,195 L 740,200 Z
-      " fill="#e8e0d0" stroke="#8b7355" stroke-width="2.5" stroke-linejoin="round"/>
-
-      <!-- 山东半岛 -->
-      <path d="M 700,260 L 720,270 L 730,285 L 720,295 L 705,290 L 695,275 Z"
-            fill="#e8e0d0" stroke="#8b7355" stroke-width="2" stroke-linejoin="round"/>
-
-      <!-- 辽东半岛 -->
-      <path d="M 745,210 L 760,220 L 755,240 L 740,245 L 730,230 Z"
-            fill="#e8e0d0" stroke="#8b7355" stroke-width="2" stroke-linejoin="round"/>
-
-      <!-- 雷州半岛 -->
-      <path d="M 620,555 L 625,575 L 615,585 L 605,575 L 608,560 Z"
-            fill="#e8e0d0" stroke="#8b7355" stroke-width="2" stroke-linejoin="round"/>
-
-      <!-- 海南岛 -->
-      <ellipse cx="600" cy="600" rx="35" ry="25" fill="#e8e0d0" stroke="#8b7355" stroke-width="2"/>
-      <text x="600" y="605" text-anchor="middle" font-size="11" fill="#998877">海南</text>
-
-      <!-- 台湾岛 -->
-      <ellipse cx="800" cy="440" rx="14" ry="38" fill="#e8e0d0" stroke="#8b7355" stroke-width="2"/>
-      <text x="800" y="445" text-anchor="middle" font-size="10" fill="#998877" writing-mode="tb">台湾</text>
-
-      <!-- 南海九段线示意 -->
-      <path d="M 650,605 Q 700,640 750,620 Q 790,580 770,540"
-            fill="none" stroke="#b8a888" stroke-width="1.2" stroke-dasharray="5,4"/>
-
-      <!-- 省份名称标注（淡色） -->
-      <text x="250" y="230" font-size="16" fill="#b0a088" text-anchor="middle" font-weight="500">新疆</text>
-      <text x="430" y="400" font-size="16" fill="#b0a088" text-anchor="middle" font-weight="500">西藏</text>
-      <text x="580" y="280" font-size="13" fill="#b0a088" text-anchor="middle">青海</text>
-      <text x="630" y="240" font-size="12" fill="#b0a088" text-anchor="middle">甘肃</text>
-      <text x="660" y="185" font-size="12" fill="#b0a088" text-anchor="middle">内蒙古</text>
-      <text x="680" y="320" font-size="11" fill="#b0a088" text-anchor="middle">四川</text>
-      <text x="660" y="500" font-size="13" fill="#b0a088" text-anchor="middle" font-weight="500">云南</text>
-      <text x="700" y="280" font-size="11" fill="#b0a088" text-anchor="middle">陕西</text>
-      <text x="740" y="220" font-size="10" fill="#b0a088" text-anchor="middle">北京</text>
-
-      <!-- ============ 路线 ============ -->
-      <!-- 1. G7+甘青段（红色） -->
-      <path d="M 740,218 L 660,210 L 580,215 L 500,240 L 440,270 L 400,295 L 370,280"
-            stroke="#e74c3c" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-
-      <!-- 2. 北疆段（橙色） -->
-      <path d="M 370,280 L 320,240 L 280,195 L 230,158 L 200,148 L 240,180 L 280,220 L 220,245 L 195,270 L 215,295 L 245,310"
-            stroke="#e67e22" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-
-      <!-- 3. 独库+南疆段（深黄） -->
-      <path d="M 245,310 L 290,305 L 330,335 L 270,395 L 245,420 L 270,395 L 300,400"
-            stroke="#d4a017" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-
-      <!-- 4. 新藏线+西藏段（绿色） -->
-      <path d="M 300,400 L 350,420 L 400,435 L 460,428 L 510,435 L 550,445 L 580,435 L 610,420 L 640,410 L 665,420"
-            stroke="#229954" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-
-      <!-- 5. 滇藏+云南段（蓝色） -->
-      <path d="M 665,420 L 685,450 L 700,475 L 715,490 L 735,510 L 755,530"
-            stroke="#2980b9" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-
-      <!-- ============ 城市标记 ============ -->
-      <!-- 北京 起点 -->
-      <circle cx="740" cy="218" r="10" fill="#e74c3c" stroke="#fff" stroke-width="3"/>
-      <text x="752" y="213" font-size="14" font-weight="bold" fill="#333">北京</text>
-      <text x="752" y="228" font-size="10" fill="#e74c3c" font-weight="600">起点 D1</text>
-
-      <!-- G7+甘青 -->
-      <circle cx="580" cy="215" r="5" fill="#e74c3c" stroke="#fff" stroke-width="2"/>
-      <text x="550" y="210" font-size="11" fill="#555">额济纳</text>
-      <circle cx="500" cy="240" r="4" fill="#e74c3c" stroke="#fff" stroke-width="1.5"/>
-      <text x="485" y="235" font-size="10" fill="#777">嘉峪关</text>
-      <circle cx="440" cy="270" r="4" fill="#e74c3c" stroke="#fff" stroke-width="1.5"/>
-      <text x="410" y="288" font-size="10" fill="#777">张掖</text>
-      <circle cx="400" cy="295" r="4" fill="#e74c3c" stroke="#fff" stroke-width="1.5"/>
-      <text x="365" y="315" font-size="10" fill="#777">大柴旦</text>
-      <circle cx="370" cy="280" r="7" fill="#e74c3c" stroke="#fff" stroke-width="2.5"/>
-      <text x="330" y="278" font-size="12" font-weight="bold" fill="#333">敦煌</text>
-
-      <!-- 北疆 -->
-      <circle cx="320" cy="240" r="4" fill="#e67e22" stroke="#fff" stroke-width="1.5"/>
-      <text x="328" y="235" font-size="10" fill="#777">哈密</text>
-      <circle cx="200" cy="148" r="8" fill="#e67e22" stroke="#fff" stroke-width="2.5"/>
-      <text x="120" y="143" font-size="13" font-weight="bold" fill="#333">喀纳斯</text>
-      <circle cx="195" cy="270" r="5" fill="#e67e22" stroke="#fff" stroke-width="2"/>
-      <text x="110" y="268" font-size="11" fill="#555">赛里木湖/伊宁</text>
-      <circle cx="215" cy="295" r="5" fill="#e67e22" stroke="#fff" stroke-width="2"/>
-      <text x="120" y="310" font-size="11" fill="#555">夏塔（徒步）</text>
-
-      <!-- 南疆 -->
-      <circle cx="290" cy="305" r="4" fill="#d4a017" stroke="#fff" stroke-width="1.5"/>
-      <text x="298" y="300" font-size="10" fill="#777">那拉提</text>
-      <circle cx="330" cy="335" r="4" fill="#d4a017" stroke="#fff" stroke-width="1.5"/>
-      <text x="338" y="330" font-size="10" fill="#777">库车</text>
-      <circle cx="270" cy="395" r="8" fill="#d4a017" stroke="#fff" stroke-width="2.5"/>
-      <text x="170" y="398" font-size="13" font-weight="bold" fill="#333">喀什</text>
-      <circle cx="245" cy="420" r="4" fill="#d4a017" stroke="#fff" stroke-width="1.5"/>
-      <text x="150" y="430" font-size="10" fill="#777">塔什库尔干</text>
-      <circle cx="300" cy="400" r="6" fill="#d4a017" stroke="#fff" stroke-width="2"/>
-      <text x="308" y="395" font-size="11" fill="#555">叶城</text>
-      <text x="308" y="410" font-size="9" fill="#999" font-style="italic">G219起点</text>
-
-      <!-- 西藏 -->
-      <circle cx="400" cy="435" r="4" fill="#229954" stroke="#fff" stroke-width="1.5"/>
-      <text x="408" y="430" font-size="10" fill="#777">狮泉河</text>
-      <circle cx="460" cy="428" r="6" fill="#229954" stroke="#fff" stroke-width="2"/>
-      <text x="468" y="423" font-size="11" fill="#555">冈仁波齐</text>
-      <circle cx="550" cy="445" r="4" fill="#229954" stroke="#fff" stroke-width="1.5"/>
-      <text x="510" y="460" font-size="10" fill="#777">珠峰</text>
-      <circle cx="610" cy="420" r="9" fill="#229954" stroke="#fff" stroke-width="3"/>
-      <text x="620" y="415" font-size="14" font-weight="bold" fill="#333">拉萨</text>
-      <circle cx="640" cy="410" r="4" fill="#229954" stroke="#fff" stroke-width="1.5"/>
-      <text x="648" y="405" font-size="10" fill="#777">林芝</text>
-
-      <!-- 云南 -->
-      <circle cx="685" cy="450" r="4" fill="#2980b9" stroke="#fff" stroke-width="1.5"/>
-      <text x="693" y="445" font-size="10" fill="#777">梅里雪山</text>
-      <circle cx="700" cy="475" r="4" fill="#2980b9" stroke="#fff" stroke-width="1.5"/>
-      <text x="708" y="470" font-size="10" fill="#777">香格里拉</text>
-      <circle cx="715" cy="490" r="8" fill="#2980b9" stroke="#fff" stroke-width="2.5"/>
-      <text x="725" y="485" font-size="13" font-weight="bold" fill="#333">丽江</text>
-      <text x="725" y="500" font-size="9" fill="#2980b9" font-weight="600">还车 D76</text>
-      <circle cx="735" cy="510" r="5" fill="#2980b9" stroke="#fff" stroke-width="2"/>
-      <text x="743" y="505" font-size="11" fill="#555">大理</text>
-      <circle cx="755" cy="530" r="10" fill="#2980b9" stroke="#fff" stroke-width="3"/>
-      <text x="767" y="525" font-size="14" font-weight="bold" fill="#333">昆明</text>
-      <text x="767" y="540" font-size="10" fill="#2980b9" font-weight="600">飞回北京 D85</text>
-
-      <!-- 分段标签 -->
-      <rect x="670" y="168" width="68" height="18" rx="4" fill="#fff" fill-opacity="0.8"/>
-      <text x="704" y="181" text-anchor="middle" font-size="10" fill="#c0392b" font-weight="600">D1-D14</text>
-
-      <rect x="140" y="125" width="110" height="18" rx="4" fill="#fff" fill-opacity="0.8"/>
-      <text x="195" y="138" text-anchor="middle" font-size="10" fill="#d35400" font-weight="600">D15-D31 北疆</text>
-
-      <rect x="170" y="365" width="115" height="18" rx="4" fill="#fff" fill-opacity="0.8"/>
-      <text x="228" y="378" text-anchor="middle" font-size="10" fill="#b7950b" font-weight="600">D32-D44 南疆</text>
-
-      <rect x="430" y="380" width="150" height="18" rx="4" fill="#fff" fill-opacity="0.8"/>
-      <text x="505" y="393" text-anchor="middle" font-size="10" fill="#1e8449" font-weight="600">D45-D68 新藏线+西藏</text>
-
-      <rect x="660" y="530" width="120" height="18" rx="4" fill="#fff" fill-opacity="0.8"/>
-      <text x="720" y="543" text-anchor="middle" font-size="10" fill="#2471a3" font-weight="600">D69-D85 滇藏+云南</text>
-
-      <!-- 指南针 -->
-      <g transform="translate(820,80)">
-        <circle cx="0" cy="0" r="26" fill="#fff" stroke="#ccc" stroke-width="1.5"/>
-        <polygon points="0,-22 -7,0 0,7 7,0" fill="#e74c3c"/>
-        <polygon points="0,22 -7,0 0,-7 7,0" fill="#666"/>
-        <text x="0" y="-29" text-anchor="middle" font-size="12" fill="#555" font-weight="bold">N</text>
-      </g>
-
-      <!-- 底部信息栏 -->
-      <rect x="200" y="640" width="500" height="42" rx="10" fill="#fff" stroke="#ccc" stroke-width="1"/>
-      <text x="450" y="658" text-anchor="middle" font-size="14" fill="#444" font-weight="600">北京 → 新疆 → 西藏 → 云南 自驾路线</text>
-      <text x="450" y="675" text-anchor="middle" font-size="12" fill="#777">全程约18,500公里 · 85天 · 2026年9月18日 → 12月11日</text>
-    </svg>
+    <img src="assets/china_route.png" alt="北京→新疆→西藏→云南自驾路线图" style="width:100%;height:auto;display:block;border-radius:8px;">
   </div>
-  <div class="map-legend" style="max-width:400px;margin:-10px 0 20px">
+  <div class="map-legend" style="max-width:500px;margin:-10px auto 20px">
     <b>路线分段颜色</b><br>
     <span style="color:#e74c3c">━━━</span> G7京新高速+甘青段（北京→额济纳→敦煌）<br>
     <span style="color:#e67e22">━━━</span> 北疆段（哈密→喀纳斯→伊犁）<br>
-    <span style="color:#f1c40f">━━━</span> 独库+南疆段（那拉提→喀什→塔县→叶城）<br>
-    <span style="color:#27ae60">━━━</span> 新藏线+西藏段（叶城→阿里→拉萨→林芝）<br>
-    <span style="color:#3498db">━━━</span> 滇藏线+云南段（林芝→香格里拉→丽江→大理→昆明）<br>
-    <small style="color:var(--muted)">点击地图上的标记点可查看地点名称和停留天数；鼠标滚轮缩放，拖拽平移。</small>
+    <span style="color:#d4a017">━━━</span> 独库+南疆段（那拉提→喀什→塔县→叶城）<br>
+    <span style="color:#229954">━━━</span> 新藏线+西藏段（叶城→阿里→拉萨→林芝）<br>
+    <span style="color:#2980b9">━━━</span> 滇藏线+云南段（林芝→香格里拉→丽江→大理→昆明）<br>
+    <small style="color:var(--muted)">标准中国地图底图，5种颜色分段标注路线，主要城市均有标记。</small>
   </div>
 
   <div class="diagram">
