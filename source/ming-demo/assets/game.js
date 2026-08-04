@@ -88,6 +88,40 @@
       return { k: x.k, unit: x.unit, d: before ? (after[x.k] - before[x.k]) : 0, val: after[x.k] };
     });
     ledger.push({ seq: seq, name: name, solar: curLabel(), age: S.年龄, deltas: deltas, note: note || '' });
+    checkInvariants(name);
+  }
+
+  // ══════════ 可机器检查的不变量（invariants）══════════
+  // 现代版要求第11条：任何时刻这些约束都必须成立；违反即为设计/实现 bug。
+  // 暴露到 window.__INV 供无头测试断言；运行时违规会 console.warn 但不崩游戏。
+  var _invViolations = [];
+  function checkInvariants(ctx) {
+    var v = [];
+    // 1) 资源不为负（存米/铜钱/白银/负债）
+    if (S.存米 < 0) v.push('存米为负(' + S.存米 + ')');
+    if (S.铜钱 < 0) v.push('铜钱为负(' + S.铜钱 + ')');
+    if (S.白银 < 0) v.push('白银为负(' + S.白银 + ')');
+    if (S.负债银 < 0) v.push('负债为负(' + S.负债银 + ')');
+    // 2) 属性钳制在 [0,100]
+    if (S.体魄 < 0 || S.体魄 > 100) v.push('体魄越界(' + S.体魄 + ')');
+    if (S.家族 < 0 || S.家族 > 100) v.push('家族越界(' + S.家族 + ')');
+    // 3) 田亩至少 1（佃农再破也留立锥）
+    if (S.田亩 < 1) v.push('田亩<1(' + S.田亩 + ')');
+    // 4) 概念分离：未婚不得有子嗣（成家先于生育）
+    if (!S.妻室 && (S.子数 > 0 || S.女数 > 0)) v.push('未婚却有子嗣(概念分离被破坏)');
+    // 5) 时间与死亡：已确认死亡后不得再写入活人状态
+    if (S._dead && ctx !== '丧葬支出结算' && ctx.indexOf('传承') < 0) v.push('死者仍被写入状态: ' + ctx);
+    // 6) 代际 carry 合法（若存在）
+    if (S._carry) {
+      if (S._carry.田亩 < 1) v.push('传承田亩<1');
+      if (S._carry.存米 < 0 || S._carry.白银 < 0) v.push('传承资源为负');
+    }
+    if (v.length) {
+      v.forEach(function (msg) { _invViolations.push({ ctx: ctx, msg: msg, seq: seq }); });
+      if (typeof console !== 'undefined' && console.warn) console.warn('[不变量违规@' + ctx + '] ' + v.join('; '));
+    }
+    if (typeof window !== 'undefined') window.__INV = _invViolations;
+    return v;
   }
   function curLabel() {
     if (phase === 'childhood') { var cs = CHILD_STAGES[childStage]; return cs.name + '·' + cs.age + '岁'; }
@@ -675,6 +709,7 @@
       if (a && a.run) a.run(log);
     });
     if (st.settle) st.settle(log);       // 该阶段的收尾结算（概率分支等）
+    if (st.shock !== false) rollShock(log); // 外部冲击：外生于玩家选择，一程一掷
     clampAttr('体魄'); clampAttr('家族');
     recordEntry(st.title + '：' + (lifePicks.length ? lifePicks.map(function (p) { return p.name; }).join('、') : '未作安排'), before, '');
     var rh = '<div class="resolve"><h4>结算 · ' + st.title + '（' + S.年龄 + '岁）</h4>';
@@ -791,6 +826,73 @@
     if (sons === 0) log.push(['暂无育成男丁——夭折是概率非惩罚，日后或需过继立嗣', 'bad']);
   }
 
+  // ══════════ 外部冲击系统（外生风险，非玩家选择触发）══════════
+  // 现代版要求：外部冲击 + 多系统冲突。冲击由概率 roll 决定"是否发生"，
+  // 受灾轻重再读取共享状态账（存粮/负债/家族/识字）——攒了底子的人扛得住，
+  // 月光又负债的人被同一场灾荒打垮。体现"风险转移/路径依赖"，非道德评分。
+  var SHOCKS = [
+    {
+      k: '大水', w: 10, tag: '[天灾]',
+      txt: '梅雨连月，圩田溃堤，晚稻淹没大半。',
+      hit: function (log) {
+        var loss = Math.min(S.存米, 2 + (S.田亩 >= 4 ? 1 : 0));
+        S.存米 -= loss;
+        var buffer = S.家族 >= 60 ? '（宗族义仓匀出些许，未至断炊）' : '';
+        log.push(['大水冲田：损存米' + loss + '石' + buffer, 'bad']);
+        if (S.存米 <= 0 && S.家族 < 60) { S.负债银 += 1; log.push(['青黄不接，借贷度荒：负债+1两', 'bad']); }
+      }
+    },
+    {
+      k: '大疫', w: 9, tag: '[疫病]',
+      txt: '时疫流行，一村十病七八，你也染上寒热。',
+      hit: function (log) {
+        var base = 8; if (S.体魄 >= 70) base = 5; // 底子好扛得住
+        S.体魄 -= base;
+        var cure = S.铜钱 >= 400 ? 400 : 0;
+        if (cure) { S.铜钱 -= cure; S.体魄 += 4; log.push(['时疫染身：体魄-' + base + '；有现钱请医买药-' + cure + '文，体魄回+4', 'bad']); }
+        else log.push(['时疫染身：体魄-' + base + '（无钱请医，只能硬扛）', 'bad']);
+      }
+    },
+    {
+      k: '加派', w: 9, tag: '[苛政]',
+      txt: '朝廷加征辽饷/杂办，里长挨户摊派。',
+      hit: function (log) {
+        var levy = S.识字 ? 300 : 500; // 识字者能据则力争，少被虚加
+        var pay = Math.min(S.铜钱, levy); S.铜钱 -= pay;
+        var rest = levy - pay; if (rest > 0) { S.存米 = Math.max(0, S.存米 - 1); }
+        log.push(['官府加派：铜钱-' + pay + (rest > 0 ? '文、折米-1石' : '文') + (S.识字 ? '（识字据则力争，少被虚加）' : '（不识字，任凭吏胥填数）'), 'bad']);
+      }
+    },
+    {
+      k: '米贵', w: 8, tag: '[市场]',
+      txt: '邻省歉收，米价腾贵，籴米者叫苦，粜米者得利。',
+      hit: function (log) {
+        if (S.存米 >= 3) { S.铜钱 += 400; S.存米 -= 1; log.push(['米价腾贵：家有余粮，粜米1石得铜钱+400（市场两面性）', 'good']); }
+        else { S.铜钱 = Math.max(0, S.铜钱 - 300); log.push(['米价腾贵：家无余粮，籴米度日铜钱-300（同一场行情，穷者更苦）', 'bad']); }
+      }
+    },
+    {
+      k: '兵燹', w: 5, tag: '[兵祸]',
+      txt: '流寇/过境兵扰，四乡骚动，人人自危。',
+      hit: function (log) {
+        var loot = Math.min(S.白银, 1); S.白银 -= loot; S.体魄 -= 4;
+        var save = S.家族 >= 65 ? '（合族结寨自保，损失稍轻）' : '';
+        log.push(['兵燹过境：白银-' + loot + '两、体魄-4' + save, 'bad']);
+      }
+    },
+    { k: '太平', w: 30, tag: '[太平]', txt: '这些年风调雨顺，未逢大灾。', hit: function (log) { log.push(['这一程未逢外部大灾，是难得的太平岁月。', 'good']); } }
+  ];
+  // 在每个人生阶段结算后掷一次外部冲击（外生于玩家选择）
+  function rollShock(log) {
+    var s = pickWeighted(SHOCKS);
+    var pctMap = {}; var sum = SHOCKS.reduce(function (a, b) { return a + b.w; }, 0);
+    var pct = Math.round(s.w / sum * 100);
+    log.push(['〔外部冲击·概率约' + pct + '%〕' + s.txt + '（外生事件，与你的选择无关，但你攒下的底子决定扛不扛得住）', s.k === '太平' ? 'good' : 'bad']);
+    s.hit(log);
+    clampAttr('体魄'); clampAttr('家族');
+    return s.k;
+  }
+
   // 人生阶段"共享状态账"面板：把幼年至今攒下的底子显性摆出来，让玩家看清路径依赖
   function lifeDossier(extra) {
     var tags = [];
@@ -798,7 +900,6 @@
     tags.push(S.技艺 !== '无' ? '手艺·傍身' : '手艺·无');
     tags.push('农事历练 ' + S.农事历练);
     tags.push('家族声望 ' + S.家族);
-    if (S.负债银 > 0) tags.push('负债 ' + S.负债银 + '两');
     var h = '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">📇 共享状态账 · 这本账一路带到底</span>' +
       '<span class="cb-val">体魄 ' + S.体魄 + '</span></div>' +
@@ -1055,6 +1156,7 @@
       var before = snapshot();
       // 应用丧葬扣除与守恒记账
       S.白银 = Math.max(0, S.白银 - 1); S.存米 = Math.max(0, S.存米 - 1);
+      S._dead = true; // 死亡确认：此后除“丧葬/传承”外，任何再写入本世状态都视为不变量违规
       recordEntry('丧葬支出结算', before, '棺木等：白银-1、存米-1（从遗产扣，镜像入出资子账）');
       var rh = '<div class="resolve"><h4>身后结算 · 享年 ' + S.年龄 + ' 岁</h4>';
       rh += '<div class="line bad">· 丧葬支出：白银-1、存米-1</div>';
