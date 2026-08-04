@@ -143,6 +143,13 @@ sup a:hover{text-decoration:underline;}
   h2{font-size:1.45rem;}
   .critical-alert .alert-inner{flex-direction:column;gap:6px;}
 }
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+#route-map{height:500px;border-radius:12px;margin:20px 0;border:2px solid var(--border);}
+.leaflet-popup-content-wrapper{border-radius:8px;}
+.leaflet-popup-content{margin:12px 16px;font-size:0.88rem;}
+.map-legend{background:white;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.2);font-size:0.82rem;line-height:1.6;}
+.map-legend b{color:var(--accent);}
 </style>
 </head>
 <body>
@@ -343,6 +350,17 @@ sup a:hover{text-decoration:underline;}
   <div class="section-num">Route Overview</div>
   <h2>路线总览</h2>
   <p class="lead">路线逻辑：<strong>从北向南追着秋天走</strong>。先到额济纳看胡杨（10月初），再到喀纳斯看金秋（10月3-6日），赶在封路前走独库（10月8日前），然后南疆帕米尔（10月中旬），10月底前穿新藏线到西藏，11月拉萨-林芝走滇藏线到云南，11-12月在云南享受旱季徒步天堂。</p>
+
+  <div id="route-map"></div>
+  <div class="map-legend" style="max-width:400px;margin:-10px 0 20px">
+    <b>路线分段颜色</b><br>
+    <span style="color:#e74c3c">━━━</span> G7京新高速+甘青段（北京→额济纳→敦煌）<br>
+    <span style="color:#e67e22">━━━</span> 北疆段（哈密→喀纳斯→伊犁）<br>
+    <span style="color:#f1c40f">━━━</span> 独库+南疆段（那拉提→喀什→塔县→叶城）<br>
+    <span style="color:#27ae60">━━━</span> 新藏线+西藏段（叶城→阿里→拉萨→林芝）<br>
+    <span style="color:#3498db">━━━</span> 滇藏线+云南段（林芝→香格里拉→丽江→大理→昆明）<br>
+    <small style="color:var(--muted)">点击地图上的标记点可查看地点名称和停留天数；鼠标滚轮缩放，拖拽平移。</small>
+  </div>
 
   <div class="diagram">
     <pre class="mermaid">
@@ -1055,22 +1073,23 @@ flowchart LR
   </div>
 
   <h4 style="margin-top:20px">厨具/餐具：家里现有 vs 需要新买</h4>
-  <p style="font-size:0.88rem;color:var(--muted);margin:4px 0 14px">原则：大家电/易碎品不带，买户外专用轻便耐造的；住民宿时用民宿厨房更方便</p>
+  <p style="font-size:0.88rem;color:var(--muted);margin:4px 0 14px">原则：大家电/易碎品不带，住民宿用电用民宿的；户外做饭用卡式炉+户外锅，轻便耐造</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>家里现有</th><th>带不带？</th><th>原因</th><th>替代方案</th></tr></thead>
       <tbody>
-        <tr><td>电饭煲/电压力锅</td><td><strong>不带</strong></td><td>需要500-1000W大功率电，车载逆变器300W带不动；陶瓷/不粘内胆在颠簸路上极易颠碎；太重（5-8斤）占地方</td><td>买户外高压锅（2-3L，1斤多重），卡式炉上10分钟焖好米饭，高原也能用</td></tr>
-        <tr><td>铁锅（家用大炒锅）</td><td><strong>不建议带大的，有小轻便的可以带</strong></td><td>大铁锅3-4斤太重，容易生锈，没有锅盖户外不好用</td><td>户外套锅里已经有铝合金炒锅（1斤多，带锅盖），轻便不生锈</td></tr>
+        <tr><td>小铁锅（1-2斤，轻便的）</td><td><strong>可以带</strong></td><td>小铁锅炒菜比户外铝合金锅好吃，用毛巾包好放储物箱不会颠坏</td><td>户外套锅里的铝合金炒锅也能用，就是炒菜不如铁锅香</td></tr>
+        <tr><td>大铁锅（3斤以上的家用炒锅）</td><td><strong>不带</strong></td><td>太重，容易生锈，卡式炉火力小厚铁锅加热慢</td><td>用户外套锅的炒锅就行</td></tr>
+        <tr><td>电饭煲/电压力锅</td><td><strong>不带</strong></td><td>需要500-1000W大功率电，车载逆变器300W带不动；太重（5-8斤）占地方；陶瓷/不粘内胆颠簸路上极易颠碎；住民宿90%都有电饭煲，直接用民宿的</td><td>买户外高压锅（2-3L，1斤多重，130元），卡式炉上10分钟焖好米饭、炖肉，海拔5000m也能用，这是高原必备</td></tr>
         <tr><td>电烧水壶</td><td><strong>不带</strong></td><td>需要220V电，功率大</td><td>买个户外不锈钢烧水壶（1L，50元），卡式炉上2分钟烧开，泡茶泡咖啡泡面都能用</td></tr>
-        <tr><td>电磁炉</td><td><strong>完全不带</strong></td><td>车上没大功率市电，带了也用不了</td><td>住民宿的时候民宿一般都有燃气灶/电磁炉，用民宿的就行</td></tr>
-        <tr><td>陶瓷餐具/玻璃杯子</td><td><strong>绝对不要带</strong></td><td>太重、颠簸路上必碎，碎了还容易划伤人</td><td>买304不锈钢碗/盘/杯子（4人份约50元），或者密胺（仿瓷）餐具，轻便耐摔</td></tr>
-        <tr><td>菜刀/菜板</td><td><strong>可以带家里的小菜刀</strong></td><td>家里的菜刀比户外折叠刀好用，用毛巾包好放储物箱不会晃</td><td>小菜刀+小菜板（竹子/塑料的）即可，不用买户外专用</td></tr>
+        <tr><td>电磁炉</td><td><strong>完全不带</strong></td><td>车上没大功率市电，带了也用不了</td><td>住民宿的时候民宿一般都有燃气灶/电磁炉，用民宿的就行；户外用卡式炉</td></tr>
+        <tr><td>陶瓷餐具/玻璃杯子</td><td><strong>绝对不要带</strong></td><td>太重、颠簸路上必碎，碎了还容易划伤人</td><td>买304不锈钢碗/盘/杯子（4人份约50元），或者密胺（仿瓷）餐具，轻便耐摔；家里如果有不锈钢餐具可以直接带，不用买新的</td></tr>
+        <tr><td>菜刀/菜板</td><td><strong>带家里的小菜刀+小菜板</strong></td><td>家里的菜刀比户外折叠刀好用太多，切肉切菜都顺手，用毛巾包好放储物箱不会晃</td><td>小菜刀+竹/塑料小菜板即可，不用买户外专用</td></tr>
       </tbody>
     </table>
   </div>
   <div class="callout" style="margin-top:10px">
-    <p><strong>总结</strong>：家里的电器和易碎品都不带，花400多元买一套户外专用炊具（卡式炉+高压锅+套锅+烧水壶）+50元不锈钢餐具即可。菜刀菜板如果家里有小的可以带上。</p>
+    <p><strong>总结</strong>：可以从家里带的：小菜刀、小菜板、小铁锅（如果有轻便的）、家里的不锈钢餐具；需要新买的：卡式炉+户外高压锅+套锅+烧水壶+不锈钢餐具（如果家里没有），总共约400元；电饭煲/电压力锅/大铁锅/陶瓷玻璃餐具都不带；住民宿优先用民宿厨房的电器，户外用自己的卡式炉。</p>
   </div>
 
   <h4 style="margin-top:20px">民宿厨房不干净怎么办？（自炊不依赖民宿厨房）</h4>
@@ -1132,23 +1151,48 @@ flowchart LR
   </div>
   <p style="font-size:0.82rem;color:var(--muted);margin-top:4px">* 注意：以上为估算价格，10-12月属于淡季，部分景区门票可能半价或免票；如果部分景点不想去可以省几百到上千元；4人带学生证（如有）还能再省约20%。</p>
 
-  <h4 style="margin-top:20px">一嗨租车0元异地还车验证步骤（必做！）</h4>
-  <div class="callout">
-    <p><strong>重要</strong>：不要直接在APP下单！出发前1-2周必须按以下步骤电话确认，否则可能产生几千元异地还车费。</p>
+  <h4 style="margin-top:20px">异地还车费：重要风险提示与验证步骤（必看！）</h4>
+  <div class="critical-alert" style="margin:10px 0">
+    <div style="padding:12px 16px;background:#fff3cd;border-left:4px solid #ffc107;border-radius:4px">
+      <p style="margin:0;font-size:0.9rem"><strong>⚠️ 风险提示</strong>：本预算按"0元异地还车费"计算，但<strong>我不能100%保证2026年9月一定免异地费</strong>。一嗨/神州的免异地还车费是季节性促销政策，会随时间调整，出发前1-2个月（2026年7-8月）才能确认。不要默认一定免费，必须按以下步骤验证！</p>
+    </div>
   </div>
+  <div class="callout">
+    <p><strong>为什么推荐北京取丽江还（而不是开回北京）？</strong></p>
+    <ul style="margin:8px 0;padding-left:20px">
+      <li><strong>省钱</strong>：丽江开回北京2800km高速，油费+过路费+5-6天住宿费多花4,000-5,000元，而4个人机票淡季才3,200元（800/人），比开回去便宜</li>
+      <li><strong>省时间</strong>：开回去要多花5-6天纯赶路，高速没风景；这时间不如在云南多玩几天</li>
+      <li><strong>安全</strong>：12月中旬北方下雪，高速结冰危险，长途开车太累</li>
+      <li><strong>路线顺</strong>：北京→新疆→西藏→云南本身就是自西向南的大环线，丽江是自然终点，不走回头路</li>
+    </ul>
+  </div>
+  <p style="font-size:0.88rem;color:var(--muted);margin:10px 0 8px"><strong>出发前必做验证步骤（2026年7-8月执行）：</strong></p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>步骤</th><th>操作</th><th>注意事项</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>打一嗨客服电话400-888-6608，人工服务</td><td>不要用在线客服，说不清楚</td></tr>
-        <tr><td>2</td><td>询问："北京取车，丽江还车，85天长租，9月18日取12月11日还，是否有异地还车费？"</td><td>明确说清取还城市、日期、时长</td></tr>
+        <tr><td>1</td><td>打一嗨客服电话400-888-6608，人工服务</td><td>不要用在线客服，说不清楚；同时也打神州租车400-616-6666对比价格</td></tr>
+        <tr><td>2</td><td>询问："北京取车，丽江还车，85天长租，9月18日取12月11日还，坦克300/哈弗H9，是否有异地还车费？"</td><td>明确说清取还城市、日期、车型、时长</td></tr>
         <tr><td>3</td><td>如果客服说免异地费，要求<strong>发送书面确认</strong>（短信/邮件/APP内消息）</td><td>口头承诺不算，必须有文字凭证</td></tr>
         <tr><td>4</td><td>通话全程<strong>录音</strong>（手机开启录音功能）</td><td>万一后续有纠纷有证据</td></tr>
         <tr><td>5</td><td>下单后在订单详情页确认"异地还车费"显示为0元，截图保存</td><td>取车时再和门店工作人员确认一次</td></tr>
-        <tr><td>6</td><td>如果客服说有异地费，问："那北京到昆明/大理有没有免异地费的？丽江能不能调整？"</td><td>昆明/大理作为还车点可能免费，丽江如果不行可以改到大理还车</td></tr>
       </tbody>
     </table>
   </div>
+  <p style="font-size:0.88rem;color:var(--muted);margin:10px 0 8px"><strong>如果有异地费的备选方案：</strong></p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>异地费金额</th><th>应对方案</th></tr></thead>
+      <tbody>
+        <tr><td>≤3,000元</td><td>还是北京取丽江还，比开回北京（多花4,000-5,000元）还是划算</td></tr>
+        <tr><td>3,000-5,000元</td><td>问昆明/大理还车多少钱，昆明作为省会城市异地费往往更低；昆明还车后坐高铁去丽江玩（昆明→丽江高铁3小时，200元/人）</td></tr>
+        <tr><td>5,000-8,000元</td><td>比较"异地费+机票"vs"开回北京的油费过路费住宿费"哪个便宜；如果差不多，考虑分段租车（新疆租一段、西藏租一段、云南租一段）</td></tr>
+        <tr><td>>8,000元</td><td>考虑在拉萨还车，坐火车到云南，或者改其他方案；这种概率极低，热门旅游航线一般不会这么贵</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:0.82rem;color:var(--muted);margin-top:6px">* 机动费里已经预留了部分空间应对可能的异地费差额，不用太担心。</p>
+
 
   <h4 style="margin-top:20px">5人版两个方案对比</h4>
   <p style="font-size:0.88rem;color:var(--muted);margin:4px 0 14px">5个人大5座越野坐5人理论上可以，但85天长途满载行李+装备+食材会比较挤，建议以下两个方案：</p>
@@ -1451,6 +1495,7 @@ flowchart LR
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 mermaid.initialize({
   startOnLoad: false,
@@ -1473,6 +1518,101 @@ if (document.readyState === 'loading') {
 }
 </script>
 <script src="assets/charts.js"></script>
+<script>
+// 路线地图初始化
+document.addEventListener('DOMContentLoaded', function() {
+  var map = L.map('route-map').setView([35.5, 95], 4);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 10
+  }).addTo(map);
+
+  // 路线点（按顺序）
+  var points = [
+    // G7+甘青段 红色
+    {name:'北京', coord:[39.9042,116.4074], days:'起点', color:'#e74c3c'},
+    {name:'巴彦淖尔', coord:[40.7433,107.3889], days:'D1', color:'#e74c3c'},
+    {name:'额济纳', coord:[41.9538,101.0717], days:'D2-D3', color:'#e74c3c'},
+    {name:'嘉峪关', coord:[39.7731,98.2892], days:'D5', color:'#e74c3c'},
+    {name:'张掖', coord:[38.9259,100.4496], days:'D6', color:'#e74c3c'},
+    {name:'大柴旦', coord:[37.8434,95.3644], days:'D8', color:'#e74c3c'},
+    {name:'敦煌', coord:[40.1421,94.6618], days:'D12-D14', color:'#e74c3c'},
+    // 北疆段 橙色
+    {name:'哈密', coord:[42.8331,93.5148], days:'D15', color:'#e67e22'},
+    {name:'巴里坤', coord:[43.5933,93.0186], days:'D16', color:'#e67e22'},
+    {name:'布尔津', coord:[47.7059,86.8739], days:'D19', color:'#e67e22'},
+    {name:'喀纳斯', coord:[48.6353,87.1358], days:'D20-D22', color:'#e67e22'},
+    {name:'禾木', coord:[48.5667,87.4333], days:'D23', color:'#e67e22'},
+    {name:'克拉玛依', coord:[45.5956,84.8889], days:'D25', color:'#e67e22'},
+    {name:'赛里木湖', coord:[44.6022,81.1833], days:'D26', color:'#e67e22'},
+    {name:'伊宁', coord:[43.9161,81.3244], days:'D27', color:'#e67e22'},
+    {name:'夏塔', coord:[43.1589,80.7833], days:'D29-D30', color:'#e67e22'},
+    {name:'特克斯', coord:[43.2128,81.8381], days:'D31', color:'#e67e22'},
+    // 独库+南疆段 黄色
+    {name:'那拉提', coord:[43.3139,84.0153], days:'D32', color:'#f1c40f'},
+    {name:'库车', coord:[41.7167,82.9333], days:'D35', color:'#f1c40f'},
+    {name:'喀什', coord:[39.4677,75.9894], days:'D38-D40', color:'#f1c40f'},
+    {name:'塔什库尔干', coord:[37.7783,75.2297], days:'D41-D42', color:'#f1c40f'},
+    {name:'叶城', coord:[37.8833,77.4000], days:'D44', color:'#f1c40f'},
+    // 新藏线+西藏段 绿色
+    {name:'三十里营房', coord:[36.4500,77.7500], days:'D45', color:'#27ae60'},
+    {name:'狮泉河', coord:[32.5033,80.1050], days:'D49-D50', color:'#27ae60'},
+    {name:'冈仁波齐', coord:[31.0500,81.3167], days:'D52-D54', color:'#27ae60'},
+    {name:'玛旁雍错', coord:[30.7333,81.4667], days:'D55', color:'#27ae60'},
+    {name:'古格王朝', coord:[31.4833,79.8000], days:'D56', color:'#27ae60'},
+    {name:'萨嘎', coord:[29.3167,85.2333], days:'D59', color:'#27ae60'},
+    {name:'珠峰大本营', coord:[28.1833,86.8333], days:'D61', color:'#27ae60'},
+    {name:'日喀则', coord:[29.2672,88.8808], days:'D62', color:'#27ae60'},
+    {name:'拉萨', coord:[29.6520,91.1721], days:'D64-D66', color:'#27ae60'},
+    {name:'林芝', coord:[29.6489,94.3623], days:'D68', color:'#27ae60'},
+    {name:'然乌湖', coord:[29.5333,96.8000], days:'D70', color:'#27ae60'},
+    // 滇藏+云南段 蓝色
+    {name:'德钦(梅里)', coord:[28.4333,98.8833], days:'D72', color:'#3498db'},
+    {name:'香格里拉', coord:[27.8303,99.7058], days:'D73-D74', color:'#3498db'},
+    {name:'丽江', coord:[26.8553,100.2272], days:'D76 还车', color:'#3498db'},
+    {name:'大理', coord:[25.6065,100.2676], days:'D81-D82', color:'#3498db'},
+    {name:'昆明', coord:[25.0389,102.7183], days:'D85 飞回北京', color:'#3498db'}
+  ];
+
+  // 画分段路线
+  function drawSegment(startIdx, endIdx, color) {
+    var segPoints = [];
+    for (var i = startIdx; i <= endIdx; i++) {
+      segPoints.push(points[i].coord);
+    }
+    L.polyline(segPoints, {color: color, weight: 4, opacity: 0.8}).addTo(map);
+  }
+
+  // G7+甘青: 0-6
+  drawSegment(0, 6, '#e74c3c');
+  // 北疆: 6-17
+  drawSegment(6, 17, '#e67e22');
+  // 独库+南疆: 17-22
+  drawSegment(17, 22, '#f1c40f');
+  // 新藏+西藏: 22-33
+  drawSegment(22, 33, '#27ae60');
+  // 滇藏+云南: 33-38
+  drawSegment(33, 38, '#3498db');
+
+  // 加标记点
+  points.forEach(function(p) {
+    var marker = L.circleMarker(p.coord, {
+      radius: 5,
+      fillColor: p.color,
+      color: '#fff',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.9
+    }).addTo(map);
+    marker.bindPopup('<b>' + p.name + '</b><br>' + p.days);
+  });
+
+  // 起点终点特殊标记
+  L.circleMarker(points[0].coord, {radius:8, fillColor:'#e74c3c', color:'#fff', weight:3, fillOpacity:1}).addTo(map).bindPopup('<b>起点：北京</b><br>D0 9月18日出发');
+  L.circleMarker(points[points.length-1].coord, {radius:8, fillColor:'#3498db', color:'#fff', weight:3, fillOpacity:1}).addTo(map).bindPopup('<b>终点：昆明</b><br>D85 12月11日飞回北京');
+});
+</script>
 <script>
 function switchBudget(ver) {
   document.getElementById('budget-p2').style.display = ver === 'p2' ? 'block' : 'none';
