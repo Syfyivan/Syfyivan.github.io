@@ -44,6 +44,7 @@ skip_render:
   - courses/novel-activity-workflow/**
   - road-trip-2026/**
   - ming-life-tree/**
+  - ming-life-sim-gdd/**
 
 # Writing
 new_post_name: :title.md # File name of new posts
