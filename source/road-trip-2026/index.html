@@ -144,12 +144,10 @@ sup a:hover{text-decoration:underline;}
   h2{font-size:1.45rem;}
   .critical-alert .alert-inner{flex-direction:column;gap:6px;}
 }
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
-#route-map{height:500px;border-radius:12px;margin:20px 0;border:2px solid var(--border);}
-.leaflet-popup-content-wrapper{border-radius:8px;}
-.leaflet-popup-content{margin:12px 16px;font-size:0.88rem;}
-.map-legend{background:white;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.2);font-size:0.82rem;line-height:1.6;}
+#route-map{width:100%;max-width:900px;margin:20px auto;border-radius:12px;border:2px solid var(--border);background:#faf8f5;padding:10px;overflow:hidden;}
+#route-map svg{width:100%;height:auto;display:block;}
+.map-legend{background:white;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.1);font-size:0.82rem;line-height:1.6;margin:0 auto 20px;max-width:500px;}
 .map-legend b{color:var(--accent);}
 /* 粘性章节导航 */
 .section-nav{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:8px 0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;}
@@ -377,7 +375,80 @@ sup a:hover{text-decoration:underline;}
   <h2>路线总览</h2>
   <p class="lead">路线逻辑：<strong>从北向南追着秋天走</strong>。先到额济纳看胡杨（10月初），再到喀纳斯看金秋（10月3-6日），赶在封路前走独库（10月8日前），然后南疆帕米尔（10月中旬），10月底前穿新藏线到西藏，11月拉萨-林芝走滇藏线到云南，11-12月在云南享受旱季徒步天堂。</p>
 
-  <div id="route-map"></div>
+  <div id="route-map">
+    <svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+      <!-- 简化中国轮廓（示意） -->
+      <rect x="0" y="0" width="900" height="600" fill="#faf8f5"/>
+      <!-- 省界简化示意 -->
+      <path d="M50,100 L200,80 L300,100 L400,90 L500,110 L600,130 L700,120 L800,150 L850,200 L870,300 L850,400 L820,480 L750,530 L650,560 L500,570 L350,560 L200,530 L100,480 L50,380 L40,250 Z" fill="#f0ebe4" stroke="#d4c9b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+      <!-- 路线1：G7+甘青段 红色 -->
+      <path d="M620,160 L550,165 L480,170 L420,175 L360,180 L300,190 L250,200 L200,210" stroke="#e74c3c" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M200,210 L200,240 L220,270 L260,290 L300,280 L330,250" stroke="#e74c3c" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- 路线2：北疆段 橙色 -->
+      <path d="M330,250 L290,200 L240,170 L200,150 L170,160 L150,190 L170,220 L200,240 L220,230" stroke="#e67e22" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M220,230 L180,250 L150,240 L130,220" stroke="#e67e22" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- 路线3：独库+南疆段 黄色 -->
+      <path d="M130,220 L150,250 L180,280 L200,310 L180,340 L160,370 L170,400 L200,380" stroke="#f1c40f" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- 路线4：新藏线+西藏段 绿色 -->
+      <path d="M200,380 L240,390 L280,400 L320,390 L360,380 L400,370 L430,380 L460,400 L480,420 L500,410 L520,390 L540,380" stroke="#27ae60" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- 路线5：滇藏+云南段 蓝色 -->
+      <path d="M540,380 L570,410 L600,440 L640,450 L680,460 L720,480 L760,500" stroke="#3498db" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- 城市标记点 -->
+      <!-- 北京 起点 -->
+      <circle cx="620" cy="160" r="8" fill="#e74c3c" stroke="#fff" stroke-width="3"/>
+      <text x="630" y="155" font-size="13" font-weight="bold" fill="#333">北京（起点）</text>
+
+      <!-- G7+甘青 -->
+      <circle cx="480" cy="170" r="5" fill="#e74c3c" stroke="#fff" stroke-width="2"/><text x="488" y="165" font-size="11" fill="#555">额济纳</text>
+      <circle cx="330" cy="250" r="5" fill="#e74c3c" stroke="#fff" stroke-width="2"/><text x="338" y="245" font-size="11" fill="#555">敦煌</text>
+      <circle cx="300" cy="280" r="4" fill="#e74c3c" stroke="#fff" stroke-width="1.5"/><text x="270" y="300" font-size="10" fill="#777">大柴旦</text>
+      <circle cx="260" cy="290" r="4" fill="#e74c3c" stroke="#fff" stroke-width="1.5"/><text x="268" y="305" font-size="10" fill="#777">张掖</text>
+
+      <!-- 北疆 -->
+      <circle cx="150" cy="190" r="6" fill="#e67e22" stroke="#fff" stroke-width="2"/><text x="90" y="185" font-size="12" font-weight="bold" fill="#333">喀纳斯</text>
+      <circle cx="130" cy="220" r="5" fill="#e67e22" stroke="#fff" stroke-width="2"/><text x="70" y="218" font-size="11" fill="#555">赛里木湖/伊宁</text>
+      <circle cx="150" cy="250" r="5" fill="#e67e22" stroke="#fff" stroke-width="2"/><text x="100" y="265" font-size="11" fill="#555">夏塔/特克斯</text>
+
+      <!-- 独库+南疆 -->
+      <circle cx="180" cy="280" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1.5"/><text x="188" y="275" font-size="10" fill="#777">那拉提</text>
+      <circle cx="160" cy="370" r="6" fill="#f1c40f" stroke="#fff" stroke-width="2"/><text x="90" y="375" font-size="12" font-weight="bold" fill="#333">喀什</text>
+      <circle cx="170" cy="400" r="4" fill="#f1c40f" stroke="#fff" stroke-width="1.5"/><text x="100" y="410" font-size="10" fill="#777">塔什库尔干</text>
+      <circle cx="200" cy="380" r="5" fill="#f1c40f" stroke="#fff" stroke-width="2"/><text x="208" y="375" font-size="11" fill="#555">叶城（新藏线起点）</text>
+
+      <!-- 新藏线+西藏 -->
+      <circle cx="280" cy="400" r="4" fill="#27ae60" stroke="#fff" stroke-width="1.5"/><text x="288" y="395" font-size="10" fill="#777">狮泉河</text>
+      <circle cx="360" cy="380" r="6" fill="#27ae60" stroke="#fff" stroke-width="2"/><text x="368" y="375" font-size="11" fill="#555">冈仁波齐/玛旁雍错</text>
+      <circle cx="460" cy="400" r="4" fill="#27ae60" stroke="#fff" stroke-width="1.5"/><text x="468" y="395" font-size="10" fill="#777">珠峰</text>
+      <circle cx="500" cy="410" r="7" fill="#27ae60" stroke="#fff" stroke-width="3"/><text x="508" y="405" font-size="13" font-weight="bold" fill="#333">拉萨</text>
+      <circle cx="540" cy="380" r="4" fill="#27ae60" stroke="#fff" stroke-width="1.5"/><text x="548" y="375" font-size="10" fill="#777">林芝</text>
+
+      <!-- 滇藏+云南 -->
+      <circle cx="600" cy="440" r="4" fill="#3498db" stroke="#fff" stroke-width="1.5"/><text x="608" y="435" font-size="10" fill="#777">梅里雪山/香格里拉</text>
+      <circle cx="680" cy="460" r="6" fill="#3498db" stroke="#fff" stroke-width="2"/><text x="688" y="455" font-size="12" font-weight="bold" fill="#333">丽江（还车）</text>
+      <circle cx="720" cy="480" r="5" fill="#3498db" stroke="#fff" stroke-width="2"/><text x="728" y="475" font-size="11" fill="#555">大理</text>
+      <circle cx="760" cy="500" r="8" fill="#3498db" stroke="#fff" stroke-width="3"/><text x="768" y="495" font-size="13" font-weight="bold" fill="#333">昆明（飞回北京）</text>
+
+      <!-- 方向箭头标注 -->
+      <text x="620" y="140" font-size="11" fill="#999" font-style="italic">D1-D14 甘青段</text>
+      <text x="120" y="140" font-size="11" fill="#999" font-style="italic">D15-D31 北疆</text>
+      <text x="100" y="340" font-size="11" fill="#999" font-style="italic">D32-D44 南疆</text>
+      <text x="340" y="350" font-size="11" fill="#999" font-style="italic">D45-D68 新藏线+西藏</text>
+      <text x="620" y="500" font-size="11" fill="#999" font-style="italic">D69-D85 滇藏+云南</text>
+
+      <!-- 指南针 -->
+      <g transform="translate(840,60)">
+        <circle cx="0" cy="0" r="22" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <polygon points="0,-18 -5,0 0,5 5,0" fill="#e74c3c"/>
+        <polygon points="0,18 -5,0 0,-5 5,0" fill="#333"/>
+        <text x="0" y="-24" text-anchor="middle" font-size="10" fill="#666">N</text>
+      </g>
+
+      <!-- 总里程标注 -->
+      <text x="450" y="560" text-anchor="middle" font-size="12" fill="#888">全程约18,500公里 · 85天 · 2026年9月18日-12月11日</text>
+    </svg>
+  </div>
   <div class="map-legend" style="max-width:400px;margin:-10px 0 20px">
     <b>路线分段颜色</b><br>
     <span style="color:#e74c3c">━━━</span> G7京新高速+甘青段（北京→额济纳→敦煌）<br>
@@ -1699,7 +1770,6 @@ flowchart LR
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 mermaid.initialize({
   startOnLoad: false,
@@ -1722,102 +1792,6 @@ if (document.readyState === 'loading') {
 }
 </script>
 <script src="assets/charts.js"></script>
-<script>
-// 路线地图初始化
-document.addEventListener('DOMContentLoaded', function() {
-  var map = L.map('route-map').setView([35.5, 95], 4);
-
-  L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
-    subdomains: ['1','2','3','4'],
-    attribution: '&copy; 高德地图',
-    maxZoom: 12
-  }).addTo(map);
-
-  // 路线点（按顺序）
-  var points = [
-    // G7+甘青段 红色
-    {name:'北京', coord:[39.9042,116.4074], days:'起点', color:'#e74c3c'},
-    {name:'巴彦淖尔', coord:[40.7433,107.3889], days:'D1', color:'#e74c3c'},
-    {name:'额济纳', coord:[41.9538,101.0717], days:'D2-D3', color:'#e74c3c'},
-    {name:'嘉峪关', coord:[39.7731,98.2892], days:'D5', color:'#e74c3c'},
-    {name:'张掖', coord:[38.9259,100.4496], days:'D6', color:'#e74c3c'},
-    {name:'大柴旦', coord:[37.8434,95.3644], days:'D8', color:'#e74c3c'},
-    {name:'敦煌', coord:[40.1421,94.6618], days:'D12-D14', color:'#e74c3c'},
-    // 北疆段 橙色
-    {name:'哈密', coord:[42.8331,93.5148], days:'D15', color:'#e67e22'},
-    {name:'巴里坤', coord:[43.5933,93.0186], days:'D16', color:'#e67e22'},
-    {name:'布尔津', coord:[47.7059,86.8739], days:'D19', color:'#e67e22'},
-    {name:'喀纳斯', coord:[48.6353,87.1358], days:'D20-D22', color:'#e67e22'},
-    {name:'禾木', coord:[48.5667,87.4333], days:'D23', color:'#e67e22'},
-    {name:'克拉玛依', coord:[45.5956,84.8889], days:'D25', color:'#e67e22'},
-    {name:'赛里木湖', coord:[44.6022,81.1833], days:'D26', color:'#e67e22'},
-    {name:'伊宁', coord:[43.9161,81.3244], days:'D27', color:'#e67e22'},
-    {name:'夏塔', coord:[43.1589,80.7833], days:'D29-D30', color:'#e67e22'},
-    {name:'特克斯', coord:[43.2128,81.8381], days:'D31', color:'#e67e22'},
-    // 独库+南疆段 黄色
-    {name:'那拉提', coord:[43.3139,84.0153], days:'D32', color:'#f1c40f'},
-    {name:'库车', coord:[41.7167,82.9333], days:'D35', color:'#f1c40f'},
-    {name:'喀什', coord:[39.4677,75.9894], days:'D38-D40', color:'#f1c40f'},
-    {name:'塔什库尔干', coord:[37.7783,75.2297], days:'D41-D42', color:'#f1c40f'},
-    {name:'叶城', coord:[37.8833,77.4000], days:'D44', color:'#f1c40f'},
-    // 新藏线+西藏段 绿色
-    {name:'三十里营房', coord:[36.4500,77.7500], days:'D45', color:'#27ae60'},
-    {name:'狮泉河', coord:[32.5033,80.1050], days:'D49-D50', color:'#27ae60'},
-    {name:'冈仁波齐', coord:[31.0500,81.3167], days:'D52-D54', color:'#27ae60'},
-    {name:'玛旁雍错', coord:[30.7333,81.4667], days:'D55', color:'#27ae60'},
-    {name:'古格王朝', coord:[31.4833,79.8000], days:'D56', color:'#27ae60'},
-    {name:'萨嘎', coord:[29.3167,85.2333], days:'D59', color:'#27ae60'},
-    {name:'珠峰大本营', coord:[28.1833,86.8333], days:'D61', color:'#27ae60'},
-    {name:'日喀则', coord:[29.2672,88.8808], days:'D62', color:'#27ae60'},
-    {name:'拉萨', coord:[29.6520,91.1721], days:'D64-D66', color:'#27ae60'},
-    {name:'林芝', coord:[29.6489,94.3623], days:'D68', color:'#27ae60'},
-    {name:'然乌湖', coord:[29.5333,96.8000], days:'D70', color:'#27ae60'},
-    // 滇藏+云南段 蓝色
-    {name:'德钦(梅里)', coord:[28.4333,98.8833], days:'D72', color:'#3498db'},
-    {name:'香格里拉', coord:[27.8303,99.7058], days:'D73-D74', color:'#3498db'},
-    {name:'丽江', coord:[26.8553,100.2272], days:'D76 还车', color:'#3498db'},
-    {name:'大理', coord:[25.6065,100.2676], days:'D81-D82', color:'#3498db'},
-    {name:'昆明', coord:[25.0389,102.7183], days:'D85 飞回北京', color:'#3498db'}
-  ];
-
-  // 画分段路线
-  function drawSegment(startIdx, endIdx, color) {
-    var segPoints = [];
-    for (var i = startIdx; i <= endIdx; i++) {
-      segPoints.push(points[i].coord);
-    }
-    L.polyline(segPoints, {color: color, weight: 4, opacity: 0.8}).addTo(map);
-  }
-
-  // G7+甘青: 0-6
-  drawSegment(0, 6, '#e74c3c');
-  // 北疆: 6-17
-  drawSegment(6, 17, '#e67e22');
-  // 独库+南疆: 17-22
-  drawSegment(17, 22, '#f1c40f');
-  // 新藏+西藏: 22-33
-  drawSegment(22, 33, '#27ae60');
-  // 滇藏+云南: 33-38
-  drawSegment(33, 38, '#3498db');
-
-  // 加标记点
-  points.forEach(function(p) {
-    var marker = L.circleMarker(p.coord, {
-      radius: 5,
-      fillColor: p.color,
-      color: '#fff',
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 0.9
-    }).addTo(map);
-    marker.bindPopup('<b>' + p.name + '</b><br>' + p.days);
-  });
-
-  // 起点终点特殊标记
-  L.circleMarker(points[0].coord, {radius:8, fillColor:'#e74c3c', color:'#fff', weight:3, fillOpacity:1}).addTo(map).bindPopup('<b>起点：北京</b><br>D0 9月18日出发');
-  L.circleMarker(points[points.length-1].coord, {radius:8, fillColor:'#3498db', color:'#fff', weight:3, fillOpacity:1}).addTo(map).bindPopup('<b>终点：昆明</b><br>D85 12月11日飞回北京');
-});
-</script>
 <script>
 function switchBudget(ver) {
   document.getElementById('budget-p2').style.display = ver === 'p2' ? 'block' : 'none';
