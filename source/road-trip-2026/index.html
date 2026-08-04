@@ -131,6 +131,21 @@ footer .sources li{margin-bottom:7px;overflow-wrap:break-word;word-break:break-a
 footer .sources .src-title{color:#fff;word-break:normal;}
 footer .sources .src-url{display:block;margin-top:2px;font-size:0.76rem;color:var(--accent);}
 .disclaimer{margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.15);font-size:0.78rem;color:rgba(255,255,255,0.5);}
+
+/* 折叠详情面板样式 */
+details{margin:12px 0;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+details summary{padding:14px 18px;cursor:pointer;font-weight:600;font-size:0.95rem;list-style:none;display:flex;align-items:center;gap:10px;user-select:none;transition:background 0.2s;}
+details summary:hover{background:var(--accent-light);}
+details summary::before{content:"▸";display:inline-block;transition:transform 0.2s;color:var(--accent);font-size:0.8rem;}
+details[open] summary::before{transform:rotate(90deg);}
+details .detail-content{padding:0 18px 16px 18px;font-size:0.9rem;line-height:1.75;color:var(--body);}
+details .detail-content h5{margin:12px 0 6px;font-size:0.88rem;color:var(--accent);font-weight:600;}
+details .detail-content ul{margin:4px 0;padding-left:18px;}
+details .detail-content li{margin:3px 0;font-size:0.88rem;}
+.day-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin:10px 0;}
+.day-card h4{margin:0 0 8px;font-size:1rem;color:var(--accent);}
+.day-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:0.85rem;color:var(--muted);margin-bottom:8px;}
+.day-meta span{display:inline-flex;align-items:center;gap:4px;}
 sup a{color:var(--accent);text-decoration:none;font-size:0.72em;font-weight:700;}
 sup a:hover{text-decoration:underline;}
 .driving-note{display:inline-block;font-size:0.78rem;color:var(--muted);font-style:italic;margin-left:6px;}
@@ -184,9 +199,9 @@ sup a:hover{text-decoration:underline;}
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="container">
-      <div class="hero-eyebrow">Self-Drive Expedition · 2026 Sept 18 → Dec 18</div>
+      <div class="hero-eyebrow">Self-Drive Expedition · 2026 Sept 18 → Nov 28</div>
         <h1>从北京出发自驾大环线：新疆→西藏→云南→川西→回家</h1>
-      <p class="hero-sub">2人床车经济版（7万，人均3.5万）· 4人增程/硬派越野92天大环线（14.3万，人均3.6万）· 北京取还无异地费·新增川西稻城亚丁+成都西安美食·首选坦克Hi4-T增程（电车体验无续航焦虑）·想玩就玩不拖沓·含12条徒步·整套民宿住得舒服</p>
+      <p class="hero-sub">4人四驱SUV舒适版 · 72天大环线约21000km · 总预算约11.7万起（人均约2.9万）· 北京取还无异地费 · 一嗨/神州主流四驱稳妥可选，第三方平台可租坦克300/500体验更好 · 优先整套民宿住一起 · 好路开500-600km不拖沓，高海拔慢开安全第一 · 新增川西稻城亚丁+成都西安美食 · 所有价格为预估，实际以预订时为准</p>
     </div>
   </div>
 </div>
@@ -195,10 +210,10 @@ sup a:hover{text-decoration:underline;}
 <div class="critical-alert">
   <div class="container">
     <div class="alert-inner">
-      <div class="alert-icon">🚗</div>
+      <div class="alert-icon">⚠️</div>
       <div class="alert-body">
-        <h3>租车方案：三选一，核心解决"不想异地还车"问题</h3>
-        <p><strong>主推方案A：一嗨租车北京取→丽江还（异地还车费0元）</strong>——2026年一嗨官方宣传"全国直营 异地还车0元"<sup><a href="#cite-r1">[1]</a></sup>，丽江有直营网点；<strong>稳妥方案D：北京取→北京还，最后从云南开回北京</strong>（多花6天+约5000元，零异地费风险）。<strong>不推荐自己托运租来的车</strong>：租车合同一般禁止擅自委托第三方运输，需车主（租车公司）授权。<strong>车型推荐：四驱SUV（哈弗H9/坦克300/RAV4四驱）</strong>，约400-550元/天。出发前务必电话确认是否允许走新藏线G219进阿里。</p>
+        <h3>重要说明：攻略持续完善中，所有信息请以实际预订/出发前最新情况为准</h3>
+        <p><strong>路线</strong>：北京→额济纳→新疆→新藏线G219→西藏→丙察察→云南→川西→成都→西安→北京，全程大环线不走回头路，北京取车北京还车，零异地还车费风险。<strong>租车</strong>：①稳妥选项：一嗨/神州租丰田RAV4/CR-V/途观L四驱，约400-450元/天，车源足网点多；②体验选项：携程/悟空/凹凸租坦克300约500-600元/天或坦克500 Hi4-T约650-750元/天（长租折扣价），空间更大可对外放电。<strong>出发前务必电话确认租车公司是否允许走新藏线G219进阿里，买全额保险</strong>。</p>
       </div>
     </div>
   </div>
@@ -208,20 +223,20 @@ sup a:hover{text-decoration:underline;}
   <div class="container">
     <div class="stats-grid">
       <div class="stat-item">
-        <div class="stat-value">≈18,500<span style="font-size:1rem">km</span></div>
-        <div class="stat-label">总里程（丽江还车）</div>
+        <div class="stat-value">≈21,000<span style="font-size:1rem">km</span></div>
+        <div class="stat-label">总里程（北京环线）</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">85<span style="font-size:1rem">天</span></div>
-        <div class="stat-label">总时长（方案A）</div>
+        <div class="stat-value">72<span style="font-size:1rem">天</span></div>
+        <div class="stat-label">总时长（9.18→11.28）</div>
       </div>
       <div class="stat-item">
         <div class="stat-value">≤600<span style="font-size:1rem">km</span></div>
         <div class="stat-label">高速日均驾驶上限</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">0<span style="font-size:1rem">元</span></div>
-        <div class="stat-label">异地还车费</div>
+        <div class="stat-value">≈29,000<span style="font-size:1rem">元/人起</span></div>
+        <div class="stat-label">4人版人均预算（一嗨主流四驱）</div>
       </div>
     </div>
   </div>
@@ -1077,30 +1092,38 @@ flowchart LR
 
   <!-- ============ 4人版 ============ -->
   <div id="budget-p4">
-  <h3>方案B：4人同行·增程/硬派越野·整套民宿舒适版（总预算约14万元）</h3>
-  <p style="font-size:0.88rem;color:var(--muted);margin:4px 0 14px">91晚优先整套两居/三居民宿 · 首选坦克400 Hi4-T增程/坦克300燃油硬派四驱 · 新增川西稻城亚丁+理塘+新都桥 · 北京取车北京还车无异地费 · 成都/西安吃美食 · 92天大环线 · 想玩就玩不拖沓 · 人均约35,000元</p>
+  <h3>方案B：4人同行·坦克500 Hi4-T增程硬派·整套民宿舒适版（72天大环线，总预算约13.8万元）</h3>
+  <p style="font-size:0.88rem;color:var(--muted);margin:4px 0 14px">9月18日出发→11月28日回到北京共72天 · 71晚优先整套两居/三居民宿 · 首选坦克500 Hi4-T（加92油、空间大、对外放电做饭、增程无续航焦虑、电车体验） · 新增川西稻城亚丁+成都+西安 · 北京取车北京还车无异地费 · 紧凑不拖沓，平均每天290km，好路开500-600km，烂路高海拔开200-300km · 核心景点留够时间玩 · 人均约34,500元</p>
 
   <div class="callout" style="margin-bottom:14px">
-    <p><strong>4人舒适版最终路线（大环线，不走回头路，不用异地还车）</strong>：北京→额济纳→新疆（北疆+南疆）→新藏线G219→西藏（阿里+珠峰+拉萨+林芝）→丙察察→云南（香格里拉+丽江+大理）→川西（稻城亚丁+理塘+新都桥+康定）→成都→西安→山西→北京，全程约21000km，共92天。首选坦克400/500 Hi4-T插混硬派（纯电模式安静舒服跟电车一样，加油就跑无续航焦虑），也可以选坦克300燃油版。全程优先整套民宿4人住一起，想早起看日出就早起，好路高速可以开6-8小时不拖沓，烂路高海拔慢点开安全第一，玩得尽兴。</p>
-  </div>
+      <p><strong>4人舒适版最终方案（72天紧凑不拖沓）</strong>：路线：北京→额济纳→新疆（北疆+南疆）→新藏线G219→西藏（阿里+珠峰+拉萨+林芝）→丙察察→云南（香格里拉+丽江+大理）→川西（稻城亚丁+理塘+新都桥）→成都→西安→北京，全程约21000km，共72天，9月18日出发→11月28日回京。</p>
+      <p style="margin-top:8px"><strong>租车两个选项（提前1-2个月订，长租谈折扣）</strong>：</p>
+      <ul style="margin:6px 0 0 18px;font-size:0.9rem">
+        <li><strong>选项A（稳妥省心，预算低）</strong>：一嗨/神州租<strong>丰田RAV4荣放四驱/本田CR-V四驱/大众途观L四驱</strong>等主流城市SUV，约400-450元/天含全险，车源足、网点多、全国都能修、理赔方便，加92油，空间够用，4人+行李完全装得下，73天约3万元，人均7500</li>
+        <li><strong>选项B（体验更好，空间大）</strong>：携程/悟空/凹凸/专业越野租车公司租<strong>坦克300燃油版</strong>约500-600元/天，或<strong>坦克500 Hi4-T插混</strong>约650-750元/天（长租折扣价），坦克500加92油、空间超大、自带3.3kW对外放电能直接用电做饭、纯电模式安静舒服、高反动力不衰减；一定要选评分高的大商家，仔细验车拍划痕视频，买全险</li>
+      </ul>
+      <p style="margin-top:8px">全程优先整套两居/三居民宿4人住一起，好路高速开500-600km不拖沓，新藏线高海拔开200-300km安全第一，核心景点留1-2天玩，留3天机动时间。</p>
+    </div>
 
   <div class="table-wrap">
     <table>
       <thead><tr><th>项目</th><th>4人合计</th><th>人均</th><th>计算依据</th></tr></thead>
       <tbody>
-        <tr><td><strong>租车（93天含全险，提前1天取车）</strong></td><td>46,500</td><td>11,600</td><td>首选坦克400 Hi4-T增程/坦克300硬派四驱，一嗨/神州长租约500元/天含超级补充全险（增程贵一点但体验好）；500×93=46,500；北京取车北京还车，彻底没有异地还车费风险</td></tr>
-        <tr><td><strong>油费/电费</strong></td><td>17,300</td><td>4,300</td><td>总里程约21000km；增程/燃油综合油耗约11L/100km；21000×0.11×7.5≈17,300；有充电桩的地方用电更省</td></tr>
+        <tr><td><strong>租车（73天含全险，提前1天取车）</strong></td><td>32,000</td><td>8,000</td><td><strong>选项A（默认稳妥版）</strong>：一嗨/神州丰田RAV4/CR-V/途观L四驱约400-450元/天含全险，440×73≈32,000；车源足网点多，全国都能修；<strong>选项B（坦克版）</strong>：第三方平台租坦克300约550元/天≈40,000（4人合计多花8000，人均多2000），坦克500 Hi4-T约700元/天≈51,000（4人合计多花1.9万，人均多4750）</td></tr>
+        <tr><td><strong>油费</strong></td><td>14,200</td><td>3,550</td><td>总里程约21000km；RAV4/CR-V四驱综合油耗约9L/100km，92号油约7.5元/L；21000×0.09×7.5≈14,200；坦克300约11L约17,300，坦克500 Hi4-T亏电约10L约15,800</td></tr>
         <tr><td><strong>过路费（ETC）</strong></td><td>3,500</td><td>875</td><td>北京→新疆、川西→成都→西安→北京高速多，约3500元</td></tr>
-        <tr><td><strong>住宿（91晚，优先整套两居/三居民宿）</strong></td><td>31,500</td><td>7,875</td><td>79晚整套两居/三居民宿（有客厅/厨房/洗衣机/冰箱）约24,500；新藏线偏远地区12晚宾馆2间标间约7,000；合计31,500元，4人住一起比2个酒店舒服还划算</td></tr>
-        <tr><td><strong>餐饮</strong></td><td>17,800</td><td>4,450</td><td>67天自炊40元/人/天（肉蛋奶水果管够，冰可乐西瓜随时有）=10,700；沿途特色餐+成都/西安美食约3,600；川西+返程7天外食约1,500；车上零食水果饮料约2,000；合计17,800，吃好点不亏嘴</td></tr>
-        <tr><td><strong>门票+区间车（含川西稻城亚丁）</strong></td><td>11,200</td><td>2,800</td><td>新疆+西藏+云南约2400/人 + 川西稻城亚丁+新都桥等约400/人 = 2800/人×4 = 11,200</td></tr>
-        <tr><td><strong>公共装备（含车上舒适+住宿舒适）</strong></td><td>5,600</td><td>1,400</td><td>厨具/工具/安全装备约3,700 + 血氧仪100 + 住宿舒适用品700 + 车上舒适装备（车载冰箱/腰靠/颈枕/遮阳帘/快充等）1,100，合计5,600</td></tr>
+        <tr><td><strong>住宿（71晚，优先整套两居/三居民宿）</strong></td><td>25,000</td><td>6,250</td><td>59晚整套两居/三居民宿（有客厅/厨房/洗衣机/冰箱）约18,000；新藏线偏远地区12晚宾馆2间标间约7,000；合计25,000元，平均约350元/晚整套</td></tr>
+        <tr><td><strong>餐饮</strong></td><td>16,800</td><td>4,200</td><td>50天自炊做饭40元/人/天（肉蛋奶水果管够，冰可乐西瓜随时有）=8,000；沿途特色餐+成都火锅+西安美食约4,800；外食22天约4,000；车上零食水果饮料约2,000；合计16,800，吃好点不亏嘴；租坦克500可以用对外放电做饭更方便</td></tr>
+        <tr><td><strong>门票+区间车（含川西稻城亚丁）</strong></td><td>11,200</td><td>2,800</td><td>新疆+西藏+云南约2400/人 + 川西稻城亚丁等约400/人 = 2800/人×4 = 11,200</td></tr>
+        <tr><td><strong>公共装备（含车上舒适+住宿舒适）</strong></td><td>5,000</td><td>1,250</td><td>厨具/工具/安全装备约3,100（租坦克500对外放电可以不用买卡式炉和气罐，省几百块） + 血氧仪100 + 住宿舒适用品700 + 车上舒适装备（车载冰箱/腰靠/颈枕/遮阳帘/快充等）1,100，合计5,000</td></tr>
         <tr><td><strong>防滑链+高反药+氧气</strong></td><td>1,900</td><td>475</td><td>对应租车型号防滑链300+高反药400+氧气罐1200（喀什/拉萨买）</td></tr>
-        <tr><td><strong>异地还车费</strong></td><td><mark class="ok">0</mark></td><td>0</td><td>北京取车北京还车，开回北京，完全没有异地还车费风险，还能玩川西+成都+西安</td></tr>
+        <tr><td><strong>异地还车费</strong></td><td><mark class="ok">0</mark></td><td>0</td><td>北京取车北京还车，开回北京，完全没有异地还车费风险</td></tr>
         <tr><td><strong>旅行保险</strong></td><td>1,600</td><td>400</td><td>含高反救援的户外险400/人×4，买好点的</td></tr>
         <tr><td><strong>徒步应急</strong></td><td>800</td><td>200</td><td>4人骑马备用</td></tr>
         <tr><td><strong>机动/应急</strong></td><td>5,000</td><td>1,250</td><td>覆盖旺季住宿涨价、车辆小修、滞留等突发情况，多留点余量不慌</td></tr>
-        <tr style="background:var(--accent2-light)"><td><strong>合计</strong></td><td><strong>约143,000元</strong></td><td><strong>约35,800元/人</strong></td><td>约1,550元/天（4人），人均约390元/天，增程硬派+92天大环线+川西+成都西安美食，玩得尽兴住得舒服</td></tr>
+        <tr style="background:var(--accent2-light)"><td><strong>合计（选项A：一嗨/神州主流四驱）</strong></td><td><strong>约117,000元</strong></td><td><strong>约29,250元/人</strong></td><td>约1,625元/天（4人），人均约406元/天，稳妥省心，车源足维修方便</td></tr>
+        <tr style="background:#fff3e0"><td><strong>选项B差价（坦克300燃油版）</strong></td><td>+8,000元</td><td>+2,000元/人</td><td>空间更大，硬派四驱更放心，总预算约12.5万，人均约3.1万</td></tr>
+        <tr style="background:#e8f5e9"><td><strong>选项B差价（坦克500 Hi4-T）</strong></td><td>+20,000元</td><td>+5,000元/人</td><td>空间超大，加92油，对外放电做饭，增程电车体验，总预算约13.7万，人均约3.4万</td></tr>
       </tbody>
     </table>
   </div>
