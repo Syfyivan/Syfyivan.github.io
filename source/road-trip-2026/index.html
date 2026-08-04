@@ -16,8 +16,9 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{font-family:'Instrument Sans',-apple-system,'Helvetica Neue',sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased;}
+body{font-family:'Instrument Sans',-apple-system,'Helvetica Neue',sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
 .container{max-width:960px;margin:0 auto;padding:0 24px;}
+html{overflow-x:hidden;}
 .hero{position:relative;width:100%;height:65vh;min-height:460px;overflow:hidden;}
 .hero img{width:100%;height:100%;object-fit:cover;}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(45,42,38,0.2) 0%,rgba(45,42,38,0.6) 60%,rgba(45,42,38,0.88) 100%);}
@@ -1318,80 +1319,75 @@ flowchart LR
   <!-- 公共装备 -->
   <div id="packing-shared">
   <div class="callout" style="margin-bottom:14px">
-    <p><strong>公共装备采购原则</strong>：出发前在北京统一采购，费用4人均摊（约925元/人，已计入预算）；优先选轻便耐造的，不要带多余东西；小铁锅/小菜刀可以从家里凑，能省则省。</p>
+    <p><strong>公共装备采购原则</strong>：出发前在北京统一采购，费用4人均摊（<strong>约925元/人，合计约3,700元</strong>，已计入预算装备费）；优先选轻便耐造的，不要带多余东西；小铁锅/小菜刀可以从家里凑，能省则省。</p>
   </div>
 
-  <h4 style="margin-top:16px">炊具/餐具</h4>
+  <h4 style="margin-top:16px">炊具/餐具（合计约765元）</h4>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>物品</th><th>数量</th><th>说明</th><th>谁来带/买</th></tr></thead>
+      <thead><tr><th>物品</th><th>数量</th><th>单价</th><th>小计</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td>卡式炉（大火力3.5kW+）</td><td>1个</td><td>岩谷/脉鲜，高原能用</td><td>统一买</td></tr>
-        <tr><td>丁烷气罐</td><td>首购4个</td><td>250g，沿途县城五金店补给（8-10元/罐）</td><td>首购统一买</td></tr>
-        <tr><td>户外高压锅（2-3L）</td><td>1个</td><td><strong>高原必备</strong>，否则米饭煮不熟，卡式炉上10分钟焖饭炖肉</td><td>统一买</td></tr>
-        <tr><td>户外套锅（炒锅+汤锅+煎锅+锅盖）</td><td>1套</td><td>火枫/爱路客，铝合金轻便（1斤多）</td><td>统一买</td></tr>
-        <tr><td>不锈钢烧水壶（1L）</td><td>1个</td><td>卡式炉上2分钟烧开水泡茶泡咖啡</td><td>统一买</td></tr>
-        <tr><td>折叠烧烤炉+碳夹</td><td>1套</td><td>便携折叠款（A4大小），偶尔在允许生火的地方烧烤，不能完全代替卡式炉（很多地方禁明火）</td><td>统一买（约80元）</td></tr>
-        <tr><td>木炭+引火块</td><td>少量</td><td>不要从北京带，沿途县城买，用多少买多少</td><td>沿途采购</td></tr>
-        <tr><td>小铁锅（1-2斤）</td><td>1个</td><td>家里有就带，没有就用套锅的炒锅也行</td><td>谁家里有谁带</td></tr>
-        <tr><td>小菜刀+竹/塑料菜板</td><td>1套</td><td>家里的小菜刀比户外刀好用，用毛巾包好</td><td>谁家里有谁带</td></tr>
-        <tr><td>锅铲+汤勺+削皮刀+开瓶器</td><td>1套</td><td>超市买轻便的</td><td>统一买</td></tr>
-        <tr><td>304不锈钢碗筷勺杯</td><td>4人份</td><td>不要带陶瓷/玻璃，必碎；家里有不锈钢餐具直接带</td><td>统一买或家里凑</td></tr>
-        <tr><td>保温冷藏箱（20-30L）</td><td>1个</td><td>晚上放几瓶冻矿泉水能保冷2-3天，放肉/水果/酸奶</td><td>统一买</td></tr>
-        <tr><td>调料小瓶套装</td><td>1套</td><td>酱油/醋/盐/糖/油/花椒大料，用小分装瓶，从家里装</td><td>家里分装带</td></tr>
-        <tr><td>洗洁精+自己的洗碗布/钢丝球</td><td>1套</td><td>不用民宿的抹布，自己带干净</td><td>统一买</td></tr>
-        <tr><td>84消毒液泡腾片</td><td>1瓶</td><td>消毒锅具餐具擦桌子，十几块钱</td><td>统一买</td></tr>
-        <tr><td>折叠水桶（15L）</td><td>2个</td><td>装水/洗菜/洗碗</td><td>统一买</td></tr>
+        <tr><td>卡式炉（大火力3.5kW+）</td><td>1个</td><td>150元</td><td>150元</td><td>岩谷/脉鲜，高原能用</td></tr>
+        <tr><td>丁烷气罐（首购）</td><td>4个</td><td>8元</td><td>30元</td><td>250g，沿途县城五金店补给（8-10元/罐）</td></tr>
+        <tr><td>户外高压锅（2-3L）</td><td>1个</td><td>130元</td><td>130元</td><td><strong>高原必备</strong>，否则米饭煮不熟</td></tr>
+        <tr><td>户外套锅（炒锅+汤锅+煎锅+锅盖）</td><td>1套</td><td>80元</td><td>80元</td><td>火枫/爱路客，铝合金轻便（1斤多）</td></tr>
+        <tr><td>不锈钢烧水壶（1L）</td><td>1个</td><td>50元</td><td>50元</td><td>卡式炉上2分钟烧开水</td></tr>
+        <tr><td>折叠烧烤炉+碳夹</td><td>1套</td><td>80元</td><td>80元</td><td>便携折叠款（A4大小），偶尔烧烤，不能代替卡式炉</td></tr>
+        <tr><td>木炭+引火块</td><td>少量</td><td>-</td><td>0元</td><td>沿途县城买，不用从北京带</td></tr>
+        <tr><td>小铁锅（1-2斤）</td><td>1个</td><td>-</td><td>0元</td><td>家里有就带，没有用套锅炒锅</td></tr>
+        <tr><td>小菜刀+竹/塑料菜板</td><td>1套</td><td>-</td><td>0元</td><td>家里带，用毛巾包好</td></tr>
+        <tr><td>锅铲+汤勺+削皮刀+开瓶器</td><td>1套</td><td>60元</td><td>60元</td><td>超市买轻便的</td></tr>
+        <tr><td>304不锈钢碗筷勺杯</td><td>4人份</td><td>-</td><td>0元</td><td>家里有不锈钢餐具直接带，没有统一买约50元</td></tr>
+        <tr><td>保温冷藏箱（20-30L）</td><td>1个</td><td>120元</td><td>120元</td><td>冻矿泉水保冷2-3天，放肉/水果/酸奶</td></tr>
+        <tr><td>调料小瓶套装</td><td>1套</td><td>-</td><td>0元</td><td>用小分装瓶从家里装酱油/醋/盐/糖/油</td></tr>
+        <tr><td>洗洁精+自己的洗碗布/钢丝球</td><td>1套</td><td>25元</td><td>25元</td><td>不用民宿的抹布</td></tr>
+        <tr><td>84消毒液泡腾片</td><td>1瓶</td><td>15元</td><td>15元</td><td>消毒锅具餐具擦桌子</td></tr>
+        <tr><td>折叠水桶（15L）</td><td>2个</td><td>40元</td><td>80元</td><td>装水/洗菜/洗碗</td></tr>
+        <tr style="background:var(--accent2-light)"><td colspan="3"><strong>炊具小计</strong></td><td><strong>820元</strong></td><td>家里能凑的尽量凑，还能再省100-200元</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h4 style="margin-top:16px">露营/户外</h4>
+  <h4 style="margin-top:16px">露营/户外（合计约2,100元，睡袋每人一个）</h4>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>物品</th><th>数量</th><th>说明</th><th>谁来带/买</th></tr></thead>
+      <thead><tr><th>物品</th><th>数量</th><th>单价</th><th>小计</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td>-10°C~-15°C信封式睡袋</td><td>4个</td><td>迪卡侬TREK500/黑冰G700；全程住店但宾馆被子可能不够厚时加一层，也能午休用</td><td>每人一个，可自己买或统一买</td></tr>
-        <tr><td>保暖抓绒内胆</td><td>4个</td><td>睡袋里加一层，新藏线-20°C也够用</td><td>每人一个</td></tr>
-        <tr><td>折叠桌椅套装</td><td>1桌4椅</td><td>户外做饭吃饭休息用，折叠后很薄</td><td>统一买</td></tr>
-        <tr><td>营灯/露营灯</td><td>2个</td><td>晚上户外照明/停电应急</td><td>统一买</td></tr>
-        <tr><td>汽车遮阳帘</td><td>1套</td><td>侧窗+后挡，开车挡太阳、临时换衣服用</td><td>统一买</td></tr>
+        <tr><td>-10°C~-15°C信封式睡袋</td><td>4个</td><td>350元</td><td>1,400元</td><td>迪卡侬TREK500/黑冰G700；宾馆被子不够厚时加一层</td></tr>
+        <tr><td>保暖抓绒内胆</td><td>4个</td><td>50元</td><td>200元</td><td>睡袋里加一层，新藏线-20°C也够用</td></tr>
+        <tr><td>折叠桌椅套装（1桌4椅）</td><td>1套</td><td>400元</td><td>400元</td><td>户外做饭吃饭休息用</td></tr>
+        <tr><td>营灯/露营灯</td><td>2个</td><td>40元</td><td>80元</td><td>晚上户外照明/停电应急</td></tr>
+        <tr><td>汽车遮阳帘</td><td>1套</td><td>100元</td><td>100元</td><td>侧窗+后挡，挡太阳/临时换衣服</td></tr>
+        <tr style="background:var(--accent2-light)"><td colspan="3"><strong>露营小计</strong></td><td><strong>2,180元</strong></td><td>睡袋/内胆可以各自买自己的，也可以统一买</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h4 style="margin-top:16px">工具/安全/应急</h4>
+  <h4 style="margin-top:16px">工具/安全/应急（合计约700元，不含防滑链/氧气）</h4>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>物品</th><th>数量</th><th>说明</th><th>谁来带/买</th></tr></thead>
+      <thead><tr><th>物品</th><th>数量</th><th>单价</th><th>小计</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td>防滑链（对应租车型号）</td><td>1套（4条）</td><td>10-12月新藏线/滇藏线可能下雪必备，轮胎店买或租车行租</td><td>出发前/到成都/叶城买</td></tr>
-        <tr><td>车载充气泵</td><td>1个</td><td>轮胎缺气补气用</td><td>统一买或租车行要</td></tr>
-        <tr><td>拖车绳+搭电线</td><td>1套</td><td>陷车/电瓶没电应急</td><td>统一买</td></tr>
-        <tr><td>补胎工具套装</td><td>1套</td><td>偏远地区扎胎临时补胎用</td><td>统一买</td></tr>
-        <tr><td>车载逆变器（12V转220V 300W）</td><td>1个</td><td>给电脑/相机/手机充电，带不动大功率电器</td><td>统一买</td></tr>
-        <tr><td>2个折叠储物箱（约60L）</td><td>2个</td><td>带盖能当凳子坐，放装备/食材/工具分层收纳</td><td>统一买</td></tr>
-        <tr><td>睡袋压缩袋+打包带/弹力绳</td><td>若干</td><td>压缩袋把睡袋压到A4大小，打包绳固定行李防刹车乱飞</td><td>统一买</td></tr>
-        <tr><td>垃圾袋+纸巾+湿纸巾</td><td>大量</td><td>多带垃圾袋，产生垃圾自己带走</td><td>沿途采购</td></tr>
-        <tr><td>应急尿袋+一次性马桶袋</td><td>20个</td><td>新藏线几百公里没厕所必备</td><td>统一买</td></tr>
-        <tr><td>急救包</td><td>1个</td><td>创可贴/碘伏/纱布/绷带/晕车药/肠胃药/感冒药/止痛药</td><td>统一买</td></tr>
-        <tr><td>高反药（红景天/高原安/葡萄糖）</td><td>4人份</td><td>提前一周开始吃红景天，拉萨/叶城买</td><td>到高原前买</td></tr>
-        <tr><td>便携氧气罐</td><td>8-10瓶</td><td>县城买（15-20元/瓶），不要在景区买贵的</td><td>狮泉河/叶城/拉萨买</td></tr>
-        <tr><td>灭火器+三角警示牌</td><td>各1</td><td>租的车一般自带，取车时检查</td><td>租车自带</td></tr>
+        <tr><td>防滑链（对应租车型号）</td><td>1套（4条）</td><td>-</td><td>0元</td><td>到叶城/成都买或租车行租，约250元（已计入预算）</td></tr>
+        <tr><td>车载充气泵</td><td>1个</td><td>80元</td><td>80元</td><td>轮胎缺气补气</td></tr>
+        <tr><td>拖车绳+搭电线</td><td>1套</td><td>80元</td><td>80元</td><td>陷车/电瓶没电应急</td></tr>
+        <tr><td>补胎工具套装</td><td>1套</td><td>50元</td><td>50元</td><td>偏远地区扎胎临时补胎</td></tr>
+        <tr><td>车载逆变器（12V转220V 300W）</td><td>1个</td><td>200元</td><td>200元</td><td>给电脑/相机/手机充电</td></tr>
+        <tr><td>折叠储物箱（约60L，带盖）</td><td>2个</td><td>100元</td><td>200元</td><td>能当凳子坐，分层收纳</td></tr>
+        <tr><td>睡袋压缩袋+打包带/弹力绳</td><td>若干</td><td>-</td><td>50元</td><td>压缩袋把睡袋压到A4大小</td></tr>
+        <tr><td>垃圾袋+纸巾+湿纸巾</td><td>大量</td><td>-</td><td>0元</td><td>沿途采购</td></tr>
+        <tr><td>应急尿袋+一次性马桶袋</td><td>20个</td><td>3元</td><td>60元</td><td>新藏线几百公里没厕所必备</td></tr>
+        <tr><td>急救包（常用药）</td><td>1个</td><td>60元</td><td>60元</td><td>创可贴/碘伏/纱布/晕车药/肠胃药/感冒药/止痛药</td></tr>
+        <tr><td>高反药+氧气罐</td><td>4人份</td><td>-</td><td>0元</td><td>到高原前县城买（已计入预算1,800元）</td></tr>
+        <tr><td>灭火器+三角警示牌</td><td>各1</td><td>-</td><td>0元</td><td>租的车一般自带</td></tr>
+        <tr style="background:var(--accent2-light)"><td colspan="3"><strong>工具安全小计（出发前采购）</strong></td><td><strong>780元</strong></td><td>防滑链/高反药/氧气到当地再买，不用从北京带</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h4 style="margin-top:16px">其他公共物品</h4>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>物品</th><th>数量</th><th>说明</th></tr></thead>
-      <tbody>
-        <tr><td>矿泉水/大桶水</td><td>若干</td><td>沿途县城超市买，不要一次买太多占地方</td></tr>
-        <tr><td>公用零食（坚果/巧克力/牛肉干）</td><td>若干</td><td>开车提神补充体力，县城大采购</td></tr>
-        <tr><td>扑克牌/桌游</td><td>1-2副</td><td>晚上民宿没事干的时候玩</td></tr>
-      </tbody>
-    </table>
+  <div style="margin-top:16px;padding:16px;background:var(--accent2-light);border-radius:8px">
+    <p style="margin:0;font-size:0.95rem"><strong>公共装备出发前采购总计：约3,780元 ≈ 3,700元（已计入预算）</strong></p>
+    <p style="margin:6px 0 0;font-size:0.85rem;color:var(--muted)">4人均摊约925元/人。家里有小铁锅/菜刀/不锈钢餐具/充电宝/头灯之类的可以带上，能再省几百元。防滑链/高反药/氧气/木炭/水/零食这些消耗品不用从北京带，沿途县城买更划算。</p>
   </div>
   </div>
 
@@ -1731,9 +1727,10 @@ if (document.readyState === 'loading') {
 document.addEventListener('DOMContentLoaded', function() {
   var map = L.map('route-map').setView([35.5, 95], 4);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
-    maxZoom: 10
+  L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+    subdomains: ['1','2','3','4'],
+    attribution: '&copy; 高德地图',
+    maxZoom: 12
   }).addTo(map);
 
   // 路线点（按顺序）
