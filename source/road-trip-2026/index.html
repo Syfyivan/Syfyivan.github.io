@@ -150,11 +150,12 @@ sup a:hover{text-decoration:underline;}
 .map-legend{background:white;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.1);font-size:0.82rem;line-height:1.6;margin:0 auto 20px;max-width:500px;}
 .map-legend b{color:var(--accent);}
 /* 粘性章节导航 */
-.section-nav{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:8px 0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;}
+.section-nav{position:sticky;top:0;z-index:9999;background:#faf8f5;border-bottom:2px solid var(--border);padding:12px 0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;box-shadow:0 2px 12px rgba(0,0,0,0.1);}
 .section-nav::-webkit-scrollbar{height:0;}
-.section-nav-inner{display:flex;gap:6px;}
-.section-nav a{display:inline-block;padding:6px 14px;border-radius:20px;font-size:0.82rem;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid transparent;transition:all 0.2s;flex-shrink:0;}
-.section-nav a:hover{color:var(--accent);background:var(--accent2-light);}
+.section-nav .container{max-width:1200px;margin:0 auto;padding:0 20px;}
+.section-nav-inner{display:flex;gap:8px;}
+.section-nav a{display:inline-block;padding:8px 16px;border-radius:20px;font-size:0.85rem;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid var(--border);transition:all 0.2s;flex-shrink:0;background:#fff;}
+.section-nav a:hover{color:var(--accent);background:var(--accent2-light);border-color:var(--accent);}
 .section-nav a.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 </style>
 </head>
