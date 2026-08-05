@@ -2341,14 +2341,15 @@
   function stageMarriage() {
     var rp = marriageRoutePack();
     var life = currentLifeProfile();
+    var fertility = childbearingProfile();
     var events = [{ t: 'rel', tag: '[关系]', txt: '女方是邻村自耕农之女，有自己的意愿：她与父母看重的是这户的家底与后生的本分，不是你单方面"提亲"就能定。' }];
     if (rp.event) events.push(rp.event);
     return {
       title: '成家 · 议亲', label: '成家', next: 'household', nextLabel: '步入中年 · 当户 →',
       ap: 4, commitLabel: '下聘·定亲事 →',
-      note: '成家不是一次"选套餐"，而是几年里一步步攒钱、托媒、抬身价：聘礼是真实外流（镜像入女方家账），媒人看的是你带到这个年纪的整本账。〔货币规模为玩法占位，非史实点值〕 ' + life.marriageLead + (rp.note ? ' ' + rp.note : ''),
-      narrative: '立身数年，你已<span class="em">' + S.年龄 + '岁</span>，也到了议亲年纪。走"六礼"框架（平民多简化合并）——这一程你有 <span class="em">4 个行动点</span>，用来筹聘礼、托媒人、办酒席。你这些年攒下的<span class="em">识字、手艺、家族声望与路线尾账</span>，都会折进议亲的成算里；婚成之后，下一阶段读的也是这一路带出来的婚育窗口。' + (rp.narrative ? rp.narrative : ''),
-      dossier: function () { return lifeDossier('议亲成算 = 基础 + 路线结局 + 聘礼档 + 识字/营生加成 + 家族声望；下聘时按当前筹码一次性 roll。' + (rp.dossier ? '｜' + rp.dossier : '')); },
+      note: '成家不是一次"选套餐"，而是几年里一步步攒钱、托媒、抬身价：聘礼是真实外流（镜像入女方家账），媒人看的是你带到这个年纪的整本账。〔货币规模为玩法占位，非史实点值〕 ' + life.marriageLead + ' 这一代当前按<span class="em">' + S.年龄 + '岁</span>议亲，婚后走的是<span class="em">' + fertility.label + '</span>生育窗口。' + (rp.note ? ' ' + rp.note : ''),
+      narrative: '立身数年，你已<span class="em">' + S.年龄 + '岁</span>，也到了议亲年纪。走"六礼"框架（平民多简化合并）——这一程你有 <span class="em">4 个行动点</span>，用来筹聘礼、托媒人、办酒席。你这些年攒下的<span class="em">识字、手艺、家族声望与路线尾账</span>，都会折进议亲的成算里；婚成之后，下一阶段读的也是这一路带出来的<span class="em">' + fertility.label + '</span>婚育窗口。' + (rp.narrative ? rp.narrative : ''),
+      dossier: function () { return lifeDossier('议亲成算 = 基础 + 路线结局 + 聘礼档 + 识字/营生加成 + 家族声望；下聘时按当前筹码一次性 roll。｜婚配年龄=' + life.marriageAge + '｜婚育窗口=' + fertility.label + (rp.dossier ? '｜' + rp.dossier : '')); },
       events: events,
       prompt: '这几年怎么张罗亲事？（分配 4 点，末了一次下聘）',
       actions: function () {
@@ -3051,6 +3052,7 @@
         });
       },
       getLifeProfile: function () { return JSON.parse(JSON.stringify(currentLifeProfile())); },
+      getChildbearingProfile: function () { return JSON.parse(JSON.stringify(childbearingProfile())); },
       pickAction: function (id) {
         if (phase === 'childhood') addChildPick(id);
         else if (phase === 'farm') addPick(id);
