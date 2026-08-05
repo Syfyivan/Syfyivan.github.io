@@ -88,7 +88,7 @@
       婚配路径: '未定', 合爨状态: '未合爨', 定额佃状态: '未立',
       委托营生: '无', 委托租谷: 0, 委托待收租谷: 0, 最近农闲营生层级: '未定', 最近农闲营生收益: 0,
       // 代际承接字段（不直接折现，只改变下一代入口分布）
-      父辈路线: '未定', 承嗣来路: '本支次子承继', 承继定位: '本房次子另起一手', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0,
+      父辈路线: '未定', 承继身份: '次子', 承嗣来路: '本支次子承继', 承继定位: '本房次子另起一手', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0,
       _farmLegacyApplied: false, _wageLegacyApplied: false, _apprenticeLegacyApplied: false, _merchantLegacyApplied: false, _examLegacyApplied: false,
       // 起步模式：用于入口文案区分“从出生跑起” vs “从 16 岁立身起算”
       _startMode: startMode,
@@ -105,6 +105,7 @@
       S.负债银 = Math.max(0, carry.负债银 || 0);
       S.家族 = Math.max(20, Math.min(80, carry.家族 == null ? 60 : carry.家族));
       S.父辈路线 = carry.父辈路线 || '未定';
+      S.承继身份 = carry.承继身份 || (isCollateralCarry(carry) ? '旁支继子' : '次子');
       S.承嗣来路 = carry.承嗣来路 || '本支次子承继';
       S.承继定位 = carry.承继定位 || '本房次子另起一手';
       S.家传书香 = Math.max(0, carry.家传书香 || 0);
@@ -124,7 +125,7 @@
     if (startMode === 'childhood') {
       S.年龄 = CHILD_STAGES[0].age;
       recordEntry('出生开账', null,
-        generation > 1 ? ('第' + generation + '代降生：这一户现有田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两' + (S.负债银 > 0 ? ('、旧债' + S.负债银 + '两') : '') + '，你排行次子，全赖父母养育。' + inheritedCarryNote(carryOver))
+        generation > 1 ? ('第' + generation + '代降生：这一户现有田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两' + (S.负债银 > 0 ? ('、旧债' + S.负债银 + '两') : '') + '，' + inheritedRoleBirthLead(carryOver) + inheritedCarryNote(carryOver))
           : '出生：降生于江南民籍佃农之家，排行次子。这户现有薄田4亩、存米3石、少量现钱。');
       rollChildRound();
     } else {
@@ -287,6 +288,24 @@
     if (currentTag && tokens.indexOf(currentTag) < 0) tokens.push(currentTag);
     return tokens.length ? tokens.join('·') : (currentTag || '本支次子承继');
   }
+  function currentInheritanceRole(carry) {
+    if (!carry) return '次子';
+    return carry.承继身份 || (isCollateralCarry(carry) ? '旁支继子' : '次子');
+  }
+  function inheritedRoleBirthLead(carry) {
+    var role = currentInheritanceRole(carry);
+    if (role === '旁支继子') return '你如今以旁支继子续这一房香火，全赖父母养育。';
+    if (role === '独子') return '你是这一房独子，全赖父母养育。';
+    if (role === '长子') return '你排行长子，全赖父母养育。';
+    return '你排行次子，全赖父母养育。';
+  }
+  function inheritanceRoleNarrative(carry) {
+    var role = currentInheritanceRole(carry);
+    if (role === '旁支继子') return '你这一代是以旁支继子续这一房，接的是结清后的真实余产，不是凭空补回一张“本支次子”模板。';
+    if (role === '独子') return '你这一代是以独子承家，少了“长兄先分去大头”的缓冲，门路与亏空会更直接压在你身上。';
+    if (role === '长子') return '你这一代是以长子承这一本账，户里日常与门路都更直接落在你肩上。';
+    return '你仍是这一房的次子，长兄多半承更多家产；但父辈留下的门路与亏空，也都会改写你五条路的入口。';
+  }
   function inheritedCarryNote(carry) {
     var tags = inheritedCarryTags(carry);
     if (isCollateralCarry(carry)) tags.push('这一房经旁支接祧，门路比本支更薄一层');
@@ -296,6 +315,7 @@
   function carryRouteAwareSummary(carry) {
     if (!carry) return '无额外承接状态位';
     var tags = [];
+    if ((carry.承继身份 || '')) tags.push('承继身份=' + carry.承继身份);
     if ((carry.承嗣来路 || '')) tags.push('承嗣来路=' + carry.承嗣来路);
     if ((carry.承继定位 || '')) tags.push('承继定位=' + carry.承继定位);
     if ((carry.家传书香 || 0) > 0) tags.push('家传书香' + carry.家传书香 + '层');
@@ -355,6 +375,7 @@
       return '共同父快照不变：民籍次子、家庭公账白银6两/铜钱2000文/存米8石、薄田12亩、本人无独立现金。此处只分“路”，不倒填未来。';
     }
     return '这一代不再回滚到初代父快照，而是沿上一代真实传承快照继续：本房现有白银' + S.白银 + '两、铜钱' + S.铜钱 + '文、存米' + S.存米 + '石、田' + S.田亩 + '亩' + (S.负债银 > 0 ? ('，另背旧债' + S.负债银 + '两') : '') + '。' +
+      '这一手如今以<span class="em">' + currentInheritanceRole(carryOver) + '</span>承这一本账。' +
       (carryOver.父辈路线 && carryOver.父辈路线 !== '未定' ? ('父辈走的是“' + carryOver.父辈路线 + '”。') : '') +
       inheritedCarryNote(carryOver);
   }
@@ -367,7 +388,7 @@
     }
     return '你已<span class="em">十六岁</span>。这一代承的是上一代身后结清后留下的家底：田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两' + (S.负债银 > 0 ? ('、旧债' + S.负债银 + '两') : '') + '。' +
       (baseSummary.length ? ('你眼下能动用的底子：<span class="em">' + baseSummary.join('、') + '</span>。') : '你手里没攒出太多新底子，只能从上一代留给你的薄产与门路里找出路。') +
-      '你仍是这一房的次子，长兄多半承更多家产；但父辈留下的门路与亏空，也都会改写你五条路的入口。';
+      inheritanceRoleNarrative(carryOver);
   }
   function currentLifeProfile() {
     var route = S.路线 || '';
@@ -974,7 +995,7 @@
 
   function narrative() {
     if (xunIndex === 0) return generation > 1
-      ? ('你是<span class="em">陈阿二</span>（第' + generation + '代），江南某县民籍次子。上一代结清后，这一房手里还剩<span class="em">' + S.田亩 + '亩田、' + S.存米 + '石米、' + S.白银 + '两银</span>；你如今接着这一房的旧账继续往下活。若仍走留乡佃田，这一季能缴租后剩几何，全看你如何安排这有限的人手与光阴。')
+      ? ('你是<span class="em">陈阿二</span>（第' + generation + '代），江南某县民籍' + currentInheritanceRole(carryOver) + '。上一代结清后，这一房手里还剩<span class="em">' + S.田亩 + '亩田、' + S.存米 + '石米、' + S.白银 + '两银</span>；你如今接着这一房的旧账继续往下活。若仍走留乡佃田，这一季能缴租后剩几何，全看你如何安排这有限的人手与光阴。')
       : '你是<span class="em">陈阿二</span>，江南某县民籍佃农之子，十六岁成丁。父兄承了祖业薄田，你分得<span class="em">' + S.田亩 + '亩水田</span>与口粮，向本村地主佃田耕作。这一季从插秧到秋收，能落下多少米、缴完租还剩几何，全看你如何安排这有限的人手与光阴。';
     if (xunIndex === HARVEST_XUN) return '九旬光阴倏忽而过，稻子黄了。这一旬要抢收、要缴租——一季的成败，就看仓里最后能剩下多少米。';
     return '农事未歇，日子一旬一旬地过。你掂量着手里的人手：是下田侍弄禾苗，还是去挣几个现钱，或是顾一顾家里？';
@@ -1449,7 +1470,7 @@
   // 幼年结束 → 十六成丁，先进入立身分叉
   function enterEstablishment() {
     phase = 'establishment';
-    S.年龄 = 16; S.身份 = '民籍·次子待立身'; S.路线 = '未立身';
+    S.年龄 = 16; S.身份 = '民籍·' + ((generation > 1 && carryOver) ? currentInheritanceRole(carryOver) : '次子') + '待立身'; S.路线 = '未立身';
     picks = []; resolved = null; lifePicks = []; curStage = stageEstablishment();
     var 底子 = routeBaseSummary();
     var 起步口径 = (S._startMode === 'childhood')
@@ -3343,6 +3364,7 @@
     // 仅用于 UI 文案与回放断言，不参与任何评分；避免“独子/过继”仍显示“次子”造成闭环误读。
     S._heirOrdinal = heirOrdinal;
     var legacyCarry = nextGenLegacy();
+    var heirIdentity = sons <= 0 ? '旁支继子' : (sons === 1 ? '独子' : (heirOrdinal === 2 ? '次子' : '长子'));
     var narrative, deathTag, collateralEstateNote = '';
     if (sons > 0) {
       var shareSilver = shareByOrdinal(estateSilver, sons, heirOrdinal);
@@ -3351,7 +3373,7 @@
       var shareCopper = shareByOrdinal(estateCopper, sons, heirOrdinal);
       var shareDebt = shareByOrdinal(estateDebt, sons, heirOrdinal);
       S._carry = {
-        白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: shareCopper, 负债银: shareDebt, 家族: Math.min(80, S.家族),
+        白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: shareCopper, 负债银: shareDebt, 家族: Math.min(80, S.家族), 承继身份: heirIdentity,
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         承继定位: legacyCarry.承继定位, 城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子
       };
@@ -3363,7 +3385,7 @@
     } else {
       collateralEstateNote = '结清丧葬与旧债后，这一房真正还能被过继承走的，只剩白银' + estateSilver + '两、铜钱' + estateCopper + '文、存米' + estateMi + '石、田' + estateTian + '亩。';
       S._carry = {
-        白银: estateSilver, 存米: estateMi, 田亩: estateTian, 铜钱: estateCopper, 负债银: estateDebt, 家族: Math.max(35, Math.min(75, S.家族 - 5)),
+        白银: estateSilver, 存米: estateMi, 田亩: estateTian, 铜钱: estateCopper, 负债银: estateDebt, 家族: Math.max(35, Math.min(75, S.家族 - 5)), 承继身份: heirIdentity,
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         承继定位: legacyCarry.承继定位, 城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子
       };
