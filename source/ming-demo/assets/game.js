@@ -59,6 +59,38 @@
   // 默认从 16 岁立身开始，便于“立身五路→成家→当户→养老→死亡传承→下一代重开”闭环回放。
   // 仍保留“从出生跑起”模式，用于验证幼年与“弟妹接续”分支。
   var startMode = 'establishment'; // 'establishment' | 'childhood'
+  var phaseTrace = [];             // 运行时阶段轨迹：供无头验证锁定“立身→成家→当户→养老→死亡”闭环
+
+  function currentPhaseTitle() {
+    if (curStage && curStage.title) return curStage.title;
+    if (phase === 'childhood') {
+      var st = CHILD_STAGES[childStage] || CHILD_STAGES[0];
+      return st ? st.name : '幼年';
+    }
+    if (phase === 'establishment') return '立身';
+    if (phase === 'farm') return '留乡佃田';
+    if (phase === 'wage') return '受雇谋生';
+    if (phase === 'apprentice') return '入城学徒';
+    if (phase === 'merchant') return '徽商学生意';
+    if (phase === 'civilExam') return '读书应举';
+    if (phase === 'marriage') return '成家';
+    if (phase === 'household') return '当户';
+    if (phase === 'elder') return '养老';
+    if (phase === 'death') return '死亡与传承';
+    return curLabel();
+  }
+
+  function tracePhase(reason) {
+    phaseTrace.push({
+      i: phaseTrace.length + 1,
+      generation: generation,
+      phase: phase || 'unknown',
+      title: currentPhaseTitle(),
+      age: S ? S.年龄 : 0,
+      route: S ? (S.路线 || '未立身') : '未立身',
+      reason: reason || ''
+    });
+  }
 
   function initState(carry, opts) {
     opts = opts || {};
@@ -117,6 +149,7 @@
       S.供读底子 = Math.max(0, carry.供读底子 || 0);
     }
     ledger = []; seq = 0; xunIndex = 0; picks = []; resolved = null; gameOver = false;
+    phaseTrace = [];
     _invViolations = [];
     if (typeof window !== 'undefined') window.__INV = _invViolations;
     _yearEndNext = null;
@@ -127,6 +160,7 @@
       recordEntry('出生开账', null,
         generation > 1 ? ('第' + generation + '代降生：这一户现有田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两' + (S.负债银 > 0 ? ('、旧债' + S.负债银 + '两') : '') + '，' + inheritedRoleBirthLead(carryOver) + inheritedCarryNote(carryOver))
           : '出生：降生于江南民籍佃农之家，排行次子。这户现有薄田4亩、存米3石、少量现钱。');
+      tracePhase('init:childhood');
       rollChildRound();
     } else {
       // 直接从 16 岁立身起算：少一层“幼年点点点”的摩擦，便于五路入口回放与闭环验证。
@@ -1505,6 +1539,7 @@
     phase = 'establishment';
     S.年龄 = 16; S.身份 = '民籍·' + ((generation > 1 && carryOver) ? currentInheritanceRole(carryOver) : '次子') + '待立身'; S.路线 = '未立身';
     picks = []; resolved = null; lifePicks = []; curStage = stageEstablishment();
+    tracePhase('enter:establishment');
     var 底子 = routeBaseSummary();
     var 起步口径 = (S._startMode === 'childhood')
       ? '幼年既过，成丁立身。'
@@ -1520,6 +1555,7 @@
   function enterFarm() {
     phase = 'farm'; S.年龄 = 16; S.身份 = '民籍·佃农子'; S.路线 = '留乡佃田'; S.农年 = 1; picks = []; resolved = null; curStage = null;
     var inherited = (S.农年 === 1) ? applyRouteInheritance('farm') : [];
+    tracePhase('route:farm');
     recordEntry('立身分路·留乡佃田', snapshot(), '你没去城里，也没再继续读书，而是留在乡里，接下这几亩水田，准备靠一双手和九旬光阴吃饭。' + (inherited.length ? ' 父辈留下的余绪在田上也不是全无用处：' + inherited.join('；') + '。' : ''));
     rollXun(); renderStatus(); renderStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1535,6 +1571,7 @@
     var inherited = (S.工年 === 1) ? applyRouteInheritance('wage') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageWage();
+    if (S.工年 === 1) tracePhase('route:wage');
     if (S.工年 === 1) recordEntry('立身分路·受雇谋生', snapshot(), '你没去守那几亩佃田，而是去乡里和市镇寻工：靠体魄、识字和一点手艺底子，先把工食挣出来。' + (inherited.length ? ' 父辈承下来的余绪在这里先起了作用：' + inherited.join('；') + '。' : ''));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1550,6 +1587,7 @@
     var inherited = (S.学年 === 1) ? applyRouteInheritance('apprentice') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageApprentice();
+    if (S.学年 === 1) tracePhase('route:apprentice');
     if (S.学年 === 1) recordEntry('立身分路·入城学徒', snapshot(), '你不留乡守田，也不先去打长短工，而是进城投商铺学徒：先求师、立据、守店、识货，看三年后能不能留店或另谋。' + (inherited.length ? ' 父辈留下的门路先替你垫了一步：' + inherited.join('；') + '。' : ''));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1565,6 +1603,7 @@
     var inherited = (S.商年 === 1) ? applyRouteInheritance('merchant') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageMerchant();
+    if (S.商年 === 1) tracePhase('route:merchant');
     if (S.商年 === 1) recordEntry('立身分路·徽商学生意', snapshot(), '你决定投族叔商号学生意：先当伙计学认货、跑单、看账，再看能否挣出反哺家中的现钱。' + (inherited.length ? ' 上一代留下的商路余绪先替你开了个口：' + inherited.join('；') + '。' : ''));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1580,6 +1619,7 @@
     var inherited = (S.举业年 === 1) ? applyRouteInheritance('civilExam') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageCivilExam();
+    if (S.举业年 === 1) tracePhase('route:civilExam');
     if (S.举业年 === 1) recordEntry('立身分路·读书应举', snapshot(), '你把家中有限的银钱、纸墨与人情先压到读书上：供读不等于录取，只意味着这一户先把资源让给你。' + (inherited.length ? ' 父辈留下的书香与旧门路，先替你省了几步白手起家的折腾：' + inherited.join('；') + '。' : ''));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3567,6 +3607,7 @@
   var _origEnter = enterPhase;
   enterPhase = function (p) {
     _origEnter(p);
+    tracePhase('enter:' + p);
     if (p === 'death' && curStage && curStage._autoOutcome) {
       var before = snapshot();
       // 应用丧葬扣除与守恒记账
@@ -3606,6 +3647,7 @@
       clearRandomControls: function () { clearRandomControls(); return true; },
       getStageTitle: function () { return curStage ? curStage.title : curLabel(); },
       getStageHTML: function () { return $('stage').innerHTML; },
+      getPhaseTrace: function () { return JSON.parse(JSON.stringify(phaseTrace)); },
       getStageAP: function () {
         if (phase === 'childhood') return CHILD_AP;
         if (phase === 'farm') return AP_PER_XUN;
