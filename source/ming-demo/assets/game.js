@@ -16,6 +16,12 @@
   var GROW_TARGET = 12;
   var FARM_YEARS = 3;      // 成丁后佃田耕作的农年数（16→18岁），每年秋收强制结算佃约
   var WAGE_YEARS = 3;      // 成丁后受雇谋生的工年数（16→18岁）
+  var WAGE_SEASONS = [
+    { id: 'spring', name: '春忙', note: '插秧、整地、找长工、抢春忙短工的时候。', actionLead: '春忙里先抢工、先签约，谁慢半拍，后头一年都要跟着吃紧。 ' },
+    { id: 'summer', name: '夏忙', note: '伏夏最熬人，旺工与劳损一并上身。', actionLead: '天热、活重、家计紧，身子和工钱都在这里被一寸寸磨出来。 ' },
+    { id: 'autumn', name: '秋收', note: '秋收旺工最值钱，也是家里最盼你回去搭手的时候。', actionLead: '秋收里一手是现钱，一手是家中口粮；同一双手，不可能两头都分到十足。 ' },
+    { id: 'winter', name: '冬闲', note: '冬闲零工、修具盘账与年关清账并到一处。', actionLead: '冬天看着像缓下来，实际上是把讨薪、口粮、差役、旧债一口气算清的时候。 ' }
+  ];
   var APPRENTICE_YEARS = 3; // 成丁后入城学徒的学年数（16→18岁）
   var MERCHANT_YEARS = 3;   // 成丁后学生意的商年数（16→18岁）
   var EXAM_YEARS = 3;       // 成丁后读书应举的举业年数（16→18岁）
@@ -139,7 +145,8 @@
       // 幼年字段
       识字: false, 技艺: '无', 兄弟序: 1, 农事历练: 0, 家务历练: 0, 识字进度: 0, 技艺进度: 0,
       // 立身与雇工路径字段
-      路线: '未立身', 工年: 1, 雇身份: '未定', 雇工历练: 0, 雇技进度: 0, _advanceWageYear: false,
+      路线: '未立身', 工年: 1, 工季: 1, 雇身份: '未定', 雇工历练: 0, 雇技进度: 0, _advanceWageYear: false, _advanceWageSeason: false,
+      本年雇约: '未定', 本年工食银: 0, 本年工食钱: 0, 本年口粮减免: 0, 本年帮家次数: 0, 本年短工次数: 0, 本年外出次数: 0, 本年看账次数: 0, 本年学艺次数: 0, 本年季务: [],
       // 学徒路径字段
       学年: 1, 学徒阶段: '未定', 学徒合同: '未议', 学徒保人: false, 学徒保证金银: 0, 学徒束脩文: 0,
       学徒授艺度: 0, 学徒信任: 0, 学徒历练: 0, 学徒去向: '未定', _advanceApprenticeYear: false,
@@ -884,6 +891,29 @@
     return { planted: true, ratio: ratio, pct: pct, label: label, cls: cls };
   }
 
+  function wageSeasonInfo(index) {
+    var i = Math.max(1, Math.min(WAGE_SEASONS.length, index || 1)) - 1;
+    return WAGE_SEASONS[i];
+  }
+  function pushWageSeasonTag(tag) {
+    if (!tag) return;
+    if (!S.本年季务) S.本年季务 = [];
+    if (S.本年季务.indexOf(tag) < 0) S.本年季务.push(tag);
+  }
+  function resetWageYearLedger() {
+    S.工季 = 1;
+    S.本年雇约 = '未定';
+    S.本年工食银 = 0;
+    S.本年工食钱 = 0;
+    S.本年口粮减免 = 0;
+    S.本年帮家次数 = 0;
+    S.本年短工次数 = 0;
+    S.本年外出次数 = 0;
+    S.本年看账次数 = 0;
+    S.本年学艺次数 = 0;
+    S.本年季务 = [];
+  }
+
   // ── 农事：本旬天气与事件 ────────────────────────
   var curWeather, curEvents;
   function rollXun() {
@@ -1006,6 +1036,7 @@
     } else if (phase === 'wage') {
       h += '<span class="chip">路线 <b>受雇谋生</b></span>';
       h += '<span class="chip">工年 <b>' + S.工年 + '/' + WAGE_YEARS + '</b></span>';
+      h += '<span class="chip">工季 <b>' + wageSeasonInfo(S.工季 || 1).name + '</b></span>';
       h += '<span class="chip">雇身分 <b>' + S.雇身份 + '</b></span>';
     } else if (phase === 'apprentice') {
       h += '<span class="chip">路线 <b>入城学徒</b></span>';
@@ -1603,7 +1634,13 @@
   // 立身走受雇路 → 十六成丁，步入受雇谋生三工年
   function enterWage() {
     phase = 'wage';
-    if (S._advanceWageYear) { S.工年 += 1; S._advanceWageYear = false; }
+    if (S._advanceWageYear) {
+      S.工年 += 1; S._advanceWageYear = false; S._advanceWageSeason = false; resetWageYearLedger();
+    } else if (S._advanceWageSeason) {
+      S.工季 = Math.min(WAGE_SEASONS.length, (S.工季 || 1) + 1); S._advanceWageSeason = false;
+    } else if (!S.工季 || S.工季 < 1) {
+      resetWageYearLedger();
+    }
     S.年龄 = 16 + (S.工年 - 1);
     S.身份 = '民籍·雇工子';
     S.路线 = '受雇长工/短工';
@@ -1612,6 +1649,7 @@
     curStage = stageWage();
     if (S.工年 === 1) tracePhase('route:wage');
     if (S.工年 === 1) recordEntry('立身分路·受雇谋生', snapshot(), '你没去守那几亩佃田，而是去乡里和市镇寻工：靠体魄、识字和一点手艺底子，先把工食挣出来。' + (inherited.length ? ' 父辈承下来的余绪在这里先起了作用：' + inherited.join('；') + '。' : ''));
+    else if (S.工季 === 1) recordEntry('第 ' + S.工年 + ' 工年·春忙开账', snapshot(), '上一工年已了，这一年改按“春忙→夏忙→秋收→冬闲”四季过账；工食、口粮、差役和旧债不再只在年末一把糊过去。');
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -1988,81 +2026,152 @@
     };
   }
 
-  // ── 受雇谋生（16-18岁）：按年决策，显式结算工食/口粮/赋役/债息 ──
+  // ── 受雇谋生（16-18岁）：四季循环，冬闲清全年总账 ──
   function stageWage() {
     var age = 16 + (S.工年 - 1);
-    return {
-      title: '受雇谋生 · 第' + S.工年 + '工年', label: '佣工第' + S.工年 + '年',
-      next: 'wage', nextLabel: (S.工年 < WAGE_YEARS ? '再过一年佣工 →' : '攒着工食去议亲 →'),
-      ap: 4, commitLabel: '了这一年工食 →',
-      note: '这一路先做首版：把“长工年结、短工日结、农闲失工、年终口粮与赋役强制结算”接进运行时。数额仍是玩法占位，不当作史实精确值。',
-      narrative: '你已<span class="em">' + age + '岁</span>，不守那几亩田，而是去乡里和市镇寻工。经营型地主看你这一双手，市镇东家看你能不能吃苦；你这年有 <span class="em">4 个行动点</span>，要在长工、短工、外出、学手艺、回家帮父之间分配。',
-      dossier: function () {
-        return lifeDossier('长工 = 年结银 + 管饭减口粮；短工 = 现钱快但农闲易失工；外出佣工现金高但离乡；手艺进度攒够后可把“无手艺”改成“木活”。');
-      },
-      events: [
-        { t: 'rel', tag: '[雇主]', txt: '经营型地主与市镇东家都在挑人：他们不是施恩者，而是在算一双手值不值这份工食。' },
-        { t: 'rand', tag: '[市场]', txt: '这一年你会同时撞上农忙旺工、农闲失工、里甲差役和家中口粮账——工食并不只是一份“工资”，而是一整套被制度和季节挤压的日子。' }
+    var season = wageSeasonInfo(S.工季 || 1);
+    var isWinter = season.id === 'winter';
+    var nextSeason = wageSeasonInfo(Math.min(WAGE_SEASONS.length, (S.工季 || 1) + 1));
+    var seasonalShort = season.id === 'spring' ? 180 : season.id === 'summer' ? 220 : season.id === 'autumn' ? 320 : 140;
+    var seasonalShortBody = season.id === 'winter' ? 1 : 2;
+    var homeRice = season.id === 'autumn' ? 1 : 0;
+    var homeFamily = season.id === 'summer' ? 3 : 4;
+    var outwork = wageOutworkProfile();
+    var skill = wageSkillProfile();
+    var bookkeeping = wageBookkeepingProfile();
+    var seasonalEvents = {
+      spring: [
+        { t: 'rel', tag: '[雇主]', txt: '春忙前后正是签长工、抢旺工的时候。东家和地主都在挑人，不是谁先开口谁就一定能接到。' },
+        { t: 'rand', tag: '[农时]', txt: '家里也正缺手：你在外多挣一程，父兄就少一程帮手；你若回家搭手，现钱便少一截。' }
       ],
-      prompt: '这一工年怎么谋生？（分配 4 点）',
+      summer: [
+        { t: 'rel', tag: '[身体]', txt: '伏夏最耗人，长工、挑担、看账、学活都在逼着你拿体魄换一点更稳的明天。' },
+        { t: 'rand', tag: '[市面]', txt: '青黄不接时，饭口与现钱都发紧。城里有零活，乡里也有家计，谁都不是白白等你。' }
+      ],
+      autumn: [
+        { t: 'rel', tag: '[家里]', txt: '秋收最盼人手。你若还在外抢工，家里口粮和家族声气都要重新掂量。' },
+        { t: 'rand', tag: '[旺工]', txt: '秋收旺工钱最厚，但也是最伤身的一程；挣得多，不等于这一手就没有后账。' }
+      ],
+      winter: [
+        { t: 'rel', tag: '[年关]', txt: '冬闲看似松一口气，实际上是把讨工银、修具、盘账、回家过年全挤在一起。' },
+        { t: 'rand', tag: '[清账]', txt: '这一季结完还要过全年总账：口粮、差役、债息都不会因为你辛苦过就自动消失。' }
+      ]
+    };
+    return {
+      title: '受雇谋生 · 第' + S.工年 + '工年·' + season.name, label: '佣工第' + S.工年 + '年·' + season.name,
+      next: 'wage', nextLabel: isWinter ? (S.工年 < WAGE_YEARS ? '翻到下一工年春忙 →' : '带着三年工账去议亲 →') : ('转入' + nextSeason.name + ' →'),
+      ap: 3, commitLabel: isWinter ? '结这一季并清年账 →' : '结这一季工食 →',
+      note: '这一路现已从“全年一点式结算”拆成“四季循环 + 冬闲总账”：春忙抢工，夏忙熬身，秋收抢钱，冬闲清账。仍保持三币种守恒，不写成功分。',
+      narrative: '你已<span class="em">' + age + '岁</span>，这一工年走到<span class="em">' + season.name + '</span>。' + season.actionLead + '你这一季有 <span class="em">3 个行动点</span>，要在长工、短工、外出、学活、核账、回家帮父之间重新分配。',
+      dossier: function () {
+        var seasonTags = (S.本年季务 && S.本年季务.length) ? S.本年季务.join('、') : '尚未坐实';
+        return lifeDossier('当前工季=' + season.name + '｜本年雇约=' + S.本年雇约 + '｜本年工食银=' + S.本年工食银 + '两｜本年工食钱=' + S.本年工食钱 + '文｜口粮减免=' + S.本年口粮减免 + '石｜已坐实=' + seasonTags + '。');
+      },
+      events: seasonalEvents[season.id],
+      prompt: '这一季怎么谋生？（分配 3 点）',
       actions: function () {
         var A = [];
-        var outwork = wageOutworkProfile();
-        var skill = wageSkillProfile();
-        var bookkeeping = wageBookkeepingProfile();
-        A.push({ id: 'w_long', name: '签一年长工', cost: 2, eff: '年终白银+2·管饭减口粮1石·体魄-6', desc: '给经营型地主做长工，年终拿工银，平日有饭吃。', can: true, once: true });
-        A.push({ id: 'w_short', name: '农忙打短工', cost: 1, eff: '铜钱+250·体魄-2', desc: '插秧、车水、收割时多打一旬短工，钱来得快，但季节一过就没了。', can: true });
-        A.push({ id: 'w_out', name: '外出佣工', cost: 2, eff: outwork.effect, desc: outwork.desc, can: true, once: true });
-        A.push({ id: 'w_skill', name: '随工学一门活', cost: 1, eff: skill.effect, desc: skill.desc, can: true });
-        A.push({ id: 'w_book', name: '识字帮看账', cost: 1, eff: bookkeeping.effect, desc: bookkeeping.desc, can: S.识字, why: S.识字 ? '' : '尚不识字', once: true });
-        A.push({ id: 'w_home', name: '回家帮父看田', cost: 1, eff: '家族+4·存米+1', desc: '农忙时回家帮父兄一把，虽少挣工钱，但家里气顺、口粮账也稳些。', can: true, once: true });
+        var longEff = (season.id === 'spring')
+          ? '年终白银+2·管饭减口粮1石·体魄-4'
+          : (season.id === 'summer')
+            ? '守年长工差·口粮减免1石·体魄-3'
+            : (season.id === 'autumn')
+              ? '守年长工秋收·口粮减免1石·体魄-4'
+              : '守年长工到年关·年终工银坐实·体魄-2';
+        var longDesc = (season.id === 'spring')
+          ? '先把这一年最稳的饭碗签下来：银要到年关才真正落袋，但平时管饭能先替家里省一口。'
+          : (season.id === 'summer')
+            ? '人既在长工名下，这一季就得把苦力和饭口一并扛住。'
+            : (season.id === 'autumn')
+              ? '秋收是长工最累也最不能缺人的时候；守住这程，年终那笔银才更像是真的。'
+              : '年关到了，把这一年的长工账坐实：该守的差、该讨的工银，都得在这季扛完。';
+        A.push({
+          id: 'w_long',
+          name: season.id === 'spring' ? '签一年长工' : (S.本年雇约 === '年长工' ? '守这一季长工差' : '转去守地主长差'),
+          cost: 2,
+          eff: longEff,
+          desc: longDesc,
+          can: true,
+          once: true
+        });
+        A.push({
+          id: 'w_short',
+          name: season.id === 'winter' ? '冬闲零工' : (season.id === 'autumn' ? '秋收抢短工' : '农忙打短工'),
+          cost: 1,
+          eff: '铜钱+' + seasonalShort + '·体魄-' + seasonalShortBody,
+          desc: season.id === 'winter'
+            ? '年关前接点零碎活路，现钱不多，却能把锅底火续住。'
+            : (season.id === 'autumn'
+              ? '秋收这程最缺人，现钱来得比平时厚，却也最伤身。'
+              : '趁这一季旺工多打一轮短工，钱来得快，但季一过就散。'),
+          can: true
+        });
+        A.push({ id: 'w_out', name: season.id === 'winter' ? '趁冬闲外出佣工' : '外出佣工', cost: 2, eff: outwork.effect, desc: outwork.desc, can: true, once: true });
+        A.push({ id: 'w_skill', name: season.id === 'winter' ? '冬闲修具学活' : '随工学一门活', cost: 1, eff: skill.effect, desc: skill.desc, can: true });
+        A.push({ id: 'w_book', name: season.id === 'winter' ? '年关帮看账' : '识字帮看账', cost: 1, eff: bookkeeping.effect, desc: bookkeeping.desc, can: S.识字, why: S.识字 ? '' : '尚不识字', once: true });
+        A.push({ id: 'w_home', name: season.id === 'autumn' ? '回家帮父抢收' : '回家帮父看田', cost: 1, eff: '家族+' + homeFamily + (homeRice > 0 ? '·存米+1' : ''), desc: season.id === 'autumn' ? '秋收时回家搭一把，虽少挣一手现钱，但米缸与家里脸面都稳些。' : '这一季回家帮父兄一把，少挣工钱，换家里气顺与后手。', can: true, once: true });
         A.push({ id: 'w_rest', name: '歇一歇养身', cost: 1, eff: '体魄+5', desc: '年轻也不是铁打的，别把身子先熬坏。', can: true });
         return A;
       },
       settle: function (log) {
         var tookLong = false, tookOut = false, shortCount = 0, didEarn = false;
+        var hadLongBeforeWinter = S.本年雇约 === '年长工';
         lifePicks.forEach(function (p) {
           switch (p.id) {
             case 'w_long':
               tookLong = true; didEarn = true;
-              S.白银 += 2; S.体魄 -= 6; S.雇工历练 += 2; S.雇身份 = '长工';
-              log.push(['签下一年长工：年终结工银白银+2，平日有管饭，但整年卖力，体魄-6', 'good']);
+              S.雇身份 = '长工'; S.雇工历练 += 1;
+              S.本年雇约 = '年长工';
+              S.本年口粮减免 += 1;
+              S.体魄 -= (season.id === 'spring' ? 4 : season.id === 'autumn' ? 4 : season.id === 'summer' ? 3 : 2);
+              pushWageSeasonTag(season.name + '长工');
+              if (season.id === 'spring') log.push(['春忙先把长工签下：银还没到账，但年关那 2 两工银终于有了着落，平日也先替家里省下一口饭。', 'good']);
+              else if (season.id === 'winter') log.push(['把年长工守到年关：工银不再只是“说定的价”，这一年的饭口与力气终于换成了能结清的账。', 'good']);
+              else log.push(['这一季仍守在长工差上：人是累的，但饭口与年关那笔工银也正因此更稳。', 'good']);
               break;
             case 'w_short':
               shortCount += 1; didEarn = true;
-              S.铜钱 += 250; S.体魄 -= 2; S.雇工历练 += 1;
-              log.push(['农忙短工一轮：铜钱+250、体魄-2（日结快，但农闲就没了）', 'good']);
+              S.铜钱 += seasonalShort; S.本年工食钱 += seasonalShort; S.体魄 -= seasonalShortBody; S.雇工历练 += 1; S.本年短工次数 += 1;
+              pushWageSeasonTag(season.name + '短工');
+              log.push([season.name + '短工一轮：铜钱+' + seasonalShort + '、体魄-' + seasonalShortBody + (season.id === 'winter' ? '（冬闲零工不断不了根本，只能先续锅火）' : '（日结快，但这一季一过就散）'), 'good']);
               break;
             case 'w_out':
               tookOut = true; didEarn = true;
-              var outwork = wageOutworkProfile();
               S.白银 += outwork.silver; S.铜钱 += outwork.copper; S.体魄 -= 8; S.家族 -= outwork.familyCost; S.雇身份 = '外出佣工';
+              S.本年工食银 += outwork.silver; S.本年工食钱 += outwork.copper; S.本年外出次数 += 1; S.本年口粮减免 += 1;
+              pushWageSeasonTag(season.name + '外出');
               log.push(['外出佣工：白银+' + outwork.silver + '、铜钱+' + outwork.copper + '、体魄-8' + (outwork.familyCost > 0 ? ('、家族-' + outwork.familyCost) : '、家族不减') + (S.城里门路 > 0 ? '（城里旧识先替你照应了落脚与工头）' : '（离乡更久，家里使唤不上你）'), 'good']);
               break;
             case 'w_skill':
-              var skill = wageSkillProfile();
+              S.本年学艺次数 += 1;
+              pushWageSeasonTag(season.name + '学活');
               if (S.技艺 === '无') {
                 S.雇技进度 += skill.progress;
                 log.push(['随工学活：手艺进度+' + skill.progress + '（' + S.雇技进度 + '/2）' + (S.家传手艺 > 0 ? '，家传底子让你一上手就不是纯打杂' : ''), 'good']);
                 if (S.雇技进度 >= 2) {
                   S.技艺 = '木活';
-                  if (skill.cash > 0) S.铜钱 += skill.cash;
+                  if (skill.cash > 0) { S.铜钱 += skill.cash; S.本年工食钱 += skill.cash; }
                   log.push(['手艺攒够两轮，学成一门木活——以后农闲可换钱', 'good']);
                   if (skill.cash > 0) log.push(['这年里因家传手艺门路先坐实，顺手又挣得熟活钱铜钱+' + skill.cash, 'good']);
                 }
               } else {
-                S.铜钱 += skill.cash;
+                S.铜钱 += skill.cash; S.本年工食钱 += skill.cash;
                 log.push(['凭手艺接点零活：铜钱+' + skill.cash, 'good']);
               }
               break;
             case 'w_book':
-              var bookkeeping = wageBookkeepingProfile();
               S.铜钱 += bookkeeping.copper; S.家族 += bookkeeping.family;
+              S.本年工食钱 += bookkeeping.copper; S.本年看账次数 += 1;
+              pushWageSeasonTag(season.name + '看账');
               log.push(['识字帮看账：铜钱+' + bookkeeping.copper + '、家族+' + bookkeeping.family + (S.家传书香 > 0 ? '（家传书香让你更容易被交给账册与契字）' : '（会认字，工价就是比纯卖力气高一点）'), 'good']);
               break;
             case 'w_home':
-              S.家族 += 4; S.存米 += 1;
-              log.push(['回家帮父兄看田：家族+4、存米+1（少挣一份工，但家里稳些）', 'good']);
+              S.家族 += homeFamily; S.本年帮家次数 += 1;
+              if (homeRice > 0) S.存米 += 1;
+              pushWageSeasonTag(season.name + '帮家');
+              log.push([season.id === 'autumn'
+                ? ('回家帮父兄抢收：家族+' + homeFamily + '、存米+1（少挣一份旺工，但米缸与家里脸面都稳住了）')
+                : ('回家帮父兄看田：家族+' + homeFamily + (homeRice > 0 ? '、存米+1' : '') + '（这一季少挣工钱，但家里稳些）'), 'good']);
               break;
             case 'w_rest':
               S.体魄 += 5;
@@ -2070,64 +2179,74 @@
               break;
           }
         });
-
-        // 全年口粮：长工/外出多由东家管饭，家庭口粮压力减一石；其余按2石估
-        var mouths = (tookLong || tookOut) ? 1 : 2;
-        if (S.存米 >= mouths) {
-          S.存米 -= mouths;
-          log.push(['〔口粮〕这一工年全家因你少在家吃饭，口粮计 ' + mouths + ' 石（存米-' + mouths + '）', 'bad']);
+        if (!didEarn && season.id !== 'winter') {
+          S.家族 -= 1;
+          log.push(['这一季没真正挣出工食，家里对你“这一手到底值不值”难免更紧一分（家族-1）。', 'bad']);
+        }
+        if (season.id === 'winter') {
+          if (hadLongBeforeWinter) {
+            S.白银 += 2; S.本年工食银 += 2;
+            log.push(['〔年工银〕这一年长工到年关结清：白银+2。到这一步，春天那份“说定了的价”才真正落袋。', 'good']);
+          } else if (tookLong) {
+            log.push(['〔长工〕你这季才临时转去守地主长差，能保下一手饭口，却还不足以把整年长工银按足坐实。', 'bad']);
+          }
+          var mouths = Math.max(1, 2 - Math.min(1, S.本年口粮减免 > 0 ? 1 : 0));
+          if (S.存米 >= mouths) {
+            S.存米 -= mouths;
+            log.push(['〔口粮〕这一工年家中口粮计 ' + mouths + ' 石（存米-' + mouths + '）；长工管饭与外出少吃在家，都在这里显出差别。', 'bad']);
+          } else {
+            var lack = mouths - S.存米;
+            S.存米 = 0;
+            if (S.铜钱 >= lack * 350) {
+              S.铜钱 -= lack * 350;
+              log.push(['〔口粮〕家中米不够，只得籴米补口粮：铜钱-' + (lack * 350), 'bad']);
+            } else {
+              S.负债银 += lack;
+              S.体魄 -= 4;
+              log.push(['〔口粮〕工食补不上这一年的口粮缺口，只得举债糊口（负债+' + lack + '两、体魄-4）', 'bad']);
+            }
+          }
+          if (rand() < 0.35) {
+            if (S.铜钱 >= 200) {
+              S.铜钱 -= 200;
+              log.push(['〔赋役〕本户轮到差役，拿铜钱200文找人顶上（铜钱-200）', 'bad']);
+            } else {
+              S.体魄 -= 6; S.家族 -= 2;
+              log.push(['〔赋役〕无钱代役，只得亲身应付差役，误工伤身（体魄-6、家族-2）', 'bad']);
+            }
+          }
+          if (S.负债银 > 0) {
+            var oldDebt = S.负债银;
+            var interest = Math.ceil(oldDebt * DEBT_RATE);
+            S.负债银 += interest;
+            log.push(['〔债息〕旧债 ' + oldDebt + ' 两滚息 ' + interest + ' 两（负债→' + S.负债银 + '）', 'bad']);
+          }
+          if ((S.本年工食银 + S.本年工食钱) <= 0) {
+            S.家族 -= 3;
+            log.push(['这一工年没真正挣出多少工食，家里难免把怨气都算到你这一路上（家族-3）。', 'bad']);
+          } else if (S.本年雇约 === '年长工' && S.本年短工次数 >= 1) {
+            log.push(['这一工年既有长工保底、又趁旺季多抢了短工，账面比“只守一头”更厚实。', 'good']);
+          } else if (S.本年短工次数 >= 2) {
+            log.push(['这一工年主要靠季节短工拼现钱，钱来得快，但每一文都更吃体魄。', 'good']);
+          }
+          curStage.next = (S.工年 < WAGE_YEARS) ? 'wage' : 'marriage';
+          curStage.nextLabel = (S.工年 < WAGE_YEARS) ? '翻到下一工年春忙 →' : '带着三年工账去议亲 →';
+          if (S.工年 < WAGE_YEARS) {
+            S._advanceWageYear = true;
+          } else {
+            S.年龄 = 20;
+          }
         } else {
-          var lack = mouths - S.存米;
-          S.存米 = 0;
-          if (S.铜钱 >= lack * 350) {
-            S.铜钱 -= lack * 350;
-            log.push(['〔口粮〕家中米不够，籴米补口粮：铜钱-' + (lack * 350), 'bad']);
-          } else {
-            S.负债银 += lack;
-            S.体魄 -= 4;
-            log.push(['〔口粮〕工钱也补不上口粮缺口，只得举债糊口（负债+' + lack + '两、体魄-4）', 'bad']);
-          }
-        }
-
-        // 里甲赋役：外生强制
-        if (rand() < 0.35) {
-          if (S.铜钱 >= 200) {
-            S.铜钱 -= 200;
-            log.push(['〔赋役〕本户轮到差役，拿铜钱200文找人顶上（铜钱-200）', 'bad']);
-          } else {
-            S.体魄 -= 6; S.家族 -= 2;
-            log.push(['〔赋役〕无钱代役，只得亲身应付差役，误工伤身（体魄-6、家族-2）', 'bad']);
-          }
-        }
-
-        // 旧债滚息
-        if (S.负债银 > 0) {
-          var oldDebt = S.负债银;
-          var interest = Math.ceil(oldDebt * DEBT_RATE);
-          S.负债银 += interest;
-          log.push(['〔债息〕旧债 ' + oldDebt + ' 两滚息 ' + interest + ' 两（负债→' + S.负债银 + '）', 'bad']);
-        }
-
-        // 年度评价只写事实，不给分
-        if (!didEarn) {
-          S.家族 -= 3;
-          log.push(['这一年没真正挣出工食，家里难免有怨气（家族-3）', 'bad']);
-        } else if (tookLong && shortCount >= 1) {
-          log.push(['这一年既有长工保底、又趁农忙多打一轮短工，账面最厚实。', 'good']);
-        } else if (shortCount >= 2) {
-          log.push(['这一年靠短工拼出了现钱，但也最吃体力。', 'good']);
-        }
-
-        clampAttr('体魄'); clampAttr('家族');
-        if (S.工年 < WAGE_YEARS) {
           curStage.next = 'wage';
-          curStage.nextLabel = '再过一年佣工 →';
-          S._advanceWageYear = true;
-        } else {
-          curStage.next = 'marriage';
-          curStage.nextLabel = '攒着工食去议亲 →';
-          S.年龄 = 20;
+          curStage.nextLabel = '转入' + nextSeason.name + ' →';
+          S._advanceWageSeason = true;
+          if (tookLong && tookOut) {
+            log.push(['这一季你一头守长工、一头又外出抢活，账是厚了，人也被撕得更紧。', 'good']);
+          } else if (shortCount >= 1 && S.本年帮家次数 >= 1) {
+            log.push(['这一季一边抢短工、一边还顾着家里，现钱和脸面都算勉强稳住。', 'good']);
+          }
         }
+        clampAttr('体魄'); clampAttr('家族');
       }
     };
   }
