@@ -72,7 +72,7 @@
       学徒授艺度: 0, 学徒信任: 0, 学徒历练: 0, 学徒去向: '未定', _advanceApprenticeYear: false,
       // 徽商路径字段
       商年: 1, 商身份: '未定', 商历练: 0, 识货进度: 0, 账房进度: 0, 商信誉: 0,
-      带本银: 0, 未回款银: 0, 累计反哺银: 0, 商路亏折: 0, _advanceMerchantYear: false,
+      带本银: 0, 未回款银: 0, 累计反哺银: 0, 商路供读银: 0, 商路亏折: 0, _advanceMerchantYear: false,
       // 科举路径字段
       举业年: 1, 读书方式: '未定', 童试层级: 0, 保结进度: 0, 文章火候: 0,
       供读状态: '家中供读', 供读压力: 0, 读书成本档: 0, 本年下场: false,
@@ -1355,12 +1355,14 @@
         A.push({ id: 'a_learn', name: '随师认货记账', cost: 1, eff: '授艺度+1·学徒历练+1', desc: '跟着看账认货，先学会不吃亏，再谈以后能不能留下。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据' });
         A.push({ id: 'a_home', name: '回乡帮父应急', cost: 1, eff: '家族+4·存米+1', desc: '店里少上一程工，家里却稳一些。', can: true, once: true });
         A.push({ id: 'a_keep', name: '第三年议留店', cost: 1, eff: '年末判留店去向', desc: '到了第三年，试着问问能不能留下做伙计。', can: S.学年 === APPRENTICE_YEARS && S.学徒合同 === '已立据', why: S.学年 === APPRENTICE_YEARS ? (S.学徒合同 === '已立据' ? '' : '尚未立据') : '要到第三年', once: true });
+        A.push({ id: 'a_shift', name: '第三年带门路投店工', cost: 1, eff: '年末判店铺做工去向', desc: '不求留本店，带着这三年的门道去别家店里找活路。', can: S.学年 === APPRENTICE_YEARS && S.学徒合同 === '已立据', why: S.学年 === APPRENTICE_YEARS ? (S.学徒合同 === '已立据' ? '' : '尚未立据') : '要到第三年', once: true });
+        A.push({ id: 'a_trade', name: '第三年跟货外跑试路', cost: 1, eff: '年末判随行商去向', desc: '借师门门路跟着跑一趟货，试试能不能转去学生意。', can: S.学年 === APPRENTICE_YEARS && S.学徒合同 === '已立据', why: S.学年 === APPRENTICE_YEARS ? (S.学徒合同 === '已立据' ? '' : '尚未立据') : '要到第三年', once: true });
         A.push({ id: 'a_quit', name: '自请退师另谋', cost: 1, eff: '退师·沉没成本不退', desc: '若觉着再熬不值，就自己退下来，带着沉没成本另找路。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据', once: true });
         A.push({ id: 'a_rest', name: '歇息养身', cost: 1, eff: '体魄+5', desc: '别把身子先熬坏了。', can: true });
         return A;
       },
       settle: function (log) {
-        var didContract = false, quit = false, askedKeep = false, didEarn = false;
+        var didContract = false, quit = false, askedKeep = false, askedShift = false, askedTrade = false, didEarn = false;
         lifePicks.forEach(function (p) {
           switch (p.id) {
             case 'a_seek':
@@ -1395,9 +1397,17 @@
               askedKeep = true;
               log.push(['你试着开口议留店：年末看师傅愿不愿意留你。', 'good']);
               break;
+            case 'a_shift':
+              askedShift = true;
+              log.push(['你放话想带门路去别家店投工：年末看能不能坐实这条去向。', 'good']);
+              break;
+            case 'a_trade':
+              askedTrade = true;
+              log.push(['你跟着跑一趟货路，想试试能不能转去学生意。', 'good']);
+              break;
             case 'a_quit':
               quit = true;
-              S.学徒阶段 = '退师'; S.学徒去向 = '另谋';
+              S.学徒阶段 = '退师'; S.学徒去向 = '归乡另谋';
               S.学徒信任 -= 1;
               log.push(['你自请退师：这几年沉没的人情和钱都不会退回来。', 'bad']);
               break;
@@ -1421,11 +1431,19 @@
             }
           } else {
             var outChance = Math.max(0.15, Math.min(0.90, 0.20 + S.学徒授艺度 * 0.12 + S.学徒信任 * 0.08 + (askedKeep ? 0.10 : 0)));
+            var shiftChance = Math.max(0.12, Math.min(0.80, 0.18 + S.学徒授艺度 * 0.10 + S.学徒历练 * 0.05 + (askedShift ? 0.12 : 0)));
+            var tradeChance = Math.max(0.10, Math.min(0.78, 0.16 + S.学徒授艺度 * 0.08 + S.学徒历练 * 0.06 + (S.识字 ? 0.06 : 0) + (askedTrade ? 0.12 : 0)));
             if (Math.random() < outChance) {
               S.学徒阶段 = '留店伙计'; S.学徒去向 = '留店伙计'; S.学徒历练 += 1; S.铜钱 += 200;
               log.push(['〔去向〕三年熬下来，师傅愿把你留下做伙计：铜钱+200。', 'good']);
+            } else if (askedTrade && Math.random() < tradeChance) {
+              S.学徒阶段 = '未出师'; S.学徒去向 = '随行商'; S.学徒历练 += 1; S.商历练 += 1; S.商信誉 += 1; S.铜钱 += 120;
+              log.push(['〔去向〕本店没留你，但你借着师门门路转去跟货学生意：铜钱+120、商路历练+1。', 'good']);
+            } else if (askedShift && Math.random() < shiftChance) {
+              S.学徒阶段 = '未出师'; S.学徒去向 = '店铺做工'; S.学徒历练 += 1; S.铜钱 += 150;
+              log.push(['〔去向〕虽未留原店，你还是带着门道去别家店里坐了店工：铜钱+150。', 'good']);
             } else {
-              S.学徒阶段 = '未出师'; S.学徒去向 = quit ? '另谋' : '归乡';
+              S.学徒阶段 = '未出师'; S.学徒去向 = quit ? '归乡另谋' : '归乡另谋';
               log.push(['〔去向〕三年下来仍未能留店，你带着学到的一点门道另找出路。', 'bad']);
             }
           }
@@ -1504,6 +1522,7 @@
         A.push({ id: 'm_goods', name: '认货辨价', cost: 1, eff: '识货进度+1', desc: '先学会认货，不然谈不上自己试着带本。', can: true });
         A.push({ id: 'm_book', name: '识字帮核账', cost: 1, eff: '铜钱+180·账房进度+1·商信誉+1', desc: '若你识字，可帮着抄单、核账，比纯跑腿更值钱。', can: S.识字, why: S.识字 ? '' : '尚不识字', once: true });
         A.push({ id: 'm_try', name: '争取带本试贩', cost: 2, eff: '白银-1锁作本钱·年终判回本/小利/亏折/未回款', desc: '拿一两本钱试着跑一单。钱先锁在货里，回没回得来得等年终。', can: S.白银 >= 1 && (S.识货进度 >= 1 || S.账房进度 >= 1), why: S.白银 < 1 ? '白银不足1两' : '尚未学会最基本认货/核账', once: true });
+        A.push({ id: 'm_support', name: '寄银回家供读', cost: 1, eff: '白银-1·反哺+1·家中供读稳一稳', desc: '你在外挣来的银，不只填自家嘴，还可先寄回去顶住家里供读的那条链。', can: S.白银 >= 1, why: S.白银 >= 1 ? '' : '白银不足1两', once: true });
         A.push({ id: 'm_home', name: '回乡省亲', cost: 1, eff: '家族+4·存米+1', desc: '回乡看看父母，也把一点心力和米粮带回去。', can: true, once: true });
         A.push({ id: 'm_rest', name: '歇养身子', cost: 1, eff: '体魄+5', desc: '别把身子先走坏。', can: true });
         return A;
@@ -1531,6 +1550,10 @@
             case 'm_try':
               S.白银 -= 1; S.带本银 += 1; triedTrade = true;
               log.push(['争取带本试贩：白银-1锁作本钱，待年终结账。', 'bad']);
+              break;
+            case 'm_support':
+              S.白银 -= 1; S.累计反哺银 += 1; S.商路供读银 += 1; S.供读压力 = Math.max(0, S.供读压力 - 1); S.家族 += 1;
+              log.push(['寄银回家供读：白银-1、累计反哺+1、商路供读+1，家里供读链暂时稳了一口气。', 'good']);
               break;
             case 'm_home':
               S.家族 += 4; S.存米 += 1;
@@ -1789,15 +1812,137 @@
     };
   }
 
-  // ── 成家（20岁）：多维行动点循环 —— 攒聘礼/托媒/凭识字手艺增议亲筹码 ──
+  function marriageRoutePack() {
+    var baseShowBonus = (S.识字 ? 0.12 : 0) + (S.技艺 !== '无' ? 0.12 : 0);
+    var baseShowCan = S.识字 || S.技艺 !== '无';
+    var baseShowLog = '亮出' + (S.识字 ? '识字' : '') + (S.识字 && S.技艺 !== '无' ? '、' : '') + (S.技艺 !== '无' ? '手艺' : '') + '身价（成算增）';
+    var pack = {
+      note: '',
+      narrative: '',
+      dossier: '',
+      event: null,
+      baseAdj: 0,
+      showName: '显本事·亮身价',
+      showEff: baseShowCan ? '成算+（识字/手艺抬行情）' : '（无识字手艺可亮）',
+      showDesc: '让女方家看到你识字或有手艺——佃农子跳板。',
+      showCan: baseShowCan,
+      showWhy: baseShowCan ? '' : '尚无识字或手艺',
+      showBonus: baseShowBonus,
+      showLog: baseShowLog,
+      extraActions: []
+    };
+
+    if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') {
+      pack.note = '学徒路议亲看重的，不只是识字，还看你三年后到底有没有坐实去向。';
+      pack.dossier = '学徒去向=' + S.学徒去向 + '｜授艺度=' + S.学徒授艺度 + '｜学徒历练=' + S.学徒历练;
+      pack.event = { t: 'rel', tag: '[去向]', txt: '媒人会打听你这三年学徒到底是留店、坐店工、跟货学生意，还是仍旧归乡另谋。学过几年是一回事，最后有没有坐实去处又是另一回事。' };
+      if (S.学徒去向 === '留店伙计') {
+        pack.baseAdj = 0.06;
+        pack.showName = '显去向·说你已留店';
+        pack.showEff = '成算++（店里已有去处）';
+        pack.showDesc = '让女方家知道你不是白熬三年，如今已有店中去处。';
+        pack.showBonus = 0.16;
+        pack.showLog = '亮出你已留店做伙计的去向（成算大增）';
+      } else if (S.学徒去向 === '店铺做工') {
+        pack.baseAdj = 0.03;
+        pack.showName = '显门道·说你已坐店工';
+        pack.showEff = '成算+（已有营生）';
+        pack.showDesc = '虽未留原店，但已能凭这三年门道在别家店里吃饭。';
+        pack.showBonus = 0.10;
+        pack.showLog = '亮出你已有店铺做工去向（成算增）';
+      } else if (S.学徒去向 === '随行商') {
+        pack.baseAdj = 0.02;
+        pack.showName = '显见识·说你跟货学生意';
+        pack.showEff = '成算+（见过市面）';
+        pack.showDesc = '你常在外跑货，见识和活路都更活一些，但安稳度未必最好。';
+        pack.showBonus = 0.08;
+        pack.showLog = '亮出你跟货学生意、见过外头路数（成算增）';
+      } else if (S.学徒历练 > 0) {
+        pack.baseAdj = 0.01;
+        pack.showName = '显见识·说你在城里历练过';
+        pack.showEff = '成算小增';
+        pack.showDesc = '虽未坐实去处，好歹见过铺面规矩，不全是空手回乡。';
+        pack.showBonus = 0.05;
+        pack.showLog = '亮出你在城里历练过几年（成算小增）';
+      }
+    } else if (S.路线.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计反哺银 > 0 || S.未回款银 > 0) {
+      pack.note = '商路议亲看的是回钱、旧账和顾不顾家，不是只看你在外跑过多少路。';
+      pack.dossier = '商身份=' + S.商身份 + '｜账房=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜供读银=' + S.商路供读银 + '两';
+      pack.event = { t: 'rand', tag: '[账期]', txt: '在外学生意，媒人不认“路上银”，只认你手里现钱、这些年有没有寄回过银、账上还有没有旧货款压着。' };
+      pack.baseAdj = S.累计反哺银 >= 2 ? 0.04 : ((S.账房进度 + S.商信誉) >= 3 ? 0.02 : 0);
+      pack.showName = '亮账面·说这些年有回钱';
+      pack.showCan = S.商历练 > 0 || S.累计反哺银 > 0 || S.账房进度 > 0 || S.未回款银 > 0;
+      pack.showWhy = pack.showCan ? '' : '眼下还无可亮的商路账面';
+      pack.showDesc = '让女方家看到你这几年不是空跑商路：账面门道、回家银路、旧账压力都摆在眼前。';
+      pack.showBonus = (S.累计反哺银 >= 2 ? 0.14 : (S.累计反哺银 >= 1 ? 0.10 : 0.04)) + ((S.账房进度 + S.商信誉) >= 3 ? 0.04 : 0) - (S.未回款银 > 0 ? 0.03 : 0) - (S.商路亏折 > 0 ? 0.02 : 0);
+      pack.showBonus = Math.max(0, pack.showBonus);
+      pack.showLog = '亮出这几年回家的银路与账面门道（成算增）';
+      if (S.未回款银 > 0) {
+        pack.extraActions.push({ id: 'm_collect', name: '折价催收旧账', cost: 1, eff: '未回款→部分现银·成算+', desc: '议亲前先把路上旧账折价催回来一些，媒人才认得手里现银。', can: true, once: true });
+      }
+    } else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) {
+      pack.note = '读书路议亲看的是名分与退路：生员、童生、屡试未第或断供改路，行情并不一样。';
+      pack.dossier = '举业结局=' + S.举业结局 + '｜童试层级=' + S.童试层级 + '｜识字转业值=' + S.识字转业值 + (S.生员身份 ? '｜已入泮（优免只减流出，不算现银）' : '');
+      pack.event = { t: 'rel', tag: '[名分]', txt: '读书人议亲，看重的不只是识字，而是你如今是生员、仍是童生，还是已断供改路。供读过几年，未必就能换来一纸体面。' };
+      if (S.生员身份) {
+        pack.baseAdj = 0.12;
+        pack.showName = '凭生员名色托媒';
+        pack.showEff = '成算++（名分抬行情）';
+        pack.showDesc = '让媒人明说你已入泮。体面与优免会抬一抬行情，但不等于白银入账。';
+        pack.showCan = true;
+        pack.showWhy = '';
+        pack.showBonus = 0.18;
+        pack.showLog = '凭生员名色托媒（成算大增）';
+      } else if (S.举业结局 === '屡试未第') {
+        pack.baseAdj = 0.03;
+        pack.showName = '亮笔墨·说可教蒙童';
+        pack.showEff = '成算+（有识字营生）';
+        pack.showDesc = '虽未得功名，但已能把笔墨底子转成教书、账房、书手的活路。';
+        pack.showCan = S.识字 || S.识字转业值 >= 2;
+        pack.showWhy = pack.showCan ? '' : '尚无可亮的笔墨底子';
+        pack.showBonus = 0.10;
+        pack.showLog = '亮出你虽未中式，却已有笔墨营生的去处（成算增）';
+        if (S.识字 && S.识字转业值 >= 2) {
+          pack.extraActions.push({ id: 'm_tutor', name: '代馆教蒙童', cost: 1, eff: '铜钱+120·家族+2·成算+', desc: '多年应举虽未得功名，但可先代塾师带几名蒙童，换一点体面与现钱。', can: true, once: true });
+        }
+      } else if (S.举业结局 === '断供改路') {
+        pack.baseAdj = 0;
+        pack.showName = '亮识字底子';
+        pack.showEff = '成算小增';
+        pack.showDesc = '家里虽已断供，但你多少还留下几分识字和笔墨底子。';
+        pack.showCan = S.识字;
+        pack.showWhy = S.识字 ? '' : '尚不识字';
+        pack.showBonus = S.识字 ? 0.04 : 0;
+        pack.showLog = '亮出你仍有一层识字底子（成算小增）';
+        if (S.识字) {
+          pack.extraActions.push({ id: 'm_copywork', name: '替人抄账写契', cost: 1, eff: '铜钱+180·成算+', desc: '既已断供，就先把识字底子换成现钱：替商号、地主抄单写契，先攒聘资。', can: true, once: true });
+        }
+      } else {
+        pack.baseAdj = -0.05;
+        pack.showName = '亮识字底子';
+        pack.showEff = S.识字 ? '成算小增' : '（无识字可亮）';
+        pack.showDesc = '仍是童生，媒人看的是你眼下到底有没有坐实营生。';
+        pack.showCan = S.识字;
+        pack.showWhy = S.识字 ? '' : '尚不识字';
+        pack.showBonus = S.识字 ? 0.06 : 0;
+        pack.showLog = '亮出你这些年读下来的识字底子（成算小增）';
+      }
+    }
+    return pack;
+  }
+
+  // ── 成家：多维行动点循环 —— 攒聘礼/托媒/凭路线尾账增议亲筹码 ──
   function stageMarriage() {
+    var rp = marriageRoutePack();
+    var events = [{ t: 'rel', tag: '[关系]', txt: '女方是邻村自耕农之女，有自己的意愿：她与父母看重的是这户的家底与后生的本分，不是你单方面"提亲"就能定。' }];
+    if (rp.event) events.push(rp.event);
     return {
       title: '成家 · 议亲', label: '成家', next: 'household', nextLabel: '步入中年 · 当户 →',
       ap: 4, commitLabel: '下聘·定亲事 →',
-      note: '成家不是一次"选套餐"，而是几年里一步步攒钱、托媒、抬身价：聘礼是真实外流（镜像入女方家账），识字/手艺会抬高你在媒人眼里的行情。〔货币规模为玩法占位，非史实点值〕',
-      narrative: '立身数年，你已<span class="em">二十岁</span>。父母张罗说亲。走"六礼"框架（平民多简化合并）——这一程你有 <span class="em">4 个行动点</span>，用来筹聘礼、托媒人、办酒席。你这些年攒下的<span class="em">识字、手艺、家族声望</span>，都会折进议亲的成算里。',
-      dossier: function () { return lifeDossier('议亲成算 = 基础 + 聘礼档 + 识字/手艺加成 + 家族声望；下聘时按当前筹码一次性 roll。'); },
-      events: [{ t: 'rel', tag: '[关系]', txt: '女方是邻村自耕农之女，有自己的意愿：她与父母看重的是这户的家底与后生的本分，不是你单方面"提亲"就能定。' }],
+      note: '成家不是一次"选套餐"，而是几年里一步步攒钱、托媒、抬身价：聘礼是真实外流（镜像入女方家账），媒人看的是你带到这个年纪的整本账。〔货币规模为玩法占位，非史实点值〕' + (rp.note ? ' ' + rp.note : ''),
+      narrative: '立身数年，你已<span class="em">' + S.年龄 + '岁</span>，也到了议亲年纪。走"六礼"框架（平民多简化合并）——这一程你有 <span class="em">4 个行动点</span>，用来筹聘礼、托媒人、办酒席。你这些年攒下的<span class="em">识字、手艺、家族声望与路线尾账</span>，都会折进议亲的成算里。' + (rp.narrative ? rp.narrative : ''),
+      dossier: function () { return lifeDossier('议亲成算 = 基础 + 路线结局 + 聘礼档 + 识字/营生加成 + 家族声望；下聘时按当前筹码一次性 roll。' + (rp.dossier ? '｜' + rp.dossier : '')); },
+      events: events,
       prompt: '这几年怎么张罗亲事？（分配 4 点，末了一次下聘）',
       actions: function () {
         var A = [];
@@ -1806,13 +1951,13 @@
         A.push({ id: 'm_gift1', name: '薄备聘礼', cost: 1, eff: '白银-1·聘礼档↑·成算+', desc: '尽力凑一份体面的薄聘。', can: S.白银 >= 1, why: S.白银 >= 1 ? '' : '白银不足1两', once: true });
         A.push({ id: 'm_borrow', name: '向义庄借银', cost: 1, eff: '负债+3两·白银+3（供下聘）', desc: '宗族义庄借贷办婚，先成家后还债。', can: true, once: true });
         A.push({ id: 'm_match', name: '托媒·多方相看', cost: 1, eff: '家族+2·成算+（媒妁之言）', desc: '多走几家媒人，抬一抬相看的成算。', can: true });
-        A.push({ id: 'm_show', name: '显本事·亮身价', cost: 1, eff: (S.识字 || S.技艺 !== '无') ? '成算+（识字/手艺抬行情）' : '（无识字手艺可亮）', desc: '让女方家看到你识字或有手艺——佃农子跳板。', can: S.识字 || S.技艺 !== '无', why: (S.识字 || S.技艺 !== '无') ? '' : '尚无识字或手艺' });
+        A.push({ id: 'm_show', name: rp.showName, cost: 1, eff: rp.showEff, desc: rp.showDesc, can: rp.showCan, why: rp.showWhy });
+        rp.extraActions.forEach(function (x) { A.push(x); });
         A.push({ id: 'm_wait', name: '暂缓·先积累', cost: 1, eff: '体魄+4（不催婚）', desc: '这一程先不急，养身攒钱。', can: true });
         return A;
       },
       settle: function (log) {
-        // 议亲成算：基础 + 聘礼档 + 加成；下聘时一次性 roll（女方独立回应）
-        var giftTier = 0, chance = 0.35;
+        var giftTier = 0, chance = 0.35 + rp.baseAdj;
         lifePicks.forEach(function (p) {
           switch (p.id) {
             case 'm_save': S.存米 -= 1; S.白银 += 1; log.push(['卖粮备聘：存米-1、白银+1', 'good']); break;
@@ -1820,11 +1965,26 @@
             case 'm_gift1': S.白银 -= 1; giftTier = Math.max(giftTier, 1); chance += 0.20; log.push(['薄备聘礼：银-1（成算增）', 'bad']); break;
             case 'm_borrow': S.负债银 += 3; S.白银 += 3; log.push(['义庄借银3两供下聘（负债+3、白银+3）', 'bad']); break;
             case 'm_match': S.家族 += 2; chance += 0.12; log.push(['托媒多方相看：家族+2（成算增）', 'good']); break;
-            case 'm_show': chance += (S.识字 ? 0.12 : 0) + (S.技艺 !== '无' ? 0.12 : 0); log.push(['亮出' + (S.识字 ? '识字' : '') + (S.识字 && S.技艺 !== '无' ? '、' : '') + (S.技艺 !== '无' ? '手艺' : '') + '身价（成算增）', 'good']); break;
+            case 'm_show': chance += rp.showBonus; log.push([rp.showLog, 'good']); break;
+            case 'm_collect':
+              var owed = S.未回款银;
+              var got = Math.max(1, Math.ceil(owed * 0.6));
+              var lost = Math.max(0, owed - got);
+              S.白银 += got; S.未回款银 = 0; if (lost > 0) S.商路亏折 += lost; chance += 0.08;
+              log.push(['折价催收旧账：未回款' + owed + '两里先收回白银+' + got + (lost > 0 ? '，另有' + lost + '两只得认亏' : '') + '（成算增）', 'good']);
+              break;
+            case 'm_copywork':
+              S.铜钱 += 180; chance += 0.08;
+              log.push(['替人抄账写契：铜钱+180，让女方家看见你不是空读书（成算增）', 'good']);
+              break;
+            case 'm_tutor':
+              S.铜钱 += 120; S.家族 += 2; chance += 0.10;
+              log.push(['代馆教蒙童：铜钱+120、家族+2；虽无功名，已有几分体面营生（成算增）', 'good']);
+              break;
             case 'm_wait': S.体魄 += 4; log.push(['暂缓催婚，养身：体魄+4', 'good']); break;
           }
         });
-        chance += Math.min(0.10, S.家族 >= 70 ? 0.10 : 0); // 家族声望高更好说亲
+        chance += Math.min(0.10, S.家族 >= 70 ? 0.10 : 0);
         chance = Math.max(0.05, Math.min(0.95, chance));
         var pct = Math.round(chance * 100);
         if (giftTier === 0) {
