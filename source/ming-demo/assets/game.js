@@ -2165,13 +2165,13 @@
   // ── 徽商学生意（16-18岁）：坐店/跑单/带本试贩 ──
   function stageMerchant() {
     var age = 16 + (S.商年 - 1);
-    var tradeProfile = merchantTradeProfile();
+    var tradePreview = merchantTradeProfile();
     var supportProfile = merchantSupportProfile();
     return {
       title: '徽商学生意 · 第' + S.商年 + '商年', label: '商路第' + S.商年 + '年',
       next: 'merchant', nextLabel: (S.商年 < MERCHANT_YEARS ? '再过一年学生意 →' : '攒着商路底子去议亲 →'),
       ap: 4, commitLabel: '了这一年商路 →',
-      note: '首版只做“随号学生意 + 少量带本试贩 + 年终结账”。关键不是发财，而是把本钱、未回款、反哺银、原籍赋役都放进同一本账里。' + (generation > 1 ? ' ' + tradeProfile.note : ''),
+      note: '首版只做“随号学生意 + 少量带本试贩 + 年终结账”。关键不是发财，而是把本钱、未回款、反哺银、原籍赋役都放进同一本账里。' + (generation > 1 ? ' ' + tradePreview.note : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，跟着族叔商号学生意。你这一年有 <span class="em">4 个行动点</span>，要在坐店、跑单、认货、核账、带本试贩、回乡、省身之间分配。' +
         (((S.承继定位 || '').indexOf('长兄续商') >= 0)
           ? ' 只是这一手并不是平白承了长兄的旧号，多半还得挨着旧路数、在旁边另起一支，认人认账与回钱节奏都会因此改写。'
@@ -2217,13 +2217,21 @@
               log.push(['识字帮核账：铜钱+180、账房进度+1、商信誉+1', 'good']);
               break;
             case 'm_try':
-              S.白银 -= 1; S.带本银 += 1; triedTrade = true;
-              log.push(['争取带本试贩：白银-1锁作本钱，待年终结账。', 'bad']);
+              if (S.白银 >= 1) {
+                S.白银 -= 1; S.带本银 += 1; triedTrade = true;
+                log.push(['争取带本试贩：白银-1锁作本钱，待年终结账。', 'bad']);
+              } else {
+                log.push(['想拿一两现银去试贩，但这一年别处已先占了这笔钱，只得暂缓，免得把白银记成负数。', 'bad']);
+              }
               break;
             case 'm_support':
-              S.白银 -= 1; S.累计反哺银 += 1; S.商路供读银 += 1; S.供读压力 = Math.max(0, S.供读压力 - 1); S.家族 += supportProfile.familyGain;
-              if (supportProfile.trustGain > 0) S.商信誉 += supportProfile.trustGain;
-              log.push(['寄银回家供读：白银-1、累计反哺+1、商路供读+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '；这笔银被更稳地划进家里的供读账。', 'good']);
+              if (S.白银 >= 1) {
+                S.白银 -= 1; S.累计反哺银 += 1; S.商路供读银 += 1; S.供读压力 = Math.max(0, S.供读压力 - 1); S.家族 += supportProfile.familyGain;
+                if (supportProfile.trustGain > 0) S.商信誉 += supportProfile.trustGain;
+                log.push(['寄银回家供读：白银-1、累计反哺+1、商路供读+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '；这笔银被更稳地划进家里的供读账。', 'good']);
+              } else {
+                log.push(['本想寄银回家供读，但这一年手头现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
+              }
               break;
             case 'm_home':
               S.家族 += 4; S.存米 += 1;
@@ -2237,6 +2245,7 @@
         });
 
         if (triedTrade) {
+          var tradeProfile = merchantTradeProfile();
           var r = rollProb(tradeProfile.table);
           log.push(['〔试贩成算〕这一单不再只按固定概率落下：会继续吃到旧商路、账房、承继定位与旁支衰减的影响。', 'good']);
           if (r === 'flat') {
@@ -2866,7 +2875,14 @@
         var risk = 0.40 + hp.baseAdj; var paid = false, guarded = false;
         lifePicks.forEach(function (p) {
           switch (p.id) {
-            case 'h_pay': S.白银 -= 2; S.应役 = '纳银代役'; risk -= 0.35; paid = true; log.push(['纳银代役：白银-2，赔累风险大降', 'good']); break;
+            case 'h_pay':
+              if (S.白银 >= 2) {
+                S.白银 -= 2; S.应役 = '纳银代役'; risk -= 0.35; paid = true;
+                log.push(['纳银代役：白银-2，赔累风险大降', 'good']);
+              } else {
+                log.push(['想拿现银代役，但这一程别处已先占了现银，只得改回硬扛，免得把白银记成负数。', 'bad']);
+              }
+              break;
             case 'h_literate': risk -= 0.15; log.push(['识字亲核账册：吏胥难虚加，赔累风险降', 'good']); break;
             case 'h_clan': S.家族 += 3; guarded = true; if (S.家族 >= 60) risk -= 0.12; log.push(['托家族乡里担保：家族+3' + (S.家族 >= 60 ? '，摊派有人分担（风险降）' : '（家族声望尚浅，担保有限）'), 'good']); break;
             case 'h_hire': S.铜钱 = Math.max(0, S.铜钱 - 300); log.push(['雇工顾农事：铜钱-300，当役误工不减产', 'bad']); break;
