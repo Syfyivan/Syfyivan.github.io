@@ -90,6 +90,7 @@
       S.存米 = Math.max(0, carry.存米 || 0);
       S.铜钱 = carry.铜钱 != null ? carry.铜钱 : 1200;
       S.田亩 = Math.max(0, carry.田亩 != null ? carry.田亩 : 4);
+      S.负债银 = Math.max(0, carry.负债银 || 0);
       S.家族 = Math.max(20, Math.min(80, carry.家族 == null ? 60 : carry.家族));
       S.父辈路线 = carry.父辈路线 || '未定';
       S.承嗣来路 = carry.承嗣来路 || '本支次子承继';
@@ -107,7 +108,7 @@
     childStage = 0; childRound = 0; childPicks = []; childResolved = null;
     S.年龄 = CHILD_STAGES[0].age;
     recordEntry('出生开账', null,
-      generation > 1 ? ('第' + generation + '代降生：这一户现有田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两，你排行次子，全赖父母养育。' + inheritedCarryNote(carryOver))
+      generation > 1 ? ('第' + generation + '代降生：这一户现有田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两' + (S.负债银 > 0 ? ('、旧债' + S.负债银 + '两') : '') + '，你排行次子，全赖父母养育。' + inheritedCarryNote(carryOver))
         : '出生：降生于江南民籍佃农之家，排行次子。这户现有薄田4亩、存米3石、少量现钱。');
     rollChildRound();
   }
@@ -153,6 +154,7 @@
     if (S._carry) {
       if (S._carry.田亩 < 0) v.push('传承田亩<0');
       if (S._carry.存米 < 0 || S._carry.白银 < 0) v.push('传承资源为负');
+      if ((S._carry.负债银 || 0) < 0) v.push('传承负债为负');
     }
     // 7) 路线专有约束
     if (S.生员身份 && S.童试层级 < 3) v.push('未过院试却写成生员');
@@ -278,7 +280,7 @@
     if (generation <= 1 || !carryOver) {
       return '共同父快照不变：民籍次子、家庭公账白银6两/铜钱2000文/存米8石、薄田12亩、本人无独立现金。此处只分“路”，不倒填未来。';
     }
-    return '这一代不再回滚到初代父快照，而是沿上一代真实传承快照继续：本房现有白银' + S.白银 + '两、铜钱' + S.铜钱 + '文、存米' + S.存米 + '石、田' + S.田亩 + '亩。' +
+    return '这一代不再回滚到初代父快照，而是沿上一代真实传承快照继续：本房现有白银' + S.白银 + '两、铜钱' + S.铜钱 + '文、存米' + S.存米 + '石、田' + S.田亩 + '亩' + (S.负债银 > 0 ? ('，另背旧债' + S.负债银 + '两') : '') + '。' +
       (carryOver.父辈路线 && carryOver.父辈路线 !== '未定' ? ('父辈走的是“' + carryOver.父辈路线 + '”。') : '') +
       inheritedCarryNote(carryOver);
   }
@@ -288,7 +290,7 @@
         (baseSummary.length ? ('你这些年攒下的底子：<span class="em">' + baseSummary.join('、') + '</span>。') : '你手上并无特别底子，只有一副年轻身子和一点寻常农事。') +
         '五条路共享同一个过去、同一份家底，但以后会走成完全不同的一生。';
     }
-    return '你已<span class="em">十六岁</span>。这一代承的是上一代身后结清后留下的家底：田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两。' +
+    return '你已<span class="em">十六岁</span>。这一代承的是上一代身后结清后留下的家底：田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两' + (S.负债银 > 0 ? ('、旧债' + S.负债银 + '两') : '') + '。' +
       (baseSummary.length ? ('你眼下能动用的底子：<span class="em">' + baseSummary.join('、') + '</span>。') : '你手里没攒出太多新底子，只能从上一代留给你的薄产与门路里找出路。') +
       '你仍是这一房的次子，长兄多半承更多家产；但父辈留下的门路与亏空，也都会改写你五条路的入口。';
   }
@@ -1078,7 +1080,7 @@
     if (via.indexOf('弟妹接续') < 0) via += '·弟妹接续';
     S._childDied = true;
     S._carry = {
-      白银: S.白银, 存米: Math.max(0, S.存米), 铜钱: S.铜钱, 田亩: S.田亩, 家族: Math.max(20, S.家族 - 4),
+      白银: S.白银, 存米: Math.max(0, S.存米), 铜钱: S.铜钱, 田亩: S.田亩, 负债银: Math.max(0, S.负债银 || 0), 家族: Math.max(20, S.家族 - 4),
       父辈路线: S.父辈路线 || '未定',
       承嗣来路: via,
       家传书香: S.家传书香 || 0,
@@ -2643,7 +2645,9 @@
     var funeral = 1; // 白银
     var funeralMi = 1;
     var recoveredReceivable = S.未回款银 > 0 ? Math.floor(S.未回款银 * 0.6) : 0;
-    var estateSilver = Math.max(0, S.白银 - funeral + recoveredReceivable) - S.负债银;
+    var estateSilverGross = Math.max(0, S.白银 - funeral + recoveredReceivable);
+    var estateDebt = Math.max(0, S.负债银 - estateSilverGross);
+    var estateSilver = Math.max(0, estateSilverGross - S.负债银);
     var estateMi = Math.max(0, S.存米 - funeralMi);
     var estateTian = S.田亩;
     var estateCopper = Math.max(0, S.铜钱);
@@ -2656,8 +2660,9 @@
       var shareMi = Math.floor(estateMi / sons);
       var shareTian = shareByOrdinal(estateTian, sons, heirOrdinal);
       var shareCopper = Math.floor(estateCopper / sons);
+      var shareDebt = shareByOrdinal(estateDebt, sons, heirOrdinal);
       S._carry = {
-        白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: shareCopper, 家族: Math.min(80, S.家族),
+        白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: shareCopper, 负债银: shareDebt, 家族: Math.min(80, S.家族),
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子
       };
@@ -2665,10 +2670,10 @@
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了能传下去的不只是薄田' + (S.委托租谷 > 0 ? '与委托田租' : '') + '，还有一层见过世面的门路。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨不会直接分成银两，却会作为体面与起点留在下一代门前。';
       else deathTag = '你这一辈子的每一分积累与亏空，都成了子孙的期初。';
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。丧礼依家礼办讫（棺木等丧葬支出白银1两、米1石从遗产扣除）。遗产按<span class="em">诸子均分</span>传给下一代——' + deathTag;
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。丧礼依家礼办讫（棺木等丧葬支出白银1两、米1石从遗产扣除）。遗产按<span class="em">诸子均分</span>传给下一代' + (estateDebt > 0 ? '，未抵清的旧债也随房分担' : '') + '——' + deathTag;
     } else {
       S._carry = {
-        白银: 0, 存米: 1, 田亩: 2, 铜钱: 800, 家族: 45,
+        白银: 0, 存米: 1, 田亩: 2, 铜钱: 800, 负债银: estateDebt, 家族: 45,
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子
       };
@@ -2676,7 +2681,7 @@
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了虽绝嗣，城中门路与见识' + (S.委托租谷 > 0 ? '连同委托田租的薄底子' : '') + '也只剩旁支可续。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨终究未能直接传给亲子，只在旁支门前留下些体面与余绪。';
       else deathTag = '这不是"游戏失败"，而是明代极高绝嗣率下的真实分支。';
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>，然膝下无育成之子。依明代常俗，触发<span class="em">过继/立嗣</span>：族中侄辈过继承祧，仅得旁支薄产起家——' + deathTag;
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>，然膝下无育成之子。依明代常俗，触发<span class="em">过继/立嗣</span>：族中侄辈过继承祧，仅得旁支薄产起家' + (estateDebt > 0 ? '，并接过这户未了的旧债' : '') + '——' + deathTag;
     }
     return {
       title: '死亡与传承', label: '传承', next: null, nextLabel: '递归重开 →',
@@ -2685,8 +2690,8 @@
       events: [
         { t: 'rand', tag: '[丧葬]', txt: '丧葬支出：棺木等白银1两、米1石，从遗产/诸子分摊账扣除（镜像入出资子账，不凭空消失）。' },
         { t: 'rel', tag: '[传承]', txt: sons > 0
-          ? ('遗产品搭均分给 ' + sons + ' 子：你继续跟的是第' + heirOrdinal + '子这一房，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩。田不足整分时，这一房也可能暂时分不到整亩，只能带着旧门路再外求。' + inheritedCarryNote(S._carry))
-          : ('无嗣过继，下一代以旁支薄产（田2亩、存米1石）起家。' + inheritedCarryNote(S._carry)) }
+          ? ('遗产品搭均分给 ' + sons + ' 子：你继续跟的是第' + heirOrdinal + '子这一房，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩' + (S._carry.负债银 > 0 ? ('，并分担旧债' + S._carry.负债银 + '两') : '') + '。田不足整分时，这一房也可能暂时分不到整亩，只能带着旧门路再外求。' + inheritedCarryNote(S._carry))
+          : ('无嗣过继，下一代以旁支薄产（田2亩、存米1石）起家' + (S._carry.负债银 > 0 ? ('，并接过旧债' + S._carry.负债银 + '两') : '') + '。' + inheritedCarryNote(S._carry)) }
       ],
       prompt: '',
       // 直接给 outcome，无需选择
@@ -2759,8 +2764,8 @@
       recordEntry('丧葬支出结算', before, '棺木等：白银-1、存米-1（从遗产扣，镜像入出资子账）');
       var rh = '<div class="resolve"><h4>身后结算 · 享年 ' + S.年龄 + ' 岁</h4>';
       rh += '<div class="line bad">· 丧葬支出：白银-1、存米-1</div>';
-      if (S.子数 > 0) rh += '<div class="line good">· 遗产品搭均分给 ' + S.子数 + ' 子；你继续跟的这一房分得白银' + (S._carry.白银) + '两、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩</div>';
-      else rh += '<div class="line bad">· 绝嗣过继：下一代旁支薄产（田2亩、存米1石）起家</div>';
+      if (S.子数 > 0) rh += '<div class="line good">· 遗产品搭均分给 ' + S.子数 + ' 子；你继续跟的这一房分得白银' + (S._carry.白银) + '两、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩' + (S._carry.负债银 > 0 ? ('，并分担旧债' + S._carry.负债银 + '两') : '') + '</div>';
+      else rh += '<div class="line bad">· 绝嗣过继：下一代旁支薄产（田2亩、存米1石）起家' + (S._carry.负债银 > 0 ? ('，并接过旧债' + S._carry.负债银 + '两') : '') + '</div>';
       rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">这一世了结。账本可继承、可回放、可重开——这正是徽州文书"归户"的玩法化。</div>';
       rh += '</div>';
       curStage.outcome = rh;
