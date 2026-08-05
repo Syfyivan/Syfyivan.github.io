@@ -15,6 +15,7 @@
   var AP_PER_XUN = 4;
   var GROW_TARGET = 12;
   var FARM_YEARS = 3;      // 成丁后佃田耕作的农年数（16→18岁），每年秋收强制结算佃约
+  var WAGE_YEARS = 3;      // 成丁后受雇谋生的工年数（16→18岁）
   var YEAR_KOULIANG = 3;   // 全家一年口粮消耗（石·占位）
   var RENT_SEIZE_P = 0.35; // 欠租被夺佃概率（占位）
   var CORVEE_P = 0.40;     // 里甲赋役佥派概率（占位）
@@ -43,7 +44,7 @@
   // ── 全局状态 ───────────────────────────────────
   var S, ledger, seq, xunIndex, picks, resolved, gameOver;
   var _yearEndNext = null;   // 年终结账面板之后要去的地方：'newyear' | 'marriage'
-  var phase;                 // 'childhood' | 'farm' | 'marriage' | 'household' | 'elder' | 'death'
+  var phase;                 // 'childhood' | 'establishment' | 'farm' | 'wage' | 'marriage' | 'household' | 'elder' | 'death'
   var generation = 0;        // 第几代
   var carryOver = null;      // 上一代传下的期初结余
   var curStage = null;       // 当前人生阶段卡（非农事时）
@@ -61,6 +62,8 @@
       秧苗进度: 0, 已插秧: false, 田亩: 4, 租额石: 3, 菜圃进度: 0, 母出工: true, 农年: 1,
       // 幼年字段
       识字: false, 技艺: '无', 兄弟序: 1, 农事历练: 0, 家务历练: 0, 识字进度: 0, 技艺进度: 0,
+      // 立身与雇工路径字段
+      路线: '未立身', 工年: 1, 雇身份: '未定', 雇工历练: 0, 雇技进度: 0, _advanceWageYear: false,
       // 人生链路字段
       妻室: false, 子数: 0, 女数: 0, 负债银: 0, 口食田: 0, 分家: false, 应役: '未役'
     };
@@ -259,7 +262,14 @@
       var g = growthInfo();
       h += '<span class="chip">佃田 <b>第' + S.农年 + '/' + FARM_YEARS + '</b>年</span>';
       h += '<span class="chip crop"><span class="g-dot ' + g.cls + '"></span>庄稼 <b>' + (g.planted ? g.label + ' ' + g.pct + '%' : '未插秧') + '</b></span>';
+    } else if (phase === 'wage') {
+      h += '<span class="chip">路线 <b>受雇谋生</b></span>';
+      h += '<span class="chip">工年 <b>' + S.工年 + '/' + WAGE_YEARS + '</b></span>';
+      h += '<span class="chip">雇身分 <b>' + S.雇身份 + '</b></span>';
     } else if (phase === 'childhood') {
+      h += '<span class="chip">识字 <b>' + (S.识字 ? '已启蒙' : '未识字') + '</b></span>';
+      h += '<span class="chip">技艺 <b>' + S.技艺 + '</b></span>';
+    } else if (phase === 'establishment') {
       h += '<span class="chip">识字 <b>' + (S.识字 ? '已启蒙' : '未识字') + '</b></span>';
       h += '<span class="chip">技艺 <b>' + S.技艺 + '</b></span>';
     } else {
@@ -759,21 +769,50 @@
       childStage += 1; childRound = 0; S.年龄 = CHILD_STAGES[childStage].age; rollChildRound();
       renderChildhood(); renderStatus(); renderLedger();
     } else {
-      enterFarm();
+      enterEstablishment();
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // 幼年结束 → 十六成丁，步入佃田一季（沿用旬循环）
-  function enterFarm() {
-    phase = 'farm'; S.年龄 = 16; S.身份 = '民籍·佃农子'; picks = []; resolved = null; curStage = null;
+  function routeBaseSummary() {
     var 底子 = [];
-    if (S.识字) 底子.push('略识文字（记账当役不吃亏）');
-    if (S.技艺 !== '无') 底子.push('有手艺傍身（可退可进的后路）');
-    if (S.农事历练 >= 3) 底子.push('农活扎实（下田更耐劳）');
+    if (S.识字) 底子.push('略识文字（记账、核账、投师都不吃亏）');
+    if (S.技艺 !== '无') 底子.push('有手艺傍身（乱世多一条退路）');
+    if (S.农事历练 >= 3) 底子.push('农活扎实');
     if (S.家务历练 >= 3) 底子.push('家务麻利');
-    recordEntry('十六成丁·立身开账', snapshot(), '幼年既过，成丁下田。' + (底子.length ? '这些年攒下：' + 底子.join('、') + '。' : '这些年不曾攒下特别的底子，只识些寻常农事。'));
+    return 底子;
+  }
+
+  // 幼年结束 → 十六成丁，先进入立身分叉
+  function enterEstablishment() {
+    phase = 'establishment';
+    S.年龄 = 16; S.身份 = '民籍·次子待立身'; S.路线 = '未立身';
+    picks = []; resolved = null; lifePicks = []; curStage = stageEstablishment();
+    var 底子 = routeBaseSummary();
+    recordEntry('十六成丁·立身开账', snapshot(), '幼年既过，成丁立身。' + (底子.length ? '这些年攒下：' + 底子.join('、') + '。' : '这些年不曾攒下特别的底子，只识些寻常农事。'));
+    renderStatus(); renderLifeStage(); renderLedger();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 立身走佃田路 → 十六成丁，步入佃田三农年（沿用旬循环）
+  function enterFarm() {
+    phase = 'farm'; S.年龄 = 16; S.身份 = '民籍·佃农子'; S.路线 = '留乡佃田'; S.农年 = 1; picks = []; resolved = null; curStage = null;
+    recordEntry('立身分路·留乡佃田', snapshot(), '你没去城里，也没再继续读书，而是留在乡里，接下这几亩水田，准备靠一双手和九旬光阴吃饭。');
     rollXun(); renderStatus(); renderStage(); renderLedger();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 立身走受雇路 → 十六成丁，步入受雇谋生三工年
+  function enterWage() {
+    phase = 'wage';
+    if (S._advanceWageYear) { S.工年 += 1; S._advanceWageYear = false; }
+    S.年龄 = 16 + (S.工年 - 1);
+    S.身份 = '民籍·雇工子';
+    S.路线 = '受雇长工/短工';
+    picks = []; resolved = null; lifePicks = [];
+    curStage = stageWage();
+    if (S.工年 === 1) recordEntry('立身分路·受雇谋生', snapshot(), '你没去守那几亩佃田，而是去乡里和市镇寻工：靠体魄、识字和一点手艺底子，先把工食挣出来。');
+    renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -815,7 +854,10 @@
 
   function enterPhase(p) {
     phase = p; picks = []; resolved = null; lifePicks = [];
-    if (p === 'marriage') { S.年龄 = 20; curStage = stageMarriage(); }
+    if (p === 'farmRoute' || p === 'farm') { enterFarm(); return; }
+    else if (p === 'wage') { enterWage(); return; }
+    else if (p === 'establishment') { enterEstablishment(); return; }
+    else if (p === 'marriage') { S.年龄 = 20; curStage = stageMarriage(); }
     else if (p === 'household') { S.年龄 = 35; curStage = stageHousehold(); }
     else if (p === 'elder') { S.年龄 = 55; curStage = stageElder(); }
     else if (p === 'death') { S.年龄 = S._deathAge || 58; curStage = stageDeath(); }
@@ -990,12 +1032,207 @@
     tags.push(S.识字 ? '识字·已启蒙' : '识字·无');
     tags.push(S.技艺 !== '无' ? '手艺·傍身' : '手艺·无');
     tags.push('农事历练 ' + S.农事历练);
+    if (S.雇工历练) tags.push('雇工历练 ' + S.雇工历练);
     tags.push('家族声望 ' + S.家族);
     var h = '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">📇 共享状态账 · 这本账一路带到底</span>' +
       '<span class="cb-val">体魄 ' + S.体魄 + '</span></div>' +
       '<div class="cb-tip">' + tags.join(' ｜ ') + (extra ? ('<br>' + extra) : '') + '</div></div>';
     return h;
+  }
+
+  // ── 立身分叉（16岁）：五路中先接通两路 —— 佃田 / 受雇 ──
+  function stageEstablishment() {
+    var 底子 = routeBaseSummary();
+    return {
+      title: '立身 · 五路分叉', label: '立身',
+      next: null, nextLabel: '走上这条路 →',
+      note: '你要求的是“同一父快照、16岁再分路”。这里不再默认锁死进佃田，而是在同一户、同一年、同一份家底下分叉。现已接通两条：留乡佃田、受雇谋生；其余三条设计稿已写，运行时尚未接。',
+      narrative: '你已<span class="em">十六岁</span>。父兄会留在这户田上，你得决定自己怎么立身。' +
+        (底子.length ? ('你这些年攒下的底子：<span class="em">' + 底子.join('、') + '</span>。') : '你手上并无特别底子，只有一副年轻身子和一点寻常农事。') +
+        '五条路共享同一个过去、同一份家底，但以后会走成完全不同的一生。',
+      dossier: function () {
+        return lifeDossier('共同父快照不变：民籍次子、家庭公账白银6两/铜钱2000文/存米8石、薄田12亩、本人无独立现金。此处只分“路”，不倒填未来。');
+      },
+      events: [
+        { t: 'rel', tag: '[立身]', txt: '兄将承祖业多数薄田，你这次子分不到够养一家的田。你的路，从来不可能只是“照旧过下去”。' },
+        { t: 'rand', tag: '[制度]', txt: '五条路并无高下：耕、雇、学、商、举都是真实入口。区别只在它们如何读取同一份时间、身体、现金与他人意愿。' }
+      ],
+      prompt: '十六成丁，你先走哪条路？',
+      choices: [
+        {
+          name: '路径一 · 留乡佃田',
+          gain: '直接进入三农年佃田循环（16→18岁）',
+          note: '接下几亩水田，照约缴租、吃自己种出的米。你已经玩过这条路，但现在它是五路之一，而不是默认唯一入口。',
+          run: function (log) {
+            curStage.next = 'farmRoute'; curStage.nextLabel = '下田立身 →'; S.路线 = '留乡佃田';
+            log.push(['你决定留在乡里，先靠佃田吃饭：这一路已接入完整三农年循环。', 'good']);
+          }
+        },
+        {
+          name: '路径二 · 受雇长工 / 短工',
+          gain: '进入三工年受雇循环（16→18岁）',
+          note: '不守这几亩田，去替经营型地主和市镇东家出力挣工食。长工有管饭和年工银，短工日结快但失工频繁。',
+          run: function (log) {
+            curStage.next = 'wage'; curStage.nextLabel = '去谋第一年工食 →'; S.路线 = '受雇长工/短工';
+            log.push(['你决定先把工食挣出来：这一路已接入首版三工年循环。', 'good']);
+            if (S.识字) log.push(['你略识文字，日后做长工核账、做书手看单都不至吃大亏。', 'good']);
+            if (S.技艺 !== '无') log.push(['你有手艺傍身，农闲时可做副业，比纯卖力气多一条退路。', 'good']);
+          }
+        },
+        {
+          name: '路径三 · 入城学徒',
+          can: false, why: '设计稿已完成，运行时未接',
+          note: '文档已写完，但这一版 Demo 还没把投师字据、保证金、出师链真正接进运行时。'
+        },
+        {
+          name: '路径四 · 徽商式亦贾亦儒',
+          can: false, why: '设计稿已完成，运行时未接',
+          note: '文档已写完，但这一版 Demo 还没把家族分工账、反哺银与供读链接进运行时。'
+        },
+        {
+          name: '路径五 · 读书应举',
+          can: false, why: '设计稿已完成，运行时未接',
+          note: '文档已写完，但这一版 Demo 还没把童试三级、保结、束脩账和生员优免接进运行时。'
+        }
+      ]
+    };
+  }
+
+  // ── 受雇谋生（16-18岁）：按年决策，显式结算工食/口粮/赋役/债息 ──
+  function stageWage() {
+    var age = 16 + (S.工年 - 1);
+    return {
+      title: '受雇谋生 · 第' + S.工年 + '工年', label: '佣工第' + S.工年 + '年',
+      next: 'wage', nextLabel: (S.工年 < WAGE_YEARS ? '再过一年佣工 →' : '攒着工食去议亲 →'),
+      ap: 4, commitLabel: '了这一年工食 →',
+      note: '这一路先做首版：把“长工年结、短工日结、农闲失工、年终口粮与赋役强制结算”接进运行时。数额仍是玩法占位，不当作史实精确值。',
+      narrative: '你已<span class="em">' + age + '岁</span>，不守那几亩田，而是去乡里和市镇寻工。经营型地主看你这一双手，市镇东家看你能不能吃苦；你这年有 <span class="em">4 个行动点</span>，要在长工、短工、外出、学手艺、回家帮父之间分配。',
+      dossier: function () {
+        return lifeDossier('长工 = 年结银 + 管饭减口粮；短工 = 现钱快但农闲易失工；外出佣工现金高但离乡；手艺进度攒够后可把“无手艺”改成“木活”。');
+      },
+      events: [
+        { t: 'rel', tag: '[雇主]', txt: '经营型地主与市镇东家都在挑人：他们不是施恩者，而是在算一双手值不值这份工食。' },
+        { t: 'rand', tag: '[市场]', txt: '这一年你会同时撞上农忙旺工、农闲失工、里甲差役和家中口粮账——工食并不只是一份“工资”，而是一整套被制度和季节挤压的日子。' }
+      ],
+      prompt: '这一工年怎么谋生？（分配 4 点）',
+      actions: function () {
+        var A = [];
+        A.push({ id: 'w_long', name: '签一年长工', cost: 2, eff: '年终白银+2·管饭减口粮1石·体魄-6', desc: '给经营型地主做长工，年终拿工银，平日有饭吃。', can: true, once: true });
+        A.push({ id: 'w_short', name: '农忙打短工', cost: 1, eff: '铜钱+250·体魄-2', desc: '插秧、车水、收割时多打一旬短工，钱来得快，但季节一过就没了。', can: true });
+        A.push({ id: 'w_out', name: '外出佣工', cost: 2, eff: '白银+1·铜钱+300·体魄-8·家族-1', desc: '去邻县或市镇做活，现钱更多，但离乡更久，家里使唤不上你。', can: true, once: true });
+        A.push({ id: 'w_skill', name: '随工学一门活', cost: 1, eff: S.技艺 === '无' ? '手艺进度+1' : '凭手艺铜钱+180', desc: '跟着师傅学木活/修具。头两年是攒进度，学成后农闲可换现钱。', can: true });
+        A.push({ id: 'w_book', name: '识字帮看账', cost: 1, eff: '识字者铜钱+180·家族+1', desc: '若你识字，可替雇主看账、抄单，比纯卖力气更值钱。', can: S.识字, why: S.识字 ? '' : '尚不识字', once: true });
+        A.push({ id: 'w_home', name: '回家帮父看田', cost: 1, eff: '家族+4·存米+1', desc: '农忙时回家帮父兄一把，虽少挣工钱，但家里气顺、口粮账也稳些。', can: true, once: true });
+        A.push({ id: 'w_rest', name: '歇一歇养身', cost: 1, eff: '体魄+5', desc: '年轻也不是铁打的，别把身子先熬坏。', can: true });
+        return A;
+      },
+      settle: function (log) {
+        var tookLong = false, tookOut = false, shortCount = 0, didEarn = false;
+        lifePicks.forEach(function (p) {
+          switch (p.id) {
+            case 'w_long':
+              tookLong = true; didEarn = true;
+              S.白银 += 2; S.体魄 -= 6; S.雇工历练 += 2; S.雇身份 = '长工';
+              log.push(['签下一年长工：年终结工银白银+2，平日有管饭，但整年卖力，体魄-6', 'good']);
+              break;
+            case 'w_short':
+              shortCount += 1; didEarn = true;
+              S.铜钱 += 250; S.体魄 -= 2; S.雇工历练 += 1;
+              log.push(['农忙短工一轮：铜钱+250、体魄-2（日结快，但农闲就没了）', 'good']);
+              break;
+            case 'w_out':
+              tookOut = true; didEarn = true;
+              S.白银 += 1; S.铜钱 += 300; S.体魄 -= 8; S.家族 -= 1; S.雇身份 = '外出佣工';
+              log.push(['外出佣工：白银+1、铜钱+300、体魄-8、家族-1（离乡更久，家里使唤不上你）', 'good']);
+              break;
+            case 'w_skill':
+              if (S.技艺 === '无') {
+                S.雇技进度 += 1;
+                log.push(['随工学活：手艺进度+' + 1 + '（' + S.雇技进度 + '/2）', 'good']);
+                if (S.雇技进度 >= 2) {
+                  S.技艺 = '木活';
+                  log.push(['手艺攒够两轮，学成一门木活——以后农闲可换钱', 'good']);
+                }
+              } else {
+                S.铜钱 += 180;
+                log.push(['凭手艺接点零活：铜钱+180', 'good']);
+              }
+              break;
+            case 'w_book':
+              S.铜钱 += 180; S.家族 += 1;
+              log.push(['识字帮看账：铜钱+180、家族+1（会认字，工价就是比纯卖力气高一点）', 'good']);
+              break;
+            case 'w_home':
+              S.家族 += 4; S.存米 += 1;
+              log.push(['回家帮父兄看田：家族+4、存米+1（少挣一份工，但家里稳些）', 'good']);
+              break;
+            case 'w_rest':
+              S.体魄 += 5;
+              log.push(['歇一歇养身：体魄+5', 'good']);
+              break;
+          }
+        });
+
+        // 全年口粮：长工/外出多由东家管饭，家庭口粮压力减一石；其余按2石估
+        var mouths = (tookLong || tookOut) ? 1 : 2;
+        if (S.存米 >= mouths) {
+          S.存米 -= mouths;
+          log.push(['〔口粮〕这一工年全家因你少在家吃饭，口粮计 ' + mouths + ' 石（存米-' + mouths + '）', 'bad']);
+        } else {
+          var lack = mouths - S.存米;
+          S.存米 = 0;
+          if (S.铜钱 >= lack * 350) {
+            S.铜钱 -= lack * 350;
+            log.push(['〔口粮〕家中米不够，籴米补口粮：铜钱-' + (lack * 350), 'bad']);
+          } else {
+            S.负债银 += lack;
+            S.体魄 -= 4;
+            log.push(['〔口粮〕工钱也补不上口粮缺口，只得举债糊口（负债+' + lack + '两、体魄-4）', 'bad']);
+          }
+        }
+
+        // 里甲赋役：外生强制
+        if (Math.random() < 0.35) {
+          if (S.铜钱 >= 200) {
+            S.铜钱 -= 200;
+            log.push(['〔赋役〕本户轮到差役，拿铜钱200文找人顶上（铜钱-200）', 'bad']);
+          } else {
+            S.体魄 -= 6; S.家族 -= 2;
+            log.push(['〔赋役〕无钱代役，只得亲身应付差役，误工伤身（体魄-6、家族-2）', 'bad']);
+          }
+        }
+
+        // 旧债滚息
+        if (S.负债银 > 0) {
+          var oldDebt = S.负债银;
+          var interest = Math.ceil(oldDebt * DEBT_RATE);
+          S.负债银 += interest;
+          log.push(['〔债息〕旧债 ' + oldDebt + ' 两滚息 ' + interest + ' 两（负债→' + S.负债银 + '）', 'bad']);
+        }
+
+        // 年度评价只写事实，不给分
+        if (!didEarn) {
+          S.家族 -= 3;
+          log.push(['这一年没真正挣出工食，家里难免有怨气（家族-3）', 'bad']);
+        } else if (tookLong && shortCount >= 1) {
+          log.push(['这一年既有长工保底、又趁农忙多打一轮短工，账面最厚实。', 'good']);
+        } else if (shortCount >= 2) {
+          log.push(['这一年靠短工拼出了现钱，但也最吃体力。', 'good']);
+        }
+
+        clampAttr('体魄'); clampAttr('家族');
+        if (S.工年 < WAGE_YEARS) {
+          curStage.next = 'wage';
+          curStage.nextLabel = '再过一年佣工 →';
+          S._advanceWageYear = true;
+        } else {
+          curStage.next = 'marriage';
+          curStage.nextLabel = '攒着工食去议亲 →';
+          S.年龄 = 20;
+        }
+      }
+    };
   }
 
   // ── 成家（20岁）：多维行动点循环 —— 攒聘礼/托媒/凭识字手艺增议亲筹码 ──
