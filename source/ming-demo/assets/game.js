@@ -2113,15 +2113,52 @@
     log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩(口食田，不入可支配)', 'good']);
   }
 
+  function elderRoutePack() {
+    var pack = { note: '', dossier: '', event: null, negotiateAdj: 0, extraActions: [] };
+    if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') {
+      pack.note = '学徒一路到了晚年，看的是城中门路有没有坐实：留店、坐店工、跟货，都会改变你老来靠谁照应。';
+      pack.dossier = '学徒去向=' + S.学徒去向 + '｜学徒历练=' + S.学徒历练 + '｜授艺度=' + S.学徒授艺度;
+      pack.event = { t: 'rel', tag: '[旧识]', txt: '你年轻时若在城里站稳过，老来可托旧东家、旧同门、旧行口照应；若只是归乡另谋，养老结构就更接近普通薄田人家。' };
+      if (S.学徒去向 === '留店伙计') pack.negotiateAdj += 0.08;
+      else if (S.学徒去向 === '店铺做工') pack.negotiateAdj += 0.05;
+      else if (S.学徒去向 === '随行商') pack.negotiateAdj += 0.03;
+      if (S.学徒去向 === '留店伙计' || S.学徒去向 === '店铺做工' || S.学徒去向 === '随行商') {
+        pack.extraActions.push({ id: 'e_city', name: '托城中旧识照应', cost: 1, eff: '铜钱+180·家族+1', desc: '老来还能托城里旧东家或旧同行给些照应，不全靠家里硬扛。', can: true, once: true });
+      }
+    } else if (S.路线.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计反哺银 > 0 || S.未回款银 > 0) {
+      pack.note = '商路一路到了晚年，关键是旧账、分红和反哺名声能不能真的落回养老账。';
+      pack.dossier = '累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜商身份=' + S.商身份;
+      pack.event = { t: 'rand', tag: '[旧账]', txt: '商路上最怕的是老来还有账压在外头：你年轻时寄回家的银会被诸子记住，路上的旧账却未必能赶在身子垮前收齐。' };
+      if (S.累计反哺银 >= 2) pack.negotiateAdj += 0.06;
+      if (S.商路供读银 >= 1) pack.negotiateAdj += 0.04;
+      if (S.未回款银 > 0) {
+        pack.extraActions.push({ id: 'e_collect_old', name: '催回商路旧账', cost: 1, eff: '未回款→部分现银', desc: '趁还走得动，把商路上的旧账催回一部分作养老钱。', can: true, once: true });
+      }
+    } else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份 || S.优免启用) {
+      pack.note = '举业一路到了晚年，看的是名色留下多少实际照应：生员能减一层外流，笔墨底子则更容易换来教馆、抄写和体面。';
+      pack.dossier = '举业结局=' + S.举业结局 + '｜生员=' + (S.生员身份 ? '是' : '否') + '｜优免=' + (S.优免启用 ? '启用' : '未启用') + '｜识字转业值=' + S.识字转业值;
+      pack.event = { t: 'rel', tag: '[名色]', txt: S.生员身份 ? '名色到了晚年仍有余温：不必然给你现钱，却更容易让诸子和乡里愿意按体面来办。' : '若多年应举未成，老来能靠的不是“读过几年书”，而是这点笔墨底子能不能真换来教馆、抄写与照应。' };
+      if (S.生员身份 || S.优免启用) pack.negotiateAdj += 0.10;
+      else if (S.举业结局 === '屡试未第' && S.识字转业值 >= 2) pack.negotiateAdj += 0.04;
+      if (S.生员身份 || (S.识字 && S.识字转业值 >= 2)) {
+        pack.extraActions.push({ id: 'e_write_old', name: '凭笔墨换照应', cost: 1, eff: '铜钱+120·家族+2', desc: '老来仍可凭名色、笔墨或代书，换一点体面与照应。', can: true, once: true });
+      }
+    }
+    return pack;
+  }
+
   // ── 养老（55岁）：多维行动点循环 —— 与诸子协商奉养，逐人记账 ──
   function stageElder() {
+    var ep = elderRoutePack();
+    var events = [{ t: 'rel', tag: '[养老]', txt: S.子数 > 0 ? '诸子就"谁出米、谁出工"各持立场——他们也有自己的妻儿要养，奉养须双方同意、镜像入各自账本。' : '无子可依，只能靠口食田薄租、自身积蓄，或变卖田产。' }];
+    if (ep.event) events.push(ep.event);
     return {
       title: '养老', label: '养老', next: 'death', nextLabel: '走向人生终点 →',
       ap: 3, commitLabel: '安顿晚景 →',
-      note: '功能容量随龄下降，劳作让位于休息医药。奉养是与诸子协商的结果、不是默认义务——你提，儿子未必都应；识字/家族声望影响协商的成算，逐人镜像入账。〔机制事实，标准为占位〕',
-      narrative: '你已<span class="em">五十五岁</span>，在明代平民已属高寿门槛。身子大不如前，' + (S.子数 > 0 ? '育有 ' + S.子数 + ' 子，可商议轮养——但奉养多寡是协商出来的。' : '膝下无育成之子，养老无所依，只能靠口食田与积蓄。') + '这一程 <span class="em">3 个行动点</span>安顿晚景。',
-      dossier: function () { return lifeDossier(S.子数 > 0 ? ('诸子 ' + S.子数 + ' 人各有小家，是否足额奉养要看协商成算（家族声望↑更顺）。') : '无子可依，奉养这条路走不通，须自筹。'); },
-      events: [{ t: 'rel', tag: '[养老]', txt: S.子数 > 0 ? '诸子就"谁出米、谁出工"各持立场——他们也有自己的妻儿要养，奉养须双方同意、镜像入各自账本。' : '无子可依，只能靠口食田薄租、自身积蓄，或变卖田产。' }],
+      note: '功能容量随龄下降，劳作让位于休息医药。奉养是与诸子协商的结果、不是默认义务——你提，儿子未必都应；识字/家族声望影响协商的成算，逐人镜像入账。〔机制事实，标准为占位〕' + (ep.note ? ' ' + ep.note : ''),
+      narrative: '你已<span class="em">五十五岁</span>，在明代平民已属高寿门槛。身子大不如前，' + (S.子数 > 0 ? '育有 ' + S.子数 + ' 子，可商议轮养——但奉养多寡是协商出来的。' : '膝下无育成之子，养老无所依，只能靠口食田与积蓄。') + '这一程 <span class="em">3 个行动点</span>安顿晚景。你年轻时走的那条路，此时会变成旧识、旧账、名色和体面。', 
+      dossier: function () { return lifeDossier((S.子数 > 0 ? ('诸子 ' + S.子数 + ' 人各有小家，是否足额奉养要看协商成算（家族声望↑更顺）。') : '无子可依，奉养这条路走不通，须自筹。') + (ep.dossier ? '｜' + ep.dossier : '')); },
+      events: events,
       prompt: '如何安顿晚年？（分配 3 点）',
       actions: function () {
         var A = [];
@@ -2129,6 +2166,7 @@
         A.push({ id: 'e_sell', name: '变卖田产养老', cost: 1, eff: '田-1亩·白银+2·存米+2', desc: '换现钱防身，但下一代可分田减少。', can: S.田亩 >= 2, why: S.田亩 >= 2 ? '' : '需田产≥2亩', once: true });
         A.push({ id: 'e_rent', name: '收口食田薄租', cost: 1, eff: '存米+2（养老田进项）', desc: '当年立户分得的养老田，此时收租过活。', can: S.口食田 > 0, why: S.口食田 > 0 ? '' : '未有养老田', once: true });
         A.push({ id: 'e_med', name: '延医问药·调养', cost: 1, eff: '铜钱-500·体魄+8', desc: '花钱请郎中调养，延一延寿数。', can: S.铜钱 >= 500, why: S.铜钱 >= 500 ? '' : '铜钱不足500文' });
+        ep.extraActions.forEach(function (x) { A.push(x); });
         A.push({ id: 'e_rest', name: '静养含饴', cost: 1, eff: '体魄+4·家族+2', desc: '不再劳作，含饴弄孙，安养身心。', can: true });
         return A;
       },
@@ -2138,7 +2176,7 @@
           switch (p.id) {
             case 'e_negotiate':
               didProvide = true;
-              var base = 0.30 + (S.家族 >= 65 ? 0.25 : 0.10) + (S.识字 ? 0.10 : 0);
+              var base = 0.30 + (S.家族 >= 65 ? 0.25 : 0.10) + (S.识字 ? 0.10 : 0) + ep.negotiateAdj;
               base = Math.min(0.9, base);
               var out = rollProb([{ p: base, r: 'full' }, { p: (1 - base) * 0.6, r: 'half' }, { p: (1 - base) * 0.4, r: 'token' }]);
               if (out === 'full') { var m = 2 * S.子数; S.存米 += m; S.家族 += 8; log.push(['〔诸子应允〕协商成算约 ' + Math.round(base * 100) + '%：足额轮养，存米+' + m + '、家族+8', 'good']); }
@@ -2148,6 +2186,21 @@
             case 'e_sell': S.田亩 -= 1; S.白银 += 2; S.存米 += 2; log.push(['变卖田1亩养老：田-1、白银+2、存米+2（下一代起点降低）', 'bad']); break;
             case 'e_rent': S.存米 += 2; log.push(['收口食田薄租：存米+2', 'good']); break;
             case 'e_med': S.铜钱 = Math.max(0, S.铜钱 - 500); S.体魄 += 8; log.push(['延医问药：铜钱-500、体魄+8（益寿）', 'good']); break;
+            case 'e_city':
+              S.铜钱 += 180; S.家族 += 1;
+              log.push(['托城中旧识照应：铜钱+180、家族+1（老来还能吃到些年轻时攒下的门路）', 'good']);
+              break;
+            case 'e_collect_old':
+              var oldOwed = S.未回款银;
+              var oldGot = Math.max(1, Math.ceil(oldOwed * 0.5));
+              var oldLost = Math.max(0, oldOwed - oldGot);
+              S.白银 += oldGot; S.未回款银 = 0; if (oldLost > 0) S.商路亏折 += oldLost;
+              log.push(['催回商路旧账：未回款' + oldOwed + '两里先收回白银+' + oldGot + (oldLost > 0 ? '，仍有' + oldLost + '两收不齐' : '') + '。', 'good']);
+              break;
+            case 'e_write_old':
+              S.铜钱 += 120; S.家族 += 2;
+              log.push(['凭笔墨换照应：铜钱+120、家族+2（老来体面仍能换一点活路）', 'good']);
+              break;
             case 'e_rest': S.体魄 += 4; S.家族 += 2; log.push(['静养含饴：体魄+4、家族+2', 'good']); break;
           }
         });
@@ -2167,20 +2220,31 @@
     // 丧葬支出（棺木为大项）：从遗产扣
     var funeral = 1; // 白银
     var funeralMi = 1;
-    var estateSilver = Math.max(0, S.白银 - funeral) - S.负债银;
+    var recoveredReceivable = S.未回款银 > 0 ? Math.floor(S.未回款银 * 0.6) : 0;
+    var estateSilver = Math.max(0, S.白银 - funeral + recoveredReceivable) - S.负债银;
     var estateMi = Math.max(0, S.存米 - funeralMi);
     var estateTian = S.田亩;
+    var estateCopper = Math.max(0, S.铜钱);
     var sons = S.子数;
-    var narrative, outcome;
+    var narrative, deathTag;
     if (sons > 0) {
       var shareSilver = Math.floor(Math.max(0, estateSilver) / sons);
       var shareMi = Math.floor(estateMi / sons);
       var shareTian = Math.max(1, Math.floor(estateTian / sons));
-      S._carry = { 白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: 1200, 家族: Math.min(80, S.家族) };
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。丧礼依家礼办讫（棺木等丧葬支出白银1两、米1石从遗产扣除）。遗产按<span class="em">诸子均分</span>传给下一代——你这一辈子的每一分积累与亏空，都成了子孙的期初。';
+      var shareCopper = Math.floor(estateCopper / sons);
+      S._carry = { 白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: shareCopper, 家族: Math.min(80, S.家族) };
+      if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，身后连旧账与反哺的名声也一并结进遗产。';
+      else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了能传下去的不只是薄田，还有一层见过世面的门路。';
+      else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨不会直接分成银两，却会作为体面与起点留在下一代门前。';
+      else deathTag = '你这一辈子的每一分积累与亏空，都成了子孙的期初。';
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。丧礼依家礼办讫（棺木等丧葬支出白银1两、米1石从遗产扣除）。遗产按<span class="em">诸子均分</span>传给下一代——' + deathTag;
     } else {
       S._carry = { 白银: 0, 存米: 1, 田亩: 2, 铜钱: 800, 家族: 45 };
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>，然膝下无育成之子。依明代常俗，触发<span class="em">过继/立嗣</span>：族中侄辈过继承祧，仅得旁支薄产起家——这不是"游戏失败"，而是明代极高绝嗣率下的真实分支。';
+      if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，临了虽未留下亲生承嗣，旧账与顾家名声仍要在旁支账里结清。';
+      else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了虽绝嗣，城中门路与见识也只剩旁支可续。';
+      else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨终究未能直接传给亲子，只在旁支门前留下些体面与余绪。';
+      else deathTag = '这不是"游戏失败"，而是明代极高绝嗣率下的真实分支。';
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>，然膝下无育成之子。依明代常俗，触发<span class="em">过继/立嗣</span>：族中侄辈过继承祧，仅得旁支薄产起家——' + deathTag;
     }
     return {
       title: '死亡与传承', label: '传承', next: null, nextLabel: '递归重开 →',
@@ -2188,7 +2252,7 @@
       narrative: narrative,
       events: [
         { t: 'rand', tag: '[丧葬]', txt: '丧葬支出：棺木等白银1两、米1石，从遗产/诸子分摊账扣除（镜像入出资子账，不凭空消失）。' },
-        { t: 'rel', tag: '[传承]', txt: sons > 0 ? ('遗产品搭均分给 ' + sons + ' 子：每子分得白银' + S._carry.白银 + '两、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩。下一代次子将以此为期初重开。') : '无嗣过继，下一代以旁支薄产（田2亩、存米1石）起家。' }
+        { t: 'rel', tag: '[传承]', txt: sons > 0 ? ('遗产品搭均分给 ' + sons + ' 子：每子分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩。下一代次子将以此为期初重开。') : '无嗣过继，下一代以旁支薄产（田2亩、存米1石）起家。' }
       ],
       prompt: '',
       // 直接给 outcome，无需选择
