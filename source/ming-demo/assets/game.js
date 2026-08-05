@@ -4156,6 +4156,17 @@
             can: S.铜钱 >= 40,
             why: S.铜钱 >= 40 ? '' : '铜钱不足40文'
           });
+          if (season.id === 'spring') {
+            pack.extraActions.push({
+              id: 'f_route_spring_price',
+              name: '先托熟号回问米价与旧账',
+              cost: 1,
+              eff: '铜钱-30·问价+1·捎信+1·家族+1',
+              desc: '春起最怕两边都各猜各的：先托熟号把家里米价、路上旧账和哪边更急的一口问清，后面不管是催回现钱还是先拆家用，都不至盲着下手。',
+              can: S.铜钱 >= 30,
+              why: S.铜钱 >= 30 ? '' : '铜钱不足30文'
+            });
+          }
         }
         if (season.id === 'summer' && xun === 1) {
           pack.extraActions.push({
@@ -4747,16 +4758,22 @@
             case 'f_route_collect':
               var owed = S.未回款银;
               if (owed > 0) {
-                var got = (S.本年家捎信 || 0) > 0
-                  ? Math.max(1, Math.ceil(owed * 0.75))
-                  : Math.max(1, Math.ceil(owed * 0.5));
+                var collectRatio = 0.5;
+                if ((S.本年家捎信 || 0) > 0) collectRatio += 0.15;
+                if ((S.本年家问价 || 0) > 0) collectRatio += 0.1;
+                if ((S.本年家通融 || 0) > 0) collectRatio += 0.1;
+                collectRatio = Math.min(0.9, collectRatio);
+                var got = Math.max(1, Math.ceil(owed * collectRatio));
                 var lost = Math.max(0, owed - got);
                 S.白银 += got;
                 S.未回款银 = 0;
                 if (lost > 0) S.商路亏折 += lost;
                 S.本年家催账 += 1;
                 pushFamilySeasonTag(stepTag + '催回旧账');
-                log.push(['催回在路旧账：未回款' + owed + '两里先收回白银+' + got + ((S.本年家捎信 || 0) > 0 ? '（先前捎信问账，回得更实）' : '') + (lost > 0 ? ('，另有' + lost + '两只得认亏') : '') + '。', 'good']);
+                log.push(['催回在路旧账：未回款' + owed + '两里先收回白银+' + got
+                  + (((S.本年家捎信 || 0) > 0 || (S.本年家问价 || 0) > 0 || (S.本年家通融 || 0) > 0)
+                    ? '（前头已先捎信、问价或通气口，回得更实）' : '')
+                  + (lost > 0 ? ('，另有' + lost + '两只得认亏') : '') + '。', 'good']);
               } else {
                 log.push(['想催旧账，但这一旬账面上已无待催的银。', 'bad']);
               }
@@ -4767,6 +4784,15 @@
                 pushFamilySeasonTag(stepTag + '捎家书');
                 log.push(['托客脚捎家书问账：铜钱-40。钱还没回，可哪笔在路上、哪笔该催，先被你摸清了一层。', 'good']);
               } else log.push(['想托客脚捎家书问账，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_spring_price':
+              if (spendCopper(30)) {
+                S.家族 += 1;
+                S.本年家问价 += 1;
+                S.本年家捎信 += 1;
+                pushFamilySeasonTag(stepTag + '春问价旧账');
+                log.push(['先托熟号回问米价与旧账：铜钱-30、问价+1、捎信+1、家族+1。春起先把米价、旧账和哪边更急问明，后头拆账和催账才不至瞎撞。', 'good']);
+              } else log.push(['想先托熟号回问米价与旧账，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_winter_book':
               if (spendCopper(60)) {
