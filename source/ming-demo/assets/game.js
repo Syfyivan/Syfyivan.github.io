@@ -2007,18 +2007,54 @@
     };
   }
 
-  // ── 当户（35岁）：多维行动点循环 —— 分家立户后，一整轮应役经营 ──
+  function householdRoutePack() {
+    var pack = { note: '', dossier: '', event: null, baseAdj: 0, extraActions: [] };
+    if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') {
+      pack.note = '学徒路到了当户，看的是去向是否坐实，能不能把城中门路换成代办与担保。';
+      pack.dossier = '学徒去向=' + S.学徒去向 + '｜学徒历练=' + S.学徒历练 + '｜授艺度=' + S.学徒授艺度;
+      pack.event = { t: 'rel', tag: '[去向]', txt: '乡里这时要看的，不只是你年轻时学过几年徒，而是你如今到底已留店、已坐店工，还是仍旧归乡另谋。门路坐不坐实，会直接影响你这一任当户能否请人代办。' };
+      if (S.学徒去向 === '留店伙计') pack.baseAdj = -0.06;
+      else if (S.学徒去向 === '店铺做工') pack.baseAdj = -0.04;
+      else if (S.学徒去向 === '随行商') pack.baseAdj = -0.02;
+      if ((S.学徒去向 === '留店伙计' || S.学徒去向 === '店铺做工' || S.学徒去向 === '随行商') && (S.白银 >= 1 || S.铜钱 >= 150)) {
+        pack.extraActions.push({ id: 'h_proxy', name: '凭师门门路请人代办', cost: 1, eff: '白银-1或铜钱-150·风险降', desc: '若你已留店或坐店工，可借店里门路请人代应里役，不必全靠本宗硬扛。', can: true, once: true });
+      }
+    } else if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.未回款银 > 0 || S.商历练 > 0) {
+      pack.note = '商路到当户，看的是旧账、回钱与顾不顾家，不是只看你跑过多少路。';
+      pack.dossier = '累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜账房=' + S.账房进度 + '｜信誉=' + S.商信誉;
+      pack.event = { t: 'rand', tag: '[账期]', txt: '里甲不认“路上银”，只认你眼下能不能拿出代役钱；乡里却记得你这些年有没有寄银回家。账在外，役在乡，两头都要结。' };
+      if (S.累计反哺银 >= 2) pack.baseAdj -= 0.04;
+      if ((S.账房进度 + S.商信誉) >= 3) pack.baseAdj -= 0.03;
+      if (S.未回款银 > 0) pack.baseAdj += 0.03;
+      if (S.未回款银 > 0) {
+        pack.extraActions.push({ id: 'h_collect', name: '折价催收旧账备役银', cost: 1, eff: '未回款→部分现银·风险降', desc: '先把旧账催回一点，里甲才认得手里的钱。', can: true, once: true });
+      }
+    } else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份 || S.优免启用) {
+      pack.note = '举业路到了当户，看的是名分与退路：生员可减一层差役外流，童生与屡试未第者仍要回到现银与笔墨活路。';
+      pack.dossier = '举业结局=' + S.举业结局 + '｜生员=' + (S.生员身份 ? '是' : '否') + '｜优免=' + (S.优免启用 ? '启用' : '未启用') + '｜识字转业值=' + S.识字转业值;
+      pack.event = { t: 'rel', tag: '[名分]', txt: S.生员身份 ? '乡里认你这一层名色，但名色不是现银；它能减轻一部分差役外流，却不能替你凭空生出代役钱。' : '若你多年应举仍未入泮，乡里就不看“读过几年书”，只看你如今能不能把笔墨底子换成核账、教馆或抄写的活路。' };
+      if (S.生员身份 || S.优免启用) {
+        pack.baseAdj -= 0.12;
+        pack.extraActions.push({ id: 'h_exempt', name: '凭名色申优免缓派', cost: 1, eff: '生员优免·风险降', desc: '若你已入泮，可凭名色争取减轻差役外流。优免只减外流，不生现钱。', can: true, once: true });
+      }
+    }
+    return pack;
+  }
+
+
   function stageHousehold() {
+    var hp = householdRoutePack();
+    var events = [
+      { t: 'rel', tag: '[分家]', txt: '立阄书、品搭均分：好田差田搭配成价值相当数份，拈阄定份。你分得田产正式归户，养老田另立专账不入你可支配。' },
+      { t: 'rand', tag: '[赋役]', txt: '今年恰轮到你这一甲"见年"当役。民收民解，遇官府需索、吏胥勒索，赔累破家者不在少数——你并非当役对象的选择者，制度把风险摊到了你头上。' }
+    ];
+    if (hp.event) events.push(hp.event);
     return {
       title: '当户 · 分家与应役', label: '当户', next: 'elder', nextLabel: '步入老年 →',
-      ap: 4, commitLabel: '了此一役 · 定当户之局 →',
-      note: '这是全生命周期最关键的守恒节点：诸子均分在父账/子账同步结算；里甲当役是概率性高风险事件。你能否躲过"当役破家"，取决于识字（应付吏胥）、家族声望（乡里担保）、现银（纳银代役）这本一路带来的账。〔均分与破家为制度事实，具体银额为占位〕',
-      narrative: '你已<span class="em">三十五岁</span>。父陈老栓年迈，家产按<span class="em">诸子"品搭均分"</span>分家，你正式立户、进入里甲黄册。立户便要<span class="em">轮值当役</span>——明代中期最典型的"当役破家"风险所在。这一程 <span class="em">4 个行动点</span>，用来把风险压到最低。',
-      dossier: function () { return lifeDossier('应役赔累风险 = 基础风险 − 纳银 − 识字应吏 − 家族担保；末了按当前风险 roll 平安/赔累/破家。'); },
-      events: [
-        { t: 'rel', tag: '[分家]', txt: '立阄书、品搭均分：好田差田搭配成价值相当数份，拈阄定份。你分得田产正式归户，养老田另立专账不入你可支配。' },
-        { t: 'rand', tag: '[赋役]', txt: '今年恰轮到你这一甲"见年"当役。民收民解，遇官府需索、吏胥勒索，赔累破家者不在少数——你并非当役对象的选择者，制度把风险摊到了你头上。' }
-      ],
+      note: '这是全生命周期最关键的守恒节点：诸子均分在父账/子账同步结算；里甲当役是概率性高风险事件。你能否躲过"当役破家"，取决于识字（应付吏胥）、家族声望（乡里担保）、现银（纳银代役）与一路带到中年的尾账。〔均分与破家为制度事实，具体银额为占位〕' + (hp.note ? ' ' + hp.note : ''),
+      narrative: '你已<span class="em">三十五岁</span>。父陈老栓年迈，家产按<span class="em">诸子"品搭均分"</span>分家，你正式立户、进入里甲黄册。立户便要<span class="em">轮值当役</span>——明代中期最典型的"当役破家"风险所在。这一程 <span class="em">4 个行动点</span>，用来把风险压到最低。你年轻时走过哪条路，如今都要折成这一本当户账。', 
+      dossier: function () { return lifeDossier('应役赔累风险 = 基础风险 − 纳银 − 识字应吏 − 家族担保 − 路线承接；末了按当前风险 roll 平安/赔累/破家。' + (hp.dossier ? '｜' + hp.dossier : '')); },
+      events: events,
       prompt: '这一任当户怎么当？（分配 4 点压低赔累风险）',
       actions: function () {
         var A = [];
@@ -2027,12 +2063,13 @@
         A.push({ id: 'h_clan', name: '托家族·乡里担保', cost: 1, eff: '家族≥60则风险降·家族+3', desc: '倚仗宗族与乡邻，摊派时有人分担、说话。', can: true, once: true });
         A.push({ id: 'h_hire', name: '雇工·顾住农事', cost: 1, eff: '铜钱-300·当役误工不减产', desc: '当役耗时，雇短工顶上，田里不至于荒。', can: S.铜钱 >= 300, why: S.铜钱 >= 300 ? '' : '铜钱不足300文' });
         A.push({ id: 'h_side', name: '农闲营生', cost: 1, eff: S.技艺 !== '无' ? '手艺副业·铜钱+400' : '（无手艺·仅+120）', desc: '当户之年也要养家，凭手艺或杂工挣现钱。', can: true });
+        hp.extraActions.forEach(function (x) { A.push(x); });
         A.push({ id: 'h_rest', name: '将养身子', cost: 1, eff: '体魄+5', desc: '中年劳碌，别把身子熬垮。', can: true });
         return A;
       },
       settle: function (log) {
         doInherit(log);
-        var risk = 0.40; var paid = false, guarded = false;
+        var risk = 0.40 + hp.baseAdj; var paid = false, guarded = false;
         lifePicks.forEach(function (p) {
           switch (p.id) {
             case 'h_pay': S.白银 -= 2; S.应役 = '纳银代役'; risk -= 0.35; paid = true; log.push(['纳银代役：白银-2，赔累风险大降', 'good']); break;
@@ -2040,6 +2077,21 @@
             case 'h_clan': S.家族 += 3; guarded = true; if (S.家族 >= 60) risk -= 0.12; log.push(['托家族乡里担保：家族+3' + (S.家族 >= 60 ? '，摊派有人分担（风险降）' : '（家族声望尚浅，担保有限）'), 'good']); break;
             case 'h_hire': S.铜钱 = Math.max(0, S.铜钱 - 300); log.push(['雇工顾农事：铜钱-300，当役误工不减产', 'bad']); break;
             case 'h_side': var g = S.技艺 !== '无' ? 400 : 120; S.铜钱 += g; log.push(['农闲营生：' + (S.技艺 !== '无' ? '凭手艺' : '打杂工') + '铜钱+' + g, 'good']); break;
+            case 'h_proxy':
+              if (S.白银 >= 1) { S.白银 -= 1; risk -= 0.16; log.push(['凭师门门路请人代办：白银-1，少吃了一层应役的人情亏（风险降）', 'good']); }
+              else if (S.铜钱 >= 150) { S.铜钱 -= 150; risk -= 0.12; log.push(['凭师门门路请人代办：铜钱-150，少吃了一层应役的人情亏（风险降）', 'good']); }
+              break;
+            case 'h_collect':
+              var owed = S.未回款银;
+              var got = Math.max(1, Math.ceil(owed * 0.6));
+              var lost = Math.max(0, owed - got);
+              S.白银 += got; S.未回款银 = 0; if (lost > 0) S.商路亏折 += lost; risk -= 0.10;
+              log.push(['折价催收旧账备役银：未回款' + owed + '两里先收回白银+' + got + (lost > 0 ? '，另有' + lost + '两只得认亏' : '') + '（风险降）', 'good']);
+              break;
+            case 'h_exempt':
+              risk -= 0.18;
+              log.push(['凭名色申优免缓派：这一任差役外流减了一层，但并非凭空多出役银。', 'good']);
+              break;
             case 'h_rest': S.体魄 += 5; log.push(['将养身子：体魄+5', 'good']); break;
           }
         });
