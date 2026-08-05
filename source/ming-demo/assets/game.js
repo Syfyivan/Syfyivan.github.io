@@ -4407,16 +4407,30 @@
           });
         }
       } else if (route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) {
-        pack.note = '卖工路成家后也不该只剩“这一年总共挣了多少工钱”。活路要先问、工食要分口回家、欠工要回头去结、差役也得先托旧工头探一层，才算把这一年的家计真正摊开。';
+        pack.note = '卖工路成家后也不该只剩“这一年总共挣了多少工钱”。活路要先问、工食要分口回家、欠工要回头去结、差役也得先托旧工头探一层；现在又把伏夏汤药、秋收旺工与回乡搭手、年关欠工与明春工棚脚路继续拆回同一年里逐旬结算。';
         pack.dossier = '雇技进度=' + S.雇技进度 + '｜雇工历练=' + S.雇工历练 + '｜婚配路径=' + S.婚配路径;
+        var wageEventTxt;
+        if (season.id === 'summer' && xun === 1) {
+          wageEventTxt = '伏夏上旬最怕活还没断，人先被暑气和热病磨垮：先问哪处工棚肯留脚、哪口凉汤药能先赊，比空想“今年能挣多少”更要紧。';
+        } else if (season.id === 'summer' && xun === 2) {
+          wageEventTxt = '伏夏中旬最像把工食拆薄：锅火、草鞋、汤药和家里那口急米都来抢同一口现钱。';
+        } else if (season.id === 'autumn' && xun === 1) {
+          wageEventTxt = '秋里一头是外头旺工，一头是家里也催你回去搭手；先问哪边更急，才不至两头都误。';
+        } else if (season.id === 'autumn' && xun === 2) {
+          wageEventTxt = '秋工钱看着比夏里厚一点，可锅火、差钱和回乡口粮也一起更急；若不先拆账，很容易错把忙季当宽裕。';
+        } else if (season.id === 'winter' && xun === 1) {
+          wageEventTxt = '冬里看着像缓下来，实际最像翻旧账：欠工结没结、明春哪处还有活、棉衣炭钱先留哪一口，都要今冬先说清。';
+        } else if (xun === 1) {
+          wageEventTxt = '上旬先问的不是“今年总共能挣多少”，而是哪一旬有活、哪一口工食能先结、哪位工头还认你这层熟面。';
+        } else if (xun === 2) {
+          wageEventTxt = '中旬最像把工钱往家里拢：自己手里少一点，家里那口锅却能先续上；同一口工钱若再拆一角留差役，才像真过日子。';
+        } else {
+          wageEventTxt = '下旬更像回头结欠工、探差役：工钱并不总在你手边，晚一旬结回来，年关里就可能差一层后手。';
+        }
         pack.event = {
           t: 'rel',
           tag: '[工食]',
-          txt: xun === 1
-            ? '上旬先问的不是“今年总共能挣多少”，而是哪一旬有活、哪一口工食能先结、哪位工头还认你这层熟面。'
-            : (xun === 2
-              ? '中旬最像把工钱往家里拢：自己手里少一点，家里那口锅却能先续上；同一口工钱若再拆一角留差役，才像真过日子。'
-              : '下旬更像回头结欠工、探差役：工钱并不总在你手边，晚一旬结回来，年关里就可能差一层后手。')
+          txt: wageEventTxt
         };
         if (xun === 1) {
           pack.extraActions.push({
@@ -4428,6 +4442,39 @@
             can: S.铜钱 >= 30,
             why: S.铜钱 >= 30 ? '' : '铜钱不足30文'
           });
+          if (season.id === 'summer') {
+            pack.extraActions.push({
+              id: 'f_route_wage_summer_note',
+              name: '先问工棚落脚与凉汤药脚路',
+              cost: 1,
+              eff: '铜钱-40·家族+1·捎信+1·通融+1',
+              desc: '伏夏最怕活还没断，人先热垮。先托工头问清哪处工棚肯留脚、哪家药铺能先赊一碗凉汤药，后面工食与家用才不至一起被热病截断。',
+              can: S.铜钱 >= 40,
+              why: S.铜钱 >= 40 ? '' : '铜钱不足40文'
+            });
+          }
+          if (season.id === 'autumn') {
+            pack.extraActions.push({
+              id: 'f_route_wage_autumn_note',
+              name: '先问秋收旺工与回乡搭手',
+              cost: 1,
+              eff: '铜钱-30·家族+1·捎信+1·问价+1',
+              desc: '秋里一头是外头旺工结现快，一头是家里也等你回去搭把手。先问清哪处抢工最值、家里哪天最缺人，后面拆账才不至两头都误。',
+              can: S.铜钱 >= 30,
+              why: S.铜钱 >= 30 ? '' : '铜钱不足30文'
+            });
+          }
+          if (season.id === 'winter') {
+            pack.extraActions.push({
+              id: 'f_route_wage_winter_book',
+              name: '年关先问欠工与明春活路',
+              cost: 1,
+              eff: '铜钱-50·家族+1·捎信+1·备役+1',
+              desc: '冬里先把欠工有没有着落、明春哪处工棚还肯留你、哪口现钱得先留给棉衣与差役分清。钱没有变多，只是不再等年后第一口现钱再被混着吃掉。',
+              can: S.铜钱 >= 50,
+              why: S.铜钱 >= 50 ? '' : '铜钱不足50文'
+            });
+          }
         }
         if (xun === 2) {
           pack.extraActions.push({
@@ -4448,6 +4495,28 @@
             can: S.铜钱 >= 140,
             why: S.铜钱 >= 140 ? '' : '铜钱不足140文'
           });
+          if (season.id === 'summer') {
+            pack.extraActions.push({
+              id: 'f_route_wage_summer_bundle',
+              name: '把伏夏工食拆作汤药与家用',
+              cost: 1,
+              eff: '铜钱-120·贴家+1·衣药+1·家族+2',
+              desc: '伏夏挣来的这一口钱最怕整手花掉。先拿一截给家里续锅火，再拿一截给草药、草鞋和凉汤水，不让人还没撑到年关就先坏在夏里。',
+              can: S.铜钱 >= 120,
+              why: S.铜钱 >= 120 ? '' : '铜钱不足120文'
+            });
+          }
+          if (season.id === 'autumn') {
+            pack.extraActions.push({
+              id: 'f_route_wage_autumn_split',
+              name: '把秋工钱拆作锅火与差钱',
+              cost: 1,
+              eff: '铜钱-160·贴家+1·备役+1·家族+2~3',
+              desc: '秋工钱比伏夏厚一点，也更容易让人误以为手里松了。你先拆一口回家续锅火，再留一口顶差钱与秋后后手，不让旺工钱转头又漏光。',
+              can: S.铜钱 >= 160,
+              why: S.铜钱 >= 160 ? '' : '铜钱不足160文'
+            });
+          }
         }
         if (xun === 3) {
           pack.extraActions.push({
@@ -4926,6 +4995,24 @@
                 log.push(['托工头先问下季活路：铜钱-30、家族+1。钱还没回，可哪旬有活、哪口工食能结，先被你摸清了一层。', 'good']);
               } else log.push(['想先托工头问下季活路，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_route_wage_summer_note':
+              if (spendCopper(40)) {
+                S.家族 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '问工棚药路');
+                log.push(['先问工棚落脚与凉汤药脚路：铜钱-40、家族+1、捎信+1、通融+1。你先把哪处工棚肯留脚、哪家药铺肯先赊一口凉汤药摸清，不让伏夏把人和工路一并熬断。', 'good']);
+              } else log.push(['想先问工棚落脚与凉汤药脚路，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_wage_autumn_note':
+              if (spendCopper(30)) {
+                S.家族 += 1;
+                S.本年家捎信 += 1;
+                S.本年家问价 += 1;
+                pushFamilySeasonTag(stepTag + '问秋工');
+                log.push(['先问秋收旺工与回乡搭手：铜钱-30、家族+1、捎信+1、问价+1。你先把哪处旺工结现更快、家里哪天更缺人摸清，不让秋里两头都只顾着催你。', 'good']);
+              } else log.push(['想先问秋收旺工与回乡搭手，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_route_wage_split':
               if (spendCopper(140)) {
                 S.家族 += (S.本年家捎信 || 0) > 0 ? 3 : 2;
@@ -4935,12 +5022,40 @@
                 log.push(['把工钱拆作家用与差钱：铜钱-140、家族+' + ((S.本年家捎信 || 0) > 0 ? 3 : 2) + '、备役后手+1。同一口工钱先被拆进锅火与差役两本账里。', 'good']);
               } else log.push(['想把工钱拆作家用与差钱，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_route_wage_summer_bundle':
+              if (spendCopper(120)) {
+                S.家族 += 2;
+                S.本年家贴家 += 1;
+                S.本年家衣药 += 1;
+                pushFamilySeasonTag(stepTag + '伏夏拆工食');
+                log.push(['把伏夏工食拆作汤药与家用：铜钱-120、贴家+1、衣药+1、家族+2。钱没有多出来，只是先被你拆成锅火和汤药两小口，不让人先坏在夏里。', 'good']);
+              } else log.push(['想把伏夏工食拆作汤药与家用，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_wage_autumn_split':
+              if (spendCopper(160)) {
+                var autumnWageFamily = (S.本年家捎信 || 0) > 0 ? 3 : 2;
+                S.家族 += autumnWageFamily;
+                S.本年家贴家 += 1;
+                S.本年家备役 += 1;
+                pushFamilySeasonTag(stepTag + '秋工拆账');
+                log.push(['把秋工钱拆作锅火与差钱：铜钱-160、家族+' + autumnWageFamily + '、贴家+1、备役+1。秋里这一口旺工钱没被你当成宽裕，而是先拆进家用与差钱两本账里。', 'good']);
+              } else log.push(['想把秋工钱拆作锅火与差钱，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_route_wage_collect':
               var wageCollectGain = (S.本年家捎信 || 0) > 0 ? 150 : 110;
               S.铜钱 += wageCollectGain;
               S.本年家催账 += 1;
               pushFamilySeasonTag(stepTag + '结回欠工');
               log.push(['回工棚结一回欠工：铜钱+' + wageCollectGain + ((S.本年家捎信 || 0) > 0 ? '。前头先问过活路与回钱门道，这口欠工回得更实。' : '。这不是凭空添一笔，只把该你的那口工钱真正拢回来。'), 'good']);
+              break;
+            case 'f_route_wage_winter_book':
+              if (spendCopper(50)) {
+                S.家族 += 1;
+                S.本年家捎信 += 1;
+                S.本年家备役 += 1;
+                pushFamilySeasonTag(stepTag + '年关问欠工');
+                log.push(['年关先问欠工与明春活路：铜钱-50、家族+1、捎信+1、备役+1。你先把欠工、明春工棚脚路和差钱后手分开，不让年后第一口现钱又被混着吃掉。', 'good']);
+              } else log.push(['想先在年关问欠工与明春活路，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_wage_duty':
               if (spendCopper(60)) {
@@ -5017,6 +5132,9 @@
           if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家捎信 || 0) > 0 && (S.本年家贴家 || 0) > 0) log.push(['这一养家年你不只卖工，还先问过活路、再把工食真捎回家里；卖工路成年后也开始有了“先摸活、再回钱”的年内节奏。', 'good']);
           if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家催账 || 0) > 0) log.push(['这一养家年你还回工棚结过 ' + S.本年家催账 + ' 回欠工；家计不再只看“挣了没有”，也看“结了没有”。', 'good']);
           if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家通融 || 0) > 0 && (S.本年家备役 || 0) > 0) log.push(['这一养家年你还把工头旧识压进差役后手里；卖工路成年后的制度压力，也开始在同一年里被提前摊开。', 'good']);
+          if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家衣药 || 0) > 0 && (S.本年家贴家 || 0) > 0) log.push(['这一养家年你至少有一回把伏夏工食拆成汤药和家用；卖工路成年后的身体消耗，也开始在同一年里跟工钱正面碰账。', 'good']);
+          if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家问价 || 0) > 0 && (S.本年家捎信 || 0) > 0) log.push(['这一养家年你还先问过秋收旺工与回乡搭手；同一条卖工路里，“外头结现”和“家里缺手”也被你提前摊回了同一年。', 'good']);
+          if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('年关问欠工') >= 0; })) log.push(['这一养家年你在冬里先把欠工、明春活路和差钱后手分开；卖工路不再只是忙时挣钱、闲时挨过。', 'good']);
           if ((route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && (S.本年家捎信 || 0) > 0 && (S.本年家催账 || 0) > 0) log.push(['这一养家年你不只写字补贴，还先问过馆课与保结、再把馆课钱真正结回家里；举业路成年后也开始有了年内来回到账的节奏。', 'good']);
           if ((route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && (S.本年家通融 || 0) > 0 && (S.本年家备役 || 0) > 0) log.push(['这一养家年你还把塾师、廪保和学生家的门路提前压进差役后手里；“读书人脉”第一次在本代年内真实落到制度账上。', 'good']);
           if ((S.本年家季务 || []).length <= 4) log.push(['这一养家年落进账里的旬务仍嫌太薄，说明这一年多半只是硬过而没把细账真正摊开。', 'bad']);
