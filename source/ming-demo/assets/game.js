@@ -4202,6 +4202,7 @@
     var miPrice = (priceHigh ? 520 : 360) + farmMarketCarryBonus(); // 文/石（占位）
     var marketCost = (season.id === 'winter' ? 50 : 40);
     var marketBoostBase = (season.id === 'autumn' ? 80 : 60);
+    var kitchenCost = (season.id === 'winter' ? 40 : 30);
     var dutyCost = (season.id === 'winter' ? 220 : 200);
     var mendCost = (season.id === 'summer' ? 180 : 150);
     var repairCost = season.id === 'winter' ? 120 : (season.id === 'summer' ? 100 : 80);
@@ -4899,6 +4900,15 @@
             can: S.铜钱 >= 80,
             why: S.铜钱 >= 80 ? '' : '铜钱不足80文'
           });
+          A.push({
+            id: 'f_kitchen',
+            name: '添灯油针线',
+            cost: 1,
+            eff: '铜钱-' + kitchenCost + '·家族+1·照家+1',
+            desc: '灯油、针线、盐酱和一点点应急杂物，往往不值一提，却最容易在一年里把家计磨薄。先用一口小钱把“锅火边的细账”摊开。',
+            can: S.铜钱 >= kitchenCost,
+            why: S.铜钱 >= kitchenCost ? '' : ('铜钱不足' + kitchenCost + '文')
+          });
         }
         if (xun === 3) {
           A.push({
@@ -5451,6 +5461,14 @@
                 log.push(['借出一口人情急钱：铜钱-80、家族+1，并记作“人情欠条+1”（欠条不算现银，须等日后讨回）。', 'good']);
               } else log.push(['想借出一口人情急钱，但这一旬铜钱已先被别处占住，只得推辞。', 'bad']);
               break;
+            case 'f_kitchen':
+              if (spendCopper(kitchenCost)) {
+                S.家族 += 1;
+                S.本年家照家 += 1;
+                pushFamilySeasonTag(stepTag + '灯油针线');
+                log.push(['添灯油针线：铜钱-' + kitchenCost + '、家族+1。不是体面消费，只是把锅火边最容易被一句话带过的细账摊回这一旬。', 'good']);
+              } else log.push(['想先添灯油针线，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              break;
             case 'f_favor_collect':
               if ((S.人情欠条 || 0) > 0) {
                 S.人情欠条 -= 1;
@@ -5468,6 +5486,23 @@
               break;
           }
         });
+
+        if (season.id === 'spring' && xun === 2) {
+          var springHandled = !!(picked.f_market || picked.f_social || picked.f_child || picked.f_kitchen
+            || picked.f_route_split || picked.f_route_spring_price || picked.f_route_spring_bundle
+            || picked.f_route_shop_note || picked.f_route_school_note || picked.f_route_wage_note);
+          if (springHandled) {
+            pushFamilySeasonTag(stepTag + '春起细账已理');
+            log.push(['〔春起碎账〕开春里灯油针线、赶集脚费与零碎锅火已被你提前摊开；这一旬没有再被“开春小耗”悄悄磨薄。', 'good']);
+          } else if (spendCopper(40)) {
+            pushFamilySeasonTag(stepTag + '春起碎账');
+            log.push(['〔春起碎账〕开春灯油针线、赶集脚费与零碎锅火一齐要钱：铜钱-40。不是大账，却把这一年一开头就先磨去一层。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '春起硬顶');
+            log.push(['〔春起碎账〕这一旬连开春小耗都腾挪不开，只得先硬顶过去（家族-1）。', 'bad']);
+          }
+        }
 
         if (season.id === 'summer' && xun >= 2 && !picked.f_mend && !picked.f_rest) {
           S.体魄 -= 2;
@@ -5520,6 +5555,22 @@
             S.体魄 -= 1;
             pushFamilySeasonTag(stepTag + '年关硬顶');
             log.push(['〔年关碎账〕这一旬连年关小耗都挪不开，只得靠身子硬顶过去（体魄-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'winter' && xun === 2) {
+          var lunarHandled = !!(picked.f_kitchen || picked.f_mend || picked.f_rest
+            || picked.f_route_winter_split || picked.f_route_winter_book || picked.f_route_winter_wharf
+            || picked.f_route_shop_book || picked.f_route_wage_winter_book || picked.f_route_school_winter_book);
+          if (lunarHandled) {
+            pushFamilySeasonTag(stepTag + '腊月碎账已分');
+            log.push(['〔腊月小耗〕腊月里灯油针线、炭火小支与来春脚费已被你提前分开；年关前这一旬没有再被碎耗拧紧。', 'good']);
+          } else if (spendCopper(35)) {
+            pushFamilySeasonTag(stepTag + '腊月小耗');
+            log.push(['〔腊月小耗〕腊月灯油针线、炭火小支与来春脚费一起要钱：铜钱-35。不是大账，却正是过冬最磨人的那一层。', 'bad']);
+          } else {
+            S.体魄 -= 1;
+            pushFamilySeasonTag(stepTag + '腊月硬顶');
+            log.push(['〔腊月小耗〕这一旬连灯油炭火都挪不开，只得靠身子硬顶过去（体魄-1）。', 'bad']);
           }
         }
         if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && season.id === 'summer' && xun === 2) {
