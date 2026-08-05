@@ -189,7 +189,7 @@
       妻室: false, 子数: 0, 女数: 0, 负债银: 0, 口食田: 0, 分家: false, 应役: '未役',
       婚配路径: '未定', 合爨状态: '未合爨', 定额佃状态: '未立',
       // 成家后的“养家”阶段：按四季三旬推进，用更细的年内节奏把 20~40 岁之间的家计过细（不引入成功分/最优评分）
-      家年: 1, 家季: 1, 家旬: 1, 本年家做活: 0, 本年家粜米: 0, 本年家问价: 0, 本年家备役: 0, 本年家衣药: 0, 本年家照家: 0, 本年家借粮: 0, 本年家还债: 0, 本年家贴家: 0, 本年家催账: 0, 本年家将养: 0, 本年家季务: [],
+      家年: 1, 家季: 1, 家旬: 1, 本年家做活: 0, 本年家粜米: 0, 本年家问价: 0, 本年家备役: 0, 本年家衣药: 0, 本年家照家: 0, 本年家借粮: 0, 本年家还债: 0, 本年家贴家: 0, 本年家催账: 0, 本年家将养: 0, 本年家修缮: 0, 本年家通融: 0, 本年家捎信: 0, 本年家季务: [],
       委托营生: '无', 委托租谷: 0, 委托待收租谷: 0, 最近农闲营生层级: '未定', 最近农闲营生收益: 0,
       // 代际承接字段（不直接折现，只改变下一代入口分布）
       父辈路线: '未定', 承继身份: '次子', 承嗣来路: '本支次子承继', 承继定位: '本房次子另起一手', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0,
@@ -1144,6 +1144,9 @@
     S.本年家贴家 = 0;
     S.本年家催账 = 0;
     S.本年家将养 = 0;
+    S.本年家修缮 = 0;
+    S.本年家通融 = 0;
+    S.本年家捎信 = 0;
     S.本年家季务 = [];
   }
 
@@ -4035,6 +4038,8 @@
     var marketBoostBase = (season.id === 'autumn' ? 80 : 60);
     var dutyCost = (season.id === 'winter' ? 220 : 200);
     var mendCost = (season.id === 'summer' ? 180 : 150);
+    var repairCost = season.id === 'winter' ? 120 : (season.id === 'summer' ? 100 : 80);
+    var socialCost = season.id === 'autumn' ? 80 : 60;
     var xunLead = xun === 1
       ? '上旬先把这一季的主工、主账和主顾坐实。'
       : (xun === 2
@@ -4140,6 +4145,17 @@
           : (xun === 3
             ? '下旬最怕旧账还压在路上：孩子要衣药、里甲要差钱，路上的银却未必赶得回来。'
             : '春起先看的是门路和账本还在不在，不是先看今年能不能翻大钱。') };
+        if (xun === 1) {
+          pack.extraActions.push({
+            id: 'f_route_letter',
+            name: '托客脚捎家书问账',
+            cost: 1,
+            eff: '铜钱-40·捎信问账·下旬催款更稳',
+            desc: '不是空写一封家书，而是先把哪笔货还在路上、哪位旧识还认这层面子问清。钱未回，账先被拢住。',
+            can: S.铜钱 >= 40,
+            why: S.铜钱 >= 40 ? '' : '铜钱不足40文'
+          });
+        }
         if (xun === 2) {
           pack.extraActions.push({
             id: 'f_route_remit',
@@ -4235,13 +4251,26 @@
       note: '养家阶段现改成“春起→夏长→秋收→冬藏”四季、每季三旬：上旬先定这一旬主营生，中旬把市面与家里细账拢住，下旬再单独收差役、衣药、旧债与明年后手。仍不评分，只把家计与制度压力摊回同一年。' + (rp.note ? ' ' + rp.note : ''),
       narrative: '你已<span class="em">' + S.年龄 + '岁</span>，这一养家年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead + ' 这一旬你有 <span class="em">2 个行动点</span>，要在营生、米价、差役、孩子、衣药、旧债和明年后手之间作取舍。',
       dossier: function () {
-        return lifeDossier('家年=' + year + '｜家程=' + season.name + '·' + xunLabel + '｜米价=' + (priceHigh ? '高' : '低') + '｜本年做活=' + (S.本年家做活 || 0) + '｜粜米=' + (S.本年家粜米 || 0) + '｜问价=' + (S.本年家问价 || 0) + '｜贴家=' + (S.本年家贴家 || 0) + '｜催账=' + (S.本年家催账 || 0) + '｜备役=' + (S.本年家备役 || 0) + (rp.dossier ? '｜' + rp.dossier : '') + '。');
+        return lifeDossier('家年=' + year + '｜家程=' + season.name + '·' + xunLabel + '｜米价=' + (priceHigh ? '高' : '低') + '｜本年做活=' + (S.本年家做活 || 0) + '｜粜米=' + (S.本年家粜米 || 0) + '｜问价=' + (S.本年家问价 || 0) + '｜贴家=' + (S.本年家贴家 || 0) + '｜催账=' + (S.本年家催账 || 0) + '｜备役=' + (S.本年家备役 || 0) + '｜修缮=' + (S.本年家修缮 || 0) + '｜通融=' + (S.本年家通融 || 0) + '｜捎信=' + (S.本年家捎信 || 0) + (rp.dossier ? '｜' + rp.dossier : '') + '。');
       },
       events: events,
       prompt: xun === 1 ? '这一旬先怎么定主营生？（分配 2 点）' : (xun === 2 ? '这一旬怎么把市面和家里细账拢住？（分配 2 点）' : '这一旬怎么把后账收住？（分配 2 点）'),
       actions: function () {
         var A = [];
         A.push({ id: 'f_work', name: wp.name, cost: 1, eff: wp.eff, desc: wp.desc, can: true });
+        if (xun === 1) {
+          A.push({
+            id: 'f_repair',
+            name: season.id === 'winter' ? '补屋缮仓过冬' : '修屋缮具',
+            cost: 1,
+            eff: '铜钱-' + repairCost + '·年末少漏耗1石',
+            desc: season.id === 'winter'
+              ? '屋漏、仓潮、门窗透风，都会在冬里悄悄吃掉口粮和身子。先花一口小钱，把这一年的漏耗压住。'
+              : '修犁、补仓、补屋面，看着不显眼，却常决定年末到底还剩几成家底。',
+            can: S.铜钱 >= repairCost,
+            why: S.铜钱 >= repairCost ? '' : ('铜钱不足' + repairCost + '文')
+          });
+        }
         if (xun === 2) {
           A.push({
             id: 'f_sell',
@@ -4260,6 +4289,15 @@
             desc: '跑一趟市集抄牙价、问米行。不是凭空多钱，只是让你这一旬卖米不至于吃生。',
             can: S.铜钱 >= marketCost,
             why: S.铜钱 >= marketCost ? '' : ('铜钱不足' + marketCost + '文')
+          });
+          A.push({
+            id: 'f_social',
+            name: '走里甲人情',
+            cost: 1,
+            eff: '铜钱-' + socialCost + '·家族+1·年末差役更易通融',
+            desc: '提一分薄礼、跑一趟里甲与邻里。不是刷好感，而是把“到期才求”改成“平日先通”。',
+            can: S.铜钱 >= socialCost,
+            why: S.铜钱 >= socialCost ? '' : ('铜钱不足' + socialCost + '文')
           });
         }
         if (xun === 3) {
@@ -4349,6 +4387,13 @@
               break;
             case 'f_market':
               break;
+            case 'f_repair':
+              if (spendCopper(repairCost)) {
+                S.本年家修缮 += 1;
+                pushFamilySeasonTag(stepTag + '修缮');
+                log.push([(season.id === 'winter' ? '补屋缮仓过冬' : '修屋缮具') + '：铜钱-' + repairCost + '。钱先花出去，年末少漏一层米、少受一层寒。', 'good']);
+              } else log.push(['想修屋缮具，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              break;
             case 'f_duty':
               if (spendCopper(dutyCost)) {
                 S.本年家备役 = (S.本年家备役 || 0) + 1;
@@ -4406,17 +4451,26 @@
             case 'f_route_collect':
               var owed = S.未回款银;
               if (owed > 0) {
-                var got = Math.max(1, Math.ceil(owed * 0.5));
+                var got = (S.本年家捎信 || 0) > 0
+                  ? Math.max(1, Math.ceil(owed * 0.75))
+                  : Math.max(1, Math.ceil(owed * 0.5));
                 var lost = Math.max(0, owed - got);
                 S.白银 += got;
                 S.未回款银 = 0;
                 if (lost > 0) S.商路亏折 += lost;
                 S.本年家催账 += 1;
                 pushFamilySeasonTag(stepTag + '催回旧账');
-                log.push(['催回在路旧账：未回款' + owed + '两里先收回白银+' + got + (lost > 0 ? ('，另有' + lost + '两只得认亏') : '') + '。', 'good']);
+                log.push(['催回在路旧账：未回款' + owed + '两里先收回白银+' + got + ((S.本年家捎信 || 0) > 0 ? '（先前捎信问账，回得更实）' : '') + (lost > 0 ? ('，另有' + lost + '两只得认亏') : '') + '。', 'good']);
               } else {
                 log.push(['想催旧账，但这一旬账面上已无待催的银。', 'bad']);
               }
+              break;
+            case 'f_route_letter':
+              if (spendCopper(40)) {
+                S.本年家捎信 += 1;
+                pushFamilySeasonTag(stepTag + '捎家书');
+                log.push(['托客脚捎家书问账：铜钱-40。钱还没回，可哪笔在路上、哪笔该催，先被你摸清了一层。', 'good']);
+              } else log.push(['想托客脚捎家书问账，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_shop':
               if (spendCopper(80)) {
@@ -4442,6 +4496,14 @@
                 log.push(['托工头先捎工食回家：铜钱-90、家族+2。虽少了一口手边现钱，家里这旬却不至先断。', 'good']);
               } else log.push(['想先托工头捎工食回家，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_social':
+              if (spendCopper(socialCost)) {
+                S.家族 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '里甲通融');
+                log.push(['走里甲人情：铜钱-' + socialCost + '、家族+1。不是买平安，而是把“到期才慌”改成“平日先通一层气口”。', 'good']);
+              } else log.push(['想走里甲人情，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              break;
             case 'f_rest':
               S.体魄 += 5;
               S.本年家将养 += 1;
@@ -4460,6 +4522,12 @@
         }
 
         if (isYearEnd) {
+          if ((S.本年家修缮 || 0) > 0) {
+            S.存米 += 1;
+            log.push(['〔修缮〕这一年缮过屋与仓，少漏少潮，年末守住存米1石。', 'good']);
+          } else {
+            log.push(['〔修缮〕这一年始终没顾上修屋缮仓，家里许多小漏耗只得硬扛过去。', 'bad']);
+          }
           var mouths = (S.妻室 ? 2 : 1) + (S.子数 || 0) + (S.女数 || 0);
           var needMi = Math.max(1, mouths);
           var payMi = Math.min(S.存米, needMi);
@@ -4472,6 +4540,7 @@
             log.push(['〔口粮〕年末口粮结清：全家口粮' + needMi + '石照数吃下', 'good']);
           }
           var dutyRisk = (S.本年家备役 || 0) > 0 ? 0.12 : 0.22;
+          dutyRisk = Math.max(0.05, dutyRisk - Math.min(0.08, (S.本年家通融 || 0) * 0.04));
           var hit = (((year + mouths) % 9) / 10) < dutyRisk;
           if (hit) {
             if (spendCopper(300)) log.push(['〔差役〕年末里甲催差：铜钱-300（备差不足，硬账照摊）', 'bad']);
@@ -4479,6 +4548,7 @@
           } else {
             log.push(['〔差役〕这一年里甲催差未落到你头上', 'good']);
           }
+          if ((S.本年家通融 || 0) > 0) log.push(['这一养家年你跑了 ' + S.本年家通融 + ' 回里甲与邻里人情；制度压力不再只在年关那一刻才突然落下来。', 'good']);
           if ((S.本年家问价 || 0) > 0 && (S.本年家粜米 || 0) > 0) log.push(['这一养家年你不只卖米，还先跑了市集抄价；同一年里，信息和腿脚也开始真写进家账。', 'good']);
           if ((S.本年家贴家 || 0) > 0) log.push(['这一养家年你有 ' + S.本年家贴家 + ' 回把现钱或脚钱真拢回家里；“在外/在铺/在馆”不再只是文案。', 'good']);
           if ((S.本年家催账 || 0) > 0) log.push(['这一养家年你还亲手催过 ' + S.本年家催账 + ' 回旧账；家计不再只看“赚了没有”，也看“回了没有”。', 'good']);
