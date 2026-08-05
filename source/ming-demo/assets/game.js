@@ -637,6 +637,34 @@
     if (S.家传手艺 > 0) return { gain: 220, mode: '家传手艺底子', effect: '凭家传手艺底子接零活·铜钱+220' };
     return { gain: 120, mode: '杂工', effect: '（无手艺·仅+120）' };
   }
+  function currentLineageIsCollateral() {
+    return (S.承嗣来路 || '').indexOf('旁支') >= 0;
+  }
+  function farmMarketCarryBonus() {
+    var layers = Math.max(0, S.城里门路 || 0) + Math.max(0, S.商路门路 || 0);
+    if (layers <= 0) return 0;
+    var bonus = Math.min(120, layers * 40);
+    if (currentLineageIsCollateral()) bonus = Math.max(20, bonus - 40);
+    return bonus;
+  }
+  function farmSellPrice() {
+    return (S._米价 === '高' ? 550 : 350) + farmMarketCarryBonus();
+  }
+  function farmCraftProfile() {
+    if (S.技艺 !== '无') return {
+      gain: 240,
+      mode: '自有手艺',
+      effect: '凭自有手艺接零活·铜钱+240·体魄-1',
+      desc: '雨隙里替乡邻修具补器，挣几文现钱，也让自家农具顺手整一整。'
+    };
+    if (S.家传手艺 > 0) return {
+      gain: 140 + Math.min(80, Math.max(0, S.家传手艺 - 1) * 40),
+      mode: '家传手艺底子',
+      effect: '凭家传手艺底子接零活·铜钱+' + (140 + Math.min(80, Math.max(0, S.家传手艺 - 1) * 40)) + '·体魄-1',
+      desc: '田里空下一口气时，凭家里留过的那层手艺底子去修具补器，挣一点不靠收成的活钱。'
+    };
+    return null;
+  }
 
   function growthInfo() {
     if (!S.已插秧) return { planted: false, ratio: 0, pct: 0, label: '未插秧', cls: 'g-none' };
@@ -666,6 +694,9 @@
   // 农事动作（eff = 显式点数标注）
   function availableActions() {
     var A = [];
+    var sellPrice = farmSellPrice();
+    var sellBonus = farmMarketCarryBonus();
+    var craft = farmCraftProfile();
     if (xunIndex === HARVEST_XUN) {
       A.push({ id: 'harvest', name: '收割稻谷', cost: 2, eff: '体魄-6·得米按长势(1~7石)', desc: '召集人手抢收。收成取决于这一季的生长与天气。', can: S.已插秧, why: S.已插秧 ? '' : '未曾插秧，无可收' });
       A.push({ id: 'hire_harvest', name: '雇短工助收', cost: 1, money: 100, eff: '铜钱-100·收成+1石', desc: '花100文雇人，抢在天变前收完，减少损耗。', can: S.铜钱 >= 100, why: S.铜钱 >= 100 ? '' : '铜钱不足100文' });
@@ -677,7 +708,27 @@
       A.push({ id: 'garden', name: '菜圃·浇灌', cost: 1, eff: '体魄-1·满3旬存米+1石', desc: '侍弄时蔬，几旬后收一茬省口粮。', can: true });
       A.push({ id: 'care', name: '灶间·照护母亲', cost: 1, eff: '家族+4·母病时稳住帮工', desc: '照料家人，家族关系+；母病时可稳住她的身子。', can: true });
       A.push({ id: 'exchange', name: '里社·换工互助', cost: 1, eff: '家族+3·体魄-2', desc: '与邻里换工：这一旬帮人，日后人手紧时有人还工。', can: true });
-      A.push({ id: 'sell', name: '市镇·米行卖米', cost: 1, eff: '存米-1·铜钱+(高550/低350)', desc: '卖1石存米换现钱。今旬米价' + (S._米价 || '?') + '。', can: S.存米 >= 1, why: S.存米 >= 1 ? '' : '无米可卖' });
+      if (craft) {
+        A.push({
+          id: 'craft_side',
+          name: '农闲·接零活',
+          cost: 1,
+          eff: craft.effect,
+          desc: craft.desc,
+          can: true
+        });
+      }
+      A.push({
+        id: 'sell',
+        name: '市镇·米行卖米',
+        cost: 1,
+        eff: '存米-1·铜钱+' + sellPrice + (sellBonus > 0 ? '（旧门路问价）' : ''),
+        desc: '卖1石存米换现钱。今旬米价' + (S._米价 || '?') + '。' + (sellBonus > 0
+          ? ('父辈留下的市镇门路让你问价时少吃一点生，能多卖 ' + sellBonus + ' 文' + (currentLineageIsCollateral() ? '（只是旁支承接后旧识只剩薄一层）' : '') + '。')
+          : ''),
+        can: S.存米 >= 1,
+        why: S.存米 >= 1 ? '' : '无米可卖'
+      });
       A.push({ id: 'rest', name: '歇息养身', cost: 1, eff: '体魄+6', desc: '养回体魄，别把身子累垮。', can: true });
     }
     return A;
@@ -836,7 +887,7 @@
     $('stage').innerHTML = h;
   }
 
-  function isOnce(id) { return ['plant', 'hire_plant', 'care', 'harvest', 'hire_harvest', 'rest', 'exchange'].indexOf(id) >= 0; }
+  function isOnce(id) { return ['plant', 'hire_plant', 'care', 'craft_side', 'harvest', 'hire_harvest', 'rest', 'exchange'].indexOf(id) >= 0; }
 
   function narrative() {
     if (xunIndex === 0) return generation > 1
@@ -871,9 +922,21 @@
         case 'garden': S.菜圃进度 += 1; S.体魄 -= 1; if (S.菜圃进度 >= 3) { S.存米 += 1; S.菜圃进度 = 0; log.push(['菜圃收了一茬，存米+1石', 'good']); } else { log.push(['浇灌菜圃（' + S.菜圃进度 + '/3，体魄-1）', 'good']); } break;
         case 'care': S.家族 += 4; if (curEvents.some(function (e) { return e.t === 'rel'; })) { S.母出工 = true; log.push(['照护母亲，腰痛稳住，家族+4', 'good']); } else { log.push(['照护家人，家族+4', 'good']); } break;
         case 'exchange': S.家族 += 3; S.体魄 -= 2; log.push(['与邻里换工，家族+3、体魄-2（日后有人还工）', 'good']); break;
+        case 'craft_side':
+          var craft = farmCraftProfile();
+          if (craft) {
+            S.铜钱 += craft.gain;
+            S.体魄 -= 1;
+            S.最近农闲营生层级 = craft.mode;
+            S.最近农闲营生收益 = craft.gain;
+            log.push(['农闲接零活：' + (craft.mode === '自有手艺' ? '凭自有手艺' : '凭家传手艺底子') + '挣得 ' + craft.gain + ' 文（体魄-1）', 'good']);
+          }
+          break;
         case 'sell':
-          var price = (S._米价 === '高') ? 550 : 350;
-          S.存米 -= 1; S.铜钱 += price; log.push(['卖米1石，米价' + S._米价 + '，得 ' + price + ' 文', 'good']); break;
+          var price = farmSellPrice();
+          var bonus = farmMarketCarryBonus();
+          S.存米 -= 1; S.铜钱 += price;
+          log.push(['卖米1石，米价' + S._米价 + '，得 ' + price + ' 文' + (bonus > 0 ? '（旧门路问价多卖 ' + bonus + ' 文）' : ''), 'good']); break;
         case 'rest': S.体魄 += 6; log.push(['歇息养身，体魄+6', 'good']); break;
         case 'harvest': didHarvest = true; S.体魄 -= 6; S.农事历练 += 1; break;
         case 'hire_harvest': S.铜钱 -= p.money; hiredHarvest = true; log.push(['雇短工助收，付 ' + p.money + ' 文（铜钱-100）', 'bad']); break;
