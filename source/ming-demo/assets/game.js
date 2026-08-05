@@ -249,6 +249,12 @@
     if (isSiblingCarry(carry)) tags.push('这一手是幼年早夭后由弟妹接续，旧账与门路都沿前一手继续传下');
     return tags.length ? ('上一代还给这一房留下：' + tags.join('、') + '。') : '';
   }
+  function isFarmRouteState() {
+    return (S.路线 || '').indexOf('留乡佃田') === 0;
+  }
+  function isWageRouteState() {
+    return (S.路线 || '').indexOf('受雇长工/短工') === 0;
+  }
   function routeEntryHook(routeKey, carry) {
     if (!carry) return '';
     var hints = [];
@@ -704,7 +710,7 @@
           var price = (S._米价 === '高') ? 550 : 350;
           S.存米 -= 1; S.铜钱 += price; log.push(['卖米1石，米价' + S._米价 + '，得 ' + price + ' 文', 'good']); break;
         case 'rest': S.体魄 += 6; log.push(['歇息养身，体魄+6', 'good']); break;
-        case 'harvest': didHarvest = true; S.体魄 -= 6; break;
+        case 'harvest': didHarvest = true; S.体魄 -= 6; S.农事历练 += 1; break;
         case 'hire_harvest': S.铜钱 -= p.money; hiredHarvest = true; log.push(['雇短工助收，付 ' + p.money + ' 文（铜钱-100）', 'bad']); break;
       }
     });
@@ -2352,7 +2358,48 @@
 
   function householdRoutePack() {
     var pack = { note: '', dossier: '', event: null, baseAdj: 0, extraActions: [] };
-    if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') {
+    if (isFarmRouteState() || isWageRouteState()) {
+      if (isFarmRouteState()) {
+        pack.note = '留乡佃田到了当户，看的是分得那 4 亩薄田到底守成自耕，还是另立租账把口粮稳住。你先前积下的农事历练、识字与乡里换工，此时都会折成“能不能把小户撑住”。';
+        pack.dossier = '农事历练=' + S.农事历练 + '｜识字=' + (S.识字 ? '是' : '否') + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + S.委托租谷 + '｜应役=' + S.应役;
+        pack.event = { t: 'rel', tag: '[薄田]', txt: '分家后这 4 亩薄田就是你这一房的根脚。守住它，老来至少还有一口口食；若这一任当户把田面赔进去，下一代就会重新落回“有门路没田面”或“既没田也没门路”的窄路。' };
+        if (S.农事历练 >= 4) pack.baseAdj -= 0.05;
+        else if (S.农事历练 >= 2) pack.baseAdj -= 0.02;
+      } else {
+        pack.note = '雇工路到了当户，关键转折不是“忽然发财”，而是这辈子第一次真把 4 亩薄田拿到自己名下：要么转成半自耕、少受人拿捏；要么先出佃收租，保住口粮再继续卖工。';
+        pack.dossier = '农事历练=' + S.农事历练 + '｜雇工历练=' + S.雇工历练 + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + S.委托租谷 + '｜应役=' + S.应役;
+        pack.event = { t: 'rel', tag: '[得田]', txt: '你前半生靠卖工吃饭，到这一步才第一次有了可写进自己户下的薄田。它未必够一家人吃饱，却能决定你老来还剩不剩一口自己能支配的口粮。' };
+        if (S.雇工历练 >= 3) pack.baseAdj -= 0.03;
+        if (S.农事历练 >= 2) pack.baseAdj -= 0.02;
+      }
+      if (S.识字) pack.baseAdj -= 0.03;
+      if (S.委托营生 === '无' || S.委托营生 === '分得薄田自耕') {
+        pack.extraActions.push({
+          id: 'h_hold_field',
+          name: isFarmRouteState() ? '守着分得薄田自耕' : '把分得薄田改作自耕',
+          cost: 1,
+          eff: isFarmRouteState() ? '立薄田自耕账·存米+1·风险降' : '半自耕半卖工·存米+1·农事历练+1·风险降',
+          desc: isFarmRouteState()
+            ? '分家后把那 4 亩当作自家薄底，亲自照看、靠换工与认税则把这一房先稳住。'
+            : '卖工多年后终于把这 4 亩攥到手里：先拿一部分时日回头顾田，把“无地雇工”改成“半自耕半卖工”。',
+          can: true,
+          once: true
+        });
+      }
+      if (S.委托租谷 <= 0) {
+        pack.extraActions.push({
+          id: 'h_lease_home',
+          name: isFarmRouteState() ? '把薄田另立佃约收租' : '把薄田出佃保口粮',
+          cost: 1,
+          eff: '立委托经营账·年租谷+1·风险降',
+          desc: isFarmRouteState()
+            ? '若不愿把一家老小都压在亲耕上，就把分得的薄田另立租账，租谷只算你这一房的老底。'
+            : '你还得继续靠卖工挣现钱，就先把薄田出佃换稳定租谷，免得当役与农闲断工两头一起掐脖子。',
+          can: true,
+          once: true
+        });
+      }
+    } else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') {
       pack.note = '学徒路到了当户，看的是去向是否坐实，能不能把城中门路换成代办与担保。';
       pack.dossier = '学徒去向=' + S.学徒去向 + '｜学徒历练=' + S.学徒历练 + '｜授艺度=' + S.学徒授艺度;
       pack.event = { t: 'rel', tag: '[去向]', txt: '乡里这时要看的，不只是你年轻时学过几年徒，而是你如今到底已留店、已坐店工，还是仍旧归乡另谋。门路坐不坐实，会直接影响你这一任当户能否请人代办。' };
@@ -2444,6 +2491,24 @@
               S.白银 += got; S.未回款银 = 0; if (lost > 0) S.商路亏折 += lost; risk -= 0.10;
               log.push(['折价催收旧账备役银：未回款' + owed + '两里先收回白银+' + got + (lost > 0 ? '，另有' + lost + '两只得认亏' : '') + '（风险降）', 'good']);
               break;
+            case 'h_hold_field':
+              S.委托营生 = '分得薄田自耕';
+              S.委托租谷 = 0;
+              S.存米 += 1;
+              if (isWageRouteState()) S.农事历练 += 1;
+              risk -= isFarmRouteState() ? 0.10 : 0.08;
+              log.push([isFarmRouteState()
+                ? '守着分得薄田自耕：立下自耕薄田账，存米+1；这 4 亩先稳住你这一房的口粮根脚（风险降）'
+                : '把分得薄田改作自耕：存米+1、农事历练+1；从“纯卖工”转成“半自耕半卖工”，不再只凭雇主脸色吃饭（风险降）', 'good']);
+              break;
+            case 'h_lease_home':
+              S.委托营生 = '出佃收租';
+              S.委托租谷 = Math.max(S.委托租谷, 1);
+              risk -= 0.06;
+              log.push([isFarmRouteState()
+                ? '把薄田另立佃约收租：立下委托经营账，年租谷+1；口粮虽少了亲手把握，却替这一房留下一条稳租路（风险降）'
+                : '把薄田出佃保口粮：立下委托经营账，年租谷+1；你仍可继续卖工，但家里先多了一口不随失工断掉的租谷（风险降）', 'good']);
+              break;
             case 'h_lease_city':
               S.委托营生 = '出佃收租';
               S.委托租谷 = Math.max(S.委托租谷, 1);
@@ -2490,6 +2555,15 @@
     if (S.分家) return;
     S.分家 = true;
     S.存米 += 2; S.家族 += 4; S.口食田 = 1;
+    if (isFarmRouteState()) {
+      S.委托营生 = '分得薄田自耕';
+      log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。你这一房眼下先把薄田按自耕账守住，往后若撑不住，再改写成出佃/换工的账。', 'good']);
+      return;
+    }
+    if (isWageRouteState()) {
+      log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。这 4 亩是你前半生第一次真正攥到手里的田面：可改作自耕，也可另立租账，但无论怎么选，都不再只是“纯卖工”的账。', 'good']);
+      return;
+    }
     if ((S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') && (S.学徒去向 === '留店伙计' || S.学徒去向 === '店铺做工' || S.学徒去向 === '随行商')) {
       log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。只是你人在城里，这 4 亩薄田更像待立约的租谷来路，不再是能日日亲耕的田面。', 'good']);
       return;
@@ -2507,7 +2581,34 @@
 
   function elderRoutePack() {
     var pack = { note: '', dossier: '', event: null, negotiateAdj: 0, extraActions: [] };
-    if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') {
+    if (isFarmRouteState() || isWageRouteState()) {
+      pack.note = isFarmRouteState()
+        ? '留乡佃田一路到了晚年，真正托底的不是“曾经佃过田”，而是分家后那 4 亩薄田到底守成了自耕、还是改成了租谷。'
+        : '雇工一路到了晚年，老来靠不靠得住，不看你年轻时卖过多少工，而看分家后这 4 亩薄田有没有真的替你挡住断炊。';
+      pack.dossier = '农事历练=' + S.农事历练 + '｜雇工历练=' + S.雇工历练 + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + S.委托租谷 + '｜田亩=' + S.田亩 + '｜应役=' + S.应役;
+      pack.event = { t: 'rel', tag: '[田面]', txt: S.委托营生 === '分得薄田自耕'
+        ? '你老来还能不能把饭碗捧稳，关键就看这几亩薄田是否还在自己手里照看。它未必富裕，却能把“无地”这件事拦在门外一点。'
+        : (S.委托租谷 > 0
+          ? '这几年你把薄田立成了委托/出佃账，老来口粮里已有一口是按年回来的租谷，不必每一口都向子孙张嘴。'
+          : '老来最怕的不是苦，而是“田还在，却没立清楚怎么养自己”。这几亩薄田若既不自耕也不出佃，就会在养老账上变成空转的家底。') };
+      if (S.委托租谷 > 0) pack.negotiateAdj += 0.05;
+      if (S.委托营生 === '分得薄田自耕') pack.negotiateAdj += 0.04;
+      if (S.农事历练 >= 4) pack.negotiateAdj += 0.03;
+      if ((S.委托营生 === '分得薄田自耕' || (S.委托营生 === '无' && S.田亩 > 0))) {
+        pack.extraActions.push({
+          id: 'e_field_keep',
+          name: '守薄田慢慢收',
+          cost: 1,
+          eff: '存米+' + (isFarmRouteState() ? 2 : 1) + '·体魄-1',
+          desc: isFarmRouteState()
+            ? '还走得动，就亲自照看那几亩薄田，收一口老来口粮。'
+            : '卖工出身的人到这把年纪，肯回头守田，就是替自己多留一口不看雇主脸色的饭。',
+          can: S.田亩 > 0,
+          why: S.田亩 > 0 ? '' : '眼下已无田面可守',
+          once: true
+        });
+      }
+    } else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') {
       pack.note = '学徒一路到了晚年，看的是城中门路有没有坐实：留店、坐店工、跟货，都会改变你老来靠谁照应。';
       pack.dossier = '学徒去向=' + S.学徒去向 + '｜学徒历练=' + S.学徒历练 + '｜授艺度=' + S.学徒授艺度;
       pack.event = { t: 'rel', tag: '[旧识]', txt: '你年轻时若在城里站稳过，老来可托旧东家、旧同门、旧行口照应；若只是归乡另谋，养老结构就更接近普通薄田人家。' };
@@ -2576,6 +2677,14 @@
               else { S.存米 += 1; S.家族 -= 2; log.push(['〔诸子推辞〕只象征性奉养：存米+1、家族-2（他们也有自己的妻儿要养）', 'bad']); }
               break;
             case 'e_sell': S.田亩 -= 1; S.白银 += 2; S.存米 += 2; log.push(['变卖田1亩养老：田-1、白银+2、存米+2（下一代起点降低）', 'bad']); break;
+            case 'e_field_keep':
+              var fieldGain = isFarmRouteState() ? 2 : 1;
+              S.存米 += fieldGain;
+              S.体魄 -= 1;
+              log.push([isFarmRouteState()
+                ? '守薄田慢慢收：自耕薄田仍替你收回口粮，存米+' + fieldGain + '、体魄-1'
+                : '守着薄田慢慢收：卖工出身的晚景终于还能靠自家田收一口饭，存米+' + fieldGain + '、体魄-1', 'good']);
+              break;
             case 'e_rent':
               var rentGain = 2 + (S.委托租谷 || 0);
               S.存米 += rentGain;
@@ -2644,7 +2753,10 @@
       else if (S.识字 || S.识字转业值 >= 2 || S.举业结局 === '屡试未第') legacy.家传书香 = 1;
       if ((legacy.商路门路 > 0 && legacy.家传书香 > 0) || S.商路供读银 >= 1) legacy.亦贾亦儒底子 = 1;
       if (S.商路供读银 >= 1) legacy.供读底子 = S.商路供读银 >= 2 ? 2 : 1;
-      if (S.委托租谷 > 0 && legacy.城里门路 <= 0 && legacy.商路门路 <= 0 && S.家传手艺 <= 0) legacy.家传手艺 = Math.max(legacy.家传手艺, 1);
+      if ((isFarmRouteState() && S.农事历练 >= 4) || (isWageRouteState() && S.委托营生 === '分得薄田自耕' && S.农事历练 >= 2)) {
+        legacy.家传手艺 = Math.max(legacy.家传手艺, 1);
+      }
+      if (S.委托租谷 > 0 && legacy.城里门路 <= 0 && legacy.商路门路 <= 0 && legacy.家传手艺 <= 0) legacy.家传手艺 = Math.max(legacy.家传手艺, 1);
       var collateralDepth = 0;
       if (isCollateralCarry(S)) collateralDepth += 1;
       if (S.子数 <= 0) collateralDepth += 1;
