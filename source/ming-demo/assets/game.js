@@ -504,6 +504,11 @@
     }
     return notes;
   }
+  function sideHustleProfile() {
+    if (S.技艺 !== '无') return { gain: 400, mode: '自有手艺', effect: '手艺副业·铜钱+400' };
+    if (S.家传手艺 > 0) return { gain: 220, mode: '家传手艺底子', effect: '凭家传手艺底子接零活·铜钱+220' };
+    return { gain: 120, mode: '杂工', effect: '（无手艺·仅+120）' };
+  }
 
   function growthInfo() {
     if (!S.已插秧) return { planted: false, ratio: 0, pct: 0, label: '未插秧', cls: 'g-none' };
@@ -2495,11 +2500,21 @@
       prompt: '这一任当户怎么当？（分配 4 点压低赔累风险）',
       actions: function () {
         var A = [];
+        var side = sideHustleProfile();
         A.push({ id: 'h_pay', name: '纳银代役', cost: 2, eff: '白银-2·赔累风险大降', desc: '花钱买平安，正差雇人代解。', can: S.白银 >= 2, why: S.白银 >= 2 ? '' : '白银不足2两', once: true });
         A.push({ id: 'h_literate', name: '识字·亲核账册', cost: 1, eff: S.识字 ? '风险降·防吏胥虚加' : '（不识字·无从核账）', desc: '亲自核对黄册税则，吏胥难以虚报勒索。', can: S.识字, why: S.识字 ? '' : '不识字，看不懂账册', once: true });
         A.push({ id: 'h_clan', name: '托家族·乡里担保', cost: 1, eff: '家族≥60则风险降·家族+3', desc: '倚仗宗族与乡邻，摊派时有人分担、说话。', can: true, once: true });
         A.push({ id: 'h_hire', name: '雇工·顾住农事', cost: 1, eff: '铜钱-300·当役误工不减产', desc: '当役耗时，雇短工顶上，田里不至于荒。', can: S.铜钱 >= 300, why: S.铜钱 >= 300 ? '' : '铜钱不足300文' });
-        A.push({ id: 'h_side', name: '农闲营生', cost: 1, eff: S.技艺 !== '无' ? '手艺副业·铜钱+400' : '（无手艺·仅+120）', desc: '当户之年也要养家，凭手艺或杂工挣现钱。', can: true });
+        A.push({
+          id: 'h_side',
+          name: '农闲营生',
+          cost: 1,
+          eff: side.effect,
+          desc: S.家传手艺 > 0 && S.技艺 === '无'
+            ? '当户之年也要养家。你虽未另学成一门手艺，但家里留过的那层手艺底子，已经够你接些比纯打杂更熟的零活。'
+            : '当户之年也要养家，凭手艺或杂工挣现钱。',
+          can: true
+        });
         hp.extraActions.forEach(function (x) { A.push(x); });
         A.push({ id: 'h_rest', name: '将养身子', cost: 1, eff: '体魄+5', desc: '中年劳碌，别把身子熬垮。', can: true });
         return A;
@@ -2513,7 +2528,11 @@
             case 'h_literate': risk -= 0.15; log.push(['识字亲核账册：吏胥难虚加，赔累风险降', 'good']); break;
             case 'h_clan': S.家族 += 3; guarded = true; if (S.家族 >= 60) risk -= 0.12; log.push(['托家族乡里担保：家族+3' + (S.家族 >= 60 ? '，摊派有人分担（风险降）' : '（家族声望尚浅，担保有限）'), 'good']); break;
             case 'h_hire': S.铜钱 = Math.max(0, S.铜钱 - 300); log.push(['雇工顾农事：铜钱-300，当役误工不减产', 'bad']); break;
-            case 'h_side': var g = S.技艺 !== '无' ? 400 : 120; S.铜钱 += g; log.push(['农闲营生：' + (S.技艺 !== '无' ? '凭手艺' : '打杂工') + '铜钱+' + g, 'good']); break;
+            case 'h_side':
+              var side = sideHustleProfile();
+              S.铜钱 += side.gain;
+              log.push(['农闲营生：' + (side.mode === '自有手艺' ? '凭自有手艺' : (side.mode === '家传手艺底子' ? '凭家传手艺底子接零活' : '打杂工')) + '，铜钱+' + side.gain, 'good']);
+              break;
             case 'h_proxy':
               if (S.白银 >= 1) { S.白银 -= 1; risk -= 0.16; log.push(['凭师门门路请人代办：白银-1，少吃了一层应役的人情亏（风险降）', 'good']); }
               else if (S.铜钱 >= 150) { S.铜钱 -= 150; risk -= 0.12; log.push(['凭师门门路请人代办：铜钱-150，少吃了一层应役的人情亏（风险降）', 'good']); }
