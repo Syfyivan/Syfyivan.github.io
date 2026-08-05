@@ -221,6 +221,69 @@
       (baseSummary.length ? ('你眼下能动用的底子：<span class="em">' + baseSummary.join('、') + '</span>。') : '你手里没攒出太多新底子，只能从上一代留给你的薄产与门路里找出路。') +
       '你仍是这一房的次子，长兄多半承更多家产；但父辈留下的门路与亏空，也都会改写你五条路的入口。';
   }
+  function currentLifeProfile() {
+    var route = S.路线 || '';
+    var settledApprentice = (S.学徒去向 === '留店伙计' || S.学徒去向 === '店铺做工' || S.学徒去向 === '随行商');
+    var profile = {
+      marriageAge: 22,
+      householdAge: 38,
+      elderAge: 50,
+      fertilityTag: 'normal',
+      marriageLead: '这一路在二十出头就会被拿去和聘礼、家计与身价一道算账。',
+      fertilityLead: '成婚较早，生育窗口相对宽些，但仍受夭折与家计所限。',
+      deathTable: [{ p: 0.50, r: 52 }, { p: 0.28, r: 58 }, { p: 0.16, r: 64 }, { p: 0.06, r: 70 }]
+    };
+    if (route.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') {
+      profile.marriageAge = settledApprentice ? 28 : 24;
+      profile.fertilityTag = settledApprentice ? 'late' : 'normal';
+      profile.marriageLead = settledApprentice
+        ? '学徒路要先把去向坐实，往往要拖到二十八岁前后，媒人才肯把“有没有正经去处”当回事。'
+        : '若中途退师或被辞回乡，婚事虽会比留乡务农晚，却不至于拖到最窄的窗口。';
+      profile.fertilityLead = settledApprentice
+        ? '去向坐实得晚，生育窗口随之变窄，育成男嗣的期望会被压低。'
+        : '虽已归乡另谋，婚育仍比早婚务农晚一截。';
+    } else if (route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) {
+      profile.marriageAge = S.生员身份 ? 28 : 29;
+      profile.fertilityTag = 'lateStrict';
+      profile.marriageLead = '举业路会先把几年乃至十余年的束脩、下场、保结和笔墨底子折进婚事账，迟婚是这一路最明显的结构性代价。';
+      profile.fertilityLead = '成婚更晚，生育窗口最窄，绝嗣风险也会比其他路更高。';
+    } else if (route.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计反哺银 > 0) {
+      profile.fertilityTag = 'split';
+      profile.marriageLead = '商路现金往来更活，但“到账”和“在路上”不是一回事；议亲时认的是手里现钱与这些年有没有回钱。';
+      profile.fertilityLead = '婚龄未必更晚，但常年在外、聚少离多，会把添丁的节奏拉长。';
+      profile.deathTable = [{ p: 0.58, r: 52 }, { p: 0.24, r: 58 }, { p: 0.13, r: 64 }, { p: 0.05, r: 70 }];
+    } else if (route.indexOf('受雇') === 0) {
+      profile.marriageLead = '卖工路的婚事更多取决于你能不能把几年工食和一点现钱稳稳攒在手里。';
+      profile.fertilityLead = '婚龄与务农路接近，但口粮更依赖工钱换米。';
+    } else if (route.indexOf('留乡佃田') === 0) {
+      profile.marriageLead = '务农路的婚事走得相对早，聘礼和田上收成、家里米缸直接相连。';
+      profile.fertilityLead = '成婚较早，婚后很快就进入养家与生育的长账。';
+    }
+    return profile;
+  }
+  function childbearingProfile() {
+    var life = currentLifeProfile();
+    var profile = {
+      label: '常窗',
+      note: life.fertilityLead,
+      sonsTable: [{ p: 0.18, r: 0 }, { p: 0.34, r: 1 }, { p: 0.32, r: 2 }, { p: 0.16, r: 3 }],
+      dausTable: [{ p: 0.25, r: 0 }, { p: 0.45, r: 1 }, { p: 0.30, r: 2 }]
+    };
+    if (life.fertilityTag === 'split') {
+      profile.label = '分居';
+      profile.sonsTable = [{ p: 0.22, r: 0 }, { p: 0.36, r: 1 }, { p: 0.28, r: 2 }, { p: 0.14, r: 3 }];
+      profile.dausTable = [{ p: 0.28, r: 0 }, { p: 0.42, r: 1 }, { p: 0.30, r: 2 }];
+    } else if (life.fertilityTag === 'late') {
+      profile.label = '晚婚';
+      profile.sonsTable = [{ p: 0.34, r: 0 }, { p: 0.40, r: 1 }, { p: 0.20, r: 2 }, { p: 0.06, r: 3 }];
+      profile.dausTable = [{ p: 0.35, r: 0 }, { p: 0.45, r: 1 }, { p: 0.20, r: 2 }];
+    } else if (life.fertilityTag === 'lateStrict') {
+      profile.label = '窄窗';
+      profile.sonsTable = [{ p: 0.45, r: 0 }, { p: 0.36, r: 1 }, { p: 0.15, r: 2 }, { p: 0.04, r: 3 }];
+      profile.dausTable = [{ p: 0.40, r: 0 }, { p: 0.42, r: 1 }, { p: 0.18, r: 2 }];
+    }
+    return profile;
+  }
   function applyRouteInheritance(routeKey) {
     if (generation <= 1 || !carryOver) return [];
     var notes = [];
@@ -1044,9 +1107,9 @@
     else if (p === 'merchant') { enterMerchant(); return; }
     else if (p === 'civilExam') { enterCivilExam(); return; }
     else if (p === 'establishment') { enterEstablishment(); return; }
-    else if (p === 'marriage') { S.年龄 = 20; curStage = stageMarriage(); }
-    else if (p === 'household') { S.年龄 = 35; curStage = stageHousehold(); }
-    else if (p === 'elder') { S.年龄 = 55; curStage = stageElder(); }
+    else if (p === 'marriage') { S.年龄 = currentLifeProfile().marriageAge; curStage = stageMarriage(); }
+    else if (p === 'household') { S.年龄 = currentLifeProfile().householdAge; curStage = stageHousehold(); }
+    else if (p === 'elder') { S.年龄 = currentLifeProfile().elderAge; curStage = stageElder(); }
     else if (p === 'death') { S.年龄 = S._deathAge || 58; curStage = stageDeath(); }
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1138,11 +1201,11 @@
 
   // 生育 roll（婚后触发）：显式概率
   function bearChildren(log) {
-    // 育有男丁分布（玩法占位；史料：出生5-6、存活到成年约50%）
-    var sons = rollProb([{ p: 0.20, r: 0 }, { p: 0.35, r: 1 }, { p: 0.30, r: 2 }, { p: 0.15, r: 3 }]);
-    var daus = rollProb([{ p: 0.30, r: 0 }, { p: 0.40, r: 1 }, { p: 0.30, r: 2 }]);
+    var fertility = childbearingProfile();
+    var sons = rollProb(fertility.sonsTable);
+    var daus = rollProb(fertility.dausTable);
     S.子数 = sons; S.女数 = daus; S.存米 = Math.max(0, S.存米 - sons - daus); // 养育耗口粮
-    log.push(['生育结算（概率）：育成 ' + sons + ' 男 ' + daus + ' 女，养育耗存米 ' + (sons + daus) + ' 石', sons > 0 ? 'good' : 'bad']);
+    log.push(['生育结算（' + fertility.label + '·概率）：育成 ' + sons + ' 男 ' + daus + ' 女，养育耗存米 ' + (sons + daus) + ' 石。' + fertility.note, sons > 0 ? 'good' : 'bad']);
     if (sons === 0) log.push(['暂无育成男丁——夭折是概率非惩罚，日后或需过继立嗣', 'bad']);
   }
 
@@ -2058,13 +2121,14 @@
   // ── 成家：多维行动点循环 —— 攒聘礼/托媒/凭路线尾账增议亲筹码 ──
   function stageMarriage() {
     var rp = marriageRoutePack();
+    var life = currentLifeProfile();
     var events = [{ t: 'rel', tag: '[关系]', txt: '女方是邻村自耕农之女，有自己的意愿：她与父母看重的是这户的家底与后生的本分，不是你单方面"提亲"就能定。' }];
     if (rp.event) events.push(rp.event);
     return {
       title: '成家 · 议亲', label: '成家', next: 'household', nextLabel: '步入中年 · 当户 →',
       ap: 4, commitLabel: '下聘·定亲事 →',
-      note: '成家不是一次"选套餐"，而是几年里一步步攒钱、托媒、抬身价：聘礼是真实外流（镜像入女方家账），媒人看的是你带到这个年纪的整本账。〔货币规模为玩法占位，非史实点值〕' + (rp.note ? ' ' + rp.note : ''),
-      narrative: '立身数年，你已<span class="em">' + S.年龄 + '岁</span>，也到了议亲年纪。走"六礼"框架（平民多简化合并）——这一程你有 <span class="em">4 个行动点</span>，用来筹聘礼、托媒人、办酒席。你这些年攒下的<span class="em">识字、手艺、家族声望与路线尾账</span>，都会折进议亲的成算里。' + (rp.narrative ? rp.narrative : ''),
+      note: '成家不是一次"选套餐"，而是几年里一步步攒钱、托媒、抬身价：聘礼是真实外流（镜像入女方家账），媒人看的是你带到这个年纪的整本账。〔货币规模为玩法占位，非史实点值〕 ' + life.marriageLead + (rp.note ? ' ' + rp.note : ''),
+      narrative: '立身数年，你已<span class="em">' + S.年龄 + '岁</span>，也到了议亲年纪。走"六礼"框架（平民多简化合并）——这一程你有 <span class="em">4 个行动点</span>，用来筹聘礼、托媒人、办酒席。你这些年攒下的<span class="em">识字、手艺、家族声望与路线尾账</span>，都会折进议亲的成算里；婚成之后，下一阶段读的也是这一路带出来的婚育窗口。' + (rp.narrative ? rp.narrative : ''),
       dossier: function () { return lifeDossier('议亲成算 = 基础 + 路线结局 + 聘礼档 + 识字/营生加成 + 家族声望；下聘时按当前筹码一次性 roll。' + (rp.dossier ? '｜' + rp.dossier : '')); },
       events: events,
       prompt: '这几年怎么张罗亲事？（分配 4 点，末了一次下聘）',
@@ -2176,7 +2240,7 @@
     return {
       title: '当户 · 分家与应役', label: '当户', next: 'elder', nextLabel: '步入老年 →',
       note: '这是全生命周期最关键的守恒节点：诸子均分在父账/子账同步结算；里甲当役是概率性高风险事件。你能否躲过"当役破家"，取决于识字（应付吏胥）、家族声望（乡里担保）、现银（纳银代役）与一路带到中年的尾账。〔均分与破家为制度事实，具体银额为占位〕' + (hp.note ? ' ' + hp.note : ''),
-      narrative: '你已<span class="em">三十五岁</span>。父陈老栓年迈，家产按<span class="em">诸子"品搭均分"</span>分家，你正式立户、进入里甲黄册。立户便要<span class="em">轮值当役</span>——明代中期最典型的"当役破家"风险所在。这一程 <span class="em">4 个行动点</span>，用来把风险压到最低。你年轻时走过哪条路，如今都要折成这一本当户账。', 
+      narrative: '你已<span class="em">' + S.年龄 + '岁</span>。父陈老栓年迈，家产按<span class="em">诸子"品搭均分"</span>分家，你正式立户、进入里甲黄册。立户便要<span class="em">轮值当役</span>——明代中期最典型的"当役破家"风险所在。这一程 <span class="em">4 个行动点</span>，用来把风险压到最低。你年轻时走过哪条路，如今都要折成这一本当户账。', 
       dossier: function () { return lifeDossier('应役赔累风险 = 基础风险 − 纳银 − 识字应吏 − 家族担保 − 路线承接；末了按当前风险 roll 平安/赔累/破家。' + (hp.dossier ? '｜' + hp.dossier : '')); },
       events: events,
       prompt: '这一任当户怎么当？（分配 4 点压低赔累风险）',
@@ -2271,7 +2335,7 @@
     return pack;
   }
 
-  // ── 养老（55岁）：多维行动点循环 —— 与诸子协商奉养，逐人记账 ──
+  // ── 养老：多维行动点循环 —— 与诸子协商奉养，逐人记账 ──
   function stageElder() {
     var ep = elderRoutePack();
     var events = [{ t: 'rel', tag: '[养老]', txt: S.子数 > 0 ? '诸子就"谁出米、谁出工"各持立场——他们也有自己的妻儿要养，奉养须双方同意、镜像入各自账本。' : '无子可依，只能靠口食田薄租、自身积蓄，或变卖田产。' }];
@@ -2280,7 +2344,7 @@
       title: '养老', label: '养老', next: 'death', nextLabel: '走向人生终点 →',
       ap: 3, commitLabel: '安顿晚景 →',
       note: '功能容量随龄下降，劳作让位于休息医药。奉养是与诸子协商的结果、不是默认义务——你提，儿子未必都应；识字/家族声望影响协商的成算，逐人镜像入账。〔机制事实，标准为占位〕' + (ep.note ? ' ' + ep.note : ''),
-      narrative: '你已<span class="em">五十五岁</span>，在明代平民已属高寿门槛。身子大不如前，' + (S.子数 > 0 ? '育有 ' + S.子数 + ' 子，可商议轮养——但奉养多寡是协商出来的。' : '膝下无育成之子，养老无所依，只能靠口食田与积蓄。') + '这一程 <span class="em">3 个行动点</span>安顿晚景。你年轻时走的那条路，此时会变成旧识、旧账、名色和体面。', 
+      narrative: '你已<span class="em">' + S.年龄 + '岁</span>，在明代平民已属高寿门槛。身子大不如前，' + (S.子数 > 0 ? '育有 ' + S.子数 + ' 子，可商议轮养——但奉养多寡是协商出来的。' : '膝下无育成之子，养老无所依，只能靠口食田与积蓄。') + '这一程 <span class="em">3 个行动点</span>安顿晚景。你年轻时走的那条路，此时会变成旧识、旧账、名色和体面。', 
       dossier: function () { return lifeDossier((S.子数 > 0 ? ('诸子 ' + S.子数 + ' 人各有小家，是否足额奉养要看协商成算（家族声望↑更顺）。') : '无子可依，奉养这条路走不通，须自筹。') + (ep.dossier ? '｜' + ep.dossier : '')); },
       events: events,
       prompt: '如何安顿晚年？（分配 3 点）',
@@ -2338,6 +2402,7 @@
 
   // ── 死亡与传承 ──
   function stageDeath() {
+    var life = currentLifeProfile();
     function nextGenLegacy() {
       var legacy = {
         父辈路线: S.路线 || '未定',
@@ -2361,7 +2426,7 @@
       return legacy;
     }
     // 寿命 roll：多数五十余，长尾少数活到60-70+
-    var ageRoll = rollProb([{ p: 0.45, r: 56 }, { p: 0.35, r: 62 }, { p: 0.15, r: 68 }, { p: 0.05, r: 74 }]);
+    var ageRoll = rollProb(life.deathTable);
     S._deathAge = ageRoll; S.年龄 = ageRoll;
     // 丧葬支出（棺木为大项）：从遗产扣
     var funeral = 1; // 白银
@@ -2486,17 +2551,26 @@
   if (typeof window !== 'undefined') {
     window.__MING_TEST_API = {
       restart: restart,
+      restartWithHeir: startNextGeneration,
       getState: function () { return JSON.parse(JSON.stringify(S)); },
       getPhase: function () { return phase; },
       getGeneration: function () { return generation; },
+      getCarryOver: function () { return carryOver ? JSON.parse(JSON.stringify(carryOver)) : null; },
       getStageTitle: function () { return curStage ? curStage.title : curLabel(); },
+      getStageAP: function () {
+        if (phase === 'childhood') return CHILD_AP;
+        if (phase === 'farm') return AP_PER_XUN;
+        if (curStage && curStage.ap) return curStage.ap;
+        return 0;
+      },
       getAvailableActions: function () {
-        if (phase === 'childhood') return childActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false }; });
-        if (phase === 'farm') return availableActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false }; });
-        if (curStage && curStage.actions) return lifeActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false }; });
-        if (curStage && curStage.choices) return curStage.choices.map(function (c, i) { return { id: i, name: c.name, can: c.can !== false }; });
+        if (phase === 'childhood') return childActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false, cost: a.cost || 0, why: a.why || '', eff: a.eff || '' }; });
+        if (phase === 'farm') return availableActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false, cost: a.cost || 0, why: a.why || '', eff: a.eff || '' }; });
+        if (curStage && curStage.actions) return lifeActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false, cost: a.cost || 0, why: a.why || '', eff: a.eff || '' }; });
+        if (curStage && curStage.choices) return curStage.choices.map(function (c, i) { return { id: i, name: c.name, can: c.can !== false, cost: 0, why: '', eff: c.gain || '' }; });
         return [];
       },
+      getLifeProfile: function () { return JSON.parse(JSON.stringify(currentLifeProfile())); },
       pickAction: function (id) {
         if (phase === 'childhood') addChildPick(id);
         else if (phase === 'farm') addPick(id);
