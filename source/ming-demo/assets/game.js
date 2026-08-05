@@ -504,10 +504,17 @@
   function merchantSupportProfile() {
     var familyGain = 1, trustGain = 0;
     var desc = '你在外挣来的银，不只填自家嘴，还可先寄回去顶住家里供读的那条链。';
+    var boosted = false;
     if (S.亦贾亦儒底子 > 0 || S.供读底子 > 0 || (S.承继定位 || '').indexOf('次子候读') >= 0) {
+      boosted = true;
       familyGain = 2;
       trustGain = 1;
       desc = '这一房本就认得“挣钱的人在外回钱、家里另划供读账”的老规矩；同样一两银回去，更容易被当成要紧的专账而不被日常花销冲散。';
+    }
+    if (boosted && currentLineageIsCollateral()) {
+      familyGain = Math.max(1, familyGain - 1);
+      trustGain = Math.max(0, trustGain - 1);
+      desc = '这一房虽也承到一点“外头回钱、家里另划供读账”的旧规矩，但如今是旁支续起，这层门路终究比本支薄一线；同样一两银回去，仍能替家里稳住一点供读压力，却不如本支那样稳。';
     }
     return {
       familyGain: familyGain,
