@@ -2383,6 +2383,22 @@
     var fertility = childbearingProfile();
     var events = [{ t: 'rel', tag: '[关系]', txt: '女方是邻村自耕农之女，有自己的意愿：她与父母看重的是这户的家底与后生的本分，不是你单方面"提亲"就能定。' }];
     if (rp.event) events.push(rp.event);
+    function scheduleMarriageRetry(log, retryLine, finalLine, familyPenaltyRetry, familyPenaltyFinal) {
+      S._marriageAttempts = (S._marriageAttempts || 0) + 1;
+      var nextAdj = (S._marriageAgeAdj || 0) + 2;
+      var maxTries = 2; // 防止无限拖延：最多再议亲两轮（即 +4 年）
+      if (S._marriageAttempts <= maxTries && (currentLifeProfile().marriageAge + 2) < (currentLifeProfile().householdAge - 2)) {
+        S._marriageAgeAdj = nextAdj;
+        if ((familyPenaltyRetry || 0) > 0) S.家族 -= familyPenaltyRetry;
+        curStage.next = 'marriage';
+        curStage.nextLabel = '再攒两年再议亲 →';
+        log.push([retryLine, 'bad']);
+        return true;
+      }
+      if ((familyPenaltyFinal || 0) > 0) S.家族 -= familyPenaltyFinal;
+      log.push([finalLine, 'bad']);
+      return false;
+    }
     return {
       title: '成家 · 议亲', label: '成家', next: 'household', nextLabel: '步入中年 · 当户 →',
       ap: 4, commitLabel: '下聘·定亲事 →',
@@ -2393,9 +2409,10 @@
       prompt: '这几年怎么张罗亲事？（分配 4 点，末了一次下聘）',
       actions: function () {
         var A = [];
+        var pickedGift = lifePicks.some(function (p) { return p.id === 'm_gift' || p.id === 'm_gift1'; });
         A.push({ id: 'm_save', name: '卖粮·攒聘礼', cost: 1, eff: '存米-1·白银+1（备聘）', desc: '把余粮换成硬通货备作聘礼。', can: S.存米 >= 1, why: S.存米 >= 1 ? '' : '无存米可卖' });
-        A.push({ id: 'm_gift', name: '厚备聘礼', cost: 2, eff: '白银-3·聘礼档↑↑·成算+', desc: '以银三两下重聘，风光正娶，行情最高。', can: S.白银 >= 3, why: S.白银 >= 3 ? '' : '白银不足3两', once: true });
-        A.push({ id: 'm_gift1', name: '薄备聘礼', cost: 1, eff: '白银-1·聘礼档↑·成算+', desc: '尽力凑一份体面的薄聘。', can: S.白银 >= 1, why: S.白银 >= 1 ? '' : '白银不足1两', once: true });
+        A.push({ id: 'm_gift', name: '厚备聘礼', cost: 2, eff: '白银-3·聘礼档↑↑·成算+', desc: '以银三两下重聘，风光正娶，行情最高。', can: !pickedGift && S.白银 >= 3, why: pickedGift ? '本轮已定聘礼档' : (S.白银 >= 3 ? '' : '白银不足3两'), once: true });
+        A.push({ id: 'm_gift1', name: '薄备聘礼', cost: 1, eff: '白银-1·聘礼档↑·成算+', desc: '尽力凑一份体面的薄聘。', can: !pickedGift && S.白银 >= 1, why: pickedGift ? '本轮已定聘礼档' : (S.白银 >= 1 ? '' : '白银不足1两'), once: true });
         A.push({ id: 'm_borrow', name: '向义庄借银', cost: 1, eff: '负债+3两·白银+3（供下聘）', desc: '宗族义庄借贷办婚，先成家后还债。', can: true, once: true });
         A.push({ id: 'm_match', name: '托媒·多方相看', cost: 1, eff: '家族+2·成算+（媒妁之言）', desc: '多走几家媒人，抬一抬相看的成算。', can: true });
         A.push({ id: 'm_show', name: rp.showName, cost: 1, eff: rp.showEff, desc: rp.showDesc, can: rp.showCan, why: rp.showWhy });
@@ -2449,19 +2466,13 @@
         }
         if (giftTier === 0) {
           // 视为“被推迟事项”：允许再议亲，并把推迟真实落到年龄与婚育窗口上。
-          S._marriageAttempts = (S._marriageAttempts || 0) + 1;
-          var nextAdj = (S._marriageAgeAdj || 0) + 2;
-          var maxTries = 2; // 防止无限拖延：最多再议亲两轮（即 +4 年）
-          if (S._marriageAttempts <= maxTries && (currentLifeProfile().marriageAge + 2) < (currentLifeProfile().householdAge - 2)) {
-            S._marriageAgeAdj = nextAdj;
-            S.家族 -= 1;
-            curStage.next = 'marriage';
-            curStage.nextLabel = '再攒两年再议亲 →';
-            log.push(['这一程仍凑不出可下聘的聘银，婚事推迟两年（家族-1；推迟会改写婚育窗口）', 'bad']);
-          } else {
-            S.家族 -= 2;
-            log.push(['这一程仍未能成婚：先把日子过下去（家族-2；后续仍可能走向绝嗣过继分支）', 'bad']);
-          }
+          scheduleMarriageRetry(
+            log,
+            '这一程仍凑不出可下聘的聘银，婚事推迟两年（家族-1；推迟会改写婚育窗口）',
+            '这一程仍未能成婚：先把日子过下去（家族-2；后续仍可能走向绝嗣过继分支）',
+            1,
+            2
+          );
           return;
         }
         var r = rollProb([{ p: chance, r: 'wed' }, { p: 1 - chance, r: 'fail' }]);
@@ -2474,8 +2485,24 @@
           log.push(['〔女方应允〕成婚成算约 ' + pct + '%，命中！妻带奁产铜钱+' + dowry + '、家族+' + (giftTier === 2 ? 10 : 6), 'good']);
           bearChildren(log);
         } else {
-          if (giftTier === 2) { S.白银 += 1; log.push(['〔女方另议〕成算约 ' + pct + '%，未成。退回部分重聘白银+1，婚事推迟（聘礼档在，来生仍可再议）', 'bad']); }
-          else log.push(['〔女方另议〕成算约 ' + pct + '%，未成。薄聘已花，婚事推迟', 'bad']);
+          if (giftTier === 2) {
+            S.白银 += 1;
+            scheduleMarriageRetry(
+              log,
+              '〔女方另议〕成算约 ' + pct + '%，未成。退回部分重聘白银+1；这一回记为被推迟事项，隔两年还能再议（家族-1；婚育窗口随之改写）',
+              '〔女方另议〕成算约 ' + pct + '%，未成。退回部分重聘白银+1；这一房先把后面的日子过下去（家族-2；后续仍可能走向绝嗣过继分支）',
+              1,
+              2
+            );
+          } else {
+            scheduleMarriageRetry(
+              log,
+              '〔女方另议〕成算约 ' + pct + '%，未成。薄聘已花；这一回记为被推迟事项，隔两年还能再议（家族-1；婚育窗口随之改写）',
+              '〔女方另议〕成算约 ' + pct + '%，未成。薄聘已花；这一房先把后面的日子过下去（家族-2；后续仍可能走向绝嗣过继分支）',
+              1,
+              2
+            );
+          }
         }
       }
     };
