@@ -415,6 +415,67 @@
     }
     return profile;
   }
+  function normalizeProbTable(dict) {
+    var keys = Object.keys(dict || {});
+    var floor = 0.02;
+    var total = keys.reduce(function (acc, k) { return acc + Math.max(floor, dict[k] || 0); }, 0);
+    if (!keys.length) return [];
+    if (total <= 0) return keys.map(function (k) { return { p: 1 / keys.length, r: k }; });
+    var acc = 0;
+    return keys.map(function (k, idx) {
+      var p = Math.max(floor, dict[k] || 0) / total;
+      if (idx === keys.length - 1) p = Math.max(0, 1 - acc);
+      acc += p;
+      return { p: p, r: k };
+    });
+  }
+  function merchantTradeProfile() {
+    var weights = { flat: 0.35, profit: 0.30, loss: 0.20, receivable: 0.15 };
+    var notes = [];
+    if (S.商路门路 > 0) {
+      weights.profit += 0.05; weights.loss -= 0.03; weights.receivable -= 0.02;
+      notes.push('旧商路还认得人和账，货价与回款不至全靠撞运气');
+    }
+    if ((S.账房进度 + S.商信誉) >= 3) {
+      weights.profit += 0.04; weights.loss -= 0.02; weights.receivable -= 0.02;
+      notes.push('账房底子与信誉较稳，试贩时更不易吃结账的闷亏');
+    }
+    if (S.城里门路 > 0) {
+      weights.flat += 0.02; weights.loss -= 0.02;
+      notes.push('城里熟识让你找牙口和落脚处时少吃一点生');
+    }
+    if ((S.承继定位 || '').indexOf('长兄续商') >= 0) {
+      weights.receivable += 0.05; weights.loss -= 0.02; weights.flat -= 0.03;
+      notes.push('长兄续着旧号，你这一手多半得在旁另起一支，货走得出去，回钱却更容易拖期');
+    }
+    if (S.亦贾亦儒底子 > 0 || S.供读底子 > 0) {
+      weights.profit += 0.02; weights.flat += 0.02; weights.loss -= 0.02; weights.receivable -= 0.02;
+      notes.push('家里本就认得反哺与供读账，先顾哪笔现钱更稳当，你心里更有数');
+    }
+    if (isCollateralCarry(carryOver)) {
+      weights.profit -= 0.04; weights.receivable += 0.02; weights.loss += 0.02;
+      notes.push('这一房经旁支接祧后，旧商路只剩薄薄一层，真正坐实还得靠你自己续');
+    }
+    return {
+      table: normalizeProbTable(weights),
+      note: notes.length ? ('试贩结果会继续吃到上一代余绪：' + notes.join('；') + '。') : '试贩结果主要看你这一年自己把认货、核账和回钱做到什么地步。'
+    };
+  }
+  function merchantSupportProfile() {
+    var familyGain = 1, trustGain = 0;
+    var desc = '你在外挣来的银，不只填自家嘴，还可先寄回去顶住家里供读的那条链。';
+    if (S.亦贾亦儒底子 > 0 || S.供读底子 > 0 || (S.承继定位 || '').indexOf('次子候读') >= 0) {
+      familyGain = 2;
+      trustGain = 1;
+      desc = '这一房本就认得“挣钱的人在外回钱、家里另划供读账”的老规矩；同样一两银回去，更容易被当成要紧的专账而不被日常花销冲散。';
+    }
+    return {
+      familyGain: familyGain,
+      trustGain: trustGain,
+      effect: '白银-1·反哺+1·家中供读稳一稳·家族+' + familyGain + (trustGain > 0 ? '·商信誉+1' : ''),
+      desc: desc
+    };
+  }
   function childbearingProfile() {
     var life = currentLifeProfile();
     var profile = {
@@ -1377,6 +1438,16 @@
   }
 
   // 阶段卡通用渲染：叙事 + 事件 + 选项（每项显式点数/概率）
+  function restartIdentityLabel() {
+    // “死亡→传承→下一代重开”是闭环验收点：按钮文案必须与真实承继一致，避免把独子/过继误写成“次子”。
+    if (phase === 'childhood') return '';
+    var sons = S.子数 || 0;
+    var ord = S._heirOrdinal || (sons > 1 ? 2 : 1);
+    if (sons <= 0) return '旁支继子身份';
+    if (sons === 1) return '独子身份';
+    if (ord === 2) return '次子身份';
+    return '长子身份';
+  }
   function renderLifeStage() {
     var st = curStage; if (!st) return;
     var h = '';
@@ -1395,7 +1466,7 @@
       var isLast = (st.next === null);
       var label;
       if (isChild) label = S._childDied ? '这一世早夭 · 由弟妹接续（递归重开）→' : (st.nextLabel || '长大一岁 →');
-      else label = isLast ? '以次子身份 · 递归重开新一生 →' : (st.nextLabel || '继续 →');
+      else label = isLast ? ('以' + restartIdentityLabel() + ' · 递归重开新一生 →') : (st.nextLabel || '继续 →');
       h += '<div class="commit"><button id="btn-pnext">' + label + '</button></div>';
       $('stage').innerHTML = h;
       return;
@@ -1955,14 +2026,19 @@
   // ── 徽商学生意（16-18岁）：坐店/跑单/带本试贩 ──
   function stageMerchant() {
     var age = 16 + (S.商年 - 1);
+    var tradeProfile = merchantTradeProfile();
+    var supportProfile = merchantSupportProfile();
     return {
       title: '徽商学生意 · 第' + S.商年 + '商年', label: '商路第' + S.商年 + '年',
       next: 'merchant', nextLabel: (S.商年 < MERCHANT_YEARS ? '再过一年学生意 →' : '攒着商路底子去议亲 →'),
       ap: 4, commitLabel: '了这一年商路 →',
-      note: '首版只做“随号学生意 + 少量带本试贩 + 年终结账”。关键不是发财，而是把本钱、未回款、反哺银、原籍赋役都放进同一本账里。',
-      narrative: '你已<span class="em">' + age + '岁</span>，跟着族叔商号学生意。你这一年有 <span class="em">4 个行动点</span>，要在坐店、跑单、认货、核账、带本试贩、回乡、省身之间分配。',
+      note: '首版只做“随号学生意 + 少量带本试贩 + 年终结账”。关键不是发财，而是把本钱、未回款、反哺银、原籍赋役都放进同一本账里。' + (generation > 1 ? ' ' + tradeProfile.note : ''),
+      narrative: '你已<span class="em">' + age + '岁</span>，跟着族叔商号学生意。你这一年有 <span class="em">4 个行动点</span>，要在坐店、跑单、认货、核账、带本试贩、回乡、省身之间分配。' +
+        (((S.承继定位 || '').indexOf('长兄续商') >= 0)
+          ? ' 只是这一手并不是平白承了长兄的旧号，多半还得挨着旧路数、在旁边另起一支，认人认账与回钱节奏都会因此改写。'
+          : ''),
       dossier: function () {
-        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前：识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两。');
+        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前：识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜承继定位=' + S.承继定位 + '。');
       },
       events: [
         { t: 'rel', tag: '[东家]', txt: '族叔肯不肯带你试货、肯不肯把账面门道教给你，并不因“都是亲戚”自动成立。' },
@@ -1975,8 +2051,8 @@
         A.push({ id: 'm_run', name: '跟号外出跑单', cost: 2, eff: '白银+1·商历练+2·体魄-5·家族-1', desc: '跟着押货、跑埠、走路子，钱厚一些，离乡也久些。', can: true, once: true });
         A.push({ id: 'm_goods', name: '认货辨价', cost: 1, eff: '识货进度+1', desc: '先学会认货，不然谈不上自己试着带本。', can: true });
         A.push({ id: 'm_book', name: '识字帮核账', cost: 1, eff: '铜钱+180·账房进度+1·商信誉+1', desc: '若你识字，可帮着抄单、核账，比纯跑腿更值钱。', can: S.识字, why: S.识字 ? '' : '尚不识字', once: true });
-        A.push({ id: 'm_try', name: '争取带本试贩', cost: 2, eff: '白银-1锁作本钱·年终判回本/小利/亏折/未回款', desc: '拿一两本钱试着跑一单。钱先锁在货里，回没回得来得等年终。', can: S.白银 >= 1 && (S.识货进度 >= 1 || S.账房进度 >= 1), why: S.白银 < 1 ? '白银不足1两' : '尚未学会最基本认货/核账', once: true });
-        A.push({ id: 'm_support', name: '寄银回家供读', cost: 1, eff: '白银-1·反哺+1·家中供读稳一稳', desc: '你在外挣来的银，不只填自家嘴，还可先寄回去顶住家里供读的那条链。', can: S.白银 >= 1, why: S.白银 >= 1 ? '' : '白银不足1两', once: true });
+        A.push({ id: 'm_try', name: '争取带本试贩', cost: 2, eff: '白银-1锁作本钱·年终按门路/账房/承继定位判回本/小利/亏折/未回款', desc: '拿一两本钱试着跑一单。钱先锁在货里，回没回得来，不只看运气，也看你手里这层旧门路与账面底子。', can: S.白银 >= 1 && (S.识货进度 >= 1 || S.账房进度 >= 1), why: S.白银 < 1 ? '白银不足1两' : '尚未学会最基本认货/核账', once: true });
+        A.push({ id: 'm_support', name: '寄银回家供读', cost: 1, eff: supportProfile.effect, desc: supportProfile.desc, can: S.白银 >= 1, why: S.白银 >= 1 ? '' : '白银不足1两', once: true });
         A.push({ id: 'm_home', name: '回乡省亲', cost: 1, eff: '家族+4·存米+1', desc: '回乡看看父母，也把一点心力和米粮带回去。', can: true, once: true });
         A.push({ id: 'm_rest', name: '歇养身子', cost: 1, eff: '体魄+5', desc: '别把身子先走坏。', can: true });
         return A;
@@ -2006,8 +2082,9 @@
               log.push(['争取带本试贩：白银-1锁作本钱，待年终结账。', 'bad']);
               break;
             case 'm_support':
-              S.白银 -= 1; S.累计反哺银 += 1; S.商路供读银 += 1; S.供读压力 = Math.max(0, S.供读压力 - 1); S.家族 += 1;
-              log.push(['寄银回家供读：白银-1、累计反哺+1、商路供读+1，家里供读链暂时稳了一口气。', 'good']);
+              S.白银 -= 1; S.累计反哺银 += 1; S.商路供读银 += 1; S.供读压力 = Math.max(0, S.供读压力 - 1); S.家族 += supportProfile.familyGain;
+              if (supportProfile.trustGain > 0) S.商信誉 += supportProfile.trustGain;
+              log.push(['寄银回家供读：白银-1、累计反哺+1、商路供读+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '；这笔银被更稳地划进家里的供读账。', 'good']);
               break;
             case 'm_home':
               S.家族 += 4; S.存米 += 1;
@@ -2021,12 +2098,8 @@
         });
 
         if (triedTrade) {
-          var r = rollProb([
-            { p: 0.35, r: 'flat' },
-            { p: 0.30, r: 'profit' },
-            { p: 0.20, r: 'loss' },
-            { p: 0.15, r: 'receivable' }
-          ]);
+          var r = rollProb(tradeProfile.table);
+          log.push(['〔试贩成算〕这一单不再只按固定概率落下：会继续吃到旧商路、账房、承继定位与旁支衰减的影响。', 'good']);
           if (r === 'flat') {
             S.白银 += S.带本银;
             log.push(['〔试贩结账〕回本而已：锁定本钱如数回账。', 'good']);
@@ -2992,6 +3065,8 @@
     var estateCopper = Math.max(0, S.铜钱);
     var sons = S.子数;
     var heirOrdinal = sons > 1 ? 2 : 1;
+    // 仅用于 UI 文案与回放断言，不参与任何评分；避免“独子/过继”仍显示“次子”造成闭环误读。
+    S._heirOrdinal = heirOrdinal;
     var legacyCarry = nextGenLegacy();
     var narrative, deathTag, collateralEstateNote = '';
     if (sons > 0) {
