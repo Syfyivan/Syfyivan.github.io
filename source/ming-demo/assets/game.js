@@ -5464,6 +5464,46 @@
             log.push(['〔年关碎账〕这一旬连年关小耗都挪不开，只得靠身子硬顶过去（体魄-1）。', 'bad']);
           }
         }
+        if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && season.id === 'summer' && xun === 2) {
+          if (picked.f_route_shop_bundle || picked.f_route_shop || picked.f_route_shop_note || picked.f_mend || picked.f_rest) {
+            pushFamilySeasonTag(stepTag + '铺里零耗已顾');
+            log.push(['〔铺里零耗〕这一旬先把铺里茶汤、脚夫点心、布药针线或家里凉热小耗顾住了；“人在铺里、家里还等着这口小钱”的磨损没有继续滚大。', 'good']);
+          } else if (spendCopper(35)) {
+            S.本年家衣药 += 1;
+            pushFamilySeasonTag(stepTag + '铺里零耗');
+            log.push(['〔铺里零耗〕铺里茶汤、脚夫点心、针线布药和回乡带话的小脚费一起冒头：铜钱-35、衣药+1。不是大账，却正把学徒路这一年的细钱一点点磨薄。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '铺耗硬扛');
+            log.push(['〔铺里零耗〕这一旬连茶汤脚费和布药针线都腾挪不开，只得先硬扛过去；人在铺里这层门路又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && season.id === 'autumn' && xun === 3) {
+          if (picked.f_route_shop_collect || picked.f_route_master || picked.f_social || picked.f_duty) {
+            pushFamilySeasonTag(stepTag + '秋脚路已压');
+            log.push(['〔秋脚路〕这一旬先把回铺脚路、掌柜薄礼和托人带话的人情压进后手里；秋里这口脚钱没再只停在“该回”的账面上。', 'good']);
+          } else if (spendCopper(45)) {
+            pushFamilySeasonTag(stepTag + '秋脚路');
+            log.push(['〔秋脚路〕回铺脚费、掌柜薄礼和请人带话的小人情一起要钱：铜钱-45。不是新主线，只是把“该回的脚钱”真正拢回来前必经的一层摩擦。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '秋脚硬顶');
+            log.push(['〔秋脚路〕这一旬连回铺脚路与薄礼都腾挪不开，只得先硬顶过去；这一房在铺里那层熟面又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && season.id === 'winter' && xun === 1) {
+          if (picked.f_route_shop_book || picked.f_work || picked.f_repair || picked.f_rest) {
+            pushFamilySeasonTag(stepTag + '年关铺耗已分');
+            log.push(['〔年关铺耗〕年关里给旧掌柜的薄礼、回铺脚路和家里灯火针线已先被你分开；学徒路这层门路没有在年关忽然断掉。', 'good']);
+          } else if (spendCopper(40)) {
+            pushFamilySeasonTag(stepTag + '年关铺耗');
+            log.push(['〔年关铺耗〕旧掌柜薄礼、回铺脚路和灯油针线一起要钱：铜钱-40。不是体面消费，而是让“铺里还认你”这层门路能撑到明春。', 'bad']);
+          } else {
+            S.体魄 -= 1;
+            pushFamilySeasonTag(stepTag + '年关铺耗硬扛');
+            log.push(['〔年关铺耗〕这一旬连薄礼与回铺脚路都腾挪不开，只得靠身子硬顶过去（体魄-1）。', 'bad']);
+          }
+        }
         if (xun === 3 && !dutyReserved && season.id !== 'spring') {
           log.push(['这一旬还没把差役后手先留住，年关或里甲催差时更容易手忙脚乱。', 'bad']);
         }
