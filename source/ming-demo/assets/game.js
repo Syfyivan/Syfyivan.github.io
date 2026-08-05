@@ -16,6 +16,9 @@
   var GROW_TARGET = 12;
   var FARM_YEARS = 3;      // 成丁后佃田耕作的农年数（16→18岁），每年秋收强制结算佃约
   var WAGE_YEARS = 3;      // 成丁后受雇谋生的工年数（16→18岁）
+  var APPRENTICE_YEARS = 3; // 成丁后入城学徒的学年数（16→18岁）
+  var MERCHANT_YEARS = 3;   // 成丁后学生意的商年数（16→18岁）
+  var EXAM_YEARS = 3;       // 成丁后读书应举的举业年数（16→18岁）
   var YEAR_KOULIANG = 3;   // 全家一年口粮消耗（石·占位）
   var RENT_SEIZE_P = 0.35; // 欠租被夺佃概率（占位）
   var CORVEE_P = 0.40;     // 里甲赋役佥派概率（占位）
@@ -44,7 +47,7 @@
   // ── 全局状态 ───────────────────────────────────
   var S, ledger, seq, xunIndex, picks, resolved, gameOver;
   var _yearEndNext = null;   // 年终结账面板之后要去的地方：'newyear' | 'marriage'
-  var phase;                 // 'childhood' | 'establishment' | 'farm' | 'wage' | 'marriage' | 'household' | 'elder' | 'death'
+  var phase;                 // 'childhood' | 'establishment' | 'farm' | 'wage' | 'apprentice' | 'merchant' | 'civilExam' | 'marriage' | 'household' | 'elder' | 'death'
   var generation = 0;        // 第几代
   var carryOver = null;      // 上一代传下的期初结余
   var curStage = null;       // 当前人生阶段卡（非农事时）
@@ -64,6 +67,16 @@
       识字: false, 技艺: '无', 兄弟序: 1, 农事历练: 0, 家务历练: 0, 识字进度: 0, 技艺进度: 0,
       // 立身与雇工路径字段
       路线: '未立身', 工年: 1, 雇身份: '未定', 雇工历练: 0, 雇技进度: 0, _advanceWageYear: false,
+      // 学徒路径字段
+      学年: 1, 学徒阶段: '未定', 学徒合同: '未议', 学徒保人: false, 学徒保证金银: 0, 学徒束脩文: 0,
+      学徒授艺度: 0, 学徒信任: 0, 学徒历练: 0, 学徒去向: '未定', _advanceApprenticeYear: false,
+      // 徽商路径字段
+      商年: 1, 商身份: '未定', 商历练: 0, 识货进度: 0, 账房进度: 0, 商信誉: 0,
+      带本银: 0, 未回款银: 0, 累计反哺银: 0, 商路亏折: 0, _advanceMerchantYear: false,
+      // 科举路径字段
+      举业年: 1, 读书方式: '未定', 童试层级: 0, 保结进度: 0, 文章火候: 0,
+      供读状态: '家中供读', 供读压力: 0, 读书成本档: 0, 本年下场: false,
+      生员身份: false, 生员层级: '无', 优免启用: false, 举业结局: '未定', 识字转业值: 0, _advanceExamYear: false,
       // 人生链路字段
       妻室: false, 子数: 0, 女数: 0, 负债银: 0, 口食田: 0, 分家: false, 应役: '未役'
     };
@@ -112,6 +125,7 @@
     if (S.铜钱 < 0) v.push('铜钱为负(' + S.铜钱 + ')');
     if (S.白银 < 0) v.push('白银为负(' + S.白银 + ')');
     if (S.负债银 < 0) v.push('负债为负(' + S.负债银 + ')');
+    if (S.未回款银 < 0) v.push('未回款为负(' + S.未回款银 + ')');
     // 2) 属性钳制在 [0,100]
     if (S.体魄 < 0 || S.体魄 > 100) v.push('体魄越界(' + S.体魄 + ')');
     if (S.家族 < 0 || S.家族 > 100) v.push('家族越界(' + S.家族 + ')');
@@ -126,6 +140,12 @@
       if (S._carry.田亩 < 1) v.push('传承田亩<1');
       if (S._carry.存米 < 0 || S._carry.白银 < 0) v.push('传承资源为负');
     }
+    // 7) 路线专有约束
+    if (S.生员身份 && S.童试层级 < 3) v.push('未过院试却写成生员');
+    if (S.优免启用 && !S.生员身份) v.push('未成生员却启用优免');
+    if (S.童试层级 < 0 || S.童试层级 > 3) v.push('童试层级越界(' + S.童试层级 + ')');
+    if (S.学徒阶段 === '留店伙计' && S.学徒授艺度 < 2) v.push('学徒授艺未达标却留店为伙计');
+    if (S.带本银 > 0 && S.白银 < 0) v.push('带本与现银结算异常');
     if (v.length) {
       v.forEach(function (msg) { _invViolations.push({ ctx: ctx, msg: msg, seq: seq }); });
       if (typeof console !== 'undefined' && console.warn) console.warn('[不变量违规@' + ctx + '] ' + v.join('; '));
@@ -266,6 +286,18 @@
       h += '<span class="chip">路线 <b>受雇谋生</b></span>';
       h += '<span class="chip">工年 <b>' + S.工年 + '/' + WAGE_YEARS + '</b></span>';
       h += '<span class="chip">雇身分 <b>' + S.雇身份 + '</b></span>';
+    } else if (phase === 'apprentice') {
+      h += '<span class="chip">路线 <b>入城学徒</b></span>';
+      h += '<span class="chip">学年 <b>' + S.学年 + '/' + APPRENTICE_YEARS + '</b></span>';
+      h += '<span class="chip">学徒阶段 <b>' + S.学徒阶段 + '</b></span>';
+    } else if (phase === 'merchant') {
+      h += '<span class="chip">路线 <b>徽商学生意</b></span>';
+      h += '<span class="chip">商年 <b>' + S.商年 + '/' + MERCHANT_YEARS + '</b></span>';
+      h += '<span class="chip">商身分 <b>' + S.商身份 + '</b></span>';
+    } else if (phase === 'civilExam') {
+      h += '<span class="chip">路线 <b>读书应举</b></span>';
+      h += '<span class="chip">举业 <b>' + S.举业年 + '/' + EXAM_YEARS + '</b>年</span>';
+      h += '<span class="chip">童试层级 <b>' + (S.生员身份 ? '生员' : ('第' + S.童试层级 + '层')) + '</b></span>';
     } else if (phase === 'childhood') {
       h += '<span class="chip">识字 <b>' + (S.识字 ? '已启蒙' : '未识字') + '</b></span>';
       h += '<span class="chip">技艺 <b>' + S.技艺 + '</b></span>';
@@ -816,6 +848,48 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // 立身走学徒路 → 十六成丁，步入入城学徒三学年
+  function enterApprentice() {
+    phase = 'apprentice';
+    if (S._advanceApprenticeYear) { S.学年 += 1; S._advanceApprenticeYear = false; }
+    S.年龄 = 16 + (S.学年 - 1);
+    S.身份 = '民籍·商铺学徒';
+    S.路线 = '入城学徒';
+    picks = []; resolved = null; lifePicks = [];
+    curStage = stageApprentice();
+    if (S.学年 === 1) recordEntry('立身分路·入城学徒', snapshot(), '你不留乡守田，也不先去打长短工，而是进城投商铺学徒：先求师、立据、守店、识货，看三年后能不能留店或另谋。');
+    renderStatus(); renderLifeStage(); renderLedger();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 立身走商路 → 十六成丁，步入学生意三商年
+  function enterMerchant() {
+    phase = 'merchant';
+    if (S._advanceMerchantYear) { S.商年 += 1; S._advanceMerchantYear = false; }
+    S.年龄 = 16 + (S.商年 - 1);
+    S.身份 = '民籍·随号学生意';
+    S.路线 = '徽商式亦贾亦儒';
+    picks = []; resolved = null; lifePicks = [];
+    curStage = stageMerchant();
+    if (S.商年 === 1) recordEntry('立身分路·徽商学生意', snapshot(), '你决定投族叔商号学生意：先当伙计学认货、跑单、看账，再看能否挣出反哺家中的现钱。');
+    renderStatus(); renderLifeStage(); renderLedger();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 立身走举业路 → 十六成丁，步入三举业年
+  function enterCivilExam() {
+    phase = 'civilExam';
+    if (S._advanceExamYear) { S.举业年 += 1; S._advanceExamYear = false; }
+    S.年龄 = 16 + (S.举业年 - 1);
+    S.身份 = S.生员身份 ? '民籍·生员' : '民籍·读书子';
+    S.路线 = '读书应举';
+    picks = []; resolved = null; lifePicks = [];
+    curStage = stageCivilExam();
+    if (S.举业年 === 1) recordEntry('立身分路·读书应举', snapshot(), '你把家中有限的银钱、纸墨与人情先压到读书上：供读不等于录取，只意味着这一户先把资源让给你。');
+    renderStatus(); renderLifeStage(); renderLedger();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   // ═══════════════ 人生阶段决策机 ═══════════════
   // 人生阶段行动点循环所用的临时状态（成家/当户/养老已升级为多维循环）
   var lifePicks = [];
@@ -856,6 +930,9 @@
     phase = p; picks = []; resolved = null; lifePicks = [];
     if (p === 'farmRoute' || p === 'farm') { enterFarm(); return; }
     else if (p === 'wage') { enterWage(); return; }
+    else if (p === 'apprentice') { enterApprentice(); return; }
+    else if (p === 'merchant') { enterMerchant(); return; }
+    else if (p === 'civilExam') { enterCivilExam(); return; }
     else if (p === 'establishment') { enterEstablishment(); return; }
     else if (p === 'marriage') { S.年龄 = 20; curStage = stageMarriage(); }
     else if (p === 'household') { S.年龄 = 35; curStage = stageHousehold(); }
@@ -1033,6 +1110,9 @@
     tags.push(S.技艺 !== '无' ? '手艺·傍身' : '手艺·无');
     tags.push('农事历练 ' + S.农事历练);
     if (S.雇工历练) tags.push('雇工历练 ' + S.雇工历练);
+    if (S.学徒历练) tags.push('学徒历练 ' + S.学徒历练);
+    if (S.商历练) tags.push('商路历练 ' + S.商历练);
+    if (S.文章火候) tags.push('文章火候 ' + S.文章火候);
     tags.push('家族声望 ' + S.家族);
     var h = '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">📇 共享状态账 · 这本账一路带到底</span>' +
@@ -1047,7 +1127,7 @@
     return {
       title: '立身 · 五路分叉', label: '立身',
       next: null, nextLabel: '走上这条路 →',
-      note: '你要求的是“同一父快照、16岁再分路”。这里不再默认锁死进佃田，而是在同一户、同一年、同一份家底下分叉。现已接通两条：留乡佃田、受雇谋生；其余三条设计稿已写，运行时尚未接。',
+      note: '你要求的是“同一父快照、16岁再分路”。这里不再默认锁死进佃田，而是在同一户、同一年、同一份家底下分叉。现在五条路都接了首版循环：佃田、受雇、学徒、商路、举业。',
       narrative: '你已<span class="em">十六岁</span>。父兄会留在这户田上，你得决定自己怎么立身。' +
         (底子.length ? ('你这些年攒下的底子：<span class="em">' + 底子.join('、') + '</span>。') : '你手上并无特别底子，只有一副年轻身子和一点寻常农事。') +
         '五条路共享同一个过去、同一份家底，但以后会走成完全不同的一生。',
@@ -1082,18 +1162,32 @@
         },
         {
           name: '路径三 · 入城学徒',
-          can: false, why: '设计稿已完成，运行时未接',
-          note: '文档已写完，但这一版 Demo 还没把投师字据、保证金、出师链真正接进运行时。'
+          gain: '进入三学年学徒循环（16→18岁）',
+          note: '先接商铺学徒主干：求师、作保、立据、守店、学货、留店/被辞/退师。条款细节仍为玩法占位，不冒充明代精确契约。',
+          run: function (log) {
+            curStage.next = 'apprentice'; curStage.nextLabel = '去投第一年学徒 →'; S.路线 = '入城学徒';
+            log.push(['你决定先去城里投师：这一路已接入首版三学年循环。', 'good']);
+            if (S.识字) log.push(['你略识文字，学记账、认货、抄单会比纯跑腿更快上手。', 'good']);
+          }
         },
         {
           name: '路径四 · 徽商式亦贾亦儒',
-          can: false, why: '设计稿已完成，运行时未接',
-          note: '文档已写完，但这一版 Demo 还没把家族分工账、反哺银与供读链接进运行时。'
+          gain: '进入三商年学生意循环（16→18岁）',
+          note: '首版先做“随号学生意 + 少量带本试贩 + 年终结账”，把未回款、反哺银、原籍赋役先接进运行时。',
+          run: function (log) {
+            curStage.next = 'merchant'; curStage.nextLabel = '去学生意 →'; S.路线 = '徽商式亦贾亦儒';
+            log.push(['你决定投族叔商号学生意：这一路已接入首版三商年循环。', 'good']);
+            if (S.识字) log.push(['你识字，核账抄单会比纯跑腿更值钱。', 'good']);
+          }
         },
         {
           name: '路径五 · 读书应举',
-          can: false, why: '设计稿已完成，运行时未接',
-          note: '文档已写完，但这一版 Demo 还没把童试三级、保结、束脩账和生员优免接进运行时。'
+          gain: '进入三举业年循环（16→18岁）',
+          note: '首版先接束脩纸墨、保结资格、童试层级、生员优免与屡试未第后的转业底子，不展开乡试会试。',
+          run: function (log) {
+            curStage.next = 'civilExam'; curStage.nextLabel = '去走第一年举业 →'; S.路线 = '读书应举';
+            log.push(['你决定先把这一户有限的资源压到读书上：这一路已接入首版三举业年循环。', 'good']);
+          }
         }
       ]
     };
@@ -1229,6 +1323,466 @@
         } else {
           curStage.next = 'marriage';
           curStage.nextLabel = '攒着工食去议亲 →';
+          S.年龄 = 20;
+        }
+      }
+    };
+  }
+
+  // ── 入城学徒（16-18岁）：求师/立据/守店/去向 ──
+  function stageApprentice() {
+    var age = 16 + (S.学年 - 1);
+    return {
+      title: '入城学徒 · 第' + S.学年 + '学年', label: '学徒第' + S.学年 + '年',
+      next: 'apprentice', nextLabel: (S.学年 < APPRENTICE_YEARS ? '再过一年学徒 →' : '带着这门去向去议亲 →'),
+      ap: 4, commitLabel: '了这一年学徒 →',
+      note: '首版只接商铺学徒主干：求师、作保、立据、守店、识货、年终结算、留店/被辞/退师。保证金、食宿、去留数额仍为玩法占位，不当作明代精确契约。',
+      narrative: '你已<span class="em">' + age + '岁</span>，进城求一位肯收你的师傅。投师不是自动成功；立据不等于学成，学成也不等于准你留下。你这一年有 <span class="em">4 个行动点</span>，要在求师说合、守店杂役、随师学账识货、回乡应急之间分配。',
+      dossier: function () {
+        return lifeDossier('立据≠学成≠出师；师傅收不收、留不留、准不准你转伙计，都是分开判的。当前：合同=' + S.学徒合同 + '｜阶段=' + S.学徒阶段 + '｜授艺度=' + S.学徒授艺度 + '｜信任=' + S.学徒信任 + '。');
+      },
+      events: [
+        { t: 'rel', tag: '[师傅]', txt: '师傅收徒是看一双手值不值，不因你可怜或勤快自动点头。' },
+        { t: 'rand', tag: '[店规]', txt: '这一年会撞上：说合要人情、守店要体力、家里要口粮、差役要出钱。学徒不是“拜师就完了”，而是一整套被挤压的账。' }
+      ],
+      prompt: '这一学年怎么过？（分配 4 点）',
+      actions: function () {
+        var A = [];
+        A.push({ id: 'a_seek', name: '托中人说合', cost: 1, eff: '合同推进·信任+1', desc: '找族邻替你去问门路，先让人家肯见你。', can: S.学徒合同 !== '已立据', once: true });
+        A.push({ id: 'a_bond', name: '请族邻作保', cost: 1, eff: '铜钱-80·作保到位', desc: '请人替你担保身家清白，没保也许能成，有保总更容易。', can: !S.学徒保人 && S.铜钱 >= 80, why: !S.学徒保人 ? (S.铜钱 >= 80 ? '' : '铜钱不足80文') : '已有保人', once: true });
+        A.push({ id: 'a_sign', name: '立投师字据', cost: 2, eff: '白银-1或铜钱-200·合同成立', desc: '先把投师的真成本掏出来：没立据，求师都还只是意向。', can: S.学徒合同 !== '已立据' && (S.学徒合同 === '说合中' || S.学徒保人) && (S.白银 >= 1 || S.铜钱 >= 200), why: S.学徒合同 === '已立据' ? '已立据' : ((S.学徒合同 === '说合中' || S.学徒保人) ? ((S.白银 >= 1 || S.铜钱 >= 200) ? '' : '银钱不够立据') : '尚未说合或作保'), once: true });
+        A.push({ id: 'a_drudge', name: '铺中杂役守店', cost: 1, eff: '学徒历练+1·信任+1·体魄-2', desc: '看店、跑腿、搬货、招呼客人，不是学艺最快，但这是人家看你靠不靠谱的第一关。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据' });
+        A.push({ id: 'a_learn', name: '随师认货记账', cost: 1, eff: '授艺度+1·学徒历练+1', desc: '跟着看账认货，先学会不吃亏，再谈以后能不能留下。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据' });
+        A.push({ id: 'a_home', name: '回乡帮父应急', cost: 1, eff: '家族+4·存米+1', desc: '店里少上一程工，家里却稳一些。', can: true, once: true });
+        A.push({ id: 'a_keep', name: '第三年议留店', cost: 1, eff: '年末判留店去向', desc: '到了第三年，试着问问能不能留下做伙计。', can: S.学年 === APPRENTICE_YEARS && S.学徒合同 === '已立据', why: S.学年 === APPRENTICE_YEARS ? (S.学徒合同 === '已立据' ? '' : '尚未立据') : '要到第三年', once: true });
+        A.push({ id: 'a_quit', name: '自请退师另谋', cost: 1, eff: '退师·沉没成本不退', desc: '若觉着再熬不值，就自己退下来，带着沉没成本另找路。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据', once: true });
+        A.push({ id: 'a_rest', name: '歇息养身', cost: 1, eff: '体魄+5', desc: '别把身子先熬坏了。', can: true });
+        return A;
+      },
+      settle: function (log) {
+        var didContract = false, quit = false, askedKeep = false, didEarn = false;
+        lifePicks.forEach(function (p) {
+          switch (p.id) {
+            case 'a_seek':
+              if (S.学徒合同 === '未议') S.学徒合同 = '说合中';
+              S.学徒信任 += 1;
+              log.push(['托中人说合：先把门路问出来，学徒信任+1', 'good']);
+              break;
+            case 'a_bond':
+              S.铜钱 -= 80; S.学徒保人 = true;
+              log.push(['请族邻作保：铜钱-80，保人到位', 'bad']);
+              break;
+            case 'a_sign':
+              didContract = true;
+              S.学徒合同 = '已立据';
+              S.学徒阶段 = '学徒';
+              if (S.白银 >= 1) { S.白银 -= 1; S.学徒保证金银 += 1; log.push(['立投师字据：白银-1，合同立成', 'bad']); }
+              else { S.铜钱 -= 200; S.学徒束脩文 += 200; log.push(['立投师字据：铜钱-200，合同立成', 'bad']); }
+              break;
+            case 'a_drudge':
+              S.学徒历练 += 1; S.学徒信任 += 1; S.体魄 -= 2; didEarn = true;
+              log.push(['铺中杂役守店：学徒历练+1、信任+1、体魄-2', 'good']);
+              break;
+            case 'a_learn':
+              S.学徒授艺度 += 1; S.学徒历练 += 1;
+              log.push(['随师认货记账：授艺度+1、学徒历练+1', 'good']);
+              break;
+            case 'a_home':
+              S.家族 += 4; S.存米 += 1;
+              log.push(['回乡帮父应急：家族+4、存米+1', 'good']);
+              break;
+            case 'a_keep':
+              askedKeep = true;
+              log.push(['你试着开口议留店：年末看师傅愿不愿意留你。', 'good']);
+              break;
+            case 'a_quit':
+              quit = true;
+              S.学徒阶段 = '退师'; S.学徒去向 = '另谋';
+              S.学徒信任 -= 1;
+              log.push(['你自请退师：这几年沉没的人情和钱都不会退回来。', 'bad']);
+              break;
+            case 'a_rest':
+              S.体魄 += 5;
+              log.push(['歇息养身：体魄+5', 'good']);
+              break;
+          }
+        });
+
+        if (S.学徒合同 === '已立据' && !quit) {
+          if (S.学年 < APPRENTICE_YEARS) {
+            var keepChance = Math.max(0.25, Math.min(0.85, 0.45 + S.学徒信任 * 0.08 + S.学徒授艺度 * 0.06));
+            if (Math.random() > keepChance) {
+              S.学徒阶段 = '被辞'; S.学徒去向 = '归乡';
+              S.家族 -= 2;
+              log.push(['〔去留〕师傅觉得你还不值继续留用，你被辞了出来（家族-2）。', 'bad']);
+            } else {
+              S.学徒阶段 = '学徒';
+              log.push(['〔去留〕师傅愿继续把你留在店里熬下一年。', 'good']);
+            }
+          } else {
+            var outChance = Math.max(0.15, Math.min(0.90, 0.20 + S.学徒授艺度 * 0.12 + S.学徒信任 * 0.08 + (askedKeep ? 0.10 : 0)));
+            if (Math.random() < outChance) {
+              S.学徒阶段 = '留店伙计'; S.学徒去向 = '留店伙计'; S.学徒历练 += 1; S.铜钱 += 200;
+              log.push(['〔去向〕三年熬下来，师傅愿把你留下做伙计：铜钱+200。', 'good']);
+            } else {
+              S.学徒阶段 = '未出师'; S.学徒去向 = quit ? '另谋' : '归乡';
+              log.push(['〔去向〕三年下来仍未能留店，你带着学到的一点门道另找出路。', 'bad']);
+            }
+          }
+        } else if (!didContract) {
+          S.家族 -= 2;
+          log.push(['这一年求师未成，家里难免觉得你白折腾了一年（家族-2）。', 'bad']);
+        }
+
+        var mouths = (S.学徒合同 === '已立据' && S.学徒阶段 !== '退师') ? 1 : 2;
+        if (S.存米 >= mouths) {
+          S.存米 -= mouths;
+          log.push(['〔口粮〕这一学年家中口粮计 ' + mouths + ' 石（存米-' + mouths + '）', 'bad']);
+        } else {
+          var lack = mouths - S.存米;
+          S.存米 = 0;
+          if (S.铜钱 >= lack * 350) {
+            S.铜钱 -= lack * 350;
+            log.push(['〔口粮〕家中米不够，籴米补口粮：铜钱-' + (lack * 350), 'bad']);
+          } else {
+            S.负债银 += lack;
+            S.体魄 -= 4;
+            log.push(['〔口粮〕学徒一年也照样要吃饭，银钱不够，只得举债（负债+' + lack + '两、体魄-4）', 'bad']);
+          }
+        }
+        if (Math.random() < 0.30) {
+          if (S.铜钱 >= 160) {
+            S.铜钱 -= 160;
+            log.push(['〔赋役〕本户轮到差役，家里拿铜钱160文找人顶上', 'bad']);
+          } else {
+            S.体魄 -= 5; S.家族 -= 2;
+            log.push(['〔赋役〕无钱代役，学徒人在城里也躲不开家里的役账（体魄-5、家族-2）', 'bad']);
+          }
+        }
+        if (S.负债银 > 0) {
+          var oldDebt = S.负债银;
+          var interest = Math.ceil(oldDebt * DEBT_RATE);
+          S.负债银 += interest;
+          log.push(['〔债息〕旧债 ' + oldDebt + ' 两滚息 ' + interest + ' 两（负债→' + S.负债银 + '）', 'bad']);
+        }
+
+        clampAttr('体魄'); clampAttr('家族');
+        if (S.学年 < APPRENTICE_YEARS) {
+          curStage.next = 'apprentice';
+          curStage.nextLabel = '再过一年学徒 →';
+          S._advanceApprenticeYear = true;
+        } else {
+          curStage.next = 'marriage';
+          curStage.nextLabel = '带着这门去向去议亲 →';
+          S.年龄 = 20;
+        }
+      }
+    };
+  }
+
+  // ── 徽商学生意（16-18岁）：坐店/跑单/带本试贩 ──
+  function stageMerchant() {
+    var age = 16 + (S.商年 - 1);
+    return {
+      title: '徽商学生意 · 第' + S.商年 + '商年', label: '商路第' + S.商年 + '年',
+      next: 'merchant', nextLabel: (S.商年 < MERCHANT_YEARS ? '再过一年学生意 →' : '攒着商路底子去议亲 →'),
+      ap: 4, commitLabel: '了这一年商路 →',
+      note: '首版只做“随号学生意 + 少量带本试贩 + 年终结账”。关键不是发财，而是把本钱、未回款、反哺银、原籍赋役都放进同一本账里。',
+      narrative: '你已<span class="em">' + age + '岁</span>，跟着族叔商号学生意。你这一年有 <span class="em">4 个行动点</span>，要在坐店、跑单、认货、核账、带本试贩、回乡、省身之间分配。',
+      dossier: function () {
+        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前：识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两。');
+      },
+      events: [
+        { t: 'rel', tag: '[东家]', txt: '族叔肯不肯带你试货、肯不肯把账面门道教给你，并不因“都是亲戚”自动成立。' },
+        { t: 'rand', tag: '[商路]', txt: '这一年会撞上：在外走单、未回款、家里春耕、里甲差役和旧债滚息。商路不是一笔收入，而是一整套拖延与回款。' }
+      ],
+      prompt: '这一商年怎么过？（分配 4 点）',
+      actions: function () {
+        var A = [];
+        A.push({ id: 'm_shop', name: '坐店学生意', cost: 1, eff: '铜钱+120·账房进度+1·商历练+1·体魄-1', desc: '守柜、搬货、看着人来人往，把规矩学会。', can: true });
+        A.push({ id: 'm_run', name: '跟号外出跑单', cost: 2, eff: '白银+1·商历练+2·体魄-5·家族-1', desc: '跟着押货、跑埠、走路子，钱厚一些，离乡也久些。', can: true, once: true });
+        A.push({ id: 'm_goods', name: '认货辨价', cost: 1, eff: '识货进度+1', desc: '先学会认货，不然谈不上自己试着带本。', can: true });
+        A.push({ id: 'm_book', name: '识字帮核账', cost: 1, eff: '铜钱+180·账房进度+1·商信誉+1', desc: '若你识字，可帮着抄单、核账，比纯跑腿更值钱。', can: S.识字, why: S.识字 ? '' : '尚不识字', once: true });
+        A.push({ id: 'm_try', name: '争取带本试贩', cost: 2, eff: '白银-1锁作本钱·年终判回本/小利/亏折/未回款', desc: '拿一两本钱试着跑一单。钱先锁在货里，回没回得来得等年终。', can: S.白银 >= 1 && (S.识货进度 >= 1 || S.账房进度 >= 1), why: S.白银 < 1 ? '白银不足1两' : '尚未学会最基本认货/核账', once: true });
+        A.push({ id: 'm_home', name: '回乡省亲', cost: 1, eff: '家族+4·存米+1', desc: '回乡看看父母，也把一点心力和米粮带回去。', can: true, once: true });
+        A.push({ id: 'm_rest', name: '歇养身子', cost: 1, eff: '体魄+5', desc: '别把身子先走坏。', can: true });
+        return A;
+      },
+      settle: function (log) {
+        var wentOut = false, didEarn = false, triedTrade = false;
+        lifePicks.forEach(function (p) {
+          switch (p.id) {
+            case 'm_shop':
+              S.铜钱 += 120; S.账房进度 += 1; S.商历练 += 1; S.体魄 -= 1; didEarn = true; S.商身份 = '学生意伙计';
+              log.push(['坐店学生意：铜钱+120、账房进度+1、商历练+1、体魄-1', 'good']);
+              break;
+            case 'm_run':
+              S.白银 += 1; S.商历练 += 2; S.体魄 -= 5; S.家族 -= 1; S.累计反哺银 += 1; didEarn = true; wentOut = true; S.商身份 = '外出跑单';
+              log.push(['跟号外出跑单：白银+1、商历练+2、体魄-5、家族-1', 'good']);
+              break;
+            case 'm_goods':
+              S.识货进度 += 1;
+              log.push(['认货辨价：识货进度+1', 'good']);
+              break;
+            case 'm_book':
+              S.铜钱 += 180; S.账房进度 += 1; S.商信誉 += 1; didEarn = true;
+              log.push(['识字帮核账：铜钱+180、账房进度+1、商信誉+1', 'good']);
+              break;
+            case 'm_try':
+              S.白银 -= 1; S.带本银 += 1; triedTrade = true;
+              log.push(['争取带本试贩：白银-1锁作本钱，待年终结账。', 'bad']);
+              break;
+            case 'm_home':
+              S.家族 += 4; S.存米 += 1;
+              log.push(['回乡省亲：家族+4、存米+1', 'good']);
+              break;
+            case 'm_rest':
+              S.体魄 += 5;
+              log.push(['歇养身子：体魄+5', 'good']);
+              break;
+          }
+        });
+
+        if (triedTrade) {
+          var r = rollProb([
+            { p: 0.35, r: 'flat' },
+            { p: 0.30, r: 'profit' },
+            { p: 0.20, r: 'loss' },
+            { p: 0.15, r: 'receivable' }
+          ]);
+          if (r === 'flat') {
+            S.白银 += S.带本银;
+            log.push(['〔试贩结账〕回本而已：锁定本钱如数回账。', 'good']);
+          } else if (r === 'profit') {
+            S.白银 += S.带本银 + 1; S.累计反哺银 += 1; didEarn = true;
+            log.push(['〔试贩结账〕小利：回本并净得白银+1。', 'good']);
+          } else if (r === 'loss') {
+            S.商路亏折 += 1;
+            log.push(['〔试贩结账〕货价不利，本钱亏折1两。', 'bad']);
+          } else {
+            S.未回款银 += S.带本银;
+            log.push(['〔试贩结账〕货已走出但银未回：记未回款，不入现钱。', 'bad']);
+          }
+          S.带本银 = 0;
+        }
+
+        var mouths = wentOut ? 1 : 2;
+        if (S.存米 >= mouths) {
+          S.存米 -= mouths;
+          log.push(['〔口粮〕这一商年口粮计 ' + mouths + ' 石（存米-' + mouths + '）', 'bad']);
+        } else {
+          var lack = mouths - S.存米;
+          S.存米 = 0;
+          if (S.铜钱 >= lack * 350) {
+            S.铜钱 -= lack * 350;
+            log.push(['〔口粮〕家中米不够，籴米补口粮：铜钱-' + (lack * 350), 'bad']);
+          } else {
+            S.负债银 += lack;
+            S.体魄 -= 4;
+            log.push(['〔口粮〕商路也补不上口粮缺口，只得举债糊口（负债+' + lack + '两、体魄-4）', 'bad']);
+          }
+        }
+        if (Math.random() < 0.35) {
+          if (S.铜钱 >= 200) {
+            S.铜钱 -= 200;
+            log.push(['〔赋役〕本户轮到差役，拿铜钱200文找人顶上', 'bad']);
+          } else {
+            S.体魄 -= 6; S.家族 -= 2;
+            log.push(['〔赋役〕无钱代役，只得误业亲身应付差役（体魄-6、家族-2）', 'bad']);
+          }
+        }
+        if (S.负债银 > 0) {
+          var oldDebt = S.负债银;
+          var interest = Math.ceil(oldDebt * DEBT_RATE);
+          S.负债银 += interest;
+          log.push(['〔债息〕旧债 ' + oldDebt + ' 两滚息 ' + interest + ' 两（负债→' + S.负债银 + '）', 'bad']);
+        }
+        if (!didEarn) {
+          S.家族 -= 3;
+          log.push(['这一年没真正挣出可用商路收入，家里难免焦躁（家族-3）。', 'bad']);
+        }
+
+        clampAttr('体魄'); clampAttr('家族');
+        if (S.商年 < MERCHANT_YEARS) {
+          curStage.next = 'merchant';
+          curStage.nextLabel = '再过一年学生意 →';
+          S._advanceMerchantYear = true;
+        } else {
+          curStage.next = 'marriage';
+          curStage.nextLabel = '攒着商路底子去议亲 →';
+          S.年龄 = 20;
+        }
+      }
+    };
+  }
+
+  // ── 读书应举（16-18岁）：供读/保结/童试/优免 ──
+  function stageCivilExam() {
+    var age = 16 + (S.举业年 - 1);
+    return {
+      title: '读书应举 · 第' + S.举业年 + '举业年', label: '举业第' + S.举业年 + '年',
+      next: 'civilExam', nextLabel: (S.举业年 < EXAM_YEARS ? '再过一年举业 →' : '带着这三年账本去议亲 →'),
+      ap: 4, commitLabel: '了这一年举业 →',
+      note: '首版把举业压成“三年循环”：先接束脩纸墨、保结资格、童试层级、生员优免与识字转业底子，不展开乡试会试。',
+      narrative: '你已<span class="em">' + age + '岁</span>。这一年你有 <span class="em">4 个行动点</span>，要在束脩纸墨、保结资格、备试火候、家中口粮与转业退路之间分配。供读不推出录取；不下场，就没有资历流入。',
+      dossier: function () {
+        return lifeDossier('童试层级=' + S.童试层级 + '｜保结进度=' + S.保结进度 + '｜文章火候=' + S.文章火候 + '｜供读状态=' + S.供读状态 + (S.生员身份 ? '｜已是生员' : '') + '。');
+      },
+      events: [
+        { t: 'rel', tag: '[供读]', txt: '父、兄、母、塾师、廪保都不是默认帮手。家里肯不肯继续供，塾师肯不肯续教，都要单独成立。' },
+        { t: 'rand', tag: '[资格]', txt: '这一年你会同时撞上：束脩纸墨、保结人情、赴考盘缠、里甲赋役和旧债滚息。科举不是一次考试，而是一整年的资源挤压。' }
+      ],
+      prompt: '这一举业年怎么过？（分配 4 点）',
+      actions: function () {
+        var A = [];
+        A.push({ id: 'e_tutor', name: '入塾继续备试', cost: 2, eff: '文章火候+2·成本档+2·供读压力+1', desc: '继续给塾师束脩，专心读四书、练破题。', can: S.供读状态 !== '已断供', once: true });
+        A.push({ id: 'e_half', name: '半耕半读', cost: 1, eff: '文章火候+1·存米+1·体魄-1', desc: '农忙帮家里、农闲备试，减轻供读压力，但推进更慢。', can: true });
+        A.push({ id: 'e_school', name: '投社学/寄读', cost: 1, eff: '成本档+1·文章火候+1', desc: '改走低成本读书入口，是否稳定只当玩法占位。', can: S.供读状态 !== '已断供', once: true });
+        A.push({ id: 'e_essay', name: '请塾师评文改卷', cost: 1, eff: '文章火候+1·成本档+1', desc: '再花一点纸墨和人情，求文章更稳。', can: S.供读状态 !== '已断供' });
+        A.push({ id: 'e_guarantee', name: '奔走保结与报名', cost: 1, eff: '保结进度+1·铜钱-80', desc: '资格不通，本年就算想下场也不成。', can: !S.生员身份 && S.铜钱 >= 80, why: !S.生员身份 ? (S.铜钱 >= 80 ? '' : '铜钱不足80文') : '已是生员', once: true });
+        A.push({ id: 'e_exam', name: '下场应童试', cost: 2, eff: '触发童试结果·盘缠档+1', desc: '只有保结通了、这一年又真下了功夫，才值得去撞一撞。', can: !S.生员身份 && S.保结进度 >= 1 && S.供读状态 !== '已断供', why: !S.生员身份 ? (S.保结进度 >= 1 ? (S.供读状态 !== '已断供' ? '' : '家中已断供') : '保结未通') : '已是生员', once: true });
+        A.push({ id: 'e_copy', name: '抄书/看账补贴', cost: 1, eff: '铜钱+150·识字转业值+1', desc: '就算不中，识字和抄写也能慢慢攒成日后转账房/书手的底子。', can: S.识字, why: S.识字 ? '' : '尚不识字' });
+        A.push({ id: 'e_home', name: '回家帮父与缓冲家计', cost: 1, eff: '家族+3·存米+1·供读压力-1', desc: '这一年少读一点，先让家里这口锅别翻。', can: true, once: true });
+        return A;
+      },
+      settle: function (log) {
+        var didStudy = false, progressed = false;
+        S.本年下场 = false;
+        lifePicks.forEach(function (p) {
+          switch (p.id) {
+            case 'e_tutor':
+              S.文章火候 += 2; S.读书成本档 += 2; S.供读压力 += 1; S.读书方式 = '塾馆'; didStudy = true;
+              log.push(['入塾继续备试：文章火候+2、成本档+2、供读压力+1', 'good']);
+              break;
+            case 'e_half':
+              S.文章火候 += 1; S.存米 += 1; S.体魄 -= 1; S.读书方式 = '半耕半读'; didStudy = true;
+              log.push(['半耕半读：文章火候+1、存米+1、体魄-1', 'good']);
+              break;
+            case 'e_school':
+              S.文章火候 += 1; S.读书成本档 += 1; S.读书方式 = '社学寄读'; didStudy = true;
+              log.push(['投社学/寄读：文章火候+1、成本档+1', 'good']);
+              break;
+            case 'e_essay':
+              S.文章火候 += 1; S.读书成本档 += 1; didStudy = true;
+              log.push(['请塾师评文改卷：文章火候+1、成本档+1', 'good']);
+              break;
+            case 'e_guarantee':
+              S.保结进度 = Math.min(1, S.保结进度 + 1); S.铜钱 -= 80;
+              log.push(['奔走保结与报名：保结进度+1、铜钱-80', 'bad']);
+              break;
+            case 'e_exam':
+              S.本年下场 = true; S.读书成本档 += 1;
+              log.push(['你决定这一年下场试一次：盘缠成本再记一档。', 'good']);
+              break;
+            case 'e_copy':
+              S.铜钱 += 150; S.识字转业值 += 1; S.文章火候 += 1;
+              log.push(['抄书/看账补贴：铜钱+150、识字转业值+1、文章火候+1', 'good']);
+              break;
+            case 'e_home':
+              S.家族 += 3; S.存米 += 1; S.供读压力 = Math.max(0, S.供读压力 - 1);
+              log.push(['回家帮父与缓冲家计：家族+3、存米+1、供读压力-1', 'good']);
+              break;
+          }
+        });
+
+        if (S.本年下场) {
+          if (S.保结进度 < 1) {
+            log.push(['〔资格闸〕本年保结未通，终究没能真正下场。', 'bad']);
+          } else {
+            var chance = 0.12 + S.文章火候 * 0.08 + (S.读书方式 === '塾馆' ? 0.08 : 0) + (S.读书方式 === '社学寄读' ? 0.03 : 0);
+            chance = Math.max(0.08, Math.min(0.78, chance));
+            if (Math.random() < chance && S.童试层级 < 3) {
+              S.童试层级 += 1; progressed = true;
+              if (S.童试层级 >= 3) {
+                S.童试层级 = 3;
+                S.生员身份 = true; S.生员层级 = '生员'; S.优免启用 = true; S.身份 = '民籍·生员';
+                log.push(['〔院试中式〕你这一年终于冲过童试最后一关，成了生员。', 'good']);
+              } else {
+                log.push(['〔童试推进〕这一年应试有进：童试层级升到第 ' + S.童试层级 + ' 层。', 'good']);
+              }
+            } else {
+              log.push(['〔应试未进〕你下了场，但这一年未能再推进一层。', 'bad']);
+            }
+          }
+        }
+
+        var studyCost = S.读书成本档 * 120;
+        if (studyCost > 0) {
+          if (S.铜钱 >= studyCost) {
+            S.铜钱 -= studyCost;
+            log.push(['〔束脩纸墨〕本年读书成本结算：铜钱-' + studyCost, 'bad']);
+          } else {
+            var left = studyCost - S.铜钱;
+            S.铜钱 = 0;
+            var silverNeed = Math.ceil(left / 300);
+            if (S.白银 >= silverNeed) {
+              S.白银 -= silverNeed;
+              log.push(['〔束脩纸墨〕铜钱不够，改从白银支出 ' + silverNeed + ' 两。', 'bad']);
+            } else {
+              var gap = silverNeed - S.白银;
+              S.白银 = 0; S.负债银 += gap;
+              log.push(['〔束脩纸墨〕供读链吃紧，读书成本最终压成债（负债+' + gap + '两）。', 'bad']);
+            }
+          }
+        }
+
+        var mouths = (S.读书方式 === '社学寄读') ? 1 : 2;
+        if (S.存米 >= mouths) {
+          S.存米 -= mouths;
+          log.push(['〔口粮〕这一举业年口粮计 ' + mouths + ' 石（存米-' + mouths + '）', 'bad']);
+        } else {
+          var lack = mouths - S.存米;
+          S.存米 = 0;
+          if (S.铜钱 >= lack * 350) {
+            S.铜钱 -= lack * 350;
+            log.push(['〔口粮〕家中米不够，籴米补口粮：铜钱-' + (lack * 350), 'bad']);
+          } else {
+            S.负债银 += lack;
+            S.体魄 -= 4;
+            log.push(['〔口粮〕读书也照样吃饭，家里只得举债糊口（负债+' + lack + '两、体魄-4）', 'bad']);
+          }
+        }
+
+        if (Math.random() < 0.35) {
+          if (S.优免启用) {
+            if (S.铜钱 >= 80) { S.铜钱 -= 80; log.push(['〔赋役〕因已是生员，本年差徭外流减轻，只花铜钱80文代役。', 'good']); }
+            else { log.push(['〔赋役〕因已是生员，本年差徭外流减轻，但并非一文不出。', 'good']); }
+          } else if (S.铜钱 >= 200) {
+            S.铜钱 -= 200;
+            log.push(['〔赋役〕本户轮到差役，拿铜钱200文找人顶上。', 'bad']);
+          } else {
+            S.体魄 -= 5; S.家族 -= 2;
+            log.push(['〔赋役〕无钱代役，只得误业应付差役（体魄-5、家族-2）。', 'bad']);
+          }
+        }
+        if (S.负债银 > 0) {
+          var oldDebt = S.负债银;
+          var interest = Math.ceil(oldDebt * DEBT_RATE);
+          S.负债银 += interest;
+          log.push(['〔债息〕旧债 ' + oldDebt + ' 两滚息 ' + interest + ' 两（负债→' + S.负债银 + '）', 'bad']);
+        }
+
+        if (!progressed && !S.生员身份 && didStudy) {
+          S.供读压力 += 1;
+          log.push(['这一年供读有投入却未见推进，家里继续供你的压力又重了一层。', 'bad']);
+        }
+        if (S.供读压力 >= 4) S.供读状态 = '已断供';
+        else if (S.供读压力 >= 2) S.供读状态 = '断供边缘';
+        else if (S.生员身份) S.供读状态 = '生员在案';
+        else S.供读状态 = '家中供读';
+
+        clampAttr('体魄'); clampAttr('家族');
+        if (S.举业年 < EXAM_YEARS) {
+          curStage.next = 'civilExam';
+          curStage.nextLabel = '再过一年举业 →';
+          S._advanceExamYear = true;
+        } else {
+          if (S.生员身份) S.举业结局 = '成生员';
+          else if (S.供读状态 === '已断供') S.举业结局 = '断供改路';
+          else if (S.识字转业值 >= 2) S.举业结局 = '屡试未第';
+          else S.举业结局 = '仍是童生';
+          curStage.next = 'marriage';
+          curStage.nextLabel = '带着这三年账本去议亲 →';
           S.年龄 = 20;
         }
       }
