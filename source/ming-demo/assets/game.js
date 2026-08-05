@@ -174,14 +174,44 @@
   }
 
   // ── 随机工具 ──────────────────────────────────
+  var _rngQueue = [];
+  var _rngState = null;
+  function normalizeRandValue(v) {
+    var n = Number(v);
+    if (!isFinite(n)) return 0.5;
+    if (n <= 0) return 0;
+    if (n >= 1) return 0.999999;
+    return n;
+  }
+  function setRandomSequence(seq) {
+    _rngQueue = Array.isArray(seq) ? seq.map(normalizeRandValue) : [];
+  }
+  function setRandomSeed(seed) {
+    if (seed == null || seed === '') { _rngState = null; return; }
+    var n = Number(seed);
+    if (!isFinite(n)) n = 1;
+    _rngState = (Math.abs(Math.floor(n)) || 1) >>> 0;
+  }
+  function clearRandomControls() {
+    _rngQueue = [];
+    _rngState = null;
+  }
+  function rand() {
+    if (_rngQueue.length) return _rngQueue.shift();
+    if (_rngState !== null) {
+      _rngState = (_rngState * 1664525 + 1013904223) >>> 0;
+      return _rngState / 4294967296;
+    }
+    return Math.random();
+  }
   function pickWeighted(arr) {
-    var sum = arr.reduce(function (a, b) { return a + b.w; }, 0), r = Math.random() * sum;
+    var sum = arr.reduce(function (a, b) { return a + b.w; }, 0), r = rand() * sum;
     for (var i = 0; i < arr.length; i++) { r -= arr[i].w; if (r <= 0) return arr[i]; }
     return arr[arr.length - 1];
   }
   // 概率表 [{p:0.6,r:'safe'},...] p 之和应=1，返回命中的 r
   function rollProb(table) {
-    var r = Math.random(), acc = 0;
+    var r = rand(), acc = 0;
     for (var i = 0; i < table.length; i++) { acc += table[i].p; if (r <= acc) return table[i].r; }
     return table[table.length - 1].r;
   }
@@ -202,6 +232,29 @@
   function inheritedCarryNote(carry) {
     var tags = inheritedCarryTags(carry);
     return tags.length ? ('上一代还给这一房留下：' + tags.join('、') + '。') : '';
+  }
+  function routeEntryHook(routeKey, carry) {
+    if (!carry) return '';
+    var hints = [];
+    if (routeKey === 'wage') {
+      if ((carry.家传手艺 || 0) > 0) hints.push('一上手就有熟活可跟');
+      if ((carry.城里门路 || 0) > 0) hints.push('外出寻工不至全凭陌生脸');
+      if ((carry.家传书香 || 0) > 0) hints.push('识字核账更不易吃闷亏');
+    } else if (routeKey === 'apprentice') {
+      if ((carry.城里门路 || 0) > 0) hints.push('求师说合会更快坐实');
+      if ((carry.商路门路 || 0) > 0) hints.push('认货记账不是全然白手');
+      if ((carry.家传手艺 || 0) > 0) hints.push('上手守店比寻常学徒更快');
+    } else if (routeKey === 'merchant') {
+      if ((carry.商路门路 || 0) > 0) hints.push('进号就能接上旧识和账面门道');
+      if ((carry.城里门路 || 0) > 0) hints.push('在城里更容易找到落脚与牙口');
+      if ((carry.家传书香 || 0) > 0) hints.push('抄单核账起步更顺');
+      if ((carry.亦贾亦儒底子 || 0) > 0) hints.push('家里对商路反哺供读并不陌生');
+    } else if (routeKey === 'civilExam') {
+      if ((carry.家传书香 || 0) > 0) hints.push('识字、文章和保结起步更顺');
+      if ((carry.商路门路 || 0) > 0) hints.push('商路旧识更容易替你递条子、垫几步人情');
+      if ((carry.亦贾亦儒底子 || 0) > 0) hints.push('家里更知道怎么先供几年书');
+    }
+    return hints.length ? ('上一代余绪会先替你垫这几步：' + hints.join('；') + '。') : '';
   }
   function currentFamilySnapshotText() {
     if (generation <= 1 || !carryOver) {
@@ -297,6 +350,10 @@
         S.家族 += 1; clampAttr('家族');
         notes.push('父辈在城里留过几层熟识，外出谋工不至全凭陌生脸');
       }
+      if (S.家传书香 > 0 && !S.识字) {
+        S.识字 = true; S.识字进度 = Math.max(1, S.识字进度);
+        notes.push('家里剩下的一点书香，让你做雇工时起码看得懂工账和契字');
+      }
     } else if (routeKey === 'apprentice' && !S._apprenticeLegacyApplied) {
       S._apprenticeLegacyApplied = true;
       if (S.城里门路 > 0 && S.学徒合同 === '未议') {
@@ -308,6 +365,14 @@
         S.学徒授艺度 = Math.max(S.学徒授艺度, 1);
         notes.push('家里认得一点商路门道，你认货记账不再完全白手起家');
       }
+      if (S.家传手艺 > 0) {
+        S.学徒历练 = Math.max(S.学徒历练, 1);
+        notes.push('父辈留下的一层手艺，让你守店看活时不至完全手生');
+      }
+      if (S.家传书香 > 0 && !S.识字) {
+        S.识字 = true; S.识字进度 = Math.max(1, S.识字进度);
+        notes.push('家里还有一点书香底子，你抄单认货时更容易上手');
+      }
     } else if (routeKey === 'merchant' && !S._merchantLegacyApplied) {
       S._merchantLegacyApplied = true;
       if (S.商路门路 > 0) {
@@ -315,9 +380,18 @@
         S.商信誉 = Math.max(S.商信誉, S.商路门路);
         notes.push('父辈留下的商路旧识与账面门道，让你一上来就能看懂些账、认得些人');
       }
+      if (S.城里门路 > 0) {
+        S.识货进度 = Math.max(S.识货进度, 1);
+        notes.push('父辈在城里留过熟识，你进号落脚、认牙行都少走几步弯路');
+      }
       if (S.家传书香 > 0 && !S.识字) {
         S.识字 = true; S.识字进度 = Math.max(2, S.识字进度);
         notes.push('屋里剩下的旧书和识字家风，让你不至于做个全然不识字的跑腿');
+      }
+      if (S.亦贾亦儒底子 > 0) {
+        S.账房进度 = Math.max(S.账房进度, 1);
+        S.家族 += 1; clampAttr('家族');
+        notes.push('这一房早已习惯商路反哺、供读分工，你既会跑路，也更知道怎样把现钱送回家里');
       }
     } else if (routeKey === 'civilExam' && !S._examLegacyApplied) {
       S._examLegacyApplied = true;
@@ -330,9 +404,14 @@
         S.保结进度 = Math.max(S.保结进度, 1);
         notes.push('父辈遗下的师承与书香，使你这一代赴考资格和起步火候都更顺一层');
       }
+      if (S.商路门路 > 0) {
+        S.保结进度 = Math.max(S.保结进度, 1);
+        notes.push('商路上的旧识未必识文，却更容易替你递人情、补几层说合门路');
+      }
       if (S.亦贾亦儒底子 > 0) {
+        S.供读压力 = Math.max(0, S.供读压力 - 1);
         S.家族 += 1; clampAttr('家族');
-        notes.push('这一房已有亦贾亦儒的旧念头，家里对先供几年书这条路不算全然陌生');
+        notes.push('这一房已有亦贾亦儒的旧念头，家里对先供几年书这条路不算全然陌生，供读压力也轻了一线');
       }
     }
     return notes;
@@ -359,7 +438,7 @@
     if (S.已插秧 && xunIndex >= 2 && xunIndex < HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[农时]', txt: '禾苗生长中，需时时看水、除草。当前生长 ' + S.秧苗进度 + '/' + GROW_TARGET + '。' });
     if (xunIndex === HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[农时]', txt: '夏至已过，稻谷成熟，正是收割之时！秋收之后便是<b>年终结账</b>：佃租照约要缴、全家口粮照吃，缴不出便得折银举债，甚至被夺佃——由不得你选。' });
     if (xunIndex === 3 && S.母出工) curEvents.push({ t: 'rel', tag: '[关系]', txt: '母亲腰痛加重。若这一旬去照护，可稳住她的身子（家族+4），否则她将无法帮工。' });
-    S._米价 = (Math.random() < 0.5) ? '低' : '高';
+    S._米价 = (rand() < 0.5) ? '低' : '高';
     curEvents.push({ t: 'rand', tag: '[随机]', txt: '米行传来消息：今旬新米价走' + S._米价 + '。' + (S._米价 === '高' ? '若有余米，正是好价钱（1石≈550文）。' : '此时卖米不划算（1石≈350文），可压仓。') });
   }
 
@@ -608,7 +687,7 @@
     else if (ratio >= 0.4) { base = 3; reason = '照料不足，收成偏薄'; }
     else { base = 1; reason = '几近荒废，颗粒无几'; }
     if (hired) { base += 1; reason += '，雇工抢收减损'; }
-    var luck = Math.floor(Math.random() * 3) - 1; base += luck;
+    var luck = Math.floor(rand() * 3) - 1; base += luck;
     if (luck > 0) reason += '，年景好'; else if (luck < 0) reason += '，年景欠佳';
     if (base < 0) base = 0;
     return { mi: base, reason: reason };
@@ -642,7 +721,7 @@
       // 不足部分折银举债抵租
       S.负债银 += 欠; // 每欠1石米折银约1两举债（占位）
       log.push(['〔佃租〕存米仅 ' + 缴 + ' 石，不足租额 ' + S.租额石 + ' 石；欠 ' + 欠 + ' 石折银举债抵租（负债银+' + 欠 + '）', 'bad']);
-      if (Math.random() < RENT_SEIZE_P) {
+      if (rand() < RENT_SEIZE_P) {
         S.田亩 = Math.max(1, S.田亩 - 1);
         S.家族 -= 6;
         log.push(['〔夺佃〕两年欠租，地主收回佃田 1 亩、乡里失信（田亩-1、家族-6）——制度性风险，不是你的无能', 'bad']);
@@ -665,7 +744,7 @@
     }
 
     // ③ 里甲赋役：概率佥派，外生强制
-    if (Math.random() < CORVEE_P) {
+    if (rand() < CORVEE_P) {
       var 免 = S.识字;
       if (免 && S.铜钱 >= 200) { S.铜钱 -= 200; log.push(['〔赋役〕本甲轮派差役，识字应吏、纳银代役 200 文脱身（铜钱-200）', 'warn']); }
       else if (S.白银 >= 1) { S.白银 -= 1; log.push(['〔赋役〕本甲轮派差役，纳银 1 两代役（白银-1）', 'bad']); }
@@ -978,6 +1057,10 @@
     if (S.技艺 !== '无') 底子.push('有手艺傍身（乱世多一条退路）');
     if (S.农事历练 >= 3) 底子.push('农活扎实');
     if (S.家务历练 >= 3) 底子.push('家务麻利');
+    if (generation > 1 && carryOver) {
+      if ((carryOver.承嗣来路 || '') === '旁支过继') 底子.push('这一房是旁支接祧起家（门路比本支更薄一层）');
+      if (S.负债银 > 0) 底子.push('家里还背着旧债（起手更紧）');
+    }
     inheritedCarryTags(carryOver).forEach(function (x) { 底子.push(x); });
     return 底子;
   }
@@ -1330,7 +1413,7 @@
         {
           name: '路径二 · 受雇长工 / 短工',
           gain: '进入三工年受雇循环（16→18岁）',
-          note: '不守这几亩田，去替经营型地主和市镇东家出力挣工食。长工有管饭和年工银，短工日结快但失工频繁。',
+          note: '不守这几亩田，去替经营型地主和市镇东家出力挣工食。长工有管饭和年工银，短工日结快但失工频繁。' + (generation > 1 ? ' ' + routeEntryHook('wage', carryOver) : ''),
           run: function (log) {
             curStage.next = 'wage'; curStage.nextLabel = '去谋第一年工食 →'; S.路线 = '受雇长工/短工';
             log.push(['你决定先把工食挣出来：这一路已接入首版三工年循环。', 'good']);
@@ -1341,7 +1424,7 @@
         {
           name: '路径三 · 入城学徒',
           gain: '进入三学年学徒循环（16→18岁）',
-          note: '先接商铺学徒主干：求师、作保、立据、守店、学货、留店/被辞/退师。条款细节仍为玩法占位，不冒充明代精确契约。',
+          note: '先接商铺学徒主干：求师、作保、立据、守店、学货、留店/被辞/退师。条款细节仍为玩法占位，不冒充明代精确契约。' + (generation > 1 ? ' ' + routeEntryHook('apprentice', carryOver) : ''),
           run: function (log) {
             curStage.next = 'apprentice'; curStage.nextLabel = '去投第一年学徒 →'; S.路线 = '入城学徒';
             log.push(['你决定先去城里投师：这一路已接入首版三学年循环。', 'good']);
@@ -1351,7 +1434,7 @@
         {
           name: '路径四 · 徽商式亦贾亦儒',
           gain: '进入三商年学生意循环（16→18岁）',
-          note: '首版先做“随号学生意 + 少量带本试贩 + 年终结账”，把未回款、反哺银、原籍赋役先接进运行时。',
+          note: '首版先做“随号学生意 + 少量带本试贩 + 年终结账”，把未回款、反哺银、原籍赋役先接进运行时。' + (generation > 1 ? ' ' + routeEntryHook('merchant', carryOver) : ''),
           run: function (log) {
             curStage.next = 'merchant'; curStage.nextLabel = '去学生意 →'; S.路线 = '徽商式亦贾亦儒';
             log.push(['你决定投族叔商号学生意：这一路已接入首版三商年循环。', 'good']);
@@ -1361,7 +1444,7 @@
         {
           name: '路径五 · 读书应举',
           gain: '进入三举业年循环（16→18岁）',
-          note: '首版先接束脩纸墨、保结资格、童试层级、生员优免与屡试未第后的转业底子，不展开乡试会试。',
+          note: '首版先接束脩纸墨、保结资格、童试层级、生员优免与屡试未第后的转业底子，不展开乡试会试。' + (generation > 1 ? ' ' + routeEntryHook('civilExam', carryOver) : ''),
           run: function (log) {
             curStage.next = 'civilExam'; curStage.nextLabel = '去走第一年举业 →'; S.路线 = '读书应举';
             log.push(['你决定先把这一户有限的资源压到读书上：这一路已接入首版三举业年循环。', 'good']);
@@ -1465,7 +1548,7 @@
         }
 
         // 里甲赋役：外生强制
-        if (Math.random() < 0.35) {
+        if (rand() < 0.35) {
           if (S.铜钱 >= 200) {
             S.铜钱 -= 200;
             log.push(['〔赋役〕本户轮到差役，拿铜钱200文找人顶上（铜钱-200）', 'bad']);
@@ -1604,7 +1687,7 @@
         if (S.学徒合同 === '已立据' && !quit) {
           if (S.学年 < APPRENTICE_YEARS) {
             var keepChance = Math.max(0.25, Math.min(0.85, 0.45 + S.学徒信任 * 0.08 + S.学徒授艺度 * 0.06));
-            if (Math.random() > keepChance) {
+            if (rand() > keepChance) {
               S.学徒阶段 = '被辞'; S.学徒去向 = '归乡';
               S.家族 -= 2;
               log.push(['〔去留〕师傅觉得你还不值继续留用，你被辞了出来（家族-2）。', 'bad']);
@@ -1620,13 +1703,13 @@
             var outChance = canKeepShop ? Math.max(0.15, Math.min(0.90, 0.20 + S.学徒授艺度 * 0.12 + S.学徒信任 * 0.08 + (askedKeep ? 0.10 : 0))) : 0;
             var shiftChance = Math.max(0.12, Math.min(0.80, 0.18 + S.学徒授艺度 * 0.10 + S.学徒历练 * 0.05 + (askedShift ? 0.12 : 0)));
             var tradeChance = Math.max(0.10, Math.min(0.78, 0.16 + S.学徒授艺度 * 0.08 + S.学徒历练 * 0.06 + (S.识字 ? 0.06 : 0) + (askedTrade ? 0.12 : 0)));
-            if (Math.random() < outChance) {
+            if (rand() < outChance) {
               S.学徒阶段 = '留店伙计'; S.学徒去向 = '留店伙计'; S.学徒历练 += 1; S.铜钱 += 200;
               log.push(['〔去向〕三年熬下来，师傅愿把你留下做伙计：铜钱+200。', 'good']);
-            } else if (askedTrade && Math.random() < tradeChance) {
+            } else if (askedTrade && rand() < tradeChance) {
               S.学徒阶段 = '未出师'; S.学徒去向 = '随行商'; S.学徒历练 += 1; S.商历练 += 1; S.商信誉 += 1; S.铜钱 += 120;
               log.push(['〔去向〕本店没留你，但你借着师门门路转去跟货学生意：铜钱+120、商路历练+1。', 'good']);
-            } else if (askedShift && Math.random() < shiftChance) {
+            } else if (askedShift && rand() < shiftChance) {
               S.学徒阶段 = '未出师'; S.学徒去向 = '店铺做工'; S.学徒历练 += 1; S.铜钱 += 150;
               log.push(['〔去向〕虽未留原店，你还是带着门道去别家店里坐了店工：铜钱+150。', 'good']);
             } else {
@@ -1655,7 +1738,7 @@
             log.push(['〔口粮〕学徒一年也照样要吃饭，银钱不够，只得举债（负债+' + lack + '两、体魄-4）', 'bad']);
           }
         }
-        if (Math.random() < 0.30) {
+        if (rand() < 0.30) {
           if (S.铜钱 >= 160) {
             S.铜钱 -= 160;
             log.push(['〔赋役〕本户轮到差役，家里拿铜钱160文找人顶上', 'bad']);
@@ -1792,7 +1875,7 @@
             log.push(['〔口粮〕商路也补不上口粮缺口，只得举债糊口（负债+' + lack + '两、体魄-4）', 'bad']);
           }
         }
-        if (Math.random() < 0.35) {
+        if (rand() < 0.35) {
           if (S.铜钱 >= 200) {
             S.铜钱 -= 200;
             log.push(['〔赋役〕本户轮到差役，拿铜钱200文找人顶上', 'bad']);
@@ -1901,7 +1984,7 @@
           } else {
             var chance = 0.12 + S.文章火候 * 0.08 + (S.读书方式 === '塾馆' ? 0.08 : 0) + (S.读书方式 === '社学寄读' ? 0.03 : 0);
             chance = Math.max(0.08, Math.min(0.78, chance));
-            if (Math.random() < chance && S.童试层级 < 3) {
+            if (rand() < chance && S.童试层级 < 3) {
               S.童试层级 += 1; progressed = true;
               if (S.童试层级 >= 3) {
                 S.童试层级 = 3;
@@ -1953,7 +2036,7 @@
           }
         }
 
-        if (Math.random() < 0.35) {
+        if (rand() < 0.35) {
           if (S.优免启用) {
             if (S.铜钱 >= 80) { S.铜钱 -= 80; log.push(['〔赋役〕因已是生员，本年差徭外流减轻，只花铜钱80文代役。', 'good']); }
             else { log.push(['〔赋役〕因已是生员，本年差徭外流减轻，但并非一文不出。', 'good']); }
@@ -2422,6 +2505,7 @@
         legacy.商路门路 = Math.max(0, legacy.商路门路 - 1);
         legacy.家传书香 = Math.max(0, legacy.家传书香 - 1);
         legacy.家传手艺 = Math.max(0, legacy.家传手艺 - 1);
+        legacy.亦贾亦儒底子 = Math.max(0, legacy.亦贾亦儒底子 - 1);
       }
       return legacy;
     }
@@ -2492,6 +2576,13 @@
     renderStatus(); renderStage(); renderLedger();
     window.scrollTo({ top: 0 });
   }
+  function restartFromCarry(carry, gen) {
+    generation = Math.max(2, gen || 2);
+    carryOver = carry || null;
+    initState(carryOver);
+    renderStatus(); renderStage(); renderLedger();
+    window.scrollTo({ top: 0 });
+  }
 
   // ── 流水账渲染 ───────────────────────────────────
   function fmtD(o) {
@@ -2552,10 +2643,14 @@
     window.__MING_TEST_API = {
       restart: restart,
       restartWithHeir: startNextGeneration,
+      restartFromCarry: restartFromCarry,
       getState: function () { return JSON.parse(JSON.stringify(S)); },
       getPhase: function () { return phase; },
       getGeneration: function () { return generation; },
       getCarryOver: function () { return carryOver ? JSON.parse(JSON.stringify(carryOver)) : null; },
+      setRandomSequence: function (seq) { setRandomSequence(seq); return true; },
+      setRandomSeed: function (seed) { setRandomSeed(seed); return true; },
+      clearRandomControls: function () { clearRandomControls(); return true; },
       getStageTitle: function () { return curStage ? curStage.title : curLabel(); },
       getStageAP: function () {
         if (phase === 'childhood') return CHILD_AP;
@@ -2564,10 +2659,10 @@
         return 0;
       },
       getAvailableActions: function () {
-        if (phase === 'childhood') return childActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false, cost: a.cost || 0, why: a.why || '', eff: a.eff || '' }; });
-        if (phase === 'farm') return availableActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false, cost: a.cost || 0, why: a.why || '', eff: a.eff || '' }; });
-        if (curStage && curStage.actions) return lifeActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false, cost: a.cost || 0, why: a.why || '', eff: a.eff || '' }; });
-        if (curStage && curStage.choices) return curStage.choices.map(function (c, i) { return { id: i, name: c.name, can: c.can !== false, cost: 0, why: '', eff: c.gain || '' }; });
+        if (phase === 'childhood') return childActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false, cost: a.cost || 0, once: !!a.once, why: a.why || '', eff: a.eff || '' }; });
+        if (phase === 'farm') return availableActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false, cost: a.cost || 0, once: !!a.once, why: a.why || '', eff: a.eff || '' }; });
+        if (curStage && curStage.actions) return lifeActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false, cost: a.cost || 0, once: !!a.once, why: a.why || '', eff: a.eff || '' }; });
+        if (curStage && curStage.choices) return curStage.choices.map(function (c, i) { return { id: i, name: c.name, can: c.can !== false, cost: 0, once: true, why: '', eff: c.gain || '' }; });
         return [];
       },
       getLifeProfile: function () { return JSON.parse(JSON.stringify(currentLifeProfile())); },
@@ -2589,6 +2684,7 @@
         else handlePNext();
         return true;
       },
+      enterPhase: function (p) { enterPhase(p); return true; },
       choose: function (index) { resolveChoice(index); return true; },
       chooseByName: function (name) {
         if (!curStage || !curStage.choices) return false;
