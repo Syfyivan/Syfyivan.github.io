@@ -400,7 +400,7 @@ sup a:hover{text-decoration:underline;}
   <p class="lead">路线逻辑：<strong>从北向南追着秋天走，但把价值更多放在公路、大地风景和沿途地貌本身</strong>。G7的大漠、北疆金秋公路、独库公路、帕米尔、新藏线G219、阿里荒原、珠峰沿线、滇藏线和川西高原，本身就是这条线最值钱的部分；莫高窟、布达拉宫等高规则高门票景区改成可选，不再决定主线节奏。</p>
 
   <div id="route-map">
-    <img src="assets/china_route.png" alt="北京→新疆→西藏→云南→川西自驾路线图" style="width:100%;height:auto;display:block;border-radius:8px;">
+    <img src="assets/china_route_landscape.svg" alt="72天免费大地风景优先版路线示意图" style="width:100%;height:auto;display:block;border-radius:8px;">
   </div>
   <div class="map-legend" style="max-width:500px;margin:-10px auto 20px">
     <b>路线分段颜色</b><br>
@@ -410,7 +410,7 @@ sup a:hover{text-decoration:underline;}
     <span style="color:#229954">━━━</span> 新藏线+西藏段（G219→阿里→拉萨→林芝）<br>
     <span style="color:#2980b9">━━━</span> 滇藏线+云南段（然乌→梅里→雨崩→丽江）<br>
     <span style="color:#8B5E3C">━━━</span> 川西返程段（稻城亚丁→新都桥→成都→西安→北京）<br>
-    <small style="color:var(--muted)">标准中国地图底图，6种颜色分段标注路线，主要城市均有标记。</small>
+    <small style="color:var(--muted)">新版改为分段示意图：更准确表达当前路线骨架和价值排序，减少旧底图误导。</small>
   </div>
 
   <div class="diagram">
@@ -835,7 +835,7 @@ flowchart LR
         <div class="segment-meta">D34-D43（10月21-30日）· 约2,500km · 拉萨段共4天（含休整3天） · 日均250km</div>
       </div>
     </div>
-    <p>从塔尔钦东行，经G219到萨嘎，远眺希夏邦马峰和佩枯措，到珠峰大本营看世界之巅，再经日喀则扎什伦布寺到圣城拉萨。拉萨段共4天，其中D38-D40为休整3天，随后走林拉高速到"西藏江南"林芝，经G318到然乌湖。</p>
+    <p>从塔尔钦东行，经G219到萨嘎，远眺希夏邦马峰和佩枯措，到珠峰大本营看世界之巅，再经日喀则城市补给到拉萨。拉萨段共4天，其中D38-D40为休整3天，随后走林拉高速到"西藏江南"林芝，经G318到然乌湖。</p>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D34（10月21日）</span><span class="day-route">塔尔钦 → 萨嘎<span class="day-km">约450km</span></span></div>
       <div class="day-meta">G219 · 约8小时 · 住萨嘎（4500m）</div>
@@ -849,15 +849,15 @@ flowchart LR
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D37（10月24日）</span><span class="day-route">定日 → 日喀则 → 拉萨<span class="day-km">约380km</span></span></div>
       <div class="day-meta">G318/雅叶高速 · 约6小时 · 住拉萨（3650m）</div>
-      <div class="day-desc">上午扎什伦布寺（班禅驻锡地），下午到拉萨！终于到大城市，好好洗澡、吃顿好的。<strong>10月24日顺利在大雪封山前到达拉萨。</strong></div>
+      <div class="day-desc">上午在日喀则做城市补给和简单漫走，喜欢寺庙文化就进扎什伦布寺，不强求。下午到拉萨！终于到大城市，好好洗澡、吃顿好的。<strong>10月24日顺利在大雪封山前到达拉萨。</strong></div>
     </div>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D38-D40（10月25-27日）</span><span class="day-route">拉萨休整+周边（3天）</span></div>
       <div class="day-meta">住拉萨</div>
       <div class="day-desc"><span class="tag rest">休整日</span>
         <ul>
-          <li>布达拉宫（提前1-7天预约）、大昭寺、八廓街转经</li>
-          <li>色拉寺辩经、羊卓雍措一日游</li>
+          <li>八廓街慢走、甜茶馆坐坐、拉萨城市节奏恢复</li>
+          <li>如果你们真的想进：布达拉宫、大昭寺、色拉寺都可选，不再默认全做</li>
           <li>车辆保养（拉萨做一次保养，检查轮胎和刹车，换机油）</li>
           <li>补给物资、洗堆积的衣服、好好吃饭休息</li>
         </ul>
@@ -866,7 +866,7 @@ flowchart LR
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D41（10月28日）</span><span class="day-route">拉萨 → 林芝（八一镇）<span class="day-km">约400km</span></span></div>
       <div class="day-meta">林拉高速 · 约5小时 · 住林芝（2900m）</div>
-      <div class="day-desc">林拉高速全程高速到林芝（海拔降至2900m，"西藏江南"，一下子从高原到了森林氧吧，可以深呼吸了）。途中可去巴松措（湖心岛、雪山倒影）。</div>
+      <div class="day-desc">林拉高速全程高速到林芝（海拔降至2900m，"西藏江南"，一下子从高原到了森林氧吧，可以深呼吸了）。途中若状态和天气都好，可顺路进巴松措；否则保持高速直达林芝，把时间留给后面的免费大景。</div>
     </div>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D42（10月29日）</span><span class="day-route">林芝 → 鲁朗 → 波密<span class="day-km">约230km</span></span></div>
@@ -901,7 +901,7 @@ flowchart LR
         <h5>⚠️ 注意事项</h5>
         <ul>
           <li>珠峰大本营需要边防证（写上"西藏日喀则市"），提前办好</li>
-          <li>布达拉宫门票需提前1-7天在"布达拉宫票务预订系统"微信小程序预约，11月淡季相对好约</li>
+          <li>布达拉宫门票需提前1-7天在"布达拉宫票务预订系统"微信小程序预约，11月淡季相对好约；但新版里它是可选项，不是默认必做</li>
           <li>拉萨海拔3650m，刚到前2天不要洗澡、不要剧烈运动，等适应了再洗</li>
           <li>拉萨一定要做车辆保养（换机油、检查轮胎刹车），后面还有滇藏线和川西</li>
           <li>色季拉山口看南迦巴瓦峰，11月天高云淡看到概率很高，但也要看运气</li>
@@ -944,7 +944,7 @@ flowchart LR
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D46（11月2日）</span><span class="day-route">芒康 → 德钦飞来寺<span class="day-km">约220km</span></span></div>
       <div class="day-meta">G214 · 约5小时 · 住飞来寺</div>
-      <div class="day-desc">进入云南！经红拉山垭口、盐井古盐田（千年古盐田），到飞来寺——梅里雪山日照金山最佳观景位置。<strong>11月是看到日照金山概率最高的月份！</strong></div>
+      <div class="day-desc">进入云南！经红拉山垭口、盐井古盐田（千年古盐田），到飞来寺——梅里雪山日照金山最佳观景位置。<strong>这一段最值钱的依然是滇藏线本身和梅里雪山光线，不需要靠收费景区撑体验。</strong></div>
     </div>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D47（11月3日）</span><span class="day-route">飞来寺（日照金山）→ 西当 → 雨崩<span class="day-km">约60km+越野车</span></span></div>
@@ -969,7 +969,7 @@ flowchart LR
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D51-D52（11月7-8日）</span><span class="day-route">香格里拉（2天）</span></div>
       <div class="day-meta">住香格里拉</div>
-      <div class="day-desc">松赞林寺（"小布达拉宫"）、独克宗古城转经筒、纳帕海、普达措国家公园。<strong>海拔3300m，轻松休整，吃顿好的。</strong></div>
+      <div class="day-desc">独克宗古城、纳帕海、城市慢走和补给恢复优先；松赞林寺、普达措国家公园都改成可选项。<strong>海拔3300m，这两天更像恢复站，不是抢景区日。</strong></div>
     </div>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D53-D54（11月9-10日）</span><span class="day-route">虎跳峡高路徒步（2天）<span class="day-km">徒步约20km</span></span></div>
@@ -985,7 +985,7 @@ flowchart LR
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D55（11月11日）</span><span class="day-route">虎跳峡 → 丽江<span class="day-km">约80km</span></span></div>
       <div class="day-meta">住丽江</div>
-      <div class="day-desc">到丽江！丽江是重要的休整整补点，车停在客栈/酒店停车场，逛丽江古城、束河古镇，吃腊排骨、纳西烤鱼，好好休息两天。<strong>不还车，继续开车走川西回北京。</strong></div>
+      <div class="day-desc">到丽江！丽江是重要的休整整补点，车停在客栈/酒店停车场，古城和束河都按体感随缘慢逛，不用给自己安排任务。吃腊排骨、纳西烤鱼，好好休息两天。<strong>不还车，继续开车走川西回北京。</strong></div>
     </div>
     <details>
       <summary>📌 本段实用信息（信息更新于2026.8）</summary>
@@ -1032,7 +1032,7 @@ flowchart LR
         <div class="segment-meta">D56-D72（11月12-28日）· 约3,700km · 川西景观+高速返程 · 日均220km</div>
       </div>
     </div>
-    <p>丽江休整后驱车走滇川通道到川西稻城亚丁看三神山，经理塘、新都桥（摄影天堂）、康定到成都，在成都大吃两顿火锅做保养，然后走G5京昆高速经西安（兵马俑+回民街）、太原回北京。最后这17天有风景有美食，完美收官。</p>
+    <p>丽江休整后驱车走滇川通道到川西稻城亚丁看三神山，经理塘、新都桥、康定到成都，在成都大吃两顿火锅做保养，然后走G5京昆高速经西安、太原回北京。最后这17天依旧是“风景在路上 + 城市恢复站”的组合，不再按热门收费点完成度来收尾。</p>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D56（11月12日）</span><span class="day-route">丽江休整</span></div>
       <div class="day-meta">住丽江</div>
@@ -1061,7 +1061,7 @@ flowchart LR
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D61（11月17日）</span><span class="day-route">日瓦 → 理塘<span class="day-km">约230km</span></span></div>
       <div class="day-meta">S217/S216 · 约5小时 · 住理塘（4000m）</div>
-      <div class="day-desc">经兔儿山、海子山自然保护区到"世界高城"理塘（4000m），参观理塘寺（长青春科尔寺）、勒通古镇。理塘海拔高，不要剧烈运动。</div>
+      <div class="day-desc">经兔儿山、海子山自然保护区到"世界高城"理塘（4000m），喜欢宗教建筑就去理塘寺，不感兴趣就把时间留给高原县城慢走和恢复。理塘海拔高，不要剧烈运动。</div>
     </div>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D62（11月18日）</span><span class="day-route">理塘 → 新都桥<span class="day-km">约280km</span></span></div>
@@ -1071,7 +1071,7 @@ flowchart LR
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D63（11月19日）</span><span class="day-route">新都桥 → 康定 → 雅安 → 成都<span class="day-km">约340km</span></span></div>
       <div class="day-meta">G318+京昆高速 · 约6小时 · 住成都</div>
-      <div class="day-desc">经折多山（4298m，"川藏第一关"）、康定情歌城、泸定桥（飞夺泸定桥），上高速到成都！<strong>终于到大城市了！火锅吃起来！</strong></div>
+      <div class="day-desc">经折多山（4298m，"川藏第一关"）、康定情歌城，泸定桥按兴趣可停可不停，上高速到成都！<strong>终于到大城市了！火锅吃起来！</strong></div>
     </div>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D64-D65（11月20-21日）</span><span class="day-route">成都休整（2天）</span></div>
@@ -1080,7 +1080,7 @@ flowchart LR
         <ul>
           <li>吃火锅（至少2顿）、串串香、担担面、龙抄手、钟水饺、兔头、夫妻肺片</li>
           <li>宽窄巷子、锦里、春熙路、太古里、人民公园喝茶采耳</li>
-          <li>大熊猫繁育研究基地（必去！）</li>
+          <li>大熊猫繁育研究基地可选；如果你们更想恢复，就把时间留给城市慢逛和吃饭</li>
           <li>车辆做一次全面保养（换机油、检查轮胎刹车），为最后返程高速做准备</li>
         </ul>
       </div>
@@ -1095,8 +1095,8 @@ flowchart LR
       <div class="day-meta">住西安</div>
       <div class="day-desc"><span class="tag rest">休整日</span>
         <ul>
-          <li>兵马俑（半天，必去）、华清池</li>
-          <li>西安城墙骑行、大雁塔、大唐不夜城</li>
+          <li>西安城墙骑行、大雁塔、大唐不夜城、城市慢逛优先</li>
+          <li>兵马俑、华清池改成可选；如果不想再进大景区，这两天完全可以只拿来恢复和吃饭</li>
           <li>回民街/永兴坊吃吃吃：肉夹馍、羊肉泡馍、biangbiang面、凉皮、甑糕、胡辣汤</li>
           <li>好好洗澡休息，长途旅行接近尾声</li>
         </ul>
@@ -1105,12 +1105,12 @@ flowchart LR
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D69（11月25日）</span><span class="day-route">西安 → 临汾/平遥<span class="day-km">约350km</span></span></div>
       <div class="day-meta">G5京昆高速 · 约4小时 · 住平遥</div>
-      <div class="day-desc"><span class="tag drive">轻松驾驶</span> 半天开到平遥古城，下午逛平遥古城（世界文化遗产，晋商文化），吃平遥牛肉、碗托。</div>
+      <div class="day-desc"><span class="tag drive">轻松驾驶</span> 半天开到平遥，下午按体感慢逛古城或只在外围吃饭休息，不把最后几天再变成任务清单。</div>
     </div>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D70（11月26日）</span><span class="day-route">平遥 → 太原 → 石家庄<span class="day-km">约350km</span></span></div>
       <div class="day-meta">G5京昆高速 · 约4小时 · 住石家庄</div>
-      <div class="day-desc">上午平遥古城继续逛，中午出发经太原到石家庄。全程高速轻松开。</div>
+      <div class="day-desc">上午按状态决定是否继续平遥古城慢逛，中午出发经太原到石家庄。全程高速轻松开。</div>
     </div>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D71（11月27日）</span><span class="day-route">石家庄 → 北京<span class="day-km">约300km</span></span></div>
@@ -1120,7 +1120,7 @@ flowchart LR
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D72（11月28日）</span><span class="day-route">北京还车，行程结束</span></div>
       <div class="day-meta">北京</div>
-      <div class="day-desc">上午把车洗干净、加满油，去神州租车网点还车。检查有无遗漏物品，确认还车手续齐全。<strong>72天、约18000km、大半个中国，圆满结束！</strong></div>
+      <div class="day-desc">上午把车洗干净、加满油，去神州租车网点还车。检查有无遗漏物品，确认还车手续齐全。<strong>72天、约19000km、大半个中国，圆满结束！</strong></div>
     </div>
     <details>
       <summary>📌 本段实用信息（信息更新于2026.8）</summary>
@@ -1142,8 +1142,8 @@ flowchart LR
           <li>日瓦镇（香格里拉镇）：住镇中心，离亚丁景区大门近，海拔2900m舒服</li>
           <li>理塘：住县城中心，选有供氧/供暖的酒店（海拔4000m）</li>
           <li>新都桥：住镇中心沿线客栈，摄影方便</li>
-          <li>成都：住春熙路/太古里附近或武侯祠附近，方便吃和逛；一定要选有停车场的酒店</li>
-          <li>西安：住钟楼/回民街附近或大雁塔附近，逛吃方便</li>
+          <li>成都：住春熙路/太古里附近或武侯祠附近，方便吃和逛；一定要选有停车场的酒店，恢复质量高于景点密度</li>
+          <li>西安：住钟楼/回民街附近或大雁塔附近，逛吃方便；这站优先恢复，不默认冲热门景区</li>
           <li>平遥：住古城内客栈（车停古城外停车场）</li>
         </ul>
         <h5>⚠️ 注意事项</h5>
@@ -1173,7 +1173,7 @@ flowchart LR
       <thead><tr><th>路段类型</th><th>最晚出发</th><th>午饭建议</th><th>晚上重点</th><th>备注</th></tr></thead>
       <tbody>
         <tr><td><strong>高速长距离日</strong><br>如 D1、D2、D66</td><td>最晚 07:00</td><td>服务区或沿线县城快吃，不为午饭绕路</td><td>晚饭后立刻洗澡、整理第二天零食和水，必须早睡</td><td>这类日子目标只有一个：白天安全把大里程开完</td></tr>
-        <tr><td><strong>景区+短驾日</strong><br>如 敦煌、喀纳斯、拉萨周边</td><td>08:00-09:00</td><td>景区门口/县城解决，优先保证游玩时段</td><td>适合洗衣、补照片、补记账、订后续住宿</td><td>这类日子不要再额外塞长距离驾驶</td></tr>
+        <tr><td><strong>弹性景观日</strong><br>如 敦煌、北疆村落、拉萨周边</td><td>08:00-09:00</td><td>县城或沿线路餐解决，优先保证光线和体力</td><td>适合洗衣、补照片、补记账、订后续住宿</td><td>这类日子不要再额外塞门票任务或长距离驾驶</td></tr>
         <tr><td><strong>高海拔驾驶日</strong><br>如 新藏线、珠峰段、亚丁往返</td><td>最晚 07:30</td><td>带着路餐走，在检查站/加油站/县城节点补热食</td><td>晚饭从简，不洗澡或缩短洗澡，尽快卧床</td><td>海拔高时“早到住宿点”比“多看一个点”重要</td></tr>
         <tr><td><strong>纯徒步日</strong><br>如 冈仁波齐、雨崩、虎跳峡、亚丁</td><td>最晚 07:00</td><td>出发前吃热早饭，中午以自带干粮/能量棒为主</td><td>回到住宿点先拉伸、补糖补盐、热水泡脚，必须早睡</td><td>徒步日不安排需要动脑的额外决策</td></tr>
         <tr><td><strong>休整补给日</strong><br>如 喀什、拉萨、丽江、成都、西安</td><td>可睡到自然醒</td><td>正常坐下来吃</td><td>洗澡、洗衣、补给、记账、备份照片、查天气路况</td><td>这是把整趟行程重新拉回舒服节奏的关键节点</td></tr>
@@ -1182,7 +1182,7 @@ flowchart LR
   </div>
   <div class="callout green">
     <div class="callout-title">哪些天必须早睡</div>
-    <p>D1 北京出发前一晚、D2 巴彦淖尔住额济纳前一晚、D16 喀什准备上新藏线前一晚、D29 塔尔钦转山前一晚、D47 雨崩进冰湖前一晚、D53 虎跳峡高路前一晚、D58 亚丁长线前一晚、D65 成都返程高速前一晚。这几天都不适合夜宵、喝酒、熬夜刷手机。</p>
+    <p>D1 北京出发前一晚、D2 巴彦淖尔住张掖前一晚、D16 喀什准备上新藏线前一晚、D29 塔尔钦转山前一晚、D47 雨崩进冰湖前一晚、D53 虎跳峡高路前一晚、D58 亚丁长线前一晚、D65 成都返程高速前一晚。这几天都不适合夜宵、喝酒、熬夜刷手机。</p>
   </div>
   <div class="callout warn">
     <div class="callout-title">哪些天最适合洗澡洗衣补给</div>
@@ -1206,12 +1206,12 @@ flowchart LR
       </ul>
     </div>
     <div class="col-card">
-      <h4>D2 巴彦淖尔 → 额济纳</h4>
+      <h4>D2 巴彦淖尔 → 张掖</h4>
       <ul class="checklist">
         <li><strong>最晚出发</strong>：07:00</li>
-        <li><strong>午饭</strong>：以服务区 / 沿线简餐为主，重点不是吃好而是不断油不断水</li>
-        <li><strong>必须注意</strong>：油站看见就补，横风和犯困比车流更危险</li>
-        <li><strong>晚上重点</strong>：到了额济纳不要再折腾夜拍，第二天还有游览</li>
+        <li><strong>午饭</strong>：以服务区 / 沿线简餐为主，重点不是吃好而是稳定推进到张掖</li>
+        <li><strong>必须注意</strong>：第二天开始就要切入青甘风景公路节奏，今晚提前补给、早点休息</li>
+        <li><strong>晚上重点</strong>：到了张掖不要乱加景点，把精力留给 D3 的 G227</li>
       </ul>
     </div>
     <div class="col-card">
