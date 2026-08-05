@@ -315,6 +315,7 @@
       if ((carry.城里门路 || 0) > 0) hints.push('求师说合会更快坐实');
       if ((carry.商路门路 || 0) > 0) hints.push('认货记账不是全然白手');
       if ((carry.家传手艺 || 0) > 0) hints.push('上手守店比寻常学徒更快');
+      if ((carry.承继定位 || '').indexOf('次子循城外求') >= 0) hints.push('长兄先在家守着户头，你这一手本就是被放出来往城里外求的，说合时少一道“为何偏要外出”的掣肘');
     } else if (routeKey === 'merchant') {
       if ((carry.商路门路 || 0) > 0) hints.push('进号就能接上旧识和账面门道');
       if ((carry.城里门路 || 0) > 0) hints.push('在城里更容易找到落脚与牙口');
@@ -328,6 +329,7 @@
       if ((carry.亦贾亦儒底子 || 0) > 0) hints.push('家里更知道怎么先供几年书');
       if ((carry.供读底子 || 0) > 0) hints.push('束脩纸墨前头先有一笔不折现的供读缓冲');
       if ((carry.承继定位 || '').indexOf('次子候读') >= 0) hints.push('家里原本就把你这一手留作先读的一房，长兄那边续号回钱更像你背后的暗底');
+      if ((carry.承继定位 || '').indexOf('次子续读') >= 0) hints.push('长兄先守着户里那摊日常，你这一手本就被家里留作续读，起手少一层“先回去扛家计”的拉扯');
     }
     if (isCollateralCarry(carry)) hints.push('只是这份门路经旁支接祧后已薄了一层，未必还能照本支那样使');
     if (isSiblingCarry(carry)) hints.push('这一手是弟妹接着前一个孩子的旧账往下活，门路不会凭空洗回空白');
@@ -501,6 +503,12 @@
         S.学徒信任 = Math.max(S.学徒信任, 1);
         notes.push('这一房早就见过“先学门道、再谈供读”的走法，师门看你也更像是来认真续路子的');
       }
+      if ((S.承继定位 || '').indexOf('次子循城外求') >= 0) {
+        if (S.学徒合同 === '未议') S.学徒合同 = '说合中';
+        S.学徒信任 = Math.max(S.学徒信任, 1);
+        S.家族 += 1; clampAttr('家族');
+        notes.push('这一房上一代就把你这一手留作“次子循城外求”，长兄先守着户里那摊事，你进城求师时少了一层家里拦着不放的掣肘');
+      }
       if (isCollateralCarry(carryOver) && notes.length) notes.push('只是你这一支经旁支接祧后，师门和城里旧识能借到的情分终究比本支薄一层');
     } else if (routeKey === 'merchant' && !S._merchantLegacyApplied) {
       S._merchantLegacyApplied = true;
@@ -553,6 +561,11 @@
         S.供读压力 = Math.max(0, S.供读压力 - 1);
         S.家族 += 1; clampAttr('家族');
         notes.push('这一房在上一代就把你这一手留成“次子候读”，长兄续号回钱的那层预期，会让这一代起手再少一线断供压力');
+      }
+      if ((S.承继定位 || '').indexOf('次子续读') >= 0) {
+        S.供读压力 = Math.max(0, S.供读压力 - 1);
+        S.家族 += 1; clampAttr('家族');
+        notes.push('这一房上一代就把你这一手留作“次子续读”，长兄先守着户里那摊日常，你起手就少一层被拉回家计的压力');
       }
       if (isCollateralCarry(carryOver) && notes.length) notes.push('只是这一支经旁支接祧后，书香与旧识都比本支薄一层，保结与供读仍得你这一代重新坐实');
     }
