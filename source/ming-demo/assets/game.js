@@ -5334,6 +5334,55 @@
           S.体魄 -= 2;
           log.push(['〔伏夏损耗〕这一旬没顾上衣药也没将养，热毒和劳损还是悄悄把身子磨去一层（体魄-2）', 'bad']);
         }
+        if (season.id === 'summer' && xun === 2) {
+          var summerHandled = !!(picked.f_child || picked.f_mend || picked.f_rest
+            || picked.f_route_bundle || picked.f_route_shop_bundle || picked.f_route_wage_summer_bundle || picked.f_route_write);
+          if (summerHandled) {
+            pushFamilySeasonTag(stepTag + '伏夏小耗已顾');
+            log.push(['〔伏夏小耗〕这一旬先把孩子热耗、草鞋针线、零碎汤药或伏夏布药顾住了；小耗没有消失，但没再继续滚成更大的缺口。', 'good']);
+          } else if (spendCopper(60)) {
+            S.本年家衣药 += 1;
+            pushFamilySeasonTag(stepTag + '伏夏小耗');
+            log.push(['〔伏夏小耗〕伏夏里草鞋、凉药、孩子小热和汗疹一齐冒头：铜钱-60、衣药+1。不是大祸，只是同一年里又多了一口真支出。', 'bad']);
+          } else {
+            S.体魄 -= 1;
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '伏夏硬扛');
+            log.push(['〔伏夏小耗〕零碎病耗还是找上门来：现钱不够，只得硬扛，体魄-1、家族-1。', 'bad']);
+          }
+        }
+        if (season.id === 'autumn' && xun === 2) {
+          var autumnHandled = !!(picked.f_social || picked.f_duty
+            || picked.f_route_autumn_split || picked.f_route_shop_split || picked.f_route_wage_autumn_split
+            || picked.f_route_school_split || picked.f_route_split);
+          if (autumnHandled) {
+            pushFamilySeasonTag(stepTag + '秋后细账已拆');
+            log.push(['〔秋后杂支〕秋后的牙税、脚钱、锅火与差钱都已被你提前拆开；同一口回钱这旬没有再被混着吃掉。', 'good']);
+          } else if (spendCopper(70)) {
+            pushFamilySeasonTag(stepTag + '秋后杂支');
+            log.push(['〔秋后杂支〕秋后零碎脚钱、牙税与催差口风一起压来：铜钱-70。不是新主线，只是同一年里又一层真支出。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '秋后硬顶');
+            log.push(['〔秋后杂支〕现钱腾挪不开，这一旬只得先硬顶过去；家里这口气更紧了一层（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'winter' && xun === 1) {
+          var winterHandled = !!(picked.f_repair || picked.f_duty
+            || picked.f_route_winter_book || picked.f_route_shop_book || picked.f_route_wage_winter_book
+            || picked.f_route_school_winter_book || picked.f_route_winter_wharf);
+          if (winterHandled) {
+            pushFamilySeasonTag(stepTag + '年关碎账已分');
+            log.push(['〔年关碎账〕灯油、炭火、来春脚路、差钱和旧账已经被你先分开；年关没有因为“只差一点”把同一口现钱重新搅混。', 'good']);
+          } else if (spendCopper(50)) {
+            pushFamilySeasonTag(stepTag + '年关碎账');
+            log.push(['〔年关碎账〕年礼、灯油、炭火和明春第一程的小脚费一齐要钱：铜钱-50。不是大账，却正是最磨人的年关小耗。', 'bad']);
+          } else {
+            S.体魄 -= 1;
+            pushFamilySeasonTag(stepTag + '年关硬顶');
+            log.push(['〔年关碎账〕这一旬连年关小耗都挪不开，只得靠身子硬顶过去（体魄-1）。', 'bad']);
+          }
+        }
         if (xun === 3 && !dutyReserved && season.id !== 'spring') {
           log.push(['这一旬还没把差役后手先留住，年关或里甲催差时更容易手忙脚乱。', 'bad']);
         }
