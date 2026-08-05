@@ -81,7 +81,7 @@
   }
 
   function tracePhase(reason) {
-    phaseTrace.push({
+    var next = {
       i: phaseTrace.length + 1,
       generation: generation,
       phase: phase || 'unknown',
@@ -89,7 +89,42 @@
       age: S ? S.年龄 : 0,
       route: S ? (S.路线 || '未立身') : '未立身',
       reason: reason || ''
+    };
+
+    // 轨迹去重：避免同一阶段因重复 enter/render 造成的“连刷”，
+    // 让无头回放与人工阅读都更稳定（只记录“状态真的变了”的点）。
+    var prev = phaseTrace.length ? phaseTrace[phaseTrace.length - 1] : null;
+    if (prev
+      && prev.generation === next.generation
+      && prev.phase === next.phase
+      && prev.age === next.age
+      && prev.title === next.title) {
+      return;
+    }
+    phaseTrace.push(next);
+  }
+
+  function phaseTraceLabel(maxSteps) {
+    maxSteps = Math.max(4, Number(maxSteps) || 12);
+    var list = (phaseTrace || []).map(function (t) {
+      return (t.phase || 'unknown') + '@' + (t.age || 0);
     });
+    // 连续重复再压一层，保证 tooltip 更短（即使 tracePhase 未来被改回不去重也不脏）。
+    var folded = [];
+    list.forEach(function (s) {
+      if (!folded.length || folded[folded.length - 1] !== s) folded.push(s);
+    });
+    var tail = folded.slice(Math.max(0, folded.length - maxSteps));
+    return (tail.join(' → ')) + (folded.length > maxSteps ? ('（省略' + (folded.length - maxSteps) + '步）') : '');
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   function initState(carry, opts) {
@@ -1000,6 +1035,10 @@
     h += '<span class="chip coin">铜钱 <b>' + S.铜钱 + '</b>文</span>';
     h += '<span class="chip coin">存米 <b>' + S.存米 + '</b>石</span>';
     if (S.负债银 > 0) h += '<span class="chip debt">负债 <b>' + S.负债银 + '</b>两</span>';
+
+    // 轨迹可见化：用于人工复核“立身→成家→当户→养老→死亡→重开”的闭环是否在同一程里真实跑通。
+    // 仅用 title tooltip 展示，不额外占版面；数字显式，便于截图对照。
+    h += '<span class="chip" title="' + escapeHtml(phaseTraceLabel(14)) + '">轨迹 <b>' + (phaseTrace || []).length + '</b>步</span>';
     $('status').innerHTML = h;
   }
 
