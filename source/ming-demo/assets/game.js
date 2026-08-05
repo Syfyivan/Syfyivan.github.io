@@ -5504,6 +5504,46 @@
             log.push(['〔年关铺耗〕这一旬连薄礼与回铺脚路都腾挪不开，只得靠身子硬顶过去（体魄-1）。', 'bad']);
           }
         }
+        if ((route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && season.id === 'summer' && xun === 2) {
+          if (picked.f_route_write || picked.f_route_school_note || picked.f_mend || picked.f_rest) {
+            pushFamilySeasonTag(stepTag + '馆课零耗已顾');
+            log.push(['〔馆课零耗〕这一旬先把潮纸、投帖脚费、塾馆茶汤和家里凉热小耗顾住了；伏夏里最容易把“笔墨门路”一点点磨薄的那层碎耗，没有继续滚大。', 'good']);
+          } else if (spendCopper(35)) {
+            S.本年家衣药 += 1;
+            pushFamilySeasonTag(stepTag + '馆课零耗');
+            log.push(['〔馆课零耗〕潮纸、投帖脚费、塾馆茶汤和家里凉热小耗一起冒头：铜钱-35、衣药+1。不是大账，却正把举业路这一年的细钱一点点磨薄。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '馆课硬扛');
+            log.push(['〔馆课零耗〕这一旬连潮纸脚费与塾馆茶汤都腾挪不开，只得先硬扛过去；塾师与学生家这层门路又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && season.id === 'autumn' && xun === 2) {
+          if (picked.f_route_school_split || picked.f_social || picked.f_market || picked.f_route_write) {
+            pushFamilySeasonTag(stepTag + '秋后纸墨已拆');
+            log.push(['〔秋后纸墨〕这一旬先把润笔、保结薄礼、学生家回话脚费与锅火拆开；秋里这口笔墨钱没再被误写成“终于宽了”。', 'good']);
+          } else if (spendCopper(45)) {
+            pushFamilySeasonTag(stepTag + '秋后纸墨');
+            log.push(['〔秋后纸墨〕保结薄礼、学生家回话脚费和秋后纸墨杂支一起要钱：铜钱-45。不是新主线，只是把举业路这一年的细账又往下压了一层。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '秋后纸墨硬顶');
+            log.push(['〔秋后纸墨〕这一旬连保结薄礼和学生家回话脚费都腾挪不开，只得先硬顶过去；这一房靠笔墨吃饭的人情面又紧了一层（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && season.id === 'winter' && xun === 1) {
+          if (picked.f_route_school_winter_book || picked.f_route_write || picked.f_repair || picked.f_rest) {
+            pushFamilySeasonTag(stepTag + '年关纸墨已分');
+            log.push(['〔年关纸墨〕旧馆账、来春纸墨定钱、灯油与拜帖脚费已被你先分开；举业路这层门路没有在年关忽然断掉。', 'good']);
+          } else if (spendCopper(40)) {
+            pushFamilySeasonTag(stepTag + '年关纸墨');
+            log.push(['〔年关纸墨〕旧馆账脚费、来春纸墨定钱和灯油一起要钱：铜钱-40。不是体面消费，而是让“读书这一路还续得下去”不至在年关先断掉。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '年关纸墨硬顶');
+            log.push(['〔年关纸墨〕这一旬连纸墨定钱和拜帖脚费都腾挪不开，只得先硬顶过去；举业路这层门路又薄了一线（家族-1）。', 'bad']);
+          }
+        }
         if (xun === 3 && !dutyReserved && season.id !== 'spring') {
           log.push(['这一旬还没把差役后手先留住，年关或里甲催差时更容易手忙脚乱。', 'bad']);
         }
@@ -5554,6 +5594,9 @@
           if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('年关问欠工') >= 0; })) log.push(['这一养家年你在冬里先把欠工、明春活路和差钱后手分开；卖工路不再只是忙时挣钱、闲时挨过。', 'good']);
           if ((route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && (S.本年家捎信 || 0) > 0 && (S.本年家催账 || 0) > 0) log.push(['这一养家年你不只写字补贴，还先问过馆课与保结、再把馆课钱真正结回家里；举业路成年后也开始有了年内来回到账的节奏。', 'good']);
           if ((route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && (S.本年家通融 || 0) > 0 && (S.本年家备役 || 0) > 0) log.push(['这一养家年你还把塾师、廪保和学生家的门路提前压进差役后手里；“读书人脉”第一次在本代年内真实落到制度账上。', 'good']);
+          if ((route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('馆课零耗') >= 0; })) log.push(['这一养家年你连潮纸、投帖脚费和塾馆茶汤这层碎耗都摊回了伏夏；举业路成年期不再只剩“接没接到馆课”的大开关。', 'good']);
+          if ((route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('秋后纸墨') >= 0; })) log.push(['这一养家年你还把润笔、保结薄礼与学生家回话脚费拆进了秋后细账；“笔墨钱”第一次不再被误写成整口宽裕。', 'good']);
+          if ((route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('年关纸墨') >= 0; })) log.push(['这一养家年你连旧馆账、来春纸墨定钱和灯油脚费都在年关先分开；举业路成年后的后手开始更像同一年里不断冒头的小事。', 'good']);
           if ((S.本年家季务 || []).length <= 4) log.push(['这一养家年落进账里的旬务仍嫌太薄，说明这一年多半只是硬过而没把细账真正摊开。', 'bad']);
         }
 
