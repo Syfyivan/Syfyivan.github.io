@@ -23,9 +23,10 @@
     { id: 'winter', name: '冬闲', note: '冬闲零工、修具盘账与年关清账并到一处。', actionLead: '冬天看着像缓下来，实际上是把讨薪、口粮、差役、旧债一口气算清的时候。 ' }
   ];
   var APPRENTICE_SEASONS = [
-    { id: 'opening', name: '投师季', note: '年头先跑说合、作保、立据，把能不能入店坐实。', actionLead: '年头先看门路开不开、保人肯不肯担、字据立不立得成。没把这几步走通，后头再勤快也还在门外。 ' },
-    { id: 'middling', name: '坐店季', note: '字据若已立成，这一季主要熬守店、跑腿、认货、抄账。', actionLead: '真正熬人的不是拜师那一下，而是字据立成后日复一日的站柜、搬货、跑街和认账。 ' },
-    { id: 'closing', name: '年关季', note: '忙市、归省、差役钱和去留都在年关前后一起落账。', actionLead: '年关前后最像“这一年到底值不值”的总盘：店里看你能不能留下，家里看你到底有没有把这一路撑起来。 ' }
+    { id: 'spring', name: '投师季', note: '年头先跑说合、作保、立据，把能不能入店坐实。', actionLead: '年头先看门路开不开、保人肯不肯担、字据立不立得成。没把这几步走通，后头再勤快也还在门外。 ' },
+    { id: 'summer', name: '坐店季', note: '字据若已立成，这一季主要熬守店、跑腿、认货、抄账。', actionLead: '真正熬人的不是拜师那一下，而是字据立成后日复一日的站柜、搬货、跑街和认账。 ' },
+    { id: 'autumn', name: '行市季', note: '秋里市面旺，问价、送货、贴补家里与回乡缓家计常在一季里撞上。', actionLead: '秋里最不像“单纯学艺”：你既得跟着铺里认行市，也得想着家里口粮、自己鞋药和年关前的后手。 ' },
+    { id: 'winter', name: '年关季', note: '忙市、归省、差役钱、衣药与去留都在年关前后一起落账。', actionLead: '年关前后最像“这一年到底值不值”的总盘：店里看你能不能留下，家里看你有没有把这一路撑起来，自己身子也得熬得住。 ' }
   ];
   var MERCHANT_SEASONS = [
     { id: 'spring', name: '春开路', note: '先认铺面、认人情、认哪几笔钱能动。', actionLead: '春里最先要坐实的，不是能不能发财，而是铺里肯不肯把门路递到你手上、家里又急不急着等你回钱。 ' },
@@ -168,7 +169,7 @@
       // 学徒路径字段
       学年: 1, 学季: 1, 学旬: 1, 学徒阶段: '未定', 学徒合同: '未议', 学徒保人: false, 学徒保证金银: 0, 学徒束脩文: 0,
       学徒授艺度: 0, 学徒信任: 0, 学徒历练: 0, 学徒去向: '未定', _advanceApprenticeYear: false, _advanceApprenticeStep: false,
-      本年学徒说合: 0, 本年学徒守店: 0, 本年学徒学账: 0, 本年学徒帮家: 0, 本年学徒奔走: 0, 本年学徒歇养: 0, 本年学徒备役: 0, 本年学徒旬记: [],
+      本年学徒说合: 0, 本年学徒守店: 0, 本年学徒学账: 0, 本年学徒帮家: 0, 本年学徒奔走: 0, 本年学徒问价: 0, 本年学徒贴家: 0, 本年学徒衣药: 0, 本年学徒歇养: 0, 本年学徒备役: 0, 本年学徒旬记: [],
       // 徽商路径字段（四季三旬：借用“商段”字段记录当前旬位 1/2/3，避免破坏既有快照结构）
       商年: 1, 商季: 1, 商段: 1, 商身份: '未定', 商历练: 0, 识货进度: 0, 账房进度: 0, 商信誉: 0,
       带本银: 0, 未回款银: 0, 累计反哺银: 0, 商路供读银: 0, 商路亏折: 0, _merchantLockedTradeTable: null, _advanceMerchantYear: false, _advanceMerchantSeason: false,
@@ -1031,6 +1032,9 @@
     S.本年学徒学账 = 0;
     S.本年学徒帮家 = 0;
     S.本年学徒奔走 = 0;
+    S.本年学徒问价 = 0;
+    S.本年学徒贴家 = 0;
+    S.本年学徒衣药 = 0;
     S.本年学徒歇养 = 0;
     S.本年学徒备役 = 0;
     S.本年学徒旬记 = [];
@@ -1874,8 +1878,8 @@
     picks = []; resolved = null; lifePicks = [];
     curStage = stageApprentice();
     if (S.学年 === 1) tracePhase('route:apprentice');
-    if (S.学年 === 1) recordEntry('立身分路·入城学徒', snapshot(), '你不留乡守田，也不先去打长短工，而是进城投商铺学徒：先求师、立据、守店、识货，看三年后能不能留店或另谋。' + (inherited.length ? ' 父辈留下的门路先替你垫了一步：' + inherited.join('；') + '。' : ''));
-    else if ((S.学季 || 1) === 1 && (S.学旬 || 1) === 1) recordEntry('第 ' + S.学年 + ' 学年·投师季上旬开账', snapshot(), '这一学年不再按“一年一把过账”，而是拆成投师季、坐店季、年关季三季九旬推进。你得把说合、守店、认账、归省、备差与去留，逐旬算在同一本账里。');
+    if (S.学年 === 1) recordEntry('立身分路·入城学徒', snapshot(), '你不留乡守田，也不先去打长短工，而是进城投商铺学徒：先求师、立据、守店、识货，再把行市、家计和年关去留一起熬出来，看三年后能不能留店或另谋。' + (inherited.length ? ' 父辈留下的门路先替你垫了一步：' + inherited.join('；') + '。' : ''));
+    else if ((S.学季 || 1) === 1 && (S.学旬 || 1) === 1) recordEntry('第 ' + S.学年 + ' 学年·投师季上旬开账', snapshot(), '这一学年不再按“一年一把过账”，而是拆成投师季、坐店季、行市季、年关季四季、每季三旬推进。你得把说合、守店、认账、问价、贴家、衣药、备差与去留，逐旬算在同一本账里。');
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -2567,9 +2571,12 @@
     var season = apprenticeSeasonInfo(S.学季 || 1);
     var xun = S.学旬 || 1;
     var xunLabel = apprenticeXunLabel(xun);
-    var isYearEnd = season.id === 'closing' && xun === 3;
+    var isYearEnd = season.id === 'winter' && xun === 3;
     var nextSeason = apprenticeSeasonInfo(Math.min(APPRENTICE_SEASONS.length, (S.学季 || 1) + 1));
-    var seasonalCounts = '本年说合=' + S.本年学徒说合 + '｜守店=' + S.本年学徒守店 + '｜学账=' + S.本年学徒学账 + '｜奔走=' + S.本年学徒奔走 + '｜帮家=' + S.本年学徒帮家;
+    var seasonalCounts = '本年说合=' + S.本年学徒说合 + '｜守店=' + S.本年学徒守店 + '｜学账=' + S.本年学徒学账 + '｜奔走=' + S.本年学徒奔走 + '｜问价=' + S.本年学徒问价 + '｜贴家=' + S.本年学徒贴家 + '｜帮家=' + S.本年学徒帮家;
+    var marketReward = season.id === 'autumn' ? 90 : (season.id === 'winter' ? 60 : 50);
+    var supportCost = season.id === 'autumn' ? 100 : (season.id === 'winter' ? 90 : 80);
+    var mendCost = season.id === 'winter' ? 100 : 70;
     return {
       title: '入城学徒 · 第' + S.学年 + '学年·' + season.name + xunLabel, label: '学徒第' + S.学年 + '年',
       next: 'apprentice',
@@ -2577,27 +2584,30 @@
         ? (S.学年 < APPRENTICE_YEARS ? '翻到下一学年投师季上旬 →' : '带着这门去向去议亲 →')
         : (xun >= 3 ? ('转入' + nextSeason.name + '上旬 →') : ('转入' + season.name + apprenticeXunLabel(xun + 1) + ' →')),
       ap: 2, commitLabel: isYearEnd ? '了这一学年 →' : '了这一旬学徒 →',
-      note: '学徒路现改成“每学年三季九旬”推进：投师季先跑说合/作保/立据，坐店季熬守店/跑街/认账，年关季把口粮、差役与去留一并结清。保证金、食宿、去留数额仍是玩法占位，不当作明代精确契约。',
-      narrative: '你已<span class="em">' + age + '岁</span>，这一学年走到<span class="em">' + season.name + xunLabel + '</span>。' + season.actionLead + '投师不是自动成功；立据不等于学成，学成也不等于准你留下。你这一旬有 <span class="em">2 个行动点</span>，要在说合、守店、学账、奔走、帮家、备差与养身之间取舍。',
+      note: '学徒路现改成“每学年四季三旬”推进：投师季先跑说合/作保/立据，坐店季熬守店/抄账，行市季把问价、送货、贴家与归省一并压进同一年，年关季再把口粮、差役、衣药与去留结清。保证金、食宿、去留数额仍是玩法占位，不当作明代精确契约。',
+      narrative: '你已<span class="em">' + age + '岁</span>，这一学年走到<span class="em">' + season.name + xunLabel + '</span>。' + season.actionLead + '投师不是自动成功；立据不等于学成，学成也不等于准你留下。你这一旬有 <span class="em">2 个行动点</span>，要在说合、守店、学账、奔走、问价、贴家、帮家、备差、衣药与养身之间取舍。',
       dossier: function () {
         return lifeDossier('立据≠学成≠出师；师傅收不收、留不留、准不准你转伙计，都是分开判的。当前：合同=' + S.学徒合同 + '｜阶段=' + S.学徒阶段 + '｜授艺度=' + S.学徒授艺度 + '｜信任=' + S.学徒信任 + '｜' + seasonalCounts + '。');
       },
       events: [
         { t: 'rel', tag: '[师傅]', txt: S.学徒合同 === '已立据' ? '字据立成后，师傅看的是你这一旬守不守得住、账看不看得明，不会因为你已经进店就自动一路留你。' : '师傅收徒先看年貌、门路、保人和手脚是不是稳当，不因你可怜或勤快自动点头。' },
-        { t: 'rand', tag: '[店规]', txt: season.note + (isYearEnd ? ' 这一旬还要把口粮、差役、旧债与去留一并结账。' : ' 同一旬里，店里和家里往往同时来要你这双手。') }
+        { t: 'rand', tag: season.id === 'autumn' ? '[行市]' : (season.id === 'winter' ? '[年关]' : '[店规]'), txt: season.note + (isYearEnd ? ' 这一旬还要把口粮、差役、旧债、衣药与去留一并结账。' : (season.id === 'autumn' ? ' 同一旬里，铺里的行市、家里的口粮和你脚上的鞋药，常常争的是同一笔现钱。' : ' 同一旬里，店里和家里往往同时来要你这双手。')) }
       ],
       prompt: '这一旬怎么过？（分配 2 点）',
       actions: function () {
         var A = [];
-        A.push({ id: 'a_seek', name: season.id === 'opening' ? '托中人说合' : '再托人续问门路', cost: 1, eff: '合同推进·信任+1', desc: season.id === 'opening' ? '先去把门路问出来，让人家肯见你。' : '门路若还没坐实，就不能真把人和钱押进去。', can: S.学徒合同 !== '已立据', once: true });
+        A.push({ id: 'a_seek', name: season.id === 'spring' ? '托中人说合' : '再托人续问门路', cost: 1, eff: '合同推进·信任+1', desc: season.id === 'spring' ? '先去把门路问出来，让人家肯见你。' : '门路若还没坐实，就不能真把人和钱押进去。', can: S.学徒合同 !== '已立据', once: true });
         A.push({ id: 'a_bond', name: '请族邻作保', cost: 1, eff: '铜钱-80·作保到位', desc: '请人替你担保身家清白。没保也许能成，有保总更容易。', can: !S.学徒保人 && S.铜钱 >= 80, why: !S.学徒保人 ? (S.铜钱 >= 80 ? '' : '铜钱不足80文') : '已有保人', once: true });
-        A.push({ id: 'a_sign', name: season.id === 'opening' ? '立投师字据' : '把投师字据补立', cost: 2, eff: '白银-1或铜钱-200·合同成立', desc: '没立据，求师都还只是意向。真要入店，就得把这笔成本掏出来。', can: S.学徒合同 !== '已立据' && (S.学徒合同 === '说合中' || S.学徒保人) && (S.白银 >= 1 || S.铜钱 >= 200), why: S.学徒合同 === '已立据' ? '已立据' : ((S.学徒合同 === '说合中' || S.学徒保人) ? ((S.白银 >= 1 || S.铜钱 >= 200) ? '' : '银钱不够立据') : '尚未说合或作保'), once: true });
-        A.push({ id: 'a_drudge', name: season.id === 'closing' ? '应节守柜搬货' : '铺中杂役守店', cost: 1, eff: '学徒历练+1·信任+1·体魄-2', desc: season.id === 'closing' ? '年关前后店里最忙，站柜搬货最能看出你扛不扛得住。' : '看店、跑腿、搬货、招呼客人。这是人家看你靠不靠谱的第一关。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据' });
-        A.push({ id: 'a_learn', name: season.id === 'middling' ? '随师认货学账' : '盯账认货', cost: 1, eff: '授艺度+1·学徒历练+1', desc: '跟着看账认货，先学会不吃亏，再谈以后能不能留下。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据' });
-        A.push({ id: 'a_run', name: season.id === 'closing' ? '跟单跑街送货' : '替铺里跑街办货', cost: 1, eff: '学徒历练+1·奔走+1·体魄-2', desc: '替铺里跑街送货、问价、催小账，学的不是柜面，而是门路怎么跑。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据' });
+        A.push({ id: 'a_sign', name: season.id === 'spring' ? '立投师字据' : '把投师字据补立', cost: 2, eff: '白银-1或铜钱-200·合同成立', desc: '没立据，求师都还只是意向。真要入店，就得把这笔成本掏出来。', can: S.学徒合同 !== '已立据' && (S.学徒合同 === '说合中' || S.学徒保人) && (S.白银 >= 1 || S.铜钱 >= 200), why: S.学徒合同 === '已立据' ? '已立据' : ((S.学徒合同 === '说合中' || S.学徒保人) ? ((S.白银 >= 1 || S.铜钱 >= 200) ? '' : '银钱不够立据') : '尚未说合或作保'), once: true });
+        A.push({ id: 'a_drudge', name: season.id === 'winter' ? '应节守柜搬货' : (season.id === 'autumn' ? '随柜搬货看市' : '铺中杂役守店'), cost: 1, eff: '学徒历练+1·信任+1·体魄-2', desc: season.id === 'winter' ? '年关前后店里最忙，站柜搬货最能看出你扛不扛得住。' : (season.id === 'autumn' ? '秋里市面旺，先把柜前柜后守稳，师傅才肯让你跟着往外看价。' : '看店、跑腿、搬货、招呼客人。这是人家看你靠不靠谱的第一关。'), can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据' });
+        A.push({ id: 'a_learn', name: season.id === 'summer' ? '随师认货学账' : (season.id === 'autumn' ? '对市口认货色' : '盯账认货'), cost: 1, eff: '授艺度+1·学徒历练+1', desc: season.id === 'autumn' ? '秋里货色杂、问价快，趁这一旬把认货和认账再往深里压一层。' : '跟着看账认货，先学会不吃亏，再谈以后能不能留下。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据' });
+        A.push({ id: 'a_run', name: season.id === 'winter' ? '跟单跑街送货' : (season.id === 'autumn' ? '替铺里赶集送货' : '替铺里跑街办货'), cost: 1, eff: '学徒历练+1·奔走+1·体魄-2', desc: season.id === 'winter' ? '年关账催得紧，腿脚跑得勤，才能看出门路认不认你。' : '替铺里跑街送货、问价、催小账，学的不是柜面，而是门路怎么跑。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据' });
         A.push({ id: 'a_book', name: '替师抄账认字', cost: 1, eff: '授艺度+1·信任+1' + (S.识字 ? '·铜钱+40' : ''), desc: S.识字 ? '你认字，抄账核货更容易被交到手里。' : '不识字也能跟着认柜面常用字，只是难学得快。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据', once: true });
-        A.push({ id: 'a_home', name: season.id === 'closing' ? '回乡归省帮父' : '回乡帮父应急', cost: 1, eff: '家族+3·存米+1', desc: '店里少上一旬工，家里却稳一些。', can: true, once: true });
+        A.push({ id: 'a_market', name: season.id === 'autumn' ? '跟市问价跑脚' : '替铺里打听行市', cost: 1, eff: '铜钱+' + marketReward + '·行市见识+1', desc: season.id === 'autumn' ? '跟着去市上问价、认客、跑脚，挣一点脚钱，也把行情记进肚里。' : '替铺里打听哪家的货紧、哪家的账慢，现钱不多，却能把门路摸熟。', can: S.学徒合同 === '已立据' && season.id !== 'spring', why: S.学徒合同 === '已立据' ? (season.id !== 'spring' ? '' : '春里先把门路坐实') : '尚未立据', once: true });
+        A.push({ id: 'a_send', name: season.id === 'autumn' ? '把脚钱贴回家' : '把一点现钱贴回家', cost: 1, eff: '铜钱-' + supportCost + '·家族+4' + (season.id === 'autumn' ? '·存米+1' : ''), desc: season.id === 'autumn' ? '秋里家中最缺口粮和现钱，先贴回去，自己这一旬就更紧。' : '手边有一点现钱，先贴回家压住年关前的窘迫。', can: S.铜钱 >= supportCost, why: S.铜钱 >= supportCost ? '' : ('铜钱不足' + supportCost + '文'), once: true });
+        A.push({ id: 'a_home', name: season.id === 'winter' ? '回乡归省帮父' : (season.id === 'autumn' ? '回乡缓一口家计' : '回乡帮父应急'), cost: 1, eff: '家族+3·存米+1', desc: season.id === 'autumn' ? '秋里回去搭一口，铺里少上一旬工，家里却能少慌一阵。' : '店里少上一旬工，家里却稳一些。', can: true, once: true });
         A.push({ id: 'a_reserve', name: '先留一角差役钱', cost: 1, eff: '铜钱-60·年关差役更稳', desc: '先把一点现钱从手边扣出来，免得年关本户轮到差役时再临时拆账。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+        A.push({ id: 'a_mend', name: season.id === 'winter' ? '添棉衣买药' : '补鞋买药养身', cost: 1, eff: '铜钱-' + mendCost + '·体魄+' + (season.id === 'winter' ? 6 : 4), desc: season.id === 'winter' ? '入冬后不添棉衣不买药，年关前后最容易把身子熬坏。' : '鞋底药钱看着零碎，不先补，后头跑街守柜都要多吃亏。', can: S.铜钱 >= mendCost, why: S.铜钱 >= mendCost ? '' : ('铜钱不足' + mendCost + '文'), once: true });
         A.push({
           id: 'a_keep', name: '第三年议留店', cost: 1, eff: '年末判留店去向', desc: '到了第三年，试着问问能不能留下做伙计。',
           can: isYearEnd && S.学年 === APPRENTICE_YEARS && S.学徒合同 === '已立据' && S.学徒授艺度 >= 2,
@@ -2661,6 +2671,27 @@
               }
               pushApprenticeSeasonTag(stepTag + '抄账认字');
               break;
+            case 'a_market':
+              S.铜钱 += marketReward; S.学徒历练 += 1; S.本年学徒问价 += 1; didEarn = true;
+              if (season.id === 'autumn') S.本年学徒奔走 += 1;
+              if (S.学年 === APPRENTICE_YEARS) S.商历练 += 1;
+              pushApprenticeSeasonTag(stepTag + '问价跑脚');
+              log.push([season.id === 'autumn'
+                ? ('跟市问价跑脚：铜钱+' + marketReward + '、学徒历练+1、行市更熟一层' + (S.学年 === APPRENTICE_YEARS ? '，第三年这层问价还顺手替商路垫了底。' : '。'))
+                : ('替铺里打听行市：铜钱+' + marketReward + '、学徒历练+1。钱不算厚，却把哪几家肯回钱、哪几家常压价摸得更清。'), 'good']);
+              break;
+            case 'a_send':
+              if (spendCopper(supportCost)) {
+                S.家族 += 4; S.本年学徒贴家 += 1;
+                if (season.id === 'autumn') S.存米 += 1;
+                pushApprenticeSeasonTag(stepTag + '贴家');
+                log.push([season.id === 'autumn'
+                  ? ('把脚钱先贴回家：铜钱-' + supportCost + '、家族+4、存米+1。铺里这一旬仍照站，自己手边却更紧了。')
+                  : ('把一点现钱贴回家：铜钱-' + supportCost + '、家族+4。不是赚得多，只是让家里先缓一口气。'), 'good']);
+              } else {
+                log.push(['想把现钱贴回家，但这一旬零碎开销先把铜钱占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'a_home':
               S.家族 += 3; S.存米 += 1; S.本年学徒帮家 += 1;
               pushApprenticeSeasonTag(stepTag + '归省帮家');
@@ -2673,6 +2704,17 @@
                 log.push(['先留一角差役钱：铜钱-60。眼下看不见好处，只是把年关的忙乱先压下去一点。', 'good']);
               } else {
                 log.push(['想先留差役钱，但这一旬零碎开销已先把铜钱占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'a_mend':
+              if (spendCopper(mendCost)) {
+                S.体魄 += (season.id === 'winter' ? 6 : 4); S.本年学徒衣药 += 1;
+                pushApprenticeSeasonTag(stepTag + '衣药');
+                log.push([season.id === 'winter'
+                  ? ('添棉衣买药：铜钱-' + mendCost + '、体魄+6。年关前先把寒气和旧酸痛压住一头。')
+                  : ('补鞋买药养身：铜钱-' + mendCost + '、体魄+4。看着零碎，却是后头还能不能跑得动的底。'), 'good']);
+              } else {
+                log.push(['想补鞋买药，但这一旬铜钱不够，只能硬挨过去。', 'bad']);
               }
               break;
             case 'a_keep':
@@ -2706,14 +2748,14 @@
           curStage.nextLabel = xun >= 3 ? ('转入' + nextSeason.name + '上旬 →') : ('转入' + season.name + apprenticeXunLabel(xun + 1) + ' →');
           S._advanceApprenticeStep = true;
           if (S.学徒合同 !== '已立据' && S.本年学徒说合 <= 0 && !didContract) log.push(['这一旬你还没把门路真正问开，学徒路仍停在门外。', 'bad']);
-          if (S.学徒合同 === '已立据' && S.本年学徒守店 > 0 && S.本年学徒学账 > 0) log.push(['这一旬既在柜上熬杂役、也往账货里探了一手，学徒路才算不是空耗。', 'good']);
+          if (S.学徒合同 === '已立据' && S.本年学徒守店 > 0 && (S.本年学徒学账 > 0 || S.本年学徒问价 > 0)) log.push(['这一旬既在柜上熬杂役、也往账货或行市里探了一手，学徒路才算不是空耗。', 'good']);
           clampAttr('体魄'); clampAttr('家族');
           return;
         }
 
         if (S.学徒合同 === '已立据' && !quit) {
           if (S.学年 < APPRENTICE_YEARS) {
-            var keepChance = Math.max(0.25, Math.min(0.90, 0.36 + S.学徒信任 * 0.05 + S.学徒授艺度 * 0.07 + Math.min(2, S.本年学徒守店) * 0.06 + Math.min(2, S.本年学徒学账) * 0.05));
+            var keepChance = Math.max(0.25, Math.min(0.90, 0.34 + S.学徒信任 * 0.05 + S.学徒授艺度 * 0.07 + Math.min(2, S.本年学徒守店) * 0.06 + Math.min(2, S.本年学徒学账) * 0.05 + Math.min(2, S.本年学徒问价) * 0.03 + Math.min(2, S.本年学徒贴家) * 0.02));
             if (rand() > keepChance) {
               S.学徒阶段 = '被辞'; S.学徒去向 = '归乡';
               S.家族 -= 2;
@@ -2727,9 +2769,9 @@
             if (askedKeep && !canKeepShop) {
               log.push(['〔门槛〕授艺度未满2，师傅不肯留你直接坐伙计。', 'bad']);
             }
-            var outChance = canKeepShop ? Math.max(0.15, Math.min(0.92, 0.18 + S.学徒授艺度 * 0.10 + S.学徒信任 * 0.06 + Math.min(2, S.本年学徒守店) * 0.06 + Math.min(2, S.本年学徒学账) * 0.05 + (askedKeep ? 0.10 : 0))) : 0;
-            var shiftChance = Math.max(0.12, Math.min(0.84, 0.16 + S.学徒授艺度 * 0.08 + S.学徒历练 * 0.04 + Math.min(2, S.本年学徒守店) * 0.05 + (askedShift ? 0.12 : 0)));
-            var tradeChance = Math.max(0.10, Math.min(0.82, 0.15 + S.学徒授艺度 * 0.06 + S.学徒历练 * 0.05 + Math.min(2, S.本年学徒奔走) * 0.07 + (S.识字 ? 0.06 : 0) + (askedTrade ? 0.12 : 0)));
+            var outChance = canKeepShop ? Math.max(0.15, Math.min(0.92, 0.18 + S.学徒授艺度 * 0.10 + S.学徒信任 * 0.06 + Math.min(2, S.本年学徒守店) * 0.06 + Math.min(2, S.本年学徒学账) * 0.05 + Math.min(2, S.本年学徒贴家) * 0.03 + (askedKeep ? 0.10 : 0))) : 0;
+            var shiftChance = Math.max(0.12, Math.min(0.84, 0.16 + S.学徒授艺度 * 0.08 + S.学徒历练 * 0.04 + Math.min(2, S.本年学徒守店) * 0.05 + Math.min(2, S.本年学徒问价) * 0.04 + (askedShift ? 0.12 : 0)));
+            var tradeChance = Math.max(0.10, Math.min(0.82, 0.14 + S.学徒授艺度 * 0.06 + S.学徒历练 * 0.05 + Math.min(2, S.本年学徒奔走) * 0.06 + Math.min(2, S.本年学徒问价) * 0.08 + (S.识字 ? 0.06 : 0) + (askedTrade ? 0.12 : 0)));
             if (rand() < outChance) {
               S.学徒阶段 = '留店伙计'; S.学徒去向 = '留店伙计'; S.学徒历练 += 1; S.铜钱 += 200;
               log.push(['〔去向〕三年熬下来，师傅愿把你留下做伙计：铜钱+200。', 'good']);
@@ -2783,11 +2825,11 @@
           S.负债银 += interest;
           log.push(['〔债息〕旧债 ' + oldDebt + ' 两滚息 ' + interest + ' 两（负债→' + S.负债银 + '）', 'bad']);
         }
-        if ((S.本年学徒守店 + S.本年学徒学账 + S.本年学徒奔走) <= 0 && S.学徒合同 === '已立据' && !quit) {
+        if ((S.本年学徒守店 + S.本年学徒学账 + S.本年学徒奔走 + S.本年学徒问价) <= 0 && S.学徒合同 === '已立据' && !quit) {
           S.家族 -= 2;
           log.push(['这一学年虽立了字据，却没真把多少旬数落到店里活计上，家里对你这条路更疑一分（家族-2）。', 'bad']);
-        } else if (S.本年学徒守店 > 0 && S.本年学徒学账 > 0 && S.本年学徒奔走 > 0) {
-          log.push(['这一学年你既守过店、也学过账货、还跑过街路，学徒路终于不再像一张“只写了拜师”的空纸。', 'good']);
+        } else if (S.本年学徒守店 > 0 && S.本年学徒学账 > 0 && S.本年学徒奔走 > 0 && S.本年学徒问价 > 0) {
+          log.push(['这一学年你既守过店、也学过账货、跑过街路、摸过行市，学徒路终于不再像一张“只写了拜师”的空纸。', 'good']);
         }
 
         clampAttr('体魄'); clampAttr('家族');
