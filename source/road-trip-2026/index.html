@@ -182,7 +182,10 @@ sup a:hover{text-decoration:underline;}
       <a href="#overview">路线地图</a>
       <a href="#time-chart">时间分配</a>
       <a href="#seg1">每日行程</a>
+      <a href="#daily-rhythm">每日节奏</a>
       <a href="#hiking">徒步路线</a>
+      <a href="#hiking-manual">徒步手册</a>
+      <a href="#stay-strategy">住宿策略</a>
       <a href="#budget">费用预算</a>
       <a href="#booking">预约提醒</a>
       <a href="#execution">执行清单</a>
@@ -1159,6 +1162,33 @@ flowchart LR
   </div>
 </section>
 
+<!-- Daily Rhythm -->
+<section id="daily-rhythm">
+  <div class="section-num">Daily Rhythm</div>
+  <h2>每日执行节奏</h2>
+  <p class="lead">这部分不是再重复路线，而是把<strong>每天大致该几点出发、午饭在哪种节点解决、哪些天必须早睡、哪些天适合洗澡洗衣补给</strong>写清楚，避免到了路上临场乱。</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>路段类型</th><th>最晚出发</th><th>午饭建议</th><th>晚上重点</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr><td><strong>高速长距离日</strong><br>如 D1、D2、D66</td><td>最晚 07:00</td><td>服务区或沿线县城快吃，不为午饭绕路</td><td>晚饭后立刻洗澡、整理第二天零食和水，必须早睡</td><td>这类日子目标只有一个：白天安全把大里程开完</td></tr>
+        <tr><td><strong>景区+短驾日</strong><br>如 敦煌、喀纳斯、拉萨周边</td><td>08:00-09:00</td><td>景区门口/县城解决，优先保证游玩时段</td><td>适合洗衣、补照片、补记账、订后续住宿</td><td>这类日子不要再额外塞长距离驾驶</td></tr>
+        <tr><td><strong>高海拔驾驶日</strong><br>如 新藏线、珠峰段、亚丁往返</td><td>最晚 07:30</td><td>带着路餐走，在检查站/加油站/县城节点补热食</td><td>晚饭从简，不洗澡或缩短洗澡，尽快卧床</td><td>海拔高时“早到住宿点”比“多看一个点”重要</td></tr>
+        <tr><td><strong>纯徒步日</strong><br>如 冈仁波齐、雨崩、虎跳峡、亚丁</td><td>最晚 07:00</td><td>出发前吃热早饭，中午以自带干粮/能量棒为主</td><td>回到住宿点先拉伸、补糖补盐、热水泡脚，必须早睡</td><td>徒步日不安排需要动脑的额外决策</td></tr>
+        <tr><td><strong>休整补给日</strong><br>如 喀什、拉萨、丽江、成都、西安</td><td>可睡到自然醒</td><td>正常坐下来吃</td><td>洗澡、洗衣、补给、记账、备份照片、查天气路况</td><td>这是把整趟行程重新拉回舒服节奏的关键节点</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout green">
+    <div class="callout-title">哪些天必须早睡</div>
+    <p>D1 北京出发前一晚、D2 巴彦淖尔住额济纳前一晚、D16 喀什准备上新藏线前一晚、D29 塔尔钦转山前一晚、D47 雨崩进冰湖前一晚、D53 虎跳峡高路前一晚、D58 亚丁长线前一晚、D65 成都返程高速前一晚。这几天都不适合夜宵、喝酒、熬夜刷手机。</p>
+  </div>
+  <div class="callout warn">
+    <div class="callout-title">哪些天最适合洗澡洗衣补给</div>
+    <p>优先放在：喀什、狮泉河、拉萨、香格里拉、丽江、成都、西安。新藏线高海拔段、珠峰附近、塔尔钦转山前后，不把“洗个舒服澡”当刚需。</p>
+  </div>
+</section>
+
 <!-- Hiking summary -->
 <section id="hiking">
   <div class="section-num">Hiking Routes</div>
@@ -1181,6 +1211,95 @@ flowchart LR
         <tr><td><strong>稻城亚丁长线+短线</strong></td><td>四川</td><td>2天/18km</td><td>4600m</td><td><span class="diff">★★★★☆</span></td><td><span class="tag ok">11月15-16日</span></td></tr>
       </tbody>
     </table>
+  </div>
+</section>
+
+<!-- Hiking Manual -->
+<section id="hiking-manual">
+  <div class="section-num">Hiking Manual</div>
+  <h2>徒步作战手册</h2>
+  <p class="lead">这部分只写最关键的 4 段：<strong>冈仁波齐、雨崩、虎跳峡、稻城亚丁</strong>。目标不是讲故事，而是让你们四个人出发前能判断“今天该不该上、上到哪里该撤、带什么最值钱”。</p>
+  <div class="two-col">
+    <div class="col-card">
+      <h4>冈仁波齐转山</h4>
+      <ul class="checklist">
+        <li><strong>起点-终点</strong>：塔尔钦 → 止热寺 → 卓玛拉垭口 → 尊追普寺 → 宗堆 → 塔尔钦</li>
+        <li><strong>时长 / 强度</strong>：3天52km，最高5648m，全程最强、全程最不能硬顶的一段</li>
+        <li><strong>放弃条件</strong>：血氧持续过低、恶心呕吐、天气突变、D31 上垭口前状态已明显不行</li>
+        <li><strong>骑马替代</strong>：可考虑首日或部分平缓段减负，但最关键的卓玛拉垭口不是“花钱就能轻松过去”</li>
+        <li><strong>必带物</strong>：冰爪、保暖手套、羽绒、保温杯、头灯、能量胶/巧克力、备用袜子、止痛药、氧气</li>
+        <li><strong>执行原则</strong>：保全队伍后半程，不把转山做成全程透支点</li>
+      </ul>
+    </div>
+    <div class="col-card">
+      <h4>雨崩 3 天</h4>
+      <ul class="checklist">
+        <li><strong>起点-终点</strong>：西当进村 → 上村/下村 → 冰湖 / 神瀑 → 尼农出村</li>
+        <li><strong>时长 / 强度</strong>：3天41km，海拔不算极端，但连续爬升和下坡很磨腿</li>
+        <li><strong>放弃条件</strong>：下雨路滑、膝盖不适、前一天进村已明显透支</li>
+        <li><strong>骑马替代</strong>：冰湖和部分上坡段可考虑骑马减轻负担，但下坡和技术路段仍要靠自己</li>
+        <li><strong>必带物</strong>：登山杖、护膝、雨壳、换洗内层、充电宝、头灯、现金、轻量保暖层</li>
+        <li><strong>执行原则</strong>：雨崩最怕“第一天太兴奋走爆了”，节奏保守一点反而更舒服</li>
+      </ul>
+    </div>
+    <div class="col-card">
+      <h4>虎跳峡高路</h4>
+      <ul class="checklist">
+        <li><strong>起点-终点</strong>：桥头 → 28 道拐 → Halfway 一线 → 中虎跳区域</li>
+        <li><strong>时长 / 强度</strong>：2天20km，海拔低，但 28 道拐爬升会把心率直接拉起来</li>
+        <li><strong>放弃条件</strong>：当天大雨、膝盖/脚踝不适、时间过晚才起步</li>
+        <li><strong>骑马替代</strong>：通常不把它当骑马型路线，更多靠控制背包重量和步频</li>
+        <li><strong>必带物</strong>：登山杖、护膝、轻量水袋、薄抓绒、防晒、少量现金</li>
+        <li><strong>执行原则</strong>：不要把它看成“散步线”，第一天爬升很实在</li>
+      </ul>
+    </div>
+    <div class="col-card">
+      <h4>稻城亚丁长线 + 短线</h4>
+      <ul class="checklist">
+        <li><strong>起点-终点</strong>：扎灌崩 → 洛绒牛场 → 牛奶海 / 五色海；次日冲古寺 → 珍珠海</li>
+        <li><strong>时长 / 强度</strong>：2天18km，最高4600m，高反压力大于纯距离压力</li>
+        <li><strong>放弃条件</strong>：到洛绒牛场就头痛明显、恶心、走路发飘；天气差看不到核心景观</li>
+        <li><strong>骑马替代</strong>：可在长线中段用骑马把体力留给最后爬升，但骑马不能解决高反</li>
+        <li><strong>必带物</strong>：保暖层、雨壳、墨镜、防晒、葡萄糖、登山杖、氧气、轻便午餐</li>
+        <li><strong>执行原则</strong>：长线不行就果断降级短线，亚丁最值得的是别把自己搞崩</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout danger" style="margin-top:20px">
+    <div class="callout-title">四段徒步的统一撤退原则</div>
+    <p>撤退不是失败，而是为了保住后面的 50 多天。只要出现<strong>明显高反、持续头痛、恶心、步态不稳、天气突变、时间过晚、队伍里有人状态崩</strong>，就优先执行降级方案，不争最后那一点完成度。</p>
+  </div>
+</section>
+
+<!-- Stay Strategy -->
+<section id="stay-strategy">
+  <div class="section-num">Stay Strategy</div>
+  <h2>住宿策略与预订清单</h2>
+  <p class="lead">你这条线不是“看到哪住哪”，而是要把住宿分成<strong>必须提前锁的稀缺节点、可以临近看天气再订的灵活节点、必须优先低海拔的舒适节点</strong>。这里不编具体民宿名，但把订房逻辑写死。</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>路段</th><th>优先住哪里</th><th>低海拔/更稳替代</th><th>订房优先级</th><th>选择标准</th></tr></thead>
+      <tbody>
+        <tr><td><strong>额济纳 / 敦煌</strong></td><td>县城中心或景区通勤方便区域</td><td>不建议住太偏，为第二天早出发留体力</td><td>中</td><td>停车方便、洗澡热水稳定、晚到能入住</td></tr>
+        <tr><td><strong>喀纳斯 / 禾木 / 白哈巴</strong></td><td>景区换乘节点附近或村内步行方便点</td><td>贾登峪作为更稳的兜底点</td><td>高</td><td>离换乘点近、少折腾行李、早起方便</td></tr>
+        <tr><td><strong>喀什 / 塔县</strong></td><td>喀什住古城外交通方便区域；塔县住县城中心</td><td>塔县优先选有供暖/电热毯/供氧条件</td><td>中</td><td>停车、热水、夜间保暖、第二天补给便利</td></tr>
+        <tr><td><strong>新藏线沿线</strong></td><td>叶城、三十里营房、多玛、狮泉河、札达按县城/镇中心住</td><td>高反明显时优先往低一点、条件更稳的点退</td><td>高</td><td>不追求风景房，只追求能睡、能热、能停、能起早</td></tr>
+        <tr><td><strong>塔尔钦 / 转山前后</strong></td><td>塔尔钦镇内步行方便区域</td><td>若状态差，宁可加预算也选更稳的保暖条件</td><td>高</td><td>离起点近、保暖好、能早点休息、行李收纳方便</td></tr>
+        <tr><td><strong>珠峰段</strong></td><td>巴松村 / 定日这类更舒服的住宿点</td><td>比起“大本营情怀”，更优先低一点、更能睡好的选择</td><td>高</td><td>供氧/供暖优先、停车方便、早起看日出能执行</td></tr>
+        <tr><td><strong>拉萨 / 林芝 / 波密 / 然乌</strong></td><td>优先住城市/县城中心或主通道附近</td><td>然乌如果状态一般，可直接下探八宿住得更舒服</td><td>中</td><td>洗澡洗衣方便、适合保养和补给</td></tr>
+        <tr><td><strong>飞来寺 / 雨崩 / 虎跳峡</strong></td><td>飞来寺住观景方便区；雨崩按上村/下村任务分配；虎跳峡住中途点</td><td>雨崩只带过夜包，大行李留车上</td><td>高</td><td>徒步起终点逻辑优先，而不是装修感</td></tr>
+        <tr><td><strong>日瓦 / 理塘 / 新都桥</strong></td><td>日瓦镇优于亚丁村；新都桥住镇内；理塘住县城中心</td><td>优先低海拔能睡好的方案，不为“景观窗景”牺牲恢复</td><td>高</td><td>停车、热水、保暖、次日早起进景区方便</td></tr>
+        <tr><td><strong>成都 / 西安</strong></td><td>优先停车方便、洗衣方便的城市住宿</td><td>可稍微提高预算换整晚恢复质量</td><td>中</td><td>这两站是恢复站，不是省钱站</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout warn">
+    <div class="callout-title">哪些住宿要优先提前锁</div>
+    <p>喀纳斯 / 禾木 / 白哈巴、塔尔钦、珠峰段、雨崩村内、虎跳峡中途点、日瓦镇（亚丁门口）这几类优先级最高。它们不是一定最贵，但最容易因为房少、天气和节假日而被动。</p>
+  </div>
+  <div class="callout green">
+    <div class="callout-title">待出发前填写的真实预订清单</div>
+    <p>这一页目前只给决策框架。真正要“先安排好”的，是出发前 1-2 个月按真实日期填写：<strong>住宿名称、可免费取消截止时间、每晚价格、停车条件、是否供暖/供氧、是否能洗衣、联系电话</strong>。这些必须基于你临近出发时看到的真实房态填写，不能现在凭空写死。</p>
   </div>
 </section>
 
