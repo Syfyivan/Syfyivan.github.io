@@ -230,7 +230,7 @@ sup a:hover{text-decoration:underline;}
   <div class="container">
     <div class="stats-grid">
       <div class="stat-item">
-        <div class="stat-value">≈18,000<span style="font-size:1rem">km</span></div>
+        <div class="stat-value">≈19,000<span style="font-size:1rem">km</span></div>
         <div class="stat-label">总里程（北京环线）</div>
       </div>
       <div class="stat-item">
@@ -404,8 +404,8 @@ sup a:hover{text-decoration:underline;}
   </div>
   <div class="map-legend" style="max-width:500px;margin:-10px auto 20px">
     <b>路线分段颜色</b><br>
-    <span style="color:#e74c3c">━━━</span> G7京新高速（北京→额济纳→敦煌→哈密）<br>
-    <span style="color:#e67e22">━━━</span> 北疆段（喀纳斯→禾木→赛里木湖→伊犁）<br>
+    <span style="color:#e74c3c">━━━</span> 青甘风景公路段（北京→张掖→G227→青海湖北岸→G315→敦煌→哈密）<br>
+    <span style="color:#e67e22">━━━</span> 北疆段（可可托海→白哈巴/禾木→赛里木湖→伊犁）<br>
     <span style="color:#d4a017">━━━</span> 独库+南疆帕米尔（库车→喀什→塔县→叶城）<br>
     <span style="color:#229954">━━━</span> 新藏线+西藏段（G219→阿里→拉萨→林芝）<br>
     <span style="color:#2980b9">━━━</span> 滇藏线+云南段（然乌→梅里→雨崩→丽江）<br>
@@ -416,23 +416,22 @@ sup a:hover{text-decoration:underline;}
   <div class="diagram">
     <pre class="mermaid">
 flowchart LR
-    A[北京] --> B[G7大漠·巴彦淖尔]
-    B --> C[额济纳·胡杨初秋色]
-    C --> D[嘉峪关·敦煌·莫高窟]
+    A[北京] --> B[张掖·G227祁连]
+    B --> C[青海湖北岸·德令哈]
+    C --> D[G315柴达木·敦煌]
     D --> E[哈密·入疆]
-    E --> F[喀纳斯·禾木金秋]
-    F --> G[赛里木湖·伊宁·特克斯]
-    G --> H[独库公路南段<br>10月4日·封路前]
-    H --> I[库车·喀什·帕米尔·塔县]
-    I --> J[G219新藏线·阿里·冈仁波齐转山]
-    J --> K[珠峰·日喀则·拉萨]
-    K --> L[林芝·然乌湖]
-    L --> M[G318+G214滇藏线·梅里雪山]
-    M --> N[雨崩徒步·虎跳峡·丽江]
-    N --> O[稻城亚丁·新都桥]
-    O --> P[成都·火锅·休整]
-    P --> Q[西安·肉夹馍·兵马俑]
-    Q --> R[太原·北京<br>到家还车 ✅]
+    E --> F[白哈巴/禾木或喀纳斯]
+    F --> G[赛里木湖·伊宁·独库]
+    G --> H[库车·喀什·帕米尔·塔县]
+    H --> I[G219新藏线·阿里·冈仁波齐转山]
+    I --> J[珠峰·日喀则·拉萨]
+    J --> K[林芝·然乌湖]
+    K --> L[G318+G214滇藏线·梅里雪山]
+    L --> M[雨崩徒步·虎跳峡·丽江]
+    M --> N[稻城亚丁·新都桥]
+    N --> O[成都·火锅·休整]
+    O --> P[西安·肉夹馍]
+    P --> Q[太原·北京<br>到家还车 ✅]
 
     style A fill:#C75B39,color:#fff,stroke:none
     style R fill:#4A7C59,color:#fff,stroke:none
@@ -440,14 +439,14 @@ flowchart LR
     style J fill:#8B5E3C,color:#fff,stroke:none
     style K fill:#8B5E3C,color:#fff,stroke:none
     </pre>
-    <figcaption>图：全程72天路线流向。北京取车→G7→新疆→新藏线→西藏→滇藏→云南→川西→成都→西安→北京还车，全程约18000km，零异地还车费。</figcaption>
+    <figcaption>图：新版72天路线流向。新版前段已改成青甘风景公路 + 北疆核心秋色骨架，文字路线以当前分段说明为准；地图底图后续会按新版重绘。全程约19000km，北京取车北京还车。</figcaption>
   </div>
 
   <div class="toc">
-    <h3>行程目录（共7段 · 72天 · 约18000km）</h3>
+    <h3>行程目录（共7段 · 72天 · 约19000km）</h3>
     <ol>
-      <li><a href="#seg1">北京→G7→巴彦淖尔→额济纳→嘉峪关→敦煌→哈密（7天）</a><span class="toc-days">D1-D7 · 约2700km · G7大漠+敦煌入疆</span></li>
-      <li><a href="#seg2">北疆喀纳斯+伊犁+独库公路（10天）</a><span class="toc-days">D8-D17 · 约3200km · 金秋+独库</span></li>
+      <li><a href="#seg1">北京→张掖→G227祁连→青海湖北岸→G315柴达木→敦煌→哈密（7天）</a><span class="toc-days">D1-D7 · 约3600km · 青甘风景公路前菜</span></li>
+      <li><a href="#seg2">东疆草原公路→北疆边境秋色→伊犁→独库公路（10天）</a><span class="toc-days">D8-D17 · 约3000km · 核心秋色+独库</span></li>
       <li><a href="#seg3">南疆库车+阿克苏+喀什+帕米尔塔县（6天）</a><span class="toc-days">D18-D23 · 约1900km · 丝路风情</span></li>
       <li><a href="#seg4">新藏线G219→阿里+冈仁波齐转山（10天）</a><span class="toc-days">D24-D33 · 约2400km · 含转山3天</span></li>
       <li><a href="#seg5">珠峰→日喀则→拉萨→林芝→然乌（10天）</a><span class="toc-days">D34-D43 · 约2500km · 圣城休整</span></li>
@@ -467,51 +466,51 @@ flowchart LR
   </figure>
 </section>
 
-<!-- Segment 1: Beijing - G7 - Ejina - Dunhuang - Hami (D1-D7) -->
+<!-- Segment 1: Beijing - Zhangye - G227 - Qinghai - G315 - Dunhuang - Hami (D1-D7) -->
 <section id="seg1">
   <div class="segment">
     <div class="segment-header">
       <div class="segment-badge">1</div>
       <div>
-        <div class="segment-title">北京 → G7大漠 → 巴彦淖尔 → 额济纳 → 嘉峪关 → 敦煌 → 哈密</div>
-        <div class="segment-meta">D1-D7（9月18-24日）· 约2,700km · 高速为主 · 日均385km · 含1天额济纳+1天敦煌游览</div>
+        <div class="segment-title">北京 → 张掖 → G227祁连 → 青海湖北岸 → G315柴达木 → 敦煌 → 哈密</div>
+        <div class="segment-meta">D1-D7（9月18-24日）· 约3,600km · 高速+国道风景公路 · 日均515km · 这一段本身就是主菜，不只是入疆前菜</div>
       </div>
     </div>
-    <p>从北京出发走G6/G7，穿越内蒙古河套平原，正式踏上G7京新高速——世界最长沙漠高速公路<sup><a href="#cite-s6">[7]</a></sup>。这一段新版重点不再是“进了多少收费点”，而是G7戈壁、额济纳大漠、嘉峪关到敦煌的苍凉过渡。D6在新版里设为敦煌弹性日：可以进莫高窟，也可以完全改成敦煌城市+沙漠公路+博物馆的低规则版本。</p>
+    <p>新版直接把青甘重新放回主线，但不是为了“补景区清单”，而是为了把 <strong>G227祁连山、青海湖北岸、柴达木荒原、G315 公路观感</strong> 一口气吃下来。这里的快乐更多来自公路本身、天际线、盐碱地、草原和荒原，而不是买了多少门票。</p>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D1（9月18日）</span><span class="day-route">北京 → 巴彦淖尔（临河区）<span class="day-km">约820km</span></span></div>
       <div class="day-meta">G6/G7高速 · 约9-10小时 · 住巴彦淖尔</div>
-      <div class="day-desc"><span class="tag drive">长途驾驶</span> 早6:30出发，经张家口、乌兰察布、呼和浩特、包头，下午5点左右到达巴彦淖尔。中途在呼和浩特/包头服务区吃午饭休息。第一天820km全程高速，2个司机轮换开完全可控。建议9月17日下午提前在北京取车。</div>
+      <div class="day-desc"><span class="tag drive">长途驾驶</span> 早6:30出发，经张家口、乌兰察布、呼和浩特、包头，下午5点左右到达巴彦淖尔。第一天目标很单纯：把节奏建立起来，不加戏、不夜驾。</div>
     </div>
     <div class="day-card">
-      <div class="day-card-header"><span class="day-num">D2（9月19日）</span><span class="day-route">巴彦淖尔 → 额济纳旗<span class="day-km">约680km</span></span></div>
-      <div class="day-meta">G7京新高速 · 约8小时 · 住额济纳旗</div>
-      <div class="day-desc"><span class="tag drive">全程最长驾驶日</span> 正式进入G7戈壁沙漠段，临白段穿越沙漠<sup><a href="#cite-s6">[7]</a></sup>。G7这段路车极少、几乎没有大货车、视线极好，但要注意防困和横风。<strong>过巴彦淖尔后见油站务必加满！</strong>下午5-6点到达额济纳（西部9点天黑）。胡杨刚开始变黄（约30-50%），人极少、住宿便宜。</div>
+      <div class="day-card-header"><span class="day-num">D2（9月19日）</span><span class="day-route">巴彦淖尔 → 张掖<span class="day-km">约650km</span></span></div>
+      <div class="day-meta">G6/G30高速 · 约8小时 · 住张掖</div>
+      <div class="day-desc"><span class="tag drive">高速过渡日</span> 这一天不强塞景点，下午到张掖后只做恢复和补给。若状态好，可傍晚看张掖城市边缘的日落地貌，不必执着进收费景区。</div>
     </div>
     <div class="day-card">
-      <div class="day-card-header"><span class="day-num">D3（9月20日）</span><span class="day-route">额济纳周边游览<span class="day-km">约100km</span></span></div>
-      <div class="day-meta">住额济纳旗</div>
-      <div class="day-desc"><span class="tag rest">休整日</span> 上午居延海日出，下午黑城弱水金沙湾拍胡杨，傍晚一道桥-八道桥看日落。此时胡杨约30-50%金黄，虽然未到盛黄但人极少、住宿只有国庆1/3价格，可以安静欣赏大漠胡杨的初秋色。</div>
+      <div class="day-card-header"><span class="day-num">D3（9月20日）</span><span class="day-route">张掖 → 民乐扁都口 → 祁连山 → 刚察/青海湖北岸<span class="day-km">约430km</span></span></div>
+      <div class="day-meta">G227国道 · 约7-8小时 · 住刚察 / 青海湖北岸</div>
+      <div class="day-desc"><span class="tag drive">新版核心日</span> 今天开始真正进入“免费大地风景优先”逻辑：G227 本身就是景观长廊。一路看祁连山、草原、垭口和高原开阔感，停留跟着天气和光线走，不跟着景区围栏走。</div>
     </div>
     <div class="day-card">
-      <div class="day-card-header"><span class="day-num">D4（9月21日）</span><span class="day-route">额济纳 → 酒泉/嘉峪关<span class="day-km">约400km</span></span></div>
-      <div class="day-meta">S315/S214+G30 · 约5-6小时 · 住嘉峪关</div>
-      <div class="day-desc"><span class="tag drive">中等驾驶</span> 中午出发南下甘肃，傍晚到嘉峪关。嘉峪关城楼在夕阳下远眺，感受"天下第一雄关"的苍凉。</div>
+      <div class="day-card-header"><span class="day-num">D4（9月21日）</span><span class="day-route">刚察 / 青海湖北岸 → 德令哈<span class="day-km">约420km</span></span></div>
+      <div class="day-meta">环湖公路 + G315/G3011 · 约6-7小时 · 住德令哈</div>
+      <div class="day-desc"><span class="tag drive">湖岸大景日</span> 青海湖这天也不再按“必须进哪个收费观景点”来安排，而是优先走北岸公路，看湖面、草场、风和远山的层次。下午切入柴达木边缘，到德令哈收车。</div>
     </div>
     <div class="day-card">
-      <div class="day-card-header"><span class="day-num">D5（9月22日）</span><span class="day-route">嘉峪关 → 敦煌<span class="day-km">约380km</span></span></div>
-      <div class="day-meta">G30高速 · 约4小时 · 住敦煌</div>
-      <div class="day-desc"><span class="tag drive">轻松驾驶</span> 上午可游览嘉峪关关城（也可只远眺不进景区），中午出发下午到敦煌。<strong>莫高窟不再是默认必做项</strong>：如果你们更偏爱免费风景和低规则体验，可以把重点放在敦煌城市、戈壁光线、沙洲夜市和外围公路。</div>
+      <div class="day-card-header"><span class="day-num">D5（9月22日）</span><span class="day-route">德令哈 → 大柴旦 → G315 柴达木公路观景<span class="day-km">约380km</span></span></div>
+      <div class="day-meta">G315国道 · 约6小时 · 住大柴旦</div>
+      <div class="day-desc"><span class="tag drive">荒原公路日</span> 今天的主角就是 G315 本身。荒原、盐碱地、戈壁公路和空旷感，是这一段最值钱的东西。新版不把具体收费小点排满，而是把时间留给公路观感和天气窗口。</div>
     </div>
     <div class="day-card">
-      <div class="day-card-header"><span class="day-num">D6（9月23日）</span><span class="day-route">敦煌一日游<span class="day-km">约50km</span></span></div>
-      <div class="day-meta">住敦煌</div>
-      <div class="day-desc"><span class="tag rest">弹性安排</span> 新版把这一天改成敦煌自由选择日：若你们对洞窟和讲解有强兴趣，就预约莫高窟；若更想把时间花在免费大地风景和轻松节奏上，就把它改成敦煌博物馆、戈壁公路、城市闲逛和早休息。</div>
+      <div class="day-card-header"><span class="day-num">D6（9月23日）</span><span class="day-route">大柴旦 → 敦煌<span class="day-km">约430km</span></span></div>
+      <div class="day-meta">G215/G3011/G30 · 约6-7小时 · 住敦煌</div>
+      <div class="day-desc"><span class="tag drive">地貌切换日</span> 从柴达木荒原切到敦煌绿洲，是这一段很好看的地貌切换。晚上在敦煌休整，次日依旧保留“可进莫高窟，也可完全不进”的弹性。</div>
     </div>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D7（9月24日）</span><span class="day-route">敦煌 → 哈密<span class="day-km">约420km</span></span></div>
       <div class="day-meta">G30高速 · 约5小时 · 住哈密</div>
-      <div class="day-desc"><span class="tag drive">入疆第一天</span> 经星星峡检查站正式进入新疆！下午到哈密，可去哈密魔鬼城看雅丹日落，阿勒屯古街吃哈密瓜和手抓饭。新疆比北京时间晚2小时作息，晚餐在8-9点。</div>
+      <div class="day-desc"><span class="tag drive">入疆日</span> 上午仍可在敦煌做弹性安排：进莫高窟、逛博物馆、或者只是城市慢走。下午经星星峡进入新疆，到哈密后开始切换到新疆作息。</div>
     </div>
     <details>
       <summary>📌 本段实用信息（信息更新于2026.8）</summary>
@@ -519,26 +518,26 @@ flowchart LR
         <h5>🍖 必吃美食类型</h5>
         <ul>
           <li>内蒙古段：河套焖面、羊肉烧麦、手把肉、奶茶</li>
-          <li>额济纳：驼肉大餐、哈密瓜、居延海烤鱼</li>
-          <li>嘉峪关/敦煌：驴肉黄面、胡杨焖饼、兰州牛肉面、靖远羊羔肉、杏皮水</li>
-          <li>哈密：手抓饭、烤包子、大盘鸡、哈密瓜、新疆烤串</li>
+          <li>张掖/祁连：牛羊肉、青稞饼、手抓肉、酸奶</li>
+          <li>德令哈/大柴旦：青海土火锅、炕锅羊肉、面片、酿皮</li>
+          <li>敦煌/哈密：驴肉黄面、杏皮水、手抓饭、烤包子、哈密瓜</li>
         </ul>
         <h5>🏨 住宿区域建议</h5>
         <ul>
           <li>巴彦淖尔：住临河区市中心，吃饭加油方便</li>
-          <li>额济纳：住达来呼布镇，离胡杨林景区近；9月下旬住宿便宜，国庆前订好</li>
-          <li>嘉峪关：住市中心或关城附近，连锁酒店多</li>
-          <li>敦煌：住鸣沙山附近客栈或市中心，吃饭方便；避开景区门口高价酒店</li>
+          <li>张掖：住市区或高速下口方便区域，不必执着景区门口</li>
+          <li>青海湖北岸：住刚察或湖北岸县镇，比挤核心热门点更从容</li>
+          <li>德令哈 / 大柴旦：住县城中心或主干道附近，方便第二天继续赶光线</li>
+          <li>敦煌：住市中心或外围通勤方便区域，别为景区门口高价埋单</li>
           <li>哈密：住伊州区市中心，安全方便</li>
         </ul>
         <h5>⚠️ 注意事项</h5>
         <ul>
-          <li>G7京新高速临白段服务区间隔较远，<strong>油表过半就加油</strong>，见加油站就加满</li>
-          <li>G7横风大，双手握稳方向盘，遇沙尘暴减速开灯</li>
-          <li>额济纳9月下旬胡杨只黄了30-50%，但胜在人少便宜；想看成片金黄需10月1日后，但那时人爆多住宿翻3倍</li>
-          <li>莫高窟A类票需提前1个月在官网/APP预约，应急票只能看4个窟；但新版里它是可选项，不再为它反向绑死整段节奏</li>
+          <li>新版这段以公路和免费地貌为主，别再按“每天必须打卡几个景区”安排体力</li>
+          <li>G227 和 G315 的美更吃天气与光线，遇到好天气就多停，遇到一般天气就果断赶路</li>
+          <li>青海湖北岸和柴达木海拔已不低，第一周就要开始尊重恢复节奏</li>
+          <li>莫高窟仍需预约，但它在新版里只是可选项，不再绑死前后行程</li>
           <li>星星峡入疆检查站需要身份证、驾驶证、行驶证，全车人下车刷脸，提前准备好</li>
-          <li>新疆安检多，身份证随身携带不要放后备箱</li>
         </ul>
         <p style="color:var(--muted);font-size:0.85rem;margin-top:10px">⚠️ 具体餐馆/民宿时效性强，建议出发前1-2个月在小红书/携程/美团查最新评价</p>
       </div>
@@ -546,14 +545,14 @@ flowchart LR
   </div>
 </section>
 
-<!-- Segment 2: Northern Xinjiang - Kanas + Ili + Duku (D8-D17) -->
+<!-- Segment 2: Eastern Xinjiang grassland roads + Northern Xinjiang core autumn + Duku (D8-D17) -->
 <section id="seg2">
   <div class="segment">
     <div class="segment-header">
       <div class="segment-badge">2</div>
       <div>
-        <div class="segment-title">北疆喀纳斯金秋 → 伊犁赛里木湖 → 独库公路南段</div>
-        <div class="segment-meta">D8-D17（9月25日-10月4日）· 约3,200km · 高速+山区公路 · 日均320km</div>
+        <div class="segment-title">东疆草原公路 → 北疆边境秋色 → 伊犁赛里木湖 → 独库公路南段</div>
+        <div class="segment-meta">D8-D17（9月25日-10月4日）· 约3,000km · 草原公路+边境秋色+独库 · 日均300km</div>
       </div>
     </div>
     <div class="callout danger">
@@ -561,8 +560,8 @@ flowchart LR
       <p>9月28日-10月1日在喀纳斯/禾木（D11-D14），正值金秋前期，叶子已大面积金黄且人少住宿便宜。但新版里这里不再要求把喀纳斯/禾木/白哈巴全部完成，而是允许只保留一个最打动你的核心点。D17（10月4日）走独库南段，比典型封路时间（10月10日前后）提前约一周，<strong>需密切关注实时封路公告</strong>。如果遇降雪封路则走G218经库尔勒绕行多400km。</p>
     </div>
     <div class="callout green">
-      <div class="callout-title">本段徒步</div>
-      <p><span class="tag hike">徒步</span> <strong>喀纳斯三湾木栈道</strong>（8km，初级，D12）<span class="tag hike">徒步</span> <strong>禾木美丽峰</strong>（15km往返，中级，D13）</p>
+      <div class="callout-title">本段徒步与降级原则</div>
+      <p><span class="tag hike">徒步</span> <strong>喀纳斯三湾木栈道</strong>（8km，初级，D12）<span class="tag hike">徒步</span> <strong>禾木美丽峰</strong>（15km往返，中级，D13）。但新版允许根据人流、天气和体感，只保留其中一条，不为“来都来了”强行完成全部景区内动作。</p>
     </div>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D8（9月25日）</span><span class="day-route">哈密 → 巴里坤 → 木垒<span class="day-km">约400km</span></span></div>
@@ -1464,11 +1463,11 @@ flowchart LR
 
   <!-- 4人版 (default/active) -->
   <div id="budget-p4">
-  <h3>4人同行·坦克300硬派四驱·免费大地风景优先版（72天大环线，总预算约11.1万-11.5万元）</h3>
+  <h3>4人同行·坦克300硬派四驱·免费大地风景优先版（72天大环线，总预算约11.1万-11.6万元）</h3>
   <p style="font-size:0.88rem;color:var(--muted);margin:4px 0 14px">9月18日出发→11月28日回到北京共72天（73天含提前1天取车）· 71晚优先整套两居/三居民宿 · 神州租车坦克300四驱（加92油、可靠硬派） · 北京取车北京还车无异地费 · 紧凑但不极限，平均每天250km，好路开500-600km，烂路高海拔开200-300km · 核心快乐来自公路、大地风景和少规则体验 · 人均约27,650-28,750元</p>
 
   <div class="callout" style="margin-bottom:14px">
-      <p><strong>4人免费大地风景优先版（72天）</strong>：路线主骨架仍保留北京→G7→新疆→新藏线G219→西藏→滇藏线→川西→成都→西安→北京，但不再以热门收费景区完成度为目标，而是优先保留景观公路、免费地貌和真正值得花体力的徒步。</p>
+      <p><strong>4人免费大地风景优先版（72天）</strong>：路线主骨架已改成北京→张掖→G227祁连→青海湖北岸→G315柴达木→敦煌→哈密→新疆→新藏线G219→西藏→滇藏线→川西→成都→西安→北京，不再以热门收费景区完成度为目标，而是优先保留景观公路、免费地貌和真正值得花体力的徒步。</p>
       <p style="margin-top:8px"><strong>租车方案</strong>：神州租<strong>坦克300四驱</strong>约500-550元/天含基础险，加购全额险约55-80元/天，73天合计约40,000-46,000元。神州网点多、车源足、理赔方便、北京取还零异地费风险。</p>
       <p style="margin-top:8px">全程优先整套两居/三居民宿4人住一起，好路高速开500-600km不拖沓，新藏线高海拔开200-300km安全第一，把“人多、贵、规则重”的景区统一降级为可选，把机动时间留给真正值的公路和天气窗口。</p>
     </div>
@@ -1478,7 +1477,7 @@ flowchart LR
       <thead><tr><th>项目</th><th>4人合计</th><th>人均</th><th>计算依据</th></tr></thead>
       <tbody>
         <tr><td><strong>租车（73天含全险，提前1天取车）</strong></td><td>42,000</td><td>10,500</td><td>神州坦克300四驱约500元/天+全险约75元/天≈575元/天×73天≈42,000元；正规大平台、车源足、全国能修、理赔省心</td></tr>
-        <tr><td><strong>油费</strong></td><td>13,700</td><td>3,425</td><td>总里程约18000km；坦克300综合油耗约10L/100km，92号油约7.6元/L；18000×0.10×7.6≈13,680≈13,700</td></tr>
+        <tr><td><strong>油费</strong></td><td>14,500</td><td>3,625</td><td>总里程约19000km；坦克300综合油耗约10L/100km，92号油约7.6元/L；19000×0.10×7.6≈14,440≈14,500</td></tr>
         <tr><td><strong>过路费（ETC）</strong></td><td>3,500</td><td>875</td><td>北京→新疆高速+川西→成都→西安→北京高速，约3500元；独库/新藏/滇藏/G318国道无过路费</td></tr>
         <tr><td><strong>住宿（71晚，优先整套民宿）</strong></td><td>23,000</td><td>5,750</td><td>新藏线偏远地区10晚宾馆2间标间约6,000；其余61晚整套两居/三居民宿平均约280元/套≈17,000；合计约23,000元</td></tr>
         <tr><td><strong>餐饮</strong></td><td>15,000</td><td>3,750</td><td>45天自炊做饭+民宿厨房约40元/人/天=7,200；沿途特色餐（新疆手抓饭烤串、成都火锅、西安美食等）约4,800；外食27天约3,000；合计15,000</td></tr>
@@ -1489,7 +1488,7 @@ flowchart LR
         <tr><td><strong>旅行保险</strong></td><td>1,600</td><td>400</td><td>含高反救援的户外险400/人×4</td></tr>
         <tr><td><strong>徒步应急</strong></td><td>800</td><td>200</td><td>4人骑马备用</td></tr>
         <tr><td><strong>机动/应急</strong></td><td>5,000</td><td>1,250</td><td>覆盖旺季住宿涨价、车辆小修、滞留等</td></tr>
-        <tr style="background:var(--accent2-light)"><td><strong>合计</strong></td><td><strong>约110,600-115,000元</strong></td><td><strong>约27,650-28,750元/人</strong></td><td>新版门票支出弹性更大，真正把钱留给路上住宿、补给和天气窗口</td></tr>
+        <tr style="background:var(--accent2-light)"><td><strong>合计</strong></td><td><strong>约111,400-115,800元</strong></td><td><strong>约27,850-28,950元/人</strong></td><td>新版门票支出弹性更大，真正把钱留给路上住宿、补给和天气窗口</td></tr>
       </tbody>
     </table>
   </div>
