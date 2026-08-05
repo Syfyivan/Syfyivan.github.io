@@ -58,6 +58,7 @@
   var curChildEvents = [];   // 本轮随机事件
 
   function initState(carry) {
+    carryOver = carry || null;
     S = {
       年龄: 1, 身份: '民籍·佃农子(孩提)',
       体魄: 60, 家族: 60,
@@ -78,7 +79,10 @@
       供读状态: '家中供读', 供读压力: 0, 读书成本档: 0, 本年下场: false,
       生员身份: false, 生员层级: '无', 优免启用: false, 举业结局: '未定', 识字转业值: 0, _advanceExamYear: false,
       // 人生链路字段
-      妻室: false, 子数: 0, 女数: 0, 负债银: 0, 口食田: 0, 分家: false, 应役: '未役'
+      妻室: false, 子数: 0, 女数: 0, 负债银: 0, 口食田: 0, 分家: false, 应役: '未役',
+      // 代际承接字段（不直接折现，只改变下一代入口分布）
+      父辈路线: '未定', 承嗣来路: '本支承继', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 亦贾亦儒底子: 0,
+      _wageLegacyApplied: false, _apprenticeLegacyApplied: false, _merchantLegacyApplied: false, _examLegacyApplied: false
     };
     if (carry) {
       S.白银 = Math.max(0, carry.白银 || 0);
@@ -86,14 +90,23 @@
       S.铜钱 = carry.铜钱 != null ? carry.铜钱 : 1200;
       S.田亩 = Math.max(1, carry.田亩 || 4);
       S.家族 = Math.max(20, Math.min(80, carry.家族 == null ? 60 : carry.家族));
+      S.父辈路线 = carry.父辈路线 || '未定';
+      S.承嗣来路 = carry.承嗣来路 || '本支承继';
+      S.家传书香 = Math.max(0, carry.家传书香 || 0);
+      S.城里门路 = Math.max(0, carry.城里门路 || 0);
+      S.商路门路 = Math.max(0, carry.商路门路 || 0);
+      S.家传手艺 = Math.max(0, carry.家传手艺 || 0);
+      S.亦贾亦儒底子 = Math.max(0, carry.亦贾亦儒底子 || 0);
     }
     ledger = []; seq = 0; xunIndex = 0; picks = []; resolved = null; gameOver = false;
+    _invViolations = [];
+    if (typeof window !== 'undefined') window.__INV = _invViolations;
     _yearEndNext = null;
     phase = 'childhood';
     childStage = 0; childRound = 0; childPicks = []; childResolved = null;
     S.年龄 = CHILD_STAGES[0].age;
     recordEntry('出生开账', null,
-      generation > 1 ? ('第' + generation + '代降生：这一户现有田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两，你排行次子，全赖父母养育。')
+      generation > 1 ? ('第' + generation + '代降生：这一户现有田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两，你排行次子，全赖父母养育。' + inheritedCarryNote(carryOver))
         : '出生：降生于江南民籍佃农之家，排行次子。这户现有薄田4亩、存米3石、少量现钱。');
     rollChildRound();
   }
@@ -173,6 +186,94 @@
     return table[table.length - 1].r;
   }
   function clampAttr(k) { if (S[k] < 0) S[k] = 0; if (S[k] > 100) S[k] = 100; }
+  function inheritedCarryTags(carry) {
+    if (!carry) return [];
+    var tags = [];
+    if ((carry.家传手艺 || 0) > 0) tags.push('家里还认得一层手艺门路');
+    if ((carry.城里门路 || 0) > 1) tags.push('父辈在城里留下了熟门熟路的铺面人脉');
+    else if ((carry.城里门路 || 0) > 0) tags.push('父辈在城里留过几层熟识');
+    if ((carry.商路门路 || 0) > 1) tags.push('商路旧识与账面门道还在');
+    else if ((carry.商路门路 || 0) > 0) tags.push('家里还认得几条商路');
+    if ((carry.家传书香 || 0) > 1) tags.push('屋里留着旧书与师承门路');
+    else if ((carry.家传书香 || 0) > 0) tags.push('家里还存一点书香与识字底子');
+    if ((carry.亦贾亦儒底子 || 0) > 0) tags.push('这一房已隐约有了亦贾亦儒的分工念头');
+    return tags;
+  }
+  function inheritedCarryNote(carry) {
+    var tags = inheritedCarryTags(carry);
+    return tags.length ? ('上一代还给这一房留下：' + tags.join('、') + '。') : '';
+  }
+  function currentFamilySnapshotText() {
+    if (generation <= 1 || !carryOver) {
+      return '共同父快照不变：民籍次子、家庭公账白银6两/铜钱2000文/存米8石、薄田12亩、本人无独立现金。此处只分“路”，不倒填未来。';
+    }
+    return '这一代不再回滚到初代父快照，而是沿上一代真实传承快照继续：本房现有白银' + S.白银 + '两、铜钱' + S.铜钱 + '文、存米' + S.存米 + '石、田' + S.田亩 + '亩。' +
+      (carryOver.父辈路线 && carryOver.父辈路线 !== '未定' ? ('父辈走的是“' + carryOver.父辈路线 + '”。') : '') +
+      inheritedCarryNote(carryOver);
+  }
+  function currentEstablishmentLead(baseSummary) {
+    if (generation <= 1 || !carryOver) {
+      return '你已<span class="em">十六岁</span>。父兄会留在这户田上，你得决定自己怎么立身。' +
+        (baseSummary.length ? ('你这些年攒下的底子：<span class="em">' + baseSummary.join('、') + '</span>。') : '你手上并无特别底子，只有一副年轻身子和一点寻常农事。') +
+        '五条路共享同一个过去、同一份家底，但以后会走成完全不同的一生。';
+    }
+    return '你已<span class="em">十六岁</span>。这一代承的是上一代身后结清后留下的家底：田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两。' +
+      (baseSummary.length ? ('你眼下能动用的底子：<span class="em">' + baseSummary.join('、') + '</span>。') : '你手里没攒出太多新底子，只能从上一代留给你的薄产与门路里找出路。') +
+      '你仍是这一房的次子，长兄多半承更多家产；但父辈留下的门路与亏空，也都会改写你五条路的入口。';
+  }
+  function applyRouteInheritance(routeKey) {
+    if (generation <= 1 || !carryOver) return [];
+    var notes = [];
+    if (routeKey === 'wage' && !S._wageLegacyApplied) {
+      S._wageLegacyApplied = true;
+      if (S.家传手艺 > 0 && S.技艺 === '无') {
+        S.雇技进度 = Math.max(S.雇技进度, 1);
+        notes.push('父辈留下的一层手艺门路，让你一入行就知道该跟哪样活计上手');
+      }
+      if (S.城里门路 > 0) {
+        S.家族 += 1; clampAttr('家族');
+        notes.push('父辈在城里留过几层熟识，外出谋工不至全凭陌生脸');
+      }
+    } else if (routeKey === 'apprentice' && !S._apprenticeLegacyApplied) {
+      S._apprenticeLegacyApplied = true;
+      if (S.城里门路 > 0 && S.学徒合同 === '未议') {
+        S.学徒合同 = '说合中';
+        S.学徒信任 = Math.max(S.学徒信任, S.城里门路);
+        notes.push('父辈留下的城里熟识先替你把求师推到了说合中');
+      }
+      if (S.商路门路 > 0) {
+        S.学徒授艺度 = Math.max(S.学徒授艺度, 1);
+        notes.push('家里认得一点商路门道，你认货记账不再完全白手起家');
+      }
+    } else if (routeKey === 'merchant' && !S._merchantLegacyApplied) {
+      S._merchantLegacyApplied = true;
+      if (S.商路门路 > 0) {
+        S.账房进度 = Math.max(S.账房进度, 1);
+        S.商信誉 = Math.max(S.商信誉, S.商路门路);
+        notes.push('父辈留下的商路旧识与账面门道，让你一上来就能看懂些账、认得些人');
+      }
+      if (S.家传书香 > 0 && !S.识字) {
+        S.识字 = true; S.识字进度 = Math.max(2, S.识字进度);
+        notes.push('屋里剩下的旧书和识字家风，让你不至于做个全然不识字的跑腿');
+      }
+    } else if (routeKey === 'civilExam' && !S._examLegacyApplied) {
+      S._examLegacyApplied = true;
+      if (S.家传书香 > 0 && !S.识字) {
+        S.识字 = true; S.识字进度 = Math.max(2, S.识字进度);
+        notes.push('父辈留下的旧书与家学，让你少时就识得些字');
+      }
+      if (S.家传书香 > 1) {
+        S.文章火候 = Math.max(S.文章火候, 1);
+        S.保结进度 = Math.max(S.保结进度, 1);
+        notes.push('父辈遗下的师承与书香，使你这一代赴考资格和起步火候都更顺一层');
+      }
+      if (S.亦贾亦儒底子 > 0) {
+        S.家族 += 1; clampAttr('家族');
+        notes.push('这一房已有亦贾亦儒的旧念头，家里对先供几年书这条路不算全然陌生');
+      }
+    }
+    return notes;
+  }
 
   function growthInfo() {
     if (!S.已插秧) return { planted: false, ratio: 0, pct: 0, label: '未插秧', cls: 'g-none' };
@@ -375,7 +476,9 @@
   function isOnce(id) { return ['plant', 'hire_plant', 'care', 'harvest', 'hire_harvest', 'rest', 'exchange'].indexOf(id) >= 0; }
 
   function narrative() {
-    if (xunIndex === 0) return '你是<span class="em">陈阿二</span>' + (generation > 1 ? '（第' + generation + '代）' : '') + '，江南某县民籍佃农之子，十六岁成丁。父兄承了祖业薄田，你分得<span class="em">' + S.田亩 + '亩水田</span>与口粮，向本村地主佃田耕作。这一季从插秧到秋收，能落下多少米、缴完租还剩几何，全看你如何安排这有限的人手与光阴。';
+    if (xunIndex === 0) return generation > 1
+      ? ('你是<span class="em">陈阿二</span>（第' + generation + '代），江南某县民籍次子。上一代结清后，这一房手里还剩<span class="em">' + S.田亩 + '亩田、' + S.存米 + '石米、' + S.白银 + '两银</span>；你如今接着这一房的旧账继续往下活。若仍走留乡佃田，这一季能缴租后剩几何，全看你如何安排这有限的人手与光阴。')
+      : '你是<span class="em">陈阿二</span>，江南某县民籍佃农之子，十六岁成丁。父兄承了祖业薄田，你分得<span class="em">' + S.田亩 + '亩水田</span>与口粮，向本村地主佃田耕作。这一季从插秧到秋收，能落下多少米、缴完租还剩几何，全看你如何安排这有限的人手与光阴。';
     if (xunIndex === HARVEST_XUN) return '九旬光阴倏忽而过，稻子黄了。这一旬要抢收、要缴租——一季的成败，就看仓里最后能剩下多少米。';
     return '农事未歇，日子一旬一旬地过。你掂量着手里的人手：是下田侍弄禾苗，还是去挣几个现钱，或是顾一顾家里？';
   }
@@ -812,6 +915,7 @@
     if (S.技艺 !== '无') 底子.push('有手艺傍身（乱世多一条退路）');
     if (S.农事历练 >= 3) 底子.push('农活扎实');
     if (S.家务历练 >= 3) 底子.push('家务麻利');
+    inheritedCarryTags(carryOver).forEach(function (x) { 底子.push(x); });
     return 底子;
   }
 
@@ -821,7 +925,9 @@
     S.年龄 = 16; S.身份 = '民籍·次子待立身'; S.路线 = '未立身';
     picks = []; resolved = null; lifePicks = []; curStage = stageEstablishment();
     var 底子 = routeBaseSummary();
-    recordEntry('十六成丁·立身开账', snapshot(), '幼年既过，成丁立身。' + (底子.length ? '这些年攒下：' + 底子.join('、') + '。' : '这些年不曾攒下特别的底子，只识些寻常农事。'));
+    recordEntry('十六成丁·立身开账', snapshot(), '幼年既过，成丁立身。' +
+      (generation > 1 ? ('这一代沿上一代真实传承快照起步：田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两。') : '') +
+      (底子.length ? '这些年攒下：' + 底子.join('、') + '。' : '这些年不曾攒下特别的底子，只识些寻常农事。'));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -841,9 +947,10 @@
     S.年龄 = 16 + (S.工年 - 1);
     S.身份 = '民籍·雇工子';
     S.路线 = '受雇长工/短工';
+    var inherited = (S.工年 === 1) ? applyRouteInheritance('wage') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageWage();
-    if (S.工年 === 1) recordEntry('立身分路·受雇谋生', snapshot(), '你没去守那几亩佃田，而是去乡里和市镇寻工：靠体魄、识字和一点手艺底子，先把工食挣出来。');
+    if (S.工年 === 1) recordEntry('立身分路·受雇谋生', snapshot(), '你没去守那几亩佃田，而是去乡里和市镇寻工：靠体魄、识字和一点手艺底子，先把工食挣出来。' + (inherited.length ? ' 父辈承下来的余绪在这里先起了作用：' + inherited.join('；') + '。' : ''));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -855,9 +962,10 @@
     S.年龄 = 16 + (S.学年 - 1);
     S.身份 = '民籍·商铺学徒';
     S.路线 = '入城学徒';
+    var inherited = (S.学年 === 1) ? applyRouteInheritance('apprentice') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageApprentice();
-    if (S.学年 === 1) recordEntry('立身分路·入城学徒', snapshot(), '你不留乡守田，也不先去打长短工，而是进城投商铺学徒：先求师、立据、守店、识货，看三年后能不能留店或另谋。');
+    if (S.学年 === 1) recordEntry('立身分路·入城学徒', snapshot(), '你不留乡守田，也不先去打长短工，而是进城投商铺学徒：先求师、立据、守店、识货，看三年后能不能留店或另谋。' + (inherited.length ? ' 父辈留下的门路先替你垫了一步：' + inherited.join('；') + '。' : ''));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -869,9 +977,10 @@
     S.年龄 = 16 + (S.商年 - 1);
     S.身份 = '民籍·随号学生意';
     S.路线 = '徽商式亦贾亦儒';
+    var inherited = (S.商年 === 1) ? applyRouteInheritance('merchant') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageMerchant();
-    if (S.商年 === 1) recordEntry('立身分路·徽商学生意', snapshot(), '你决定投族叔商号学生意：先当伙计学认货、跑单、看账，再看能否挣出反哺家中的现钱。');
+    if (S.商年 === 1) recordEntry('立身分路·徽商学生意', snapshot(), '你决定投族叔商号学生意：先当伙计学认货、跑单、看账，再看能否挣出反哺家中的现钱。' + (inherited.length ? ' 上一代留下的商路余绪先替你开了个口：' + inherited.join('；') + '。' : ''));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -883,9 +992,10 @@
     S.年龄 = 16 + (S.举业年 - 1);
     S.身份 = S.生员身份 ? '民籍·生员' : '民籍·读书子';
     S.路线 = '读书应举';
+    var inherited = (S.举业年 === 1) ? applyRouteInheritance('civilExam') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageCivilExam();
-    if (S.举业年 === 1) recordEntry('立身分路·读书应举', snapshot(), '你把家中有限的银钱、纸墨与人情先压到读书上：供读不等于录取，只意味着这一户先把资源让给你。');
+    if (S.举业年 === 1) recordEntry('立身分路·读书应举', snapshot(), '你把家中有限的银钱、纸墨与人情先压到读书上：供读不等于录取，只意味着这一户先把资源让给你。' + (inherited.length ? ' 父辈留下的书香与旧门路，先替你省了几步白手起家的折腾：' + inherited.join('；') + '。' : ''));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -1124,20 +1234,25 @@
   // ── 立身分叉（16岁）：五路中先接通两路 —— 佃田 / 受雇 ──
   function stageEstablishment() {
     var 底子 = routeBaseSummary();
+    var startNote = generation > 1
+      ? '这一代不再沿用初代那张“固定父快照”，而是直接吃上一代真实死亡结算留下的期初账。五条路仍共享同一个过去，但这个“过去”现在来自真实传承，不再回滚。'
+      : '你要求的是“同一父快照、16岁再分路”。这里不再默认锁死进佃田，而是在同一户、同一年、同一份家底下分叉。现在五条路都接了首版循环：佃田、受雇、学徒、商路、举业。';
+    var startEvents = generation > 1 ? [
+      { t: 'rel', tag: '[承继]', txt: '这一代的起点不是白纸：父辈传下多少薄田、多少债、多少门路，都会先落在你身上。' },
+      { t: 'rand', tag: '[立身]', txt: inheritedCarryTags(carryOver).length ? ('父辈留下的：' + inheritedCarryTags(carryOver).join('、') + '。这些都不会直接变成现银，却会改写你五条路的入口。') : '这一房只剩薄产，几乎没有额外门路可倚。你的五条路更接近再次白手起家。' }
+    ] : [
+      { t: 'rel', tag: '[立身]', txt: '兄将承祖业多数薄田，你这次子分不到够养一家的田。你的路，从来不可能只是“照旧过下去”。' },
+      { t: 'rand', tag: '[制度]', txt: '五条路并无高下：耕、雇、学、商、举都是真实入口。区别只在它们如何读取同一份时间、身体、现金与他人意愿。' }
+    ];
     return {
       title: '立身 · 五路分叉', label: '立身',
       next: null, nextLabel: '走上这条路 →',
-      note: '你要求的是“同一父快照、16岁再分路”。这里不再默认锁死进佃田，而是在同一户、同一年、同一份家底下分叉。现在五条路都接了首版循环：佃田、受雇、学徒、商路、举业。',
-      narrative: '你已<span class="em">十六岁</span>。父兄会留在这户田上，你得决定自己怎么立身。' +
-        (底子.length ? ('你这些年攒下的底子：<span class="em">' + 底子.join('、') + '</span>。') : '你手上并无特别底子，只有一副年轻身子和一点寻常农事。') +
-        '五条路共享同一个过去、同一份家底，但以后会走成完全不同的一生。',
+      note: startNote,
+      narrative: currentEstablishmentLead(底子),
       dossier: function () {
-        return lifeDossier('共同父快照不变：民籍次子、家庭公账白银6两/铜钱2000文/存米8石、薄田12亩、本人无独立现金。此处只分“路”，不倒填未来。');
+        return lifeDossier(currentFamilySnapshotText());
       },
-      events: [
-        { t: 'rel', tag: '[立身]', txt: '兄将承祖业多数薄田，你这次子分不到够养一家的田。你的路，从来不可能只是“照旧过下去”。' },
-        { t: 'rand', tag: '[制度]', txt: '五条路并无高下：耕、雇、学、商、举都是真实入口。区别只在它们如何读取同一份时间、身体、现金与他人意愿。' }
-      ],
+      events: startEvents,
       prompt: '十六成丁，你先走哪条路？',
       choices: [
         {
@@ -1354,7 +1469,12 @@
         A.push({ id: 'a_drudge', name: '铺中杂役守店', cost: 1, eff: '学徒历练+1·信任+1·体魄-2', desc: '看店、跑腿、搬货、招呼客人，不是学艺最快，但这是人家看你靠不靠谱的第一关。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据' });
         A.push({ id: 'a_learn', name: '随师认货记账', cost: 1, eff: '授艺度+1·学徒历练+1', desc: '跟着看账认货，先学会不吃亏，再谈以后能不能留下。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据' });
         A.push({ id: 'a_home', name: '回乡帮父应急', cost: 1, eff: '家族+4·存米+1', desc: '店里少上一程工，家里却稳一些。', can: true, once: true });
-        A.push({ id: 'a_keep', name: '第三年议留店', cost: 1, eff: '年末判留店去向', desc: '到了第三年，试着问问能不能留下做伙计。', can: S.学年 === APPRENTICE_YEARS && S.学徒合同 === '已立据', why: S.学年 === APPRENTICE_YEARS ? (S.学徒合同 === '已立据' ? '' : '尚未立据') : '要到第三年', once: true });
+        A.push({
+          id: 'a_keep', name: '第三年议留店', cost: 1, eff: '年末判留店去向', desc: '到了第三年，试着问问能不能留下做伙计。',
+          can: S.学年 === APPRENTICE_YEARS && S.学徒合同 === '已立据' && S.学徒授艺度 >= 2,
+          why: S.学年 === APPRENTICE_YEARS ? (S.学徒合同 === '已立据' ? (S.学徒授艺度 >= 2 ? '' : '授艺度至少要到2') : '尚未立据') : '要到第三年',
+          once: true
+        });
         A.push({ id: 'a_shift', name: '第三年带门路投店工', cost: 1, eff: '年末判店铺做工去向', desc: '不求留本店，带着这三年的门道去别家店里找活路。', can: S.学年 === APPRENTICE_YEARS && S.学徒合同 === '已立据', why: S.学年 === APPRENTICE_YEARS ? (S.学徒合同 === '已立据' ? '' : '尚未立据') : '要到第三年', once: true });
         A.push({ id: 'a_trade', name: '第三年跟货外跑试路', cost: 1, eff: '年末判随行商去向', desc: '借师门门路跟着跑一趟货，试试能不能转去学生意。', can: S.学年 === APPRENTICE_YEARS && S.学徒合同 === '已立据', why: S.学年 === APPRENTICE_YEARS ? (S.学徒合同 === '已立据' ? '' : '尚未立据') : '要到第三年', once: true });
         A.push({ id: 'a_quit', name: '自请退师另谋', cost: 1, eff: '退师·沉没成本不退', desc: '若觉着再熬不值，就自己退下来，带着沉没成本另找路。', can: S.学徒合同 === '已立据', why: S.学徒合同 === '已立据' ? '' : '尚未立据', once: true });
@@ -1430,7 +1550,11 @@
               log.push(['〔去留〕师傅愿继续把你留在店里熬下一年。', 'good']);
             }
           } else {
-            var outChance = Math.max(0.15, Math.min(0.90, 0.20 + S.学徒授艺度 * 0.12 + S.学徒信任 * 0.08 + (askedKeep ? 0.10 : 0)));
+            var canKeepShop = S.学徒授艺度 >= 2;
+            if (askedKeep && !canKeepShop) {
+              log.push(['〔门槛〕授艺度未满2，师傅不肯留你直接坐伙计。', 'bad']);
+            }
+            var outChance = canKeepShop ? Math.max(0.15, Math.min(0.90, 0.20 + S.学徒授艺度 * 0.12 + S.学徒信任 * 0.08 + (askedKeep ? 0.10 : 0))) : 0;
             var shiftChance = Math.max(0.12, Math.min(0.80, 0.18 + S.学徒授艺度 * 0.10 + S.学徒历练 * 0.05 + (askedShift ? 0.12 : 0)));
             var tradeChance = Math.max(0.10, Math.min(0.78, 0.16 + S.学徒授艺度 * 0.08 + S.学徒历练 * 0.06 + (S.识字 ? 0.06 : 0) + (askedTrade ? 0.12 : 0)));
             if (Math.random() < outChance) {
@@ -2214,6 +2338,28 @@
 
   // ── 死亡与传承 ──
   function stageDeath() {
+    function nextGenLegacy() {
+      var legacy = {
+        父辈路线: S.路线 || '未定',
+        承嗣来路: S.子数 > 0 ? '本支次子承继' : '旁支过继',
+        家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 亦贾亦儒底子: 0
+      };
+      if (S.技艺 !== '无' || S.雇技进度 >= 2 || S.雇工历练 >= 3) legacy.家传手艺 = 1;
+      if (S.学徒去向 === '留店伙计') legacy.城里门路 = 2;
+      else if (S.学徒去向 === '店铺做工' || S.学徒去向 === '随行商') legacy.城里门路 = 1;
+      if (S.商历练 > 0 || S.累计反哺银 > 0 || S.商身份 !== '未定') legacy.商路门路 = 1;
+      if ((S.账房进度 + S.商信誉) >= 3 || S.累计反哺银 >= 2) legacy.商路门路 = 2;
+      if (S.生员身份) legacy.家传书香 = 2;
+      else if (S.识字 || S.识字转业值 >= 2 || S.举业结局 === '屡试未第') legacy.家传书香 = 1;
+      if ((legacy.商路门路 > 0 && legacy.家传书香 > 0) || S.商路供读银 >= 1) legacy.亦贾亦儒底子 = 1;
+      if (S.子数 <= 0) {
+        legacy.城里门路 = Math.max(0, legacy.城里门路 - 1);
+        legacy.商路门路 = Math.max(0, legacy.商路门路 - 1);
+        legacy.家传书香 = Math.max(0, legacy.家传书香 - 1);
+        legacy.家传手艺 = Math.max(0, legacy.家传手艺 - 1);
+      }
+      return legacy;
+    }
     // 寿命 roll：多数五十余，长尾少数活到60-70+
     var ageRoll = rollProb([{ p: 0.45, r: 56 }, { p: 0.35, r: 62 }, { p: 0.15, r: 68 }, { p: 0.05, r: 74 }]);
     S._deathAge = ageRoll; S.年龄 = ageRoll;
@@ -2226,20 +2372,29 @@
     var estateTian = S.田亩;
     var estateCopper = Math.max(0, S.铜钱);
     var sons = S.子数;
+    var legacyCarry = nextGenLegacy();
     var narrative, deathTag;
     if (sons > 0) {
       var shareSilver = Math.floor(Math.max(0, estateSilver) / sons);
       var shareMi = Math.floor(estateMi / sons);
       var shareTian = Math.max(1, Math.floor(estateTian / sons));
       var shareCopper = Math.floor(estateCopper / sons);
-      S._carry = { 白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: shareCopper, 家族: Math.min(80, S.家族) };
+      S._carry = {
+        白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: shareCopper, 家族: Math.min(80, S.家族),
+        父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
+        城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子
+      };
       if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，身后连旧账与反哺的名声也一并结进遗产。';
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了能传下去的不只是薄田，还有一层见过世面的门路。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨不会直接分成银两，却会作为体面与起点留在下一代门前。';
       else deathTag = '你这一辈子的每一分积累与亏空，都成了子孙的期初。';
       narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。丧礼依家礼办讫（棺木等丧葬支出白银1两、米1石从遗产扣除）。遗产按<span class="em">诸子均分</span>传给下一代——' + deathTag;
     } else {
-      S._carry = { 白银: 0, 存米: 1, 田亩: 2, 铜钱: 800, 家族: 45 };
+      S._carry = {
+        白银: 0, 存米: 1, 田亩: 2, 铜钱: 800, 家族: 45,
+        父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
+        城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子
+      };
       if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，临了虽未留下亲生承嗣，旧账与顾家名声仍要在旁支账里结清。';
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了虽绝嗣，城中门路与见识也只剩旁支可续。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨终究未能直接传给亲子，只在旁支门前留下些体面与余绪。';
@@ -2252,7 +2407,9 @@
       narrative: narrative,
       events: [
         { t: 'rand', tag: '[丧葬]', txt: '丧葬支出：棺木等白银1两、米1石，从遗产/诸子分摊账扣除（镜像入出资子账，不凭空消失）。' },
-        { t: 'rel', tag: '[传承]', txt: sons > 0 ? ('遗产品搭均分给 ' + sons + ' 子：每子分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩。下一代次子将以此为期初重开。') : '无嗣过继，下一代以旁支薄产（田2亩、存米1石）起家。' }
+        { t: 'rel', tag: '[传承]', txt: sons > 0
+          ? ('遗产品搭均分给 ' + sons + ' 子：每子分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩。下一代次子将以此为期初重开。' + inheritedCarryNote(S._carry))
+          : ('无嗣过继，下一代以旁支薄产（田2亩、存米1石）起家。' + inheritedCarryNote(S._carry)) }
       ],
       prompt: '',
       // 直接给 outcome，无需选择
@@ -2265,9 +2422,9 @@
   function startNextGeneration() {
     generation += 1;
     var carry = S._carry || null;
+    carryOver = carry;
     initState(carry);
-    generation = generation; // keep
-    rollXun(); renderStatus(); renderStage(); renderLedger();
+    renderStatus(); renderStage(); renderLedger();
     window.scrollTo({ top: 0 });
   }
 
@@ -2301,7 +2458,7 @@
   }
 
   // ── 启动 ────────────────────────────────────────
-  function restart() { installDelegation(); generation = 1; carryOver = null; initState(null); rollXun(); renderStatus(); renderStage(); renderLedger(); window.scrollTo({ top: 0 }); }
+  function restart() { installDelegation(); generation = 1; carryOver = null; initState(null); renderStatus(); renderStage(); renderLedger(); window.scrollTo({ top: 0 }); }
   document.getElementById('btn-restart').addEventListener('click', restart);
   installDelegation();
   restart();
@@ -2326,4 +2483,48 @@
       renderLifeStage(); renderLedger(); renderStatus();
     }
   };
+  if (typeof window !== 'undefined') {
+    window.__MING_TEST_API = {
+      restart: restart,
+      getState: function () { return JSON.parse(JSON.stringify(S)); },
+      getPhase: function () { return phase; },
+      getGeneration: function () { return generation; },
+      getStageTitle: function () { return curStage ? curStage.title : curLabel(); },
+      getAvailableActions: function () {
+        if (phase === 'childhood') return childActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false }; });
+        if (phase === 'farm') return availableActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false }; });
+        if (curStage && curStage.actions) return lifeActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false }; });
+        if (curStage && curStage.choices) return curStage.choices.map(function (c, i) { return { id: i, name: c.name, can: c.can !== false }; });
+        return [];
+      },
+      pickAction: function (id) {
+        if (phase === 'childhood') addChildPick(id);
+        else if (phase === 'farm') addPick(id);
+        else addLifePick(id);
+        return true;
+      },
+      commit: function () {
+        if (phase === 'childhood') commitChildRound();
+        else if (phase === 'farm') commitXun();
+        else if (curStage && curStage.actions) commitLifeRound();
+        return true;
+      },
+      next: function () {
+        if (phase === 'childhood') nextChildRound();
+        else if (phase === 'farm') nextXun();
+        else handlePNext();
+        return true;
+      },
+      choose: function (index) { resolveChoice(index); return true; },
+      chooseByName: function (name) {
+        if (!curStage || !curStage.choices) return false;
+        for (var i = 0; i < curStage.choices.length; i++) {
+          if (curStage.choices[i].name === name) { resolveChoice(i); return true; }
+        }
+        return false;
+      },
+      getLedger: function () { return JSON.parse(JSON.stringify(ledger)); },
+      getInvariants: function () { return JSON.parse(JSON.stringify(_invViolations)); }
+    };
+  }
 })();
