@@ -734,6 +734,28 @@
       desc: desc
     };
   }
+  function wageMarriageOutworkProfile() {
+    var base = wageOutworkProfile();
+    var currentDoor = Math.max(0, S.城里门路 || 0);
+    var cityDoor = Math.max(currentDoor, currentLineageIsCollateral() ? 1 : 1);
+    if (!currentLineageIsCollateral() && currentDoor > 0) cityDoor = Math.max(cityDoor, Math.min(2, currentDoor));
+    else cityDoor = Math.min(2, cityDoor);
+    var copper = Math.max(180, base.copper - 80);
+    var cityText = cityDoor > currentDoor ? '城里门路+1' : '城里门路坐实';
+    var desc = currentDoor > 0
+      ? (currentLineageIsCollateral()
+        ? '先拿现银顶过这一程差役，再去邻县或市镇做活；旧识还剩一点，但这一房经旁支承接后，情分终究比本支薄。'
+        : '先拿现银顶过这一程差役，再去邻县或市镇做活；旧工头与熟识还能替你把落脚与牙口稳上一线。')
+      : '先把这一程差役用现银顶过去，再外出佣工攒回几手现钱；婚事不立刻成，只是带着外出工账往后拖。';
+    return {
+      silverCost: 1,
+      copper: copper,
+      familyCost: base.familyCost,
+      cityDoor: cityDoor,
+      effect: '白银-1·铜钱+' + copper + '·' + cityText + '·婚事推迟两年' + (base.familyCost > 0 ? ('·家族-' + base.familyCost) : '·家族不减（旧识照应）'),
+      desc: desc
+    };
+  }
   function wageSkillProfile() {
     if (S.技艺 !== '无') return {
       progress: 0,
@@ -2683,15 +2705,15 @@
     return {
       title: '成家 · 议亲', label: '成家', next: 'household', nextLabel: '步入中年 · 当户 →',
       ap: 4, commitLabel: '下聘·定亲事 →',
-      note: '成家不是一次"选套餐"，而是几年里一步步攒钱、托媒、抬身价：聘礼是真实外流（镜像入女方家账），媒人看的是你带到这个年纪的整本账。〔货币规模为玩法占位，非史实点值〕 ' + life.marriageLead + ' 这一代当前按<span class="em">' + S.年龄 + '岁</span>议亲，婚后走的是<span class="em">' + fertility.label + '</span>生育窗口。' + (S.定额佃状态 === '已立定额佃' ? ' 上一轮你已把一两现银压进定额佃约，婚事正是沿着这本押租账往后拖。' : '') + (S.合爨状态 === '随兄合户' ? ' 眼下仍在兄户合爨；若再不另立小家，这份共账会直接被带进父故后的分家与当户。' : '') + (rp.note ? ' ' + rp.note : ''),
-      narrative: '立身数年，你已<span class="em">' + S.年龄 + '岁</span>，也到了议亲年纪。走"六礼"框架（平民多简化合并）——这一程你有 <span class="em">4 个行动点</span>，用来筹聘礼、托媒人、办酒席。你这些年攒下的<span class="em">识字、手艺、家族声望与路线尾账</span>，都会折进议亲的成算里；婚成之后，下一阶段读的也是这一路带出来的<span class="em">' + fertility.label + '</span>婚育窗口。' + (S.定额佃状态 === '已立定额佃' ? ' 这一回你不是白手重来，而是带着上一轮已经立下的定额佃押租账继续议亲。' : '') + (S.合爨状态 === '随兄合户' ? ' 若改走合爨，这一程便不是“先成婚再当户”，而是把婚配与立户原题一起拖进后面的共账清算。' : '') + (rp.narrative ? rp.narrative : ''),
+      note: '成家不是一次"选套餐"，而是几年里一步步攒钱、托媒、抬身价：聘礼是真实外流（镜像入女方家账），媒人看的是你带到这个年纪的整本账。〔货币规模为玩法占位，非史实点值〕 ' + life.marriageLead + ' 这一代当前按<span class="em">' + S.年龄 + '岁</span>议亲，婚后走的是<span class="em">' + fertility.label + '</span>生育窗口。' + (S.定额佃状态 === '已立定额佃' ? ' 上一轮你已把一两现银压进定额佃约，婚事正是沿着这本押租账往后拖。' : '') + (S.合爨状态 === '随兄合户' ? ' 眼下仍在兄户合爨；若再不另立小家，这份共账会直接被带进父故后的分家与当户。' : '') + (S.婚配路径 === '先应差·外出佣工' ? ' 上一轮你先拿现银顶过差役、又外出佣工攒回几手现钱，婚事便沿着这本外出工账继续顺延。' : '') + (rp.note ? ' ' + rp.note : ''),
+      narrative: '立身数年，你已<span class="em">' + S.年龄 + '岁</span>，也到了议亲年纪。走"六礼"框架（平民多简化合并）——这一程你有 <span class="em">4 个行动点</span>，用来筹聘礼、托媒人、办酒席。你这些年攒下的<span class="em">识字、手艺、家族声望与路线尾账</span>，都会折进议亲的成算里；婚成之后，下一阶段读的也是这一路带出来的<span class="em">' + fertility.label + '</span>婚育窗口。' + (S.定额佃状态 === '已立定额佃' ? ' 这一回你不是白手重来，而是带着上一轮已经立下的定额佃押租账继续议亲。' : '') + (S.合爨状态 === '随兄合户' ? ' 若改走合爨，这一程便不是“先成婚再当户”，而是把婚配与立户原题一起拖进后面的共账清算。' : '') + (S.婚配路径 === '先应差·外出佣工' ? ' 你先前已经把一回差役和外出工账顶了过去，如今再议亲时，媒人看的也不只是现钱多少，还看这层城里落脚与工头熟识是不是能坐实。' : '') + (rp.narrative ? rp.narrative : ''),
       dossier: function () { return lifeDossier('议亲成算 = 基础 + 路线结局 + 聘礼档 + 识字/营生加成 + 家族声望；下聘时按当前筹码一次性 roll。｜婚配年龄=' + life.marriageAge + '｜婚育窗口=' + fertility.label + (rp.dossier ? '｜' + rp.dossier : '')); },
       events: events,
       prompt: '这几年怎么张罗亲事？（分配 4 点，末了一次下聘）',
       actions: function () {
         var A = [];
         var pickedGift = lifePicks.some(function (p) { return p.id === 'm_gift' || p.id === 'm_gift1'; });
-        var pickedMarriageBranch = lifePicks.some(function (p) { return p.id === 'm_fixedrent' || p.id === 'm_joint'; });
+        var pickedMarriageBranch = lifePicks.some(function (p) { return p.id === 'm_fixedrent' || p.id === 'm_joint' || p.id === 'm_wage_out'; });
         A.push({ id: 'm_save', name: '卖粮·攒聘礼', cost: 1, eff: '存米-1·白银+1（备聘）', desc: '把余粮换成硬通货备作聘礼。', can: S.存米 >= 1, why: S.存米 >= 1 ? '' : '无存米可卖' });
         A.push({ id: 'm_gift', name: '厚备聘礼', cost: 2, eff: '白银-3·聘礼档↑↑·成算+', desc: '以银三两下重聘，风光正娶，行情最高。', can: !pickedGift && !pickedMarriageBranch && S.白银 >= 3, why: pickedMarriageBranch ? '本轮已改作别的婚配路数' : (pickedGift ? '本轮已定聘礼档' : (S.白银 >= 3 ? '' : '白银不足3两')), once: true });
         A.push({ id: 'm_gift1', name: '薄备聘礼', cost: 1, eff: '白银-1·聘礼档↑·成算+', desc: '尽力凑一份体面的薄聘。', can: !pickedGift && !pickedMarriageBranch && S.白银 >= 1, why: pickedMarriageBranch ? '本轮已改作别的婚配路数' : (pickedGift ? '本轮已定聘礼档' : (S.白银 >= 1 ? '' : '白银不足1两')), once: true });
@@ -2721,13 +2743,26 @@
             once: true
           });
         }
+        if (isWageRouteState()) {
+          var marriageOut = wageMarriageOutworkProfile();
+          A.push({
+            id: 'm_wage_out',
+            name: '先应差·外出佣工',
+            cost: 2,
+            eff: marriageOut.effect,
+            desc: marriageOut.desc,
+            can: !pickedGift && !pickedMarriageBranch && S.白银 >= marriageOut.silverCost,
+            why: pickedMarriageBranch ? '本轮已改作别的婚配路数' : (pickedGift ? '本轮已定聘礼档' : (S.白银 >= marriageOut.silverCost ? '' : ('白银不足' + marriageOut.silverCost + '两'))),
+            once: true
+          });
+        }
         A.push({ id: 'm_wait', name: '暂缓·先积累', cost: 1, eff: '体魄+4（不催婚）', desc: '这一程先不急，养身攒钱。', can: true });
         return A;
       },
       settle: function (log) {
         var giftTier = 0, chance = 0.35 + rp.baseAdj;
         var borrowedForGift = false;
-        var fixedRentChosen = false, jointChosen = false;
+        var fixedRentChosen = false, jointChosen = false, wageOutChosen = false;
         lifePicks.forEach(function (p) {
           switch (p.id) {
             case 'm_save': S.存米 -= 1; S.白银 += 1; log.push(['卖粮备聘：存米-1、白银+1', 'good']); break;
@@ -2773,6 +2808,20 @@
               jointChosen = true;
               log.push(['合爨随兄：你这一程不另立小家，先把账并回兄户共耕；家族+3、存米+1，但婚事与立户原题都被整体推后。', 'good']);
               break;
+            case 'm_wage_out':
+              var marriageOut = wageMarriageOutworkProfile();
+              if (S.白银 >= marriageOut.silverCost) {
+                S.白银 -= marriageOut.silverCost;
+                S.铜钱 += marriageOut.copper;
+                S.家族 -= marriageOut.familyCost;
+                S.雇工历练 += 1;
+                S.雇身份 = '外出佣工';
+                S.婚配路径 = '先应差·外出佣工';
+                S.城里门路 = Math.max(S.城里门路 || 0, marriageOut.cityDoor);
+                wageOutChosen = true;
+                log.push(['先应差再外出佣工：白银-' + marriageOut.silverCost + '、铜钱+' + marriageOut.copper + (marriageOut.familyCost > 0 ? ('、家族-' + marriageOut.familyCost) : '、家族不减') + '；婚事往后顺延，但城里牙口与工头熟识也被真实坐进这一房的账里。', 'good']);
+              }
+              break;
             case 'm_wait': S.体魄 += 4; log.push(['暂缓催婚，养身：体魄+4', 'good']); break;
           }
         });
@@ -2788,6 +2837,16 @@
             log,
             '把原本想作聘银的一两先压成押租，改走定额佃约；婚事推迟两年（后面这份经营自主与农事底子会继续写进当户账）',
             '把原本想作聘银的一两先压成押租，改走定额佃约；婚事仍未赶上，这一房只得先带着单身与薄田往后过（后续仍可能走向绝嗣过继分支）',
+            0,
+            1
+          );
+          return;
+        }
+        if (wageOutChosen) {
+          scheduleMarriageRetry(
+            log,
+            '先把这一程差役用现银顶过，再外出佣工攒回几手现钱；婚事推迟两年，往后会带着这本外出工账与一层城里门路再回来议亲。',
+            '先把这一程差役与外出工账顶过去后，婚事仍没赶上；这一房只得先带着单身、薄田与外头门路往后过（后续仍可能走向绝嗣过继分支）',
             0,
             1
           );
@@ -2863,11 +2922,14 @@
       } else {
         pack.note = '雇工路到了当户，关键转折不是“忽然发财”，而是这辈子第一次真把 4 亩薄田拿到自己名下：要么转成半自耕、少受人拿捏；要么先出佃收租，保住口粮再继续卖工。';
         if (S.合爨状态 === '随兄合户' || S.合爨状态 === '已析爨') pack.note += ' 先前若合爨随兄，眼下就不是从“一个人硬扛”起步，而是先从共账里清出你这一房该背与该分的那一部分。';
+        if (S.婚配路径 === '先应差·外出佣工') pack.note += ' 当年先拿现银顶过差役、再外出佣工那一步，并没有消失；到了当户这年，你手里多的是一层外头牙口和旧工头的人情，不必只剩本宗这一条路。';
+        if (S.城里门路 > 0) pack.note += ' 这些年在外跑出来的城里熟识，也会改写你请人代办、问价和落脚的难易。';
         pack.dossier = '农事历练=' + S.农事历练 + '｜家传农事=' + (S.家传农事 || 0) + '｜雇工历练=' + S.雇工历练 + '｜婚配路径=' + S.婚配路径 + '｜定额佃=' + S.定额佃状态 + '｜合爨=' + S.合爨状态 + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + S.委托租谷 + '｜待收租谷=' + (S.委托待收租谷 || 0) + '｜应役=' + S.应役;
         pack.event = { t: 'rel', tag: '[得田]', txt: '你前半生靠卖工吃饭，到这一步才第一次有了可写进自己户下的薄田。它未必够一家人吃饱，却能决定你老来还剩不剩一口自己能支配的口粮。' };
         if (S.家传农事 > 0) pack.baseAdj -= 0.03;
         if (S.雇工历练 >= 3) pack.baseAdj -= 0.03;
         if (S.农事历练 >= 2) pack.baseAdj -= 0.02;
+        if (S.城里门路 > 0) pack.baseAdj -= 0.03;
       }
       if (S.定额佃状态 === '已立定额佃') pack.baseAdj -= 0.02;
       if (S.合爨状态 === '随兄合户') pack.baseAdj -= 0.04;
@@ -2896,6 +2958,17 @@
           desc: isFarmRouteState()
             ? '若不愿把一家老小都压在亲耕上，就把分得的薄田另立租账，租谷只算你这一房的老底。'
             : '你还得继续靠卖工挣现钱，就先把薄田出佃换稳定租谷，免得当役与农闲断工两头一起掐脖子。',
+          can: true,
+          once: true
+        });
+      }
+      if (isWageRouteState() && S.城里门路 > 0) {
+        pack.extraActions.push({
+          id: 'h_proxy_wage',
+          name: '凭旧工头请人代应',
+          cost: 1,
+          eff: '白银-1或铜钱-180·风险降',
+          desc: '年轻时外出佣工攒下的牙口与旧工头，此时可替你请人代应，不必凡事都回乡里硬扛。',
           can: true,
           once: true
         });
@@ -3025,6 +3098,11 @@
               if (spendSilver(1)) { risk -= 0.16; log.push(['凭师门门路请人代办：白银-1，少吃了一层应役的人情亏（风险降）', 'good']); }
               else if (spendCopper(150)) { risk -= 0.12; log.push(['凭师门门路请人代办：铜钱-150，少吃了一层应役的人情亏（风险降）', 'good']); }
               else { log.push(['想凭师门门路请人代办，但这一程现钱已先被别处占住，只得暂缓，免得把白银或铜钱记成负数。', 'bad']); }
+              break;
+            case 'h_proxy_wage':
+              if (spendSilver(1)) { risk -= 0.15; log.push(['凭旧工头请人代应：白银-1，外头熟识替你把这一任里役顶去一线（风险降）', 'good']); }
+              else if (spendCopper(180)) { risk -= 0.11; log.push(['凭旧工头请人代应：铜钱-180，靠旧牙口少吃了一层应役的人情亏（风险降）', 'good']); }
+              else { log.push(['想凭旧工头请人代应，但这一程现钱已先被别处占住，只得暂缓，免得把白银或铜钱记成负数。', 'bad']); }
               break;
             case 'h_collect':
               var owed = S.未回款银;
@@ -3166,6 +3244,7 @@
         : '雇工一路到了晚年，老来靠不靠得住，不看你年轻时卖过多少工，而看分家后这 4 亩薄田有没有真的替你挡住断炊。';
       if (S.定额佃状态 === '已立定额佃') pack.note += ' 早年那次“先押租、后议亲”的决定，到了老来仍会体现在你守薄田时更不陌生。';
       if (S.合爨状态 === '已析爨') pack.note += ' 先前合爨再析爨留下的那层共账缓冲，也会继续改写你如今向兄弟与子孙开口时的分寸。';
+      if (isWageRouteState() && (S.婚配路径 === '先应差·外出佣工' || S.城里门路 > 0)) pack.note += ' 早年先应差再外出佣工攒下的那层旧牙口，到老来仍可能替你换回一点外头照应，不必只靠家里这口饭。';
       pack.dossier = '农事历练=' + S.农事历练 + '｜雇工历练=' + S.雇工历练 + '｜婚配路径=' + S.婚配路径 + '｜定额佃=' + S.定额佃状态 + '｜合爨=' + S.合爨状态 + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + S.委托租谷 + '｜待收租谷=' + (S.委托待收租谷 || 0) + '｜田亩=' + S.田亩 + '｜应役=' + S.应役 +
         '｜最近农闲营生=' + S.最近农闲营生层级 + (S.最近农闲营生收益 > 0 ? ('(' + S.最近农闲营生收益 + '文)') : '');
       pack.event = { t: 'rel', tag: '[田面]', txt: S.委托营生 === '分得薄田自耕'
@@ -3331,6 +3410,9 @@
       if (S.技艺 !== '无' || S.雇技进度 >= 2 || S.雇工历练 >= 3) legacy.家传手艺 = 1;
       if (S.学徒去向 === '留店伙计') legacy.城里门路 = 2;
       else if (S.学徒去向 === '店铺做工' || S.学徒去向 === '随行商') legacy.城里门路 = 1;
+      if (isWageRouteState() && (S.雇身份 === '外出佣工' || S.婚配路径 === '先应差·外出佣工')) {
+        legacy.城里门路 = Math.max(legacy.城里门路, S.雇工历练 >= 3 ? 2 : 1);
+      }
       if (S.商历练 > 0 || S.累计反哺银 > 0 || S.商身份 !== '未定') legacy.商路门路 = 1;
       if ((S.账房进度 + S.商信誉) >= 3 || S.累计反哺银 >= 2) legacy.商路门路 = 2;
       if (S.生员身份) legacy.家传书香 = 2;
