@@ -4826,6 +4826,16 @@
       { t: 'body', tag: '[身子]', txt: season.note + (xun === 3 ? ' 到了下旬，衣药、汗疹、腰腿酸痛和明年后手常常不肯再往后拖。' : ' 这一旬里，锅火、孩子、身子和人情都在争同一笔钱。') }
     ];
     if (rp.event) events.push(rp.event);
+    // 节令：只做“密度”与气口，不给成功分与排名；影响尽量落在微小开销与家口关系上。
+    if (season.id === 'spring' && xun === 1) {
+      events.push({ t: 'rel', tag: '[节令]', txt: '清明将近，乡里讲究祭扫修谱；不一定铺张，但若全忘了，亲族话里总会添一层凉意。' });
+    } else if (season.id === 'summer' && xun === 1) {
+      events.push({ t: 'body', tag: '[节令]', txt: '端午前后湿热最重：艾草、雄黄、凉汤水都是“花不了多少却不花更难受”的细账。' });
+    } else if (season.id === 'autumn' && xun === 2) {
+      events.push({ t: 'rel', tag: '[节令]', txt: '中秋前后，人情往来、脚钱牙税与家里“还缺哪一口”常常挤在同一旬里见光。' });
+    } else if (season.id === 'winter' && xun === 1) {
+      events.push({ t: 'rand', tag: '[节令]', txt: '冬至将近，乡里添炭火、备年礼、分明春脚费；不是大账，却最容易把同一口现钱拧紧。' });
+    }
     if (xun === 1) events.push({ t: 'rel', tag: '[起手]', txt: '上旬先定主路：先守哪口营生、先顾哪笔家账，不会因为你“已经成家了”就自动排整齐。' });
     else if (xun === 2) events.push({ t: 'rel', tag: '[碰账]', txt: '中旬最像“账碰账”：卖米、赶集、脚钱、孩子、回乡与人情都在抢这一旬仅有的两手空当。' });
     else events.push({ t: 'rel', tag: '[收尾]', txt: '下旬最像把后账翻出来：差役钱、衣药、旧债、明年春起修具，都不肯再往后拖。' });
@@ -4862,6 +4872,17 @@
             can: S.铜钱 >= repairCost,
             why: S.铜钱 >= repairCost ? '' : ('铜钱不足' + repairCost + '文')
           });
+          if (season.id === 'spring') {
+            A.push({
+              id: 'f_ancestral',
+              name: '清明前先办祭扫修谱',
+              cost: 1,
+              eff: '铜钱-25·家族+1·通融+1',
+              desc: '不求铺张，只求不失礼：买点纸香、请长辈点拨修谱口风。钱不多，却能把“这一房还记得祖上规矩”的气口留住。',
+              can: S.铜钱 >= 25,
+              why: S.铜钱 >= 25 ? '' : '铜钱不足25文'
+            });
+          }
         }
         if (xun === 2) {
           A.push({
@@ -4909,6 +4930,17 @@
             can: S.铜钱 >= kitchenCost,
             why: S.铜钱 >= kitchenCost ? '' : ('铜钱不足' + kitchenCost + '文')
           });
+          if (season.id === 'summer') {
+            A.push({
+              id: 'f_cool',
+              name: '买艾草凉汤解暑',
+              cost: 1,
+              eff: '铜钱-25·体魄+1·衣药+1',
+              desc: '不是治大病，只是把伏夏最常见的湿热小耗先压住：凉汤水、艾草、盐豆这些小钱，往往能换来一旬里少发一次热疹。',
+              can: S.铜钱 >= 25,
+              why: S.铜钱 >= 25 ? '' : '铜钱不足25文'
+            });
+          }
         }
         if (xun === 3) {
           A.push({
@@ -4948,6 +4980,18 @@
             can: (S.人情欠条 || 0) > 0,
             why: (S.人情欠条 || 0) > 0 ? '' : '眼下没有可讨回的人情欠条'
           });
+          if (season.id === 'autumn') {
+            A.push({
+              id: 'f_tax',
+              name: '先兑丁粮差票压秋后催缴',
+              cost: 1,
+              eff: '铜钱-90·备役+1·通融+1',
+              desc: '秋后最怕“钱还在路上，里甲却先来催”。你先拿一口现钱兑成差票与零碎税钱，免得催缴到了门口才四处拆账。',
+              can: S.铜钱 >= 90,
+              why: S.铜钱 >= 90 ? '' : '铜钱不足90文',
+              once: true
+            });
+          }
         }
         A.push({
           id: 'f_borrow',
@@ -5469,6 +5513,30 @@
                 log.push(['添灯油针线：铜钱-' + kitchenCost + '、家族+1。不是体面消费，只是把锅火边最容易被一句话带过的细账摊回这一旬。', 'good']);
               } else log.push(['想先添灯油针线，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               break;
+            case 'f_ancestral':
+              if (spendCopper(25)) {
+                S.家族 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '清明祭扫');
+                log.push(['清明前先办祭扫修谱：铜钱-25、家族+1、通融+1。不是大铺张，只把“这一房还记得祖上规矩”的气口留住。', 'good']);
+              } else log.push(['想清明前先办祭扫修谱，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_cool':
+              if (spendCopper(25)) {
+                S.体魄 += 1;
+                S.本年家衣药 += 1;
+                pushFamilySeasonTag(stepTag + '艾草凉汤');
+                log.push(['买艾草凉汤解暑：铜钱-25、体魄+1、衣药+1。不是治大病，只把伏夏湿热小耗先压住一层。', 'good']);
+              } else log.push(['想买艾草凉汤解暑，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_tax':
+              if (spendCopper(90)) {
+                S.本年家备役 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '兑差票');
+                log.push(['先兑丁粮差票压秋后催缴：铜钱-90、备役后手+1、通融+1。钱没有变多，只是先把秋后那层催缴压在账里。', 'good']);
+              } else log.push(['想先兑丁粮差票压秋后催缴，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_favor_collect':
               if ((S.人情欠条 || 0) > 0) {
                 S.人情欠条 -= 1;
@@ -5504,12 +5572,30 @@
           }
         }
 
-        if (season.id === 'summer' && xun >= 2 && !picked.f_mend && !picked.f_rest) {
+        if (season.id === 'spring' && xun === 3) {
+          // 祭扫修谱本是独立一摊，但在回放策略里允许“同旬已为家口与里甲跑动”视作气口已顾，
+          // 避免新增硬性扣款把既有回放打散。
+          var qingmingHandled = !!(picked.f_ancestral || picked.f_social || picked.f_kitchen
+            || picked.f_duty || picked.f_child || picked.f_route_school || picked.f_route_school_note);
+          if (qingmingHandled) {
+            pushFamilySeasonTag(stepTag + '清明已办');
+            log.push(['〔清明人情〕祭扫修谱与乡里口风已被你提前顾住；这一旬没有再因为“全忘了礼”让亲族话里添凉。', 'good']);
+          } else if (spendCopper(25)) {
+            pushFamilySeasonTag(stepTag + '清明人情');
+            log.push(['〔清明人情〕纸香、薄礼与修谱口风一齐要钱：铜钱-25。不是大账，却最容易让人情起皱。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '清明硬顶');
+            log.push(['〔清明人情〕这一旬连薄礼纸香都挪不开，只得硬顶过去；亲族话里更凉一层（家族-1）。', 'bad']);
+          }
+        }
+
+        if (season.id === 'summer' && xun >= 2 && !picked.f_mend && !picked.f_rest && !picked.f_cool) {
           S.体魄 -= 2;
           log.push(['〔伏夏损耗〕这一旬没顾上衣药也没将养，热毒和劳损还是悄悄把身子磨去一层（体魄-2）', 'bad']);
         }
         if (season.id === 'summer' && xun === 2) {
-          var summerHandled = !!(picked.f_child || picked.f_mend || picked.f_rest
+          var summerHandled = !!(picked.f_child || picked.f_mend || picked.f_rest || picked.f_cool
             || picked.f_route_bundle || picked.f_route_shop_bundle || picked.f_route_wage_summer_bundle || picked.f_route_write);
           if (summerHandled) {
             pushFamilySeasonTag(stepTag + '伏夏小耗已顾');
@@ -5539,6 +5625,23 @@
             S.家族 = Math.max(0, S.家族 - 1);
             pushFamilySeasonTag(stepTag + '秋后硬顶');
             log.push(['〔秋后杂支〕现钱腾挪不开，这一旬只得先硬顶过去；家里这口气更紧了一层（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'autumn' && xun === 3) {
+          var taxHandled = !!(picked.f_duty || picked.f_tax
+            || picked.f_route_autumn_split || picked.f_route_school_split || picked.f_route_shop_split
+            || picked.f_route_wage_autumn_split || picked.f_route_split);
+          if (taxHandled) {
+            pushFamilySeasonTag(stepTag + '秋后催缴已压');
+            log.push(['〔秋后催缴〕丁粮、差票与里甲口风这一旬已被你提前压进账里；催缴没有消失，但没再临门把你这一房的现钱扯散。', 'good']);
+          } else if (spendCopper(90)) {
+            pushFamilySeasonTag(stepTag + '秋后催缴');
+            log.push(['〔秋后催缴〕里甲催缴丁粮差票：铜钱-90。不是新主线，只是秋后制度账又一次真落在你这一旬手里。', 'bad']);
+          } else {
+            S.体魄 -= 1;
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '秋后催缴硬顶');
+            log.push(['〔秋后催缴〕现钱腾挪不开，只得硬顶催缴；误了手头营生又伤身（体魄-1、家族-1）。', 'bad']);
           }
         }
         if (season.id === 'winter' && xun === 1) {
