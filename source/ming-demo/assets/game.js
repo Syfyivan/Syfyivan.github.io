@@ -488,6 +488,10 @@
       weights.profit += 0.02; weights.flat += 0.02; weights.loss -= 0.02; weights.receivable -= 0.02;
       notes.push('家里本就认得反哺与供读账，先顾哪笔现钱更稳当，你心里更有数');
     }
+    if (S.商路供读银 > 0) {
+      weights.flat += 0.02; weights.profit += 0.04; weights.loss -= 0.03; weights.receivable -= 0.03;
+      notes.push('这一年已经先寄银回家并另划供读账，试贩结账时也会把“哪笔回钱更不能断”一起算进去');
+    }
     if (isCollateralCarry(carryOver)) {
       weights.profit -= 0.04; weights.receivable += 0.02; weights.loss += 0.02;
       notes.push('这一房经旁支接祧后，旧商路只剩薄薄一层，真正坐实还得靠你自己续');
