@@ -6042,6 +6042,45 @@
             hardship: 'body'
           }
         });
+        if (season.id === 'summer' && xun === 2) {
+          if (picked.h_shop_book || picked.h_side || picked.h_proxy || picked.h_rest) {
+            pushHouseholdSeasonTag(stepLabel + '铺耗已压');
+            log.push(['〔铺里零耗〕这一旬先把铺里茶汤、捎口信脚费和家里凉药顾住了；伏夏里最容易把旧脚路一点点磨薄的那层零耗，没有继续滚大。', 'good']);
+          } else if (spendCopper(40)) {
+            pushHouseholdSeasonTag(stepLabel + '铺里零耗');
+            log.push(['〔铺里零耗〕伏夏里茶汤、脚夫点心、捎口信脚费和家里凉药一起冒头：铜钱-40。不是大账，却正把“仍认得铺里门路”一点点磨薄。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '铺耗硬扛');
+            log.push(['〔铺里零耗〕这一旬连茶汤脚费和家里凉药都腾挪不开，只得先硬扛过去；旧门路在人情面上又薄了一层（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'autumn' && xun === 1) {
+          if (picked.h_lease_city || picked.h_shop_collect || picked.h_clan || (S.委托营生 === '出佃收租') || (S.委托租谷 || 0) > 0) {
+            pushHouseholdSeasonTag(stepLabel + '秋租脚路已坐');
+            log.push(['〔秋租脚路〕春里立下的租账与乡里路数这时开始起效，催佃脚路、回城脚费与锅火没有再撞成一团。', 'good']);
+          } else if (spendCopper(50)) {
+            pushHouseholdSeasonTag(stepLabel + '秋租脚路');
+            log.push(['〔秋租脚路〕催佃、回城脚费和秋里锅火一起要钱：铜钱-50。不是新主线，只是租谷要真落回这一房，总得先垫一层脚路。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '秋租硬顶');
+            log.push(['〔秋租脚路〕这一旬连催佃脚路都挪不开，只得先硬顶过去；这一房在乡里的应声又薄了一层（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'winter' && xun === 1) {
+          if (picked.h_shop_book || picked.h_pay || picked.h_proxy) {
+            pushHouseholdSeasonTag(stepLabel + '节礼脚费已分');
+            log.push(['〔年关节礼〕年关前该给旧掌柜、同门与脚夫的薄礼、回铺脚费与差钱已被你先分开；这层门路没有到冬里忽然断掉。', 'good']);
+          } else if (spendCopper(60)) {
+            pushHouseholdSeasonTag(stepLabel + '年关节礼');
+            log.push(['〔年关节礼〕年关前旧掌柜、同门和脚夫该有的薄礼与回铺脚费一起要钱：铜钱-60。不是体面消费，而是维持那层门路不立刻断掉。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '节礼硬扛');
+            log.push(['〔年关节礼〕这一旬连薄礼与回铺脚费都挪不开，只得先硬扛过去；那层旧门路又薄了一线（家族-1）。', 'bad']);
+          }
+        }
         clampAttr('体魄');
         clampAttr('家族');
         if (!isYearEnd) {
@@ -6061,7 +6100,7 @@
         else log.push(['这一任当户你始终没把分得薄田坐成租账；田还在名下，却还没开始真替这一房回口粮。', 'bad']);
         if ((S.本年户通融 || 0) > 0 && (S.本年户备役 || 0) > 0) log.push(['这一任当户你把乡里与师门的人情都先压进了差役后手里；制度压力不再只在冬里那一下才突然落下来。', 'good']);
         if (proxySet || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('师门代办') >= 0; })) log.push(['这一任当户你把年轻时攒下的那层师门旧识真正拿出来用了；学徒去向不再只剩一行旧文案。', 'good']);
-        if ((S.本年户季务 || []).length <= 4) log.push(['这一任当户虽拆成了年内各旬，但真正落到账里的细务仍偏少，说明这一年还没有被你完全做厚。', 'bad']);
+        if ((S.本年户季务 || []).length <= 6) log.push(['这一任当户虽拆成了年内各旬，但真正落到账里的细务仍偏少，说明这一年还没有被你完全做厚。', 'bad']);
         var risk = 0.40 + hp.baseAdj;
         risk -= Math.min(0.16, (S.本年户核账 || 0) * 0.08);
         risk -= Math.min(0.10, (S.本年户催账 || 0) * 0.05);
