@@ -2803,10 +2803,10 @@
     var legacyCarry = nextGenLegacy();
     var narrative, deathTag;
     if (sons > 0) {
-      var shareSilver = Math.floor(Math.max(0, estateSilver) / sons);
-      var shareMi = Math.floor(estateMi / sons);
+      var shareSilver = shareByOrdinal(estateSilver, sons, heirOrdinal);
+      var shareMi = shareByOrdinal(estateMi, sons, heirOrdinal);
       var shareTian = shareByOrdinal(estateTian, sons, heirOrdinal);
-      var shareCopper = Math.floor(estateCopper / sons);
+      var shareCopper = shareByOrdinal(estateCopper, sons, heirOrdinal);
       var shareDebt = shareByOrdinal(estateDebt, sons, heirOrdinal);
       S._carry = {
         白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: shareCopper, 负债银: shareDebt, 家族: Math.min(80, S.家族),
