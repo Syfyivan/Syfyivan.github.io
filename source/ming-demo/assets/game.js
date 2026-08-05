@@ -1194,6 +1194,7 @@
         log.push([entry.failLog, 'bad']);
       }
     }
+    if (season.id === 'spring' && xun === 1) apply(pack.spring);
     if (season.id === 'summer' && xun === 2) apply(pack.summer);
     if (season.id === 'autumn' && xun === 2) apply(pack.autumn);
     if (season.id === 'winter' && xun === 1) apply(pack.winter);
@@ -6631,6 +6632,26 @@
       : (seasonIdx === 2 ? '伏夏先请保结旧识递话' : (seasonIdx === 3 ? '先把秋后人情面压住' : '年关先托乡里说话'));
     var hireName = seasonIdx <= 2 ? '雇工顾住分得薄田' : '雇短工把秋后田面收住';
     var payName = seasonIdx <= 3 ? '先留纳银代役现钱' : '纳银代役';
+    var splitCost = season.id === 'summer' ? 120 : (season.id === 'autumn' ? 140 : 100);
+    var splitName = '';
+    var splitEffect = '铜钱-' + splitCost + '·家族+1·备役+1';
+    var splitDesc = '';
+    if (season.id === 'summer') {
+      splitName = xun === 2 ? '把伏夏润笔拆作凉药与纸墨' : '把伏夏馆钱拆作差钱与纸墨';
+      splitDesc = xun === 2
+        ? '伏夏这一口润笔最怕既顾纸墨又顾凉药时一下漏光。先把它拆成纸墨、凉药和差钱后手，才不至让读书这层门路先被暑气磨断。'
+        : '伏夏下旬看着像只剩几笔碎钱，可馆账、纸墨和差钱一样都不能晚。先拆开，胜过等到冬里一口气乱顶。';
+    } else if (season.id === 'autumn') {
+      splitName = xun === 2 ? '把秋后润笔拆作锅火与差钱' : '把秋馆钱拆作锅火与脚费';
+      splitDesc = xun === 2
+        ? '秋里润笔回得比夏里厚一点，也更容易让人误当“终于宽了”。先拆进锅火、差钱和脚费，这一房才不至转身又断。'
+        : '秋馆钱若不先分作锅火与脚费，到了冬里就会和年关旧账一起撞上来。钱没变多，只是先被你拆成几口能活下去的小账。';
+    } else if (season.id === 'winter') {
+      splitName = xun === 2 ? '把年关馆钱分作纸墨与灯油' : '把余钱先分作来春纸墨与锅火';
+      splitDesc = xun === 2
+        ? '年关这口馆钱最怕一把花散：来春纸墨、灯油和眼前锅火都在等。先分开，不让“读书底子”死在年关小耗上。'
+        : '冬应役的下旬更怕只剩一口现钱硬顶。你先把余钱分作来春纸墨与锅火，给这一房留住不那么体面的后手。';
+    }
     var eventTxt;
     if (season.id === 'spring' && xun === 1) {
       eventTxt = '春分书的上旬最怕把“读过几年书”误听成“这一房自然有人让路”。分书、税则、旧馆账与谁还认这层名色，都要先拆开坐实。';
@@ -6683,6 +6704,7 @@
         if (canExempt) A.push({ id: 'h_exempt', name: exemptName, cost: 1, eff: '名色缓派·风险降', desc: '若这一房真还有生员或优免名色，就先把它坐实为可用的缓派后手，而不是留到冬里才临时翻找。', can: true, once: true });
         if (canLeaseField) A.push({ id: 'h_exam_lease', name: leaseName, cost: 1, eff: '立租账·年租谷+1·风险降', desc: '你不可能日日守田，就先把分得薄田立成租账，让它先替这一房回一口口粮。', can: true, once: true });
         if (canPay) A.push({ id: 'h_pay', name: payName, cost: 2, eff: '白银-2·纳银代役', desc: '先把这一任最硬的那口现银留下，年关轮值时就不至只剩硬扛。', can: true, once: true });
+        if (season.id !== 'spring' && xun >= 2) A.push({ id: 'h_exam_split', name: splitName, cost: 1, eff: splitEffect, desc: splitDesc, can: S.铜钱 >= splitCost, why: S.铜钱 >= splitCost ? '' : ('铜钱不足' + splitCost + '文'), once: true });
         A.push({ id: 'h_literate', name: literateName, cost: 1, eff: S.识字 ? '核账次数+1·少吃糊涂账' : '（不识字·无从核账）', desc: '把分书、税则、租谷与差钱抄进自己看得懂的账里。', can: S.识字 && (S.本年户核账 || 0) < 2, why: S.识字 ? '' : '不识字，看不懂账册', once: true });
         A.push({ id: 'h_clan', name: clanName, cost: 1, eff: '家族+2·乡里通气', desc: '先把塾师、保结旧识、兄房与乡里谁肯替这一房说话坐实，不让名色只停在牌面上。', can: (S.本年户通融 || 0) < 2, once: true });
         A.push({ id: 'h_hire', name: hireName, cost: 1, eff: '铜钱-300·田面不至空转', desc: '先花钱顾住田面，别让“分得了田”变成忙完馆账回头只剩一地荒账。', can: S.铜钱 >= 300 && (S.本年户备役 || 0) < 3, why: S.铜钱 >= 300 ? '' : '铜钱不足300文', once: true });
@@ -6737,6 +6759,22 @@
                 log.push(['想在' + stepLabel + '先留纳银代役现钱，但这一旬现银已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_exam_split':
+              if (spendCopper(splitCost)) {
+                S.家族 += 1;
+                S.本年户备役 += 1;
+                if (season.id === 'winter') S.本年户催账 += 1;
+                pushHouseholdSeasonTag(season.name + '拆账');
+                log.push([season.id === 'summer'
+                  ? ('你在' + stepLabel + '先把伏夏润笔拆作凉药、纸墨与差钱后手：铜钱-' + splitCost + '、家族+1、备役后手+1。现钱没变多，却没再让暑热把门路和锅火一起磨穿。')
+                  : (season.id === 'autumn'
+                    ? ('你在' + stepLabel + '把秋馆钱先拆进锅火、脚费与差钱：铜钱-' + splitCost + '、家族+1、备役后手+1。秋后这口钱不再被误写成“终于宽了”。')
+                    : ('你在' + stepLabel + '先把馆钱分作来春纸墨、灯油与锅火：铜钱-' + splitCost + '、家族+1、备役后手+1。年关最磨人的那层碎账，这次先被你拆开了。')), 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把馆钱拆作锅火、差钱与纸墨，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_literate':
               if (spendCopper(bookCost)) {
                 S.本年户核账 += 1;
@@ -6782,8 +6820,19 @@
         });
         if (actionCount === 0) log.push(['这一旬你几乎没把任何实账坐下，当户这一年便更容易在年关前忽然一起撞账。', 'bad']);
         applySeasonalHouseholdFriction(log, stepLabel, season, xun, picked, {
+          spring: {
+            handledIds: ['h_copy_mid', 'h_exempt', 'h_literate', 'h_clan'],
+            doneTag: '分书碎费已理',
+            doneLog: '〔分书碎费〕分书抄手、拜帖脚费、塾师回话与税则纸耗已被你先理清；春分书这一旬没再把第一口现钱先磨薄。',
+            cost: 40,
+            costTag: '分书碎费',
+            costLog: '〔分书碎费〕分书抄手、拜帖脚费与塾师回话小耗一起冒头：铜钱-{cost}。不是大账，却正是春分书最先咬人的那层细钱。',
+            failTag: '分书硬扛',
+            failLog: '〔分书碎费〕这一旬连分书抄手和拜帖脚费都腾挪不开，只得先硬顶过去；这一房刚立户，人情面先薄了一线（家族-1）。',
+            hardship: 'clan'
+          },
           summer: {
-            handledIds: ['h_copy_mid', 'h_exempt', 'h_rest', 'h_literate', 'h_clan', 'h_side'],
+            handledIds: ['h_copy_mid', 'h_exempt', 'h_rest', 'h_literate', 'h_clan', 'h_side', 'h_exam_split'],
             doneTag: '伏夏小耗已顾',
             doneLog: '〔伏夏小耗〕这一旬先把纸墨、凉药、馆账和家里锅火顾住了；识字底子没有再被伏夏杂耗一点点磨空。',
             cost: 60,
@@ -6794,7 +6843,7 @@
             hardship: 'body'
           },
           autumn: {
-            handledIds: ['h_pay', 'h_copy_mid', 'h_clan', 'h_exam_lease', 'h_side', 'h_literate'],
+            handledIds: ['h_pay', 'h_copy_mid', 'h_clan', 'h_exam_lease', 'h_side', 'h_literate', 'h_exam_split'],
             doneTag: '秋后细账已拆',
             doneLog: '〔秋后细账〕秋后馆课、租谷、锅火与差钱已被你先拆开；润笔与抄写钱这旬没再被误写成宽裕。',
             cost: 70,
@@ -6805,7 +6854,7 @@
             hardship: 'clan'
           },
           winter: {
-            handledIds: ['h_exempt', 'h_copy_mid', 'h_pay', 'h_literate', 'h_side', 'h_rest'],
+            handledIds: ['h_exempt', 'h_copy_mid', 'h_pay', 'h_literate', 'h_side', 'h_rest', 'h_exam_split'],
             doneTag: '年关碎账已分',
             doneLog: '〔年关碎账〕旧馆账、明春纸墨、灯油炭火与差钱已被你先分开；年关没再把同一口现钱重新搅混。',
             cost: 50,
@@ -6833,8 +6882,10 @@
         if ((S.本年户催账 || 0) <= 0) log.push(['这一任当户你一整年都没把馆课、润笔与抄契钱真正结回这一房；举业路最容易吃的，正是“明明能写能抄，现钱却一直挂在外头”。', 'bad']);
         if ((S.本年户委托 || 0) > 0 || (S.委托租谷 || 0) > 0) log.push(['这一任当户你先把分得薄田立成了租账，这一房从此不再只是嘴上“名下还有 4 亩”。', 'good']);
         else log.push(['这一任当户你始终没把分得薄田坐成租账；田还在名下，却还没开始真替这一房回口粮。', 'bad']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('分书碎费') >= 0; })) log.push(['这一任当户连分书抄手、拜帖脚费和塾师回话这层春头碎费都先摊回账里了；立户开年不再只剩一句“已经分过家”。', 'good']);
         if (exemptSet || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('名色缓派') >= 0; })) log.push(['这一任当户你把生员/优免这层名色真正拿来顶过了一层制度外流；名色不再只是一行旧文案。', 'good']);
         if (copySettled || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('结回馆账') >= 0; })) log.push(['这一任当户你把“识字能补家计”写成了真钱，不再只是体面话。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('拆账') >= 0; })) log.push(['这一任当户你至少有一回把润笔或馆钱先拆进锅火、差钱与纸墨；举业路的当户也开始有了更细的年内流转。', 'good']);
         if ((S.本年户季务 || []).length <= 4) log.push(['这一任当户虽拆成了年内各旬，但真正落到账里的细务仍偏少，说明这一年还没有被你完全做厚。', 'bad']);
 
         var risk = 0.40 + hp.baseAdj;
