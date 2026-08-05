@@ -87,7 +87,7 @@
       妻室: false, 子数: 0, 女数: 0, 负债银: 0, 口食田: 0, 分家: false, 应役: '未役',
       委托营生: '无', 委托租谷: 0, 委托待收租谷: 0, 最近农闲营生层级: '未定', 最近农闲营生收益: 0,
       // 代际承接字段（不直接折现，只改变下一代入口分布）
-      父辈路线: '未定', 承嗣来路: '本支次子承继', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0,
+      父辈路线: '未定', 承嗣来路: '本支次子承继', 承继定位: '本房次子另起一手', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0,
       _farmLegacyApplied: false, _wageLegacyApplied: false, _apprenticeLegacyApplied: false, _merchantLegacyApplied: false, _examLegacyApplied: false,
       // 起步模式：用于入口文案区分“从出生跑起” vs “从 16 岁立身起算”
       _startMode: startMode
@@ -101,6 +101,7 @@
       S.家族 = Math.max(20, Math.min(80, carry.家族 == null ? 60 : carry.家族));
       S.父辈路线 = carry.父辈路线 || '未定';
       S.承嗣来路 = carry.承嗣来路 || '本支次子承继';
+      S.承继定位 = carry.承继定位 || '本房次子另起一手';
       S.家传书香 = Math.max(0, carry.家传书香 || 0);
       S.城里门路 = Math.max(0, carry.城里门路 || 0);
       S.商路门路 = Math.max(0, carry.商路门路 || 0);
@@ -236,6 +237,7 @@
   function inheritedCarryTags(carry) {
     if (!carry) return [];
     var tags = [];
+    if ((carry.承继定位 || '')) tags.push('这一房眼下的家业内部分工是“' + carry.承继定位 + '”');
     if ((carry.家传手艺 || 0) > 0) tags.push('家里还认得一层手艺门路');
     if ((carry.家传农事 || 0) > 1) tags.push('父辈把看天、看水、守薄田的农事门道也守下来了');
     else if ((carry.家传农事 || 0) > 0) tags.push('家里还留着一层守薄田的农事底子');
@@ -276,6 +278,7 @@
     if (!carry) return '无额外承接状态位';
     var tags = [];
     if ((carry.承嗣来路 || '')) tags.push('承嗣来路=' + carry.承嗣来路);
+    if ((carry.承继定位 || '')) tags.push('承继定位=' + carry.承继定位);
     if ((carry.家传书香 || 0) > 0) tags.push('家传书香' + carry.家传书香 + '层');
     if ((carry.城里门路 || 0) > 0) tags.push('城里门路' + carry.城里门路 + '层');
     if ((carry.商路门路 || 0) > 0) tags.push('商路门路' + carry.商路门路 + '层');
@@ -314,11 +317,13 @@
       if ((carry.家传书香 || 0) > 0) hints.push('抄单核账起步更顺');
       if ((carry.亦贾亦儒底子 || 0) > 0) hints.push('家里对商路反哺供读并不陌生');
       if ((carry.供读底子 || 0) > 0) hints.push('你会更早记得替家里另划几手供读专账');
+      if ((carry.承继定位 || '').indexOf('长兄续商') >= 0) hints.push('长兄那一房先续着旧号，你这一手若再走商，多半要在旧账旁另起一支');
     } else if (routeKey === 'civilExam') {
       if ((carry.家传书香 || 0) > 0) hints.push('识字、文章和保结起步更顺');
       if ((carry.商路门路 || 0) > 0) hints.push('商路旧识更容易替你递条子、垫几步人情');
       if ((carry.亦贾亦儒底子 || 0) > 0) hints.push('家里更知道怎么先供几年书');
       if ((carry.供读底子 || 0) > 0) hints.push('束脩纸墨前头先有一笔不折现的供读缓冲');
+      if ((carry.承继定位 || '').indexOf('次子候读') >= 0) hints.push('家里原本就把你这一手留作先读的一房，长兄那边续号回钱更像你背后的暗底');
     }
     if (isCollateralCarry(carry)) hints.push('只是这份门路经旁支接祧后已薄了一层，未必还能照本支那样使');
     if (isSiblingCarry(carry)) hints.push('这一手是弟妹接着前一个孩子的旧账往下活，门路不会凭空洗回空白');
@@ -493,6 +498,10 @@
         notes.push('这一房早已习惯商路反哺、供读分工，你既会跑路，也更知道怎样把现钱送回家里');
       }
       if (S.供读底子 > 0) notes.push('父辈留过供读专账的老规矩，你更知道要把哪几手现钱另划出来，不和日常花销混在一处');
+      if ((S.承继定位 || '').indexOf('长兄续商') >= 0) {
+        S.商信誉 = Math.max(S.商信誉, 1);
+        notes.push('这一房原就是“长兄续商、次子另起一手”的格局：你若再走商，起手就默认要在长兄旧号旁另续一支门路');
+      }
       if (isCollateralCarry(carryOver) && notes.length) notes.push('只是你这一房是旁支续起，旧商路与亦贾亦儒的余绪都只剩薄薄一层，还得靠这一代重新坐实');
     } else if (routeKey === 'civilExam' && !S._examLegacyApplied) {
       S._examLegacyApplied = true;
@@ -515,6 +524,11 @@
         notes.push('这一房已有亦贾亦儒的旧念头，家里对先供几年书这条路不算全然陌生，供读压力也轻了一线');
       }
       if (S.供读底子 > 0) notes.push('上一代确曾另划供读专账，这一代走举业时，束脩纸墨的压力会在年终结算里先被缓上一线，但不会直接化成现银');
+      if ((S.承继定位 || '').indexOf('次子候读') >= 0) {
+        S.供读压力 = Math.max(0, S.供读压力 - 1);
+        S.家族 += 1; clampAttr('家族');
+        notes.push('这一房在上一代就把你这一手留成“次子候读”，长兄续号回钱的那层预期，会让这一代起手再少一线断供压力');
+      }
       if (isCollateralCarry(carryOver) && notes.length) notes.push('只是这一支经旁支接祧后，书香与旧识都比本支薄一层，保结与供读仍得你这一代重新坐实');
     }
     return notes;
@@ -2839,6 +2853,7 @@
       var legacy = {
         父辈路线: S.路线 || '未定',
         承嗣来路: composeLineageSource(S.承嗣来路, S.子数 > 0 ? (isCollateralCarry(S) ? '旁支续承' : '本支次子承继') : '旁支过继'),
+        承继定位: '本房次子另起一手',
         家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0
       };
       if (S.技艺 !== '无' || S.雇技进度 >= 2 || S.雇工历练 >= 3) legacy.家传手艺 = 1;
@@ -2850,6 +2865,17 @@
       else if (S.识字 || S.识字转业值 >= 2 || S.举业结局 === '屡试未第') legacy.家传书香 = 1;
       if ((legacy.商路门路 > 0 && legacy.家传书香 > 0) || S.商路供读银 >= 1) legacy.亦贾亦儒底子 = 1;
       if (S.商路供读银 >= 1) legacy.供读底子 = S.商路供读银 >= 2 ? 2 : 1;
+      if ((S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) && S.子数 > 1) {
+        legacy.承继定位 = (legacy.亦贾亦儒底子 > 0 || legacy.供读底子 > 0)
+          ? '长兄续商·次子候读'
+          : '长兄续商·次子另起一手';
+      } else if ((S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && S.子数 > 1) {
+        legacy.承继定位 = '长兄守户·次子续读';
+      } else if ((S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') && S.子数 > 1) {
+        legacy.承继定位 = '长兄守户·次子循城外求';
+      } else if ((isFarmRouteState() || isWageRouteState()) && S.子数 > 1) {
+        legacy.承继定位 = '长兄守田·次子另起一手';
+      }
       if (isFarmRouteState() && S.委托营生 === '分得薄田自耕' && S.农事历练 >= 5) legacy.家传农事 = 2;
       else if ((isFarmRouteState() && S.农事历练 >= 3) || (isWageRouteState() && S.委托营生 === '分得薄田自耕' && S.农事历练 >= 2)) legacy.家传农事 = 1;
       var collateralDepth = 0;
@@ -2885,7 +2911,7 @@
       S._carry = {
         白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: shareCopper, 负债银: shareDebt, 家族: Math.min(80, S.家族),
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
-        城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子
+        承继定位: legacyCarry.承继定位, 城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子
       };
       if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，身后连旧账、反哺名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、尚未结回的委托田租' : '') + '也一并结进遗产。';
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了能传下去的不只是薄田' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '与委托田租' : '') + '，还有一层见过世面的门路。';
@@ -2897,7 +2923,7 @@
       S._carry = {
         白银: estateSilver, 存米: estateMi, 田亩: estateTian, 铜钱: estateCopper, 负债银: estateDebt, 家族: Math.max(35, Math.min(75, S.家族 - 5)),
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
-        城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子
+        承继定位: legacyCarry.承继定位, 城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子
       };
       if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，临了虽未留下亲生承嗣，旧账、顾家名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、委托经营账上的待结田租' : '') + '仍要在旁支账里结清。';
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了虽绝嗣，城中门路与见识' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '连同委托田租的薄底子' : '') + '也只剩旁支可续。';
