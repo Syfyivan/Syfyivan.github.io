@@ -269,6 +269,18 @@
     if (isSiblingCarry(carry)) tags.push('这一手是幼年早夭后由弟妹接续，旧账与门路都沿前一手继续传下');
     return tags.length ? ('上一代还给这一房留下：' + tags.join('、') + '。') : '';
   }
+  function carryRouteAwareSummary(carry) {
+    if (!carry) return '无额外承接状态位';
+    var tags = [];
+    if ((carry.承嗣来路 || '')) tags.push('承嗣来路=' + carry.承嗣来路);
+    if ((carry.家传书香 || 0) > 0) tags.push('家传书香' + carry.家传书香 + '层');
+    if ((carry.城里门路 || 0) > 0) tags.push('城里门路' + carry.城里门路 + '层');
+    if ((carry.商路门路 || 0) > 0) tags.push('商路门路' + carry.商路门路 + '层');
+    if ((carry.家传手艺 || 0) > 0) tags.push('家传手艺' + carry.家传手艺 + '层');
+    if ((carry.亦贾亦儒底子 || 0) > 0) tags.push('亦贾亦儒底子' + carry.亦贾亦儒底子 + '层');
+    if ((carry.供读底子 || 0) > 0) tags.push('供读底子' + carry.供读底子 + '层');
+    return tags.length ? tags.join('｜') : '无额外承接状态位';
+  }
   function isFarmRouteState() {
     return (S.路线 || '').indexOf('留乡佃田') === 0;
   }
@@ -1147,7 +1159,7 @@
     if (S.农事历练 >= 3) 底子.push('农活扎实');
     if (S.家务历练 >= 3) 底子.push('家务麻利');
     if (generation > 1 && carryOver) {
-      if ((carryOver.承嗣来路 || '') === '旁支过继') 底子.push('这一房是旁支接祧起家（门路比本支更薄一层）');
+      if (isCollateralCarry(carryOver)) 底子.push('这一房是旁支接祧起家（门路比本支更薄一层）');
       if (isSiblingCarry(carryOver)) 底子.push('这一手是弟妹接续前账起家（旧门路没有被洗回空白）');
       if (S.负债银 > 0) 底子.push('家里还背着旧债（起手更紧）');
     }
@@ -2917,8 +2929,9 @@
       recordEntry('丧葬支出结算', before, '棺木等：白银-1、存米-1（从遗产扣，镜像入出资子账）');
       var rh = '<div class="resolve"><h4>身后结算 · 享年 ' + S.年龄 + ' 岁</h4>';
       rh += '<div class="line bad">· 丧葬支出：白银-1、存米-1</div>';
-      if (S.子数 > 0) rh += '<div class="line good">· 遗产品搭均分给 ' + S.子数 + ' 子；你继续跟的这一房分得白银' + (S._carry.白银) + '两、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩' + (S._carry.负债银 > 0 ? ('，并分担旧债' + S._carry.负债银 + '两') : '') + '</div>';
-      else rh += '<div class="line bad">· 绝嗣过继：下一代旁支薄产（田2亩、存米1石）起家' + (S._carry.负债银 > 0 ? ('，并接过旧债' + S._carry.负债银 + '两') : '') + '</div>';
+      if (S.子数 > 0) rh += '<div class="line good">· 遗产品搭均分给 ' + S.子数 + ' 子；你继续跟的这一房分得白银' + (S._carry.白银) + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩' + (S._carry.负债银 > 0 ? ('，并分担旧债' + S._carry.负债银 + '两') : '') + '</div>';
+      else rh += '<div class="line bad">· 绝嗣过继：下一代旁支薄产（田2亩、铜钱800文、存米1石）起家' + (S._carry.负债银 > 0 ? ('，并接过旧债' + S._carry.负债银 + '两') : '') + '</div>';
+      rh += '<div class="line">· 下一代承接：' + carryRouteAwareSummary(S._carry) + '</div>';
       rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">这一世了结。账本可继承、可回放、可重开——这正是徽州文书"归户"的玩法化。</div>';
       rh += '</div>';
       curStage.outcome = rh;
@@ -2946,6 +2959,7 @@
       setRandomSeed: function (seed) { setRandomSeed(seed); return true; },
       clearRandomControls: function () { clearRandomControls(); return true; },
       getStageTitle: function () { return curStage ? curStage.title : curLabel(); },
+      getStageHTML: function () { return $('stage').innerHTML; },
       getStageAP: function () {
         if (phase === 'childhood') return CHILD_AP;
         if (phase === 'farm') return AP_PER_XUN;
@@ -2958,6 +2972,21 @@
         if (curStage && curStage.actions) return lifeActions().map(function (a) { return { id: a.id, name: a.name, can: a.can !== false, cost: a.cost || 0, once: !!a.once, why: a.why || '', eff: a.eff || '' }; });
         if (curStage && curStage.choices) return curStage.choices.map(function (c, i) { return { id: i, name: c.name, can: c.can !== false, cost: 0, once: true, why: '', eff: c.gain || '' }; });
         return [];
+      },
+      getChoices: function () {
+        if (!curStage || !curStage.choices) return [];
+        return curStage.choices.map(function (c, i) {
+          return {
+            id: i,
+            name: c.name,
+            can: c.can !== false,
+            gain: c.gain || '',
+            cost: c.cost || '',
+            prob: c.prob || '',
+            note: c.note || '',
+            why: c.why || ''
+          };
+        });
       },
       getLifeProfile: function () { return JSON.parse(JSON.stringify(currentLifeProfile())); },
       pickAction: function (id) {
