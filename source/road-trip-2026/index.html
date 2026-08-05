@@ -187,6 +187,7 @@ sup a:hover{text-decoration:underline;}
       <a href="#hiking-manual">徒步手册</a>
       <a href="#stay-strategy">住宿策略</a>
       <a href="#booking-sheet">预订模板</a>
+      <a href="#price-snapshot">价格快照</a>
       <a href="#budget">费用预算</a>
       <a href="#booking">预约提醒</a>
       <a href="#execution">执行清单</a>
@@ -1421,6 +1422,34 @@ flowchart LR
     <div class="callout-title">填表时只认真实信息</div>
     <p>这里的“住宿名称、价格、取消时间、停车条件、是否供氧/供暖”都要以你临近出发时在携程/飞猪/小红书/地图上看到的真实信息为准。现在这版只把需要锁的节点和筛选标准替你先搭好，不编任何可能过期的房名和价格。</p>
   </div>
+</section>
+
+<!-- Price Snapshot -->
+<section id="price-snapshot">
+  <div class="section-num">Snapshot</div>
+  <h2>当前公开住宿价格快照</h2>
+  <p class="lead">以下是 <strong>2026-08-05</strong> 从公开订房页面能直接看到的房名与价格快照。这里故意不伪装成“最终预订价”：<strong>币种、税费口径、库存、是否可退、是否含早，都以当时页面实际显示为准</strong>。</p>
+  <div class="callout danger">
+    <div class="callout-title">先看这 3 条再看表</div>
+    <p>① 这不是出发时锁价，只是当前公开页面的可见快照；② 部分页面显示为 <strong>USD</strong>，因为抓取到的是 Trip.com 国际站价格，不强行换算成人民币；③ 北疆白哈巴 / 禾木这一组我这次只拿到候选房名，没稳定拿到按指定日期锁定后的价格，所以明确标成“未显示”。</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>节点</th><th>候选住宿</th><th>页面可见价</th><th>币种</th><th>页面可见信息</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr><td><strong>塔尔钦</strong></td><td>Hi Inn Pulan Mount Kailash Scenic Area Hotel</td><td>US$85</td><td>USD</td><td>供氧、地暖、洗衣可见</td><td>取消政策当前页未显示</td></tr>
+        <tr><td><strong>塔尔钦</strong></td><td>Gangrenboqi View Hotel</td><td>US$82</td><td>USD</td><td>供氧可见</td><td>供暖/洗衣/停车/取消政策当前页未显示</td></tr>
+        <tr><td><strong>珠峰段 / 定日</strong></td><td>Oxygen Cube yunting hotel</td><td>US$49 起</td><td>USD</td><td>供氧可见，房型标题可见供暖</td><td>该价为列表页可见价，取消政策当前页未显示</td></tr>
+        <tr><td><strong>日瓦 / 香格里拉镇</strong></td><td>Yading Zhaxi Kongshu Tibetan Culture Theme Hotel</td><td>US$34</td><td>USD</td><td>供氧在详情页可见</td><td>供暖/洗衣/停车/取消政策当前页未显示</td></tr>
+        <tr><td><strong>日瓦 / 香格里拉镇</strong></td><td>Aden ZhiShanXia hotel</td><td>US$35</td><td>USD</td><td>当前列表页仅见价格</td><td>设施与取消政策当前页未显示</td></tr>
+        <tr><td><strong>雨崩 / 德钦</strong></td><td>Once Upon a Time in Meili</td><td>US$80</td><td>USD</td><td>供氧、供暖可见</td><td>洗衣/停车/取消政策当前页未显示</td></tr>
+        <tr><td><strong>雨崩 / 德钦</strong></td><td>Meili Yunjing Mountain Lodge</td><td>US$47</td><td>USD</td><td>供氧、供暖可见</td><td>洗衣/停车/取消政策当前页未显示</td></tr>
+        <tr><td><strong>白哈巴 / 禾木</strong></td><td>白哈巴云水间民宿（哈巴河白湖山庄店）</td><td>未显示</td><td>—</td><td>免费洗衣、免费停车、可做饭、早餐 ¥20/人 可见</td><td>这次只拿到详情页与设施，未稳定抓到按指定日期的房价卡</td></tr>
+        <tr><td><strong>白哈巴 / 禾木</strong></td><td>SONGMAN Alpine Lodge, Baihaba</td><td>未显示</td><td>—</td><td>当前列表页仅见评分和位置亮点</td><td>建议出发前按真实日期再锁价</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:0.85rem;color:var(--muted);margin-top:10px">⚠️ 这是查询时点快照，不是最终成交价。真正下单前，请按你们实际入住日重新查看 2-3 家候选的可退价、含早与停车条件。</p>
 </section>
 
 <!-- Budget -->
