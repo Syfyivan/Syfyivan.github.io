@@ -85,7 +85,7 @@
       生员身份: false, 生员层级: '无', 优免启用: false, 举业结局: '未定', 识字转业值: 0, _advanceExamYear: false,
       // 人生链路字段
       妻室: false, 子数: 0, 女数: 0, 负债银: 0, 口食田: 0, 分家: false, 应役: '未役',
-      委托营生: '无', 委托租谷: 0, 最近农闲营生层级: '未定', 最近农闲营生收益: 0,
+      委托营生: '无', 委托租谷: 0, 委托待收租谷: 0, 最近农闲营生层级: '未定', 最近农闲营生收益: 0,
       // 代际承接字段（不直接折现，只改变下一代入口分布）
       父辈路线: '未定', 承嗣来路: '本支次子承继', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0,
       _farmLegacyApplied: false, _wageLegacyApplied: false, _apprenticeLegacyApplied: false, _merchantLegacyApplied: false, _examLegacyApplied: false,
@@ -1495,7 +1495,11 @@
     if (S.学徒历练) tags.push('学徒历练 ' + S.学徒历练);
     if (S.商历练) tags.push('商路历练 ' + S.商历练);
     if (S.文章火候) tags.push('文章火候 ' + S.文章火候);
-    if (S.委托营生 !== '无') tags.push('分家后' + S.委托营生 + (S.委托租谷 > 0 ? '·年租谷+' + S.委托租谷 : ''));
+    if (S.委托营生 !== '无') {
+      var rentTag = S.委托租谷 > 0 ? '·年租谷+' + S.委托租谷 : '';
+      if ((S.委托待收租谷 || 0) > 0) rentTag += '·待收租谷' + S.委托待收租谷;
+      tags.push('分家后' + S.委托营生 + rentTag);
+    }
     if (S.商路供读银 > 0) tags.push('供读专账 ' + S.商路供读银 + '两');
     tags.push('家族声望 ' + S.家族);
     var h = '<div class="crop-bar g-ok"><div class="cb-head">' +
@@ -2415,14 +2419,14 @@
     if (isFarmRouteState() || isWageRouteState()) {
       if (isFarmRouteState()) {
         pack.note = '留乡佃田到了当户，看的是分得那 4 亩薄田到底守成自耕，还是另立租账把口粮稳住。你先前积下的农事历练、识字与乡里换工，此时都会折成“能不能把小户撑住”。';
-        pack.dossier = '农事历练=' + S.农事历练 + '｜家传农事=' + (S.家传农事 || 0) + '｜识字=' + (S.识字 ? '是' : '否') + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + S.委托租谷 + '｜应役=' + S.应役;
+        pack.dossier = '农事历练=' + S.农事历练 + '｜家传农事=' + (S.家传农事 || 0) + '｜识字=' + (S.识字 ? '是' : '否') + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + S.委托租谷 + '｜待收租谷=' + (S.委托待收租谷 || 0) + '｜应役=' + S.应役;
         pack.event = { t: 'rel', tag: '[薄田]', txt: '分家后这 4 亩薄田就是你这一房的根脚。守住它，老来至少还有一口口食；若这一任当户把田面赔进去，下一代就会重新落回“有门路没田面”或“既没田也没门路”的窄路。' };
         if (S.家传农事 > 0) pack.baseAdj -= 0.03;
         if (S.农事历练 >= 4) pack.baseAdj -= 0.05;
         else if (S.农事历练 >= 2) pack.baseAdj -= 0.02;
       } else {
         pack.note = '雇工路到了当户，关键转折不是“忽然发财”，而是这辈子第一次真把 4 亩薄田拿到自己名下：要么转成半自耕、少受人拿捏；要么先出佃收租，保住口粮再继续卖工。';
-        pack.dossier = '农事历练=' + S.农事历练 + '｜家传农事=' + (S.家传农事 || 0) + '｜雇工历练=' + S.雇工历练 + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + S.委托租谷 + '｜应役=' + S.应役;
+        pack.dossier = '农事历练=' + S.农事历练 + '｜家传农事=' + (S.家传农事 || 0) + '｜雇工历练=' + S.雇工历练 + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + S.委托租谷 + '｜待收租谷=' + (S.委托待收租谷 || 0) + '｜应役=' + S.应役;
         pack.event = { t: 'rel', tag: '[得田]', txt: '你前半生靠卖工吃饭，到这一步才第一次有了可写进自己户下的薄田。它未必够一家人吃饱，却能决定你老来还剩不剩一口自己能支配的口粮。' };
         if (S.家传农事 > 0) pack.baseAdj -= 0.03;
         if (S.雇工历练 >= 3) pack.baseAdj -= 0.03;
@@ -2568,6 +2572,7 @@
             case 'h_hold_field':
               S.委托营生 = '分得薄田自耕';
               S.委托租谷 = 0;
+              S.委托待收租谷 = 0;
               var fieldGain = 1 + ((S.家传农事 || 0) > 0 ? 1 : 0);
               var fieldPractice = isFarmRouteState()
                 ? ((S.家传农事 || 0) > 0 ? 1 : 0)
@@ -2582,6 +2587,7 @@
             case 'h_lease_home':
               S.委托营生 = '出佃收租';
               S.委托租谷 = Math.max(S.委托租谷, 1);
+              S.委托待收租谷 = Math.max(S.委托待收租谷 || 0, S.委托租谷);
               risk -= 0.06;
               log.push([isFarmRouteState()
                 ? '把薄田另立佃约收租：立下委托经营账，年租谷+1；口粮虽少了亲手把握，却替这一房留下一条稳租路（风险降）'
@@ -2590,12 +2596,14 @@
             case 'h_lease_city':
               S.委托营生 = '出佃收租';
               S.委托租谷 = Math.max(S.委托租谷, 1);
+              S.委托待收租谷 = Math.max(S.委托待收租谷 || 0, S.委托租谷);
               risk -= 0.06;
               log.push(['分家后把薄田出佃收租：立下委托经营账，年租谷+1；你仍在城里求生，不必硬回乡亲耕（风险降）', 'good']);
               break;
             case 'h_trust_field':
               S.委托营生 = '兄代管薄田';
               S.委托租谷 = Math.max(S.委托租谷, 1);
+              S.委托待收租谷 = Math.max(S.委托待收租谷 || 0, S.委托租谷);
               S.家族 += 2;
               risk -= 0.08;
               log.push(['托兄代管分得薄田：年租谷+1、家族+2；兄代你照看田面与部分里役人情（风险降）', 'good']);
@@ -2640,7 +2648,7 @@
   function doInherit(log) {
     if (S.分家) return;
     S.分家 = true;
-    S.存米 += 2; S.家族 += 4; S.口食田 = 1;
+    S.存米 += 2; S.家族 += 4; S.口食田 = 1; S.委托待收租谷 = 0;
     if (isFarmRouteState()) {
       S.委托营生 = '分得薄田自耕';
       log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。你这一房眼下先把薄田按自耕账守住，往后若撑不住，再改写成出佃/换工的账。', 'good']);
@@ -2671,7 +2679,7 @@
       pack.note = isFarmRouteState()
         ? '留乡佃田一路到了晚年，真正托底的不是“曾经佃过田”，而是分家后那 4 亩薄田到底守成了自耕、还是改成了租谷。'
         : '雇工一路到了晚年，老来靠不靠得住，不看你年轻时卖过多少工，而看分家后这 4 亩薄田有没有真的替你挡住断炊。';
-      pack.dossier = '农事历练=' + S.农事历练 + '｜雇工历练=' + S.雇工历练 + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + S.委托租谷 + '｜田亩=' + S.田亩 + '｜应役=' + S.应役 +
+      pack.dossier = '农事历练=' + S.农事历练 + '｜雇工历练=' + S.雇工历练 + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + S.委托租谷 + '｜待收租谷=' + (S.委托待收租谷 || 0) + '｜田亩=' + S.田亩 + '｜应役=' + S.应役 +
         '｜最近农闲营生=' + S.最近农闲营生层级 + (S.最近农闲营生收益 > 0 ? ('(' + S.最近农闲营生收益 + '文)') : '');
       pack.event = { t: 'rel', tag: '[田面]', txt: S.委托营生 === '分得薄田自耕'
         ? '你老来还能不能把饭碗捧稳，关键就看这几亩薄田是否还在自己手里照看。它未必富裕，却能把“无地”这件事拦在门外一点。'
@@ -2744,7 +2752,7 @@
         var A = [];
         A.push({ id: 'e_negotiate', name: '与诸子协商轮养', cost: 2, eff: S.子数 > 0 ? '按成算得诸子供养·家族+' : '（无子·此路不通）', desc: '召集诸子议定谁出米谁出工——他们可应可辞。', can: S.子数 > 0, why: S.子数 > 0 ? '' : '膝下无育成之子', once: true, prob: S.子数 > 0 ? '足额 / 半额 / 只象征奉养' : '' });
         A.push({ id: 'e_sell', name: '变卖田产养老', cost: 1, eff: '田-1亩·白银+2·存米+2', desc: '换现钱防身，但下一代可分田减少。', can: S.田亩 >= 2, why: S.田亩 >= 2 ? '' : '需田产≥2亩', once: true });
-        A.push({ id: 'e_rent', name: '收口食田薄租', cost: 1, eff: '存米+' + (2 + (S.委托租谷 || 0)) + '（口食田' + (S.委托租谷 ? '+委托田租' : '') + '）', desc: '当年立户分得的养老田，加上若早年已把薄田委托出佃/代管，此时一并收租过活。', can: S.口食田 > 0 || S.委托租谷 > 0, why: (S.口食田 > 0 || S.委托租谷 > 0) ? '' : '眼下无可收租谷', once: true });
+        A.push({ id: 'e_rent', name: '收口食田薄租', cost: 1, eff: '存米+' + (2 + (S.委托待收租谷 || 0)) + '（口食田' + ((S.委托待收租谷 || 0) > 0 ? '+待收委托田租' : '') + '）', desc: '当年立户分得的养老田，加上若早年已把薄田委托出佃/代管、尚有待收租谷，此时一并结回养老账。', can: S.口食田 > 0 || S.委托待收租谷 > 0, why: (S.口食田 > 0 || S.委托待收租谷 > 0) ? '' : '眼下无可收租谷', once: true });
         A.push({ id: 'e_med', name: '延医问药·调养', cost: 1, eff: '铜钱-500·体魄+8', desc: '花钱请郎中调养，延一延寿数。', can: S.铜钱 >= 500, why: S.铜钱 >= 500 ? '' : '铜钱不足500文' });
         ep.extraActions.forEach(function (x) { A.push(x); });
         A.push({ id: 'e_rest', name: '静养含饴', cost: 1, eff: '体魄+4·家族+2', desc: '不再劳作，含饴弄孙，安养身心。', can: true });
@@ -2773,9 +2781,10 @@
                 : '守着薄田慢慢收：卖工出身的晚景终于还能靠自家田收一口饭，存米+' + fieldGain + '、体魄-1', 'good']);
               break;
             case 'e_rent':
-              var rentGain = 2 + (S.委托租谷 || 0);
+              var rentGain = 2 + (S.委托待收租谷 || 0);
               S.存米 += rentGain;
-              log.push(['收口食田薄租' + (S.委托租谷 ? '并结委托田租' : '') + '：存米+' + rentGain, 'good']);
+              log.push(['收口食田薄租' + ((S.委托待收租谷 || 0) > 0 ? '并结委托田租' : '') + '：存米+' + rentGain, 'good']);
+              S.委托待收租谷 = 0;
               break;
             case 'e_med': S.铜钱 = Math.max(0, S.铜钱 - 500); S.体魄 += 8; log.push(['延医问药：铜钱-500、体魄+8（益寿）', 'good']); break;
             case 'e_city':
@@ -2858,7 +2867,8 @@
     var estateSilverGross = Math.max(0, S.白银 - funeral + recoveredReceivable);
     var estateDebt = Math.max(0, S.负债银 - estateSilverGross);
     var estateSilver = Math.max(0, estateSilverGross - S.负债银);
-    var estateMi = Math.max(0, S.存米 - funeralMi);
+    var pendingRentMi = Math.max(0, S.委托待收租谷 || 0);
+    var estateMi = Math.max(0, S.存米 - funeralMi) + pendingRentMi;
     var estateTian = S.田亩;
     var estateCopper = Math.max(0, S.铜钱);
     var sons = S.子数;
@@ -2876,11 +2886,11 @@
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子
       };
-      if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，身后连旧账、反哺名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + '也一并结进遗产。';
-      else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了能传下去的不只是薄田' + (S.委托租谷 > 0 ? '与委托田租' : '') + '，还有一层见过世面的门路。';
+      if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，身后连旧账、反哺名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、尚未结回的委托田租' : '') + '也一并结进遗产。';
+      else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了能传下去的不只是薄田' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '与委托田租' : '') + '，还有一层见过世面的门路。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨不会直接分成银两，却会作为体面与起点留在下一代门前。';
       else deathTag = '你这一辈子的每一分积累与亏空，都成了子孙的期初。';
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。丧礼依家礼办讫（棺木等丧葬支出白银1两、米1石从遗产扣除）。遗产按<span class="em">诸子均分</span>传给下一代' + (estateDebt > 0 ? '，未抵清的旧债也随房分担' : '') + '——' + deathTag;
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。丧礼依家礼办讫（棺木等丧葬支出白银1两、米1石从遗产扣除）' + (pendingRentMi > 0 ? '；另有委托经营账上待结的租谷 ' + pendingRentMi + ' 石，也按遗产一并入账' : '') + '。遗产按<span class="em">诸子均分</span>传给下一代' + (estateDebt > 0 ? '，未抵清的旧债也随房分担' : '') + '——' + deathTag;
     } else {
       collateralEstateNote = '结清丧葬与旧债后，这一房真正还能被过继承走的，只剩白银' + estateSilver + '两、铜钱' + estateCopper + '文、存米' + estateMi + '石、田' + estateTian + '亩。';
       S._carry = {
@@ -2888,11 +2898,11 @@
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子
       };
-      if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，临了虽未留下亲生承嗣，旧账、顾家名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + '仍要在旁支账里结清。';
-      else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了虽绝嗣，城中门路与见识' + (S.委托租谷 > 0 ? '连同委托田租的薄底子' : '') + '也只剩旁支可续。';
+      if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，临了虽未留下亲生承嗣，旧账、顾家名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、委托经营账上的待结田租' : '') + '仍要在旁支账里结清。';
+      else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了虽绝嗣，城中门路与见识' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '连同委托田租的薄底子' : '') + '也只剩旁支可续。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨终究未能直接传给亲子，只在旁支门前留下些体面与余绪。';
       else deathTag = '这不是"游戏失败"，而是明代极高绝嗣率下的真实分支。';
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>，然膝下无育成之子。依明代常俗，触发<span class="em">过继/立嗣</span>：族中侄辈过继承祧，但承的不是一张重置模板，而是这户结清后的真实余产' + (estateDebt > 0 ? '与未了旧债' : '') + '——' + deathTag;
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>，然膝下无育成之子。依明代常俗，触发<span class="em">过继/立嗣</span>：族中侄辈过继承祧，但承的不是一张重置模板，而是这户结清后的真实余产' + (pendingRentMi > 0 ? '、待结委托田租' : '') + (estateDebt > 0 ? '与未了旧债' : '') + '——' + deathTag;
     }
     return {
       title: '死亡与传承', label: '传承', next: null, nextLabel: '递归重开 →',
