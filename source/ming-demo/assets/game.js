@@ -56,9 +56,14 @@
   var childPicks = [];       // 本轮已排的幼年活计
   var childResolved = null;  // 本轮结算文本
   var curChildEvents = [];   // 本轮随机事件
+  // 默认从 16 岁立身开始，便于“立身五路→成家→当户→养老→死亡传承→下一代重开”闭环回放。
+  // 仍保留“从出生跑起”模式，用于验证幼年与“弟妹接续”分支。
+  var startMode = 'establishment'; // 'establishment' | 'childhood'
 
-  function initState(carry) {
+  function initState(carry, opts) {
+    opts = opts || {};
     carryOver = carry || null;
+    startMode = (opts.start === 'childhood' || opts.start === 'establishment') ? opts.start : startMode;
     S = {
       年龄: 1, 身份: '民籍·佃农子(孩提)',
       体魄: 60, 家族: 60,
@@ -83,7 +88,9 @@
       委托营生: '无', 委托租谷: 0,
       // 代际承接字段（不直接折现，只改变下一代入口分布）
       父辈路线: '未定', 承嗣来路: '本支次子承继', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 亦贾亦儒底子: 0, 供读底子: 0,
-      _farmLegacyApplied: false, _wageLegacyApplied: false, _apprenticeLegacyApplied: false, _merchantLegacyApplied: false, _examLegacyApplied: false
+      _farmLegacyApplied: false, _wageLegacyApplied: false, _apprenticeLegacyApplied: false, _merchantLegacyApplied: false, _examLegacyApplied: false,
+      // 起步模式：用于入口文案区分“从出生跑起” vs “从 16 岁立身起算”
+      _startMode: startMode
     };
     if (carry) {
       S.白银 = Math.max(0, carry.白银 || 0);
@@ -107,11 +114,16 @@
     _yearEndNext = null;
     phase = 'childhood';
     childStage = 0; childRound = 0; childPicks = []; childResolved = null;
-    S.年龄 = CHILD_STAGES[0].age;
-    recordEntry('出生开账', null,
-      generation > 1 ? ('第' + generation + '代降生：这一户现有田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两' + (S.负债银 > 0 ? ('、旧债' + S.负债银 + '两') : '') + '，你排行次子，全赖父母养育。' + inheritedCarryNote(carryOver))
-        : '出生：降生于江南民籍佃农之家，排行次子。这户现有薄田4亩、存米3石、少量现钱。');
-    rollChildRound();
+    if (startMode === 'childhood') {
+      S.年龄 = CHILD_STAGES[0].age;
+      recordEntry('出生开账', null,
+        generation > 1 ? ('第' + generation + '代降生：这一户现有田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两' + (S.负债银 > 0 ? ('、旧债' + S.负债银 + '两') : '') + '，你排行次子，全赖父母养育。' + inheritedCarryNote(carryOver))
+          : '出生：降生于江南民籍佃农之家，排行次子。这户现有薄田4亩、存米3石、少量现钱。');
+      rollChildRound();
+    } else {
+      // 直接从 16 岁立身起算：少一层“幼年点点点”的摩擦，便于五路入口回放与闭环验证。
+      enterEstablishment();
+    }
   }
 
   // ── 资源守恒台账 ─────────────────────────────────
@@ -567,7 +579,7 @@
   function handlePNext() {
     if (phase === 'childhood') { nextChildRound(); return; }
     var st = curStage; if (!st) return;
-    if (st.next === null) startNextGeneration(); else enterPhase(st.next);
+    if (st.next === null) startNextGeneration('establishment'); else enterPhase(st.next);
   }
 
   function renderStatus() {
@@ -1106,7 +1118,7 @@
   }
 
   function nextChildRound() {
-    if (S._childDied) { startNextGeneration(); return; }
+    if (S._childDied) { startNextGeneration('childhood'); return; }
     childResolved = null; childPicks = [];
     var st = CHILD_STAGES[childStage];
     if (childRound < st.rounds - 1) {
@@ -1142,7 +1154,10 @@
     S.年龄 = 16; S.身份 = '民籍·次子待立身'; S.路线 = '未立身';
     picks = []; resolved = null; lifePicks = []; curStage = stageEstablishment();
     var 底子 = routeBaseSummary();
-    recordEntry('十六成丁·立身开账', snapshot(), '幼年既过，成丁立身。' +
+    var 起步口径 = (S._startMode === 'childhood')
+      ? '幼年既过，成丁立身。'
+      : '从十六成丁起算，先立身分路。';
+    recordEntry('十六成丁·立身开账', snapshot(), 起步口径 +
       (generation > 1 ? ('这一代沿上一代真实传承快照起步：田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两。') : '') +
       (底子.length ? '这些年攒下：' + 底子.join('、') + '。' : '这些年不曾攒下特别的底子，只识些寻常农事。'));
     renderStatus(); renderLifeStage(); renderLedger();
@@ -2826,18 +2841,21 @@
   }
 
   // ── 下一代递归重开 ──
-  function startNextGeneration() {
+  function startNextGeneration(nextStart) {
     generation += 1;
     var carry = S._carry || null;
     carryOver = carry;
-    initState(carry);
+    // 主闭环：默认从 16 岁立身重开；幼年“弟妹接续”分支则继续从幼年跑起。
+    var start = (nextStart === 'childhood') ? 'childhood' : 'establishment';
+    initState(carry, { start: start });
     renderStatus(); renderStage(); renderLedger();
     window.scrollTo({ top: 0 });
   }
   function restartFromCarry(carry, gen) {
     generation = Math.max(2, gen || 2);
     carryOver = carry || null;
-    initState(carryOver);
+    // 传承快照本质是“下一代 16 岁立身”的期初账：用于五路入口承接回放，固定从立身开始。
+    initState(carryOver, { start: 'establishment' });
     renderStatus(); renderStage(); renderLedger();
     window.scrollTo({ top: 0 });
   }
@@ -2872,10 +2890,13 @@
   }
 
   // ── 启动 ────────────────────────────────────────
-  function restart() { installDelegation(); generation = 1; carryOver = null; initState(null); renderStatus(); renderStage(); renderLedger(); window.scrollTo({ top: 0 }); }
-  document.getElementById('btn-restart').addEventListener('click', restart);
+  function restartAt16() { installDelegation(); generation = 1; carryOver = null; initState(null, { start: 'establishment' }); renderStatus(); renderStage(); renderLedger(); window.scrollTo({ top: 0 }); }
+  function restartFromBirth() { installDelegation(); generation = 1; carryOver = null; initState(null, { start: 'childhood' }); renderStatus(); renderStage(); renderLedger(); window.scrollTo({ top: 0 }); }
+  document.getElementById('btn-restart').addEventListener('click', restartAt16);
+  var _btnBirth = document.getElementById('btn-restart-birth');
+  if (_btnBirth) _btnBirth.addEventListener('click', restartFromBirth);
   installDelegation();
-  restart();
+  restartAt16();
 
   // 死亡阶段无选项，进入即自动展示传承 outcome
   var _origEnter = enterPhase;
@@ -2899,8 +2920,9 @@
   };
   if (typeof window !== 'undefined') {
     window.__MING_TEST_API = {
-      restart: restart,
-      restartWithHeir: startNextGeneration,
+      restart: restartAt16,
+      restartFromBirth: restartFromBirth,
+      restartWithHeir: function () { startNextGeneration('establishment'); },
       restartFromCarry: restartFromCarry,
       getState: function () { return JSON.parse(JSON.stringify(S)); },
       getPhase: function () { return phase; },
