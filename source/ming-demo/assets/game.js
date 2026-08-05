@@ -328,7 +328,8 @@
   }
   function currentEstablishmentLead(baseSummary) {
     if (generation <= 1 || !carryOver) {
-      return '你已<span class="em">十六岁</span>。父兄会留在这户田上，你得决定自己怎么立身。' +
+      var fromBirthLead = (S._startMode === 'childhood') ? '幼年既过，' : '';
+      return fromBirthLead + '你已<span class="em">十六岁</span>。父兄会留在这户田上，你得决定自己怎么立身。' +
         (baseSummary.length ? ('你这些年攒下的底子：<span class="em">' + baseSummary.join('、') + '</span>。') : '你手上并无特别底子，只有一副年轻身子和一点寻常农事。') +
         '五条路共享同一个过去、同一份家底，但以后会走成完全不同的一生。';
     }
