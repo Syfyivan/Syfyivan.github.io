@@ -1174,6 +1174,60 @@
     if (!S.本年户季务) S.本年户季务 = [];
     if (S.本年户季务.indexOf(tag) < 0) S.本年户季务.push(tag);
   }
+  function applySeasonalMerchantFriction(log, stepLabel, season, xun, picked) {
+    function hasPicked(ids) {
+      return (ids || []).some(function (id) { return !!picked[id]; });
+    }
+    function apply(entry) {
+      if (!entry) return;
+      if (hasPicked(entry.handledIds)) {
+        pushMerchantSeasonTag(stepLabel + entry.doneTag);
+        log.push([entry.doneLog, 'good']);
+      } else if (spendCopper(entry.cost)) {
+        pushMerchantSeasonTag(stepLabel + entry.costTag);
+        log.push([entry.costLog.replace('{cost}', entry.cost), 'bad']);
+      } else {
+        if (entry.hardship === 'body') S.体魄 -= 1;
+        if (entry.hardship === 'clan') S.家族 = Math.max(0, S.家族 - 1);
+        if (entry.hardship === 'trust') S.商信誉 = Math.max(0, S.商信誉 - 1);
+        pushMerchantSeasonTag(stepLabel + entry.failTag);
+        log.push([entry.failLog, 'bad']);
+      }
+    }
+    if (season.id === 'summer' && xun === 2) apply({
+      handledIds: ['m_shop', 'm_book', 'm_mend', 'm_rest', 'm_letter'],
+      doneTag: '伏夏零耗已顾',
+      doneLog: '〔伏夏零耗〕这一旬先把茶汤、草鞋、汗药和号里脚钱顾住了；热里这层细碎磨损没有再顺着柜上、货路和身子一起滚大。',
+      cost: 40,
+      costTag: '伏夏零耗',
+      costLog: '〔伏夏零耗〕伏夏茶汤、草鞋、汗药和一口临时脚钱一起冒头：铜钱-{cost}。不是大祸，只是商路这一年又多出一层真摩擦。',
+      failTag: '伏夏硬扛',
+      failLog: '〔伏夏零耗〕现钱已被别处先占，只得靠身子硬扛这一旬的热耗与脚路（体魄-1）。',
+      hardship: 'body'
+    });
+    if (season.id === 'autumn' && xun === 1) apply({
+      handledIds: ['m_market', 'm_run', 'm_goods', 'm_collect'],
+      doneTag: '秋市碎费已拆',
+      doneLog: '〔秋市碎费〕这一旬先把样货、牙行照面和秋路脚费拆开了；看着只是小钱，却没再把本年试手前的商路判断搅浑。',
+      cost: 50,
+      costTag: '秋市碎费',
+      costLog: '〔秋市碎费〕样货茶钱、牙行照面和秋路脚费一起要钱：铜钱-{cost}。不是新主线，只是把秋里试手前的摩擦重新摊回同一年。',
+      failTag: '秋市硬顶',
+      failLog: '〔秋市碎费〕这一旬连牙行照面和样货脚费都先挪不开，只得硬顶过去；旧相识看你更生了一层（商信誉-1）。',
+      hardship: 'trust'
+    });
+    if (season.id === 'winter' && xun === 1) apply({
+      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_mend'],
+      doneTag: '年关路费已分',
+      doneLog: '〔年关路费〕这一旬先把灯油、客脚、年礼和来春第一程水脚分开记了；钱没变多，却没再因为“只差一点”把清账路数搅混。',
+      cost: 60,
+      costTag: '年关路费',
+      costLog: '〔年关路费〕灯油、客脚、年礼和来春第一程水脚一起压来：铜钱-{cost}。不是大账，却正是冬清账最磨人的那层零碎摩擦。',
+      failTag: '年关硬顶',
+      failLog: '〔年关路费〕这一旬连年礼和来春第一程小路费都腾挪不开，只得先硬顶过去；家里等钱的口风更急了一层（家族-1）。',
+      hardship: 'clan'
+    });
+  }
   function applySeasonalHouseholdFriction(log, stepLabel, season, xun, picked, pack) {
     if (!pack) return;
     function hasPicked(ids) {
@@ -3143,7 +3197,9 @@
         return A;
       },
       settle: function (log) {
+        var picked = {};
         lifePicks.forEach(function (p) {
+          picked[p.id] = true;
           switch (p.id) {
             case 'm_shop':
               S.铜钱 += shopCopper; S.账房进度 += 1; S.商历练 += 1; S.体魄 -= shopBody; S.商身份 = '学生意伙计'; S.本年商路坐店 += 1;
@@ -3266,6 +3322,7 @@
               break;
           }
         });
+        applySeasonalMerchantFriction(log, season.name + xunLabel, season, xun, picked);
 
         if (!isYearEnd) {
           curStage.next = 'merchant';
