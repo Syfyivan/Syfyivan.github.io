@@ -1171,6 +1171,30 @@
     if (!S.本年户季务) S.本年户季务 = [];
     if (S.本年户季务.indexOf(tag) < 0) S.本年户季务.push(tag);
   }
+  function applySeasonalHouseholdFriction(log, stepLabel, season, xun, picked, pack) {
+    if (!pack) return;
+    function hasPicked(ids) {
+      return (ids || []).some(function (id) { return !!picked[id]; });
+    }
+    function apply(entry) {
+      if (!entry) return;
+      if (hasPicked(entry.handledIds)) {
+        pushHouseholdSeasonTag(stepLabel + entry.doneTag);
+        log.push([entry.doneLog, 'good']);
+      } else if (spendCopper(entry.cost)) {
+        pushHouseholdSeasonTag(stepLabel + entry.costTag);
+        log.push([entry.costLog.replace('{cost}', entry.cost), 'bad']);
+      } else {
+        if (entry.hardship === 'body') S.体魄 -= 1;
+        if (entry.hardship === 'clan') S.家族 = Math.max(0, S.家族 - 1);
+        pushHouseholdSeasonTag(stepLabel + entry.failTag);
+        log.push([entry.failLog, 'bad']);
+      }
+    }
+    if (season.id === 'summer' && xun === 2) apply(pack.summer);
+    if (season.id === 'autumn' && xun === 2) apply(pack.autumn);
+    if (season.id === 'winter' && xun === 1) apply(pack.winter);
+  }
   function resetFamilyYearLedger() {
     S.家季 = 1;
     S.家旬 = 1;
@@ -5575,6 +5599,8 @@
         doInherit(log);
         var actionCount = 0;
         var proxySet = false;
+        var picked = {};
+        lifePicks.forEach(function (p) { picked[p.id] = true; });
         lifePicks.forEach(function (p) {
           switch (p.id) {
             case 'h_wage_collect':
@@ -5684,6 +5710,41 @@
           }
         });
         if (actionCount === 0) log.push(['这一旬你几乎没把任何实账坐下，当户这一年便更容易在年关前忽然一起撞账。', 'bad']);
+        applySeasonalHouseholdFriction(log, stepLabel, season, xun, picked, {
+          summer: {
+            handledIds: ['h_hire', 'h_side', 'h_rest', 'h_proxy_wage', 'h_hold_field', 'h_literate'],
+            doneTag: '伏夏小耗已顾',
+            doneLog: '〔伏夏小耗〕这一旬你先把凉药、草鞋、田面与工棚脚路里至少一层顾住；伏夏损耗没有消失，但没再把卖工路的身子和锅火一并熬穿。',
+            cost: 60,
+            costTag: '伏夏小耗',
+            costLog: '〔伏夏小耗〕凉药、草鞋、工棚脚路和田边小耗一齐冒头：铜钱-{cost}。不是大祸，只是当户这一年里又一口真支出。',
+            failTag: '伏夏硬扛',
+            failLog: '〔伏夏小耗〕这一旬连凉药和草鞋钱都腾挪不开，只得先硬扛过去：体魄-1。',
+            hardship: 'body'
+          },
+          autumn: {
+            handledIds: ['h_wage_collect', 'h_proxy_wage', 'h_pay', 'h_lease_home', 'h_clan', 'h_side'],
+            doneTag: '秋后细账已拆',
+            doneLog: '〔秋后细账〕秋里旧工钱、租谷、锅火与差钱已被你先拆开；旺工回钱这旬没再被误当成“终于宽裕”。',
+            cost: 70,
+            costTag: '秋后杂支',
+            costLog: '〔秋后杂支〕秋后催差口风、脚路人情和锅火碎用一起压来：铜钱-{cost}。不是新主线，只是同一年里又一层真支出。',
+            failTag: '秋后硬顶',
+            failLog: '〔秋后杂支〕现钱腾挪不开，这一旬只得先硬顶过去；这一房的人情面更紧了一层（家族-1）。',
+            hardship: 'clan'
+          },
+          winter: {
+            handledIds: ['h_pay', 'h_proxy_wage', 'h_literate', 'h_wage_collect', 'h_side', 'h_rest'],
+            doneTag: '年关碎账已分',
+            doneLog: '〔年关碎账〕欠工、明春活路、灯油草鞋与差钱已经被你先分开；年关没再把同一口现钱搅成一团。',
+            cost: 50,
+            costTag: '年关碎账',
+            costLog: '〔年关碎账〕灯油、草鞋、来春脚路和应役前的小脚费一齐要钱：铜钱-{cost}。不是大账，却正是最磨人的年关小耗。',
+            failTag: '年关硬顶',
+            failLog: '〔年关碎账〕这一旬连年关碎用都挪不开，只得靠身子硬顶过去（体魄-1）。',
+            hardship: 'body'
+          }
+        });
         clampAttr('体魄');
         clampAttr('家族');
         if (!isYearEnd) {
@@ -5845,6 +5906,8 @@
         var proxySet = false;
         var seasonTag = season.name;
         var bookCost = season.id === 'winter' ? 50 : 40;
+        var picked = {};
+        lifePicks.forEach(function (p) { picked[p.id] = true; });
         lifePicks.forEach(function (p) {
           switch (p.id) {
             case 'h_shop_collect':
@@ -5944,6 +6007,41 @@
           }
         });
         if (actionCount === 0) log.push(['这一旬你几乎没把任何实账坐下，当户这一年便更容易在年关前忽然一起撞账。', 'bad']);
+        applySeasonalHouseholdFriction(log, stepLabel, season, xun, picked, {
+          summer: {
+            handledIds: ['h_shop_book', 'h_side', 'h_rest', 'h_proxy', 'h_hire', 'h_literate'],
+            doneTag: '伏夏小耗已顾',
+            doneLog: '〔伏夏小耗〕这一旬先把铺里脚路、家里汤药和伏夏布药顾住了；在城里的人情没有再跟家里锅火一起空转。',
+            cost: 60,
+            costTag: '伏夏小耗',
+            costLog: '〔伏夏小耗〕凉药、布药、脚路碎费和家里小耗一起冒头：铜钱-{cost}。不是大祸，只是当户这一年里又一口真支出。',
+            failTag: '伏夏硬扛',
+            failLog: '〔伏夏小耗〕这一旬连伏夏布药和凉汤钱都腾挪不开，只得先硬扛过去：体魄-1。',
+            hardship: 'body'
+          },
+          autumn: {
+            handledIds: ['h_shop_collect', 'h_proxy', 'h_pay', 'h_clan', 'h_lease_city', 'h_side'],
+            doneTag: '秋后细账已拆',
+            doneLog: '〔秋后细账〕秋后铺账、租谷、锅火与差钱已被你先拆开；忙季脚钱这旬没再被误写成宽裕。',
+            cost: 70,
+            costTag: '秋后杂支',
+            costLog: '〔秋后杂支〕秋后脚路碎费、租路人情和锅火杂支一起压来：铜钱-{cost}。不是新主线，只是同一年里又一层真支出。',
+            failTag: '秋后硬顶',
+            failLog: '〔秋后杂支〕现钱腾挪不开，这一旬只得先硬顶过去；这一房在人情面上更紧了一层（家族-1）。',
+            hardship: 'clan'
+          },
+          winter: {
+            handledIds: ['h_pay', 'h_proxy', 'h_shop_book', 'h_shop_collect', 'h_literate', 'h_rest'],
+            doneTag: '年关碎账已分',
+            doneLog: '〔年关碎账〕铺里旧脚钱、明春脚路和差钱后手已被你先分开；年关不再只剩“人在城里却手里没口现钱”。',
+            cost: 50,
+            costTag: '年关碎账',
+            costLog: '〔年关碎账〕灯油、脚路、来春回铺盘缠和小差钱一齐要钱：铜钱-{cost}。不是大账，却正是最磨人的年关小耗。',
+            failTag: '年关硬顶',
+            failLog: '〔年关碎账〕这一旬连年关碎用都挪不开，只得靠身子硬顶过去（体魄-1）。',
+            hardship: 'body'
+          }
+        });
         clampAttr('体魄');
         clampAttr('家族');
         if (!isYearEnd) {
@@ -6058,6 +6156,8 @@
       settle: function (log) {
         doInherit(log);
         var actionCount = 0;
+        var picked = {};
+        lifePicks.forEach(function (p) { picked[p.id] = true; });
         lifePicks.forEach(function (p) {
           switch (p.id) {
             case 'h_collect':
@@ -6146,6 +6246,41 @@
         });
 
         if (actionCount === 0) log.push(['这一旬你几乎没把任何实账坐下，当户这一年便更容易在年关前忽然一起撞账。', 'bad']);
+        applySeasonalHouseholdFriction(log, stepLabel, season, xun, picked, {
+          summer: {
+            handledIds: ['h_collect', 'h_school_fund', 'h_side', 'h_rest', 'h_literate', 'h_clan'],
+            doneTag: '伏夏小耗已顾',
+            doneLog: '〔伏夏小耗〕这一旬先把伏夏布药、水脚与家里零耗顾住了；商路现钱没有再被小耗悄悄磨薄。',
+            cost: 60,
+            costTag: '伏夏小耗',
+            costLog: '〔伏夏小耗〕伏夏布药、水脚碎费和家里小耗一起冒头：铜钱-{cost}。不是大祸，只是商路当户这一年里又一口真支出。',
+            failTag: '伏夏硬扛',
+            failLog: '〔伏夏小耗〕这一旬连伏夏布药和凉热小耗都腾挪不开，只得先硬扛过去：体魄-1。',
+            hardship: 'body'
+          },
+          autumn: {
+            handledIds: ['h_collect', 'h_pay', 'h_school_fund', 'h_clan', 'h_trust_field', 'h_side'],
+            doneTag: '秋后细账已拆',
+            doneLog: '〔秋后细账〕秋后回款、租谷、供读和差钱已被你先拆开；看着厚的秋钱这旬没再被误当成整口可花的银。',
+            cost: 70,
+            costTag: '秋后杂支',
+            costLog: '〔秋后杂支〕秋后脚路碎费、锅火、供读与差钱一起压来：铜钱-{cost}。不是新主线，只是同一年里又一层真支出。',
+            failTag: '秋后硬顶',
+            failLog: '〔秋后杂支〕现钱腾挪不开，这一旬只得先硬顶过去；这一房在人情面上更紧了一层（家族-1）。',
+            hardship: 'clan'
+          },
+          winter: {
+            handledIds: ['h_pay', 'h_collect', 'h_literate', 'h_school_fund', 'h_clan', 'h_side', 'h_rest'],
+            doneTag: '年关碎账已分',
+            doneLog: '〔年关碎账〕旧账、明春脚路、供读后手与差钱已经先被你分开；年关没再把同一口现银搅成一团。',
+            cost: 50,
+            costTag: '年关碎账',
+            costLog: '〔年关碎账〕灯油、脚路、供读零碎和明春盘缠一齐要钱：铜钱-{cost}。不是大账，却正是最磨人的年关小耗。',
+            failTag: '年关硬顶',
+            failLog: '〔年关碎账〕这一旬连年关碎用都挪不开，只得靠身子硬顶过去（体魄-1）。',
+            hardship: 'body'
+          }
+        });
 
         clampAttr('体魄');
         clampAttr('家族');
@@ -6302,6 +6437,8 @@
         var exemptSet = false;
         var copySettled = false;
         var bookCost = season.id === 'winter' ? 50 : 40;
+        var picked = {};
+        lifePicks.forEach(function (p) { picked[p.id] = true; });
         lifePicks.forEach(function (p) {
           switch (p.id) {
             case 'h_copy_mid':
@@ -6385,6 +6522,41 @@
           }
         });
         if (actionCount === 0) log.push(['这一旬你几乎没把任何实账坐下，当户这一年便更容易在年关前忽然一起撞账。', 'bad']);
+        applySeasonalHouseholdFriction(log, stepLabel, season, xun, picked, {
+          summer: {
+            handledIds: ['h_copy_mid', 'h_exempt', 'h_rest', 'h_literate', 'h_clan', 'h_side'],
+            doneTag: '伏夏小耗已顾',
+            doneLog: '〔伏夏小耗〕这一旬先把纸墨、凉药、馆账和家里锅火顾住了；识字底子没有再被伏夏杂耗一点点磨空。',
+            cost: 60,
+            costTag: '伏夏小耗',
+            costLog: '〔伏夏小耗〕纸墨、凉药、馆账碎费和家里小耗一起冒头：铜钱-{cost}。不是大祸，只是举业路当户这一年里又一口真支出。',
+            failTag: '伏夏硬扛',
+            failLog: '〔伏夏小耗〕这一旬连纸墨和凉药钱都腾挪不开，只得先硬扛过去：体魄-1。',
+            hardship: 'body'
+          },
+          autumn: {
+            handledIds: ['h_pay', 'h_copy_mid', 'h_clan', 'h_exam_lease', 'h_side', 'h_literate'],
+            doneTag: '秋后细账已拆',
+            doneLog: '〔秋后细账〕秋后馆课、租谷、锅火与差钱已被你先拆开；润笔与抄写钱这旬没再被误写成宽裕。',
+            cost: 70,
+            costTag: '秋后杂支',
+            costLog: '〔秋后杂支〕秋后纸墨、馆课碎费和锅火差钱一起压来：铜钱-{cost}。不是新主线，只是同一年里又一层真支出。',
+            failTag: '秋后硬顶',
+            failLog: '〔秋后杂支〕现钱腾挪不开，这一旬只得先硬顶过去；这一房在人情面上更紧了一层（家族-1）。',
+            hardship: 'clan'
+          },
+          winter: {
+            handledIds: ['h_exempt', 'h_copy_mid', 'h_pay', 'h_literate', 'h_side', 'h_rest'],
+            doneTag: '年关碎账已分',
+            doneLog: '〔年关碎账〕旧馆账、明春纸墨、灯油炭火与差钱已被你先分开；年关没再把同一口现钱重新搅混。',
+            cost: 50,
+            costTag: '年关碎账',
+            costLog: '〔年关碎账〕灯油、纸墨、炭火和来春第一口笔墨钱一齐要钱：铜钱-{cost}。不是大账，却正是最磨人的年关小耗。',
+            failTag: '年关硬顶',
+            failLog: '〔年关碎账〕这一旬连年关碎用都挪不开，只得靠身子硬顶过去（体魄-1）。',
+            hardship: 'body'
+          }
+        });
         clampAttr('体魄');
         clampAttr('家族');
         if (!isYearEnd) {
