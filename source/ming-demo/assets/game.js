@@ -1451,7 +1451,7 @@
     return h;
   }
 
-  // ── 立身分叉（16岁）：五路中先接通两路 —— 佃田 / 受雇 ──
+  // ── 立身分叉（16岁）：五路入口（佃田/受雇/学徒/商路/举业）──
   function stageEstablishment() {
     var 底子 = routeBaseSummary();
     var startNote = generation > 1
@@ -1478,7 +1478,7 @@
         {
           name: '路径一 · 留乡佃田',
           gain: '直接进入三农年佃田循环（16→18岁）',
-          note: '接下几亩水田，照约缴租、吃自己种出的米。你已经玩过这条路，但现在它是五路之一，而不是默认唯一入口。',
+          note: '接下几亩水田，照约缴租、吃自己种出的米。你已经玩过这条路，但现在它是五路之一，而不是默认唯一入口。' + (generation > 1 ? ' ' + routeEntryHook('farm', carryOver) : ''),
           run: function (log) {
             curStage.next = 'farmRoute'; curStage.nextLabel = '下田立身 →'; S.路线 = '留乡佃田';
             log.push(['你决定留在乡里，先靠佃田吃饭：这一路已接入完整三农年循环。', 'good']);
