@@ -188,6 +188,7 @@ sup a:hover{text-decoration:underline;}
       <a href="#stay-strategy">住宿策略</a>
       <a href="#booking-sheet">预订模板</a>
       <a href="#price-snapshot">价格快照</a>
+      <a href="#handbook">压缩手册</a>
       <a href="#budget">费用预算</a>
       <a href="#booking">预约提醒</a>
       <a href="#execution">执行清单</a>
@@ -207,8 +208,8 @@ sup a:hover{text-decoration:underline;}
   <div class="hero-content">
     <div class="container">
       <div class="hero-eyebrow">Self-Drive Expedition · 2026 Sept 18 → Nov 28</div>
-        <h1>从北京出发自驾大环线：默认最优执行版，风景在路上</h1>
-      <p class="hero-sub">4人硬派四驱SUV · 72天大环线约19000km · 默认总预算约11.1万 · 神州租车坦克300北京取还无异地费 · 全程住民宿舒服为主 · 好路开500-600km不拖沓，高海拔慢开安全第一 · 正文只保留默认最优执行路线，排除项统一折叠说明 · 所有价格为预估，实际以预订时为准</p>
+        <h1>从北京出发自驾大环线：详细攻略 + 折叠式压缩手册</h1>
+      <p class="hero-sub">4人硬派四驱SUV · 72天大环线约19000km · 默认总预算约11.1万 · 神州租车坦克300北京取还无异地费 · 全程住民宿舒服为主 · 好路开500-600km不拖沓，高海拔慢开安全第一 · 正文保留详细解释，同时额外提供折叠式压缩手册 · 所有价格为预估，实际以预订时为准</p>
     </div>
   </div>
 </div>
@@ -242,8 +243,8 @@ sup a:hover{text-decoration:underline;}
         <div class="stat-label">高速日均驾驶上限</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">≈29,000<span style="font-size:1rem">元/人起</span></div>
-        <div class="stat-label">4人版人均预算（神州坦克300）</div>
+        <div class="stat-value">≈27,850<span style="font-size:1rem">元/人</span></div>
+        <div class="stat-label">4人默认执行版人均预算</div>
       </div>
     </div>
   </div>
@@ -1414,11 +1415,47 @@ flowchart LR
   </div>
 </section>
 
+<!-- Stay Matrix -->
+<section id="stay-matrix">
+  <div class="section-num">Stay Matrix</div>
+  <h2>默认住宿总表</h2>
+  <p class="lead">这一张表把“住哪一类位置、默认优先哪家、当前能看到什么价格”写成一张能直接参考的清单。稀缺节点优先看这里，城市恢复节点次之。</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>节点</th><th>默认住法</th><th>默认优先</th><th>当前公开价格快照</th><th>我为什么这么选</th></tr></thead>
+      <tbody>
+        <tr><td><strong>张掖</strong></td><td>市区或高速下口附近，停车方便</td><td>默认住市区可退型商务酒店</td><td>城市恢复节点，价格不锁死，以临出发前可退价为准</td><td>这晚只是过渡，不需要为“景观房”付费</td></tr>
+        <tr><td><strong>敦煌</strong></td><td>市区内，靠近博物馆/吃饭方便区</td><td>默认住市区可退型酒店，不住景区口</td><td>城市恢复节点，价格不锁死，以临出发前可退价为准</td><td>默认执行版不进莫高窟，住市区比住景区口更合理</td></tr>
+        <tr><td><strong>白哈巴 / 禾木</strong></td><td>优先村内步行方便位置</td><td>白哈巴云水间民宿（哈巴河白湖山庄店）</td><td>当前未稳定抓到指定日期房价；早餐 ¥20/人、免费洗衣/停车可见</td><td>默认先锁能睡稳、能洗、能停、少折腾行李的房</td></tr>
+        <tr><td><strong>塔尔钦</strong></td><td>镇内步行方便、保暖优先</td><td>Hi Inn Pulan Mount Kailash Scenic Area Hotel</td><td>US$85；供氧、地暖、洗衣可见</td><td>默认优先“睡稳和保暖”，而不是神山景观房噱头</td></tr>
+        <tr><td><strong>塔尔钦备胎</strong></td><td>镇内步行方便</td><td>Gangrenboqi View Hotel</td><td>US$82；供氧可见</td><td>作为预算稍低的备胎，设施信息相对少一些</td></tr>
+        <tr><td><strong>珠峰段 / 定日</strong></td><td>优先巴松村或更舒服的定日住宿</td><td>Oxygen Cube yunting hotel</td><td>US$49 起；供氧可见，房型标题可见供暖</td><td>默认优先能睡好，不为了“大本营情怀”透支一整晚</td></tr>
+        <tr><td><strong>拉萨</strong></td><td>市区可停车、可洗衣、适合保养补给</td><td>默认住市区可停车酒店</td><td>恢复节点，价格以临出发前真实可退价为准</td><td>这几晚是恢复站，功能性比景观更重要</td></tr>
+        <tr><td><strong>雨崩 / 德钦</strong></td><td>雨崩村内优先保证观景和热水</td><td>Once Upon a Time in Meili</td><td>US$80；供氧、供暖可见</td><td>默认优先更稳的徒步恢复条件</td></tr>
+        <tr><td><strong>雨崩备胎</strong></td><td>村内或德钦可转运位置</td><td>Meili Yunjing Mountain Lodge</td><td>US$47；供氧、供暖可见</td><td>作为价格更低的备胎，功能够用</td></tr>
+        <tr><td><strong>日瓦 / 香格里拉镇</strong></td><td>镇内停车方便、次日进亚丁方便</td><td>Yading Zhaxi Kongshu Tibetan Culture Theme Hotel</td><td>US$34；供氧可见</td><td>默认先保恢复质量，再考虑景观窗</td></tr>
+        <tr><td><strong>日瓦备胎</strong></td><td>镇内停车方便</td><td>Aden ZhiShanXia hotel</td><td>US$35；当前列表页仅见价格</td><td>价格接近，作为备胎足够</td></tr>
+        <tr><td><strong>成都 / 西安</strong></td><td>停车、洗衣、恢复质量优先</td><td>默认住城市核心区可停车酒店</td><td>城市恢复节点，价格不锁死，以临出发前可退价为准</td><td>这两站不是拼景点，是把人和车拉回状态</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <details>
+    <summary>📌 住宿表怎么用（平时折叠）</summary>
+    <div class="detail-content">
+      <ul>
+        <li>稀缺节点先锁：白哈巴/禾木、塔尔钦、珠峰段、雨崩、日瓦</li>
+        <li>城市节点后锁：张掖、敦煌、拉萨、成都、西安</li>
+        <li>看到价格快照时，不要直接拿来当最终成交价，要重新按你们的真实入住日核对</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
 <!-- Booking Sheet -->
 <section id="booking-sheet">
   <div class="section-num">Booking Sheet</div>
-  <h2>关键住宿预订清单模板</h2>
-  <p class="lead">这一块就是给你出发前 1-2 个月真正填写的。现在不编具体名字和价格，但把字段先定死，到时只需要把真实信息填进去。</p>
+  <h2>住宿预订模板（临下单填写）</h2>
+  <p class="lead">这块是临下单时用的工作表。上面的“默认住宿总表”负责告诉你住哪一类和优先哪家；这里负责把你最后锁下来的真实订单填进去。</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>节点</th><th>建议入住日期</th><th>待填：住宿名称</th><th>待填：价格</th><th>待填：取消时间</th><th>硬性筛选条件</th></tr></thead>
@@ -1471,6 +1508,48 @@ flowchart LR
   <p style="font-size:0.85rem;color:var(--muted);margin-top:10px">⚠️ 这是查询时点快照，不是最终成交价。真正下单前，请按你们实际入住日重新查看 2-3 家候选的可退价、含早与停车条件。</p>
 </section>
 
+<!-- Handbook -->
+<section id="handbook">
+  <div class="section-num">Handbook</div>
+  <h2>折叠式压缩手册</h2>
+  <p class="lead">这部分是给临出发前看的。正文继续保留完整解释；如果只想看“今天该怎么跑”，就展开下面这些折叠块。</p>
+  <details>
+    <summary>📌 01｜路线一眼版</summary>
+    <div class="detail-content">
+      <p>北京 → 张掖 → G227祁连 → 青海湖北岸 → G315柴达木 → 敦煌 → 哈密 → 白哈巴/禾木 → 赛里木湖/伊犁 → 独库 → 喀什/帕米尔 → 新藏线G219 → 阿里/冈仁波齐 → 珠峰 → 拉萨 → 林芝 → 然乌 → 梅里/雨崩 → 丽江 → 亚丁/新都桥 → 成都 → 西安 → 北京。</p>
+    </div>
+  </details>
+  <details>
+    <summary>📌 02｜默认不做的项目</summary>
+    <div class="detail-content">
+      <p>默认不进：莫高窟、布达拉宫、大昭寺、色拉寺、巴松措、松赞林寺、普达措、大熊猫基地、兵马俑、华清池。原因不是它们不好，而是和这次“风景在路上”的核心目标不完全一致。</p>
+    </div>
+  </details>
+  <details>
+    <summary>📌 03｜每天驾驶纪律</summary>
+    <div class="detail-content">
+      <ul>
+        <li>高速大日：最晚 07:00 出发</li>
+        <li>高海拔/山路：最晚 07:30 出发</li>
+        <li>徒步日：最晚 07:00 启动</li>
+        <li>晚上 18:00 前必须到住宿点，不夜驾</li>
+      </ul>
+    </div>
+  </details>
+  <details>
+    <summary>📌 04｜住宿锁房顺序</summary>
+    <div class="detail-content">
+      <p>先锁：白哈巴/禾木、塔尔钦、珠峰段、雨崩、日瓦。后锁：张掖、敦煌、拉萨、成都、西安。默认优先可退、可停车、能洗澡睡稳的房，不追景观噱头。</p>
+    </div>
+  </details>
+  <details>
+    <summary>📌 05｜预算一眼版</summary>
+    <div class="detail-content">
+      <p>4人默认执行版总预算约 111,400 元，人均约 27,850 元。核心大头：租车 42,000、油费 14,500、住宿 23,000、餐饮 15,000、门票与区间车 6,000。</p>
+    </div>
+  </details>
+</section>
+
 <!-- Budget -->
 <section id="budget">
   <div class="section-num">Budget</div>
@@ -1487,7 +1566,7 @@ flowchart LR
   <p style="font-size:0.88rem;color:var(--muted);margin:4px 0 14px">9月18日出发→11月28日回到北京共72天（73天含提前1天取车）· 71晚优先整套两居/三居民宿 · 神州租车坦克300四驱（加92油、可靠硬派） · 北京取车北京还车无异地费 · 紧凑但不极限，平均每天250km，好路开500-600km，烂路高海拔开200-300km · 核心快乐来自公路、大地风景和少规则体验 · 人均约27,850元</p>
 
   <div class="callout" style="margin-bottom:14px">
-      <p><strong>4人默认最优执行版（72天）</strong>：路线主骨架已定为北京→张掖→G227祁连→青海湖北岸→G315柴达木→敦煌→哈密→新疆→新藏线G219→西藏→滇藏线→川西→成都→西安→北京。正文不再保留“到时再选”的口子，直接按这条路线执行。</p>
+      <p><strong>4人默认最优执行版（72天）</strong>：路线主骨架已定为北京→张掖→G227祁连→青海湖北岸→G315柴达木→敦煌→哈密→新疆→新藏线G219→西藏→滇藏线→川西→成都→西安→北京。正文继续保留详细解释；如果临出发前只想看结论，请直接看后面的“折叠式压缩手册”。</p>
       <p style="margin-top:8px"><strong>租车方案</strong>：神州租<strong>坦克300四驱</strong>约500-550元/天含基础险，加购全额险约55-80元/天，73天合计约40,000-46,000元。神州网点多、车源足、理赔方便、北京取还零异地费风险。</p>
       <p style="margin-top:8px">全程优先整套两居/三居民宿4人住一起，好路高速开500-600km不拖沓，新藏线高海拔开200-300km安全第一。默认执行版里，高规则高门票点统一不进，把时间和预算留给真正值的公路、天气窗口和恢复质量。</p>
     </div>
