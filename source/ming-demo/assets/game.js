@@ -255,6 +255,14 @@
     if (!carry) return false;
     return (carry.承嗣来路 || '').indexOf('弟妹接续') >= 0;
   }
+  function lineageTokens(via) {
+    return (via || '').split('·').map(function (part) { return (part || '').trim(); }).filter(Boolean);
+  }
+  function composeLineageSource(baseVia, currentTag) {
+    var tokens = lineageTokens(baseVia);
+    if (currentTag && tokens.indexOf(currentTag) < 0) tokens.push(currentTag);
+    return tokens.length ? tokens.join('·') : (currentTag || '本支次子承继');
+  }
   function inheritedCarryNote(carry) {
     var tags = inheritedCarryTags(carry);
     if (isCollateralCarry(carry)) tags.push('这一房经旁支接祧，门路比本支更薄一层');
@@ -1100,8 +1108,7 @@
   // 早夭：真实概率分支，非惩罚；本户资源原样传给接续的弟妹（递归重开）
   function childDeath(log) {
     var st = CHILD_STAGES[childStage];
-    var via = S.承嗣来路 || '本支次子承继';
-    if (via.indexOf('弟妹接续') < 0) via += '·弟妹接续';
+    var via = composeLineageSource(S.承嗣来路 || '本支次子承继', '弟妹接续');
     S._childDied = true;
     S._carry = {
       白银: S.白银, 存米: Math.max(0, S.存米), 铜钱: S.铜钱, 田亩: S.田亩, 负债银: Math.max(0, S.负债银 || 0), 家族: Math.max(20, S.家族 - 4),
@@ -2756,7 +2763,7 @@
     function nextGenLegacy() {
       var legacy = {
         父辈路线: S.路线 || '未定',
-        承嗣来路: S.子数 > 0 ? (isCollateralCarry(S) ? '旁支续承' : '本支次子承继') : '旁支过继',
+        承嗣来路: composeLineageSource(S.承嗣来路, S.子数 > 0 ? (isCollateralCarry(S) ? '旁支续承' : '本支次子承继') : '旁支过继'),
         家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 亦贾亦儒底子: 0, 供读底子: 0
       };
       if (S.技艺 !== '无' || S.雇技进度 >= 2 || S.雇工历练 >= 3) legacy.家传手艺 = 1;
