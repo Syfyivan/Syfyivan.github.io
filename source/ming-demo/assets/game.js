@@ -1194,6 +1194,17 @@
         log.push([entry.failLog, 'bad']);
       }
     }
+    if (season.id === 'spring' && xun === 1) apply({
+      handledIds: ['m_shop', 'm_goods', 'm_market', 'm_letter'],
+      doneTag: '开路碎费已理',
+      doneLog: '〔开路碎费〕这一旬先把头程脚费、样纸、门包和柜上零碎认清了；春开路没有再被“刚起头的小钱”悄悄咬薄。',
+      cost: 35,
+      costTag: '开路碎费',
+      costLog: '〔开路碎费〕头程脚费、样纸、门包和柜上零碎一起要钱：铜钱-{cost}。不是大账，却正是商路一年开头最容易被忽略的真支出。',
+      failTag: '开路硬顶',
+      failLog: '〔开路碎费〕这一旬连头程脚费和门包都先挪不开，只得硬顶过去；旧路数看你更生了一层（商信誉-1）。',
+      hardship: 'trust'
+    });
     if (season.id === 'summer' && xun === 2) apply({
       handledIds: ['m_shop', 'm_book', 'm_mend', 'm_rest', 'm_letter'],
       doneTag: '伏夏零耗已顾',
@@ -1215,6 +1226,17 @@
       failTag: '秋市硬顶',
       failLog: '〔秋市碎费〕这一旬连牙行照面和样货脚费都先挪不开，只得硬顶过去；旧相识看你更生了一层（商信誉-1）。',
       hardship: 'trust'
+    });
+    if (season.id === 'autumn' && xun === 3) apply({
+      handledIds: ['m_support', 'm_home', 'm_collect', 'm_letter'],
+      doneTag: '回钱碎耗已拆',
+      doneLog: '〔回钱碎耗〕这一旬先把回乡带话、样货耗损和催回钱前的脚费拆开了；秋里最后这层“银快回却还没落手”的摩擦没再混成一团。',
+      cost: 45,
+      costTag: '回钱碎耗',
+      costLog: '〔回钱碎耗〕回乡带话、样货耗损和催回钱前的脚费一起要钱：铜钱-{cost}。不是新主线，只是把秋试手收束前的真摩擦重新摊回同一年。',
+      failTag: '回钱硬扛',
+      failLog: '〔回钱碎耗〕这一旬连带话脚费和样货耗损都挪不开，只得先硬扛过去；家里等钱的口风更急了一层（家族-1）。',
+      hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 1) apply({
       handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_mend'],
@@ -4304,7 +4326,102 @@
 
     function familyRoutePack() {
       var pack = { note: '', dossier: '', event: null, extraActions: [] };
-      if (route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) {
+      if (route.indexOf('路径一') === 0 || route.indexOf('留乡佃田') === 0) {
+        pack.note = '留乡佃田到了养家年，也不该只剩“守田、卖米、年末结账”三步。佃例、水口、换工、租话、谷种、仓脚与锅火，都会在同一年里一旬一旬冒头。';
+        pack.dossier = '农事历练=' + S.农事历练 + '｜家传农事=' + (S.家传农事 || 0) + '｜定额佃=' + S.定额佃状态 + '｜婚配路径=' + S.婚配路径 + '｜人情欠条=' + (S.人情欠条 || 0);
+        pack.event = {
+          t: 'rel',
+          tag: '[田面]',
+          txt: season.id === 'summer' && xun === 2
+            ? '伏夏中旬最怕的是人还在田头，草绳、凉药、挑水脚路和孩子汗热已经一起找上门；这一旬先顾哪口小钱，会直接改写整季的口粮后手。'
+            : (season.id === 'autumn' && xun === 3
+              ? '秋后下旬看着像“谷已进仓”，其实租谷、差票、借粮旧账和锅火才刚开始咬同一份家底。'
+              : (season.id === 'winter' && xun === 1
+                ? '冬藏上旬最怕把“仓里还有几石”误写成“明春自然能下种”。谷种、仓脚、修渠钱和年下小礼，都得在今冬先分开。'
+                : (xun === 2
+                  ? '这一旬最像把田面上的收成拆回家里：哪口留锅火、哪口留籽种、哪口先顶租谷或差钱，都是真账。'
+                  : '养家后的农路不只是在田里出力，还得先问清佃例、水口和乡里口风，免得一家人都跟着田面一起吃生。')))
+        };
+        if (xun === 1) {
+          pack.extraActions.push({
+            id: 'f_route_farm_note',
+            name: season.id === 'spring'
+              ? '先问佃例与水口'
+              : (season.id === 'summer'
+                ? '先托邻保水口'
+                : (season.id === 'autumn' ? '先问今年租话与米路' : '年关先点谷种与仓脚')),
+            cost: 1,
+            eff: (season.id === 'spring' || season.id === 'autumn')
+              ? '铜钱-30·问价+1·通融+1·家族+1'
+              : ('铜钱-' + (season.id === 'summer' ? 40 : 35) + '·通融+1·家族+1'),
+            desc: season.id === 'spring'
+              ? '先把今春佃例、水口和哪处田埂要先补问明。钱没有变多，却少一层“到地头才发现还没说定”的生亏。'
+              : (season.id === 'summer'
+                ? '伏夏先托邻里和看水的人把哪段水口最紧、哪家肯替你搭一手说明，后面顾田、照家和凉药钱才不至一起乱。'
+                : (season.id === 'autumn'
+                  ? '秋里先问清今年租话怎么说、米路往哪条市集去，后面拆租谷、留锅火和应差票才不至瞎碰。'
+                  : '年关先把谷种要留几成、仓脚哪处先补、修渠钱与小礼怎么分明。它不生现钱，却能让明春第一口粮不至乱。')),
+            can: S.铜钱 >= (season.id === 'summer' ? 40 : (season.id === 'winter' ? 35 : 30)),
+            why: S.铜钱 >= (season.id === 'summer' ? 40 : (season.id === 'winter' ? 35 : 30))
+              ? ''
+              : ('铜钱不足' + (season.id === 'summer' ? 40 : (season.id === 'winter' ? 35 : 30)) + '文')
+          });
+        }
+        if (xun === 2) {
+          pack.extraActions.push({
+            id: 'f_route_farm_split',
+            name: season.id === 'spring'
+              ? '把春钱拆作籽种与锅火'
+              : (season.id === 'summer'
+                ? '把伏夏钱拆作凉药与草绳'
+                : (season.id === 'autumn' ? '把秋粮拆作纳租与锅火' : '把冬钱拆作灯油与明春谷种')),
+            cost: 1,
+            eff: season.id === 'autumn'
+              ? '存米-1·贴家+1·备役+1·家族+2'
+              : (season.id === 'summer'
+                ? '铜钱-80·贴家+1·衣药+1·家族+1'
+                : (season.id === 'winter'
+                  ? '铜钱-90·贴家+1·修缮+1·家族+1'
+                  : '铜钱-100·贴家+1·照家+1·家族+2')),
+            desc: season.id === 'spring'
+              ? '春钱最怕被一句“回头再买籽种”拖散。先把一口钱拆成籽种与锅火，后面田头和家里都不至空等。'
+              : (season.id === 'summer'
+                ? '伏夏这口钱最怕整手花掉。你先拆给凉药、草绳和家用，少让家里与田头同时被热耗磨穿。'
+                : (season.id === 'autumn'
+                  ? '秋粮进手后，不先拆开就会看着“仓里有粮”却转头哪口都不够。先留一石顶租谷与锅火，家里和差钱都能缓一线。'
+                  : '冬钱看着只是灯油与谷种的小事，可若不先拆开，明春下种前往往最先断的就是这口后手。')),
+            can: season.id === 'autumn' ? (S.存米 >= 1) : (S.铜钱 >= (season.id === 'summer' ? 80 : (season.id === 'winter' ? 90 : 100))),
+            why: season.id === 'autumn'
+              ? (S.存米 >= 1 ? '' : '存米不足1石')
+              : (S.铜钱 >= (season.id === 'summer' ? 80 : (season.id === 'winter' ? 90 : 100))
+                ? ''
+                : ('铜钱不足' + (season.id === 'summer' ? 80 : (season.id === 'winter' ? 90 : 100)) + '文'))
+          });
+        }
+        if (xun === 3) {
+          pack.extraActions.push({
+            id: 'f_route_farm_store',
+            name: season.id === 'spring'
+              ? '先记换工与佃账'
+              : (season.id === 'summer'
+                ? '托邻代浇并留秋租后手'
+                : (season.id === 'autumn' ? '先把租谷与差票分开收住' : '先把修渠钱与年礼分开')),
+            cost: 1,
+            eff: '铜钱-' + (season.id === 'summer' ? 50 : (season.id === 'autumn' ? 60 : (season.id === 'winter' ? 50 : 40))) + '·通融+1·备役+1·家族+1',
+            desc: season.id === 'spring'
+              ? '把这一季换工、欠工、佃账与口粮账先记清。识字也好、不识字也罢，总得先把哪口是自家、哪口是租例压在手里。'
+              : (season.id === 'summer'
+                ? '先托邻里搭一手看水，把秋后租谷和家里这口锅火的后手提前压一线，免得热里一乱，到了秋里才发现两头都空。'
+                : (season.id === 'autumn'
+                  ? '秋后最怕“谷在仓里、差票在门外”。先把租谷和差票分开收住，这一房的现钱与口粮就不至转身全乱。'
+                  : '年下修渠钱、小礼和来春第一口杂支若不先分开，看着不大，最容易把明春起手这一下先绊住。')),
+            can: S.铜钱 >= (season.id === 'summer' ? 50 : (season.id === 'autumn' ? 60 : (season.id === 'winter' ? 50 : 40))),
+            why: S.铜钱 >= (season.id === 'summer' ? 50 : (season.id === 'autumn' ? 60 : (season.id === 'winter' ? 50 : 40)))
+              ? ''
+              : ('铜钱不足' + (season.id === 'summer' ? 50 : (season.id === 'autumn' ? 60 : (season.id === 'winter' ? 50 : 40))) + '文')
+          });
+        }
+      } else if (route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) {
         pack.note = '商路成家后最磨人的，不是“这一程赚没赚”，而是银在路上时家里这一旬怎么过。';
         pack.dossier = '累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜账房=' + S.账房进度 + '｜信誉=' + S.商信誉;
         pack.event = { t: 'rand', tag: '[商路]', txt: (season.id === 'spring' && xun === 3)
@@ -5546,6 +5663,80 @@
                 log.push(['讨回一口人情钱：铜钱+100、人情欠条-1。不是凭空多钱，只把先前借出去的那口拢回来了。', 'good']);
               } else log.push(['想讨回人情钱，但眼下并无欠条可讨，只得作罢。', 'bad']);
               break;
+            case 'f_route_farm_note':
+              var farmNoteCost = season.id === 'summer' ? 40 : (season.id === 'winter' ? 35 : 30);
+              if (spendCopper(farmNoteCost)) {
+                S.家族 += 1;
+                S.本年家通融 += 1;
+                if (season.id === 'spring' || season.id === 'autumn') S.本年家问价 += 1;
+                pushFamilySeasonTag(stepTag + (season.id === 'spring'
+                  ? '春问佃例'
+                  : (season.id === 'summer' ? '保水口' : (season.id === 'autumn' ? '秋问租话' : '点谷种仓脚'))));
+                log.push([(
+                  season.id === 'spring'
+                    ? '先问佃例与水口'
+                    : (season.id === 'summer'
+                      ? '先托邻保水口'
+                      : (season.id === 'autumn' ? '先问今年租话与米路' : '年关先点谷种与仓脚')))
+                  + '：铜钱-' + farmNoteCost + '、通融+1、家族+1'
+                  + ((season.id === 'spring' || season.id === 'autumn') ? '、问价+1' : '')
+                  + '。不是多得一笔，只把田面、租话和乡里口风先摸明。', 'good']);
+              } else log.push(['想先把佃例、水口或谷种仓脚问明，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_farm_split':
+              if (season.id === 'autumn') {
+                if (S.存米 >= 1) {
+                  S.存米 -= 1;
+                  S.家族 += 2;
+                  S.本年家贴家 += 1;
+                  S.本年家备役 += 1;
+                  pushFamilySeasonTag(stepTag + '秋拆租谷');
+                  log.push(['把秋粮拆作纳租与锅火：存米-1、贴家+1、备役+1、家族+2。谷一进仓就先被分作口粮与差钱，不再只停在“今年有收”的大话上。', 'good']);
+                } else log.push(['想把秋粮拆作纳租与锅火，但这一旬存米不够，只得暂缓。', 'bad']);
+              } else {
+                var farmSplitCost = season.id === 'summer' ? 80 : (season.id === 'winter' ? 90 : 100);
+                if (spendCopper(farmSplitCost)) {
+                  if (season.id === 'spring') {
+                    S.家族 += 2;
+                    S.本年家贴家 += 1;
+                    S.本年家照家 += 1;
+                    pushFamilySeasonTag(stepTag + '春拆籽种');
+                    log.push(['把春钱拆作籽种与锅火：铜钱-' + farmSplitCost + '、贴家+1、照家+1、家族+2。先把籽种与家火分开，这一旬才不至两头都空等。', 'good']);
+                  } else if (season.id === 'summer') {
+                    S.家族 += 1;
+                    S.体魄 += 1;
+                    S.本年家贴家 += 1;
+                    S.本年家衣药 += 1;
+                    pushFamilySeasonTag(stepTag + '夏拆凉药');
+                    log.push(['把伏夏钱拆作凉药与草绳：铜钱-' + farmSplitCost + '、贴家+1、衣药+1、体魄+1、家族+1。不是治大病，只把热里最先磨人的那层小耗先压住。', 'good']);
+                  } else {
+                    S.家族 += 1;
+                    S.本年家贴家 += 1;
+                    S.本年家修缮 += 1;
+                    pushFamilySeasonTag(stepTag + '冬拆种谷');
+                    log.push(['把冬钱拆作灯油与明春谷种：铜钱-' + farmSplitCost + '、贴家+1、修缮+1、家族+1。钱没变多，只是先把过冬与开春的两口后手分开。', 'good']);
+                  }
+                } else log.push(['想先把这一旬田头细钱拆开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'f_route_farm_store':
+              var farmStoreCost = season.id === 'summer' ? 50 : (season.id === 'autumn' ? 60 : (season.id === 'winter' ? 50 : 40));
+              if (spendCopper(farmStoreCost)) {
+                S.家族 += 1;
+                S.本年家通融 += 1;
+                S.本年家备役 += 1;
+                pushFamilySeasonTag(stepTag + (season.id === 'spring'
+                  ? '春记换工'
+                  : (season.id === 'summer' ? '夏留秋租' : (season.id === 'autumn' ? '秋收租票' : '冬留修渠'))));
+                log.push([(
+                  season.id === 'spring'
+                    ? '先记换工与佃账'
+                    : (season.id === 'summer'
+                      ? '托邻代浇并留秋租后手'
+                      : (season.id === 'autumn' ? '先把租谷与差票分开收住' : '先把修渠钱与年礼分开')))
+                  + '：铜钱-' + farmStoreCost + '、通融+1、备役+1、家族+1。不是多挣一笔，只把田头和家里的后手先留在这一旬账里。', 'good']);
+              } else log.push(['想先把这一旬租谷、佃账或修渠后手收住，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_rest':
               S.体魄 += 5;
               S.本年家将养 += 1;
@@ -5676,6 +5867,47 @@
             log.push(['〔腊月小耗〕这一旬连灯油炭火都挪不开，只得靠身子硬顶过去（体魄-1）。', 'bad']);
           }
         }
+        if ((route.indexOf('路径一') === 0 || route.indexOf('留乡佃田') === 0) && season.id === 'summer' && xun === 2) {
+          if (picked.f_route_farm_split || picked.f_route_farm_note || picked.f_cool || picked.f_mend || picked.f_rest) {
+            pushFamilySeasonTag(stepTag + '田头小耗已顾');
+            log.push(['〔田头小耗〕这一旬先把凉药、草绳、挑水脚路或看水人情顾住了；伏夏最磨人的田头小耗没再顺着家里锅火一起滚大。', 'good']);
+          } else if (spendCopper(35)) {
+            S.本年家衣药 += 1;
+            pushFamilySeasonTag(stepTag + '田头小耗');
+            log.push(['〔田头小耗〕草绳、看水脚路、凉药和孩子汗热一起冒头：铜钱-35、衣药+1。不是大祸，却正把农路这一年的细钱一点点磨薄。', 'bad']);
+          } else {
+            S.体魄 -= 1;
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '田头硬扛');
+            log.push(['〔田头小耗〕这一旬连草绳凉药都腾挪不开，只得先硬扛过去；人和田都跟着更吃紧一层（体魄-1、家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径一') === 0 || route.indexOf('留乡佃田') === 0) && season.id === 'autumn' && xun === 3) {
+          if (picked.f_route_farm_store || picked.f_route_farm_split || picked.f_duty || picked.f_tax || picked.f_social) {
+            pushFamilySeasonTag(stepTag + '租谷差票已分');
+            log.push(['〔租谷差票〕这一旬先把租谷、差票和锅火后手分开了；秋后制度账没有再临门把这一房的粮与钱一把搅混。', 'good']);
+          } else if (spendCopper(45)) {
+            pushFamilySeasonTag(stepTag + '租谷差票');
+            log.push(['〔租谷差票〕秋后催租口风、差票零碎和谷场脚费一起要钱：铜钱-45。不是新主线，只是农路这一年又一层真支出。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '租谷硬顶');
+            log.push(['〔租谷差票〕这一旬连租谷和差票的小后手都腾挪不开，只得先硬顶过去；这一房的口粮和脸面都更紧了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径一') === 0 || route.indexOf('留乡佃田') === 0) && season.id === 'winter' && xun === 1) {
+          if (picked.f_route_farm_note || picked.f_route_farm_split || picked.f_repair || picked.f_rest) {
+            pushFamilySeasonTag(stepTag + '谷种仓脚已分');
+            log.push(['〔谷种仓脚〕这一旬先把谷种、仓脚、修渠钱与灯火细账分开了；农路过冬不再只剩“仓里还有几石”的粗账。', 'good']);
+          } else if (spendCopper(40)) {
+            pushFamilySeasonTag(stepTag + '谷种仓脚');
+            log.push(['〔谷种仓脚〕谷种、仓脚、修渠小钱和年下小礼一起冒头：铜钱-40。不是大账，却最容易把明春起手先磨薄。', 'bad']);
+          } else {
+            S.体魄 -= 1;
+            pushFamilySeasonTag(stepTag + '仓脚硬顶');
+            log.push(['〔谷种仓脚〕这一旬连谷种仓脚的小钱都腾挪不开，只得靠身子硬顶过去（体魄-1）。', 'bad']);
+          }
+        }
         if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && season.id === 'summer' && xun === 2) {
           if (picked.f_route_shop_bundle || picked.f_route_shop || picked.f_route_shop_note || picked.f_mend || picked.f_rest) {
             pushFamilySeasonTag(stepTag + '铺里零耗已顾');
@@ -5792,6 +6024,11 @@
           if ((S.本年家贴家 || 0) > 0) log.push(['这一养家年你有 ' + S.本年家贴家 + ' 回把现钱或脚钱真拢回家里；“在外/在铺/在馆”不再只是文案。', 'good']);
           if ((S.本年家催账 || 0) > 0) log.push(['这一养家年你还亲手催过 ' + S.本年家催账 + ' 回旧账；家计不再只看“赚了没有”，也看“回了没有”。', 'good']);
           if ((S.本年家供读 || 0) > 0) log.push(['这一养家年你另划了 ' + S.本年家供读 + ' 回供读专账；“亦贾亦儒”不再只在死亡页才出现，而是当年就先从现银里被挤出来。', 'good']);
+          if ((route.indexOf('路径一') === 0 || route.indexOf('留乡佃田') === 0) && (S.本年家问价 || 0) > 0 && (S.本年家通融 || 0) > 0) log.push(['这一养家年你不只守田，还先把佃例、水口、租话与米路一旬旬问明；留乡佃田成年后也开始有了“先摸口风、再守家计”的年内节奏。', 'good']);
+          if ((route.indexOf('路径一') === 0 || route.indexOf('留乡佃田') === 0) && (S.本年家贴家 || 0) > 0 && (S.本年家备役 || 0) > 0) log.push(['这一养家年你至少有一回把春钱、秋粮或冬钱先拆作锅火与差役后手；农路成家后也不再只是“收成进仓就算过了”。', 'good']);
+          if ((route.indexOf('路径一') === 0 || route.indexOf('留乡佃田') === 0) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('田头小耗') >= 0; })) log.push(['这一养家年你连草绳、凉药、看水脚路这层田头小耗都摊回了伏夏；留乡务农的年内摩擦，不再只剩一句“庄稼辛苦”。', 'good']);
+          if ((route.indexOf('路径一') === 0 || route.indexOf('留乡佃田') === 0) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('租谷差票') >= 0; })) log.push(['这一养家年你还把租谷、差票与锅火拆进秋后细账；“仓里有粮”第一次不再被误写成“秋后自然稳了”。', 'good']);
+          if ((route.indexOf('路径一') === 0 || route.indexOf('留乡佃田') === 0) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('谷种仓脚') >= 0; })) log.push(['这一养家年你连谷种、仓脚和修渠钱都在冬里先分开；留乡佃田成年后的后手，也开始更像同一年里不断冒头的小事。', 'good']);
           if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && (S.本年家贴家 || 0) > 0 && (S.本年家备役 || 0) > 0) log.push(['这一养家年你至少有一回把铺里脚钱先拆进家用与差役后手；学徒路成年后也不再只是“在外头站柜”。', 'good']);
           if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && (S.本年家衣药 || 0) > 0 && (S.本年家捎信 || 0) > 0) log.push(['这一养家年你还把铺里脚钱拆成布药、针线与口信；家里等的已不只是钱，也是哪几样东西真到了。', 'good']);
           if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && (S.本年家贴家 || 0) > 0 && (S.本年家备役 || 0) > 0) log.push(['这一养家年你至少有一回把同一口现钱拆作家用与差役后手；商路顾家不再只是“年末寄没寄银”，而是年内一直在拆账。', 'good']);
