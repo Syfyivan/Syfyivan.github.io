@@ -90,7 +90,11 @@
       父辈路线: '未定', 承嗣来路: '本支次子承继', 承继定位: '本房次子另起一手', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0,
       _farmLegacyApplied: false, _wageLegacyApplied: false, _apprenticeLegacyApplied: false, _merchantLegacyApplied: false, _examLegacyApplied: false,
       // 起步模式：用于入口文案区分“从出生跑起” vs “从 16 岁立身起算”
-      _startMode: startMode
+      _startMode: startMode,
+      // 成家节点：允许“推迟婚事→再议亲”，用显式年份推移来改写婚育窗口（不靠隐藏剧本）
+      _marriageAgeAdj: 0,       // 相对路线默认议亲年龄的推迟年数（以 2 年为步长）
+      _marriageAttempts: 0,     // 已经历的“议亲节点”轮数（用于限制无限拖延）
+      _marriageAtAge: null      // 成婚时的实际年龄（用于回放与对照，不参与评分）
     };
     if (carry) {
       S.白银 = Math.max(0, carry.白银 || 0);
@@ -385,6 +389,27 @@
     } else if (route.indexOf('留乡佃田') === 0) {
       profile.marriageLead = '务农路的婚事走得相对早，聘礼和田上收成、家里米缸直接相连。';
       profile.fertilityLead = '成婚较早，婚后很快就进入养家与生育的长账。';
+    }
+    // ── 议亲推迟：把“被推迟事项”落到可验证的年龄与婚育窗口上 ──
+    // 只在玩家明确选择“暂缓/凑不齐聘礼”时累加；不凭空自动推迟。
+    var adj = Math.max(0, Math.floor(S._marriageAgeAdj || 0));
+    if (adj) {
+      profile.marriageAge += adj;
+      profile.householdAge += adj;
+      profile.elderAge += adj;
+      var baseTag = profile.fertilityTag;
+      // “分居”是商路结构性标签：仍以分居为主，不因年龄推迟而改写为窄窗
+      if (profile.fertilityTag !== 'split') {
+        var ma = profile.marriageAge;
+        if (profile.fertilityTag === 'normal') {
+          if (ma >= 29) profile.fertilityTag = 'lateStrict';
+          else if (ma >= 26) profile.fertilityTag = 'late';
+        } else if (profile.fertilityTag === 'late') {
+          if (ma >= 30) profile.fertilityTag = 'lateStrict';
+        }
+      }
+      if (profile.marriageLead && adj > 0) profile.marriageLead += '（若聘礼凑不齐或主动暂缓，婚事会顺延，后面的账也随之改写）';
+      if (profile.fertilityTag !== baseTag) profile.fertilityLead += '（因婚事推迟，婚育窗口随之变窄，绝嗣风险上移；不评分，只记因果与守恒。）';
     }
     return profile;
   }
@@ -2380,12 +2405,17 @@
       },
       settle: function (log) {
         var giftTier = 0, chance = 0.35 + rp.baseAdj;
+        var borrowedForGift = false;
         lifePicks.forEach(function (p) {
           switch (p.id) {
             case 'm_save': S.存米 -= 1; S.白银 += 1; log.push(['卖粮备聘：存米-1、白银+1', 'good']); break;
             case 'm_gift': S.白银 -= 3; giftTier = 2; chance += 0.40; log.push(['厚备聘礼：银-3下重聘（成算大增）', 'bad']); break;
             case 'm_gift1': S.白银 -= 1; giftTier = Math.max(giftTier, 1); chance += 0.20; log.push(['薄备聘礼：银-1（成算增）', 'bad']); break;
-            case 'm_borrow': S.负债银 += 3; S.白银 += 3; log.push(['义庄借银3两供下聘（负债+3、白银+3）', 'bad']); break;
+            case 'm_borrow':
+              S.负债银 += 3; S.白银 += 3;
+              borrowedForGift = true;
+              log.push(['义庄借银3两供下聘（负债+3、白银+3）', 'bad']);
+              break;
             case 'm_match': S.家族 += 2; chance += 0.12; log.push(['托媒多方相看：家族+2（成算增）', 'good']); break;
             case 'm_show': chance += rp.showBonus; log.push([rp.showLog, 'good']); break;
             case 'm_collect':
@@ -2409,14 +2439,36 @@
         chance += Math.min(0.10, S.家族 >= 70 ? 0.10 : 0);
         chance = Math.max(0.05, Math.min(0.95, chance));
         var pct = Math.round(chance * 100);
+        // “借银”本身就是为下聘凑现银：若本轮未点“薄聘/重聘”，则按“薄聘”口径自动从现银里划出 1 两下聘，
+        // 避免出现“明明借了银，却被判定没备聘礼”的断链。
+        if (giftTier === 0 && borrowedForGift && S.白银 >= 1) {
+          S.白银 -= 1;
+          giftTier = 1;
+          chance += 0.18;
+          log.push(['借来的一两先作薄聘下聘：白银-1（成算增）', 'bad']);
+        }
         if (giftTier === 0) {
-          S.家族 -= 2;
-          log.push(['这一程没备下聘礼，媒人无从说合——婚事推迟，家族-2（单身汉在村中难免风言）。日后可再攒。', 'bad']);
+          // 视为“被推迟事项”：允许再议亲，并把推迟真实落到年龄与婚育窗口上。
+          S._marriageAttempts = (S._marriageAttempts || 0) + 1;
+          var nextAdj = (S._marriageAgeAdj || 0) + 2;
+          var maxTries = 2; // 防止无限拖延：最多再议亲两轮（即 +4 年）
+          if (S._marriageAttempts <= maxTries && (currentLifeProfile().marriageAge + 2) < (currentLifeProfile().householdAge - 2)) {
+            S._marriageAgeAdj = nextAdj;
+            S.家族 -= 1;
+            curStage.next = 'marriage';
+            curStage.nextLabel = '再攒两年再议亲 →';
+            log.push(['这一程仍凑不出可下聘的聘银，婚事推迟两年（家族-1；推迟会改写婚育窗口）', 'bad']);
+          } else {
+            S.家族 -= 2;
+            log.push(['这一程仍未能成婚：先把日子过下去（家族-2；后续仍可能走向绝嗣过继分支）', 'bad']);
+          }
           return;
         }
         var r = rollProb([{ p: chance, r: 'wed' }, { p: 1 - chance, r: 'fail' }]);
         if (r === 'wed') {
           S.妻室 = true;
+          S._marriageAtAge = S.年龄;
+          S._marriageAttempts = 0;
           var dowry = giftTier === 2 ? 800 : 500;
           S.铜钱 += dowry; S.家族 += giftTier === 2 ? 10 : 6;
           log.push(['〔女方应允〕成婚成算约 ' + pct + '%，命中！妻带奁产铜钱+' + dowry + '、家族+' + (giftTier === 2 ? 10 : 6), 'good']);
