@@ -4481,16 +4481,16 @@
       nextLabel: isYearEnd
         ? '又一年春起 →'
         : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + familyXunLabel(xun + 1) + ' →')),
-      ap: 2,
+      ap: 3,
       commitLabel: isYearEnd ? '了这一养家年 →' : '了这一旬家计细账 →',
       shock: false,
-      note: '养家阶段现改成“春起→夏长→秋收→冬藏”四季、每季三旬：上旬先定这一旬主营生，中旬把市面与家里细账拢住，下旬再单独收差役、衣药、旧债与明年后手。仍不评分，只把家计与制度压力摊回同一年。' + (rp.note ? ' ' + rp.note : ''),
-      narrative: '你已<span class="em">' + S.年龄 + '岁</span>，这一养家年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead + ' 这一旬你有 <span class="em">2 个行动点</span>，要在营生、米价、差役、孩子、衣药、旧债和明年后手之间作取舍。',
+      note: '养家阶段现改成“春起→夏长→秋收→冬藏”四季、每季三旬，并把每旬操作厚到 3 手：通常要同时兼顾一手主营生、一手家内或市面细账，再留一手给差役、衣药、旧债或明春后手。仍不评分，只把家计与制度压力摊回同一年。' + (rp.note ? ' ' + rp.note : ''),
+      narrative: '你已<span class="em">' + S.年龄 + '岁</span>，这一养家年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead + ' 这一旬你有 <span class="em">3 个行动点</span>，得尽量把主营生、家里细账和制度后手一起摊开；若只顾一头，另一头往往会在同一年里立刻反咬回来。',
       dossier: function () {
         return lifeDossier('家年=' + year + '｜家程=' + season.name + '·' + xunLabel + '｜米价=' + (priceHigh ? '高' : '低') + '｜本年做活=' + (S.本年家做活 || 0) + '｜粜米=' + (S.本年家粜米 || 0) + '｜问价=' + (S.本年家问价 || 0) + '｜贴家=' + (S.本年家贴家 || 0) + '｜催账=' + (S.本年家催账 || 0) + '｜备役=' + (S.本年家备役 || 0) + '｜修缮=' + (S.本年家修缮 || 0) + '｜通融=' + (S.本年家通融 || 0) + '｜捎信=' + (S.本年家捎信 || 0) + '｜供读=' + (S.本年家供读 || 0) + (rp.dossier ? '｜' + rp.dossier : '') + '。');
       },
       events: events,
-      prompt: xun === 1 ? '这一旬先怎么定主营生？（分配 2 点）' : (xun === 2 ? '这一旬怎么把市面和家里细账拢住？（分配 2 点）' : '这一旬怎么把后账收住？（分配 2 点）'),
+      prompt: xun === 1 ? '这一旬先怎么定主营生？（分配 3 点）' : (xun === 2 ? '这一旬怎么把市面和家里细账拢住？（分配 3 点）' : '这一旬怎么把后账收住？（分配 3 点）'),
       actions: function () {
         var A = [];
         A.push({ id: 'f_work', name: wp.name, cost: 1, eff: wp.eff, desc: wp.desc, can: true });
