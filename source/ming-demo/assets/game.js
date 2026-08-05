@@ -665,6 +665,74 @@
     };
     return null;
   }
+  function wageOutworkProfile() {
+    var layers = Math.max(0, S.城里门路 || 0);
+    var bonus = 0;
+    var familyCost = 1;
+    var desc = '去邻县或市镇做活，现钱更多，但离乡更久，家里使唤不上你。';
+    if (layers > 0) {
+      bonus = Math.min(160, layers * 80);
+      if (currentLineageIsCollateral()) bonus = Math.max(40, bonus - 40);
+      else familyCost = 0;
+      desc = currentLineageIsCollateral()
+        ? '去邻县或市镇做活；上一代留过一点城里熟识，但这一房经旁支承接后，情分已比本支薄。'
+        : '去邻县或市镇做活；上一代若在城里留过熟识，这一手外出就不必全靠陌生脸硬闯。';
+    }
+    var copper = 300 + bonus;
+    return {
+      silver: 1,
+      copper: copper,
+      familyCost: familyCost,
+      effect: '白银+1·铜钱+' + copper + '·体魄-8' + (familyCost > 0 ? ('·家族-' + familyCost) : '·家族不减（旧识照应）'),
+      desc: desc
+    };
+  }
+  function wageSkillProfile() {
+    if (S.技艺 !== '无') return {
+      progress: 0,
+      cash: 180,
+      learnNow: false,
+      effect: '凭手艺铜钱+180',
+      desc: '跟着师傅接些熟活，农闲也能靠木活换一点现钱。'
+    };
+    var step = 1;
+    var cash = 0;
+    var desc = '跟着师傅学木活/修具。头两年是攒进度，学成后农闲可换现钱。';
+    if (S.家传手艺 > 0) {
+      step = Math.min(2, 1 + S.家传手艺);
+      if ((S.雇技进度 || 0) + step >= 2) cash = 80;
+      desc = '跟着师傅学木活/修具；父辈留过一层手艺门路，这一手不只是在旁打杂，坐实后当年就能先挣几文熟活钱。';
+    }
+    return {
+      progress: step,
+      cash: cash,
+      learnNow: ((S.雇技进度 || 0) + step) >= 2,
+      effect: (S.家传手艺 > 0 ? ('家传底子带路·手艺进度+' + step) : ('手艺进度+' + step)) + (cash > 0 ? ('·坐实后铜钱+' + cash) : ''),
+      desc: desc
+    };
+  }
+  function wageBookkeepingProfile() {
+    var copper = 180;
+    var family = 1;
+    var desc = '若你识字，可替雇主看账、抄单，比纯卖力气更值钱。';
+    var tags = [];
+    if (S.家传书香 > 0) {
+      copper += 80;
+      family += 1;
+      tags.push('家传书香');
+      desc = '若你识字，又承了家里的书香底子，看账抄单更容易被东家交给你。';
+    }
+    if (S.亦贾亦儒底子 > 0) {
+      family += 1;
+      tags.push('家里早习惯替家计留后手');
+    }
+    return {
+      copper: copper,
+      family: family,
+      effect: '识字者铜钱+' + copper + '·家族+' + family + (tags.length ? ('（' + tags.join('·') + '）') : ''),
+      desc: desc
+    };
+  }
 
   function growthInfo() {
     if (!S.已插秧) return { planted: false, ratio: 0, pct: 0, label: '未插秧', cls: 'g-none' };
@@ -1791,11 +1859,14 @@
       prompt: '这一工年怎么谋生？（分配 4 点）',
       actions: function () {
         var A = [];
+        var outwork = wageOutworkProfile();
+        var skill = wageSkillProfile();
+        var bookkeeping = wageBookkeepingProfile();
         A.push({ id: 'w_long', name: '签一年长工', cost: 2, eff: '年终白银+2·管饭减口粮1石·体魄-6', desc: '给经营型地主做长工，年终拿工银，平日有饭吃。', can: true, once: true });
         A.push({ id: 'w_short', name: '农忙打短工', cost: 1, eff: '铜钱+250·体魄-2', desc: '插秧、车水、收割时多打一旬短工，钱来得快，但季节一过就没了。', can: true });
-        A.push({ id: 'w_out', name: '外出佣工', cost: 2, eff: '白银+1·铜钱+300·体魄-8·家族-1', desc: '去邻县或市镇做活，现钱更多，但离乡更久，家里使唤不上你。', can: true, once: true });
-        A.push({ id: 'w_skill', name: '随工学一门活', cost: 1, eff: S.技艺 === '无' ? '手艺进度+1' : '凭手艺铜钱+180', desc: '跟着师傅学木活/修具。头两年是攒进度，学成后农闲可换现钱。', can: true });
-        A.push({ id: 'w_book', name: '识字帮看账', cost: 1, eff: '识字者铜钱+180·家族+1', desc: '若你识字，可替雇主看账、抄单，比纯卖力气更值钱。', can: S.识字, why: S.识字 ? '' : '尚不识字', once: true });
+        A.push({ id: 'w_out', name: '外出佣工', cost: 2, eff: outwork.effect, desc: outwork.desc, can: true, once: true });
+        A.push({ id: 'w_skill', name: '随工学一门活', cost: 1, eff: skill.effect, desc: skill.desc, can: true });
+        A.push({ id: 'w_book', name: '识字帮看账', cost: 1, eff: bookkeeping.effect, desc: bookkeeping.desc, can: S.识字, why: S.识字 ? '' : '尚不识字', once: true });
         A.push({ id: 'w_home', name: '回家帮父看田', cost: 1, eff: '家族+4·存米+1', desc: '农忙时回家帮父兄一把，虽少挣工钱，但家里气顺、口粮账也稳些。', can: true, once: true });
         A.push({ id: 'w_rest', name: '歇一歇养身', cost: 1, eff: '体魄+5', desc: '年轻也不是铁打的，别把身子先熬坏。', can: true });
         return A;
@@ -1816,25 +1887,30 @@
               break;
             case 'w_out':
               tookOut = true; didEarn = true;
-              S.白银 += 1; S.铜钱 += 300; S.体魄 -= 8; S.家族 -= 1; S.雇身份 = '外出佣工';
-              log.push(['外出佣工：白银+1、铜钱+300、体魄-8、家族-1（离乡更久，家里使唤不上你）', 'good']);
+              var outwork = wageOutworkProfile();
+              S.白银 += outwork.silver; S.铜钱 += outwork.copper; S.体魄 -= 8; S.家族 -= outwork.familyCost; S.雇身份 = '外出佣工';
+              log.push(['外出佣工：白银+' + outwork.silver + '、铜钱+' + outwork.copper + '、体魄-8' + (outwork.familyCost > 0 ? ('、家族-' + outwork.familyCost) : '、家族不减') + (S.城里门路 > 0 ? '（城里旧识先替你照应了落脚与工头）' : '（离乡更久，家里使唤不上你）'), 'good']);
               break;
             case 'w_skill':
+              var skill = wageSkillProfile();
               if (S.技艺 === '无') {
-                S.雇技进度 += 1;
-                log.push(['随工学活：手艺进度+' + 1 + '（' + S.雇技进度 + '/2）', 'good']);
+                S.雇技进度 += skill.progress;
+                log.push(['随工学活：手艺进度+' + skill.progress + '（' + S.雇技进度 + '/2）' + (S.家传手艺 > 0 ? '，家传底子让你一上手就不是纯打杂' : ''), 'good']);
                 if (S.雇技进度 >= 2) {
                   S.技艺 = '木活';
+                  if (skill.cash > 0) S.铜钱 += skill.cash;
                   log.push(['手艺攒够两轮，学成一门木活——以后农闲可换钱', 'good']);
+                  if (skill.cash > 0) log.push(['这年里因家传手艺门路先坐实，顺手又挣得熟活钱铜钱+' + skill.cash, 'good']);
                 }
               } else {
-                S.铜钱 += 180;
-                log.push(['凭手艺接点零活：铜钱+180', 'good']);
+                S.铜钱 += skill.cash;
+                log.push(['凭手艺接点零活：铜钱+' + skill.cash, 'good']);
               }
               break;
             case 'w_book':
-              S.铜钱 += 180; S.家族 += 1;
-              log.push(['识字帮看账：铜钱+180、家族+1（会认字，工价就是比纯卖力气高一点）', 'good']);
+              var bookkeeping = wageBookkeepingProfile();
+              S.铜钱 += bookkeeping.copper; S.家族 += bookkeeping.family;
+              log.push(['识字帮看账：铜钱+' + bookkeeping.copper + '、家族+' + bookkeeping.family + (S.家传书香 > 0 ? '（家传书香让你更容易被交给账册与契字）' : '（会认字，工价就是比纯卖力气高一点）'), 'good']);
               break;
             case 'w_home':
               S.家族 += 4; S.存米 += 1;
