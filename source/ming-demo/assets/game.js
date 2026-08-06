@@ -211,7 +211,7 @@
       户季: 1, 户旬: 1, 本年户核账: 0, 本年户催账: 0, 本年户备役: 0, 本年户通融: 0, 本年户委托: 0, 本年户供读: 0, 本年户季务: [],
       委托营生: '无', 委托租谷: 0, 委托待收租谷: 0, 最近农闲营生层级: '未定', 最近农闲营生收益: 0,
       // 养老阶段：按四季推进（同一年内继续拆账），避免“老年只点一次就结算”
-      老季: 1, 本年养老协商: 0, 本年养老收租: 0, 本年养老卖田: 0, 本年养老医药: 0, 本年养老守田: 0, 本年养老旧识: 0, 本年养老季务: [],
+      老季: 1, 老旬: 1, 本年养老协商: 0, 本年养老收租: 0, 本年养老卖田: 0, 本年养老医药: 0, 本年养老守田: 0, 本年养老旧识: 0, 本年养老季务: [],
       _advanceElderSeason: false,
       // 代际承接字段（不直接折现，只改变下一代入口分布）
       父辈路线: '未定', 承继身份: '次子', 承嗣来路: '本支次子承继', 承继定位: '本房次子另起一手', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0,
@@ -1288,6 +1288,10 @@
     var i = Math.max(1, Math.min(ELDER_SEASONS.length, index || 1)) - 1;
     return ELDER_SEASONS[i];
   }
+  function elderXunLabel(index) {
+    var i = Math.max(1, Math.min(3, Number(index) || 1)) - 1;
+    return XUN[i];
+  }
   function pushFamilySeasonTag(tag) {
     if (!tag) return;
     if (!S.本年家季务) S.本年家季务 = [];
@@ -1428,6 +1432,7 @@
   }
   function resetElderYearLedger() {
     S.老季 = 1;
+    S.老旬 = 1;
     S.本年养老协商 = 0;
     S.本年养老收租 = 0;
     S.本年养老卖田 = 0;
@@ -1616,6 +1621,12 @@
         h += '<span class="chip">商路旧账 <b>' + (S.未回款银 || 0) + '</b>两</span>';
       }
       h += '<span class="chip">委托田租 <b>' + (S.委托租谷 || 0) + '</b>石</span>';
+    } else if (phase === 'elder') {
+      var elderSeason = elderSeasonInfo(S.老季 || 1);
+      h += '<span class="chip">阶段 <b>养老</b></span>';
+      h += '<span class="chip">老程 <b>' + elderSeason.name + '·' + elderXunLabel(S.老旬 || 1) + '</b></span>';
+      h += '<span class="chip">妻室 <b>' + (S.妻室 ? '在' : '不在') + '</b></span>';
+      h += '<span class="chip">子嗣 <b>' + S.子数 + '</b>男' + S.女数 + '女</span>';
     } else if (phase === 'childhood') {
       h += '<span class="chip">识字 <b>' + (S.识字 ? '已启蒙' : '未识字') + '</b></span>';
       h += '<span class="chip">技艺 <b>' + S.技艺 + '</b></span>';
@@ -2317,7 +2328,13 @@
   function enterElder() {
     phase = 'elder';
     if (S._advanceElderSeason) {
-      S.老季 = Math.min(ELDER_SEASONS.length, (S.老季 || 1) + 1);
+      var x = Math.max(1, Math.min(3, S.老旬 || 1));
+      if (x < 3) {
+        S.老旬 = x + 1;
+      } else {
+        S.老季 = Math.min(ELDER_SEASONS.length, (S.老季 || 1) + 1);
+        S.老旬 = 1;
+      }
       S._advanceElderSeason = false;
     } else if (!S.老季 || S.老季 < 1) {
       resetElderYearLedger();
@@ -2326,8 +2343,8 @@
     picks = []; resolved = null; lifePicks = [];
     curStage = stageElder();
     tracePhase('enter:elder');
-    if (S.老季 === 1) {
-      recordEntry('步入老年·' + elderSeasonInfo(S.老季).name, snapshot(),
+    if (S.老季 === 1 && (S.老旬 || 1) === 1) {
+      recordEntry('步入老年·' + elderSeasonInfo(S.老季).name + '·' + elderXunLabel(S.老旬), snapshot(),
         '人到五十上下，身子与家计都开始显出另一层“细账”：奉养要谈、医药要花、口食田要收、旧识要维。养老不再只是一跳跳过，而是照着一年四季继续过账。');
     }
     renderStatus(); renderLifeStage(); renderLedger();
@@ -7987,8 +8004,11 @@
     var ep = elderRoutePack();
     var seasonIdx = Math.max(1, Math.min(ELDER_SEASONS.length, S.老季 || 1));
     var season = elderSeasonInfo(seasonIdx);
-    var nextSeason = elderSeasonInfo(Math.min(ELDER_SEASONS.length, seasonIdx + 1));
-    var isYearEnd = (season.id === 'winter');
+    var xun = Math.max(1, Math.min(3, S.老旬 || 1));
+    var xunLabel = elderXunLabel(xun);
+    var isSeasonEnd = xun >= 3;
+    var isYearEnd = (season.id === 'winter') && isSeasonEnd;
+    var nextSeason = isYearEnd ? null : elderSeasonInfo(Math.min(ELDER_SEASONS.length, isSeasonEnd ? (seasonIdx + 1) : seasonIdx));
 
     var events = [
       { t: 'rel', tag: '[季节]', txt: season.note + ' ' + season.actionLead },
@@ -7997,23 +8017,27 @@
     if (ep.event) events.push(ep.event);
 
     return {
-      title: '养老·' + season.name,
+      title: '养老·' + season.name + '·' + xunLabel,
       label: '养老',
       next: isYearEnd ? 'death' : 'elder',
-      nextLabel: isYearEnd ? '走向人生终点 →' : ('转入' + nextSeason.name + ' →'),
+      nextLabel: isYearEnd
+        ? '走向人生终点 →'
+        : (isSeasonEnd
+          ? ('转入' + nextSeason.name + '·上旬 →')
+          : ('转入' + season.name + '·' + elderXunLabel(xun + 1) + ' →')),
       ap: (season.id === 'winter' ? 3 : 2),
-      commitLabel: '了这一季养老账 →',
+      commitLabel: isSeasonEnd ? '了这一季养老账 →' : '收住这一旬养老账 →',
       note: '功能容量随龄下降，劳作让位于休息医药。奉养是与诸子协商的结果、不是默认义务；口食田与委托田租要靠人去收，旧识照应也要靠钱去维。〔机制事实，标准为占位〕' + (ep.note ? ' ' + ep.note : ''),
-      narrative: '你已<span class="em">' + S.年龄 + '岁</span>。这一季是<span class="em">' + season.name + '</span>，这一程 <span class="em">' + (season.id === 'winter' ? 3 : 2) + ' 个行动点</span>，仍要把奉养、医药、租谷与年关后手一笔笔拆开过。你年轻时走的那条路，此时会变成旧识、旧账、名色和体面。',
+      narrative: '你已<span class="em">' + S.年龄 + '岁</span>。这一程是<span class="em">' + season.name + '·' + xunLabel + '</span>，这一旬 <span class="em">' + (season.id === 'winter' ? 3 : 2) + ' 个行动点</span>，仍要把奉养、医药、租谷与年关后手一笔笔拆开过。你年轻时走的那条路，此时会变成旧识、旧账、名色和体面。',
       dossier: function () {
-        var seasonFoot = '｜老季=' + season.name + '｜本年养老季务=' + ((S.本年养老季务 || []).length);
+        var seasonFoot = '｜老程=' + season.name + '·' + xunLabel + '｜本年养老季务=' + ((S.本年养老季务 || []).length);
         return lifeDossier((S.子数 > 0 ? ('诸子 ' + S.子数 + ' 人各有小家，奉养多寡要看协商成算。') : '无子可依，奉养这条路走不通，须自筹。') + (ep.dossier ? '｜' + ep.dossier : '') + seasonFoot);
       },
       events: events,
-      prompt: season.name + '怎么过？（分配 ' + (season.id === 'winter' ? 3 : 2) + ' 点）',
+      prompt: season.name + '·' + xunLabel + '怎么过？（分配 ' + (season.id === 'winter' ? 3 : 2) + ' 点）',
       actions: function () {
         var A = [];
-        var canNegotiate = (season.id === 'spring') && S.子数 > 0 && (S.本年养老协商 || 0) <= 0;
+        var canNegotiate = (season.id === 'spring') && xun === 1 && S.子数 > 0 && (S.本年养老协商 || 0) <= 0;
         A.push({
           id: 'e_negotiate',
           name: '与诸子协商轮养',
@@ -8088,6 +8112,7 @@
         return A;
       },
       settle: function (log) {
+        var stepLabel = season.name + '·' + xunLabel;
         var picked = {};
         lifePicks.forEach(function (p) { picked[p.id] = true; });
 
@@ -8095,7 +8120,7 @@
           switch (p.id) {
             case 'e_negotiate': {
               S.本年养老协商 = 1;
-              pushElderSeasonTag(season.name + '·议轮养');
+              pushElderSeasonTag(stepLabel + '·议轮养');
               var base = 0.30 + (S.家族 >= 65 ? 0.25 : 0.10) + (S.识字 ? 0.10 : 0) + ep.negotiateAdj;
               base = Math.min(0.9, base);
               var out = rollProb([{ p: base, r: 'full' }, { p: (1 - base) * 0.6, r: 'half' }, { p: (1 - base) * 0.4, r: 'token' }]);
@@ -8108,7 +8133,7 @@
               if (S.本年养老医药 <= 0 && spendCopper(500)) {
                 S.本年养老医药 = 1;
                 S.体魄 += 8;
-                pushElderSeasonTag(season.name + '·延医问药');
+                pushElderSeasonTag(stepLabel + '·延医问药');
                 log.push(['延医问药：铜钱-500、体魄+8（益寿）', 'good']);
               } else {
                 log.push(['想延医问药，但这程现钱已先被别处占住，只得暂缓，免得把铜钱记成负数。', 'bad']);
@@ -8119,7 +8144,7 @@
                 S.本年养老收租 = 1;
                 var rentGain = 2 + (S.委托待收租谷 || 0);
                 S.存米 += rentGain;
-                pushElderSeasonTag(season.name + '·结租谷');
+                pushElderSeasonTag(stepLabel + '·结租谷');
                 log.push(['收口食田薄租' + ((S.委托待收租谷 || 0) > 0 ? '并结委托田租' : '') + '：存米+' + rentGain, 'good']);
                 S.委托待收租谷 = 0;
               }
@@ -8129,7 +8154,7 @@
               if (S.本年养老卖田 <= 0 && S.田亩 >= 1) {
                 S.本年养老卖田 = 1;
                 S.田亩 -= 1; S.白银 += 2; S.存米 += 2;
-                pushElderSeasonTag(season.name + '·卖田');
+                pushElderSeasonTag(stepLabel + '·卖田');
                 log.push(['变卖田1亩养老：田-1、白银+2、存米+2（下一代起点降低）', 'bad']);
               }
               break;
@@ -8139,7 +8164,7 @@
                 var fieldGain = isFarmRouteState() ? 2 : 1;
                 S.存米 += fieldGain;
                 S.体魄 -= 1;
-                pushElderSeasonTag(season.name + '·守薄田');
+                pushElderSeasonTag(stepLabel + '·守薄田');
                 log.push([isFarmRouteState()
                   ? '守薄田慢慢收：自耕薄田仍替你收回口粮，存米+' + fieldGain + '、体魄-1'
                   : '守着薄田慢慢收：卖工出身的晚景终于还能靠自家田收一口饭，存米+' + fieldGain + '、体魄-1', 'good']);
@@ -8150,7 +8175,7 @@
               if (S.本年养老旧识 <= 0) {
                 S.本年养老旧识 = 1;
                 S.铜钱 += 180; S.家族 += 1;
-                pushElderSeasonTag(season.name + '·托旧识');
+                pushElderSeasonTag(stepLabel + '·托旧识');
                 log.push(['托城中旧识照应：铜钱+180、家族+1（老来还能吃到些年轻时攒下的门路）', 'good']);
               }
               break;
@@ -8161,7 +8186,7 @@
                 var oldGot = Math.max(1, Math.ceil(oldOwed * 0.5));
                 var oldLost = Math.max(0, oldOwed - oldGot);
                 S.白银 += oldGot; S.未回款银 = 0; if (oldLost > 0) S.商路亏折 += oldLost;
-                pushElderSeasonTag(season.name + '·催旧账');
+                pushElderSeasonTag(stepLabel + '·催旧账');
                 log.push(['催回商路旧账：未回款' + oldOwed + '两里先收回白银+' + oldGot + (oldLost > 0 ? '，仍有' + oldLost + '两收不齐' : '') + '。', 'good']);
               }
               break;
@@ -8170,38 +8195,42 @@
               if (S.本年养老旧识 <= 0) {
                 S.本年养老旧识 = 1;
                 S.铜钱 += 120; S.家族 += 2;
-                pushElderSeasonTag(season.name + '·凭笔墨');
+                pushElderSeasonTag(stepLabel + '·凭笔墨');
                 log.push(['凭笔墨换照应：铜钱+120、家族+2（老来体面仍能换一点活路）', 'good']);
               }
               break;
             case 'e_rest':
               S.体魄 += 4; S.家族 += 2;
-              pushElderSeasonTag(season.name + '·静养');
+              pushElderSeasonTag(stepLabel + '·静养');
               log.push(['静养含饴：体魄+4、家族+2', 'good']);
               break;
           }
         });
 
-        // 夏季额外磨损：若既不延医也不静养，热耗会多啃一口
-        if (season.id === 'summer' && !picked.e_med && !picked.e_rest) {
+        if (isSeasonEnd) {
+          // 夏季额外磨损：若整季既不延医也没静养过，热耗会多啃一口（不额外耗 RNG）
+          if (season.id === 'summer'
+            && (S.本年养老医药 || 0) <= 0
+            && !(S.本年养老季务 || []).some(function (t) { return String(t).indexOf(season.name + '·上旬·静养') >= 0 || String(t).indexOf(season.name + '·中旬·静养') >= 0 || String(t).indexOf(season.name + '·下旬·静养') >= 0; })) {
+            S.体魄 -= 1;
+            pushElderSeasonTag(season.name + '·伏夏硬扛');
+            log.push(['〔伏夏硬扛〕这一季既没舍得动药钱也没能静养，伏夏热耗更重：体魄-1', 'bad']);
+          }
+
+          // 每季自然衰老（全年合计约 -4，不额外耗 RNG）
           S.体魄 -= 1;
-          pushElderSeasonTag(season.name + '·伏夏硬扛');
-          log.push(['〔伏夏硬扛〕这一季既没舍得动药钱也没能静养，伏夏热耗更重：体魄-1', 'bad']);
+          log.push(['岁月不居：这一季自然衰老，体魄-1', 'bad']);
+
+          // 关键季节未做要紧事的提醒（不强制扣分，只让因果更可读）
+          if (season.id === 'spring' && S.子数 > 0 && (S.本年养老协商 || 0) <= 0) log.push(['春里未议定轮养，后头更容易旬旬扯皮（不评分，只记因果）。', 'bad']);
+          if (season.id === 'autumn' && (S.口食田 > 0 || (S.委托待收租谷 || 0) > 0) && (S.本年养老收租 || 0) <= 0) log.push(['秋后未结租谷，口粮更容易落成“田在名下却空转”。', 'bad']);
+          if (S.子数 === 0 && !picked.e_sell && !picked.e_rent && !picked.e_rest && season.id === 'winter') {
+            S.体魄 -= 1;
+            log.push(['无子无进项，这一年冬终仍未换出一口后手，晚景更清苦：体魄-1', 'bad']);
+          }
         }
 
-        // 每季自然衰老（全年合计约 -4，不额外耗 RNG）
-        S.体魄 -= 1;
-        log.push(['岁月不居：这一季自然衰老，体魄-1', 'bad']);
-
-        // 关键季节未做要紧事的提醒（不强制扣分，只让因果更可读）
-        if (season.id === 'spring' && S.子数 > 0 && (S.本年养老协商 || 0) <= 0) log.push(['春里未议定轮养，后头更容易旬旬扯皮（不评分，只记因果）。', 'bad']);
-        if (season.id === 'autumn' && (S.口食田 > 0 || (S.委托待收租谷 || 0) > 0) && (S.本年养老收租 || 0) <= 0) log.push(['秋后未结租谷，口粮更容易落成“田在名下却空转”。', 'bad']);
-        if (S.子数 === 0 && !picked.e_sell && !picked.e_rent && !picked.e_rest && season.id === 'winter') {
-          S.体魄 -= 1;
-          log.push(['无子无进项，这一年冬终仍未换出一口后手，晚景更清苦：体魄-1', 'bad']);
-        }
-
-        // 推进到下一季
+        // 推进到下一旬/下一季
         if (!isYearEnd) S._advanceElderSeason = true;
       }
     };
