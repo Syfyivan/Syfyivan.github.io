@@ -1450,6 +1450,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     failLog: '〔春安顿碎账〕这一旬连递话薄礼与锅火都腾挪不开，只得先硬顶过去；子侄与邻里看你这一房的口风又紧了一线（家族-1）。',
     hardship: 'clan'
   });
+  if (isExamElder && season.id === 'spring' && xun === 3) apply({
+    handledIds: ['e_write_old', 'e_tutor_spring_packet_old', 'e_rest'],
+    doneTag: '春尾纸香已分',
+    doneLog: '〔春尾纸香〕这一旬先把春尾抄手、清明香纸和回馆脚费分开了；举业路养老开春最怕“旧馆还认你，纸香和脚费却先把那层门路磨薄”的那口小账，没有再拖到夏里才一起反咬。',
+    cost: 35,
+    costTag: '春尾纸香',
+    costLog: '〔春尾纸香〕春尾抄手、清明香纸和回馆脚费一起要钱：铜钱-{cost}。不是大账，却正把举业路晚景开春收束前最细的那层纸香脚费重新压回这一旬。',
+    failTag: '春尾纸香硬顶',
+    failLog: '〔春尾纸香〕这一旬连香纸和回馆脚费都腾挪不开，只得先硬顶过去；旧馆与学生家这层口风先紧了一线（家族-1）。',
+    hardship: 'clan'
+  });
   if (isMerchantElder && season.id === 'summer' && xun === 2) apply({
     handledIds: ['e_med', 'e_route_bundle_old', 'e_rest'],
     doneTag: '伏夏布药已顾',
@@ -1606,6 +1617,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     failTag: '帖费硬顶',
     failLog: '〔来春帖费〕这一旬连回话脚费和纸墨定钱都腾挪不开，只得先硬顶过去；旧馆与学生家这层门路又薄了一线（家族-1）。',
     hardship: 'clan'
+  });
+  if (isExamElder && season.id === 'winter' && xun === 3) apply({
+    handledIds: ['e_tutor_winter_bundle_old', 'e_rest'],
+    doneTag: '冬尾笔炭已分',
+    doneLog: '〔冬尾笔炭〕这一旬先把炭药、守岁零碎和学生家回话脚费分开了；举业路晚景最怕“年关刚扛过去，明春口风就先断掉”的那层冬尾细账，没有再继续滚大。',
+    cost: 35,
+    costTag: '冬尾笔炭',
+    costLog: '〔冬尾笔炭〕炭药、守岁零碎和学生家回话脚费一起要钱：铜钱-{cost}。不是体面消费，而是把举业路晚景冬尾最细、也最躲不开的那层炭脚账重新压回这一旬。',
+    failTag: '冬尾笔炭硬顶',
+    failLog: '〔冬尾笔炭〕这一旬连炭药和学生家回话脚费都腾挪不开，只得先硬扛过去；身子与旧馆门路又一起薄了一线（体魄-1）。',
+    hardship: 'body'
   });
   if (isMerchantElder && season.id === 'winter' && xun === 3) apply({
     handledIds: ['e_route_wharf_old', 'e_rest'],
@@ -10123,10 +10145,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         pack.extraActions.push({ id: 'e_write_old', name: '凭笔墨换照应', cost: 1, eff: '铜钱+120·家族+2', desc: '老来仍可凭名色、笔墨或代书，换一点体面与照应。', can: true, once: true });
       }
       pack.extraActions.push({ id: 'e_tutor_note_old', name: '先问旧馆回话与学生口风', cost: 1, eff: '铜钱-40·家族+1', desc: '春里先把旧馆还收不收人、学生家还认不认这层字面、哪张帖子该先递问清。钱没变多，但后头的馆账和帖子才不至一齐悬着。', can: S.铜钱 >= 40, why: S.铜钱 >= 40 ? '' : '铜钱不足40文', once: true });
+      pack.extraActions.push({ id: 'e_tutor_spring_packet_old', name: '把春尾抄手拆作香纸与回馆脚费', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '春尾最怕抄手小钱、清明香纸和回馆脚费一起磨人。先把这层小账拆开，夏里就不必再拿灯油和锅火去替旧馆门路垫。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
       pack.extraActions.push({ id: 'e_tutor_bundle_old', name: '把伏夏纸墨拆作凉药与回话脚费', cost: 1, eff: '铜钱-90·家族+1·体魄+1', desc: '伏夏最怕纸墨、凉药和递话脚费一起磨人。先把这层小账拆开，不让旧馆门路和身子一并熬薄。', can: S.铜钱 >= 90, why: S.铜钱 >= 90 ? '' : '铜钱不足90文', once: true });
       pack.extraActions.push({ id: 'e_tutor_collect_old', name: '结回旧馆润笔与抄手钱', cost: 1, eff: '铜钱+160~210·家族+1', desc: '趁秋里还走得动，把旧馆润笔、代写契纸和学生家拖着没回的那点笔墨钱真正拢回养老账。', can: true, once: true });
       pack.extraActions.push({ id: 'e_tutor_gift_old', name: '先备塾师薄礼与年关帖费', cost: 1, eff: '铜钱-70·家族+2·体魄+1', desc: '年关若把塾师、旧学生家和递帖人的薄礼一并省掉，明春常常就得从头求人。先把这层小钱记下，门路才不至到冬里忽然断线。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
       pack.extraActions.push({ id: 'e_tutor_post_old', name: '先留来春帖费与纸墨定钱', cost: 1, eff: '铜钱-50·家族+1', desc: '趁旧馆门路还热，先把来春递帖、回话和纸墨定钱分开。它不立刻回现钱，却能让明春第一旬不至从冷面递帖开始。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
+      pack.extraActions.push({ id: 'e_tutor_winter_bundle_old', name: '把冬尾笔炭拆作守岁零用与学生回话', cost: 1, eff: '铜钱-45·家族+1·体魄+1', desc: '冬尾最怕炭药、守岁零用和学生家回话脚费一起冒头。先把这层小账拆开，让举业路晚景不必把明春口风又押回同一口过冬钱上。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
     }
     return pack;
   }
@@ -10288,6 +10312,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             a.can = (season.id === 'spring') && xun === 2 && S.铜钱 >= 40;
             a.why = !(season.id === 'spring' && xun === 2) ? '这一旬不便先问旧馆回话' : (S.铜钱 >= 40 ? '' : '铜钱不足40文');
             a.once = true;
+          } else if (a.id === 'e_tutor_spring_packet_old') {
+            a.can = (season.id === 'spring') && xun === 3 && S.铜钱 >= 60;
+            a.why = !(season.id === 'spring' && xun === 3) ? '这一旬不便先拆春尾纸香账' : (S.铜钱 >= 60 ? '' : '铜钱不足60文');
+            a.once = true;
           } else if (a.id === 'e_tutor_bundle_old') {
             a.can = (season.id === 'summer') && xun === 2 && S.铜钱 >= 90;
             a.why = !(season.id === 'summer' && xun === 2) ? '这一旬不便先拆伏夏纸药账' : (S.铜钱 >= 90 ? '' : '铜钱不足90文');
@@ -10303,6 +10331,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           } else if (a.id === 'e_tutor_post_old') {
             a.can = (season.id === 'winter') && xun === 2 && S.铜钱 >= 50;
             a.why = !(season.id === 'winter' && xun === 2) ? '这一旬不便先留来春帖费' : (S.铜钱 >= 50 ? '' : '铜钱不足50文');
+            a.once = true;
+          } else if (a.id === 'e_tutor_winter_bundle_old') {
+            a.can = (season.id === 'winter') && xun === 3 && S.铜钱 >= 45;
+            a.why = !(season.id === 'winter' && xun === 3) ? '这一旬不便先拆冬尾笔炭账' : (S.铜钱 >= 45 ? '' : '铜钱不足45文');
             a.once = true;
           }
           A.push(a);
@@ -10483,6 +10515,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先问旧馆回话与学生口风：铜钱-40、家族+1。不是立刻回钱，而是把春里该先递哪张帖子、哪家学生家还认这层字面摸明。', 'good']);
               } else log.push(['想先问旧馆回话与学生口风，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
+            case 'e_tutor_spring_packet_old':
+              if (spendCopper(60)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·春尾纸香');
+                log.push(['把春尾抄手拆作香纸与回馆脚费：铜钱-60、家族+1、体魄+1。春尾这层抄手、香纸和回馆脚路终于没再被挤成一句“过了清明再说”。', 'good']);
+              } else log.push(['想把春尾抄手拆作香纸与回馆脚费，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
             case 'e_tutor_bundle_old':
               if (spendCopper(90)) {
                 S.家族 += 1; S.体魄 += 1;
@@ -10512,6 +10551,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushElderSeasonTag(stepLabel + '·留来春帖费');
                 log.push(['先留来春帖费与纸墨定钱：铜钱-50、家族+1。你先把明春递帖、回话和纸墨分开，不让举业路的旧门路在冬尾忽然断掉。', 'good']);
               } else log.push(['想先留来春帖费与纸墨定钱，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_tutor_winter_bundle_old':
+              if (spendCopper(45)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·冬尾笔炭');
+                log.push(['把冬尾笔炭拆作守岁零用与学生回话：铜钱-45、家族+1、体魄+1。炭药、守岁零碎和学生家回话脚费终于不再一起挤在年尾这一口现钱上。', 'good']);
+              } else log.push(['想把冬尾笔炭拆作守岁零用与学生回话，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_route_guest_old':
               if (spendCopper(70)) {
