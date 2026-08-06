@@ -1058,6 +1058,70 @@
     if (!S.本年季务) S.本年季务 = [];
     if (S.本年季务.indexOf(tag) < 0) S.本年季务.push(tag);
   }
+  function applySeasonalWageFriction(log, stepLabel, season, xun, picked) {
+    function hasPicked(ids) {
+      return (ids || []).some(function (id) { return !!picked[id]; });
+    }
+    function apply(entry) {
+      if (!entry) return;
+      if (hasPicked(entry.handledIds)) {
+        pushWageSeasonTag(stepLabel + entry.doneTag);
+        log.push([entry.doneLog, 'good']);
+      } else if (spendCopper(entry.cost)) {
+        pushWageSeasonTag(stepLabel + entry.costTag);
+        log.push([entry.costLog.replace('{cost}', entry.cost), 'bad']);
+      } else {
+        if (entry.hardship === 'body') S.体魄 -= 1;
+        if (entry.hardship === 'clan') S.家族 = Math.max(0, S.家族 - 1);
+        pushWageSeasonTag(stepLabel + entry.failTag);
+        log.push([entry.failLog, 'bad']);
+      }
+    }
+    if (season.id === 'spring' && xun === 1) apply({
+      handledIds: ['w_long', 'w_short', 'w_out', 'w_book', 'w_home'],
+      doneTag: '春头脚费已理',
+      doneLog: '〔春工脚费〕这一旬先把草鞋、带话脚费和工棚茶钱分开了；春忙开头不再只剩“签不签长工”，连找工前那层小耗也重新压回了真账。',
+      cost: 35,
+      costTag: '春工脚费',
+      costLog: '〔春工脚费〕草鞋、带话脚费和工棚茶钱一起要钱：铜钱-{cost}。不是大账，却正把“先问活路”这一下重新压回真账。',
+      failTag: '春头硬顶',
+      failLog: '〔春工脚费〕这一旬连草鞋和带话脚费都腾挪不开，只得先硬顶过去；旧工头和乡里看你这层熟面又生了一线（家族-1）。',
+      hardship: 'clan'
+    });
+    if (season.id === 'summer' && xun === 2) apply({
+      handledIds: ['w_market', 'w_send', 'w_tea', 'w_home', 'w_book', 'w_rest'],
+      doneTag: '伏夏零耗已顾',
+      doneLog: '〔伏夏零耗〕这一旬先把凉汤、草鞋、汗药和工棚茶钱顾住了；伏夏里那层不大、却天天磨人的零耗没有再顺着身子和家计一起滚大。',
+      cost: 40,
+      costTag: '伏夏零耗',
+      costLog: '〔伏夏零耗〕凉汤、草鞋、汗药和工棚茶钱一起冒头：铜钱-{cost}。不是大祸，只是卖工路这一年又多出一层真摩擦。',
+      failTag: '伏夏硬扛',
+      failLog: '〔伏夏零耗〕这一旬连凉汤和汗药钱都腾挪不开，只得靠身子硬扛过去（体魄-1）。',
+      hardship: 'body'
+    });
+    if (season.id === 'autumn' && xun === 1) apply({
+      handledIds: ['w_short', 'w_home', 'w_market', 'w_send'],
+      doneTag: '旺工脚费已理',
+      doneLog: '〔旺工脚费〕这一旬先把旺工茶水、回乡脚费和田埂草鞋拆开了；秋收上旬不再只剩“抢不抢旺工”，连回乡搭手前那层碎费也进了账。',
+      cost: 45,
+      costTag: '旺工脚费',
+      costLog: '〔旺工脚费〕旺工茶水、回乡脚费和田埂草鞋一起要钱：铜钱-{cost}。不是新主线，只是把秋收上旬那层赶路碎费重新压回真账。',
+      failTag: '旺工硬顶',
+      failLog: '〔旺工脚费〕这一旬连回乡脚费和草鞋都腾挪不开，只得先硬顶过去；家里等你搭手的口风又更急了一线（家族-1）。',
+      hardship: 'clan'
+    });
+    if (season.id === 'winter' && xun === 1) apply({
+      handledIds: ['w_book', 'w_short', 'w_tea', 'w_send', 'w_mend'],
+      doneTag: '工棚年礼已分',
+      doneLog: '〔工棚年礼〕年关前旧工头薄礼、回话脚费和明春头程小脚费已被你先分开；卖工路这层门路没有在冬里忽然断掉。',
+      cost: 45,
+      costTag: '工棚年礼',
+      costLog: '〔工棚年礼〕旧工头薄礼、回话脚费和明春头程脚费一起要钱：铜钱-{cost}。不是讲排场，而是让明春第一口活路不必重新从冷面求人开始。',
+      failTag: '工棚年礼硬顶',
+      failLog: '〔工棚年礼〕这一旬连薄礼和回话脚费都腾挪不开，只得先硬顶过去；旧工头与工棚这层熟面又薄了一线（家族-1）。',
+      hardship: 'clan'
+    });
+  }
   function resetWageYearLedger() {
     S.工季 = 1;
     S.工段 = 1;
@@ -3007,7 +3071,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       settle: function (log) {
         var tookLong = false, tookOut = false, shortCount = 0, didEarn = false;
         var hadLongBeforeWinter = S.本年雇约 === '年长工';
+        var picked = {};
         lifePicks.forEach(function (p) {
+          picked[p.id] = true;
           switch (p.id) {
             case 'w_long':
               tookLong = true; didEarn = true;
@@ -3120,6 +3186,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           S.家族 -= 1;
           log.push(['这一旬没真正挣出工食，家里对你“这一手到底值不值”难免更紧一分（家族-1）。', 'bad']);
         }
+        applySeasonalWageFriction(log, season.name + xunLabel, season, wagePass, picked);
         if (season.id === 'winter' && wagePass === 3) {
           if (hadLongBeforeWinter) {
             S.白银 += 2; S.本年工食银 += 2;
