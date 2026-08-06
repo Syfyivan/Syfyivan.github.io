@@ -5016,6 +5016,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             can: S.铜钱 >= 50,
             why: S.铜钱 >= 50 ? '' : '铜钱不足50文'
           });
+          pack.extraActions.push({
+            id: 'f_route_summer_cool',
+            name: '先把行栈茶钱与家里凉药分开',
+            cost: 1,
+            eff: '铜钱-60·衣药+1·捎信+1·通融+1',
+            desc: '伏夏开头最怕哪条水脚能走还没问稳，行栈茶钱、带话脚费和家里凉药却先一起冒头。你先把这口小钱拆开，后头催账与捎布药才不至两头都空。',
+            can: S.铜钱 >= 60,
+            why: S.铜钱 >= 60 ? '' : '铜钱不足60文'
+          });
         }
         if (season.id === 'autumn' && xun === 1) {
           pack.extraActions.push({
@@ -5874,6 +5883,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先问水脚与行栈路数：铜钱-50、问价+1、通融+1。你不是平白多一层门路，只是先把哪条路能走、哪家栈肯暂压一程摸清。', 'good']);
               } else log.push(['想先问水脚与行栈路数，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               break;
+            case 'f_route_summer_cool':
+              if (spendCopper(60)) {
+                S.本年家衣药 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '伏夏脚药');
+                log.push(['先把行栈茶钱与家里凉药分开：铜钱-60、衣药+1、捎信+1、通融+1。水脚未必当旬回钱，但你先把伏夏最先咬人的那层茶钱、脚费和凉药压回了真账。', 'good']);
+              } else log.push(['想先把行栈茶钱与家里凉药分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_route_autumn_quote':
               if (spendCopper(40)) {
                 S.本年家问价 += 1;
@@ -6643,6 +6661,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushFamilySeasonTag(stepTag + '行中硬扛');
             log.push(['〔行中小耗〕这一旬连样纸门包和布药都腾挪不开，只得先硬扛过去；熟号和家里都更吃紧了一层（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'summer' && xun === 1) {
+          if (picked.f_route_wharf || picked.f_route_summer_cool || picked.f_route_letter || picked.f_child || picked.f_repair) {
+            pushFamilySeasonTag(stepTag + '伏夏路药已分');
+            log.push(['〔伏夏路药〕这一旬先把行栈茶钱、带话脚费和家里凉药拆开了；伏夏刚起头时最容易一起冒头的那层路上与家里小耗，没有再把现钱先磨薄。', 'good']);
+          } else if (spendCopper(35)) {
+            S.本年家衣药 += 1;
+            pushFamilySeasonTag(stepTag + '伏夏路药');
+            log.push(['〔伏夏路药〕行栈茶钱、带话脚费和家里凉药一起要钱：铜钱-35、衣药+1。不是大账，却正把商路养家这一年伏夏开头最先起皱的一层摩擦压回真账。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '伏夏硬顶');
+            log.push(['〔伏夏路药〕这一旬连带话脚费和家里凉药都腾挪不开，只得先硬顶过去；熟号与家里锅火两头都更紧了一线（家族-1）。', 'bad']);
           }
         }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'spring' && xun === 1) {
@@ -7999,6 +8031,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (canTrustField) A.push({ id: 'h_trust_field', name: trustName, cost: 1, eff: '年租谷+1·家族+2', desc: '把分得薄田先立成兄代管/代收租的账，这一房才不至于“有田等于没田”。', can: true, once: true });
         if (canSchoolFund) A.push({ id: 'h_school_fund', name: schoolName, cost: 1, eff: '白银-1·供读专账+1·家族+2', desc: '不是为了算成功分，只是把“孩子读不读”这笔钱真从现银里先分出来。', can: true, once: true });
         if (canPay) A.push({ id: 'h_pay', name: payName, cost: 2, eff: '白银-2·代役后手坐实', desc: '先把代役现银留出来，年关就不至只剩硬扛。', can: true, once: true });
+        if (season.id === 'autumn' && xun === 2) {
+          A.push({
+            id: 'h_autumn_split',
+            name: '把秋路回钱拆作牙税与锅火',
+            cost: 1,
+            eff: '现钱外流·备役+1·家族+2·通融+1',
+            desc: '秋定租到了中旬，最怕秋路回钱看着快到手，牙税、锅火和代役后手却一起扑上来。先把这一口拆开，不让“秋里看着厚”转头又只剩几本空账。',
+            can: S.白银 >= 1 || S.铜钱 >= 220,
+            why: (S.白银 >= 1 || S.铜钱 >= 220) ? '' : '现钱不够拆作牙税与锅火',
+            once: true
+          });
+        }
         A.push({ id: 'h_wharf', name: wharfName, cost: 1, eff: '铜钱-' + wharfCost + '·水脚与人情后手更稳', desc: '先把哪条水脚还通、哪家行栈肯压一程、哪口脚费和牙税该先拆开问清。钱没有变多，但后头的旧账、供读和差钱才不至再混成一团。', can: S.铜钱 >= wharfCost, why: S.铜钱 >= wharfCost ? '' : ('铜钱不足' + wharfCost + '文') });
         A.push({ id: 'h_literate', name: literateName, cost: 1, eff: S.识字 ? '核账次数+1·差钱/租谷更清' : '（不识字·无从核账）', desc: '把阄书、水脚、租谷、差钱都抄在自己看得懂的账上。', can: S.识字 && (S.本年户核账 || 0) < 2, why: S.识字 ? '' : '不识字，看不懂账册', once: true });
         A.push({ id: 'h_clan', name: clanName, cost: 1, eff: '家族+2·乡里通气', desc: '先把谁肯替这一房说话、谁能替你分担一层里役人情坐实。', can: (S.本年户通融 || 0) < 2, once: true });
@@ -8081,6 +8125,21 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 actionCount += 1;
               } else {
                 log.push(['想在' + stepLabel + '先留代役现银，但这一旬现银已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_autumn_split':
+              var autumnPaid = '';
+              if (spendSilver(1)) autumnPaid = '白银-1';
+              else if (spendCopper(220)) autumnPaid = '铜钱-220';
+              if (autumnPaid) {
+                S.本年户备役 += 1;
+                S.本年户通融 += 1;
+                S.家族 += 2;
+                pushHouseholdSeasonTag('秋路拆账');
+                log.push(['你在' + stepLabel + '先把秋路回钱拆作牙税与锅火：' + autumnPaid + '、备役+1、通融+1、家族+2。秋里看着厚的那口回钱，总算先被拆成这一房真能用的后手。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把秋路回钱拆作牙税与锅火，但这一旬现钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
             case 'h_wharf':
@@ -8230,6 +8289,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 -= 1;
             pushHouseholdSeasonTag(stepLabel + '秋路硬顶');
             log.push(['〔秋路牙税〕这一旬连牙税脚费都腾挪不开，只得先硬顶过去；乡里和熟号都更难替你说话了（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'autumn' && xun === 2) {
+          if (picked.h_autumn_split || picked.h_pay || picked.h_collect || picked.h_school_fund || picked.h_wharf || picked.h_clan) {
+            pushHouseholdSeasonTag(stepLabel + '秋路锅火已拆');
+            log.push(['〔秋路锅火〕这一旬先把秋路回钱、牙税、锅火和代役后手拆开了；秋里那口看着“快回了”的钱，不再转头又被几本账一起吃空。', 'good']);
+          } else if (spendCopper(45)) {
+            pushHouseholdSeasonTag(stepLabel + '秋路锅火');
+            log.push(['〔秋路锅火〕秋路牙税、锅火碎用与带话脚费一起要钱：铜钱-45。不是新主线，却把商路当户秋中的那层生活与制度摩擦重新拖回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '秋锅火硬顶');
+            log.push(['〔秋路锅火〕这一旬连锅火和递话脚费都腾挪不开，只得先硬顶过去；秋里家里与熟号两头都更难替这一房说话了（家族-1）。', 'bad']);
           }
         }
         if (season.id === 'spring' && xun === 2) {
