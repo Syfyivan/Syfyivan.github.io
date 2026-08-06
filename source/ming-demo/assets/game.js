@@ -1172,6 +1172,19 @@
         log.push([entry.failLog, 'bad']);
       }
     }
+    // 投师季也要有“门路碎费”的真账：拜帖脚费、回话茶钱、作保薄礼等，
+    // 不加随机、不改评分，只把过去常被一句话带过的小耗压回同一年上旬。
+    if (season.id === 'spring' && xun === 1) apply({
+      handledIds: ['a_seek', 'a_bond', 'a_sign'],
+      doneTag: '投师门路已走',
+      doneLog: '〔投师门路〕这一旬先把拜帖脚费、保人茶钱与中人回话走通了；投师季不再只剩一句“去说合”，门路本身也回到了真账。',
+      cost: 30,
+      costTag: '投师门路',
+      costLog: '〔投师门路〕拜帖脚费、保人茶钱与中人回话一起要钱：铜钱-{cost}。不是大账，却正把“能不能见到师傅”这一步重新压回真账。',
+      failTag: '投师硬顶',
+      failLog: '〔投师门路〕这一旬连拜帖脚费都腾挪不开，只得先硬顶；门路跑得更慢，家里也更疑一分（家族-1）。',
+      hardship: 'clan'
+    });
     if (season.id === 'summer' && xun === 2) apply({
       handledIds: ['a_book', 'a_run', 'a_mend', 'a_supply', 'a_rest'],
       doneTag: '伏夏零耗已顾',
@@ -1184,6 +1197,18 @@
       hardship: 'body',
       bumpField: '本年学徒衣药',
       bumpValue: 1
+    });
+    // 行市季开头先把“脚路小钱”摊开：不等到秋尾才被碎账咬住。
+    if (season.id === 'autumn' && xun === 1) apply({
+      handledIds: ['a_run', 'a_market', 'a_send', 'a_home'],
+      doneTag: '行市脚费已分',
+      doneLog: '〔行市脚费〕秋里刚起头，脚费、茶汤与抄价小钱已先分开；行市季不必等到秋尾才被碎账咬住。',
+      cost: 25,
+      costTag: '行市脚费',
+      costLog: '〔行市脚费〕跑街脚费、茶汤点心与抄价小钱一起冒头：铜钱-{cost}。不是大账，却会把“行市季”从头就咬得更紧。',
+      failTag: '行市硬顶',
+      failLog: '〔行市脚费〕这一旬连脚费和茶汤钱都腾挪不开，只得先硬扛过去（体魄-1）。',
+      hardship: 'body'
     });
     if (season.id === 'autumn' && xun === 3) apply({
       handledIds: ['a_market', 'a_send', 'a_home', 'a_reserve'],
@@ -1205,6 +1230,17 @@
       costLog: '〔年关铺耗〕旧掌柜薄礼、回铺脚路、灯油针线和来春头程小脚费一起要钱：铜钱-{cost}。不是体面消费，而是让“铺里还认你”这层门路能撑到明春。',
       failTag: '年关硬顶',
       failLog: '〔年关铺耗〕这一旬连薄礼与回铺脚路都腾挪不开，只得靠身子硬顶过去（体魄-1）。',
+      hardship: 'body'
+    });
+    if (season.id === 'winter' && xun === 2) apply({
+      handledIds: ['a_book', 'a_send', 'a_mend', 'a_rest'],
+      doneTag: '守岁灯油已留',
+      doneLog: '〔守岁灯油〕这一旬先把灯油炭火与守岁零用留出来；年关季不只在上旬才有碎账，冬里中旬也会慢慢把人磨薄。',
+      cost: 22,
+      costTag: '守岁灯油',
+      costLog: '〔守岁灯油〕灯油炭火与守岁零用一起要钱：铜钱-{cost}。不显眼，却会把年关这几旬的底子一点点掏空。',
+      failTag: '守岁硬顶',
+      failLog: '〔守岁灯油〕这一旬连灯油炭火都腾挪不开，只得先硬扛过去（体魄-1）。',
       hardship: 'body'
     });
   }
