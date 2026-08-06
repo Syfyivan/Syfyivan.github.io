@@ -6340,6 +6340,50 @@
             hardship: 'body'
           }
         });
+        if (season.id === 'spring' && xun === 1) {
+          if (picked.h_split_joint || picked.h_literate || picked.h_clan) {
+            pushHouseholdSeasonTag(stepLabel + '析灶锅火已安');
+            log.push(['〔析灶锅火〕分书后该添的锅釜、草席、量斗和跟兄房分开的那口锅火，这一旬已被你先安顿；立户不是一句“分到了”，而是真把这一房的日子拆出来。', 'good']);
+          } else if (spendCopper(50)) {
+            pushHouseholdSeasonTag(stepLabel + '析灶锅火');
+            log.push(['〔析灶锅火〕分书后添锅釜、草席、量斗与分灶杂用一起冒头：铜钱-50。不是新主线，只是立户第一旬就得先把“各过各的日子”坐成真账。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '析灶硬顶');
+            log.push(['〔析灶锅火〕这一旬连分灶杂用都腾挪不开，只得继续借着兄房锅火硬顶；这一房刚立起来的人情面先薄了一层（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'autumn' && xun === 1) {
+          if (picked.h_hold_field || picked.h_lease_home || picked.h_hire || picked.h_clan || S.委托营生 === '分得薄田自耕' || (S.委托租谷 || 0) > 0) {
+            pushHouseholdSeasonTag(stepLabel + '秋看田脚路已坐');
+            log.push(['〔秋看田脚路〕秋里要不要回乡看田、催租、看短工和压住邻里口风，这一旬已被你先拆开；薄田没有再被写成“账面上有、脚下却顾不到”。', 'good']);
+          } else if (spendCopper(50)) {
+            pushHouseholdSeasonTag(stepLabel + '秋看田脚路');
+            log.push(['〔秋看田脚路〕回乡看田、催租脚费和请人照看田面的碎支一起要钱：铜钱-50。不是大账，却正是“分得了田”以后每年都得先垫的一层脚路。', 'bad']);
+          } else {
+            S.体魄 = Math.max(0, S.体魄 - 1);
+            pushHouseholdSeasonTag(stepLabel + '秋看田硬顶');
+            log.push(['〔秋看田脚路〕这一旬连回乡看田脚费都腾挪不开，只得自己来回硬跑硬顶过去（体魄-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'winter' && xun === 1) {
+          var oldWorkContact = S.婚配路径 === '先应差·外出佣工' || (S.城里门路 || 0) > 0;
+          if (picked.h_proxy_wage || picked.h_pay || picked.h_clan || picked.h_wage_collect) {
+            pushHouseholdSeasonTag(stepLabel + '工棚节礼已分');
+            log.push([oldWorkContact
+              ? '〔工棚节礼〕年关前旧工头、外头工棚和替你跑代应的人该有的薄礼与脚费，这一旬已被你先分开；早年外出工的门路没有到这时才忽然断掉。'
+              : '〔工棚节礼〕年关前旧工头、工棚和替你说话的脚夫该有的薄礼与脚费，这一旬已被你先分开；卖工路的人情后手没有再拖到差役临头才想起。', 'good']);
+          } else if (spendCopper(oldWorkContact ? 60 : 50)) {
+            pushHouseholdSeasonTag(stepLabel + '工棚节礼');
+            log.push([oldWorkContact
+              ? '〔工棚节礼〕旧工头、工棚和替你跑门路的人到年关总要一层薄礼与脚费：铜钱-60。不是讲排场，而是在把早年外出佣工攒下的门路继续吊住。'
+              : '〔工棚节礼〕旧工头、工棚和脚夫到年关总要一层薄礼与脚费：铜钱-50。不是讲排场，而是不让这一房来年再去求人时只剩冷面。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '节礼硬顶');
+            log.push(['〔工棚节礼〕这一旬连薄礼和脚费都腾挪不开，只得先硬顶过去；旧工头与外头门路的人情面又薄了一线（家族-1）。', 'bad']);
+          }
+        }
         clampAttr('体魄');
         clampAttr('家族');
         if (!isYearEnd) {
@@ -6359,6 +6403,7 @@
         else log.push(['这一任当户你始终没把分得薄田坐成自耕或租账；田还在名下，却还没开始真替这一房回口粮。', 'bad']);
         if ((S.本年户通融 || 0) > 0 && (S.本年户备役 || 0) > 0) log.push(['这一任当户你把乡里与旧工头的人情都先压进了差役后手里；制度压力不再只在冬里那一下才突然落下来。', 'good']);
         if (S.婚配路径 === '先应差·外出佣工' && proxySet) log.push(['这一任当户你把早年“先应差·外出佣工”攒下的旧牙口真正拿出来用了；婚配分叉不再只剩一行旧文案。', 'good']);
+        if (S.婚配路径 === '先应差·外出佣工' && (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('工棚节礼') >= 0; })) log.push(['这一任当户你连年关工棚礼数都接上了早年外出佣工攒下的旧门路；这条婚配分叉已不只在春秋节点生效，而会一直拖到同一年最难的冬账。', 'good']);
         if ((S.本年户季务 || []).length <= 4) log.push(['这一任当户虽拆成了年内各旬，但真正落到账里的细务仍偏少，说明这一年还没有被你完全做厚。', 'bad']);
         var risk = 0.40 + hp.baseAdj;
         risk -= Math.min(0.16, (S.本年户核账 || 0) * 0.08);
