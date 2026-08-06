@@ -1311,6 +1311,59 @@
     if (!S.本年养老季务) S.本年养老季务 = [];
     if (S.本年养老季务.indexOf(tag) < 0) S.本年养老季务.push(tag);
   }
+function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
+  function hasPicked(ids) {
+    return (ids || []).some(function (id) { return !!picked[id]; });
+  }
+  function apply(entry) {
+    if (!entry) return;
+    if (hasPicked(entry.handledIds)) {
+      pushElderSeasonTag(stepLabel + entry.doneTag);
+      log.push([entry.doneLog, 'good']);
+    } else if (spendCopper(entry.cost)) {
+      pushElderSeasonTag(stepLabel + entry.costTag);
+      log.push([entry.costLog.replace('{cost}', entry.cost), 'bad']);
+    } else {
+      if (entry.hardship === 'body') S.体魄 -= 1;
+      if (entry.hardship === 'clan') S.家族 = Math.max(0, S.家族 - 1);
+      pushElderSeasonTag(stepLabel + entry.failTag);
+      log.push([entry.failLog, 'bad']);
+    }
+  }
+  if (season.id === 'spring' && xun === 2) apply({
+    handledIds: ['e_negotiate', 'e_city', 'e_write_old', 'e_rest'],
+    doneTag: '春安顿已理',
+    doneLog: '〔春安顿碎账〕这一旬先把递话薄礼、灯油锅火和请子侄说合的口风分开了；养老开春最容易起皱的那层安顿细账，没有再被拖成旬旬扯皮。',
+    cost: 35,
+    costTag: '春安顿碎账',
+    costLog: '〔春安顿碎账〕递话薄礼、灯油锅火和请子侄说合的脚费一起要钱：铜钱-{cost}。不是大账，却正把养老这一年最先冒头的安顿细账重新压回真账。',
+    failTag: '春安顿硬顶',
+    failLog: '〔春安顿碎账〕这一旬连递话薄礼与锅火都腾挪不开，只得先硬顶过去；子侄与邻里看你这一房的口风又紧了一线（家族-1）。',
+    hardship: 'clan'
+  });
+  if (season.id === 'autumn' && xun === 2) apply({
+    handledIds: ['e_rent', 'e_collect_old', 'e_field_keep', 'e_rest'],
+    doneTag: '秋后脚路已顾',
+    doneLog: '〔秋后脚路〕这一旬先把收租脚费、催账回话和看田饭食分开了；老年最怕的“田还在却收不回来”，没有再被秋后一层小耗悄悄磨空。',
+    cost: 40,
+    costTag: '秋后脚路',
+    costLog: '〔秋后脚路〕收租脚费、催账回话和看田饭食一起要钱：铜钱-{cost}。不是新主线，只是把秋后这一层真正的行路碎费重新压回养老账。',
+    failTag: '秋后脚路硬顶',
+    failLog: '〔秋后脚路〕这一旬连脚费和饭食都腾挪不开，只得先硬顶过去；眼看着有田有账，回话却更慢了一层（家族-1）。',
+    hardship: 'clan'
+  });
+  if (season.id === 'winter' && xun === 1) apply({
+    handledIds: ['e_sell', 'e_write_old', 'e_rest'],
+    doneTag: '年下后手已留',
+    doneLog: '〔年下后手〕这一旬先把灯油炭火、来春药引和薄礼脚费留住了；晚景不再只剩“熬过这个冬天再说”。',
+    cost: 45,
+    costTag: '年下后手',
+    costLog: '〔年下后手〕灯油炭火、来春药引和薄礼脚费一起要钱：铜钱-{cost}。不是大账，却正把晚年年关最磨人的那层后手重新压回这一旬。',
+    failTag: '年下硬顶',
+    failLog: '〔年下后手〕这一旬连灯油炭火和来春药引都挪不开，只得靠身子硬顶过去（体魄-1）。',
+    hardship: 'body'
+  });
+}
   function applySeasonalMerchantFriction(log, stepLabel, season, xun, picked) {
     function hasPicked(ids) {
       return (ids || []).some(function (id) { return !!picked[id]; });
@@ -8458,6 +8511,8 @@
               break;
           }
         });
+
+        applySeasonalElderFriction(log, stepLabel, season, xun, picked);
 
         if (isSeasonEnd) {
           // 夏季额外磨损：若整季既不延医也没静养过，热耗会多啃一口（不额外耗 RNG）
