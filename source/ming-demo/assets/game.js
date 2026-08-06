@@ -1889,6 +1889,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (phase === 'farm') {
       var g = growthInfo();
       h += '<span class="chip">佃田 <b>第' + S.农年 + '/' + FARM_YEARS + '</b>年</span>';
+      // 让“年内节奏”在状态栏里可见：不只显示庄稼条，也显式显示“走到哪一旬”。
+      // 这不会改变守恒或随机序列，只是把节奏更清晰地亮出来，便于人工复核与回放对照。
+      h += '<span class="chip">旬务 <b>' + curLabel() + '</b></span>';
       h += '<span class="chip crop"><span class="g-dot ' + g.cls + '"></span>庄稼 <b>' + (g.planted ? g.label + ' ' + g.pct + '%' : '未插秧') + '</b></span>';
     } else if (phase === 'wage') {
       h += '<span class="chip">路线 <b>受雇谋生</b></span>';
@@ -2040,6 +2043,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var before = snapshot();
     var log = [];
     var didPlantThisXun = false, hiredPlant = false, tendCount = 0, didHarvest = false, hiredHarvest = false;
+    var didCare = false, didExchange = false, didRest = false, didWinterFix = false;
 
     picks.forEach(function (p) {
       switch (p.id) {
@@ -2050,8 +2054,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           else { var gg = (1 + (curWeather.grow >= 2 ? 1 : 0)); S.秧苗进度 += gg; S.体魄 -= 2; tendCount++; log.push(['看水除草，禾苗生长+' + gg + '（体魄-2）', 'good']); }
           break;
         case 'garden': S.菜圃进度 += 1; S.体魄 -= 1; if (S.菜圃进度 >= 3) { S.存米 += 1; S.菜圃进度 = 0; log.push(['菜圃收了一茬，存米+1石', 'good']); } else { log.push(['浇灌菜圃（' + S.菜圃进度 + '/3，体魄-1）', 'good']); } break;
-        case 'care': S.家族 += 4; if (curEvents.some(function (e) { return e.t === 'rel'; })) { S.母出工 = true; log.push(['照护母亲，腰痛稳住，家族+4', 'good']); } else { log.push(['照护家人，家族+4', 'good']); } break;
-        case 'exchange': S.家族 += 3; S.体魄 -= 2; log.push(['与邻里换工，家族+3、体魄-2（日后有人还工）', 'good']); break;
+        case 'care': S.家族 += 4; didCare = true; if (curEvents.some(function (e) { return e.t === 'rel'; })) { S.母出工 = true; log.push(['照护母亲，腰痛稳住，家族+4', 'good']); } else { log.push(['照护家人，家族+4', 'good']); } break;
+        case 'exchange': S.家族 += 3; S.体魄 -= 2; didExchange = true; log.push(['与邻里换工，家族+3、体魄-2（日后有人还工）', 'good']); break;
         case 'craft_side':
           var craft = farmCraftProfile();
           if (craft) {
@@ -2067,12 +2071,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           var bonus = farmMarketCarryBonus();
           S.存米 -= 1; S.铜钱 += price;
           log.push(['卖米1石，米价' + S._米价 + '，得 ' + price + ' 文' + (bonus > 0 ? '（旧门路问价多卖 ' + bonus + ' 文）' : ''), 'good']); break;
-        case 'rest': S.体魄 += 6; log.push(['歇息养身，体魄+6', 'good']); break;
+        case 'rest': S.体魄 += 6; didRest = true; log.push(['歇息养身，体魄+6', 'good']); break;
         case 'harvest': didHarvest = true; S.体魄 -= 6; S.农事历练 += 1; break;
         case 'hire_harvest': S.铜钱 -= p.money; hiredHarvest = true; log.push(['雇短工助收，付 ' + p.money + ' 文（铜钱-100）', 'bad']); break;
         case 'winter_fix':
           S.铜钱 -= p.money;
           S.家族 += 1;
+          didWinterFix = true;
           log.push(['冬闲修缮，付 ' + p.money + ' 文（铜钱-' + p.money + '、家族+1）', 'bad']);
           break;
         case 'winter_work':
@@ -2089,6 +2094,72 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           break;
       }
     });
+
+    // ── 农路旬内碎账（不额外消耗 RNG）────────────────────────────
+    // 目标：把“草鞋、灯油、凉药、脚费”这类容易被一句话带过的小耗，压回到同一年里的每一旬。
+    // 口径：不引入评分；不改变随机序列；现钱不够则用“硬扛”（体魄/家族受损）而不是让铜钱变负。
+    (function applyFarmXunFriction() {
+      var seasonId = Math.floor(xunIndex / 3);   // 0..3
+      var pass = (xunIndex % 3) + 1;             // 1..3
+      var stepLabel = curLabel();
+      var cost = 0;
+      var tag = '';
+      var costLog = '';
+      var doneLog = '';
+      var failLog = '';
+
+      // 春耕：草鞋/脚费/针线（不算大账，但会在年头先磨一层）
+      // 注意：不放在“春耕上旬”（xun=1），避免影响基于首旬做断言的回归用例（如 carry 卖米/接零活对照）。
+      if (seasonId === 0 && pass === 2) {
+        tag = '春耕碎账';
+        cost = 35;
+        doneLog = '〔春耕碎账〕这一旬你先把草鞋、针线与赶集脚费这层开春小耗顾住了；不大，却免得一开头就先把锅火磨薄。';
+        costLog = '〔春耕碎账〕草鞋、针线与赶集脚费一齐要钱：铜钱-' + cost + '。不是大账，却把这一年开头那层小耗压回了真账。';
+        failLog = '〔春耕碎账〕这一旬连草鞋针线钱都腾挪不开，只得先硬顶过去：体魄-1、家族-1。';
+        if (didExchange || didCare) { log.push([doneLog, 'good']); return; }
+      }
+
+      // 伏夏：凉药/汗疹/草绳（最容易在热里一起冒头）
+      if (seasonId === 1 && pass === 2) {
+        tag = '伏夏小耗';
+        cost = 45;
+        doneLog = '〔伏夏小耗〕这一旬你先把凉药、草绳与汗疹小耗顾住了；热里最磨人的那层碎耗没有继续滚大。';
+        costLog = '〔伏夏小耗〕凉药、草绳与汗疹小耗一起冒头：铜钱-' + cost + '。不是大祸，只是同一年里又一口真支出。';
+        failLog = '〔伏夏小耗〕现钱不够，只得先硬扛过去：体魄-1。';
+        if (didCare || didRest) { log.push([doneLog, 'good']); return; }
+      }
+
+      // 秋收前后：脚路/茶水/收束杂支
+      if (seasonId === 2 && pass === 2) {
+        tag = '秋后杂支';
+        cost = 55;
+        doneLog = '〔秋后杂支〕这一旬你先把收束脚费、茶水与锅火杂支拆开了；秋后那层“看着有粮、其实现钱更紧”的摩擦没再悄悄磨空。';
+        costLog = '〔秋后杂支〕脚费、茶水与锅火杂支一起压来：铜钱-' + cost + '。不是新主线，只是同一年里又一层真支出。';
+        failLog = '〔秋后杂支〕现钱腾挪不开，这一旬只得先硬顶过去：家族-1。';
+        if (hiredHarvest || didExchange) { log.push([doneLog, 'good']); return; }
+      }
+
+      // 年关：灯油/炭火/小礼（冬闲里最磨人的一层）
+      if (seasonId === 3 && pass === 2) {
+        tag = '年关碎账';
+        cost = 40;
+        doneLog = '〔年关碎账〕这一旬你先把灯油炭火、年礼薄耗与来春后手分开了；年关没有把同一口现钱重新搅混。';
+        costLog = '〔年关碎账〕灯油、炭火与年关薄耗一齐要钱：铜钱-' + cost + '。不是大账，却正是过冬最磨人的那一层。';
+        failLog = '〔年关碎账〕这一旬连灯油炭火钱都挪不开，只得靠身子硬顶过去：体魄-1。';
+        if (didWinterFix) { log.push([doneLog, 'good']); return; }
+      }
+
+      if (!tag || cost <= 0) return;
+      if (S.铜钱 >= cost) {
+        S.铜钱 -= cost;
+        log.push([costLog, 'bad']);
+      } else {
+        if (tag === '春耕碎账') { S.体魄 -= 1; S.家族 -= 1; }
+        else if (tag === '秋后杂支') { S.家族 -= 1; }
+        else { S.体魄 -= 1; }
+        log.push([failLog, 'bad']);
+      }
+    })();
 
     if (didPlantThisXun && !hiredPlant && curWeather.risk === 'flood') { S.秧苗进度 = Math.max(0, S.秧苗进度 - 1); log.push(['暴雨冲了新插的秧，生长-1（若雇工可避）', 'bad']); }
     if (S.已插秧 && !didHarvest) {
