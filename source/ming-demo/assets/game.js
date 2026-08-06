@@ -2622,6 +2622,17 @@
           A.push({ id: 'w_short', name: season.id === 'winter' ? '再接一口冬闲零工' : (season.id === 'autumn' ? '趁旺市再抢一口工' : '再接一口短工'), cost: 1, eff: '铜钱+' + seasonalShort + '·体魄-' + seasonalShortBody, desc: season.id === 'autumn' ? '秋里这一旬再抢一口旺工，把现钱尽量拢厚。' : '先把这一旬的散钱再拢一点回来。', can: true });
           A.push({ id: 'w_market', name: season.id === 'winter' ? '趁集跑腿问价' : '趁集跑脚问价', cost: 1, eff: market.effect, desc: market.desc, can: true, once: true });
           A.push({ id: 'w_send', name: season.id === 'autumn' ? '把钱粮先贴回家' : '把一点现钱贴回家', cost: 1, eff: support.effect, desc: support.desc, can: S.铜钱 >= support.copperCost, why: S.铜钱 >= support.copperCost ? '' : ('铜钱不足' + support.copperCost + '文'), once: true });
+          var teaCost = season.id === 'winter' ? 50 : 40;
+          A.push({
+            id: 'w_tea',
+            name: season.id === 'winter' ? '给工头备茶水' : '请工头吃茶续熟口',
+            cost: 1,
+            eff: '铜钱-' + teaCost + '·城里门路+1(封顶2)·家族+1',
+            desc: '工棚与乡里不是只靠“干得多”。一口茶水钱把熟口续住，日后外出落脚、找工头、跑脚问价都不至两眼一抹黑。',
+            can: S.铜钱 >= teaCost,
+            why: S.铜钱 >= teaCost ? '' : ('铜钱不足' + teaCost + '文'),
+            once: true
+          });
           A.push({ id: 'w_home', name: season.id === 'autumn' ? '回乡搭手收尾' : '抽身回家看父', cost: 1, eff: '家族+' + homeFamily + (homeRice > 0 ? '·存米+1' : ''), desc: season.id === 'autumn' ? '秋收中旬抽身回去搭手，虽少一旬现钱，却让米缸和家里气顺些。' : '先回去照看父兄与家里火头，把这一旬的人情账稳住。', can: true, once: true });
           A.push({ id: 'w_skill', name: '再挪一旬学活', cost: 1, eff: skill.effect, desc: skill.desc, can: true });
           A.push({ id: 'w_book', name: season.id === 'winter' ? '替人补一轮账' : '再替人核一轮账', cost: 1, eff: bookkeeping.effect, desc: bookkeeping.desc, can: S.识字, why: S.识字 ? '' : '尚不识字', once: true });
@@ -2702,6 +2713,17 @@
               S.铜钱 += market.copper; S.体魄 -= market.body;
               pushWageSeasonTag(season.name + xunLabel + '市集跑脚');
               log.push(['趁集跑脚问价：铜钱+' + market.copper + '、体魄-' + market.body + ((S.城里门路 || 0) > 0 ? '（旧熟口让你接脚更快）' : ''), 'good']);
+              break;
+            case 'w_tea':
+              var teaCost = season.id === 'winter' ? 50 : 40;
+              if (spendCopper(teaCost)) {
+                S.城里门路 = Math.min(2, (S.城里门路 || 0) + 1);
+                S.家族 += 1;
+                pushWageSeasonTag(season.name + xunLabel + '茶水熟口');
+                log.push(['请工头吃茶续熟口：铜钱-' + teaCost + '、城里门路+1、家族+1。钱不多，却把“下回外出不吃生”的路数先续住。', 'good']);
+              } else {
+                log.push(['想续熟口，但这一旬铜钱已先被别处占住，只得作罢。', 'bad']);
+              }
               break;
             case 'w_send':
               if (spendCopper(support.copperCost)) {
