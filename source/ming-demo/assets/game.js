@@ -52,6 +52,14 @@
     { id: 'autumn', name: '秋定租', note: '秋后租谷、差钱、供读与乡里人情一起逼近，要把“这一房怎么过下去”先拆成几本账。', actionLead: '秋里最像“看着总算有回钱，实际更要赶紧拆账”的时候。租谷、差役、孩子来年读不读，都开始跟这一房的现银直接碰账。 ' },
     { id: 'winter', name: '冬应役', note: '年关前后真正轮到应役时，前面留没留后手、账有没有先分开，就都会现形。', actionLead: '冬里不是只掷一次“会不会破家”的骰。前头整年没先留住的租谷、旧账、供读和代役银，到这里都会一起反咬回来。 ' }
   ];
+  // ── 老年（养老）年内节奏：四季拆账（不额外耗 RNG，便于回放锁定）──
+  // 目标：让“养老”不再只是一次性年末结算，而是在同一年里继续被“医药/口食田/诸子奉养/旧识照应/旧账”这些细账反复咬住。
+  var ELDER_SEASONS = [
+    { id: 'spring', name: '春安顿', note: '春里先把谁来照看、谁来出米、口食田租谷怎么收说清。', actionLead: '老来最怕的不是没吃的，而是“该谁出、怎么出”一直说不定。春里先坐实一回，后面才不至旬旬扯皮。 ' },
+    { id: 'summer', name: '夏将养', note: '伏夏最伤人，热病、旧伤与药钱往往一起冒头。', actionLead: '夏里最像“身子先垮还是钱先垮”的两难：躲热要花钱，将养不够又要花身子。 ' },
+    { id: 'autumn', name: '秋结租', note: '秋后该收的租谷与该清的旧账一起到眼前。', actionLead: '秋里最怕把“田还在”误当成“口粮自然回”。租谷要人去收、账要人去催，缺一步就会落成空话。 ' },
+    { id: 'winter', name: '冬收束', note: '年关把灯油炭火、年礼薄耗与来春后手一并压来。', actionLead: '冬里看着像歇，其实是把一年里欠下与预留的那些小账翻出来见光；不先收束，下一年只会更薄。 ' }
+  ];
   var APPRENTICE_YEARS = 3; // 成丁后入城学徒的学年数（16→18岁）
   var MERCHANT_YEARS = 3;   // 成丁后学生意的商年数（16→18岁）
   var EXAM_YEARS = 3;       // 成丁后读书应举的举业年数（16→18岁）
@@ -202,6 +210,9 @@
       // 当户样板：先把商路的“中年当户”拆成四季三旬，让分家、催账、委托田面与应役在同一年里分段落账
       户季: 1, 户旬: 1, 本年户核账: 0, 本年户催账: 0, 本年户备役: 0, 本年户通融: 0, 本年户委托: 0, 本年户供读: 0, 本年户季务: [],
       委托营生: '无', 委托租谷: 0, 委托待收租谷: 0, 最近农闲营生层级: '未定', 最近农闲营生收益: 0,
+      // 养老阶段：按四季推进（同一年内继续拆账），避免“老年只点一次就结算”
+      老季: 1, 本年养老协商: 0, 本年养老收租: 0, 本年养老卖田: 0, 本年养老医药: 0, 本年养老守田: 0, 本年养老旧识: 0, 本年养老季务: [],
+      _advanceElderSeason: false,
       // 代际承接字段（不直接折现，只改变下一代入口分布）
       父辈路线: '未定', 承继身份: '次子', 承嗣来路: '本支次子承继', 承继定位: '本房次子另起一手', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0,
       _farmLegacyApplied: false, _wageLegacyApplied: false, _apprenticeLegacyApplied: false, _merchantLegacyApplied: false, _examLegacyApplied: false,
@@ -1164,6 +1175,10 @@
     var i = Math.max(1, Math.min(3, Number(index) || 1)) - 1;
     return XUN[i];
   }
+  function elderSeasonInfo(index) {
+    var i = Math.max(1, Math.min(ELDER_SEASONS.length, index || 1)) - 1;
+    return ELDER_SEASONS[i];
+  }
   function pushFamilySeasonTag(tag) {
     if (!tag) return;
     if (!S.本年家季务) S.本年家季务 = [];
@@ -1173,6 +1188,11 @@
     if (!tag) return;
     if (!S.本年户季务) S.本年户季务 = [];
     if (S.本年户季务.indexOf(tag) < 0) S.本年户季务.push(tag);
+  }
+  function pushElderSeasonTag(tag) {
+    if (!tag) return;
+    if (!S.本年养老季务) S.本年养老季务 = [];
+    if (S.本年养老季务.indexOf(tag) < 0) S.本年养老季务.push(tag);
   }
   function applySeasonalMerchantFriction(log, stepLabel, season, xun, picked) {
     function hasPicked(ids) {
@@ -1296,6 +1316,16 @@
     S.本年家人情借 = 0;
     S.本年家人情收 = 0;
     S.本年家季务 = [];
+  }
+  function resetElderYearLedger() {
+    S.老季 = 1;
+    S.本年养老协商 = 0;
+    S.本年养老收租 = 0;
+    S.本年养老卖田 = 0;
+    S.本年养老医药 = 0;
+    S.本年养老守田 = 0;
+    S.本年养老旧识 = 0;
+    S.本年养老季务 = [];
   }
   function resetHouseholdYearLedger() {
     S.户季 = 1;
@@ -2174,6 +2204,27 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // 养老阶段：四季推进（同一年内拆账），避免“老年只点一次就结算”
+  function enterElder() {
+    phase = 'elder';
+    if (S._advanceElderSeason) {
+      S.老季 = Math.min(ELDER_SEASONS.length, (S.老季 || 1) + 1);
+      S._advanceElderSeason = false;
+    } else if (!S.老季 || S.老季 < 1) {
+      resetElderYearLedger();
+    }
+    S.年龄 = currentLifeProfile().elderAge;
+    picks = []; resolved = null; lifePicks = [];
+    curStage = stageElder();
+    tracePhase('enter:elder');
+    if (S.老季 === 1) {
+      recordEntry('步入老年·' + elderSeasonInfo(S.老季).name, snapshot(),
+        '人到五十上下，身子与家计都开始显出另一层“细账”：奉养要谈、医药要花、口食田要收、旧识要维。养老不再只是一跳跳过，而是照着一年四季继续过账。');
+    }
+    renderStatus(); renderLifeStage(); renderLedger();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   // ═══════════════ 人生阶段决策机 ═══════════════
   // 人生阶段行动点循环所用的临时状态（成家/当户/养老已升级为多维循环）
   var lifePicks = [];
@@ -2233,7 +2284,11 @@
       if (prevPhase !== 'household' && usesSeasonalHouseholdRhythm()) resetHouseholdYearLedger();
       curStage = stageHousehold();
     }
-    else if (p === 'elder') { S.年龄 = currentLifeProfile().elderAge; curStage = stageElder(); }
+    else if (p === 'elder') {
+      if (prevPhase !== 'elder') resetElderYearLedger();
+      enterElder();
+      return;
+    }
     else if (p === 'death') { S.年龄 = S._deathAge || 58; curStage = stageDeath(); }
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -7812,35 +7867,120 @@
     return pack;
   }
 
-  // ── 养老：多维行动点循环 —— 与诸子协商奉养，逐人记账 ──
+  // ── 养老：拆成四季（春安顿/夏将养/秋结租/冬收束），让老年也有同年节奏 ──
   function stageElder() {
     var ep = elderRoutePack();
-    var events = [{ t: 'rel', tag: '[养老]', txt: S.子数 > 0 ? '诸子就"谁出米、谁出工"各持立场——他们也有自己的妻儿要养，奉养须双方同意、镜像入各自账本。' : '无子可依，只能靠口食田薄租、自身积蓄，或变卖田产。' }];
+    var seasonIdx = Math.max(1, Math.min(ELDER_SEASONS.length, S.老季 || 1));
+    var season = elderSeasonInfo(seasonIdx);
+    var nextSeason = elderSeasonInfo(Math.min(ELDER_SEASONS.length, seasonIdx + 1));
+    var isYearEnd = (season.id === 'winter');
+
+    var events = [
+      { t: 'rel', tag: '[季节]', txt: season.note + ' ' + season.actionLead },
+      { t: 'rel', tag: '[养老]', txt: S.子数 > 0 ? '诸子就"谁出米、谁出工"各持立场——他们也有自己的妻儿要养，奉养须双方同意、镜像入各自账本。' : '无子可依，只能靠口食田薄租、自身积蓄，或变卖田产。' }
+    ];
     if (ep.event) events.push(ep.event);
+
     return {
-      title: '养老', label: '养老', next: 'death', nextLabel: '走向人生终点 →',
-      ap: 3, commitLabel: '安顿晚景 →',
-      note: '功能容量随龄下降，劳作让位于休息医药。奉养是与诸子协商的结果、不是默认义务——你提，儿子未必都应；识字/家族声望影响协商的成算，逐人镜像入账。〔机制事实，标准为占位〕' + (ep.note ? ' ' + ep.note : ''),
-      narrative: '你已<span class="em">' + S.年龄 + '岁</span>，在明代平民已属高寿门槛。身子大不如前，' + (S.子数 > 0 ? '育有 ' + S.子数 + ' 子，可商议轮养——但奉养多寡是协商出来的。' : '膝下无育成之子，养老无所依，只能靠口食田与积蓄。') + '这一程 <span class="em">3 个行动点</span>安顿晚景。你年轻时走的那条路，此时会变成旧识、旧账、名色和体面。', 
-      dossier: function () { return lifeDossier((S.子数 > 0 ? ('诸子 ' + S.子数 + ' 人各有小家，是否足额奉养要看协商成算（家族声望↑更顺）。') : '无子可依，奉养这条路走不通，须自筹。') + (ep.dossier ? '｜' + ep.dossier : '')); },
+      title: '养老·' + season.name,
+      label: '养老',
+      next: isYearEnd ? 'death' : 'elder',
+      nextLabel: isYearEnd ? '走向人生终点 →' : ('转入' + nextSeason.name + ' →'),
+      ap: (season.id === 'winter' ? 3 : 2),
+      commitLabel: '了这一季养老账 →',
+      note: '功能容量随龄下降，劳作让位于休息医药。奉养是与诸子协商的结果、不是默认义务；口食田与委托田租要靠人去收，旧识照应也要靠钱去维。〔机制事实，标准为占位〕' + (ep.note ? ' ' + ep.note : ''),
+      narrative: '你已<span class="em">' + S.年龄 + '岁</span>。这一季是<span class="em">' + season.name + '</span>，这一程 <span class="em">' + (season.id === 'winter' ? 3 : 2) + ' 个行动点</span>，仍要把奉养、医药、租谷与年关后手一笔笔拆开过。你年轻时走的那条路，此时会变成旧识、旧账、名色和体面。',
+      dossier: function () {
+        var seasonFoot = '｜老季=' + season.name + '｜本年养老季务=' + ((S.本年养老季务 || []).length);
+        return lifeDossier((S.子数 > 0 ? ('诸子 ' + S.子数 + ' 人各有小家，奉养多寡要看协商成算。') : '无子可依，奉养这条路走不通，须自筹。') + (ep.dossier ? '｜' + ep.dossier : '') + seasonFoot);
+      },
       events: events,
-      prompt: '如何安顿晚年？（分配 3 点）',
+      prompt: season.name + '怎么过？（分配 ' + (season.id === 'winter' ? 3 : 2) + ' 点）',
       actions: function () {
         var A = [];
-        A.push({ id: 'e_negotiate', name: '与诸子协商轮养', cost: 2, eff: S.子数 > 0 ? '按成算得诸子供养·家族+' : '（无子·此路不通）', desc: '召集诸子议定谁出米谁出工——他们可应可辞。', can: S.子数 > 0, why: S.子数 > 0 ? '' : '膝下无育成之子', once: true, prob: S.子数 > 0 ? '足额 / 半额 / 只象征奉养' : '' });
-        A.push({ id: 'e_sell', name: '变卖田产养老', cost: 1, eff: '田-1亩·白银+2·存米+2', desc: '换现钱防身，但下一代可分田减少。', can: S.田亩 >= 2, why: S.田亩 >= 2 ? '' : '需田产≥2亩', once: true });
-        A.push({ id: 'e_rent', name: '收口食田薄租', cost: 1, eff: '存米+' + (2 + (S.委托待收租谷 || 0)) + '（口食田' + ((S.委托待收租谷 || 0) > 0 ? '+待收委托田租' : '') + '）', desc: '当年立户分得的养老田，加上若早年已把薄田委托出佃/代管、尚有待收租谷，此时一并结回养老账。', can: S.口食田 > 0 || S.委托待收租谷 > 0, why: (S.口食田 > 0 || S.委托待收租谷 > 0) ? '' : '眼下无可收租谷', once: true });
-        A.push({ id: 'e_med', name: '延医问药·调养', cost: 1, eff: '铜钱-500·体魄+8', desc: '花钱请郎中调养，延一延寿数。', can: S.铜钱 >= 500, why: S.铜钱 >= 500 ? '' : '铜钱不足500文' });
-        ep.extraActions.forEach(function (x) { A.push(x); });
+        var canNegotiate = (season.id === 'spring') && S.子数 > 0 && (S.本年养老协商 || 0) <= 0;
+        A.push({
+          id: 'e_negotiate',
+          name: '与诸子协商轮养',
+          cost: 2,
+          eff: S.子数 > 0 ? '按成算得诸子供养·家族+' : '（无子·此路不通）',
+          desc: '召集诸子议定谁出米谁出工——他们可应可辞。春里先说清，后头才不至旬旬扯皮。',
+          can: canNegotiate,
+          why: S.子数 <= 0 ? '膝下无育成之子' : ((season.id !== 'spring') ? '这一季不便召集诸子议定轮养' : '本年已议定过轮养'),
+          once: true,
+          prob: S.子数 > 0 ? '足额 / 半额 / 只象征奉养' : ''
+        });
+        A.push({
+          id: 'e_med',
+          name: '延医问药·调养',
+          cost: 1,
+          eff: '铜钱-500·体魄+8',
+          desc: '伏夏最伤人，花钱请郎中调养，先把这口气续住。',
+          can: (season.id === 'summer') && (S.本年养老医药 || 0) <= 0 && S.铜钱 >= 500,
+          why: (season.id !== 'summer') ? '这一季不急着动大药钱' : ((S.本年养老医药 || 0) > 0 ? '本年已延医问药过' : '铜钱不足500文'),
+          once: true
+        });
+        A.push({
+          id: 'e_rent',
+          name: '收口食田薄租',
+          cost: 1,
+          eff: '存米+' + (2 + (S.委托待收租谷 || 0)) + '（口食田' + ((S.委托待收租谷 || 0) > 0 ? '+待收委托田租' : '') + '）',
+          desc: '秋后把口食田与委托田租一并结回养老账。田在名下不等于租谷自然回，得亲手去收。',
+          can: (season.id === 'autumn') && (S.本年养老收租 || 0) <= 0 && (S.口食田 > 0 || S.委托待收租谷 > 0),
+          why: (season.id !== 'autumn') ? '这一季不便跑租谷' : (((S.本年养老收租 || 0) > 0) ? '本年已收过租谷' : '眼下无可收租谷'),
+          once: true
+        });
+        A.push({
+          id: 'e_sell',
+          name: '变卖田产养老',
+          cost: 1,
+          eff: '田-1亩·白银+2·存米+2',
+          desc: '年关把现钱与口粮先换出一口防身的后手，但下一代可分田减少。',
+          can: (season.id === 'winter') && (S.本年养老卖田 || 0) <= 0 && S.田亩 >= 2,
+          why: (season.id !== 'winter') ? '这一季不宜轻动田契' : (((S.本年养老卖田 || 0) > 0) ? '本年已卖过田' : '需田产≥2亩'),
+          once: true
+        });
+
+        // 路线附加动作：按季节与“本年仅一次”约束
+        ep.extraActions.forEach(function (x) {
+          var a = {};
+          Object.keys(x).forEach(function (k) { a[k] = x[k]; });
+          if (a.id === 'e_field_keep') {
+            a.can = a.can !== false
+              && (season.id === 'spring' || season.id === 'summer')
+              && (S.本年养老守田 || 0) <= 0
+              && S.田亩 > 0;
+            a.why = (S.田亩 <= 0) ? '眼下已无田面可守'
+              : ((S.本年养老守田 || 0) > 0 ? '本年已守过一回薄田' : '这一季不宜再硬扛田头');
+            a.once = true;
+          } else if (a.id === 'e_city') {
+            a.can = (season.id === 'spring') && (S.本年养老旧识 || 0) <= 0;
+            a.why = (season.id !== 'spring') ? '这一季不便跑城里旧识' : ((S.本年养老旧识 || 0) > 0 ? '本年已托过旧识' : '');
+            a.once = true;
+          } else if (a.id === 'e_collect_old') {
+            a.can = (season.id === 'autumn') && (S.本年养老旧识 || 0) <= 0 && (S.未回款银 || 0) > 0;
+            a.why = (season.id !== 'autumn') ? '这一季不便催旧账' : (((S.本年养老旧识 || 0) > 0) ? '本年已催过旧账' : ((S.未回款银 || 0) > 0 ? '' : '眼下无旧账可催'));
+            a.once = true;
+          } else if (a.id === 'e_write_old') {
+            a.can = (season.id === 'spring' || season.id === 'winter') && (S.本年养老旧识 || 0) <= 0;
+            a.why = (!(season.id === 'spring' || season.id === 'winter')) ? '这一季不便出门代书' : ((S.本年养老旧识 || 0) > 0 ? '本年已凭笔墨换过照应' : '');
+            a.once = true;
+          }
+          A.push(a);
+        });
+
         A.push({ id: 'e_rest', name: '静养含饴', cost: 1, eff: '体魄+4·家族+2', desc: '不再劳作，含饴弄孙，安养身心。', can: true });
         return A;
       },
       settle: function (log) {
-        var didProvide = false;
+        var picked = {};
+        lifePicks.forEach(function (p) { picked[p.id] = true; });
+
         lifePicks.forEach(function (p) {
           switch (p.id) {
-            case 'e_negotiate':
-              didProvide = true;
+            case 'e_negotiate': {
+              S.本年养老协商 = 1;
+              pushElderSeasonTag(season.name + '·议轮养');
               var base = 0.30 + (S.家族 >= 65 ? 0.25 : 0.10) + (S.识字 ? 0.10 : 0) + ep.negotiateAdj;
               base = Math.min(0.9, base);
               var out = rollProb([{ p: base, r: 'full' }, { p: (1 - base) * 0.6, r: 'half' }, { p: (1 - base) * 0.4, r: 'token' }]);
@@ -7848,44 +7988,106 @@
               else if (out === 'half') { var m2 = S.子数; S.存米 += m2; S.家族 += 3; log.push(['〔各有难处〕诸子只能半额奉养：存米+' + m2 + '、家族+3', 'bad']); }
               else { S.存米 += 1; S.家族 -= 2; log.push(['〔诸子推辞〕只象征性奉养：存米+1、家族-2（他们也有自己的妻儿要养）', 'bad']); }
               break;
-            case 'e_sell': S.田亩 -= 1; S.白银 += 2; S.存米 += 2; log.push(['变卖田1亩养老：田-1、白银+2、存米+2（下一代起点降低）', 'bad']); break;
-            case 'e_field_keep':
-              var fieldGain = isFarmRouteState() ? 2 : 1;
-              S.存米 += fieldGain;
-              S.体魄 -= 1;
-              log.push([isFarmRouteState()
-                ? '守薄田慢慢收：自耕薄田仍替你收回口粮，存米+' + fieldGain + '、体魄-1'
-                : '守着薄田慢慢收：卖工出身的晚景终于还能靠自家田收一口饭，存米+' + fieldGain + '、体魄-1', 'good']);
+            }
+            case 'e_med':
+              if (S.本年养老医药 <= 0 && spendCopper(500)) {
+                S.本年养老医药 = 1;
+                S.体魄 += 8;
+                pushElderSeasonTag(season.name + '·延医问药');
+                log.push(['延医问药：铜钱-500、体魄+8（益寿）', 'good']);
+              } else {
+                log.push(['想延医问药，但这程现钱已先被别处占住，只得暂缓，免得把铜钱记成负数。', 'bad']);
+              }
               break;
-            case 'e_rent':
-              var rentGain = 2 + (S.委托待收租谷 || 0);
-              S.存米 += rentGain;
-              log.push(['收口食田薄租' + ((S.委托待收租谷 || 0) > 0 ? '并结委托田租' : '') + '：存米+' + rentGain, 'good']);
-              S.委托待收租谷 = 0;
+            case 'e_rent': {
+              if (S.本年养老收租 <= 0) {
+                S.本年养老收租 = 1;
+                var rentGain = 2 + (S.委托待收租谷 || 0);
+                S.存米 += rentGain;
+                pushElderSeasonTag(season.name + '·结租谷');
+                log.push(['收口食田薄租' + ((S.委托待收租谷 || 0) > 0 ? '并结委托田租' : '') + '：存米+' + rentGain, 'good']);
+                S.委托待收租谷 = 0;
+              }
               break;
-            case 'e_med': S.铜钱 = Math.max(0, S.铜钱 - 500); S.体魄 += 8; log.push(['延医问药：铜钱-500、体魄+8（益寿）', 'good']); break;
+            }
+            case 'e_sell':
+              if (S.本年养老卖田 <= 0 && S.田亩 >= 1) {
+                S.本年养老卖田 = 1;
+                S.田亩 -= 1; S.白银 += 2; S.存米 += 2;
+                pushElderSeasonTag(season.name + '·卖田');
+                log.push(['变卖田1亩养老：田-1、白银+2、存米+2（下一代起点降低）', 'bad']);
+              }
+              break;
+            case 'e_field_keep': {
+              if (S.本年养老守田 <= 0) {
+                S.本年养老守田 = 1;
+                var fieldGain = isFarmRouteState() ? 2 : 1;
+                S.存米 += fieldGain;
+                S.体魄 -= 1;
+                pushElderSeasonTag(season.name + '·守薄田');
+                log.push([isFarmRouteState()
+                  ? '守薄田慢慢收：自耕薄田仍替你收回口粮，存米+' + fieldGain + '、体魄-1'
+                  : '守着薄田慢慢收：卖工出身的晚景终于还能靠自家田收一口饭，存米+' + fieldGain + '、体魄-1', 'good']);
+              }
+              break;
+            }
             case 'e_city':
-              S.铜钱 += 180; S.家族 += 1;
-              log.push(['托城中旧识照应：铜钱+180、家族+1（老来还能吃到些年轻时攒下的门路）', 'good']);
+              if (S.本年养老旧识 <= 0) {
+                S.本年养老旧识 = 1;
+                S.铜钱 += 180; S.家族 += 1;
+                pushElderSeasonTag(season.name + '·托旧识');
+                log.push(['托城中旧识照应：铜钱+180、家族+1（老来还能吃到些年轻时攒下的门路）', 'good']);
+              }
               break;
-            case 'e_collect_old':
-              var oldOwed = S.未回款银;
-              var oldGot = Math.max(1, Math.ceil(oldOwed * 0.5));
-              var oldLost = Math.max(0, oldOwed - oldGot);
-              S.白银 += oldGot; S.未回款银 = 0; if (oldLost > 0) S.商路亏折 += oldLost;
-              log.push(['催回商路旧账：未回款' + oldOwed + '两里先收回白银+' + oldGot + (oldLost > 0 ? '，仍有' + oldLost + '两收不齐' : '') + '。', 'good']);
+            case 'e_collect_old': {
+              if (S.本年养老旧识 <= 0) {
+                S.本年养老旧识 = 1;
+                var oldOwed = S.未回款银;
+                var oldGot = Math.max(1, Math.ceil(oldOwed * 0.5));
+                var oldLost = Math.max(0, oldOwed - oldGot);
+                S.白银 += oldGot; S.未回款银 = 0; if (oldLost > 0) S.商路亏折 += oldLost;
+                pushElderSeasonTag(season.name + '·催旧账');
+                log.push(['催回商路旧账：未回款' + oldOwed + '两里先收回白银+' + oldGot + (oldLost > 0 ? '，仍有' + oldLost + '两收不齐' : '') + '。', 'good']);
+              }
               break;
+            }
             case 'e_write_old':
-              S.铜钱 += 120; S.家族 += 2;
-              log.push(['凭笔墨换照应：铜钱+120、家族+2（老来体面仍能换一点活路）', 'good']);
+              if (S.本年养老旧识 <= 0) {
+                S.本年养老旧识 = 1;
+                S.铜钱 += 120; S.家族 += 2;
+                pushElderSeasonTag(season.name + '·凭笔墨');
+                log.push(['凭笔墨换照应：铜钱+120、家族+2（老来体面仍能换一点活路）', 'good']);
+              }
               break;
-            case 'e_rest': S.体魄 += 4; S.家族 += 2; log.push(['静养含饴：体魄+4、家族+2', 'good']); break;
+            case 'e_rest':
+              S.体魄 += 4; S.家族 += 2;
+              pushElderSeasonTag(season.name + '·静养');
+              log.push(['静养含饴：体魄+4、家族+2', 'good']);
+              break;
           }
         });
-        S.体魄 -= 4; // 自然衰老
-        if (!didProvide && S.子数 > 0) log.push(['这一程未与诸子协商奉养——晚景多靠自筹', 'bad']);
-        if (S.子数 === 0 && !lifePicks.some(function (p) { return p.id === 'e_sell' || p.id === 'e_rent'; })) log.push(['无子无进项，晚景清苦，体魄再-4', 'bad']), S.体魄 -= 4;
-        log.push(['岁月不居，自然衰老：体魄-4', 'bad']);
+
+        // 夏季额外磨损：若既不延医也不静养，热耗会多啃一口
+        if (season.id === 'summer' && !picked.e_med && !picked.e_rest) {
+          S.体魄 -= 1;
+          pushElderSeasonTag(season.name + '·伏夏硬扛');
+          log.push(['〔伏夏硬扛〕这一季既没舍得动药钱也没能静养，伏夏热耗更重：体魄-1', 'bad']);
+        }
+
+        // 每季自然衰老（全年合计约 -4，不额外耗 RNG）
+        S.体魄 -= 1;
+        log.push(['岁月不居：这一季自然衰老，体魄-1', 'bad']);
+
+        // 关键季节未做要紧事的提醒（不强制扣分，只让因果更可读）
+        if (season.id === 'spring' && S.子数 > 0 && (S.本年养老协商 || 0) <= 0) log.push(['春里未议定轮养，后头更容易旬旬扯皮（不评分，只记因果）。', 'bad']);
+        if (season.id === 'autumn' && (S.口食田 > 0 || (S.委托待收租谷 || 0) > 0) && (S.本年养老收租 || 0) <= 0) log.push(['秋后未结租谷，口粮更容易落成“田在名下却空转”。', 'bad']);
+        if (S.子数 === 0 && !picked.e_sell && !picked.e_rent && !picked.e_rest && season.id === 'winter') {
+          S.体魄 -= 1;
+          log.push(['无子无进项，这一年冬终仍未换出一口后手，晚景更清苦：体魄-1', 'bad']);
+        }
+
+        // 推进到下一季
+        if (!isYearEnd) S._advanceElderSeason = true;
       }
     };
   }
