@@ -1173,7 +1173,7 @@
       }
     }
     if (season.id === 'summer' && xun === 2) apply({
-      handledIds: ['a_book', 'a_run', 'a_mend', 'a_rest'],
+      handledIds: ['a_book', 'a_run', 'a_mend', 'a_supply', 'a_rest'],
       doneTag: '伏夏零耗已顾',
       doneLog: '〔伏夏零耗〕这一旬先把铺里茶汤、脚夫点心、汗药针线与回乡带话的小脚费顾住了；学徒路这层“人在铺里、钱却一丝丝漏掉”的磨损没有继续滚大。',
       cost: 35,
@@ -1197,7 +1197,7 @@
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 1) apply({
-      handledIds: ['a_book', 'a_send', 'a_mend', 'a_rest'],
+      handledIds: ['a_book', 'a_send', 'a_mend', 'a_supply', 'a_rest'],
       doneTag: '年关铺耗已分',
       doneLog: '〔年关铺耗〕年关里旧掌柜的薄礼、回铺脚路、灯油针线与来春头程小脚费已被你先分开；学徒路这层门路没有在年关忽然断掉。',
       cost: 40,
@@ -3471,6 +3471,23 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         A.push({ id: 'a_home', name: season.id === 'winter' ? '回乡归省帮父' : (season.id === 'autumn' ? '回乡缓一口家计' : '回乡帮父应急'), cost: 1, eff: '家族+3·存米+1', desc: season.id === 'autumn' ? '秋里回去搭一口，铺里少上一旬工，家里却能少慌一阵。' : '店里少上一旬工，家里却稳一些。', can: true, once: true });
         A.push({ id: 'a_reserve', name: '先留一角差役钱', cost: 1, eff: '铜钱-60·年关差役更稳', desc: '先把一点现钱从手边扣出来，免得年关本户轮到差役时再临时拆账。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
         A.push({ id: 'a_mend', name: season.id === 'winter' ? '添棉衣买药' : '补鞋买药养身', cost: 1, eff: '铜钱-' + mendCost + '·体魄+' + (season.id === 'winter' ? 6 : 4), desc: season.id === 'winter' ? '入冬后不添棉衣不买药，年关前后最容易把身子熬坏。' : '鞋底药钱看着零碎，不先补，后头跑街守柜都要多吃亏。', can: S.铜钱 >= mendCost, why: S.铜钱 >= mendCost ? '' : ('铜钱不足' + mendCost + '文'), once: true });
+        // 让“伏夏/年关”的小耗多一条主动处理口：不加随机、不加评分，只把同一年里会冒头的零碎账摊回这一旬。
+        if ((season.id === 'summer' && xun === 2) || (season.id === 'winter' && xun === 1)) {
+          var supplyCost = season.id === 'summer' ? 40 : 35;
+          var supplyEff = '铜钱-' + supplyCost + '·衣药+1·信任+1';
+          A.push({
+            id: 'a_supply',
+            name: season.id === 'summer' ? '先备茶汤汗药针线' : '先备灯油针线与薄礼',
+            cost: 1,
+            eff: supplyEff,
+            desc: season.id === 'summer'
+              ? '伏夏里最容易被一句“不过几文”带过的，就是茶汤、汗药、针线和零碎脚费。先把这一口小钱备出来，后头不至热里一乱就全靠硬扛。'
+              : '年关里灯油、针线和掌柜薄礼都不是大账，却会把“铺里还认不认你”这层门路一点点磨薄。先备一口小钱，把这层碎账先分明。',
+            can: S.铜钱 >= supplyCost,
+            why: S.铜钱 >= supplyCost ? '' : ('铜钱不足' + supplyCost + '文'),
+            once: true
+          });
+        }
         A.push({
           id: 'a_keep', name: '第三年议留店', cost: 1, eff: '年末判留店去向', desc: '到了第三年，试着问问能不能留下做伙计。',
           can: isYearEnd && S.学年 === APPRENTICE_YEARS && S.学徒合同 === '已立据' && S.学徒授艺度 >= 2,
@@ -3582,6 +3599,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想补鞋买药，但这一旬铜钱不够，只能硬挨过去。', 'bad']);
               }
               break;
+            case 'a_supply': {
+              var supplyCost = season.id === 'summer' ? 40 : 35;
+              if (spendCopper(supplyCost)) {
+                S.本年学徒衣药 += 1;
+                S.学徒信任 += 1;
+                pushApprenticeSeasonTag(stepTag + '先备零耗');
+                log.push([season.id === 'summer'
+                  ? ('先备茶汤汗药针线：铜钱-' + supplyCost + '、衣药+1、信任+1。伏夏这层细耗不再只靠硬扛。')
+                  : ('先备灯油针线与薄礼：铜钱-' + supplyCost + '、衣药+1、信任+1。年关门面小账先分明，铺里这层熟面就不至忽然断。'), 'good']);
+              } else {
+                log.push(['想先把零耗备出来，但这一旬铜钱不够，只能暂缓。', 'bad']);
+              }
+              break;
+            }
             case 'a_keep':
               askedKeep = true;
               log.push(['你试着开口议留店：年末看师傅愿不愿意留你。', 'good']);
