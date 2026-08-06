@@ -8731,6 +8731,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             log.push(['〔行栈水脚〕这一旬连递话脚费与回程碎费都腾挪不开，只得先硬顶过去；熟号那层人情面又薄了一线（家族-1）。', 'bad']);
           }
         }
+        if (season.id === 'summer' && xun === 3) {
+          if (picked.h_wharf || picked.h_collect || picked.h_side || picked.h_literate || picked.h_rest) {
+            pushHouseholdSeasonTag(stepLabel + '夏尾账脚已压');
+            log.push(['〔夏尾账脚〕这一旬先把回话脚费、柜边包纸、锅火凉药和夏尾催账的小后手分开了；夏催账末尾不再把“账还在路上、家里却已先要过”混成同一口现钱。', 'good']);
+          } else if (spendCopper(45)) {
+            pushHouseholdSeasonTag(stepLabel + '夏尾账脚');
+            log.push(['〔夏尾账脚〕回话脚费、柜边包纸、锅火凉药和催账小门包一起要钱：铜钱-45。不是新主线，却正把商路当户夏尾那层行栈、家计与制度碎账重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '夏尾硬顶');
+            log.push(['〔夏尾账脚〕这一旬连回话脚费和锅火凉药都腾挪不开，只得先硬顶过去；夏里熟号与家里锅火两头都更难替这一房接气了（家族-1）。', 'bad']);
+          }
+        }
         if (season.id === 'autumn' && xun === 1) {
           if (picked.h_wharf || picked.h_collect || picked.h_pay || picked.h_school_fund || picked.h_trust_field || picked.h_side) {
             pushHouseholdSeasonTag(stepLabel + '秋路牙税已拆');
@@ -8755,6 +8768,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushHouseholdSeasonTag(stepLabel + '秋锅火硬顶');
             log.push(['〔秋路锅火〕这一旬连锅火和递话脚费都腾挪不开，只得先硬顶过去；秋里家里与熟号两头都更难替这一房说话了（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'autumn' && xun === 3) {
+          if (picked.h_pay || picked.h_collect || picked.h_school_fund || picked.h_side || picked.h_rest) {
+            pushHouseholdSeasonTag(stepLabel + '秋尾回话已留');
+            log.push(['〔秋尾回话〕这一旬先把差票回话、催单脚费、锅火碎用和供读纸包后手分开了；秋钱看着要回到手时，末尾这层制度与家用小耗没有再悄悄把它吃空。', 'good']);
+          } else if (spendCopper(50)) {
+            pushHouseholdSeasonTag(stepLabel + '秋尾回话');
+            log.push(['〔秋尾回话〕差票回话、催单脚费、锅火碎用和供读纸包后手一起要钱：铜钱-50。不是新主线，却正把商路当户秋尾那层“钱将回未回、账先撞上”的摩擦重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '秋尾硬顶');
+            log.push(['〔秋尾回话〕这一旬连催单脚费和锅火小耗都腾挪不开，只得先硬顶过去；秋后熟号与乡里两头都更难替这一房回话了（家族-1）。', 'bad']);
           }
         }
         if (season.id === 'spring' && xun === 2) {
