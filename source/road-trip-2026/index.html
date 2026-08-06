@@ -192,6 +192,8 @@ sup a:hover{text-decoration:underline;}
       <a href="#budget">费用预算</a>
       <a href="#booking">预约提醒</a>
       <a href="#execution">执行清单</a>
+      <a href="#shopping">装备采购</a>
+      <a href="#research-method">做功课</a>
       <a href="#packing">出行清单</a>
       <a href="#camper">床车参考</a>
       <a href="#prep">行前准备</a>
@@ -1424,18 +1426,20 @@ flowchart LR
     <table>
       <thead><tr><th>节点</th><th>默认住法</th><th>默认优先</th><th>当前公开价格快照</th><th>我为什么这么选</th></tr></thead>
       <tbody>
-        <tr><td><strong>张掖</strong></td><td>市区或高速下口附近，停车方便</td><td>默认住市区可退型商务酒店</td><td>城市恢复节点，价格不锁死，以临出发前可退价为准</td><td>这晚只是过渡，不需要为“景观房”付费</td></tr>
-        <tr><td><strong>敦煌</strong></td><td>市区内，靠近博物馆/吃饭方便区</td><td>默认住市区可退型酒店，不住景区口</td><td>城市恢复节点，价格不锁死，以临出发前可退价为准</td><td>默认执行版不进莫高窟，住市区比住景区口更合理</td></tr>
+        <tr><td><strong>张掖</strong></td><td>市区或高速下口附近，停车方便</td><td>张掖景珑国际酒店</td><td>搜索结果显示为高评分城市酒店；当前结果页未稳定显示具体价格</td><td>适合作为第一段恢复站，重点是停车、热水、床品和次日好上 G227</td></tr>
+        <tr><td><strong>敦煌</strong></td><td>市区内，靠近博物馆/吃饭方便区</td><td>敦煌沙洲夜市北门亚朵酒店</td><td>搜索结果命中 ¥300-450 档；当前列表页未拉到更精确实时价</td><td>默认执行版不进莫高窟，住市区和夜市周边比住景区口更合理</td></tr>
         <tr><td><strong>白哈巴 / 禾木</strong></td><td>优先村内步行方便位置</td><td>白哈巴云水间民宿（哈巴河白湖山庄店）</td><td>当前未稳定抓到指定日期房价；早餐 ¥20/人、免费洗衣/停车可见</td><td>默认先锁能睡稳、能洗、能停、少折腾行李的房</td></tr>
+        <tr><td><strong>喀什</strong></td><td>古城外交通方便区，便于停车和补给</td><td>格美・智慧古城度假酒店（喀什古城民族特色美食街国际会展中心店）</td><td>搜索结果显示高评分成熟酒店；当前未稳定抓到指定日期价</td><td>默认首选靠古城但不挤进最难停车的位置，适合采购和休整</td></tr>
         <tr><td><strong>塔尔钦</strong></td><td>镇内步行方便、保暖优先</td><td>Hi Inn Pulan Mount Kailash Scenic Area Hotel</td><td>US$85；供氧、地暖、洗衣可见</td><td>默认优先“睡稳和保暖”，而不是神山景观房噱头</td></tr>
         <tr><td><strong>塔尔钦备胎</strong></td><td>镇内步行方便</td><td>Gangrenboqi View Hotel</td><td>US$82；供氧可见</td><td>作为预算稍低的备胎，设施信息相对少一些</td></tr>
         <tr><td><strong>珠峰段 / 定日</strong></td><td>优先巴松村或更舒服的定日住宿</td><td>Oxygen Cube yunting hotel</td><td>US$49 起；供氧可见，房型标题可见供暖</td><td>默认优先能睡好，不为了“大本营情怀”透支一整晚</td></tr>
-        <tr><td><strong>拉萨</strong></td><td>市区可停车、可洗衣、适合保养补给</td><td>默认住市区可停车酒店</td><td>恢复节点，价格以临出发前真实可退价为准</td><td>这几晚是恢复站，功能性比景观更重要</td></tr>
+        <tr><td><strong>拉萨</strong></td><td>市区可停车、可洗衣、适合保养补给</td><td>季枫国际酒店（拉萨万达广场店）</td><td>搜索结果显示高评分新店；当前结果页未稳定显示具体价格</td><td>默认首选功能性恢复站，停车、洗衣、补给比景观更重要</td></tr>
         <tr><td><strong>雨崩 / 德钦</strong></td><td>雨崩村内优先保证观景和热水</td><td>Once Upon a Time in Meili</td><td>US$80；供氧、供暖可见</td><td>默认优先更稳的徒步恢复条件</td></tr>
         <tr><td><strong>雨崩备胎</strong></td><td>村内或德钦可转运位置</td><td>Meili Yunjing Mountain Lodge</td><td>US$47；供氧、供暖可见</td><td>作为价格更低的备胎，功能够用</td></tr>
         <tr><td><strong>日瓦 / 香格里拉镇</strong></td><td>镇内停车方便、次日进亚丁方便</td><td>Yading Zhaxi Kongshu Tibetan Culture Theme Hotel</td><td>US$34；供氧可见</td><td>默认先保恢复质量，再考虑景观窗</td></tr>
         <tr><td><strong>日瓦备胎</strong></td><td>镇内停车方便</td><td>Aden ZhiShanXia hotel</td><td>US$35；当前列表页仅见价格</td><td>价格接近，作为备胎足够</td></tr>
-        <tr><td><strong>成都 / 西安</strong></td><td>停车、洗衣、恢复质量优先</td><td>默认住城市核心区可停车酒店</td><td>城市恢复节点，价格不锁死，以临出发前可退价为准</td><td>这两站不是拼景点，是把人和车拉回状态</td></tr>
+        <tr><td><strong>成都</strong></td><td>停车、洗衣、恢复质量优先</td><td>全季酒店（成都杜甫草堂西南财大光华校区店）</td><td>搜索结果可见免费停车、洗衣房；当前未稳定抓到指定日期价</td><td>默认首选成熟连锁、好停车、好洗衣，符合城市恢复站逻辑</td></tr>
+        <tr><td><strong>西安</strong></td><td>钟楼/回民街或大雁塔附近，优先停车方便</td><td>默认住可停车城市酒店</td><td>当前未补到稳定价格快照，建议临出发前按停车/可取消优先筛</td><td>西安这站重在恢复和吃，不需要为景观房付费</td></tr>
       </tbody>
     </table>
   </div>
@@ -1676,6 +1680,70 @@ flowchart LR
   <div class="callout green">
     <div class="callout-title">默认执行版最后纪律</div>
     <p>临出发前不再加景区、不再改路线骨架、不再追求“顺路多看一个”。真正的执行质量来自路线稳定、休息稳定、装备稳定。</p>
+  </div>
+</section>
+
+<!-- Shopping -->
+<section id="shopping">
+  <div class="section-num">Shopping</div>
+  <h2>必要装备采购清单</h2>
+  <p class="lead">这里只写我判断真的值得买、全程能用得上的东西。太个人、太重、太占空间、或者低频到不值得专门买的，不写进主表。</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>类别</th><th>默认推荐</th><th>当前价格参考</th><th>建议买几件</th><th>为什么买它</th></tr></thead>
+      <tbody>
+        <tr><td><strong>车载充气泵</strong></td><td>金彭 G900</td><td>¥159</td><td>1 台（公用）</td><td>双缸大功率、带胎压显示，适合长线自驾做基础胎压维护</td></tr>
+        <tr><td><strong>防滑链</strong></td><td>金属双排防滑链（按坦克300轮胎侧壁规格购买）</td><td>约 ¥299-599</td><td>1-2 条（公用）</td><td>11月川西/高海拔遇雪时是真正救命装备，规格必须按轮胎侧壁再确认</td></tr>
+        <tr><td><strong>血氧仪</strong></td><td>鱼跃 618C</td><td>¥99</td><td>1-2 台（公用）</td><td>高原行程长，判断状态比靠感觉更稳</td></tr>
+        <tr><td><strong>充电宝</strong></td><td>安克 A1286 20000mAh</td><td>¥199</td><td>每人 1 个</td><td>长途车上、徒步和村里都用得上，22.5W 快充够实用</td></tr>
+        <tr><td><strong>头灯</strong></td><td>神火 LED 头灯 3200</td><td>¥69</td><td>2 个（公用）</td><td>雨崩、虎跳峡、临时夜间找东西都需要，头灯比手电更实用</td></tr>
+        <tr><td><strong>偏光太阳镜</strong></td><td>暴龙 BJ3028</td><td>¥299</td><td>每人 1 副</td><td>高原反光、雪地和长距离驾驶都很需要，偏光能明显减压</td></tr>
+        <tr><td><strong>防晒霜</strong></td><td>碧柔水活防晒乳 SPF50+</td><td>¥59</td><td>全车 2 瓶起</td><td>高原、戈壁、雪山的紫外线真不是普通日常通勤级别</td></tr>
+        <tr><td><strong>登山杖</strong></td><td>牧高笛铝合金登山杖</td><td>¥129</td><td>2 对</td><td>冈仁波齐、雨崩、虎跳峡、亚丁都能用，膝盖会感谢你</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <details>
+    <summary>📌 默认不专门买的东西（平时折叠）</summary>
+    <div class="detail-content">
+      <ul>
+        <li>不买充气床垫、全套床车帘、超大露营箱：这次默认全程住店</li>
+        <li>不买很重的摄影器材箱：会压缩后备箱和徒步机动性</li>
+        <li>不买过多备用衣物：沿线有洗衣节点，宁可少带勤洗</li>
+      </ul>
+    </div>
+  </details>
+  <p style="font-size:0.85rem;color:var(--muted);margin-top:10px">⚠️ 装备价格是当前公开零售价参考，真正下单前建议再看一次京东自营 / 天猫旗舰店活动价。</p>
+</section>
+
+<!-- Research Method -->
+<section id="research-method">
+  <div class="section-num">Research</div>
+  <h2>怎么买、怎么做功课</h2>
+  <p class="lead">做功课不是把全网看一遍，而是按顺序筛掉无效信息。下面是这条线更高效的做法。</p>
+  <div class="two-col">
+    <div class="col-card">
+      <h4>住宿怎么查</h4>
+      <ul class="checklist">
+        <li>第一步看携程 / Trip：先锁房名、位置、停车、供暖、供氧、可取消时间</li>
+        <li>第二步看美团 / 大众点评：补周边吃饭、停车便利、最近差评关键词</li>
+        <li>第三步看小红书：只看最近 3 个月，重点搜“避坑”“停车”“洗澡”“供暖”</li>
+        <li>最后只保留：默认首选 + 一个备胎，别把候选越攒越多</li>
+      </ul>
+    </div>
+    <div class="col-card">
+      <h4>装备怎么买</h4>
+      <ul class="checklist">
+        <li>公用装备优先京东自营或天猫旗舰店，售后和时效更稳</li>
+        <li>鞋、眼镜这类贴身装备，优先线下试过再买，别纯靠参数</li>
+        <li>先买高频硬需求：充气泵、防滑链、血氧仪、充电宝、头灯</li>
+        <li>所有“可能会用到”的低频大件，默认不买，除非已确认有场景</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout green">
+    <div class="callout-title">做功课最后规则</div>
+    <p>每个节点最多保留 1 个默认首选 + 1 个备胎；每类装备最多保留 1 个默认推荐。做功课的目的是减少决策，不是制造更多决策。</p>
   </div>
 </section>
 
