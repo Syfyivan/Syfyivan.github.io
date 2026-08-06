@@ -7145,6 +7145,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             log.push(['〔行中小耗〕这一旬连样纸门包和布药都腾挪不开，只得先硬扛过去；熟号和家里都更吃紧了一层（家族-1）。', 'bad']);
           }
         }
+        if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'summer' && xun === 3) {
+          if (picked.f_route_collect || picked.f_repay || picked.f_mend || picked.f_route_sample || picked.f_route_letter) {
+            pushFamilySeasonTag(stepTag + '夏尾账脚已压');
+            log.push(['〔夏尾账脚〕这一旬先把柜边样单、回客话脚费、凉药锅火与催账前的小门包分开了；伏夏末尾最容易被拖成“反正下旬再说”的那层细账，没有再悄悄滚进下一季。', 'good']);
+          } else if (spendCopper(40)) {
+            pushFamilySeasonTag(stepTag + '夏尾账脚');
+            log.push(['〔夏尾账脚〕柜边样单、回客话脚费、凉药锅火和催账前的小门包一起要钱：铜钱-40。不是新主线，却正把商路养家在伏夏下旬那层“账未回、家已先要过”的尾账重新压回真账。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '夏尾硬顶');
+            log.push(['〔夏尾账脚〕这一旬连回客话脚费和凉药锅火的小后手都腾挪不开，只得先硬顶过去；熟号与家里两头都更难替这一房接气了（家族-1）。', 'bad']);
+          }
+        }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'summer' && xun === 1) {
           if (picked.f_route_wharf || picked.f_route_summer_cool || picked.f_route_letter || picked.f_child || picked.f_repair) {
             pushFamilySeasonTag(stepTag + '伏夏路药已分');
@@ -7197,6 +7210,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushFamilySeasonTag(stepTag + '春路收束硬顶');
             log.push(['〔春路收束〕这一旬连清明带话脚费和盐药锅火的小后手都腾挪不开，只得先硬顶过去；熟号和亲族口风都更凉了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'autumn' && xun === 1) {
+          if (picked.f_route_autumn_quote || picked.f_work || picked.f_market || picked.f_child || picked.f_route_letter) {
+            pushFamilySeasonTag(stepTag + '秋路样单已理');
+            log.push(['〔秋路样单〕这一旬先把牙样、脚单、回乡带话与秋市茶钱理开了；秋里第一口看似要回暖的货路，没有再被样纸和照面小耗先磨成空话。', 'good']);
+          } else if (spendCopper(40)) {
+            pushFamilySeasonTag(stepTag + '秋路样单');
+            log.push(['〔秋路样单〕牙样、脚单、回乡带话和秋市照面茶钱一起要钱：铜钱-40。不是大账，却正把商路养家在秋头那层“货价先热、细账先到”的摩擦重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '秋样硬顶');
+            log.push(['〔秋路样单〕这一旬连牙样脚单和回乡带话的小钱都腾挪不开，只得先硬顶过去；秋里熟号与乡里这两头口风又薄了一线（家族-1）。', 'bad']);
           }
         }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'autumn' && xun === 3) {
@@ -7518,6 +7544,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && (S.本年家衣药 || 0) > 0 && (S.本年家贴家 || 0) > 0) log.push(['这一养家年你不只把银钱捎回去，还把布药针线也拆进了家计；“商路顾家”第一次不只剩下银两本身。', 'good']);
           if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && (S.本年家问价 || 0) > 0 && (S.本年家通融 || 0) > 0) log.push(['这一养家年你还跑过水脚、问过价、通过行栈与乡里气口；市场与制度的细缝，也被一旬旬写进商路家账。', 'good']);
           if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('春路碎账') >= 0; })) log.push(['这一养家年你连熟号回话脚费、样纸门包与家里盐药锅火这层春路小耗都摊回了开春第一旬；商路成年期不必等到伏夏和秋后，春头就已经开始被细账咬住。', 'good']);
+          if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('秋路样单') >= 0 || String(tag).indexOf('夏尾账脚') >= 0; })) log.push(['这一养家年你连伏夏下旬的柜边样单、回客话脚费，和秋头的牙样脚单都先拆回了家账；商路成年期终于不只在“季中大账”才有内容，连季头季尾也都在持续咬人。', 'good']);
           if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家捎信 || 0) > 0 && (S.本年家贴家 || 0) > 0) log.push(['这一养家年你不只卖工，还先问过活路、再把工食真捎回家里；卖工路成年后也开始有了“先摸活、再回钱”的年内节奏。', 'good']);
           if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家催账 || 0) > 0) log.push(['这一养家年你还回工棚结过 ' + S.本年家催账 + ' 回欠工；家计不再只看“挣了没有”，也看“结了没有”。', 'good']);
           if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家通融 || 0) > 0 && (S.本年家备役 || 0) > 0) log.push(['这一养家年你还把工头旧识压进差役后手里；卖工路成年后的制度压力，也开始在同一年里被提前摊开。', 'good']);
