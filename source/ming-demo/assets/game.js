@@ -1437,9 +1437,12 @@
       }
     }
     if (season.id === 'spring' && xun === 1) apply(pack.spring);
+    if (season.id === 'spring' && xun === 2) apply(pack.springMid);
     if (season.id === 'summer' && xun === 2) apply(pack.summer);
+    if (season.id === 'autumn' && xun === 1) apply(pack.autumnUpper);
     if (season.id === 'autumn' && xun === 2) apply(pack.autumn);
     if (season.id === 'winter' && xun === 1) apply(pack.winter);
+    if (season.id === 'winter' && xun === 2) apply(pack.winterMid);
   }
   function resetFamilyYearLedger() {
     S.家季 = 1;
@@ -7716,6 +7719,17 @@
             failLog: '〔分书碎费〕这一旬连分书抄手和拜帖脚费都腾挪不开，只得先硬顶过去；这一房刚立户，人情面先薄了一线（家族-1）。',
             hardship: 'clan'
           },
+          springMid: {
+            handledIds: ['h_exam_lease', 'h_literate', 'h_clan'],
+            doneTag: '税则回话已理',
+            doneLog: '〔税则回话〕税则抄手、租账脚费与给保结递话的小脚费已被你先分开；春分书的中旬不再只剩“名色和薄田摆一起看”，而是真把制度碎账压回了这一旬。',
+            cost: 45,
+            costTag: '税则回话',
+            costLog: '〔税则回话〕税则抄手、租账脚费和给保结递话的小脚费一起要钱：铜钱-{cost}。不是大账，却正把举业路当户这一年的制度碎费往前拖出来。',
+            failTag: '税则回话硬顶',
+            failLog: '〔税则回话〕这一旬连税则抄手和递话脚费都腾挪不开，只得先硬顶过去；刚立户时这层名色回话又薄了一线（家族-1）。',
+            hardship: 'clan'
+          },
           summer: {
             handledIds: ['h_copy_mid', 'h_exempt', 'h_rest', 'h_literate', 'h_clan', 'h_side', 'h_exam_split'],
             doneTag: '伏夏小耗已顾',
@@ -7748,6 +7762,17 @@
             failTag: '年关硬顶',
             failLog: '〔年关碎账〕这一旬连年关碎用都挪不开，只得靠身子硬顶过去（体魄-1）。',
             hardship: 'body'
+          },
+          winterMid: {
+            handledIds: ['h_copy_mid', 'h_side', 'h_rest', 'h_exam_split'],
+            doneTag: '冬馆回话已理',
+            doneLog: '〔冬馆回话〕旧馆回话、灯油纸墨与给学生家递话的小脚费已被你先分开；冬应役中旬不再只剩翻总账，也把“人情怎么续到明春”压回了这一旬。',
+            cost: 45,
+            costTag: '冬馆回话',
+            costLog: '〔冬馆回话〕旧馆回话脚费、灯油纸墨与递话小礼一起要钱：铜钱-{cost}。不是大账，却正把年关前最容易被一句“回头再说”带过的笔墨门路拖回真账。',
+            failTag: '冬馆回话硬顶',
+            failLog: '〔冬馆回话〕这一旬连回话脚费和灯油纸墨都腾挪不开，只得先硬顶过去；举业路这层旧馆门路又薄了一线（家族-1）。',
+            hardship: 'clan'
           }
         });
         clampAttr('体魄');
@@ -7768,9 +7793,11 @@
         if ((S.本年户委托 || 0) > 0 || (S.委托租谷 || 0) > 0) log.push(['这一任当户你先把分得薄田立成了租账，这一房从此不再只是嘴上“名下还有 4 亩”。', 'good']);
         else log.push(['这一任当户你始终没把分得薄田坐成租账；田还在名下，却还没开始真替这一房回口粮。', 'bad']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('分书碎费') >= 0; })) log.push(['这一任当户连分书抄手、拜帖脚费和塾师回话这层春头碎费都先摊回账里了；立户开年不再只剩一句“已经分过家”。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('税则回话') >= 0; })) log.push(['这一任当户你又把税则抄手、租账脚费和给保结递话的小脚费压进了春分书中旬；举业路的制度细账不再只在春头一句话带过。', 'good']);
         if (exemptSet || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('名色缓派') >= 0; })) log.push(['这一任当户你把生员/优免这层名色真正拿来顶过了一层制度外流；名色不再只是一行旧文案。', 'good']);
         if (copySettled || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('结回馆账') >= 0; })) log.push(['这一任当户你把“识字能补家计”写成了真钱，不再只是体面话。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('拆账') >= 0; })) log.push(['这一任当户你至少有一回把润笔或馆钱先拆进锅火、差钱与纸墨；举业路的当户也开始有了更细的年内流转。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬馆回话') >= 0; })) log.push(['这一任当户连旧馆回话、灯油纸墨与递话脚费都在冬应役中旬先拆开；举业路年关前那层“门路怎么续住”终于也成了同一年里的真细账。', 'good']);
         if ((S.本年户季务 || []).length <= 4) log.push(['这一任当户虽拆成了年内各旬，但真正落到账里的细务仍偏少，说明这一年还没有被你完全做厚。', 'bad']);
 
         var risk = 0.40 + hp.baseAdj;
