@@ -9419,8 +9419,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               break;
             case 'h_autumn_split':
               var autumnPaid = '';
-              if (spendCopper(220)) autumnPaid = '铜钱-220';
-              else if (spendSilver(1)) autumnPaid = '白银-1';
+              // 与“春路拆账”一致：优先用现银把“拆账外流”这一口坐实，
+              // 把零碎铜钱尽量留给后续的水脚/客礼/炭米等“必须用铜钱当场垫”的旬节开销。
+              // 这也是“同一年里拆账”的核心：不是让玩家凭空更富，而是让钱的形态与用途在旬节上更可控。
+              if (spendSilver(1)) autumnPaid = '白银-1';
+              else if (spendCopper(220)) autumnPaid = '铜钱-220';
               if (autumnPaid) {
                 S.本年户备役 += 1;
                 S.本年户通融 += 1;
