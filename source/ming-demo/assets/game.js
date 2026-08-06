@@ -6173,6 +6173,45 @@
             log.push(['〔谷种仓脚〕这一旬连谷种仓脚的小钱都腾挪不开，只得靠身子硬顶过去（体魄-1）。', 'bad']);
           }
         }
+        if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && season.id === 'spring' && xun === 1) {
+          if (picked.f_route_wage_note || picked.f_work || picked.f_repair || picked.f_rest) {
+            pushFamilySeasonTag(stepTag + '春工脚费已理');
+            log.push(['〔春工脚费〕开春去问活时的草鞋、带话脚费和工棚茶钱已被你先分开；卖工路这层熟口没有在春头就先被小钱磨薄。', 'good']);
+          } else if (spendCopper(35)) {
+            pushFamilySeasonTag(stepTag + '春工脚费');
+            log.push(['〔春工脚费〕草鞋、带话脚费和工棚茶钱一起要钱：铜钱-35。不是大账，却把“先问活路”这一下也重新压回了真账。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '春工硬顶');
+            log.push(['〔春工脚费〕这一旬连草鞋和带话脚费都腾挪不开，只得先硬顶过去；卖工路这层熟口又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && season.id === 'autumn' && xun === 1) {
+          if (picked.f_route_wage_autumn_note || picked.f_work || picked.f_market || picked.f_child) {
+            pushFamilySeasonTag(stepTag + '秋路搭手已问');
+            log.push(['〔秋路搭手〕旺工茶水、回乡脚费和托人带话的人情已被你先问明；秋里这双手没再在外头结现与家里缺手之间盲撞。', 'good']);
+          } else if (spendCopper(40)) {
+            pushFamilySeasonTag(stepTag + '秋路搭手');
+            log.push(['〔秋路搭手〕旺工茶水、回乡脚费和托人带话的小人情一起要钱：铜钱-40。不是大账，却正把“哪边更急”逼回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '秋路硬顶');
+            log.push(['〔秋路搭手〕这一旬连回乡脚费与人情茶钱都腾挪不开，只得先硬顶过去；秋里两头都更难替你说话（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && season.id === 'winter' && xun === 1) {
+          if (picked.f_route_wage_winter_book || picked.f_work || picked.f_rest || picked.f_mend) {
+            pushFamilySeasonTag(stepTag + '工棚年礼已分');
+            log.push(['〔工棚年礼〕年关前旧工头薄礼、回话脚费和明春头程小脚费已被你先分开；卖工路这层门路没有在冬里忽然断掉。', 'good']);
+          } else if (spendCopper(45)) {
+            pushFamilySeasonTag(stepTag + '工棚年礼');
+            log.push(['〔工棚年礼〕旧工头薄礼、回话脚费和明春头程脚费一起要钱：铜钱-45。不是讲排场，而是让明春第一口活路不必重新从冷面求人开始。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '工棚礼硬顶');
+            log.push(['〔工棚年礼〕这一旬连薄礼和回话脚费都腾挪不开，只得先硬顶过去；旧工头与工棚这层熟面又薄了一线（家族-1）。', 'bad']);
+          }
+        }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'summer' && xun === 2) {
           if (picked.f_route_bundle || picked.f_route_sample || picked.f_route_wharf || picked.f_market || picked.f_work) {
             pushFamilySeasonTag(stepTag + '行中小耗已顾');
