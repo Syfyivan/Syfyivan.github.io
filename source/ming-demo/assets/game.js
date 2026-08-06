@@ -5882,12 +5882,59 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
 
     var wp = workProfile();
     var rp = familyRoutePack();
+    // 养家阶段的“旬节碎事”：只加内容密度与气口，不引入评分、也不额外消耗 RNG。
+    // 注意史料口径：只写“常见碎事/口风/规矩”，不写确定的政策细则与数字。
+    function familyFlavorEvent(route, year, seasonId, xun) {
+      var seasonIdx = seasonId === 'spring' ? 0 : (seasonId === 'summer' ? 1 : (seasonId === 'autumn' ? 2 : 3));
+      var key = 'farm';
+      if (route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) key = 'wage';
+      else if (route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) key = 'apprentice';
+      else if (route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) key = 'merchant';
+      else if (route.indexOf('路径五') === 0 || route.indexOf('读书应举') === 0 || S.生员身份) key = 'exam';
+      var base = (year * 11 + seasonIdx * 5 + xun * 3);
+      var pools = {
+        farm: [
+          { t: 'life', tag: '[旬节]', txt: '佃户与自耕户都爱在这旬里互探口风：今年谁家请短工、谁家借种借粪、谁家又欠了哪一笔。' },
+          { t: 'inst', tag: '[里甲]', txt: '里甲贴了新告示：差役口风与秋粮预征的传言又起。真伪未必立刻见账，但人心先紧。' },
+          { t: 'rel', tag: '[邻里]', txt: '邻里来借火借盐，推与不推都要落一句话。钱不大，却最能看出这一房在乡里“冷不冷”。' },
+          { t: 'body', tag: '[身子]', txt: '田里活计与家里锅火挤在一起时，最先漏的往往不是粮，而是腰腿与这口气。' }
+        ],
+        wage: [
+          { t: 'inst', tag: '[工路]', txt: '工棚里总有人在传：哪家头家肯结账、哪条工路要涨要跌。口风未必准，但脚费常要先掏。' },
+          { t: 'rel', tag: '[熟面]', txt: '旧工头一句“认不认你这张熟面”，往往顶得过你手里多出的一点铜钱。' },
+          { t: 'life', tag: '[锅火]', txt: '受雇钱多半是零碎进账：一手掏脚费、一手留锅火，最怕同一旬里全挤到一口现钱上。' },
+          { t: 'body', tag: '[身子]', txt: '粗活久了，手脚起泡是常事。花不花一口小钱补药，差的不是面子，是能不能继续硬撑。' }
+        ],
+        apprentice: [
+          { t: 'inst', tag: '[铺里]', txt: '铺里规矩最怕“忘了”：跑腿、抄写、看货、问价都不是大功劳，却常决定掌柜肯不肯继续留你。' },
+          { t: 'rel', tag: '[掌柜]', txt: '掌柜嘴上不说，心里却记得谁肯替铺子先垫一口、谁遇事先回话。' },
+          { t: 'life', tag: '[行市]', txt: '行市口风来得快：今旬哪样货好走、哪样货压仓。你未必能做主，但至少得听懂。' },
+          { t: 'body', tag: '[奔走]', txt: '城里跑腿久了，脚底磨破比挨骂更磨人。修不修鞋，常常是这旬能不能顺过去的差别。' }
+        ],
+        merchant: [
+          { t: 'inst', tag: '[行栈]', txt: '行栈、脚夫、码头、牙行各有一套“明话暗话”。你这一旬多跑一步，账就少漏一笔。' },
+          { t: 'life', tag: '[账本]', txt: '商路最怕的不是赚少，而是账不清：脚费、仓脚、坏账、人情与回乡反哺常挤在同一口现钱上。' },
+          { t: 'rel', tag: '[旧识]', txt: '旧识肯不肯替你回话、替你引路，常比你手里多出的一点带本银更关键。' },
+          { t: 'body', tag: '[风寒]', txt: '跑商久了，风寒湿热都要算进账里。人若倒了，再好的门路也会断在半途。' }
+        ],
+        exam: [
+          { t: 'inst', tag: '[书香]', txt: '塾师与廪保不一定看你“多苦读”，更看你这旬能不能把纸墨、拜帖与家里锅火的账讲明白。' },
+          { t: 'life', tag: '[纸墨]', txt: '纸墨钱不算大，但来得勤：这旬若不先拆开，常会与衣药、差役挤在同一口现钱上。' },
+          { t: 'rel', tag: '[口风]', txt: '同窗与邻里总爱问一句“读得如何”。你答得体面与否，会慢慢变成“这房还值不值得供”的口风。' },
+          { t: 'body', tag: '[灯下]', txt: '灯下久坐，肩背酸痛不是矫情；一旦拖成病，耽误的不是一旬文章，是一年家计。' }
+        ]
+      };
+      var pool = pools[key] || pools.farm;
+      var idx = base % pool.length;
+      return pool[idx];
+    }
     var events = [
       { t: 'life', tag: '[家计]', txt: '成家之后，日子不再是“几年一把结账”。这一阶段按<span class="em">四季三旬</span>推进：同一年的口粮、差役、市场、孩子、身子和旧债，会在同一年里轮流冒头。' },
       { t: 'rand', tag: '[行情]', txt: '今旬米价走' + (priceHigh ? '高' : '低') + '（1石≈' + miPrice + '文，占位）。' },
       { t: 'body', tag: '[身子]', txt: season.note + (xun === 3 ? ' 到了下旬，衣药、汗疹、腰腿酸痛和明年后手常常不肯再往后拖。' : ' 这一旬里，锅火、孩子、身子和人情都在争同一笔钱。') }
     ];
     if (rp.event) events.push(rp.event);
+    events.push(familyFlavorEvent(route, year, season.id, xun));
     // 节令：只做“密度”与气口，不给成功分与排名；影响尽量落在微小开销与家口关系上。
     if (season.id === 'spring' && xun === 1) {
       events.push({ t: 'rel', tag: '[节令]', txt: '清明将近，乡里讲究祭扫修谱；不一定铺张，但若全忘了，亲族话里总会添一层凉意。' });
