@@ -1338,6 +1338,17 @@
       failLog: '〔开路碎费〕这一旬连头程脚费和门包都先挪不开，只得硬顶过去；旧路数看你更生了一层（商信誉-1）。',
       hardship: 'trust'
     });
+    if (season.id === 'spring' && xun === 2) apply({
+      handledIds: ['m_book', 'm_market', 'm_letter'],
+      doneTag: '开路回话已压',
+      doneLog: '〔开路回话〕这一旬先把样价抄单、回话脚费和柜边包纸拆开了；春里第二程不再只剩“继续学生意”，而是真把人情回话和门面零耗压回同一年里。',
+      cost: 30,
+      costTag: '开路回话',
+      costLog: '〔开路回话〕样价抄单、回话脚费和柜边包纸一起要钱：铜钱-{cost}。不是大账，却正把“要不要继续认你这一手”这层门面慢慢磨薄。',
+      failTag: '开路回话硬顶',
+      failLog: '〔开路回话〕这一旬连回话脚费和柜边包纸都挪不开，只得先硬顶过去；柜上看你这层门面又生了一线（商信誉-1）。',
+      hardship: 'trust'
+    });
     if (season.id === 'summer' && xun === 2) apply({
       handledIds: ['m_shop', 'm_book', 'm_mend', 'm_rest', 'm_letter'],
       doneTag: '伏夏零耗已顾',
@@ -1348,6 +1359,17 @@
       failTag: '伏夏硬扛',
       failLog: '〔伏夏零耗〕现钱已被别处先占，只得靠身子硬扛这一旬的热耗与脚路（体魄-1）。',
       hardship: 'body'
+    });
+    if (season.id === 'summer' && xun === 3) apply({
+      handledIds: ['m_shop', 'm_market', 'm_letter', 'm_mend'],
+      doneTag: '伏夏柜耗已分',
+      doneLog: '〔伏夏柜耗〕这一旬先把柜边包纸、请脚夫的小茶钱、回客话的门包和凉茶杂支分开了；伏夏尾声这层“不大、却天天有”的柜上摩擦没有再混成一团。',
+      cost: 35,
+      costTag: '伏夏柜耗',
+      costLog: '〔伏夏柜耗〕柜边包纸、脚夫茶钱、回客话门包和凉茶杂支一起冒头：铜钱-{cost}。不是另开一条新主线，只是把伏夏尾声那层细耗重新摊回这一旬。',
+      failTag: '伏夏柜耗硬顶',
+      failLog: '〔伏夏柜耗〕这一旬连脚夫茶钱和回客话门包都先腾挪不开，只得硬顶过去；人还站在柜上，门面却先薄了一层（商信誉-1）。',
+      hardship: 'trust'
     });
     if (season.id === 'autumn' && xun === 1) apply({
       handledIds: ['m_market', 'm_run', 'm_goods', 'm_collect'],
@@ -1380,6 +1402,17 @@
       costLog: '〔年关路费〕灯油、客脚、年礼和来春第一程水脚一起压来：铜钱-{cost}。不是大账，却正是冬清账最磨人的那层零碎摩擦。',
       failTag: '年关硬顶',
       failLog: '〔年关路费〕这一旬连年礼和来春第一程小路费都腾挪不开，只得先硬顶过去；家里等钱的口风更急了一层（家族-1）。',
+      hardship: 'clan'
+    });
+    if (season.id === 'winter' && xun === 2) apply({
+      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve'],
+      doneTag: '清账回话已压',
+      doneLog: '〔清账回话〕这一旬先把回话脚费、清账门包、来春样纸定钱和给熟号递话的小礼分开了；冬里第二程不再只剩“催账”，而是真把清账的人情碎费摊回这一旬。',
+      cost: 45,
+      costTag: '清账回话',
+      costLog: '〔清账回话〕回话脚费、清账门包、来春样纸定钱和递话小礼一起要钱：铜钱-{cost}。不是大账，却正把“旧账能不能顺顺当当地回”这层路数一点点磨出来。',
+      failTag: '清账回话硬顶',
+      failLog: '〔清账回话〕这一旬连回话脚费和清账门包都腾挪不开，只得先硬顶过去；熟号那层回话也迟滞了一线（家族-1）。',
       hardship: 'clan'
     });
   }
@@ -6226,6 +6259,20 @@
             log.push(['〔行中小耗〕这一旬连样纸门包和布药都腾挪不开，只得先硬扛过去；熟号和家里都更吃紧了一层（家族-1）。', 'bad']);
           }
         }
+        if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'spring' && xun === 1) {
+          if (picked.f_route_letter || picked.f_route_spring_price || picked.f_work || picked.f_repair || picked.f_child) {
+            pushFamilySeasonTag(stepTag + '春路碎账已理');
+            log.push(['〔春路碎账〕这一旬先把熟号回话脚费、样纸门包和家里盐药锅火顾住了；商路顾家最先冒头的那层春路小耗，没有再在开春就把现钱磨薄。', 'good']);
+          } else if (spendCopper(40)) {
+            S.本年家衣药 += 1;
+            pushFamilySeasonTag(stepTag + '春路碎账');
+            log.push(['〔春路碎账〕熟号回话脚费、样纸门包和家里盐药锅火一起要钱：铜钱-40、衣药+1。不是大账，却把商路养家这一年最先冒头的春路小耗重新压回了真账。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '春路硬顶');
+            log.push(['〔春路碎账〕这一旬连熟号回话脚费和家里盐药小耗都腾挪不开，只得先硬顶过去；外头熟号与家里锅火两头都更紧了一线（家族-1）。', 'bad']);
+          }
+        }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'autumn' && xun === 3) {
           if (picked.f_route_receipt || picked.f_route_collect || picked.f_route_autumn_quote || picked.f_social || picked.f_duty) {
             pushFamilySeasonTag(stepTag + '秋路催单已压');
@@ -6379,6 +6426,7 @@
           if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && (S.未回款银 || 0) > 0 && (S.本年家催账 || 0) <= 0) log.push(['这一养家年仍有路上旧账没被催回；家里等钱与外头账期的摩擦，被完整留到了下一年。', 'bad']);
           if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && (S.本年家衣药 || 0) > 0 && (S.本年家贴家 || 0) > 0) log.push(['这一养家年你不只把银钱捎回去，还把布药针线也拆进了家计；“商路顾家”第一次不只剩下银两本身。', 'good']);
           if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && (S.本年家问价 || 0) > 0 && (S.本年家通融 || 0) > 0) log.push(['这一养家年你还跑过水脚、问过价、通过行栈与乡里气口；市场与制度的细缝，也被一旬旬写进商路家账。', 'good']);
+          if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('春路碎账') >= 0; })) log.push(['这一养家年你连熟号回话脚费、样纸门包与家里盐药锅火这层春路小耗都摊回了开春第一旬；商路成年期不必等到伏夏和秋后，春头就已经开始被细账咬住。', 'good']);
           if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家捎信 || 0) > 0 && (S.本年家贴家 || 0) > 0) log.push(['这一养家年你不只卖工，还先问过活路、再把工食真捎回家里；卖工路成年后也开始有了“先摸活、再回钱”的年内节奏。', 'good']);
           if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家催账 || 0) > 0) log.push(['这一养家年你还回工棚结过 ' + S.本年家催账 + ' 回欠工；家计不再只看“挣了没有”，也看“结了没有”。', 'good']);
           if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && (S.本年家通融 || 0) > 0 && (S.本年家备役 || 0) > 0) log.push(['这一养家年你还把工头旧识压进差役后手里；卖工路成年后的制度压力，也开始在同一年里被提前摊开。', 'good']);
