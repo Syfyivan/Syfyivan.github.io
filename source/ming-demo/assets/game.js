@@ -1788,6 +1788,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       failLog: '〔开路回话〕这一旬连回话脚费和柜边包纸都挪不开，只得先硬顶过去；柜上看你这层门面又生了一线（商信誉-1）。',
       hardship: 'trust'
     });
+    if (season.id === 'spring' && xun === 3) apply({
+      handledIds: ['m_letter', 'm_home', 'm_reserve', 'm_market'],
+      doneTag: '春尾脚费已留',
+      doneLog: '〔春尾脚费〕这一旬先把回乡带话脚费、柜边包纸和递话门包分开了；春开路收尾不再只剩一句“过了春再说”，这一口细账也被压回同一年里。',
+      cost: 30,
+      costTag: '春尾脚费',
+      costLog: '〔春尾脚费〕回乡带话脚费、柜边包纸和递话门包一起要钱：铜钱-{cost}。钱不大，却正把春尾那层“回不回话、认不认熟面”的碎账摊回这一旬。',
+      failTag: '春尾脚费硬顶',
+      failLog: '〔春尾脚费〕这一旬连回话脚费都腾挪不开，只得先硬顶过去；春尾回话更像拖着不回（家族-1）。',
+      hardship: 'clan'
+    });
     if (season.id === 'summer' && xun === 2) apply({
       handledIds: ['m_shop', 'm_book', 'm_mend', 'm_rest', 'm_letter'],
       doneTag: '伏夏零耗已顾',
@@ -1821,6 +1832,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       failLog: '〔秋市碎费〕这一旬连牙行照面和样货脚费都先挪不开，只得硬顶过去；旧相识看你更生了一层（商信誉-1）。',
       hardship: 'trust'
     });
+    if (season.id === 'autumn' && xun === 2) apply({
+      handledIds: ['m_try', 'm_market', 'm_book'],
+      doneTag: '试贩门包已分',
+      doneLog: '〔试贩门包〕这一旬争取带本试贩前，先把门包、脚费与样纸茶钱分开了；不是多掷一次运气，而是把押出去的那一两银前后的碎账先摊开。',
+      cost: 45,
+      costTag: '试贩门包',
+      costLog: '〔试贩门包〕门包、脚费与样纸茶钱一起要钱：铜钱-{cost}。看着只是碎费，却最能把“带本银”这一口钱挤得更紧。',
+      failTag: '试贩门包硬顶',
+      failLog: '〔试贩门包〕这一旬连门包和脚费都挪不开，只得先硬顶过去；牙口与熟面都显得更生一层（商信誉-1）。',
+      hardship: 'trust'
+    });
     if (season.id === 'autumn' && xun === 3) apply({
       handledIds: ['m_support', 'm_home', 'm_collect', 'm_letter'],
       doneTag: '回钱碎耗已拆',
@@ -1852,6 +1874,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       costLog: '〔清账回话〕回话脚费、清账门包、来春样纸定钱和递话小礼一起要钱：铜钱-{cost}。不是大账，却正把“旧账能不能顺顺当当地回”这层路数一点点磨出来。',
       failTag: '清账回话硬顶',
       failLog: '〔清账回话〕这一旬连回话脚费和清账门包都腾挪不开，只得先硬顶过去；熟号那层回话也迟滞了一线（家族-1）。',
+      hardship: 'clan'
+    });
+    if (season.id === 'winter' && xun === 3) apply({
+      handledIds: ['m_reserve', 'm_collect', 'm_mend', 'm_letter', 'm_book'],
+      doneTag: '年下客礼已分',
+      doneLog: '〔年下客礼〕这一旬先把守岁炭钱、客脚薄礼与来春样纸定钱分开了；冬清账的最后一程不再被年下这层碎账悄悄搅乱。',
+      cost: 50,
+      costTag: '年下客礼',
+      costLog: '〔年下客礼〕守岁炭钱、客脚薄礼与来春样纸定钱一起压来：铜钱-{cost}。不是大账，却最容易把年关那点现钱拧紧。',
+      failTag: '年下客礼硬顶',
+      failLog: '〔年下客礼〕这一旬连炭钱与薄礼都腾挪不开，只得先硬顶过去；年下口风更冷一层（家族-1）。',
       hardship: 'clan'
     });
   }
