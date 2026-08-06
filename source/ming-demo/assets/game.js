@@ -1083,6 +1083,62 @@
     if (!S.本年学徒旬记) S.本年学徒旬记 = [];
     if (S.本年学徒旬记.indexOf(tag) < 0) S.本年学徒旬记.push(tag);
   }
+  function applySeasonalApprenticeFriction(log, stepLabel, season, xun, picked) {
+    function hasPicked(ids) {
+      return (ids || []).some(function (id) { return !!picked[id]; });
+    }
+    function apply(entry) {
+      if (!entry) return;
+      if (hasPicked(entry.handledIds)) {
+        pushApprenticeSeasonTag(stepLabel + entry.doneTag);
+        log.push([entry.doneLog, 'good']);
+      } else if (spendCopper(entry.cost)) {
+        if (entry.bumpField) S[entry.bumpField] = (S[entry.bumpField] || 0) + entry.bumpValue;
+        pushApprenticeSeasonTag(stepLabel + entry.costTag);
+        log.push([entry.costLog.replace('{cost}', entry.cost), 'bad']);
+      } else {
+        if (entry.hardship === 'body') S.体魄 -= 1;
+        if (entry.hardship === 'clan') S.家族 = Math.max(0, S.家族 - 1);
+        pushApprenticeSeasonTag(stepLabel + entry.failTag);
+        log.push([entry.failLog, 'bad']);
+      }
+    }
+    if (season.id === 'summer' && xun === 2) apply({
+      handledIds: ['a_book', 'a_run', 'a_mend', 'a_rest'],
+      doneTag: '伏夏零耗已顾',
+      doneLog: '〔伏夏零耗〕这一旬先把铺里茶汤、脚夫点心、汗药针线与回乡带话的小脚费顾住了；学徒路这层“人在铺里、钱却一丝丝漏掉”的磨损没有继续滚大。',
+      cost: 35,
+      costTag: '伏夏零耗',
+      costLog: '〔伏夏零耗〕铺里茶汤、脚夫点心、汗药针线和一口回乡带话的小脚费一起冒头：铜钱-{cost}、衣药+1。不是大账，却正把学徒路这一年的细钱一点点磨薄。',
+      failTag: '伏夏硬扛',
+      failLog: '〔伏夏零耗〕这一旬连茶汤脚费与汗药针线都腾挪不开，只得先硬扛过去（体魄-1）。',
+      hardship: 'body',
+      bumpField: '本年学徒衣药',
+      bumpValue: 1
+    });
+    if (season.id === 'autumn' && xun === 3) apply({
+      handledIds: ['a_market', 'a_send', 'a_home', 'a_reserve'],
+      doneTag: '秋脚路已压',
+      doneLog: '〔秋脚路〕这一旬先把回铺脚路、托人带话与给掌柜照面的薄礼压进后手里；秋里这口脚钱没再只停在“该回”的账面上。',
+      cost: 45,
+      costTag: '秋脚路',
+      costLog: '〔秋脚路〕回铺脚路、托人带话和给掌柜照面的薄礼一起要钱：铜钱-{cost}。不是新主线，只是把“该回的脚钱”真正拢回来前必经的一层摩擦。',
+      failTag: '秋脚硬顶',
+      failLog: '〔秋脚路〕这一旬连回铺脚路与薄礼都腾挪不开，只得先硬顶过去；这一房在铺里那层熟面又薄了一线（家族-1）。',
+      hardship: 'clan'
+    });
+    if (season.id === 'winter' && xun === 1) apply({
+      handledIds: ['a_book', 'a_send', 'a_mend', 'a_rest'],
+      doneTag: '年关铺耗已分',
+      doneLog: '〔年关铺耗〕年关里旧掌柜的薄礼、回铺脚路、灯油针线与来春头程小脚费已被你先分开；学徒路这层门路没有在年关忽然断掉。',
+      cost: 40,
+      costTag: '年关铺耗',
+      costLog: '〔年关铺耗〕旧掌柜薄礼、回铺脚路、灯油针线和来春头程小脚费一起要钱：铜钱-{cost}。不是体面消费，而是让“铺里还认你”这层门路能撑到明春。',
+      failTag: '年关硬顶',
+      failLog: '〔年关铺耗〕这一旬连薄礼与回铺脚路都腾挪不开，只得靠身子硬顶过去（体魄-1）。',
+      hardship: 'body'
+    });
+  }
   function resetApprenticeYearLedger() {
     S.学季 = 1;
     S.学旬 = 1;
@@ -1141,6 +1197,59 @@
     if (!tag) return;
     if (!S.本年举业季务) S.本年举业季务 = [];
     if (S.本年举业季务.indexOf(tag) < 0) S.本年举业季务.push(tag);
+  }
+  function applySeasonalExamFriction(log, stepLabel, season, xun, picked) {
+    function hasPicked(ids) {
+      return (ids || []).some(function (id) { return !!picked[id]; });
+    }
+    function apply(entry) {
+      if (!entry) return;
+      if (hasPicked(entry.handledIds)) {
+        pushExamSeasonTag(stepLabel + entry.doneTag);
+        log.push([entry.doneLog, 'good']);
+      } else if (spendCopper(entry.cost)) {
+        pushExamSeasonTag(stepLabel + entry.costTag);
+        log.push([entry.costLog.replace('{cost}', entry.cost), 'bad']);
+      } else {
+        if (entry.hardship === 'body') S.体魄 -= 1;
+        if (entry.hardship === 'clan') S.家族 = Math.max(0, S.家族 - 1);
+        pushExamSeasonTag(stepLabel + entry.failTag);
+        log.push([entry.failLog, 'bad']);
+      }
+    }
+    if (season.id === 'summer' && xun === 2) apply({
+      handledIds: ['e_essay', 'e_copy', 'e_mend', 'e_rest'],
+      doneTag: '馆课零耗已顾',
+      doneLog: '〔馆课零耗〕这一旬先把潮纸、投帖脚费、塾馆茶汤和家里凉热小耗顾住了；举业路这层最容易被一句“不过几文钱”带过的小耗，没有继续滚成更大的缺口。',
+      cost: 35,
+      costTag: '馆课零耗',
+      costLog: '〔馆课零耗〕潮纸、投帖脚费、塾馆茶汤和家里凉热小耗一起冒头：铜钱-{cost}。不是大账，却正把举业路这一年的细钱一点点磨薄。',
+      failTag: '馆课零耗硬顶',
+      failLog: '〔馆课零耗〕这一旬连潮纸脚费与塾馆茶汤都腾挪不开，只得先硬扛过去；塾师和学生家眼里这层门路又薄了一线（家族-1）。',
+      hardship: 'clan'
+    });
+    if (season.id === 'autumn' && xun === 2) apply({
+      handledIds: ['e_guarantee', 'e_copy', 'e_home'],
+      doneTag: '秋后纸墨已拆',
+      doneLog: '〔秋后纸墨〕这一旬先把保结薄礼、学生家回话脚费和润笔纸墨拆开了；秋试前最容易把“还能不能再往前推一口气”磨薄的那层碎耗，没有继续滚大。',
+      cost: 45,
+      costTag: '秋后纸墨',
+      costLog: '〔秋后纸墨〕保结薄礼、学生家回话脚费和秋后纸墨杂支一起要钱：铜钱-{cost}。不是新主线，只是把举业路这一年的细账又往下压了一层。',
+      failTag: '秋后纸墨硬顶',
+      failLog: '〔秋后纸墨〕这一旬连保结薄礼和学生家回话脚费都腾挪不开，只得先硬顶过去；这一房靠笔墨吃饭的人情面又紧了一层（家族-1）。',
+      hardship: 'clan'
+    });
+    if (season.id === 'winter' && xun === 1) apply({
+      handledIds: ['e_home', 'e_rest', 'e_copy', 'e_mend'],
+      doneTag: '年关纸墨已分',
+      doneLog: '〔年关纸墨〕旧馆账、来春纸墨定钱、灯油和拜帖脚费已被你先分开；举业路这层门路没有在年关忽然断掉。',
+      cost: 40,
+      costTag: '年关纸墨',
+      costLog: '〔年关纸墨〕旧馆账脚费、来春纸墨定钱和灯油一起要钱：铜钱-{cost}。不是体面消费，而是让“读书这一路还续得下去”不至在年关先断掉。',
+      failTag: '年关纸墨硬顶',
+      failLog: '〔年关纸墨〕这一旬连纸墨定钱和拜帖脚费都腾挪不开，只得先硬顶过去；举业路这层门路又薄了一线（家族-1）。',
+      hardship: 'clan'
+    });
   }
   function resetExamYearLedger() {
     S.举季 = 1;
@@ -2948,8 +3057,10 @@
       },
       settle: function (log) {
         var didContract = false, quit = false, askedKeep = false, askedShift = false, askedTrade = false, didEarn = false;
+        var picked = {};
         var stepTag = season.name + xunLabel;
         lifePicks.forEach(function (p) {
+          picked[p.id] = true;
           switch (p.id) {
             case 'a_seek':
               if (S.学徒合同 === '未议') S.学徒合同 = '说合中';
@@ -3068,6 +3179,7 @@
               break;
           }
         });
+        applySeasonalApprenticeFriction(log, stepTag, season, xun, picked);
 
         if (!isYearEnd) {
           curStage.next = 'apprentice';
@@ -3607,8 +3719,10 @@
       },
       settle: function (log) {
         var didStudy = false, progressed = false;
+        var picked = {};
         var stepTag = season.name + '·' + xunLabel;
         lifePicks.forEach(function (p) {
+          picked[p.id] = true;
           switch (p.id) {
             case 'e_tutor':
               var tutorPressure = 1;
@@ -3683,6 +3797,7 @@
               break;
           }
         });
+        applySeasonalExamFriction(log, stepTag, season, xun, picked);
 
         if (!isYearEnd) {
           curStage.next = 'civilExam';
