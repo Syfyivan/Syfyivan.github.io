@@ -4542,6 +4542,15 @@
             can: S.铜钱 >= 120,
             why: S.铜钱 >= 120 ? '' : '铜钱不足120文'
           });
+          pack.extraActions.push({
+            id: 'f_route_sample',
+            name: '先把样纸门包与回程脚费分开',
+            cost: 1,
+            eff: '铜钱-70·问价+1·衣药+1·家族+1',
+            desc: '伏夏里样纸、门包、回程脚费和家里布药最容易一起冒头。你先把它们拆开，不让“银还在路上”先把家里这一旬磨空。',
+            can: S.铜钱 >= 70,
+            why: S.铜钱 >= 70 ? '' : '铜钱不足70文'
+          });
         }
         if (season.id === 'autumn' && xun === 2) {
           pack.extraActions.push({
@@ -4552,6 +4561,17 @@
             desc: '秋里这口钱最容易被误当成“有了就宽”。你先拆一截续锅火，再留一截应付牙税和差役，免得一口钱拖累两头。',
             can: S.白银 >= 1 || S.铜钱 >= 240,
             why: (S.白银 >= 1 || S.铜钱 >= 240) ? '' : '现钱不够拆作锅火与牙税'
+          });
+        }
+        if (season.id === 'autumn' && xun === 3) {
+          pack.extraActions.push({
+            id: 'f_route_receipt',
+            name: '先抄回钱脚单与拖欠次序',
+            cost: 1,
+            eff: '铜钱-50·捎信+1·问价+1·通融+1',
+            desc: '秋里最怕“明明该回的钱还在路上”，却没人知道先催哪笔、哪笔还能压一旬。你先把脚单、回话和拖欠次序抄明，后头的钱路才不会继续糊着走。',
+            can: S.铜钱 >= 50,
+            why: S.铜钱 >= 50 ? '' : '铜钱不足50文'
           });
         }
         if (xun === 3 && S.未回款银 > 0) {
@@ -4574,6 +4594,15 @@
             desc: '年关先把回乡账簿和明春本钱分开，哪笔仍在路上、哪笔得先留作开春与差役后手，先在今冬说清，不等明春再乱。',
             can: S.铜钱 >= 60,
             why: S.铜钱 >= 60 ? '' : '铜钱不足60文'
+          });
+          pack.extraActions.push({
+            id: 'f_route_guest_gift',
+            name: '先备熟号薄礼与回话脚费',
+            cost: 1,
+            eff: '铜钱-70·家族+1·通融+1·捎信+1',
+            desc: '年关前熟号、脚夫与带话人的薄礼若一并省掉，明春常常就得从头求人。你先把这层小钱记下，不让门路到冬里忽然断线。',
+            can: S.铜钱 >= 70,
+            why: S.铜钱 >= 70 ? '' : '铜钱不足70文'
           });
         }
         if (season.id === 'spring' && xun === 3) {
@@ -5292,6 +5321,15 @@
                 log.push(['托熟号捎布药回家：铜钱-120、贴家+1、衣药+1、家族+2。不是只捎一口现钱，而是把夏里最缺的布、药和针线真送到锅火边。', 'good']);
               } else log.push(['想托熟号捎布药回家，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_route_sample':
+              if (spendCopper(70)) {
+                S.家族 += 1;
+                S.本年家问价 += 1;
+                S.本年家衣药 += 1;
+                pushFamilySeasonTag(stepTag + '样纸门包');
+                log.push(['先把样纸门包与回程脚费分开：铜钱-70、问价+1、衣药+1、家族+1。你先把样纸、门包和布药这层伏夏细耗压进账里，不让“银在路上”先把家里这一旬磨空。', 'good']);
+              } else log.push(['想先把样纸门包与回程脚费分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_route_autumn_split':
               if (spendSilver(1)) {
                 S.累计反哺银 += 1;
@@ -5309,6 +5347,15 @@
               } else {
                 log.push(['想把秋货回钱先拆作锅火与牙税，但这一旬现钱已先被别处占住，只得暂缓。', 'bad']);
               }
+              break;
+            case 'f_route_receipt':
+              if (spendCopper(50)) {
+                S.本年家捎信 += 1;
+                S.本年家问价 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '抄回钱脚单');
+                log.push(['先抄回钱脚单与拖欠次序：铜钱-50、捎信+1、问价+1、通融+1。秋里哪笔该催、哪笔还能压一程、哪笔得先回家续锅火，先被你理成了真账。', 'good']);
+              } else log.push(['想先抄回钱脚单与拖欠次序，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_collect':
               var owed = S.未回款银;
@@ -5356,6 +5403,15 @@
                 pushFamilySeasonTag(stepTag + '年关对账');
                 log.push(['年关对账并先留明春本钱：铜钱-60、捎信问账+1、备役+1。你先把路上账、本地差钱和开春本钱分开，不让明春第一口现钱又被混着吃掉。', 'good']);
               } else log.push(['想先在年关对账并留明春本钱，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_guest_gift':
+              if (spendCopper(70)) {
+                S.家族 += 1;
+                S.本年家通融 += 1;
+                S.本年家捎信 += 1;
+                pushFamilySeasonTag(stepTag + '熟号薄礼');
+                log.push(['先备熟号薄礼与回话脚费：铜钱-70、家族+1、通融+1、捎信+1。不是体面消费，而是把熟号、脚夫和带话人这层门路先续到明春。', 'good']);
+              } else log.push(['想先备熟号薄礼与回话脚费，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_winter_split':
               if (spendSilver(1)) {
@@ -5928,6 +5984,46 @@
             S.体魄 -= 1;
             pushFamilySeasonTag(stepTag + '仓脚硬顶');
             log.push(['〔谷种仓脚〕这一旬连谷种仓脚的小钱都腾挪不开，只得靠身子硬顶过去（体魄-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'summer' && xun === 2) {
+          if (picked.f_route_bundle || picked.f_route_sample || picked.f_route_wharf || picked.f_market || picked.f_work) {
+            pushFamilySeasonTag(stepTag + '行中小耗已顾');
+            log.push(['〔行中小耗〕这一旬先把样纸、门包、回程脚费和家里布药拆开了；“银还在路上”最磨人的那层小耗没有继续滚大。', 'good']);
+          } else if (spendCopper(45)) {
+            S.本年家衣药 += 1;
+            pushFamilySeasonTag(stepTag + '行中小耗');
+            log.push(['〔行中小耗〕样纸、门包、托栈带话和家里布药一起冒头：铜钱-45、衣药+1。不是大账，却正把商路养家这一年的细钱一点点磨薄。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '行中硬扛');
+            log.push(['〔行中小耗〕这一旬连样纸门包和布药都腾挪不开，只得先硬扛过去；熟号和家里都更吃紧了一层（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'autumn' && xun === 3) {
+          if (picked.f_route_receipt || picked.f_route_collect || picked.f_route_autumn_quote || picked.f_social || picked.f_duty) {
+            pushFamilySeasonTag(stepTag + '秋路催单已压');
+            log.push(['〔秋路催单〕这一旬先把回钱脚单、带话次序和秋路催单脚费压进账里了；秋里这口钱不再只是“该回的银”。', 'good']);
+          } else if (spendCopper(50)) {
+            pushFamilySeasonTag(stepTag + '秋路催单');
+            log.push(['〔秋路催单〕催单脚费、带话人情和拖欠碎耗一起要钱：铜钱-50。不是新主线，只是把“在路回钱”真正拖出了一层秋里摩擦。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '秋路硬顶');
+            log.push(['〔秋路催单〕这一旬连催单脚费都腾挪不开，只得先硬顶过去；商路与乡里两头的话头都又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'winter' && xun === 1) {
+          if (picked.f_route_guest_gift || picked.f_route_winter_book || picked.f_work || picked.f_rest) {
+            pushFamilySeasonTag(stepTag + '熟号薄礼已分');
+            log.push(['〔熟号薄礼〕年关前熟号薄礼、回话脚费和明春头程门包已被你先分开；商路这层门路没有在冬里忽然断掉。', 'good']);
+          } else if (spendCopper(45)) {
+            pushFamilySeasonTag(stepTag + '熟号薄礼');
+            log.push(['〔熟号薄礼〕熟号薄礼、脚夫回话和明春门包一起要钱：铜钱-45。不是体面消费，而是让明春第一程不必重新从冷面求人开始。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '薄礼硬顶');
+            log.push(['〔熟号薄礼〕这一旬连熟号薄礼与回话脚费都腾挪不开，只得先硬顶过去；旧门路又薄了一线（家族-1）。', 'bad']);
           }
         }
         if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && season.id === 'summer' && xun === 2) {
