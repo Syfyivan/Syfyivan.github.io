@@ -8,9 +8,12 @@
   'use strict';
 
   // ── 常量：节气·旬 ────────────────────────────────
-  var SOLAR = ['立夏', '芒种', '夏至'];
+  // 农路的“年内节奏”先不强行改成完整十二月月历（那会牵动过多史料口径与既有叙事），
+  // 而是在原“立夏→芒种→夏至（九旬农事）”之外补上“冬闲三旬”，让同一年里
+  // 秋收后仍有修缮、冬闲零活、还债与年关后手等细账可玩，避免“收割即年终结算”过早收束。
+  var SOLAR = ['立夏', '芒种', '夏至', '冬闲'];
   var XUN = ['上旬', '中旬', '下旬'];
-  var TOTAL_XUN = 9;
+  var TOTAL_XUN = 12;
   var HARVEST_XUN = 8;
   var AP_PER_XUN = 4;
   var GROW_TARGET = 12;
@@ -1017,6 +1020,7 @@
   }
 
   function growthInfo() {
+    if (S._已收割) return { planted: true, ratio: 1, pct: 100, label: '已收', cls: 'g-ok' };
     if (!S.已插秧) return { planted: false, ratio: 0, pct: 0, label: '未插秧', cls: 'g-none' };
     var ratio = S.秧苗进度 / GROW_TARGET;
     var pct = Math.max(0, Math.min(100, Math.round(ratio * 100)));
@@ -1504,7 +1508,8 @@
     curEvents = [];
     if (!S.已插秧 && xunIndex <= 2) curEvents.push({ t: 'nong', tag: '[农时]', txt: '秧苗待插，立夏正是插秧时。错过则误农时、影响收成。' });
     if (S.已插秧 && xunIndex >= 2 && xunIndex < HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[农时]', txt: '禾苗生长中，需时时看水、除草。当前生长 ' + S.秧苗进度 + '/' + GROW_TARGET + '。' });
-    if (xunIndex === HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[农时]', txt: '夏至已过，稻谷成熟，正是收割之时！秋收之后便是<b>年终结账</b>：佃租照约要缴、全家口粮照吃，缴不出便得折银举债，甚至被夺佃——由不得你选。' });
+    if (xunIndex === HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[农时]', txt: '夏至已过，稻谷成熟，正是收割之时！秋收之后还有冬闲：修屋、接零活、清旧账、备年关后手，最后才到<b>年终结账</b>。' });
+    if (xunIndex > HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[冬闲]', txt: '秋收已过，田里暂缓。冬闲看似松一口气，实则是把修缮、零活、旧债、年礼与来春后手一笔笔摊开的时候。' });
     if (xunIndex === 3 && S.母出工) curEvents.push({ t: 'rel', tag: '[关系]', txt: '母亲腰痛加重。若这一旬去照护，可稳住她的身子（家族+4），否则她将无法帮工。' });
     S._米价 = (rand() < 0.5) ? '低' : '高';
     curEvents.push({ t: 'rand', tag: '[随机]', txt: '米行传来消息：今旬新米价走' + S._米价 + '。' + (S._米价 === '高' ? '若有余米，正是好价钱（1石≈550文）。' : '此时卖米不划算（1石≈350文），可压仓。') });
@@ -1516,6 +1521,60 @@
     var sellPrice = farmSellPrice();
     var sellBonus = farmMarketCarryBonus();
     var craft = farmCraftProfile();
+    var postHarvest = xunIndex > HARVEST_XUN;
+    if (postHarvest) {
+      A.push({
+        id: 'winter_fix',
+        name: '冬闲·修屋补漏',
+        cost: 1,
+        money: 120,
+        eff: '铜钱-120·家族+1',
+        desc: '把一年里拖着的漏雨、破篱笆先补一补。不是体面花销，是让来春不至再被小事拖住。',
+        can: S.铜钱 >= 120,
+        why: S.铜钱 >= 120 ? '' : '铜钱不足120文'
+      });
+      A.push({
+        id: 'winter_work',
+        name: '冬闲·打零工',
+        cost: 1,
+        eff: '铜钱+80·体魄-2',
+        desc: '冬闲也有人要短工：挑脚、修渠、劈柴。钱不厚，但能把年关后手挤出一点。',
+        can: true
+      });
+      if (S.负债银 > 0) {
+        A.push({
+          id: 'winter_repay',
+          name: '冬闲·还一两旧债',
+          cost: 1,
+          eff: '白银-1·负债银-1',
+          desc: '先把旧债压下一两，让来年不至债滚债。银从哪来是另一回事：要么卖米换银，要么别处挤出来。',
+          can: S.白银 >= 1,
+          why: S.白银 >= 1 ? '' : '白银不足1两'
+        });
+      }
+      if (craft) {
+        A.push({
+          id: 'craft_side',
+          name: '冬闲·接零活',
+          cost: 1,
+          eff: craft.effect,
+          desc: craft.desc,
+          can: true
+        });
+      }
+      A.push({
+        id: 'sell',
+        name: '冬闲·卖米换现',
+        cost: 1,
+        eff: '存米-1·铜钱+' + sellPrice + (sellBonus > 0 ? '（旧门路问价）' : ''),
+        desc: '年关前总有用现钱的地方。卖1石存米换现钱。今旬米价' + (S._米价 || '?') + '。',
+        can: S.存米 >= 1,
+        why: S.存米 >= 1 ? '' : '无米可卖'
+      });
+      A.push({ id: 'care', name: '灶间·照护家里', cost: 1, eff: '家族+4', desc: '冬闲也得顾家，别让小病小累拖成大亏空。', can: true });
+      A.push({ id: 'rest', name: '歇息养身', cost: 1, eff: '体魄+6', desc: '冬里把身子养回一口气，来春才扛得动。', can: true });
+      return A;
+    }
     if (xunIndex === HARVEST_XUN) {
       A.push({ id: 'harvest', name: '收割稻谷', cost: 2, eff: '体魄-6·得米按长势(1~7石)', desc: '召集人手抢收。收成取决于这一季的生长与天气。', can: S.已插秧, why: S.已插秧 ? '' : '未曾插秧，无可收' });
       A.push({ id: 'hire_harvest', name: '雇短工助收', cost: 1, money: 100, eff: '铜钱-100·收成+1石', desc: '花100文雇人，抢在天变前收完，减少损耗。', can: S.铜钱 >= 100, why: S.铜钱 >= 100 ? '' : '铜钱不足100文' });
@@ -1694,7 +1753,8 @@
     if (phase === 'childhood') { renderChildhood(); return; }
     if (phase !== 'farm') { renderLifeStage(); return; }
     if (gameOver) return;
-    var last = (xunIndex === HARVEST_XUN);
+    var isHarvest = (xunIndex === HARVEST_XUN);
+    var isLastXun = (xunIndex === (TOTAL_XUN - 1));
     var h = '';
     h += '<div class="season-line">◆ ' + curLabel() + ' ｜ 天气：' + curWeather.k + '（' + curWeather.note + '）</div>';
     var g = growthInfo();
@@ -1712,12 +1772,12 @@
 
     if (resolved) {
       h += resolved;
-      h += '<div class="commit"><button id="btn-next">' + (xunIndex >= HARVEST_XUN ? (S.农年 < FARM_YEARS ? '年终结账 · 缴租嚼用当差 →' : '末年结账 · 步入成家 →') : '进入下一旬 →') + '</button></div>';
+      h += '<div class="commit"><button id="btn-next">' + (isLastXun ? (S.农年 < FARM_YEARS ? '年终结账 · 缴租嚼用当差 →' : '末年结账 · 步入成家 →') : '进入下一旬 →') + '</button></div>';
       $('stage').innerHTML = h;
       return;
     }
 
-    h += '<div class="ap-head"><h3>' + (last ? '收割旬 · 分配行动点' : '这一旬 · 分配行动点') + '</h3>' +
+    h += '<div class="ap-head"><h3>' + (isHarvest ? '收割旬 · 分配行动点' : '这一旬 · 分配行动点') + '</h3>' +
       '<span class="ap-dots">剩余 <b>' + remainAP() + '</b> / ' + AP_PER_XUN + ' 点</span></div>';
     h += '<div class="actions">';
     availableActions().forEach(function (a) {
@@ -1741,13 +1801,14 @@
     $('stage').innerHTML = h;
   }
 
-  function isOnce(id) { return ['plant', 'hire_plant', 'care', 'craft_side', 'harvest', 'hire_harvest', 'rest', 'exchange'].indexOf(id) >= 0; }
+  function isOnce(id) { return ['plant', 'hire_plant', 'care', 'craft_side', 'harvest', 'hire_harvest', 'rest', 'exchange', 'winter_fix', 'winter_work', 'winter_repay'].indexOf(id) >= 0; }
 
   function narrative() {
     if (xunIndex === 0) return generation > 1
       ? ('你是<span class="em">陈阿二</span>（第' + generation + '代），江南某县民籍' + currentInheritanceRole(carryOver) + '。上一代结清后，这一房手里还剩<span class="em">' + S.田亩 + '亩田、' + S.存米 + '石米、' + S.白银 + '两银</span>；你如今接着这一房的旧账继续往下活。若仍走留乡佃田，这一季能缴租后剩几何，全看你如何安排这有限的人手与光阴。')
       : '你是<span class="em">陈阿二</span>，江南某县民籍佃农之子，十六岁成丁。父兄承了祖业薄田，你分得<span class="em">' + S.田亩 + '亩水田</span>与口粮，向本村地主佃田耕作。这一季从插秧到秋收，能落下多少米、缴完租还剩几何，全看你如何安排这有限的人手与光阴。';
     if (xunIndex === HARVEST_XUN) return '九旬光阴倏忽而过，稻子黄了。这一旬要抢收、要缴租——一季的成败，就看仓里最后能剩下多少米。';
+    if (xunIndex > HARVEST_XUN) return '秋收已过，田头暂缓。冬闲看似松一口气，实则最像把一年里欠下与预留的那些小账翻出来见光：修屋、零活、还债、年礼与来春后手，全都得在同一笔钱里腾挪。';
     return '农事未歇，日子一旬一旬地过。你掂量着手里的人手：是下田侍弄禾苗，还是去挣几个现钱，或是顾一顾家里？';
   }
 
@@ -1794,6 +1855,23 @@
         case 'rest': S.体魄 += 6; log.push(['歇息养身，体魄+6', 'good']); break;
         case 'harvest': didHarvest = true; S.体魄 -= 6; S.农事历练 += 1; break;
         case 'hire_harvest': S.铜钱 -= p.money; hiredHarvest = true; log.push(['雇短工助收，付 ' + p.money + ' 文（铜钱-100）', 'bad']); break;
+        case 'winter_fix':
+          S.铜钱 -= p.money;
+          S.家族 += 1;
+          log.push(['冬闲修缮，付 ' + p.money + ' 文（铜钱-' + p.money + '、家族+1）', 'bad']);
+          break;
+        case 'winter_work':
+          S.铜钱 += 80;
+          S.体魄 -= 2;
+          log.push(['冬闲打零工，得 80 文（铜钱+80、体魄-2）', 'good']);
+          break;
+        case 'winter_repay':
+          if (S.负债银 > 0 && S.白银 >= 1) {
+            S.白银 -= 1;
+            S.负债银 = Math.max(0, S.负债银 - 1);
+            log.push(['还旧债 1 两（白银-1、负债银-1）', 'good']);
+          }
+          break;
       }
     });
 
@@ -1802,7 +1880,15 @@
       if (curWeather.risk === 'drought' && tendCount === 0) { S.秧苗进度 = Math.max(0, S.秧苗进度 - 1); log.push(['干旱又无人看水，禾苗打蔫，生长-1', 'bad']); }
       if (curWeather.k === '喜雨') { S.秧苗进度 += 1; log.push(['喜雨润田，禾苗额外生长+1', 'good']); }
     }
-    if (didHarvest) { var y = computeYield(hiredHarvest); S.存米 += y.mi; log.push(['收割：得米 ' + y.mi + ' 石（' + y.reason + '）', y.mi >= S.租额石 ? 'good' : 'bad']); }
+    if (didHarvest) {
+      var y = computeYield(hiredHarvest);
+      S.存米 += y.mi;
+      S._已收割 = true;
+      // 秋收既过，不再让“长势进度”继续在冬闲里显得像还能增长；
+      // 这里把显示进度钉到封顶值，避免“已收却还是 7/12”这种 UI 违和。
+      S.秧苗进度 = Math.max(S.秧苗进度, GROW_TARGET);
+      log.push(['收割：得米 ' + y.mi + ' 石（' + y.reason + '）', y.mi >= S.租额石 ? 'good' : 'bad']);
+    }
 
     clampAttr('体魄'); clampAttr('家族');
     if (S.秧苗进度 > GROW_TARGET) S.秧苗进度 = GROW_TARGET;
@@ -1913,7 +1999,7 @@
     rh += '</div>';
     resolved = rh;
     _yearEndNext = moreYear ? 'newyear' : 'marriage';
-    xunIndex = HARVEST_XUN; // 让 renderStage 显示"结账续耕"按钮
+    xunIndex = TOTAL_XUN - 1; // 让 renderStage 显示"结账续耕/步入成家"按钮（冬闲下旬）
     renderStage(); renderStatus(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -1933,7 +2019,7 @@
   // 开一个新的农年：重置旬与庄稼，保留三币种/负债/田亩等跨年账
   function startFarmYear() {
     xunIndex = 0; picks = []; resolved = null;
-    S.秧苗进度 = 0; S.已插秧 = false; S.菜圃进度 = 0; S.母出工 = true;
+    S.秧苗进度 = 0; S.已插秧 = false; S._已收割 = false; S.菜圃进度 = 0; S.母出工 = true;
     recordEntry('第 ' + S.农年 + ' 农年·春耕开账（' + S.年龄 + '岁）', snapshot(),
       '又是一年立夏。' + (S.负债银 > 0 ? '债还挂在账上（负债 ' + S.负债银 + ' 两），这一年得多挣些米还债、缴租。' : '这一年仍要缴租 ' + S.租额石 + ' 石、供全家嚼用，能落下多少全看安排。'));
     rollXun(); renderStatus(); renderStage(); renderLedger();
