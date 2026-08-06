@@ -8709,8 +8709,44 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             once: true
           });
         }
+        if (season.id === 'summer' && xun === 3) {
+          A.push({
+            id: 'h_summer_tail',
+            name: '先把夏尾回话脚费与柜边包纸分开',
+            cost: 1,
+            eff: '铜钱-70·通融+1·备役+1',
+            desc: '夏催账到了下旬，最怕回话脚费、柜边包纸、锅火凉药和催账小门包一起冒头。先把这几口钱拆开，秋里回款未到前，这一房至少还有可挪的后手。',
+            can: S.铜钱 >= 70,
+            why: S.铜钱 >= 70 ? '' : '铜钱不足70文',
+            once: true
+          });
+        }
         A.push({ id: 'h_hire', name: '雇工顾住田面', cost: 1, eff: '铜钱-300·分家薄田不至空转', desc: '你人在外头，先花钱把薄田顾住，别让“分得了田”变成一年的空账。', can: S.铜钱 >= 300 && (S.本年户备役 || 0) < 3, why: S.铜钱 >= 300 ? '' : '铜钱不足300文', once: true });
         A.push({ id: 'h_side', name: '抽身贴补这一房', cost: 1, eff: side.effect, desc: '当户这一年照样要找现钱。哪怕只是多接一层零活，也是在给差钱和家用添后手。', can: true });
+        if (season.id === 'autumn' && xun === 3) {
+          A.push({
+            id: 'h_autumn_tail',
+            name: '先留秋尾催单脚费与供读纸包',
+            cost: 1,
+            eff: '铜钱-80·核账+1·通融+1·家族+1',
+            desc: '秋定租到了下旬，最怕秋钱看着快回到手，催单脚费、差票回话、供读纸包和锅火又一起先撞上。先把末尾这层细账记住，年关就不会突然整口塌下来。',
+            can: S.铜钱 >= 80,
+            why: S.铜钱 >= 80 ? '' : '铜钱不足80文',
+            once: true
+          });
+        }
+        if (season.id === 'winter' && xun === 2) {
+          A.push({
+            id: 'h_winter_route_split',
+            name: '先把来春路引拆作回话与供读后手',
+            cost: 1,
+            eff: '铜钱-70·备役+1·通融+1·家族+1',
+            desc: '冬应役到了中旬，最怕把来春水脚、熟号回话、供读后手和差钱都拖到年后。先把路引拆开，明春第一程和孩子纸包都不必再来抢今冬锅火。',
+            can: S.铜钱 >= 70,
+            why: S.铜钱 >= 70 ? '' : '铜钱不足70文',
+            once: true
+          });
+        }
         if (season.id === 'winter' && xun === 3) {
           A.push({
             id: 'h_winter_coal',
@@ -8872,6 +8908,41 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想在' + stepLabel + '先把春路回钱拆作锅火与差钱，但这一旬现钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_summer_tail':
+              if (spendCopper(70)) {
+                S.本年户通融 += 1;
+                S.本年户备役 += 1;
+                pushHouseholdSeasonTag('夏尾账脚拆开');
+                log.push(['你在' + stepLabel + '先把夏尾回话脚费、柜边包纸与锅火凉药分开：铜钱-70、通融+1、备役+1。回款还没真拢到手前，秋里的后手总算先留住了一层。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把夏尾回话脚费与柜边包纸分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_autumn_tail':
+              if (spendCopper(80)) {
+                S.本年户核账 += 1;
+                S.本年户通融 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('秋尾催单纸包');
+                log.push(['你在' + stepLabel + '先留秋尾催单脚费与供读纸包：铜钱-80、核账+1、通融+1、家族+1。秋钱未必立刻就落袋，但末尾这层催单、纸包和锅火总算先从同一口现钱里拆出来了。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先留秋尾催单脚费与供读纸包，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_winter_route_split':
+              if (spendCopper(70)) {
+                S.本年户备役 += 1;
+                S.本年户通融 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('来春路引拆开');
+                log.push(['你在' + stepLabel + '先把来春路引拆作熟号回话与供读后手：铜钱-70、备役+1、通融+1、家族+1。冬里翻总账时，明春第一程和孩子纸包都不必再同眼前锅火抢一口钱。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把来春路引拆作熟号回话与供读后手，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_winter_coal':
               if (spendCopper(60)) {
                 S.本年户备役 += 1;
@@ -8895,7 +8966,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (actionCount === 0) log.push(['这一旬你几乎没把任何实账坐下，当户这一年便更容易在年关前忽然一起撞账。', 'bad']);
         applySeasonalHouseholdFriction(log, stepLabel, season, xun, picked, {
           summer: {
-            handledIds: ['h_collect', 'h_school_fund', 'h_side', 'h_rest', 'h_literate', 'h_clan', 'h_wharf'],
+            handledIds: ['h_collect', 'h_school_fund', 'h_side', 'h_rest', 'h_literate', 'h_clan', 'h_wharf', 'h_summer_tail'],
             doneTag: '伏夏小耗已顾',
             doneLog: '〔伏夏小耗〕这一旬先把伏夏布药、水脚与家里零耗顾住了；商路现钱没有再被小耗悄悄磨薄。',
             cost: 60,
@@ -8906,7 +8977,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             hardship: 'body'
           },
           autumn: {
-            handledIds: ['h_collect', 'h_pay', 'h_school_fund', 'h_clan', 'h_trust_field', 'h_side', 'h_wharf'],
+            handledIds: ['h_collect', 'h_pay', 'h_school_fund', 'h_clan', 'h_trust_field', 'h_side', 'h_wharf', 'h_autumn_tail'],
             doneTag: '秋后细账已拆',
             doneLog: '〔秋后细账〕秋后回款、租谷、供读和差钱已被你先拆开；看着厚的秋钱这旬没再被误当成整口可花的银。',
             cost: 70,
@@ -8917,7 +8988,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             hardship: 'clan'
           },
           winter: {
-            handledIds: ['h_pay', 'h_collect', 'h_literate', 'h_school_fund', 'h_clan', 'h_side', 'h_rest', 'h_wharf'],
+            handledIds: ['h_pay', 'h_collect', 'h_literate', 'h_school_fund', 'h_clan', 'h_side', 'h_rest', 'h_wharf', 'h_winter_route_split'],
             doneTag: '年关碎账已分',
             doneLog: '〔年关碎账〕旧账、明春脚路、供读后手与差钱已经先被你分开；年关没再把同一口现银搅成一团。',
             cost: 50,
@@ -8942,7 +9013,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if (season.id === 'summer' && xun === 3) {
-          if (picked.h_wharf || picked.h_collect || picked.h_side || picked.h_literate || picked.h_rest) {
+          if (picked.h_summer_tail || picked.h_wharf || picked.h_collect || picked.h_side || picked.h_literate || picked.h_rest) {
             pushHouseholdSeasonTag(stepLabel + '夏尾账脚已压');
             log.push(['〔夏尾账脚〕这一旬先把回话脚费、柜边包纸、锅火凉药和夏尾催账的小后手分开了；夏催账末尾不再把“账还在路上、家里却已先要过”混成同一口现钱。', 'good']);
           } else if (spendCopper(45)) {
@@ -8981,7 +9052,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if (season.id === 'autumn' && xun === 3) {
-          if (picked.h_pay || picked.h_collect || picked.h_school_fund || picked.h_side || picked.h_rest) {
+          if (picked.h_autumn_tail || picked.h_pay || picked.h_collect || picked.h_school_fund || picked.h_side || picked.h_rest) {
             pushHouseholdSeasonTag(stepLabel + '秋尾回话已留');
             log.push(['〔秋尾回话〕这一旬先把差票回话、催单脚费、锅火碎用和供读纸包后手分开了；秋钱看着要回到手时，末尾这层制度与家用小耗没有再悄悄把它吃空。', 'good']);
           } else if (spendCopper(50)) {
@@ -9046,7 +9117,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if (season.id === 'winter' && xun === 2) {
-          if (picked.h_pay || picked.h_collect || picked.h_school_fund || picked.h_side || picked.h_rest || picked.h_wharf) {
+          if (picked.h_winter_route_split || picked.h_pay || picked.h_collect || picked.h_school_fund || picked.h_side || picked.h_rest || picked.h_wharf) {
             pushHouseholdSeasonTag(stepLabel + '来春路引已留');
             log.push(['〔来春路引〕这一旬先把来春水脚、供读后手、差钱和熟号回话都留住了；冬应役翻总账时，来年第一程也已经先有了落脚。', 'good']);
           } else if (spendCopper(40)) {
@@ -9093,7 +9164,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if ((S.本年户供读 || 0) > 0) log.push(['这一任当户你在应役、旧账和家用之外，还真划出了一口供读专账。孩子来年能不能接着读，不再只靠死后结语。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('分书抄样') >= 0; })) log.push(['这一任当户你连分书抄样、界纸脚费和柜边包纸这层春头碎账都先摊开了；商路立户开年终于也像一年里不断冒头的小事，而不只剩“旧账与薄田”两笔大账。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('问水脚') >= 0; })) log.push(['这一任当户你不只会“催旧账”，还一旬旬去摸水脚、行栈与熟号门路；市场摩擦终于也被写进了这一年的细账里。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('夏尾账脚拆开') >= 0; }) || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋尾催单纸包') >= 0; })) log.push(['这一任当户你连夏尾回话脚费、秋尾催单纸包这种末尾细账都主动拆开了；商路这一年不再只是“季中有事”，连季尾也在持续咬人。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('年关客礼') >= 0; }) || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('客礼已分') >= 0; })) log.push(['这一任当户连年关熟号薄礼、脚夫脚费与明春水脚都被拆开记了；“门路要不要养”不再只停在一句设定里。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('来春路引拆开') >= 0; }) || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('炭脚路引') >= 0; })) log.push(['这一任当户你把冬里来春路引、熟号回话与供读后手都先拆了出来；年关不再只是收束，而是在给明春继续开账。', 'good']);
         if ((S.本年户季务 || []).length <= 4) log.push(['这一任当户虽拆成了年内各旬，但真正落到账里的细务仍偏少，说明这一年还没有被你完全做厚。', 'bad']);
 
         var risk = 0.40 + hp.baseAdj;
