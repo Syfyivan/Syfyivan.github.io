@@ -8002,8 +8002,32 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         A.push({ id: 'h_wharf', name: wharfName, cost: 1, eff: '铜钱-' + wharfCost + '·水脚与人情后手更稳', desc: '先把哪条水脚还通、哪家行栈肯压一程、哪口脚费和牙税该先拆开问清。钱没有变多，但后头的旧账、供读和差钱才不至再混成一团。', can: S.铜钱 >= wharfCost, why: S.铜钱 >= wharfCost ? '' : ('铜钱不足' + wharfCost + '文') });
         A.push({ id: 'h_literate', name: literateName, cost: 1, eff: S.识字 ? '核账次数+1·差钱/租谷更清' : '（不识字·无从核账）', desc: '把阄书、水脚、租谷、差钱都抄在自己看得懂的账上。', can: S.识字 && (S.本年户核账 || 0) < 2, why: S.识字 ? '' : '不识字，看不懂账册', once: true });
         A.push({ id: 'h_clan', name: clanName, cost: 1, eff: '家族+2·乡里通气', desc: '先把谁肯替这一房说话、谁能替你分担一层里役人情坐实。', can: (S.本年户通融 || 0) < 2, once: true });
+        if (season.id === 'spring' && xun === 3) {
+          A.push({
+            id: 'h_spring_split',
+            name: '把春路回钱拆作锅火与差钱',
+            cost: 1,
+            eff: '现钱外流·备役+1·家族+2',
+            desc: '春分书到了下旬，最怕春路旧账刚松一口，锅火和差钱就一起扑上来。先把这口回钱拆碎，不让“常年在外的人家”到立户第一季末还只会整口攥钱。',
+            can: S.白银 >= 1 || S.铜钱 >= 180,
+            why: (S.白银 >= 1 || S.铜钱 >= 180) ? '' : '现钱不够拆作锅火与差钱',
+            once: true
+          });
+        }
         A.push({ id: 'h_hire', name: '雇工顾住田面', cost: 1, eff: '铜钱-300·分家薄田不至空转', desc: '你人在外头，先花钱把薄田顾住，别让“分得了田”变成一年的空账。', can: S.铜钱 >= 300 && (S.本年户备役 || 0) < 3, why: S.铜钱 >= 300 ? '' : '铜钱不足300文', once: true });
         A.push({ id: 'h_side', name: '抽身贴补这一房', cost: 1, eff: side.effect, desc: '当户这一年照样要找现钱。哪怕只是多接一层零活，也是在给差钱和家用添后手。', can: true });
+        if (season.id === 'winter' && xun === 3) {
+          A.push({
+            id: 'h_winter_coal',
+            name: '先把炭钱、路引与熟号回话分开',
+            cost: 1,
+            eff: '铜钱-60·备役+1·通融+1·家族+1',
+            desc: '到了冬应役下旬，最怕把炭火、来春路引和熟号回话都当成“等翻完总账再说”。先拆开这口小钱，来春第一程和这一房过冬的锅火才不至撞在一起。',
+            can: S.铜钱 >= 60,
+            why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
+            once: true
+          });
+        }
         A.push({ id: 'h_rest', name: '将养身子', cost: 1, eff: '体魄+5', desc: '中年这口身子就是账本的一部分，别把应役前先熬垮。', can: true });
         return A;
       },
@@ -8112,6 +8136,32 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               log.push(['你在' + stepLabel + '又抽身贴补这一房：' + (side.mode === '自有手艺' ? '凭自有手艺' : (side.mode === '家传手艺底子' ? '凭家传手艺底子接零活' : '打杂工')) + '，铜钱+' + side.gain + '。', 'good']);
               actionCount += 1;
               break;
+            case 'h_spring_split':
+              var splitPaid = '';
+              if (spendSilver(1)) splitPaid = '白银-1';
+              else if (spendCopper(180)) splitPaid = '铜钱-180';
+              if (splitPaid) {
+                S.本年户备役 += 1;
+                S.家族 += 2;
+                pushHouseholdSeasonTag('春路拆账');
+                log.push(['你在' + stepLabel + '先把春路回钱拆作锅火与差钱：' + splitPaid + '、备役+1、家族+2。年头立户最怕“看着有钱、其实两头都没留住”，这一旬总算先把后手坐实了。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把春路回钱拆作锅火与差钱，但这一旬现钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_winter_coal':
+              if (spendCopper(60)) {
+                S.本年户备役 += 1;
+                S.本年户通融 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('炭脚路引');
+                log.push(['你在' + stepLabel + '先把炭钱、来春路引与熟号回话分开：铜钱-60、备役+1、通融+1、家族+1。冬里最怕的不是穷，而是把明春还要走的那层路数和眼前锅火挤在同一口钱里。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把炭钱、路引与熟号回话分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_rest':
               S.体魄 += 5;
               log.push(['你在' + stepLabel + '先缓口气，把身子留到冬里应役前：体魄+5。', 'good']);
@@ -8195,6 +8245,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             log.push(['〔分书脚费〕这一旬连抄手和递话脚费都腾挪不开，只得先硬顶过去；这一房刚立起来，人情面就先薄了一线（家族-1）。', 'bad']);
           }
         }
+        if (season.id === 'spring' && xun === 3) {
+          if (picked.h_spring_split || picked.h_collect || picked.h_school_fund || picked.h_side || picked.h_rest) {
+            pushHouseholdSeasonTag(stepLabel + '春路锅火已拆');
+            log.push(['〔春路锅火〕这一旬先把春路回钱、锅火和差钱后手拆开了；立户第一季末不再只剩“有一口钱”，而是真把这一房当下与下一旬的后手分了家。', 'good']);
+          } else if (spendCopper(40)) {
+            pushHouseholdSeasonTag(stepLabel + '春路锅火');
+            log.push(['〔春路锅火〕春路回话脚费、锅火碎用与差钱后手一起冒头：铜钱-40。不是新主线，却正把“外头有钱路、屋里要生火”这层摩擦压回了这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '春路硬顶');
+            log.push(['〔春路锅火〕这一旬连锅火和回话脚费都腾挪不开，只得先硬顶过去；春里这房锅火和熟号口风都更薄了一线（家族-1）。', 'bad']);
+          }
+        }
         if (season.id === 'winter' && xun === 1) {
           if (picked.h_wharf || picked.h_literate || picked.h_clan || picked.h_side || picked.h_collect || picked.h_rest) {
             pushHouseholdSeasonTag(stepLabel + '年关客礼已分');
@@ -8219,6 +8282,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.体魄 -= 1;
             pushHouseholdSeasonTag(stepLabel + '路引硬顶');
             log.push(['〔来春路引〕这一旬连来春水脚和回话脚费都腾挪不开，只得先硬顶过去；人还没老尽，身子先替这层后手吃了一亏（体魄-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'winter' && xun === 3) {
+          if (picked.h_winter_coal || picked.h_pay || picked.h_school_fund || picked.h_wharf || picked.h_rest) {
+            pushHouseholdSeasonTag(stepLabel + '炭脚路引已分');
+            log.push(['〔炭脚路引〕这一旬先把炭钱、来春路引与熟号回话分开了；冬应役落总账时，这一房不必再拿同一口现钱同时扛锅火和明春头程。', 'good']);
+          } else if (spendCopper(40)) {
+            pushHouseholdSeasonTag(stepLabel + '炭脚路引');
+            log.push(['〔炭脚路引〕炭火、来春路引和熟号回话碎费一起要钱：铜钱-40。不是另开一条主线，却把“过冬”和“明春起身”重新拖回同一旬的真账里。', 'bad']);
+          } else {
+            S.体魄 -= 1;
+            pushHouseholdSeasonTag(stepLabel + '炭路硬顶');
+            log.push(['〔炭脚路引〕这一旬连炭钱和回话脚费都腾挪不开，只得靠身子硬顶过去；冬里这房锅火和来春后手一起更薄了一层（体魄-1）。', 'bad']);
           }
         }
 
