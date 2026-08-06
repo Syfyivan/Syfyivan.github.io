@@ -482,7 +482,8 @@
       || !!S.优免启用;
   }
   function usesSeasonalHouseholdRhythm() {
-    return isMerchantRouteState() || isWageRouteState() || isApprenticeRouteState() || isCivilExamRouteState();
+    // “当户”阶段也要按年内节奏做厚：不仅是出外四路，留乡佃田亦应拆回同一年里逐旬拆账。
+    return isFarmRouteState() || isMerchantRouteState() || isWageRouteState() || isApprenticeRouteState() || isCivilExamRouteState();
   }
   function routeEntryHook(routeKey, carry) {
     if (!carry) return '';
@@ -7188,6 +7189,309 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     };
   }
 
+  // ── 留乡佃田 · 当户：同样拆成“四季三旬” ──
+  // 目的：把“分家/薄田/租谷/差票/里甲人情/当役后手”压回同一年里逐旬拆账，
+  // 避免留乡路线到了中年又退回“一次 4 点就结掉”的薄口径。
+  // 约束：尽量不额外耗 RNG；本阶段默认不掷外部冲击（shock=false），把重点放在同年细账与制度节点本身。
+  function stageFarmHousehold() {
+    var hp = householdRoutePack();
+    var seasonIdx = Math.max(1, Math.min(HOUSEHOLD_SEASONS.length, S.户季 || 1));
+    var xun = Math.max(1, Math.min(3, S.户旬 || 1));
+    var season = householdSeasonInfo(seasonIdx);
+    var stepLabel = season.name + '·' + householdXunLabel(xun);
+    var isYearEnd = seasonIdx >= HOUSEHOLD_SEASONS.length && xun >= 3;
+    var nextSeason = isYearEnd ? null : (xun >= 3 ? householdSeasonInfo(seasonIdx + 1) : season);
+
+    var canPay = S.白银 >= 2 && S.应役 !== '纳银代役';
+    var canSplitJoint = S.合爨状态 === '随兄合户';
+    var payName = seasonIdx <= 3 ? '先留纳银代役现钱' : '纳银代役';
+    var literateName = seasonIdx === 1
+      ? '识字·先抄分书与田账'
+      : (seasonIdx === 2 ? '识字·抄清水口与差票' : (seasonIdx === 3 ? '识字·核秋租与差钱' : '识字·对年关差钱'));
+    var clanName = seasonIdx === 1
+      ? '先跟兄房与里甲通气'
+      : (seasonIdx === 2 ? '伏夏先托邻里换工' : (seasonIdx === 3 ? '先把秋后人情面压住' : '年关先托乡里说话'));
+
+    var eventTxt;
+    if (season.id === 'spring' && xun === 1) {
+      eventTxt = '春分书的上旬最怕把“分得了薄田”当成“日后自然稳了”。分书、阄口、旧账与谁肯替这一房说话，得先拆开坐实。';
+    } else if (season.id === 'spring' && xun === 2) {
+      eventTxt = '春分书的中旬最像第一次真把“薄田根脚”掂在手里：你要不要先把田面、自耕与租路分开写进账里，决定这一房往后是不是还只靠一句“有 4 亩”。';
+    } else if (season.id === 'spring' && xun === 3) {
+      eventTxt = '春分书的下旬更像清旧账：分灶杂用、换工情面与这一年差钱后手，要不要先留，都在这一旬里见真章。';
+    } else if (season.id === 'summer' && xun === 1) {
+      eventTxt = '夏催账的上旬最怕暑气先把人熬垮：田头水口、草鞋凉药与里甲口风，会一齐来抢同一口现钱与同一双手。';
+    } else if (season.id === 'summer' && xun === 2) {
+      eventTxt = '夏催账的中旬最像把“守田”和“跑里甲”一起拆开：若只顾田里，差票与口风会落到你头上；若只顾人情，田面与口粮就会发虚。';
+    } else if (season.id === 'summer' && xun === 3) {
+      eventTxt = '夏催账的下旬更像给年关留后手：哪口差钱、哪层人情、哪口田面要先稳住，不能再拖到秋后才想。';
+    } else if (season.id === 'autumn' && xun === 1) {
+      eventTxt = '秋定租的上旬最像“看田脚、催租话、压差票”：秋后租谷与差钱常一齐逼近，先把脚路坐实，才不至忙到年关才发现账都浮着。';
+    } else if (season.id === 'autumn' && xun === 2) {
+      eventTxt = '秋定租的中旬看着像“仓里总该宽一口”，其实锅火、差钱、租谷差票与旧债一起更急；若不先拆账，秋后的粮很快就会漏光。';
+    } else if (season.id === 'autumn' && xun === 3) {
+      eventTxt = '秋定租的下旬更像把这一房真正坐稳：租谷要真入仓、差票要真压住、人情要真用在该用处，不能只停在口头。';
+    } else if (season.id === 'winter' && xun === 1) {
+      eventTxt = '冬应役的上旬不是只看你敢不敢扛，而是看这一年有没有先把租谷、差票、里甲人情与代役现银一层层垫起来。';
+    } else if (season.id === 'winter' && xun === 2) {
+      eventTxt = '冬应役的中旬最像翻总账：哪口租谷真回来了、哪层乡里肯替你说话、哪口差钱先留住了，都在这一旬里见真章。';
+    } else {
+      eventTxt = '冬应役的下旬没有突然掉下来的“结果”。你前头一年有没有先把田面、租谷、差票、人情与差钱分开，都会在这一旬里一起现形。';
+    }
+
+    return {
+      title: '当户 · ' + season.name,
+      label: '当户',
+      next: isYearEnd ? 'elder' : 'household',
+      nextLabel: isYearEnd ? '步入老年 →' : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
+      ap: 2,
+      shock: false,
+      commitLabel: isYearEnd ? '了这一任当户 →' : '收住这一旬当户账 →',
+      note: '留乡佃田的当户阶段现也改成“四季三旬”。分家后的薄田、自耕与租谷、差票与里甲人情、代役现银与年关后手，不再一口气糊成“一次 4 点”，而要在同一年里逐旬拆开。' + (hp.note ? ' ' + hp.note : ''),
+      narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是“再做一件大事”，而是把田面、租路与差钱里最要紧的那两手先坐实。',
+      dossier: function () {
+        return lifeDossier('农路当户拆为四季三旬｜户程=' + stepLabel + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + (S.委托租谷 || 0) + '｜应役=' + S.应役 + '｜本年户季务=' + ((S.本年户季务 || []).join(' / ') || '无') + (hp.dossier ? '｜' + hp.dossier : ''));
+      },
+      events: [
+        { t: 'rel', tag: '[分家]', txt: '阄书写定只是开始。留乡务农的人到这一步，最怕把“有田”写成一句空话：田面要守，租谷要收，差票要压，年关差钱要先留。' },
+        { t: 'rel', tag: '[' + season.name + ']', txt: season.note },
+        { t: 'rel', tag: '[田账]', txt: eventTxt },
+        hp.event
+      ].filter(Boolean),
+      prompt: '这一旬先顾哪几笔？（分配 2 点，把留乡当户这一年逐旬拆开）',
+      actions: function () {
+        var A = [];
+        var side = sideHustleProfile();
+        // route pack（薄田自耕/出佃/析爨等）：沿用 householdRoutePack 的统一守恒口径。
+        hp.extraActions.forEach(function (x) { A.push(x); });
+        if (canPay) A.push({ id: 'h_pay', name: payName, cost: 2, eff: '白银-2·纳银代役', desc: '先把这一任最硬的那口现银留下，年关轮值时就不至只剩硬扛。', can: true, once: true });
+        A.push({ id: 'h_literate', name: literateName, cost: 1, eff: S.识字 ? '核账次数+1·少吃糊涂账' : '（不识字·无从核账）', desc: '把分书、田面、水口、租谷与差钱抄进自己看得懂的账里。', can: S.识字 && (S.本年户核账 || 0) < 2, why: S.识字 ? '' : '不识字，看不懂账册', once: true });
+        A.push({ id: 'h_clan', name: clanName, cost: 1, eff: '家族+2·乡里通气', desc: '先把兄房、邻里与里甲口风压住，到冬里就不至一口气全吃人情亏。', can: (S.本年户通融 || 0) < 2, once: true });
+        A.push({ id: 'h_hire', name: seasonIdx <= 2 ? '雇工顾住田面' : '雇短工把秋后田面收住', cost: 1, eff: '铜钱-300·田面不至空转', desc: '当户这一年照样要应役与跑腿，先花钱把田面顾住，少让这一房的根脚漏掉。', can: S.铜钱 >= 300 && (S.本年户备役 || 0) < 3, why: S.铜钱 >= 300 ? '' : '铜钱不足300文', once: true });
+        A.push({ id: 'h_side', name: seasonIdx <= 2 ? '抽身贴补这一房' : '再接一口零活补差钱', cost: 1, eff: side.effect, desc: '当户这一年也要现钱。哪怕只是多接一层零活，也是在给锅火与差钱添后手。', can: true });
+        A.push({ id: 'h_rest', name: '将养身子', cost: 1, eff: '体魄+5', desc: '中年当户，别把身子先熬垮。', can: true });
+        return A;
+      },
+      settle: function (log) {
+        doInherit(log);
+        var actionCount = 0;
+        var picked = {};
+        lifePicks.forEach(function (p) { picked[p.id] = true; });
+
+        lifePicks.forEach(function (p) {
+          switch (p.id) {
+            case 'h_pay':
+              if (spendSilver(2)) {
+                S.应役 = '纳银代役';
+                S.本年户备役 += 2;
+                pushHouseholdSeasonTag('纳银代役');
+                log.push(['你在' + stepLabel + '先把纳银代役的现钱坐实：白银-2。等到冬里真轮到这一房，就不至把整年后手一起赔进去。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先留纳银代役现钱，但这一旬现银已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_literate':
+              S.本年户核账 += 1;
+              pushHouseholdSeasonTag(season.name + '核账');
+              log.push(['你在' + stepLabel + '先把分书、田账、水口与差钱抄清。识字不是加分，而是少让这一房在糊涂账里白漏一层。', 'good']);
+              actionCount += 1;
+              break;
+            case 'h_clan':
+              S.家族 += 2;
+              S.本年户通融 += 1;
+              pushHouseholdSeasonTag('乡里通气');
+              log.push(['你在' + stepLabel + '先把兄房、邻里与里甲的人情面压实：家族+2。到冬里真轮值时，至少不是独自去吃那层人情亏。', 'good']);
+              actionCount += 1;
+              break;
+            case 'h_hire':
+              if (spendCopper(300)) {
+                S.本年户备役 += 1;
+                pushHouseholdSeasonTag('雇工顾田');
+                log.push(['你在' + stepLabel + '先花 300 文顾住田面，免得这一房“田还在名下，却白荒一季”。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '雇工顾住田面，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_side':
+              var side = sideHustleProfile();
+              S.铜钱 += side.gain;
+              S.最近农闲营生层级 = side.mode;
+              S.最近农闲营生收益 = side.gain;
+              pushHouseholdSeasonTag(season.name + '贴补');
+              log.push(['你在' + stepLabel + '又抽身贴补这一房：' + (side.mode === '自有手艺' ? '凭自有手艺' : (side.mode === '家传手艺底子' ? '凭家传手艺底子接零活' : '打杂工')) + '，铜钱+' + side.gain + '。', 'good']);
+              actionCount += 1;
+              break;
+            case 'h_rest':
+              S.体魄 += 5;
+              log.push(['你在' + stepLabel + '先将养身子：体魄+5。', 'good']);
+              actionCount += 1;
+              break;
+            case 'h_hold_field':
+              // 由 householdRoutePack 注入，但结算逻辑与通用当户一致
+              S.委托营生 = '分得薄田自耕';
+              S.委托租谷 = 0;
+              S.委托待收租谷 = 0;
+              var fieldGain = 1 + ((S.家传农事 || 0) > 0 ? 1 : 0);
+              var fieldPractice = ((S.家传农事 || 0) > 0 ? 1 : 0);
+              S.存米 += fieldGain;
+              if (fieldPractice > 0) S.农事历练 += fieldPractice;
+              S.本年户委托 += 1;
+              pushHouseholdSeasonTag('薄田自耕');
+              log.push(['你在' + stepLabel + '把分得薄田先坐成自耕账：存米+' + fieldGain + (fieldPractice > 0 ? ('、农事历练+' + fieldPractice) : '') + '。留乡务农的人到这一步，最怕把“有田”写成一句空话。', 'good']);
+              actionCount += 1;
+              break;
+            case 'h_lease_home':
+              S.委托营生 = '出佃收租';
+              S.委托租谷 = Math.max(S.委托租谷, 1);
+              S.委托待收租谷 = Math.max(S.委托待收租谷 || 0, S.委托租谷);
+              S.本年户委托 += 1;
+              pushHouseholdSeasonTag('薄田租账');
+              log.push(['你在' + stepLabel + '先把薄田立成租账：年租谷+1。口粮虽少了亲手把握，却替这一房留下一条稳租路。', 'good']);
+              actionCount += 1;
+              break;
+            case 'h_split_joint':
+              S.合爨状态 = '已析爨';
+              S.铜钱 += 180;
+              S.家族 -= 1;
+              S.本年户核账 += 1;
+              pushHouseholdSeasonTag('析爨清共账');
+              log.push(['你在' + stepLabel + '把先前合爨的共账清回这一房：铜钱+180、家族-1。往后再遇差役与口粮，不必再从“共着过日子”糊账起手。', 'good']);
+              actionCount += 1;
+              break;
+          }
+        });
+
+        if (actionCount === 0) log.push(['这一旬你几乎没把任何实账坐下，当户这一年便更容易在年关前忽然一起撞账。', 'bad']);
+
+        applySeasonalHouseholdFriction(log, stepLabel, season, xun, picked, {
+          summer: {
+            handledIds: ['h_hire', 'h_hold_field', 'h_literate', 'h_side', 'h_rest'],
+            doneTag: '伏夏小耗已顾',
+            doneLog: '〔伏夏小耗〕这一旬你至少把田面、水口或凉药草鞋里的一层顾住；伏夏损耗没有消失，但没再把身子与锅火一并熬穿。',
+            cost: 55,
+            costTag: '伏夏小耗',
+            costLog: '〔伏夏小耗〕凉药、草鞋、田边水口与小脚费一齐冒头：铜钱-{cost}。不是大祸，只是当户这一年里又一口真支出。',
+            failTag: '伏夏硬扛',
+            failLog: '〔伏夏小耗〕这一旬连凉药草鞋钱都腾挪不开，只得先硬扛过去：体魄-1。',
+            hardship: 'body'
+          },
+          autumn: {
+            handledIds: ['h_hold_field', 'h_lease_home', 'h_clan', 'h_literate', 'h_hire'],
+            doneTag: '秋后细账已拆',
+            doneLog: '〔秋后细账〕秋里租谷、差票、锅火与人情脚路已被你先拆开；“仓里有粮”没有再被误写成“秋后自然稳了”。',
+            cost: 65,
+            costTag: '秋后杂支',
+            costLog: '〔秋后杂支〕催租差票、人情脚路与锅火碎用一起压来：铜钱-{cost}。不是新主线，只是同一年里又一层真支出。',
+            failTag: '秋后硬顶',
+            failLog: '〔秋后杂支〕现钱腾挪不开，这一旬只得先硬顶过去；这一房的人情面更紧了一层（家族-1）。',
+            hardship: 'clan'
+          },
+          winter: {
+            handledIds: ['h_pay', 'h_clan', 'h_literate', 'h_side', 'h_rest'],
+            doneTag: '年关碎账已分',
+            doneLog: '〔年关碎账〕差钱、灯油、草鞋与来春第一口谷种定钱已被你先分开；年关没再把同一口现钱搅成一团。',
+            cost: 45,
+            costTag: '年关碎账',
+            costLog: '〔年关碎账〕灯油、草鞋、来春谷种定钱与小脚费一齐要钱：铜钱-{cost}。不是大账，却正是最磨人的年关小耗。',
+            failTag: '年关硬顶',
+            failLog: '〔年关碎账〕这一旬连年关碎用都挪不开，只得靠身子硬顶过去（体魄-1）。',
+            hardship: 'body'
+          }
+        });
+
+        // 春分书第一旬：分灶锅火与“另起一房”的小耗
+        if (season.id === 'spring' && xun === 1) {
+          if (picked.h_split_joint || picked.h_literate || picked.h_clan) {
+            pushHouseholdSeasonTag(stepLabel + '析灶锅火已安');
+            log.push(['〔析灶锅火〕分书后该添的锅釜、量斗与分灶杂用这一旬已被你先安顿；立户不是一句“分到了”，而是真把这一房的日子拆出来。', 'good']);
+          } else if (spendCopper(45)) {
+            pushHouseholdSeasonTag(stepLabel + '析灶锅火');
+            log.push(['〔析灶锅火〕分书后添锅釜、量斗与分灶杂用一起冒头：铜钱-45。不是新主线，只是立户第一旬就得先把“各过各的日子”坐成真账。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '析灶硬顶');
+            log.push(['〔析灶锅火〕这一旬连分灶杂用都腾挪不开，只得继续借着兄房锅火硬顶；这一房刚立起来的人情面先薄了一层（家族-1）。', 'bad']);
+          }
+        }
+
+        // 秋定租上旬：租谷差票与脚路碎费
+        if (season.id === 'autumn' && xun === 1) {
+          if (picked.h_hold_field || picked.h_lease_home || picked.h_hire || picked.h_clan || (S.委托营生 === '分得薄田自耕') || (S.委托租谷 || 0) > 0) {
+            pushHouseholdSeasonTag(stepLabel + '租谷差票已坐');
+            log.push(['〔租谷差票〕秋里租谷与差票的脚路与口风这一旬已被你先拆开；薄田没有再被写成“账面上有、脚下却顾不到”。', 'good']);
+          } else if (spendCopper(50)) {
+            pushHouseholdSeasonTag(stepLabel + '租谷差票');
+            log.push(['〔租谷差票〕催租差票、跑脚路与秋里锅火碎支一起要钱：铜钱-50。不是大账，却正是“秋后得先垫的一层脚路”。', 'bad']);
+          } else {
+            S.体魄 = Math.max(0, S.体魄 - 1);
+            pushHouseholdSeasonTag(stepLabel + '秋租硬顶');
+            log.push(['〔租谷差票〕这一旬连跑脚路都腾挪不开，只得自己来回硬跑硬顶过去（体魄-1）。', 'bad']);
+          }
+        }
+
+        clampAttr('体魄');
+        clampAttr('家族');
+
+        if (!isYearEnd) {
+          if (xun >= 3) {
+            S.户季 = seasonIdx + 1;
+            S.户旬 = 1;
+          } else {
+            S.户旬 = xun + 1;
+          }
+          curStage.next = 'household';
+          curStage.nextLabel = xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →');
+          return;
+        }
+
+        // 年终：评估这一任当户的制度风险（一次 roll，不额外耗 RNG）
+        if ((S.本年户核账 || 0) <= 0) log.push(['这一任当户你始终没把分书、田账与差票亲手核清，最容易吃的就是“明明守着薄田，却在糊涂账上漏掉”。', 'bad']);
+        if ((S.本年户委托 || 0) > 0 || S.委托营生 === '分得薄田自耕' || (S.委托租谷 || 0) > 0) log.push(['这一任当户你先把薄田写成了真账：不是自耕，就是租谷；这一房从此不再只剩“名下还有 4 亩”的一句空话。', 'good']);
+        else log.push(['这一任当户你始终没把薄田坐成自耕或租账；田还在名下，却还没开始真替这一房回口粮。', 'bad']);
+        if ((S.本年户季务 || []).length <= 6) log.push(['这一任当户虽拆成了年内各旬，但真正落到账里的细务仍偏少，说明这一年还没有被你完全做厚。', 'bad']);
+
+        var risk = 0.40 + hp.baseAdj;
+        risk -= Math.min(0.16, (S.本年户核账 || 0) * 0.08);
+        risk -= Math.min(0.12, (S.本年户通融 || 0) * 0.06);
+        risk -= Math.min(0.12, (S.本年户备役 || 0) * 0.06);
+        if ((S.本年户委托 || 0) > 0 || S.委托营生 === '分得薄田自耕' || (S.委托租谷 || 0) > 0) risk -= 0.09;
+        if (S.应役 === '纳银代役') risk -= 0.14;
+        if (S.家族 >= 60) risk -= 0.04;
+        if (S.识字) risk -= 0.04;
+        if (S.负债银 > 0) risk += 0.04;
+        if ((S.家传农事 || 0) > 0) risk -= 0.02;
+        if ((S.农事历练 || 0) >= 4) risk -= 0.02;
+        risk = Math.max(0.03, Math.min(0.85, risk));
+        var levyP = risk * 0.75, ruinP = risk * 0.25, safeP = 1 - risk;
+        var r = rollProb([{ p: safeP, r: 'safe' }, { p: levyP, r: 'levy' }, { p: ruinP, r: 'ruin' }]);
+        var pct = Math.round(risk * 100);
+        if (r === 'safe') {
+          S.家族 += 5;
+          if (!S.应役 || S.应役 === '未役') S.应役 = '平安应役';
+          if (S.委托营生 === '分得薄田自耕') {
+            S.存米 += 1;
+            log.push(['〔守田承接〕这一年把薄田真写成了自耕账，年尾又替这一房多守下一口口粮：存米+1。', 'good']);
+          }
+          if ((S.委托租谷 || 0) > 0) S.委托待收租谷 = Math.max(S.委托待收租谷 || 0, S.委托租谷);
+          log.push(['〔当役了讫〕这一整年拆账后，赔累风险约 ' + pct + '%，你总算把这一任当户平稳压过：家族+5。', 'good']);
+        } else if (r === 'levy') {
+          S.铜钱 = Math.max(0, S.铜钱 - 1200);
+          S.应役 = '赔累';
+          log.push(['〔遭加派〕这一年虽先留了后手，赔累风险约 ' + pct + '%仍被命中：为解运垫赔，铜钱-1200。', 'bad']);
+        } else {
+          S.田亩 = Math.max(0, S.田亩 - 2);
+          S.负债银 += 2;
+          S.应役 = '破家';
+          log.push(['〔当役破家〕这一任当户最后还是压成了制度账：失田2亩、负债+2两。不是你“不够努力”，而是这层风险本就会往个体头上塌。', 'bad']);
+        }
+        curStage.next = 'elder';
+        curStage.nextLabel = '步入老年 →';
+      }
+    };
+  }
+
   function stageApprenticeHousehold() {
     var hp = householdRoutePack();
     var seasonIdx = Math.max(1, Math.min(HOUSEHOLD_SEASONS.length, S.户季 || 1));
@@ -8232,6 +8536,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   }
 
   function stageHousehold() {
+    if (isFarmRouteState()) return stageFarmHousehold();
     if (isWageRouteState()) return stageWageHousehold();
     if (isApprenticeRouteState()) return stageApprenticeHousehold();
     if (isMerchantRouteState()) return stageMerchantHousehold();
