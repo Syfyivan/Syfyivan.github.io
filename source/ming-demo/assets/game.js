@@ -7,11 +7,12 @@
 (function () {
   'use strict';
 
-  // ── 常量：节气·旬 ────────────────────────────────
+  // ── 常量：季务·旬 ────────────────────────────────
   // 农路的“年内节奏”先不强行改成完整十二月月历（那会牵动过多史料口径与既有叙事），
-  // 而是在原“立夏→芒种→夏至（九旬农事）”之外补上“冬闲三旬”，让同一年里
-  // 秋收后仍有修缮、冬闲零活、还债与年关后手等细账可玩，避免“收割即年终结算”过早收束。
-  var SOLAR = ['立夏', '芒种', '夏至', '冬闲'];
+  // 先用“春耕→夏管→秋收→冬闲”四季、每季三旬把一年撑起来，并保留：
+  // 1) 前八旬主要围绕种植与长势；2) 秋收下旬强制收割；3) 冬闲三旬专门摊“修缮/零活/旧债/年关后手”。
+  // 目标不是更换称谓，而是让玩家更容易把“走到哪一旬”与“今年到底过了多少”对齐。
+  var SOLAR = ['春耕', '夏管', '秋收', '冬闲'];
   var XUN = ['上旬', '中旬', '下旬'];
   var TOTAL_XUN = 12;
   var HARVEST_XUN = 8;
@@ -1922,9 +1923,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function rollXun() {
     curWeather = pickWeighted(WEATHERS);
     curEvents = [];
-    if (!S.已插秧 && xunIndex <= 2) curEvents.push({ t: 'nong', tag: '[农时]', txt: '秧苗待插，立夏正是插秧时。错过则误农时、影响收成。' });
+    if (!S.已插秧 && xunIndex <= 2) curEvents.push({ t: 'nong', tag: '[农时]', txt: '秧苗待插，春耕正是插秧时。错过则误农时、影响收成。' });
     if (S.已插秧 && xunIndex >= 2 && xunIndex < HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[农时]', txt: '禾苗生长中，需时时看水、除草。当前生长 ' + S.秧苗进度 + '/' + GROW_TARGET + '。' });
-    if (xunIndex === HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[农时]', txt: '夏至已过，稻谷成熟，正是收割之时！秋收之后还有冬闲：修屋、接零活、清旧账、备年关后手，最后才到<b>年终结账</b>。' });
+    if (xunIndex === HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[农时]', txt: '秋收将尽，稻谷渐黄，正是抢收之时！收割之后还有冬闲：修屋、接零活、清旧账、备年关后手，最后才到<b>年终结账</b>。' });
     if (xunIndex > HARVEST_XUN) curEvents.push({ t: 'nong', tag: '[冬闲]', txt: '秋收已过，田里暂缓。冬闲看似松一口气，实则是把修缮、零活、旧债、年礼与来春后手一笔笔摊开的时候。' });
     if (xunIndex === 3 && S.母出工) curEvents.push({ t: 'rel', tag: '[关系]', txt: '母亲腰痛加重。若这一旬去照护，可稳住她的身子（家族+4），否则她将无法帮工。' });
     S._米价 = (rand() < 0.5) ? '低' : '高';
@@ -2181,7 +2182,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       '<div class="cb-head"><span class="cb-title">🌾 田亩 ' + S.田亩 + ' 亩 · 庄稼长势</span>' +
       '<span class="cb-val">' + (g.planted ? (g.label + '（' + S.秧苗进度 + '/' + GROW_TARGET + '，' + g.pct + '%）') : '尚未插秧') + '</span></div>' +
       '<div class="cb-track"><i style="width:' + g.pct + '%"></i></div>' +
-      '<div class="cb-tip">' + (g.planted ? (S.秧苗进度 >= GROW_TARGET ? '禾苗已<b>长足封顶（12/12）</b>，再看水也不会长了——把人手匀去挣钱或顾家更划算。' : '离"长足丰收（12/12）"还差 ' + (GROW_TARGET - S.秧苗进度) + ' 点生长；勤看水除草、遇喜雨可加快。到 12 即封顶。') : '立夏正是插秧时，越早插下，可生长的旬数越多（生长满 12 即达丰收上限）。') + '</div>' +
+      '<div class="cb-tip">' + (g.planted ? (S.秧苗进度 >= GROW_TARGET ? '禾苗已<b>长足封顶（12/12）</b>，再看水也不会长了——把人手匀去挣钱或顾家更划算。' : '离"长足丰收（12/12）"还差 ' + (GROW_TARGET - S.秧苗进度) + ' 点生长；勤看水除草、遇喜雨可加快。到 12 即封顶。') : '春耕正是插秧时，越早插下，可生长的旬数越多（生长满 12 即达丰收上限）。') + '</div>' +
       '</div>';
     h += '<div class="narr">' + narrative() + '</div>';
 
@@ -2508,7 +2509,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     xunIndex = 0; picks = []; resolved = null;
     S.秧苗进度 = 0; S.已插秧 = false; S._已收割 = false; S.菜圃进度 = 0; S.母出工 = true;
     recordEntry('第 ' + S.农年 + ' 农年·春耕开账（' + S.年龄 + '岁）', snapshot(),
-      '又是一年立夏。' + (S.负债银 > 0 ? '债还挂在账上（负债 ' + S.负债银 + ' 两），这一年得多挣些米还债、缴租。' : '这一年仍要缴租 ' + S.租额石 + ' 石、供全家嚼用，能落下多少全看安排。'));
+      '又是一年春耕。' + (S.负债银 > 0 ? '债还挂在账上（负债 ' + S.负债银 + ' 两），这一年得多挣些米还债、缴租。' : '这一年仍要缴租 ' + S.租额石 + ' 石、供全家嚼用，能落下多少全看安排。'));
     rollXun(); renderStatus(); renderStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
