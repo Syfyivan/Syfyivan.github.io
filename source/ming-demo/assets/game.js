@@ -6466,6 +6466,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.铜钱 >= marketCost ? '' : ('铜钱不足' + marketCost + '文')
           });
           A.push({
+            id: 'f_message',
+            name: '托人捎话回乡',
+            cost: 1,
+            eff: '铜钱-20·家族+1·捎信+1',
+            desc: '托脚夫或熟人捎一封短话回乡：钱不多，却能把“这一房怎么过、哪笔账在路上”的口风先续上。',
+            can: S.铜钱 >= 20,
+            why: S.铜钱 >= 20 ? '' : '铜钱不足20文'
+          });
+          A.push({
             id: 'f_social',
             name: '走里甲人情',
             cost: 1,
@@ -7305,6 +7314,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushFamilySeasonTag(stepTag + '里甲通融');
                 log.push(['走里甲人情：铜钱-' + socialCost + '、家族+1。不是买平安，而是把“到期才慌”改成“平日先通一层气口”。', 'good']);
               } else log.push(['想走里甲人情，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              break;
+            case 'f_message':
+              if (spendCopper(20)) {
+                S.家族 += 1;
+                S.本年家捎信 += 1;
+                pushFamilySeasonTag(stepTag + '捎话');
+                log.push(['托人捎话回乡：铜钱-20、家族+1、捎信+1。钱不多，却把家里这一旬的口风与心气先续了一口。', 'good']);
+              } else log.push(['想托人捎话回乡，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               break;
             case 'f_favor_lend':
               if (spendCopper(80)) {
