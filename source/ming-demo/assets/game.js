@@ -10420,7 +10420,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     } else if (season.id === 'summer' && xun === 1) {
       eventTxt = '夏催账的上旬最怕暑气先把人熬散，纸墨、凉药、馆账与家里田面的细耗却还没理清。';
     } else if (season.id === 'summer' && xun === 2) {
-      eventTxt = '夏催账的中旬最像把“识字底子”和“锅火现实”一起拆开：若只顾塾馆体面，这一房现钱会先断；若只顾眼前现钱，来年那层名色又会发虚。';
+      eventTxt = '夏催账的中旬最像把“识字底子”和“锅火现实”一起拆开：保结薄礼、学生家回签、租帖脚费与锅火凉药会同时来抢这一口钱；若只顾塾馆体面，这一房现钱会先断；若只顾眼前现钱，来年那层名色又会发虚。';
     } else if (season.id === 'summer' && xun === 3) {
       eventTxt = '夏催账的下旬更像给年关留后手：哪笔润笔先回、哪层优免先坐实、哪口租谷先落账，都不能再拖。';
     } else if (season.id === 'autumn' && xun === 1) {
@@ -10480,6 +10480,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           desc: '夏催账刚起头时，最怕潮纸、馆里茶汤、学生家回话脚费与家里凉药一起压上来。先把这层小耗拆开，举业路的伏夏第一旬才不至只靠识字底子硬顶。',
           can: S.铜钱 >= 70,
           why: S.铜钱 >= 70 ? '' : '铜钱不足70文',
+          once: true
+        });
+        if (season.id === 'summer' && xun === 2) A.push({
+          id: 'h_summer_surety',
+          name: '先把保结薄礼与租帖脚费分开',
+          cost: 1,
+          eff: '铜钱-65·催账+1·通融+1·备役+1·家族+1',
+          desc: '夏催账到了中旬，最怕保结薄礼、学生家回签、租帖脚费与锅火凉药一起压上来。先把这层小耗拆开，举业路这旬才不至既顾名色又顾锅火时两头都漏。',
+          can: S.铜钱 >= 65,
+          why: S.铜钱 >= 65 ? '' : '铜钱不足65文',
           once: true
         });
         if (season.id === 'autumn' && xun === 1) A.push({
@@ -10609,6 +10619,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 actionCount += 1;
               } else {
                 log.push(['想在' + stepLabel + '先把伏夏潮纸与学生家回话分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_summer_surety':
+              if (spendCopper(65)) {
+                S.本年户催账 += 1;
+                S.本年户通融 += 1;
+                S.本年户备役 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('伏夏保结');
+                log.push(['你在' + stepLabel + '先把保结薄礼、学生家回签、租帖脚费与锅火凉药分开：铜钱-65、催账+1、通融+1、备役+1、家族+1。举业路夏催账中旬最容易被“还认不认你”与“这一房还过不过得下去”一起磨薄的那层细账，总算先被你压回了这一旬。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把保结薄礼与租帖脚费分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
             case 'h_autumn_packet':
@@ -10766,14 +10789,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             hardship: 'clan'
           },
           summer: {
-            handledIds: ['h_copy_mid', 'h_exempt', 'h_rest', 'h_literate', 'h_clan', 'h_side', 'h_exam_split', 'h_summer_packet'],
+            handledIds: ['h_copy_mid', 'h_exempt', 'h_rest', 'h_literate', 'h_clan', 'h_side', 'h_exam_split', 'h_summer_packet', 'h_summer_surety'],
             doneTag: '伏夏小耗已顾',
-            doneLog: '〔伏夏小耗〕这一旬先把纸墨、凉药、馆账和家里锅火顾住了；识字底子没有再被伏夏杂耗一点点磨空。',
+            doneLog: '〔伏夏小耗〕这一旬先把纸墨、凉药、馆账、保结薄礼和家里锅火顾住了；识字底子没有再被伏夏杂耗一点点磨空。',
             cost: 60,
             costTag: '伏夏小耗',
-            costLog: '〔伏夏小耗〕纸墨、凉药、馆账碎费和家里小耗一起冒头：铜钱-{cost}。不是大祸，只是举业路当户这一年里又一口真支出。',
+            costLog: '〔伏夏小耗〕纸墨、凉药、馆账碎费、保结小礼和家里小耗一起冒头：铜钱-{cost}。不是大祸，只是举业路当户这一年里又一口真支出。',
             failTag: '伏夏硬扛',
-            failLog: '〔伏夏小耗〕这一旬连纸墨和凉药钱都腾挪不开，只得先硬扛过去：体魄-1。',
+            failLog: '〔伏夏小耗〕这一旬连纸墨、凉药和保结薄礼都腾挪不开，只得先硬扛过去：体魄-1。',
             hardship: 'body'
           },
           autumnUpper: {
