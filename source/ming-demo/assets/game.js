@@ -6636,6 +6636,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             can: S.铜钱 >= repairCost,
             why: S.铜钱 >= repairCost ? '' : ('铜钱不足' + repairCost + '文')
           });
+          A.push({
+            id: 'f_registry',
+            name: '翻黄册点役',
+            cost: 1,
+            eff: '铜钱-20·备役后手+1·通融+1',
+            desc: '去里老或里甲处把这一年的差票、轮役口风先问明。不是“买通免役”，只是把制度这层后手早一点摊回同一年账里，免得到了秋后才四处拆钱。',
+            can: S.铜钱 >= 20,
+            why: S.铜钱 >= 20 ? '' : '铜钱不足20文',
+            once: true
+          });
           if (season.id === 'spring') {
             A.push({
               id: 'f_ancestral',
@@ -7621,6 +7631,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先兑丁粮差票压秋后催缴：铜钱-90、备役后手+1、通融+1。钱没有变多，只是先把秋后那层催缴压在账里。', 'good']);
               } else log.push(['想先兑丁粮差票压秋后催缴，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_registry':
+              if (spendCopper(20)) {
+                S.本年家备役 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '黄册点役');
+                log.push(['翻黄册点役：铜钱-20、备役后手+1、通融+1。不是买通，只是先把差票口风与轮役次序问明，免得到了秋后才被制度账临门扯散。', 'good']);
+              } else log.push(['想翻黄册点役先问明差票口风，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_favor_collect':
               if ((S.人情欠条 || 0) > 0) {
                 S.人情欠条 -= 1;
@@ -7786,7 +7804,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if (season.id === 'autumn' && xun === 3) {
-          var taxHandled = !!(picked.f_duty || picked.f_tax
+          var taxHandled = !!(picked.f_duty || picked.f_tax || picked.f_registry
             || picked.f_route_autumn_split || picked.f_route_school_split || picked.f_route_shop_split
             || picked.f_route_wage_autumn_split || picked.f_route_split);
           if (taxHandled) {
