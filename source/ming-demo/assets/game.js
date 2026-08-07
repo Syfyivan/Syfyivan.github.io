@@ -5930,6 +5930,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.铜钱 >= 50 ? '' : '铜钱不足50文'
           });
           pack.extraActions.push({
+            id: 'f_route_winter_packet',
+            name: '先把熟号回签与孩子纸包分开',
+            cost: 1,
+            eff: '铜钱-65·家族+1·捎信+1·通融+1·供读+1',
+            desc: '冬尾最怕熟号回签、孩子纸包、递话脚费和来春样纸定钱一起冒头。你先把这一口小钱拆开，门路、孩子纸墨与明春样纸就不必再抢同一口锅火钱。',
+            can: S.铜钱 >= 65,
+            why: S.铜钱 >= 65 ? '' : '铜钱不足65文'
+          });
+          pack.extraActions.push({
             id: 'f_route_winter_reply',
             name: '先把年下回话、炭药与客账次序分开',
             cost: 1,
@@ -7098,6 +7107,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushFamilySeasonTag(stepTag + '订明春脚路');
                 log.push(['托熟号订明春水脚：铜钱-50、问价+1、通融+1、捎信+1。你先把来年第一程能不能走、哪层熟号肯压一程问明，不让明春又从两眼一抹黑开始。', 'good']);
               } else log.push(['想先托熟号订明春水脚，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_winter_packet':
+              if (spendCopper(65)) {
+                S.家族 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                S.本年家供读 += 1;
+                pushFamilySeasonTag(stepTag + '冬尾回签');
+                log.push(['先把熟号回签与孩子纸包分开：铜钱-65、家族+1、捎信+1、通融+1、供读+1。熟号回签、孩子纸包、递话脚费和来春样纸定钱先被拆开，冬尾这层“门路要续、孩子也得接着读写”的小耗没有再一起挤锅火钱。', 'good']);
+              } else log.push(['想先把熟号回签与孩子纸包分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_winter_reply':
               if (spendCopper(70)) {
