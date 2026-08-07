@@ -10366,6 +10366,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.铜钱 >= 65 ? '' : '铜钱不足65文',
             once: true
           });
+          A.push({
+            id: 'h_winter_register',
+            name: '先把里书抄册与来春牙帖分开',
+            cost: 1,
+            eff: '铜钱-60·核账+1·备役+1·家族+1',
+            desc: '冬应役到了中旬，最怕里书抄册、来春牙帖脚费、熟号递话小礼和脚夫回签一起抢现钱。先把这层帖册碎账拆开，明春认牙和今冬应役就不必继续抢同一口钱。',
+            can: S.铜钱 >= 60,
+            why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
+            once: true
+          });
         }
         if (season.id === 'winter' && xun === 3) {
           A.push({
@@ -10694,6 +10704,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想在' + stepLabel + '先把冬中回话脚费与脚夫门包分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_winter_register':
+              if (spendCopper(60)) {
+                S.本年户核账 += 1;
+                S.本年户备役 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('冬中帖册拆开');
+                log.push(['你在' + stepLabel + '先把里书抄册、来春牙帖脚费、熟号递话小礼和脚夫回签分开：铜钱-60、核账+1、备役+1、家族+1。冬应役中旬这层“今冬还得过役、明春又要认牙”的制度细账，总算先被拆回了同一旬。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把里书抄册与来春牙帖分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_winter_gift':
               if (spendCopper(70)) {
                 S.本年户通融 += 1;
@@ -10787,7 +10809,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             hardship: 'clan'
           },
           winter: {
-            handledIds: ['h_pay', 'h_collect', 'h_literate', 'h_school_fund', 'h_clan', 'h_side', 'h_rest', 'h_wharf', 'h_winter_route_split', 'h_winter_gift', 'h_winter_medicine', 'h_winter_sample'],
+            handledIds: ['h_pay', 'h_collect', 'h_literate', 'h_school_fund', 'h_clan', 'h_side', 'h_rest', 'h_wharf', 'h_winter_route_split', 'h_winter_clear', 'h_winter_register', 'h_winter_gift', 'h_winter_medicine', 'h_winter_sample'],
             doneTag: '年关碎账已分',
             doneLog: '〔年关碎账〕旧账、明春脚路、供读后手与差钱已经先被你分开；年关没再把同一口现银搅成一团。',
             cost: 50,
@@ -11030,6 +11052,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushHouseholdSeasonTag(stepLabel + '冬中硬顶');
             log.push(['〔冬中回话〕这一旬连回话脚费和脚夫门包都腾挪不开，只得先硬顶过去；熟号与乡里两头替这一房接气的口风又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'winter' && xun === 2) {
+          if (picked.h_winter_register || picked.h_winter_clear || picked.h_winter_route_split || picked.h_pay || picked.h_literate || picked.h_wharf) {
+            pushHouseholdSeasonTag(stepLabel + '冬中帖册已理');
+            log.push(['〔冬中帖册〕这一旬先把里书抄册、来春牙帖脚费、熟号递话小礼和脚夫回签理开了；冬应役中段那层“明春要认牙、今冬还得过役”的制度碎账，也先被压回了这一旬。', 'good']);
+          } else if (spendCopper(35)) {
+            pushHouseholdSeasonTag(stepLabel + '冬中帖册');
+            log.push(['〔冬中帖册〕里书抄册、来春牙帖脚费、熟号递话小礼和脚夫回签一起要钱：铜钱-35。不是新主线，却正把商路当户冬中那层“今冬应役与明春认牙同时来要钱”的细账重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '帖册硬顶');
+            log.push(['〔冬中帖册〕这一旬连里书抄册和牙帖脚费都腾挪不开，只得先硬顶过去；熟号与里书两头替这一房递话的口风又薄了一线（家族-1）。', 'bad']);
           }
         }
         if (season.id === 'winter' && xun === 3) {
