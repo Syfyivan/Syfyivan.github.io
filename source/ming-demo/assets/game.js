@@ -10309,9 +10309,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             log.push(['〔伏夏样纸〕这一旬连样纸和回话小门包都腾挪不开，只得先硬顶过去；夏里熟号与学生家那层回签口风又薄了一线（家族-1）。', 'bad']);
           }
         }
-        if (season.id === 'summer' && xun === 1 && (picked.h_summer_cool || picked.h_wharf || picked.h_side || picked.h_rest || picked.h_collect)) {
-          pushHouseholdSeasonTag(stepLabel + '伏夏路药已分');
-          log.push(['〔伏夏路药〕这一旬先把伏夏凉药、行栈茶钱、带话脚费和家里凉热小耗拆开了；夏催账刚起头时，商路这层“身子与门路一起被暑气磨”的小事终于落进了真账。', 'good']);
+        if (season.id === 'summer' && xun === 1) {
+          if (picked.h_summer_cool || picked.h_wharf || picked.h_side || picked.h_rest || picked.h_collect) {
+            pushHouseholdSeasonTag(stepLabel + '伏夏路药已分');
+            log.push(['〔伏夏路药〕这一旬先把伏夏凉药、行栈茶钱、带话脚费和家里凉热小耗拆开了；夏催账刚起头时，商路这层“身子与门路一起被暑气磨”的小事终于落进了真账。', 'good']);
+          } else if (spendCopper(35)) {
+            pushHouseholdSeasonTag(stepLabel + '伏夏路药');
+            log.push(['〔伏夏路药〕伏夏凉药、行栈茶钱、带话脚费和家里凉热小耗一起要钱：铜钱-35。不是新主线，却正把商路当户夏头那层“门路、锅火和身子同时要顾”的细摩擦重新压回了这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '伏夏路药硬顶');
+            log.push(['〔伏夏路药〕这一旬连带话脚费和家里凉药都腾挪不开，只得先硬顶过去；伏夏刚起头，熟号与家里替这一房接气的口风就先紧了一线（家族-1）。', 'bad']);
+          }
         }
         if (season.id === 'summer' && xun === 3) {
           if (picked.h_summer_tail || picked.h_wharf || picked.h_collect || picked.h_side || picked.h_literate || picked.h_rest) {
@@ -10352,9 +10361,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             log.push(['〔秋路牙税〕这一旬连牙税脚费都腾挪不开，只得先硬顶过去；乡里和熟号都更难替你说话了（家族-1）。', 'bad']);
           }
         }
-        if (season.id === 'autumn' && xun === 1 && (picked.h_autumn_receipt || picked.h_wharf || picked.h_collect || picked.h_school_fund || picked.h_clan)) {
-          pushHouseholdSeasonTag(stepLabel + '秋路账脚已理');
-          log.push(['〔秋路账脚〕这一旬先把秋路样纸、回钱脚单、牙行茶钱与带话脚费理开了；秋定租刚起头时，回钱还没到手，末尾细账已经先被拆进了这一房。', 'good']);
+        if (season.id === 'autumn' && xun === 1) {
+          if (picked.h_autumn_receipt || picked.h_wharf || picked.h_collect || picked.h_school_fund || picked.h_clan) {
+            pushHouseholdSeasonTag(stepLabel + '秋路账脚已理');
+            log.push(['〔秋路账脚〕这一旬先把秋路样纸、回钱脚单、牙行茶钱与带话脚费理开了；秋定租刚起头时，回钱还没到手，末尾细账已经先被拆进了这一房。', 'good']);
+          } else if (spendCopper(40)) {
+            pushHouseholdSeasonTag(stepLabel + '秋路账脚');
+            log.push(['〔秋路账脚〕秋路样纸、回钱脚单、牙行茶钱与带话脚费一起要钱：铜钱-40。不是新主线，却正把商路当户秋头那层“回钱未回、脚单先到”的细账重新压回了这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '秋路账脚硬顶');
+            log.push(['〔秋路账脚〕这一旬连回钱脚单和带话脚费都腾挪不开，只得先硬顶过去；秋头熟号与乡里两头替这一房说话的口风又薄了一线（家族-1）。', 'bad']);
+          }
         }
         if (season.id === 'autumn' && xun === 1) {
           if (picked.h_autumn_receipt || picked.h_wharf || picked.h_collect || picked.h_school_fund || picked.h_clan || picked.h_pay) {
