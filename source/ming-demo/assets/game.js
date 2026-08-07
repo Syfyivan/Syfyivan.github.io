@@ -1987,6 +1987,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     failLog: '〔熟号薄礼〕这一旬连薄礼、样纸定钱和回签门包都腾挪不开，只得先硬顶过去；熟号与脚夫这层门路又薄了一线（家族-1）。',
     hardship: 'clan'
   });
+  if (isApprenticeElder && season.id === 'winter' && xun === 2) apply({
+    handledIds: ['e_shop_winter_reply_old', 'e_rest'],
+    doneTag: '冬中铺签已理',
+    doneLog: '〔冬中铺签〕这一旬先把旧掌柜回签、灯炭针线、脚夫门包和来春回铺脚单分开了；学徒路老来最怕“旧铺还认你，灯炭和回铺后手却先来抢钱”的那层冬中细账，没有再顺手拖进冬尾。',
+    cost: 40,
+    costTag: '冬中铺签',
+    costLog: '〔冬中铺签〕旧掌柜回签、灯炭针线、脚夫门包和来春回铺脚单一起要钱：铜钱-{cost}。不是体面消费，却正把学徒路老年冬中最细的那层铺签与灯炭账重新压回这一旬。',
+    failTag: '冬中铺签硬顶',
+    failLog: '〔冬中铺签〕这一旬连回签脚费和灯炭针线都腾挪不开，只得先硬顶过去；旧掌柜与脚夫这层门路又薄了一线（家族-1）。',
+    hardship: 'clan'
+  });
   if (isExamElder && season.id === 'winter' && xun === 2) apply({
     handledIds: ['e_tutor_post_old', 'e_rest'],
     doneTag: '来春帖费已留',
@@ -11940,6 +11951,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         pack.extraActions.push({ id: 'e_shop_bundle_old', name: '托旧同门捎布药针线', cost: 1, eff: '铜钱-90·家族+1·体魄+1', desc: '伏夏最怕人还撑得住，家里和自己却先缺布药、汗药与针线。先托旧同门把这层小物捎回去，少让铺里门路和家里锅火一起熬薄。', can: S.铜钱 >= 90, why: S.铜钱 >= 90 ? '' : '铜钱不足90文', once: true });
         pack.extraActions.push({ id: 'e_shop_collect_old', name: '结回铺里旧脚钱', cost: 1, eff: '铜钱+160~220·家族+1', desc: '趁还走得动，把铺里旧脚钱、旧掌柜压着的零碎回款和替家里带回的话路结回来一点。', can: true, once: true });
         pack.extraActions.push({ id: 'e_shop_gift_old', name: '给旧掌柜留薄礼续门路', cost: 1, eff: '铜钱-80·家族+2·体魄+1', desc: '年关先把旧掌柜、同门与脚夫该给的薄礼留出来，顺带托回话与药引，别让明春还得从冷脸求人开始。', can: true, once: true });
+        pack.extraActions.push({ id: 'e_shop_winter_reply_old', name: '先把冬中回铺回签与灯炭针线分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬中最怕旧掌柜回签、灯炭针线、脚夫门包和来春回铺脚单一起冒头。先把这层冬中小账拆开，年下客礼和来春铺路才不必继续拿同一口现钱四处堵漏。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
         pack.extraActions.push({ id: 'e_shop_route_old', name: '先问来春回铺脚路与递话口风', cost: 1, eff: '铜钱-50·家族+1', desc: '趁年关旧掌柜和同门还肯回话，先把来春回铺脚路、递话薄礼与催佃回城的口风摸明。它不立刻变现，却能让明春第一旬不必重新瞎撞。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
       }
     } else if (S.路线.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计反哺银 > 0 || S.未回款银 > 0) {
@@ -12100,6 +12112,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           } else if (a.id === 'e_shop_gift_old') {
             a.can = (season.id === 'winter') && (S.本年养老节礼 || 0) <= 0 && S.铜钱 >= 80;
             a.why = (season.id !== 'winter') ? '这一季不便续旧掌柜门路' : ((S.本年养老节礼 || 0) > 0 ? '本年已留过旧掌柜薄礼' : (S.铜钱 >= 80 ? '' : '铜钱不足80文'));
+            a.once = true;
+          } else if (a.id === 'e_shop_winter_reply_old') {
+            a.can = (season.id === 'winter') && xun === 2 && S.铜钱 >= 60;
+            a.why = !(season.id === 'winter' && xun === 2) ? '这一旬不便先拆冬中铺签账' : (S.铜钱 >= 60 ? '' : '铜钱不足60文');
             a.once = true;
           } else if (a.id === 'e_shop_route_old') {
             a.can = (season.id === 'winter') && xun === 3 && S.铜钱 >= 50;
@@ -12676,6 +12692,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               } else if (S.本年养老节礼 <= 0) {
                 log.push(['想给旧掌柜留薄礼续门路，但现钱已被别处先占，只得暂缓，免得把铜钱记成负数。', 'bad']);
               }
+              break;
+            case 'e_shop_winter_reply_old':
+              if (spendCopper(60)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·冬中铺签');
+                log.push(['先把冬中回铺回签与灯炭针线分开：铜钱-60、家族+1、体魄+1。旧掌柜回签、灯炭针线、脚夫门包和来春回铺脚单终于不再一起挤在冬中这一口现钱上。', 'good']);
+              } else log.push(['想先把冬中回铺回签与灯炭针线分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_shop_route_old':
               if (spendCopper(50)) {
