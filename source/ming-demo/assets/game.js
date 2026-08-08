@@ -1623,6 +1623,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   var isApprenticeElder = (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定');
   var isMerchantElder = (S.路线.indexOf('徽商') === 0 || (S.商历练 || 0) > 0 || (S.累计反哺银 || 0) > 0 || (S.未回款银 || 0) > 0);
   var isExamElder = (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份 || S.优免启用);
+  if (isMerchantElder && season.id === 'spring' && xun === 1) apply({
+    handledIds: ['e_negotiate', 'e_route_spring_head_old', 'e_rest'],
+    doneTag: '春头样纸已理',
+    doneLog: '〔春头样纸〕这一旬先把熟号先递的口风、样纸脚费和家里灯油盐药分开了；商路晚景开春第一旬不再只有“议不议轮养”，连最先冒出来的样纸与家用也先在这一旬碰了账。',
+    cost: 35,
+    costTag: '春头样纸',
+    costLog: '〔春头样纸〕熟号样纸、递话脚费和灯油盐药一起要钱：铜钱-{cost}。不是另起一笔大账，却正把商路养老春头最先冒出来的样纸与家用碎费重新压回真账。',
+    failTag: '春头样纸硬顶',
+    failLog: '〔春头样纸〕这一旬连样纸脚费和灯油盐药都腾挪不开，只得先硬顶过去；熟号与家里锅火两头都更紧了一线（家族-1）。',
+    hardship: 'clan'
+  });
   if (isExamElder && season.id === 'spring' && xun === 1) apply({
     handledIds: ['e_negotiate', 'e_tutor_spring_head_old', 'e_write_old', 'e_rest'],
     doneTag: '春头馆契已理',
@@ -1763,14 +1774,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     hardship: 'body'
   });
   if (isMerchantElder && season.id === 'summer' && xun === 2) apply({
-    handledIds: ['e_med', 'e_route_bundle_old', 'e_rest'],
+    handledIds: ['e_med', 'e_route_summer_wharf_old', 'e_route_bundle_old', 'e_rest'],
     doneTag: '伏夏布药已顾',
-    doneLog: '〔伏夏布药〕这一旬先把熟号捎布药、凉茶汗药和回乡脚费分开了；商路养老最怕“人还撑着、家里先病着”的那层伏夏耗损，没有再顺着热里一起滚大。',
+    doneLog: '〔伏夏布药〕这一旬先把熟号水脚、捎布药、凉茶汗药和回乡脚费分开了；商路养老最怕“人还撑着、家里先病着”的那层伏夏耗损，没有再顺着热里一起滚大。',
     cost: 45,
     costTag: '伏夏布药',
-    costLog: '〔伏夏布药〕熟号捎布药、凉茶汗药和回乡脚费一起要钱：铜钱-{cost}。不是大祸，却正把晚景伏夏最磨人的那层家用与身子摩擦重新压回这一旬。',
+    costLog: '〔伏夏布药〕熟号水脚、捎布药、凉茶汗药和回乡脚费一起要钱：铜钱-{cost}。不是大祸，却正把晚景伏夏最磨人的那层家用与身子摩擦重新压回这一旬。',
     failTag: '伏夏布药硬扛',
-    failLog: '〔伏夏布药〕这一旬连布药脚费与凉茶汗药都腾挪不开，只得先硬扛过去；热里家里和身子都更吃紧了一层（体魄-1）。',
+    failLog: '〔伏夏布药〕这一旬连水脚、布药脚费与凉茶汗药都腾挪不开，只得先硬扛过去；热里家里和身子都更吃紧了一层（体魄-1）。',
     hardship: 'body'
   });
   if (isMerchantElder && season.id === 'summer' && xun === 3) apply({
@@ -14281,7 +14292,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         pack.extraActions.push({ id: 'e_shop_route_old', name: '先问来春回铺脚路与递话口风', cost: 1, eff: '铜钱-50·家族+1', desc: '趁年关旧掌柜和同门还肯回话，先把来春回铺脚路、递话薄礼与催佃回城的口风摸明。它不立刻变现，却能让明春第一旬不必重新瞎撞。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
       }
     } else if (S.路线.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计反哺银 > 0 || S.未回款银 > 0) {
-      pack.note = '商路一路到了晚年，关键不只在旧账、分红和反哺名声能不能真的落回养老账，也在于春价回话、伏夏布药、秋后脚单与冬里熟号门路能不能一旬旬接住。';
+      pack.note = '商路一路到了晚年，关键不只在旧账、分红和反哺名声能不能真的落回养老账，也在于春头样纸、春价回话、伏夏水脚与布药、秋后脚单与冬里熟号门路能不能一旬旬接住。';
       pack.dossier = '累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜商身份=' + S.商身份 + '｜委托营生=' + S.委托营生;
       pack.event = { t: 'rand', tag: '[旧账]', txt: '商路上最怕的是老来还有账压在外头：你年轻时寄回家的银会被诸子记住，路上的旧账却未必能赶在身子垮前收齐。' };
       if (S.累计反哺银 >= 2) pack.negotiateAdj += 0.06;
@@ -14289,10 +14300,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       if (S.未回款银 > 0) {
         pack.extraActions.push({ id: 'e_collect_old', name: '催回商路旧账', cost: 1, eff: '未回款→部分现银', desc: '趁还走得动，把商路上的旧账催回一部分作养老钱。', can: true, once: true });
       }
+      pack.extraActions.push({ id: 'e_route_spring_head_old', name: '先把春头样纸与递话脚费分开', cost: 1, eff: '铜钱-45·家族+1·体魄+1', desc: '开春头一旬，熟号还只肯先递口风，样纸、递话脚费和家里灯油盐药却已一起要钱。先把这层春头小账拆开，议轮养和后头问春价时就不必先拿同一口现钱两头堵漏。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
       pack.extraActions.push({ id: 'e_route_price_old', name: '先问春价与旧账次序', cost: 1, eff: '铜钱-50·家族+1', desc: '先托熟号把春价、回话次序和哪笔旧账更该先动问清。钱还没回，但养老账先不至两头乱猜。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
       pack.extraActions.push({ id: 'e_route_spring_reply_old', name: '先把春中回签与样纸门包分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '春安顿到了中旬，最怕熟号回签、样纸门包、递话脚费和家里盐药一起冒头。先把这层春中小账拆开，春价还没坐实前，也不至让门路和锅火继续挤在同一口现钱里。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
       pack.extraActions.push({ id: 'e_route_spring_packet_old', name: '把春尾香纸拆作回话与盐药', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '春尾最怕清明香纸、回话脚费和家里盐药锅火一起挤上来。先把这层小账拆开，旧账还没真回到手时，家里和熟号也不至一齐空等。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
       pack.extraActions.push({ id: 'e_route_summer_note_old', name: '先把伏夏回签与凉药脚费分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '伏夏刚起头时，最怕上一程回签还没稳，熟号递话、凉药脚费和行栈茶钱就一起冒头。先把这层小钱拆开，后头捎布药与催旧账才不至拿同一口现钱四处堵漏。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+      pack.extraActions.push({ id: 'e_route_summer_wharf_old', name: '先把伏夏水脚与凉药门包分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '伏夏到了中旬，最怕熟号水脚、凉药门包、捎布脚费和家里茶汤一起冒头。先把这层中腰小账拆开，托熟号捎布药与回乡脚路就不必继续抢同一口现钱。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
       pack.extraActions.push({ id: 'e_route_bundle_old', name: '托熟号捎布药回家', cost: 1, eff: '铜钱-100·家族+2·体魄+1', desc: '伏夏不是只缺现银，也缺布、药和一口真能落到锅火边的小物。先托熟号把这一包捎回去，家里与身子都能少熬一层。', can: S.铜钱 >= 100, why: S.铜钱 >= 100 ? '' : '铜钱不足100文', once: true });
       pack.extraActions.push({ id: 'e_route_summer_packet_old', name: '先把夏尾客签与秋前样纸分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '伏夏收尾最怕秋路未开，客签回话、秋前样纸、递话门包和过路药包却先一起找上门。先把这层秋前后手拆开，不让同一口现钱既顾夏尾锅火、又顾秋前脚路。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
       pack.extraActions.push({ id: 'e_route_receipt_old', name: '先抄旧账脚单与租路次序', cost: 1, eff: '铜钱-40·家族+1', desc: '秋后最怕“都说在路上，却不知道先催哪笔”。先把脚单、拖欠次序和租路回话抄明，后面的养老账才不至继续糊着走。', can: S.铜钱 >= 40, why: S.铜钱 >= 40 ? '' : '铜钱不足40文', once: true });
@@ -14539,6 +14552,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             a.can = (season.id === 'winter') && xun === 3 && S.铜钱 >= 50;
             a.why = !(season.id === 'winter' && xun === 3) ? '这一旬不便先问明春工棚' : (S.铜钱 >= 50 ? '' : '铜钱不足50文');
             a.once = true;
+          } else if (a.id === 'e_route_spring_head_old') {
+            a.can = (season.id === 'spring') && xun === 1 && S.铜钱 >= 45;
+            a.why = !(season.id === 'spring' && xun === 1) ? '这一旬不便先拆春头样纸账' : (S.铜钱 >= 45 ? '' : '铜钱不足45文');
+            a.once = true;
           } else if (a.id === 'e_route_price_old') {
             a.can = (season.id === 'spring') && xun === 2 && S.铜钱 >= 50;
             a.why = !(season.id === 'spring' && xun === 2) ? '这一旬不便先问春价与旧账次序' : (S.铜钱 >= 50 ? '' : '铜钱不足50文');
@@ -14550,6 +14567,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           } else if (a.id === 'e_route_spring_packet_old') {
             a.can = (season.id === 'spring') && xun === 3 && S.铜钱 >= 60;
             a.why = !(season.id === 'spring' && xun === 3) ? '这一旬不便先拆春尾香脚账' : (S.铜钱 >= 60 ? '' : '铜钱不足60文');
+            a.once = true;
+          } else if (a.id === 'e_route_summer_wharf_old') {
+            a.can = (season.id === 'summer') && xun === 2 && S.铜钱 >= 55;
+            a.why = !(season.id === 'summer' && xun === 2) ? '这一旬不便先拆伏夏水脚账' : (S.铜钱 >= 55 ? '' : '铜钱不足55文');
             a.once = true;
           } else if (a.id === 'e_route_bundle_old') {
             a.can = (season.id === 'summer') && xun === 2 && S.铜钱 >= 100;
@@ -14933,6 +14954,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先问明春工棚与头程脚路：铜钱-50、家族+1。你先把来年第一程往哪处去、哪口脚费该先留摸明，不让卖工路明春又从瞎撞开始。', 'good']);
               } else log.push(['想先问明春工棚与头程脚路，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
+            case 'e_route_spring_head_old':
+              if (spendCopper(45)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·春头样纸');
+                log.push(['先把春头样纸与递话脚费分开：铜钱-45、家族+1、体魄+1。样纸、递话脚费和家里灯油盐药先被拆开，开春议轮养与后头问春价时就不必继续拿同一口现钱四处堵漏。', 'good']);
+              } else log.push(['想先把春头样纸与递话脚费分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
             case 'e_route_price_old':
               if (spendCopper(50)) {
                 S.家族 += 1;
@@ -14953,6 +14981,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushElderSeasonTag(stepLabel + '·春尾香脚');
                 log.push(['把春尾香纸拆作回话与盐药：铜钱-60、家族+1、体魄+1。不是另起一笔大账，而是把春尾香纸、回话脚费和家里盐药锅火先拆开，不让开春最后这层小耗一直拖到夏里。', 'good']);
               } else log.push(['想把春尾香纸拆作回话与盐药，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_route_summer_wharf_old':
+              if (spendCopper(55)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·伏夏水脚');
+                log.push(['先把伏夏水脚与凉药门包分开：铜钱-55、家族+1、体魄+1。熟号水脚、凉药门包、捎布脚费和家里茶汤先被拆开，捎布药与回乡脚路不必再继续抢同一口现钱。', 'good']);
+              } else log.push(['想先把伏夏水脚与凉药门包分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_route_bundle_old':
               if (spendCopper(100)) {
