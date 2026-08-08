@@ -6804,6 +6804,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             can: S.铜钱 >= 30,
             why: S.铜钱 >= 30 ? '' : '铜钱不足30文'
           });
+          if (season.id === 'spring') {
+            pack.extraActions.push({
+              id: 'f_route_wage_spring_head_reply',
+              name: '先把春头回签与门包盐药分开',
+              cost: 1,
+              eff: '铜钱-45·衣药+1·捎信+1·通融+1',
+              desc: '春起上旬最怕旧工头回签、递话门包、盐药锅火和春头脚路一起先来。你先把这层春头回签拆开，不让“活路也许快回了”先被眼前门包和灶下盐药吃成空话。',
+              can: S.铜钱 >= 45,
+              why: S.铜钱 >= 45 ? '' : '铜钱不足45文'
+            });
+          }
           if (season.id === 'summer') {
             pack.extraActions.push({
               id: 'f_route_wage_summer_note',
@@ -8083,6 +8094,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['托工头先问下季活路：铜钱-30、家族+1。钱还没回，可哪旬有活、哪口工食能结，先被你摸清了一层。', 'good']);
               } else log.push(['想先托工头问下季活路，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_route_wage_spring_head_reply':
+              if (spendCopper(45)) {
+                S.本年家衣药 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '春头回签已分');
+                log.push(['先把春头回签与门包盐药分开：铜钱-45、衣药+1、捎信+1、通融+1。旧工头回签、递话门包和灶下盐药锅火先被拆开，卖工路开春第一旬不再只剩“去问活路”，连“钱将回未回、锅火已先来”这层细账也被压回了真账。', 'good']);
+              } else log.push(['想先把春头回签与门包盐药分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_route_wage_summer_note':
               if (spendCopper(40)) {
                 S.家族 += 1;
@@ -8593,6 +8613,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushFamilySeasonTag(stepTag + '春工硬顶');
             log.push(['〔春工脚费〕这一旬连草鞋和带话脚费都腾挪不开，只得先硬顶过去；卖工路这层熟口又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && season.id === 'spring' && xun === 1) {
+          if (picked.f_route_wage_spring_head_reply) {
+            pushFamilySeasonTag(stepTag + '春头回签已理');
+            log.push(['〔春头回签〕这一旬先把旧工头回签、递话门包、盐药锅火和春头脚路分开了；卖工路开春不再只剩“先问活路”，连“钱将回未回、锅火与门包先来”这层细账也开始同旬碰账。', 'good']);
+          } else if (spendCopper(30)) {
+            pushFamilySeasonTag(stepTag + '春头回签');
+            log.push(['〔春头回签〕旧工头回签、递话门包、盐药锅火和春头脚路一起要钱：铜钱-30。不是大账，却正把卖工路开春那层“回签未稳、锅火先来”的细账重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '春头硬顶');
+            log.push(['〔春头回签〕这一旬连回签脚费和盐药锅火都腾挪不开，只得先硬顶过去；旧工头与家里这层回话口风又薄了一线（家族-1）。', 'bad']);
           }
         }
         if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && season.id === 'spring' && xun === 2) {
