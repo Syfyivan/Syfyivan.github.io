@@ -1940,6 +1940,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     failLog: '〔秋工欠单〕这一旬连抄单纸墨和回乡脚费都腾挪不开，只得先硬顶过去；旧工头和乡里两头的回话都慢了一线（家族-1）。',
     hardship: 'clan'
   });
+  if (isWageElder && season.id === 'autumn' && xun === 1) apply({
+    handledIds: ['e_wage_autumn_head_old', 'e_rest'],
+    doneTag: '秋头夹衣已理',
+    doneLog: '〔秋头夹衣〕这一旬先把旧工头回签、夹衣药包、回乡门包和锅火小耗分开了；卖工路晚景秋头最怕“回音刚起一点，换季夹衣和药包却先来追钱”的那层细账，没有再一路拖到秋中才一起发硬。',
+    cost: 40,
+    costTag: '秋头夹衣',
+    costLog: '〔秋头夹衣〕旧工头回签、夹衣药包、回乡门包和锅火小耗一起要钱：铜钱-{cost}。不是大账，却正把卖工路老年秋头最细的一层换季夹衣、药包与回签摩擦重新压回这一旬。',
+    failTag: '秋头夹衣硬顶',
+    failLog: '〔秋头夹衣〕这一旬连夹衣药包和回乡门包都腾挪不开，只得先硬顶过去；身上穿用和旧工头回话两头都更紧了一线（体魄-1）。',
+    hardship: 'body'
+  });
   if (isExamElder && season.id === 'autumn' && xun === 1) apply({
     handledIds: ['e_tutor_autumn_reply_old', 'e_rest'],
     doneTag: '秋头帖脚已理',
@@ -14787,6 +14798,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         pack.extraActions.push({ id: 'e_wage_bundle_old', name: '托旧工头捎凉药与布鞋', cost: 1, eff: '铜钱-90·家族+1·体魄+1', desc: '伏夏最怕人还想硬撑，凉汤药、布鞋和回乡带话脚费却先一起冒头。先托旧工头把最急的小物捎回来，身子和家里都少熬一层。', can: S.铜钱 >= 90, why: S.铜钱 >= 90 ? '' : '铜钱不足90文', once: true });
         pack.extraActions.push({ id: 'e_wage_summer_tail_old', name: '先把夏尾回工信与秋前草料分开', cost: 1, eff: '铜钱-50·家族+1·体魄+1', desc: '伏夏收尾最怕旧工棚回话、秋前草料、递话脚费和过路药包一起冒头。先把这层小账拆开，卖工路晚景的夏尾就不必再把秋前后手一股脑拖进下一季。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
         pack.extraActions.push({ id: 'e_wage_receipt_old', name: '先抄秋工欠单与租路次序', cost: 1, eff: '铜钱-40·家族+1', desc: '秋头最怕“旧工头都说会结、佃路都说会回”，却没人说得清哪口该先催。先把欠工次序、租路口风和回乡脚单抄明，秋里的养老账才不至继续糊着走。', can: S.铜钱 >= 40, why: S.铜钱 >= 40 ? '' : '铜钱不足40文', once: true });
+        pack.extraActions.push({ id: 'e_wage_autumn_head_old', name: '先把秋头工签与夹衣药包分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '秋头最怕旧工头回签、夹衣药包、回乡门包和锅火小耗一起冒头。先把这层换季小账拆开，不让“秋里活路快有回音”这一口钱转眼就被身上穿用、药包和家里锅火先啃薄。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
         pack.extraActions.push({ id: 'e_wage_collect_old', name: '结回旧工棚欠工与回乡脚钱', cost: 1, eff: '铜钱+160~210·家族+1', desc: '趁秋里还走得动，把旧工棚压着的欠工、回乡脚钱和零碎食钱真正结回养老账。', can: true, once: true });
         pack.extraActions.push({ id: 'e_wage_autumn_mid_old', name: '先把秋中工签与锅火饭脚分开', cost: 1, eff: '铜钱-50·家族+1·体魄+1', desc: '秋中最怕旧工头回签、租路饭钱、回乡脚费和锅火小耗一起追着找钱。先把这层秋中小账拆开，结回来的旧欠工才不至一落袋就被锅火和脚路先磨薄。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
         pack.extraActions.push({ id: 'e_wage_autumn_tail_old', name: '先把秋尾锅火与回乡草鞋脚分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '秋尾最怕“欠工还没真到手，锅火和回乡草鞋先来要钱”。先把这层尾账拆开，不让卖工路晚景的秋尾顺手滚进冬里。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
@@ -15047,6 +15059,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           } else if (a.id === 'e_wage_receipt_old') {
             a.can = (season.id === 'autumn') && xun === 1 && S.铜钱 >= 40;
             a.why = !(season.id === 'autumn' && xun === 1) ? '这一旬不便先抄秋工欠单' : (S.铜钱 >= 40 ? '' : '铜钱不足40文');
+            a.once = true;
+          } else if (a.id === 'e_wage_autumn_head_old') {
+            a.can = (season.id === 'autumn') && xun === 1 && S.铜钱 >= 55;
+            a.why = !(season.id === 'autumn' && xun === 1) ? '这一旬不便先拆秋头夹衣账' : (S.铜钱 >= 55 ? '' : '铜钱不足55文');
             a.once = true;
           } else if (a.id === 'e_wage_collect_old') {
             a.can = (season.id === 'autumn') && xun === 2 && (S.本年养老铺账 || 0) <= 0;
@@ -15420,6 +15436,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushElderSeasonTag(stepLabel + '·抄秋工欠单');
                 log.push(['先抄秋工欠单与租路次序：铜钱-40、家族+1。你先把哪口欠工该先问、哪条租路该先跑、哪张回乡脚单还没落定逐条抄明，秋头这层“都说会回”的细账终于不再只剩空等。', 'good']);
               } else log.push(['想先抄秋工欠单与租路次序，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_wage_autumn_head_old':
+              if (spendCopper(55)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·秋头夹衣');
+                log.push(['先把秋头工签与夹衣药包分开：铜钱-55、家族+1、体魄+1。旧工头回签、夹衣药包、回乡门包和锅火小耗先被拆开，卖工路晚景秋头不再只是抄单等回音，连换季穿用与药包也开始同旬咬这口现钱。', 'good']);
+              } else log.push(['想先把秋头工签与夹衣药包分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_wage_collect_old': {
               if (S.本年养老铺账 <= 0) {
