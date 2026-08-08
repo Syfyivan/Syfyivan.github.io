@@ -13378,6 +13378,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var canCopy = !!S.识字 || (S.识字转业值 || 0) >= 2;
     var canLeaseField = S.田亩 > 0 && (S.委托租谷 || 0) <= 0;
     var canPay = S.白银 >= 2 && S.应役 !== '纳银代役';
+    var hasSchoolChildren = (S.子数 + S.女数) > 0;
     var collectName = seasonIdx === 1
       ? '先结一回馆课与文契钱'
       : (seasonIdx === 2 ? '伏夏把润笔与抄手钱拢回' : (seasonIdx === 3 ? '把秋后馆课钱拆回这一房' : '赶在年关前结一回旧馆账'));
@@ -13536,6 +13537,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           desc: '秋定租刚起头时，最怕拜帖、保结回话、回馆脚费与锅火后手一起撞上。先把这口小钱拆开，秋里第一旬才不至把“名色还认不认你”又拖成一句空话。',
           can: S.铜钱 >= 75,
           why: S.铜钱 >= 75 ? '' : '铜钱不足75文',
+          once: true
+        });
+        if (season.id === 'autumn' && xun === 1) A.push({
+          id: 'h_school_roll',
+          name: hasSchoolChildren ? '先把孩子秋衣与来春纸包分开' : '先替来春孩子纸包留后手',
+          cost: 1,
+          eff: hasSchoolChildren ? '铜钱-70·供读+1·家族+1·通融+1' : '（眼下无子女，不必另留纸包）',
+          desc: hasSchoolChildren
+            ? '秋凉刚起时，最怕孩子夹衣、来春纸包、递话脚费与锅火小耗一起压来。先把这口小钱另划出来，让举业路当户这一年不只顾自己名色与应役，也先顾住家里下一口读写后手。'
+            : '眼下这一房还没有需要续夹衣与纸包的孩子，这层家内读写后手暂时还落不到真账里。',
+          can: hasSchoolChildren && S.铜钱 >= 70 && (S.本年户供读 || 0) < 1,
+          why: !hasSchoolChildren ? '眼下尚无需要续纸样的孩子'
+            : ((S.本年户供读 || 0) < 1 ? (S.铜钱 >= 70 ? '' : '铜钱不足70文') : '这一年已先留过一手供读后手'),
           once: true
         });
         if (season.id === 'autumn' && xun === 2) A.push({
@@ -13747,6 +13761,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 actionCount += 1;
               } else {
                 log.push(['想在' + stepLabel + '先把秋帖回话与回馆脚费分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_school_roll':
+              if (spendCopper(70)) {
+                S.本年户供读 += 1;
+                S.本年户通融 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('秋里供读');
+                log.push(['你在' + stepLabel + '先把孩子夹衣、来春纸包、递话脚费与锅火小耗分开：铜钱-70、供读后手+1、通融+1、家族+1。举业路当户到了秋头，不再只剩秋帖回话和应役后手，连家里下一口读写也开始在同一年里占一席。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把孩子秋衣与来春纸包分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
             case 'h_autumn_mid_packet':
@@ -14030,6 +14056,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             log.push(['〔冬尾帖样〕这一旬连旧馆回信脚费和孩子帖样都腾挪不开，只得先硬顶过去；冬尾这层旧馆与家里两头口风又一起紧了一线（家族-1）。', 'bad']);
           }
         }
+        if (season.id === 'autumn' && xun === 1 && hasSchoolChildren) {
+          if (picked.h_school_roll) {
+            pushHouseholdSeasonTag(stepLabel + '秋里供读已理');
+            log.push(['〔秋里供读〕这一旬先把孩子夹衣、来春纸包、递话脚费与锅火后手分开了；举业路当户到了秋头，不再只剩秋帖回话和锅火，连家里换季与读写后手也开始在同一年里见光。', 'good']);
+          } else if (spendCopper(35)) {
+            pushHouseholdSeasonTag(stepLabel + '秋里供读');
+            log.push(['〔秋里供读〕孩子夹衣、来春纸包、递话脚费与锅火小耗一起要钱：铜钱-35。不是大账，却正把举业路当户秋头那层“自己刚立住，孩子读写已来追钱”的细账重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '秋里供读硬顶');
+            log.push(['〔秋里供读〕这一旬连孩子夹衣和来春纸包都腾挪不开，只得先硬顶过去；秋头这层家里换季与读写口风又一起紧了一线（家族-1）。', 'bad']);
+          }
+        }
         if (season.id === 'spring' && xun === 2) {
           if (picked.h_spring_mid_packet || picked.h_exam_lease || picked.h_literate || picked.h_clan) {
             pushHouseholdSeasonTag(stepLabel + '春中香脚已分');
@@ -14079,6 +14118,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬馆回话') >= 0; })) log.push(['这一任当户连旧馆回话、灯油纸墨与递话脚费都在冬应役中旬先拆开；举业路年关前那层“门路怎么续住”终于也成了同一年里的真细账。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬尾笔炭') >= 0; })) log.push(['这一任当户又把冬尾炭火、来春帖费和开馆脚路先拆开了；举业路到年尾也终于不只是在等一个总账结果。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬尾馆信') >= 0; }) || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬尾帖样') >= 0; })) log.push(['这一任当户你又把旧馆回信、孩子来春帖样、递话门包与锅火后手压进了冬应役下旬；举业路到年尾终于不再只剩“留明春帖费”，连家里续帖样这层生活细账也开始同年见光。', 'good']);
+        if ((S.本年户供读 || 0) > 0) log.push(['这一任当户你还在秋头先把孩子夹衣、来春纸包与递话脚费另划成真账；举业路中年不再只顾自己名色和应役，连家里下一口读写后手也开始被压回同一年里。', 'good']);
         if ((S.本年户季务 || []).length <= 6) log.push(['这一任当户虽拆成了年内各旬，但真正落到账里的细务仍偏少，说明这一年还没有被你完全做厚。', 'bad']);
 
         var risk = 0.40 + hp.baseAdj;
@@ -14090,6 +14130,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (exemptSet || !!S.生员身份 || !!S.优免启用) risk -= 0.08;
         if (S.应役 === '纳银代役') risk -= 0.14;
         if ((S.识字转业值 || 0) >= 2) risk -= 0.03;
+        if ((S.本年户供读 || 0) > 0) risk -= 0.04;
         if (S.家族 >= 60) risk -= 0.04;
         if (S.识字) risk -= 0.04;
         if (S.负债银 > 0) risk += 0.04;
