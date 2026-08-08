@@ -10459,7 +10459,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     } else if (season.id === 'winter' && xun === 2) {
       eventTxt = '冬应役的中旬最像翻总账：哪笔旧账真回来了、哪层熟号还认你、哪口供读后手还能留住，都要在这一旬里见真章。';
     } else {
-      eventTxt = '冬应役的下旬没有突然掉下来的“结果”。你前头一年有没有先把旧账、水脚、薄田、供读与差钱分开，都会在这一旬里一起现形。';
+      eventTxt = '冬应役的下旬没有突然掉下来的“结果”。你前头一年有没有先把旧账、水脚、薄田、供读、抄簿回帖与差钱分开，都会在这一旬里一起现形。';
     }
     return {
       title: '当户 · ' + season.name,
@@ -10733,6 +10733,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             desc: '冬应役到了下旬，最怕来春牙帖脚费、里书回签、熟号递话和锅火次序一起压来。先把这层牙帖后手拆开，明春认牙和今冬回话就不必继续挤在同一口现钱里。',
             can: S.铜钱 >= 60,
             why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
+            once: true
+          });
+          A.push({
+            id: 'h_winter_register_tail',
+            name: '先把冬尾抄簿与柜边回帖分开',
+            cost: 1,
+            eff: '铜钱-50·核账+1·通融+1·家族+1',
+            desc: '冬应役到了下旬，最怕里书回签抄簿、柜边回帖、熟号递话和孩子来春纸样一起先来要钱。先把这层抄簿与回帖后手拆开，年后翻账和明春接头就不必继续抢今冬这一口现钱。',
+            can: S.铜钱 >= 50,
+            why: S.铜钱 >= 50 ? '' : '铜钱不足50文',
             once: true
           });
           A.push({
@@ -11125,6 +11135,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想在' + stepLabel + '先把明春牙帖与里书回签分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_winter_register_tail':
+              if (spendCopper(50)) {
+                S.本年户核账 += 1;
+                S.本年户通融 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('冬尾抄簿拆开');
+                log.push(['你在' + stepLabel + '先把里书回签抄簿、柜边回帖、熟号递话和孩子来春纸样分开：铜钱-50、核账+1、通融+1、家族+1。冬尾这层“账先抄进哪一本、回帖先从谁手里接”的制度与门路后手，总算先被拆回了这一旬。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把冬尾抄簿与柜边回帖分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_winter_tail':
               if (spendCopper(65)) {
                 S.本年户核账 += 1;
@@ -11170,7 +11192,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             hardship: 'clan'
           },
           winter: {
-            handledIds: ['h_pay', 'h_collect', 'h_literate', 'h_school_fund', 'h_clan', 'h_side', 'h_rest', 'h_wharf', 'h_winter_route_split', 'h_winter_clear', 'h_winter_register', 'h_winter_gift', 'h_winter_medicine', 'h_winter_sample', 'h_winter_post'],
+            handledIds: ['h_pay', 'h_collect', 'h_literate', 'h_school_fund', 'h_clan', 'h_side', 'h_rest', 'h_wharf', 'h_winter_route_split', 'h_winter_clear', 'h_winter_register', 'h_winter_gift', 'h_winter_medicine', 'h_winter_sample', 'h_winter_post', 'h_winter_register_tail'],
             doneTag: '年关碎账已分',
             doneLog: '〔年关碎账〕旧账、明春脚路、供读后手与差钱已经先被你分开；年关没再把同一口现银搅成一团。',
             cost: 50,
@@ -11494,7 +11516,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if (season.id === 'winter' && xun === 3) {
-          if (picked.h_winter_post || picked.h_winter_sample || picked.h_winter_tail || picked.h_school_fund || picked.h_rest) {
+          if (picked.h_winter_register_tail || picked.h_winter_post || picked.h_winter_sample || picked.h_winter_tail || picked.h_school_fund || picked.h_rest) {
             pushHouseholdSeasonTag(stepLabel + '冬尾抄簿已理');
             log.push(['〔冬尾抄簿〕这一旬先把里书回签抄簿、熟号递话、孩子来春纸样和柜边回帖次序分开了；冬尾不再只是在等年后翻账，而是把“账要抄进哪一本、来春要从谁手里接回头程”这层细事也压回了今冬。', 'good']);
           } else if (spendCopper(30)) {
