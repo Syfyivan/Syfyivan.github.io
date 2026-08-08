@@ -6027,6 +6027,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.铜钱 >= 70 ? '' : '铜钱不足70文'
           });
           pack.extraActions.push({
+            id: 'f_route_autumn_clothes',
+            name: '先把秋头差帖与孩子夹衣分开',
+            cost: 1,
+            eff: '铜钱-65·衣药+1·备役+1·通融+1·家族+1',
+            desc: '秋凉刚起时，最怕差帖门包、孩子夹衣、回乡药包和递话脚费一起先来。你先把这层秋头夹衣拆开，秋市刚热时就不至让制度后手和家里换季小耗一并抢空现钱。',
+            can: S.铜钱 >= 65,
+            why: S.铜钱 >= 65 ? '' : '铜钱不足65文'
+          });
+          pack.extraActions.push({
             id: 'f_route_autumn_receipt',
             name: '先把秋头回签与牙帖脚费分开',
             cost: 1,
@@ -7366,6 +7375,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushFamilySeasonTag(stepTag + '秋头脚药');
                 log.push(['先把秋样脚单与回乡药包分开：铜钱-70、问价+1、衣药+1、捎信+1、家族+1。秋头这层样单、脚单、带话与布药没有再挤成一句“等回钱再说”。', 'good']);
               } else log.push(['想先把秋样脚单与回乡药包分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_autumn_clothes':
+              if (spendCopper(65)) {
+                S.家族 += 1;
+                S.本年家衣药 += 1;
+                S.本年家备役 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '秋头夹衣');
+                log.push(['先把秋头差帖与孩子夹衣分开：铜钱-65、衣药+1、备役+1、通融+1、家族+1。差帖门包、孩子夹衣、回乡药包和递话脚费先被拆回这一旬，秋市刚热时，制度后手和家里换季小耗不再一起抢这一口现钱。', 'good']);
+              } else log.push(['想先把秋头差帖与孩子夹衣分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_bundle':
               if (spendCopper(120)) {
@@ -8716,6 +8735,21 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushFamilySeasonTag(stepTag + '秋样硬顶');
             log.push(['〔秋路样单〕这一旬连牙样脚单和秋头回签的小钱都腾挪不开，只得先硬顶过去；秋里熟号与乡里这两头口风又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'autumn' && xun === 1) {
+          if (picked.f_route_autumn_clothes || picked.f_route_autumn_packet || picked.f_child || picked.f_market) {
+            pushFamilySeasonTag(stepTag + '秋头夹衣已理');
+            log.push(['〔秋头夹衣〕这一旬先把差帖门包、孩子夹衣、回乡药包和递话脚费分开了；秋头不再只是认牙抄价，连换季衣药、家里孩子和制度门包也开始同年见光。', 'good']);
+          } else if (spendCopper(35)) {
+            S.本年家衣药 += 1;
+            S.本年家备役 += 1;
+            pushFamilySeasonTag(stepTag + '秋头夹衣');
+            log.push(['〔秋头夹衣〕差帖门包、孩子夹衣、回乡药包和递话脚费一起要钱：铜钱-35、衣药+1、备役+1。不是大账，却正把商路养家秋头那层“秋市刚热、家里先要换季、差帖也先来”的摩擦重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '秋夹硬顶');
+            log.push(['〔秋头夹衣〕这一旬连孩子夹衣和差帖门包都腾挪不开，只得先硬顶过去；秋里熟号与家里替这一房转圜的口风又薄了一线（家族-1）。', 'bad']);
           }
         }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'autumn' && xun === 2) {
