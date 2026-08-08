@@ -9613,6 +9613,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             log.push(['〔分书地角〕这一旬连丈绳和回话脚费都腾挪不开，只得先硬顶过去；新分出来这一房在兄房与邻里眼里先虚了一线（家族-1）。', 'bad']);
           }
         }
+        if (season.id === 'spring' && xun === 3) {
+          if (picked.h_wage_collect || picked.h_wage_spring_bundle || picked.h_clan || picked.h_side || picked.h_rest) {
+            pushHouseholdSeasonTag(stepLabel + '春尾锅火已分');
+            log.push(['〔春尾锅火〕这一旬先把欠工回话、锅火、草鞋和递话门包分开了；立户第一季末不再只剩“有一口旧工快回”，而是把哪口现钱先续灶火、哪口后手留给差役真拆成了几层。', 'good']);
+          } else if (spendCopper(50)) {
+            pushHouseholdSeasonTag(stepLabel + '春尾锅火');
+            log.push(['〔春尾锅火〕欠工回话、锅火、草鞋和递话门包一起要钱：铜钱-50。不是大账，却正把“春尾刚结回一点旧工、家里几层碎用也同时扑上来”的那口真摩擦压回这一旬。', 'bad']);
+          } else {
+            S.体魄 = Math.max(0, S.体魄 - 1);
+            pushHouseholdSeasonTag(stepLabel + '春尾硬顶');
+            log.push(['〔春尾锅火〕这一旬连锅火和草鞋钱都腾挪不开，只得穿着旧草鞋两头硬跑，把这一季最后一口身子继续往里顶（体魄-1）。', 'bad']);
+          }
+        }
         if (season.id === 'summer' && xun === 1) {
           if (picked.h_wage_summer_note || picked.h_proxy_wage || picked.h_clan || picked.h_side) {
             pushHouseholdSeasonTag(stepLabel + '伏夏药脚已问');
