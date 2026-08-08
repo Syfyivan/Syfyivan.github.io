@@ -211,6 +211,8 @@
       人情欠条: 0,
       // 成家后的“养家”阶段：按四季三旬推进，用更细的年内节奏把 20~40 岁之间的家计过细（不引入成功分/最优评分）
       家年: 1, 家季: 1, 家旬: 1, 本年家做活: 0, 本年家粜米: 0, 本年家问价: 0, 本年家备役: 0, 本年家衣药: 0, 本年家照家: 0, 本年家借粮: 0, 本年家还债: 0, 本年家贴家: 0, 本年家催账: 0, 本年家将养: 0, 本年家修缮: 0, 本年家通融: 0, 本年家捎信: 0, 本年家供读: 0, 本年家季务: [],
+      // 成家（议亲）阶段：拆成三旬推进（说合→回话→下聘），避免“成年只点一下就结算”
+      议旬: 1,
       // 当户样板：先把商路的“中年当户”拆成四季三旬，让分家、催账、委托田面与应役在同一年里分段落账
       户季: 1, 户旬: 1, 本年户核账: 0, 本年户催账: 0, 本年户备役: 0, 本年户通融: 0, 本年户委托: 0, 本年户供读: 0, 本年户季务: [],
       委托营生: '无', 委托租谷: 0, 委托待收租谷: 0, 最近农闲营生层级: '未定', 最近农闲营生收益: 0,
@@ -264,6 +266,17 @@
       // 直接从 16 岁立身起算：少一层“幼年点点点”的摩擦，便于五路入口回放与闭环验证。
       enterEstablishment();
     }
+  }
+
+  // 成家（议亲）跨旬临时态：只服务本轮议亲，不进入跨代承接字段。
+  function resetMarriageAttemptState() {
+    S.议旬 = 1;
+    S._marriageBonus = 0;
+    S._marriageGiftTier = 0;          // 0=未定，1=薄聘，2=重聘
+    S._marriageBorrowedForGift = false;
+    S._marriageDidMatch = false;
+    S._marriageDidShow = false;
+    S._marriageDidCollect = false;
   }
 
   // ── 资源守恒台账 ─────────────────────────────────
@@ -2238,7 +2251,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       }
     }
     if (season.id === 'spring' && xun === 1) apply({
-      handledIds: ['m_shop', 'm_goods', 'm_market', 'm_letter'],
+      handledIds: ['m_shop', 'm_goods', 'm_market', 'm_letter', 'm_spring_head_packet'],
       doneTag: '开路碎费已理',
       doneLog: '〔开路碎费〕这一旬先把头程脚费、样纸、门包和柜上零碎认清了；春开路没有再被“刚起头的小钱”悄悄咬薄。',
       cost: 35,
@@ -2271,7 +2284,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'summer' && xun === 1) apply({
-      handledIds: ['m_run', 'm_letter', 'm_mend', 'm_rest', 'm_wharf'],
+      handledIds: ['m_run', 'm_letter', 'm_mend', 'm_rest', 'm_wharf', 'm_summer_head_packet'],
       doneTag: '伏夏茶脚已留',
       doneLog: '〔伏夏茶脚〕这一旬先把行栈茶钱、脚夫点心与家里带话脚费分开了；伏夏刚开头那层“先落脚、先递话、先顾一口凉药”的碎账，没有再悄悄拖到夏中夏尾一起爆。',
       cost: 35,
@@ -2315,7 +2328,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'autumn' && xun === 2) apply({
-      handledIds: ['m_try', 'm_market', 'm_book'],
+      handledIds: ['m_try', 'm_market', 'm_book', 'm_autumn_mid_bundle'],
       doneTag: '试贩门包已分',
       doneLog: '〔试贩门包〕这一旬争取带本试贩前，先把门包、脚费与样纸茶钱分开了；不是多掷一次运气，而是把押出去的那一两银前后的碎账先摊开。',
       cost: 45,
@@ -2337,7 +2350,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 1) apply({
-      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_mend'],
+      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_mend', 'm_winter_head_packet'],
       doneTag: '年关路费已分',
       doneLog: '〔年关路费〕这一旬先把灯油、客脚、年礼和来春第一程水脚分开记了；钱没变多，却没再因为“只差一点”把清账路数搅混。',
       cost: 60,
@@ -3545,7 +3558,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     else if (p === 'merchant') { enterMerchant(); return; }
     else if (p === 'civilExam') { enterCivilExam(); return; }
     else if (p === 'establishment') { enterEstablishment(); return; }
-    else if (p === 'marriage') { S.年龄 = currentLifeProfile().marriageAge; curStage = stageMarriage(); }
+    else if (p === 'marriage') {
+      // 初入议亲时清零“议亲三旬”的内部节奏；同一次议亲在三旬内往返时不清零。
+      if (prevPhase !== 'marriage') resetMarriageAttemptState();
+      S.年龄 = currentLifeProfile().marriageAge;
+      curStage = stageMarriage();
+    }
     else if (p === 'family') {
       var life = currentLifeProfile();
       // 初入“养家”时，把节奏清零：从成家之后的第一年春起算。
@@ -4694,8 +4712,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             ? '秋里要跑牙行、认熟面：先花一点脚费把人情口风留住，免得回钱一到又找不到门。'
             : '先托脚夫留一口口风：哪笔账在路上、哪家人情可催，先别等到年关才手忙脚乱。'),
         can: S.铜钱 >= 40, why: S.铜钱 >= 40 ? '' : '铜钱不足40文', once: true });
+        if (season.id === 'spring' && xun === 1) {
+          A.push({ id: 'm_spring_head_packet', name: '先把春头柜签与样纸门包分开', cost: 1, eff: '铜钱-45·认货+1·家书+1·商信誉+1', desc: '春开路第一旬最怕柜签样纸、头程门包、递话脚费和柜边茶水一起冒头。先把这层春头碎账拆开，认货、问路和柜上门面才不至都挤在同一口现钱上。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
+        }
         if (season.id === 'spring' && xun === 2) {
           A.push({ id: 'm_packet', name: '先把样价抄单与回话脚费分开', cost: 1, eff: '铜钱-50·家书+1·商信誉+1·问价+1', desc: '春开路中旬最怕样价抄单、回话脚费和柜边包纸一起冒头。先把这口小钱拆开，后面认货、核账和递话才不至都挤在同一口现钱上。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
+        }
+        if (season.id === 'summer' && xun === 1) {
+          A.push({ id: 'm_summer_head_packet', name: '先把伏夏行栈茶脚与家书药包分开', cost: 1, eff: '铜钱-50·家书+1·体魄+1·商信誉+1', desc: '伏夏第一旬最怕行栈茶脚、脚夫点心、家书药包和带话脚费一起冒头。先把这层起手碎账拆开，落脚、递话和这一旬身子后手才不至一并被热里磨薄。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
         }
         if (season.id === 'summer' && xun === 2) {
           A.push({ id: 'm_summer_bundle', name: '先把伏夏茶汤与汗药草鞋分开', cost: 1, eff: '铜钱-55·家书+1·体魄+1·商信誉+1', desc: '伏夏中旬最磨人的不是哪一笔大账，而是行栈茶汤、汗药草鞋、带话脚费和柜边小门面同时来要钱。先把这层伏夏碎耗拆开，后头坐店、核账和跑路才不至一起被热里磨薄。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
@@ -4720,6 +4744,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (season.id === 'autumn' && xun === 1) {
           A.push({ id: 'm_autumn_receipt', name: '先把秋头回签与牙帖脚费分开', cost: 1, eff: '铜钱-65·催账+1·家书+1·商信誉+1', desc: '秋试手一开头，最怕熟号回签、牙帖脚费、递话门包和锅火后手先来抢钱。先把这层秋头回签拆开，后头跑单、问价和试手才不至都挤在一句“钱还在路上”。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
         }
+        if (season.id === 'autumn' && xun === 2) {
+          A.push({ id: 'm_autumn_mid_bundle', name: '先把秋中门包与牙帖茶钱分开', cost: 1, eff: '铜钱-60·核账+1·问价+1·商信誉+1', desc: '秋试手中旬最怕试手门包、牙帖茶钱、递话脚费和样货小耗一起冒头。先把这层秋中碎账拆开，试贩、核账与问价才不至一口气全压在带本银边上。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+        }
         A.push({ id: 'm_try', name: isLate ? '赶在旬尾定试贩' : '争取带本试贩', cost: 2, eff: '白银-1锁作本钱·冬里按门路/账房/承继定位判回本/小利/亏折/未回款', desc: '拿一两本钱试着跑一单。钱先锁在货里，回没回得来，不只看运气，也看你这一年把门路和账面坐实到哪一步。', can: ((season.id === 'autumn' && xun >= 2) || (season.id === 'winter' && xun === 1)) && S.本年商路试贩 < 1 && S.带本银 <= 0 && S.白银 >= 1 && (S.识货进度 >= 1 || S.账房进度 >= 1), why: ((season.id === 'autumn' && xun >= 2) || (season.id === 'winter' && xun === 1)) ? (S.本年商路试贩 < 1 ? (S.带本银 <= 0 ? (S.白银 >= 1 ? ((S.识货进度 >= 1 || S.账房进度 >= 1) ? '' : '尚未学会最基本认货/核账') : '白银不足1两') : '已有一笔本钱锁在货里') : '本年已试贩过一回') : '通常要到秋中旬以后才谈得上试贩', once: true });
         A.push({ id: 'm_support', name: season.id === 'autumn' ? '先把回钱贴回家' : '寄银回家供读', cost: 1, eff: supportProfile.effect, desc: supportProfile.desc, can: S.白银 >= 1, why: S.白银 >= 1 ? '' : '白银不足1两', once: true });
         A.push({ id: 'm_letter', name: season.id === 'winter' ? '托客脚捎家书回乡' : '托熟客捎家书回乡', cost: 1, eff: '铜钱-' + letterCost + '·家族+' + letterFamily + '·家书+1', desc: season.id === 'winter' ? '不一定立刻把银寄回去，但至少先让家里知道哪笔账还在外头、哪笔钱可等，省得年关两边都空等。' : '先花一点脚钱托人带家书报平安、问家计；不代替贴银，却能把家里的焦躁先压一线。', can: S.铜钱 >= letterCost, why: S.铜钱 >= letterCost ? '' : ('铜钱不足' + letterCost + '文'), once: true });
@@ -4728,6 +4755,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
         A.push({ id: 'm_home', name: season.id === 'autumn' ? '回乡省亲搭秋收' : (isLate ? '回乡把家里这旬过住' : '回乡省亲'), cost: 1, eff: '家族+' + homeFamily + (homeRice > 0 ? ('·存米+' + homeRice) : ''), desc: season.id === 'autumn' ? '秋里先回乡搭一把，虽少跑一程货，却把家里口粮与脸面先稳住。' : '回乡看看父母，也把一点心力和米粮带回去。', can: true, once: true });
         A.push({ id: 'm_reserve', name: '先留一角差役钱', cost: 1, eff: '铜钱-' + reserveCost + '·本年差役准备+1', desc: '先把年关差役钱留出一角，等真轮到本户时，不至两手一空。', can: S.铜钱 >= reserveCost, why: S.铜钱 >= reserveCost ? '' : ('铜钱不足' + reserveCost + '文'), once: true });
+        if (season.id === 'winter' && xun === 1) {
+          A.push({ id: 'm_winter_head_packet', name: '先把冬头客脚与明春水脚分开', cost: 1, eff: '铜钱-65·核账+1·家书+1·商信誉+1', desc: '冬清账上旬最怕灯油、客脚、年礼和明春第一程水脚一起压来。先把这层冬头路费拆开，后头催账、备差和来春起手才不至都挤在一句“年后再说”上。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
+        }
         A.push({ id: 'm_mend', name: season.id === 'winter' ? '补衣买药过冬' : '补鞋买药养身', cost: 1, eff: '铜钱-' + mendCost + '·体魄+' + mendBody, desc: season.id === 'winter' ? '年关前先补棉袄、药钱和脚力，别让这一年最后一程先把身子拖垮。' : '先把这程跑出来的劳损压住，免得后面账还没清，人先垮了。', can: S.铜钱 >= mendCost, why: S.铜钱 >= mendCost ? '' : ('铜钱不足' + mendCost + '文'), once: true });
         if (season.id === 'winter' && xun === 2) {
           A.push({ id: 'm_clear_packet', name: '先把清账门包与来春样纸定钱分开', cost: 1, eff: '铜钱-70·核账+1·家书+1·商信誉+1', desc: '冬里第二程最怕清账门包、递话小礼和来春样纸定钱一起压来。先把这层清账碎费拆开，后头回款和明春起手才不至都挂在一句“再等等”。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
@@ -4796,6 +4826,29 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把样价抄单与回话脚费拆开，但这旬铜钱已先被别处占住，只得继续挤在一口现钱里硬扛。', 'bad']);
               }
               break;
+            case 'm_spring_head_packet':
+              if (spendCopper(45)) {
+                S.本年商路认货 += 1;
+                S.本年商路家书 += 1;
+                S.商信誉 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆春头柜签');
+                log.push(['先把春头柜签与样纸门包分开：铜钱-45、认货+1、家书+1、商信誉+1。春开路刚起头这层柜签、样纸、门包和递话脚费先被压回了这一旬。', 'good']);
+              } else {
+                log.push(['想先把春头柜签与样纸门包拆开，但这旬铜钱已先被别处占住，只得让春头门包和柜边茶水继续抢同一口现钱。', 'bad']);
+              }
+              break;
+            case 'm_summer_head_packet':
+              if (spendCopper(50)) {
+                S.本年商路家书 += 1;
+                S.本年商路歇养 += 1;
+                S.商信誉 += 1;
+                S.体魄 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆伏夏行栈茶脚');
+                log.push(['先把伏夏行栈茶脚与家书药包分开：铜钱-50、家书+1、体魄+1、商信誉+1。伏夏起手这一旬最细的茶脚、药包和带话脚费先被压回了账面。', 'good']);
+              } else {
+                log.push(['想先把伏夏行栈茶脚与家书药包拆开，但这旬铜钱已先被别处占住，只得让落脚茶脚和药包继续跟热里碎耗一起硬挤。', 'bad']);
+              }
+              break;
             case 'm_summer_bundle':
               if (spendCopper(55)) {
                 S.本年商路家书 += 1;
@@ -4860,6 +4913,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把秋头回签与牙帖脚费分开：铜钱-65、催账+1、家书+1、商信誉+1。秋头最细的一层回签、牙帖和递话门包先被拆开，后头试手才不至全挤在“钱还没回”上。', 'good']);
               } else {
                 log.push(['想先把秋头回签与牙帖脚费拆开，但这旬铜钱已先紧，只得让回签、牙帖和锅火继续抢同一口现钱。', 'bad']);
+              }
+              break;
+            case 'm_autumn_mid_bundle':
+              if (spendCopper(60)) {
+                S.本年商路核账 += 1;
+                S.本年商路问价 += 1;
+                S.商信誉 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆秋中门包');
+                log.push(['先把秋中门包与牙帖茶钱分开：铜钱-60、核账+1、问价+1、商信誉+1。秋试手中旬最细的一层门包、牙帖和样货脚费先被压回了这一旬。', 'good']);
+              } else {
+                log.push(['想先把秋中门包与牙帖茶钱拆开，但这旬铜钱已先紧，只得让试手门包和样货小耗继续挤在带本银边上。', 'bad']);
               }
               break;
             case 'm_try':
@@ -4952,6 +5016,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把年下回签与来春样纸分开：铜钱-75、核账+1、家书+1、商信誉+1。冬清账最后这层年下回签、样纸定钱和递话门包先被压回这一旬，年关不再只剩一句“来春再说”。', 'good']);
               } else {
                 log.push(['想先把年下回签与来春样纸拆开，但这旬铜钱已先被别处吃住，只得让年下回话和来春后手继续挤在一处。', 'bad']);
+              }
+              break;
+            case 'm_winter_head_packet':
+              if (spendCopper(65)) {
+                S.本年商路核账 += 1;
+                S.本年商路家书 += 1;
+                S.商信誉 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆冬头客脚');
+                log.push(['先把冬头客脚与明春水脚分开：铜钱-65、核账+1、家书+1、商信誉+1。冬清账开头这层客脚、年礼和明春头程水脚先被压回了这一旬。', 'good']);
+              } else {
+                log.push(['想先把冬头客脚与明春水脚拆开，但这旬铜钱已先被别处吃住，只得让灯油、客脚和明春起手继续挤在一处。', 'bad']);
               }
               break;
             case 'm_rest':
@@ -5574,13 +5649,30 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var rp = marriageRoutePack();
     var life = currentLifeProfile();
     var fertility = childbearingProfile();
+    // 议亲拆成“三旬”：说合→回话→下聘。前两旬只做准备与细账，不额外耗 RNG，
+    // 把唯一的“女方是否应允”roll 留在下旬，避免因为加厚阶段而改写全局随机序列。
+    var step = Math.max(1, Math.min(3, Number(S.议旬) || 1));
+    var stepName = step === 1 ? '说合' : (step === 2 ? '回话' : '下聘');
+    var xunLabel = XUN[step - 1];
+    var stepTitle = stepName + xunLabel;
     var events = [{ t: 'rel', tag: '[关系]', txt: '女方是邻村自耕农之女，有自己的意愿：她与父母看重的是这户的家底与后生的本分，不是你单方面"提亲"就能定。' }];
     if (rp.event) events.push(rp.event);
+    events.push({
+      t: 'rand',
+      tag: '[议亲节奏]',
+      txt: step === 1
+        ? '这一旬先把话递出去：找媒、亮底子、跑脚回话。说合不等于点一下就成，门路与脸面也要花真钱。'
+        : (step === 2
+          ? '这一旬更像“回话与细账”：女方家口风、媒人转述、门包脚费、家里锅火一起挤这一口现钱。'
+          : '这一旬才是真下聘：薄聘或重聘、借贷与酒席，都会一次性写进账里；女方是否应允也只在这一旬 roll。')
+    });
     function scheduleMarriageRetry(log, retryLine, finalLine, familyPenaltyRetry, familyPenaltyFinal) {
       S._marriageAttempts = (S._marriageAttempts || 0) + 1;
       var nextAdj = (S._marriageAgeAdj || 0) + 2;
       var maxTries = 2; // 防止无限拖延：最多再议亲两轮（即 +4 年）
       if (S._marriageAttempts <= maxTries && (currentLifeProfile().marriageAge + 2) < (currentLifeProfile().householdAge - 2)) {
+        // 重新开一轮议亲：三旬节奏清零，上一轮“说合/回话”不累加成无限成算。
+        resetMarriageAttemptState();
         S._marriageAgeAdj = nextAdj;
         if ((familyPenaltyRetry || 0) > 0) S.家族 -= familyPenaltyRetry;
         curStage.next = 'marriage';
@@ -5588,28 +5680,44 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         log.push([retryLine, 'bad']);
         return true;
       }
+      resetMarriageAttemptState();
       if ((familyPenaltyFinal || 0) > 0) S.家族 -= familyPenaltyFinal;
       log.push([finalLine, 'bad']);
       return false;
     }
     return {
-      title: '成家 · 议亲', label: '成家', next: 'family', nextLabel: '成家之后 · 养家长账 →',
-      ap: 4, commitLabel: '下聘·定亲事 →',
-      note: '成家不是一次"选套餐"，而是几年里一步步攒钱、托媒、抬身价：聘礼是真实外流（镜像入女方家账），媒人看的是你带到这个年纪的整本账。〔货币规模为玩法占位，非史实点值〕 ' + life.marriageLead + ' 这一代当前按<span class="em">' + S.年龄 + '岁</span>议亲，婚后走的是<span class="em">' + fertility.label + '</span>生育窗口。' + (S.定额佃状态 === '已立定额佃' ? ' 上一轮你已把一两现银压进定额佃约，婚事正是沿着这本押租账往后拖。' : '') + (S.合爨状态 === '随兄合户' ? ' 眼下仍在兄户合爨；若再不另立小家，这份共账会直接被带进父故后的分家与当户。' : '') + (S.婚配路径 === '先应差·外出佣工' ? ' 上一轮你先拿现银顶过差役、又外出佣工攒回几手现钱，婚事便沿着这本外出工账继续顺延。' : '') + (rp.note ? ' ' + rp.note : ''),
-      narrative: '立身数年，你已<span class="em">' + S.年龄 + '岁</span>，也到了议亲年纪。走"六礼"框架（平民多简化合并）——这一程你有 <span class="em">4 个行动点</span>，用来筹聘礼、托媒人、办酒席。你这些年攒下的<span class="em">识字、手艺、家族声望与路线尾账</span>，都会折进议亲的成算里；婚成之后，下一阶段读的也是这一路带出来的<span class="em">' + fertility.label + '</span>婚育窗口。' + (S.定额佃状态 === '已立定额佃' ? ' 这一回你不是白手重来，而是带着上一轮已经立下的定额佃押租账继续议亲。' : '') + (S.合爨状态 === '随兄合户' ? ' 若改走合爨，这一程便不是“先成婚再当户”，而是把婚配与立户原题一起拖进后面的共账清算。' : '') + (S.婚配路径 === '先应差·外出佣工' ? ' 你先前已经把一回差役和外出工账顶了过去，如今再议亲时，媒人看的也不只是现钱多少，还看这层城里落脚与工头熟识是不是能坐实。' : '') + (rp.narrative ? rp.narrative : ''),
-      dossier: function () { return lifeDossier('议亲成算 = 基础 + 路线结局 + 聘礼档 + 识字/营生加成 + 家族声望；下聘时按当前筹码一次性 roll。｜婚配年龄=' + life.marriageAge + '｜婚育窗口=' + fertility.label + (rp.dossier ? '｜' + rp.dossier : '')); },
+      title: '成家 · 议亲·' + stepTitle,
+      label: '成家',
+      next: step < 3 ? 'marriage' : 'family',
+      nextLabel: step < 3
+        ? ('续议亲·' + (step === 1 ? '回话中旬' : '下聘下旬') + ' →')
+        : '成家之后 · 养家长账 →',
+      ap: 4,
+      // 前两旬只结“议亲细账”，不触发外部冲击，避免额外消耗 RNG 干扰回放序列。
+      shock: step < 3 ? false : undefined,
+      commitLabel: step < 3 ? '结这一旬议亲细账 →' : '下聘·定亲事 →',
+      note: '成家不是一次"选套餐"，而是几旬里一步步攒钱、托媒、回话、再下聘：聘礼是真实外流（镜像入女方家账），媒人看的是你带到这个年纪的整本账。〔货币规模为玩法占位，非史实点值〕 ' + life.marriageLead + ' 当前按<span class="em">' + S.年龄 + '岁</span>议亲，婚后走的是<span class="em">' + fertility.label + '</span>婚育窗口。' + (step < 3 ? (' 本轮已走到<span class="em">' + stepTitle + '</span>。') : '') + (S.定额佃状态 === '已立定额佃' ? ' 上一轮你已把一两现银压进定额佃约，婚事正是沿着这本押租账往后拖。' : '') + (S.合爨状态 === '随兄合户' ? ' 眼下仍在兄户合爨；若再不另立小家，这份共账会直接被带进父故后的分家与当户。' : '') + (S.婚配路径 === '先应差·外出佣工' ? ' 上一轮你先拿现银顶过差役、又外出佣工攒回几手现钱，婚事便沿着这本外出工账继续顺延。' : '') + (rp.note ? ' ' + rp.note : ''),
+      narrative: '立身数年，你已<span class="em">' + S.年龄 + '岁</span>，也到了议亲年纪。走"六礼"框架（平民多简化合并）——这一旬为<span class="em">' + stepTitle + '</span>，你有 <span class="em">4 个行动点</span>，用来筹聘礼、托媒人、递话回话与（下旬）下聘。你这些年攒下的<span class="em">识字、手艺、家族声望与路线尾账</span>，都会折进议亲的成算里；婚成之后，下一阶段读的也是这一路带出来的<span class="em">' + fertility.label + '</span>婚育窗口。' + (S.定额佃状态 === '已立定额佃' ? ' 这一回你不是白手重来，而是带着上一轮已经立下的定额佃押租账继续议亲。' : '') + (S.合爨状态 === '随兄合户' ? ' 若改走合爨，这一程便不是“先成婚再当户”，而是把婚配与立户原题一起拖进后面的共账清算。' : '') + (S.婚配路径 === '先应差·外出佣工' ? ' 你先前已经把一回差役和外出工账顶了过去，如今再议亲时，媒人看的也不只是现钱多少，还看这层城里落脚与工头熟识是不是能坐实。' : '') + (rp.narrative ? rp.narrative : ''),
+      dossier: function () {
+        var bonus = Math.round(Math.max(0, (S._marriageBonus || 0)) * 100);
+        var giftLabel = (S._marriageGiftTier || 0) >= 2 ? '重聘' : ((S._marriageGiftTier || 0) === 1 ? '薄聘' : '未定');
+        return lifeDossier('议亲成算 = 基础 + 路线结局 + 说合/回话筹码 +（下旬）聘礼档 + 家族声望；只在下聘下旬一次性 roll。｜筹码+' + bonus + '%｜聘礼档=' + giftLabel + '｜婚配年龄=' + life.marriageAge + '｜婚育窗口=' + fertility.label + (rp.dossier ? '｜' + rp.dossier : ''));
+      },
       events: events,
-      prompt: '这几年怎么张罗亲事？（分配 4 点，末了一次下聘）',
+      prompt: step === 1 ? '这一旬怎么把话递出去？（分配 4 点）' : (step === 2 ? '这一旬怎么把回话与细账收住？（分配 4 点）' : '这一旬怎么下聘定亲？（分配 4 点，末了一次下聘）'),
       actions: function () {
         var A = [];
-        var pickedGift = lifePicks.some(function (p) { return p.id === 'm_gift' || p.id === 'm_gift1'; });
+        var fixedTier = (S._marriageGiftTier || 0) > 0;
+        var pickedGift = fixedTier || lifePicks.some(function (p) { return p.id === 'm_gift' || p.id === 'm_gift1'; });
         var pickedMarriageBranch = lifePicks.some(function (p) { return p.id === 'm_fixedrent' || p.id === 'm_joint' || p.id === 'm_wage_out'; });
         A.push({ id: 'm_save', name: '卖粮·攒聘礼', cost: 1, eff: '存米-1·白银+1（备聘）', desc: '把余粮换成硬通货备作聘礼。', can: S.存米 >= 1, why: S.存米 >= 1 ? '' : '无存米可卖' });
-        A.push({ id: 'm_gift', name: '厚备聘礼', cost: 2, eff: '白银-3·聘礼档↑↑·成算+', desc: '以银三两下重聘，风光正娶，行情最高。', can: !pickedGift && !pickedMarriageBranch && S.白银 >= 3, why: pickedMarriageBranch ? '本轮已改作别的婚配路数' : (pickedGift ? '本轮已定聘礼档' : (S.白银 >= 3 ? '' : '白银不足3两')), once: true });
-        A.push({ id: 'm_gift1', name: '薄备聘礼', cost: 1, eff: '白银-1·聘礼档↑·成算+', desc: '尽力凑一份体面的薄聘。', can: !pickedGift && !pickedMarriageBranch && S.白银 >= 1, why: pickedMarriageBranch ? '本轮已改作别的婚配路数' : (pickedGift ? '本轮已定聘礼档' : (S.白银 >= 1 ? '' : '白银不足1两')), once: true });
-        A.push({ id: 'm_borrow', name: '向义庄借银', cost: 1, eff: '负债+3两·白银+3（供下聘）', desc: '宗族义庄借贷办婚，先成家后还债。', can: true, once: true });
-        A.push({ id: 'm_match', name: '托媒·多方相看', cost: 1, eff: '家族+2·成算+（媒妁之言）', desc: '多走几家媒人，抬一抬相看的成算。', can: true });
-        A.push({ id: 'm_show', name: rp.showName, cost: 1, eff: rp.showEff, desc: rp.showDesc, can: rp.showCan, why: rp.showWhy });
+        if (step >= 3) {
+          A.push({ id: 'm_gift', name: '厚备聘礼', cost: 2, eff: '白银-3·聘礼档↑↑·成算+', desc: '以银三两下重聘，风光正娶，行情最高。', can: !pickedGift && !pickedMarriageBranch && S.白银 >= 3, why: pickedMarriageBranch ? '本轮已改作别的婚配路数' : (pickedGift ? '本轮已定聘礼档' : (S.白银 >= 3 ? '' : '白银不足3两')), once: true });
+          A.push({ id: 'm_gift1', name: '薄备聘礼', cost: 1, eff: '白银-1·聘礼档↑·成算+', desc: '尽力凑一份体面的薄聘。', can: !pickedGift && !pickedMarriageBranch && S.白银 >= 1, why: pickedMarriageBranch ? '本轮已改作别的婚配路数' : (pickedGift ? '本轮已定聘礼档' : (S.白银 >= 1 ? '' : '白银不足1两')), once: true });
+        }
+        A.push({ id: 'm_borrow', name: '向义庄借银', cost: 1, eff: '负债+3两·白银+3（供下聘）', desc: '宗族义庄借贷办婚，先成家后还债。', can: !S._marriageBorrowedForGift, why: S._marriageBorrowedForGift ? '本轮已借过银' : '', once: true });
+        A.push({ id: 'm_match', name: '托媒·多方相看', cost: 1, eff: '家族+2·成算+（媒妁之言）', desc: '多走几家媒人，抬一抬相看的成算。', can: !S._marriageDidMatch, why: S._marriageDidMatch ? '本轮已托媒相看' : '', once: true });
+        A.push({ id: 'm_show', name: rp.showName, cost: 1, eff: rp.showEff, desc: rp.showDesc, can: rp.showCan && !S._marriageDidShow, why: !rp.showCan ? rp.showWhy : (S._marriageDidShow ? '本轮已亮过筹码' : ''), once: true });
         rp.extraActions.forEach(function (x) { A.push(x); });
         if (isFarmRouteState()) {
           A.push({
@@ -5650,34 +5758,59 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         return A;
       },
       settle: function (log) {
-        var giftTier = 0, chance = 0.35 + rp.baseAdj;
-        var borrowedForGift = false;
+        var giftTier = (S._marriageGiftTier || 0);
+        var chance = 0.35 + rp.baseAdj + (S._marriageBonus || 0);
+        var borrowedForGift = !!S._marriageBorrowedForGift;
         var fixedRentChosen = false, jointChosen = false, wageOutChosen = false;
         lifePicks.forEach(function (p) {
           switch (p.id) {
             case 'm_save': S.存米 -= 1; S.白银 += 1; log.push(['卖粮备聘：存米-1、白银+1', 'good']); break;
-            case 'm_gift': S.白银 -= 3; giftTier = 2; chance += 0.40; log.push(['厚备聘礼：银-3下重聘（成算大增）', 'bad']); break;
-            case 'm_gift1': S.白银 -= 1; giftTier = Math.max(giftTier, 1); chance += 0.20; log.push(['薄备聘礼：银-1（成算增）', 'bad']); break;
+            case 'm_gift':
+              if (step >= 3) {
+                S.白银 -= 3;
+                giftTier = 2;
+                S._marriageGiftTier = 2;
+                log.push(['厚备聘礼：银-3下重聘（成算大增）', 'bad']);
+              }
+              break;
+            case 'm_gift1':
+              if (step >= 3) {
+                S.白银 -= 1;
+                giftTier = Math.max(giftTier, 1);
+                S._marriageGiftTier = Math.max(S._marriageGiftTier || 0, 1);
+                log.push(['薄备聘礼：银-1（成算增）', 'bad']);
+              }
+              break;
             case 'm_borrow':
               S.负债银 += 3; S.白银 += 3;
-              borrowedForGift = true;
+              borrowedForGift = true; S._marriageBorrowedForGift = true;
               log.push(['义庄借银3两供下聘（负债+3、白银+3）', 'bad']);
               break;
-            case 'm_match': S.家族 += 2; chance += 0.12; log.push(['托媒多方相看：家族+2（成算增）', 'good']); break;
-            case 'm_show': chance += rp.showBonus; log.push([rp.showLog, 'good']); break;
+            case 'm_match':
+              S.家族 += 2;
+              if (!S._marriageDidMatch) { S._marriageBonus = (S._marriageBonus || 0) + 0.12; S._marriageDidMatch = true; }
+              log.push(['托媒多方相看：家族+2（成算增）', 'good']);
+              break;
+            case 'm_show':
+              if (!S._marriageDidShow) { S._marriageBonus = (S._marriageBonus || 0) + rp.showBonus; S._marriageDidShow = true; }
+              log.push([rp.showLog, 'good']);
+              break;
             case 'm_collect':
               var owed = S.未回款银;
               var got = Math.max(1, Math.ceil(owed * 0.6));
               var lost = Math.max(0, owed - got);
-              S.白银 += got; S.未回款银 = 0; if (lost > 0) S.商路亏折 += lost; chance += 0.08;
+              S.白银 += got; S.未回款银 = 0; if (lost > 0) S.商路亏折 += lost;
+              if (!S._marriageDidCollect) { S._marriageBonus = (S._marriageBonus || 0) + 0.08; S._marriageDidCollect = true; }
               log.push(['折价催收旧账：未回款' + owed + '两里先收回白银+' + got + (lost > 0 ? '，另有' + lost + '两只得认亏' : '') + '（成算增）', 'good']);
               break;
             case 'm_copywork':
-              S.铜钱 += 180; chance += 0.08;
+              S.铜钱 += 180;
+              S._marriageBonus = (S._marriageBonus || 0) + 0.08;
               log.push(['替人抄账写契：铜钱+180，让女方家看见你不是空读书（成算增）', 'good']);
               break;
             case 'm_tutor':
-              S.铜钱 += 120; S.家族 += 2; chance += 0.10;
+              S.铜钱 += 120; S.家族 += 2;
+              S._marriageBonus = (S._marriageBonus || 0) + 0.10;
               log.push(['代馆教蒙童：铜钱+120、家族+2；虽无功名，已有几分体面营生（成算增）', 'good']);
               break;
             case 'm_fixedrent':
@@ -5717,6 +5850,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         });
         if (jointChosen) {
           S._marriageAttempts = 0;
+          resetMarriageAttemptState();
           curStage.next = 'household';
           curStage.nextLabel = '带着合爨余绪去当户 →';
           log.push(['这一程没有另立小家，而是带着“合爨随兄”的共账、口粮与面子继续往后走；到父故分家时，这份缓冲也得一并清账。', 'good']);
@@ -5742,7 +5876,26 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           );
           return;
         }
+        // 前两旬：只结细账并推进到下一旬；不做“女方是否应允”的 roll。
+        if (step < 3) {
+          // 议亲细碎脚费：不额外耗 RNG，只把媒人茶水/递话脚费这层小钱压回旬账。
+          var handled = lifePicks.some(function (p) { return p.id === 'm_match' || p.id === 'm_show' || p.id === 'm_borrow' || p.id === 'm_save' || p.id === 'm_wait'; });
+          if (!handled) {
+            if (spendCopper(20)) log.push(['〔递话脚费〕这一旬连托媒都没能跑通，只得先掏递话脚费与茶水钱：铜钱-20。', 'bad']);
+            else { S.家族 = Math.max(0, S.家族 - 1); log.push(['〔递话脚费〕这一旬连递话脚费都腾挪不开，只得先硬顶过去；媒人这层口风更冷一线（家族-1）。', 'bad']); }
+          }
+          S.议旬 = step + 1;
+          curStage.next = 'marriage';
+          curStage.nextLabel = step === 1 ? '续议亲·回话中旬 →' : '续议亲·下聘下旬 →';
+          log.push(['这一旬议亲细账已结，' + curStage.nextLabel.replace(' →', '') + '。', 'good']);
+          return;
+        }
+
+        // 下聘下旬：一次性 roll
         chance += Math.min(0.10, S.家族 >= 70 ? 0.10 : 0);
+        // 聘礼档只在最后一旬计入成算（避免前两旬反复切换导致“成算倒填”）
+        if (giftTier === 2) chance += 0.40;
+        else if (giftTier === 1) chance += 0.20;
         chance = Math.max(0.05, Math.min(0.95, chance));
         var pct = Math.round(chance * 100);
         // “借银”本身就是为下聘凑现银：若本轮未点“薄聘/重聘”，则按“薄聘”口径自动从现银里划出 1 两下聘，
@@ -5750,7 +5903,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (giftTier === 0 && borrowedForGift && S.白银 >= 1) {
           S.白银 -= 1;
           giftTier = 1;
-          chance += 0.18;
+          S._marriageGiftTier = 1;
+          chance = Math.max(0.05, Math.min(0.95, chance + 0.18));
           log.push(['借来的一两先作薄聘下聘：白银-1（成算增）', 'bad']);
         }
         if (giftTier === 0) {
@@ -5773,6 +5927,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           S.铜钱 += dowry; S.家族 += giftTier === 2 ? 10 : 6;
           log.push(['〔女方应允〕成婚成算约 ' + pct + '%，命中！妻带奁产铜钱+' + dowry + '、家族+' + (giftTier === 2 ? 10 : 6), 'good']);
           bearChildren(log);
+          resetMarriageAttemptState();
         } else {
           if (giftTier === 2) {
             S.白银 += 1;
