@@ -11672,6 +11672,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.铜钱 >= 65 ? '' : '铜钱不足65文',
             once: true
           });
+          A.push({
+            id: 'h_autumn_head_cloth',
+            name: '先把秋头回签与孩子夹衣分开',
+            cost: 1,
+            eff: '铜钱-60·通融+1·家族+1·体魄+1',
+            desc: '秋凉刚起时，最怕旧铺回签、孩子夹衣、递话门包和锅火小耗一起先来。先把这层秋头夹衣拆开，不让“铺里回音刚起”这一口钱又先被换季穿用和家里锅火啃薄。',
+            can: S.铜钱 >= 60,
+            why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
+            once: true
+          });
         }
         if (season.id === 'autumn' && xun === 2) {
           A.push({
@@ -11971,6 +11981,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想在' + stepLabel + '先把秋头回签与催佃脚费分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_autumn_head_cloth':
+              if (spendCopper(60)) {
+                S.本年户通融 += 1;
+                S.家族 += 1;
+                S.体魄 += 1;
+                pushHouseholdSeasonTag('秋头夹衣');
+                log.push(['你在' + stepLabel + '先把秋头回签与孩子夹衣分开：铜钱-60、通融+1、家族+1、体魄+1。学徒路当户到了秋头，也开始把“铺里回音刚起、孩子夹衣和锅火却先来追钱”这层换季细账压回同旬。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把秋头回签与孩子夹衣分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_autumn_bundle':
               if (spendCopper(120)) {
                 S.本年户备役 += 1;
@@ -12220,6 +12242,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             pushHouseholdSeasonTag(stepLabel + '秋头硬顶');
             log.push(['〔秋头回签〕这一旬连催佃脚费和递话门包都腾挪不开，只得先硬顶过去；铺里回签与乡里租路这两层口风又一起薄了一线（家族-1）。', 'bad']);
           }
+          if (picked.h_autumn_head_cloth || picked.h_autumn_reply || picked.h_shop_collect || picked.h_clan) {
+            pushHouseholdSeasonTag(stepLabel + '秋头夹衣已理');
+            log.push(['〔秋头夹衣〕这一旬先把秋头回签、孩子夹衣、递话门包和锅火小耗分开了；学徒路当户的秋头不再只是在问铺里回音，连换季穿用和家里锅火也开始同旬见光。', 'good']);
+          } else if (spendCopper(40)) {
+            pushHouseholdSeasonTag(stepLabel + '秋头夹衣');
+            log.push(['〔秋头夹衣〕秋头回签、孩子夹衣、递话门包和锅火小耗一起要钱：铜钱-40。不是大账，却正把学徒路当户秋头那层“回音刚起、孩子先要添衣”的换季细耗重新压回这一旬。', 'bad']);
+          } else {
+            S.体魄 = Math.max(0, S.体魄 - 1);
+            pushHouseholdSeasonTag(stepLabel + '秋头夹衣硬顶');
+            log.push(['〔秋头夹衣〕这一旬连孩子夹衣和锅火小耗都腾挪不开，只得先硬顶过去；秋凉一到，身子和家里锅火先一起吃了一亏（体魄-1）。', 'bad']);
+          }
           if (picked.h_lease_city || picked.h_shop_collect || picked.h_clan || (S.委托营生 === '出佃收租') || (S.委托租谷 || 0) > 0) {
             pushHouseholdSeasonTag(stepLabel + '秋租脚路已坐');
             log.push(['〔秋租脚路〕春里立下的租账与乡里路数这时开始起效，催佃脚路、回城脚费与锅火没有再撞成一团。', 'good']);
@@ -12368,6 +12401,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('春中铺话') >= 0; })) log.push(['这一任当户你又把旧掌柜回话、灯油盐药与递话脚费压进了春分书中旬；学徒路中年开春终于也把“旧铺尚有回音”这层市场细账重新摊回了同一年。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('春中香脚') >= 0; })) log.push(['这一任当户你还把代管回签、清明香纸、递话脚费与锅火小耗压进了春分书中旬；立户第二旬也不再只是在立纸票，而是把清明前后的家内与制度碎账一起拆开。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏茶汤') >= 0; })) log.push(['这一任当户你连伏夏茶汤、回铺脚费与捎话小费都先拆回了夏头；学徒路的夏初终于也有了专属的细账密度，而不再只靠通用伏夏损耗撑过去。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋头夹衣') >= 0; })) log.push(['这一任当户你又把秋头回签、孩子夹衣、递话门包与锅火小耗提前拆开；学徒路中年秋头终于也把换季穿用和家内锅火重新压回了同一年。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋尾回话') >= 0; })) log.push(['这一任当户又把秋尾回话、锅火与催佃脚费提前拆开；秋里最后那层“钱快回了却还没回到手”的摩擦，也终于被压回同一年里。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('来春铺路') >= 0 || String(tag).indexOf('年下客礼') >= 0; })) log.push(['这一任当户你又把冬里来春铺路、年下客礼和守岁零用先分开；学徒路连冬尾那层最碎的人情账，也开始像同一年里不断冒头的小事。', 'good']);
         if ((S.本年户季务 || []).length <= 6) log.push(['这一任当户虽拆成了年内各旬，但真正落到账里的细务仍偏少，说明这一年还没有被你完全做厚。', 'bad']);
