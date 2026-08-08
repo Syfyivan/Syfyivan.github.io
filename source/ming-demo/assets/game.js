@@ -7011,6 +7011,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
         if (season.id === 'winter' && xun === 2) {
           pack.extraActions.push({
+            id: 'f_route_wage_winter_register',
+            name: '先把里书催册与工棚回话分开',
+            cost: 1,
+            eff: '铜钱-60·备役+1·通融+1·家族+1',
+            desc: '冬中最怕一头是里书催你补册、点名、问差票，一头是旧工头还在回话；两边都不算大账，却会在年关一起挤同一口现钱。你先把这层册子与回话拆开，让制度后手不至把工路门路也一并磨薄。',
+            can: S.铜钱 >= 60,
+            why: S.铜钱 >= 60 ? '' : '铜钱不足60文'
+          });
+          pack.extraActions.push({
             id: 'f_route_wage_winter_gift',
             name: '先把旧工头薄礼与炭钱分开',
             cost: 1,
@@ -8237,6 +8246,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushFamilySeasonTag(stepTag + '工棚炭礼已分');
                 log.push(['先把旧工头薄礼与炭钱分开：铜钱-80、贴家+1、衣药+1、通融+1、家族+1。你先把旧工头薄礼、炭钱和回话脚费拆开，不让卖工路年下最碎的那层门路耗损继续糊成一团。', 'good']);
               } else log.push(['想先把旧工头薄礼与炭钱分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_wage_winter_register':
+              if (spendCopper(60)) {
+                S.家族 += 1;
+                S.本年家备役 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '冬中抄册已理');
+                log.push(['先把里书催册与工棚回话分开：铜钱-60、备役+1、通融+1、家族+1。里书要你补册点名、旧工头还在回话，两头都不算大账，却会在年关一起挤同一口现钱；这一旬先拆开，后面才不至把制度后手和工路门路一起磨薄。', 'good']);
+              } else log.push(['想先把里书催册与工棚回话分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_wage_winter_reply':
               if (spendCopper(70)) {
