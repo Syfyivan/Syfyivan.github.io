@@ -6046,6 +6046,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             can: S.白银 >= 1 || S.铜钱 >= 240,
             why: (S.白银 >= 1 || S.铜钱 >= 240) ? '' : '现钱不够拆作锅火与牙税'
           });
+          pack.extraActions.push({
+            id: 'f_route_autumn_mid_reply',
+            name: '先把秋中回签与锅火脚费分开',
+            cost: 1,
+            eff: '铜钱-55·贴家+1·捎信+1·通融+1',
+            desc: '秋中最怕回签小纸、锅火脚费、差票回话和供读纸包后手一起先来抢钱。你先把秋中回签拆开，让这口“将回未回”的现钱不至一转身就被家用、制度和孩子纸包同时啃薄。',
+            can: S.铜钱 >= 55,
+            why: S.铜钱 >= 55 ? '' : '铜钱不足55文'
+          });
         }
         if (season.id === 'autumn' && xun === 3) {
           pack.extraActions.push({
@@ -7162,6 +7171,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               } else {
                 log.push(['想把秋货回钱先拆作锅火与牙税，但这一旬现钱已先被别处占住，只得暂缓。', 'bad']);
               }
+              break;
+            case 'f_route_autumn_mid_reply':
+              if (spendCopper(55)) {
+                S.本年家贴家 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '秋中回签');
+                log.push(['先把秋中回签与锅火脚费分开：铜钱-55、贴家+1、捎信+1、通融+1。回签小纸、锅火脚费、差票回话和供读纸包后手先被你拆回了真账，秋中这口“将回未回”的现钱不再一转身就被几头同时吃掉。', 'good']);
+              } else log.push(['想先把秋中回签与锅火脚费分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_receipt':
               if (spendCopper(50)) {
@@ -8323,7 +8341,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'autumn' && xun === 2) {
-          if (picked.f_route_autumn_split || picked.f_route_remit || picked.f_social || picked.f_market || picked.f_route_school) {
+          if (picked.f_route_autumn_split || picked.f_route_autumn_mid_reply || picked.f_route_remit || picked.f_social || picked.f_market || picked.f_route_school) {
             pushFamilySeasonTag(stepTag + '秋路锅火已分');
             log.push(['〔秋路锅火〕这一旬先把回钱脚单、锅火碎用、差票回话与供读纸包后手分开了；秋里这口现钱没有再被误写成“秋货一回便宽”。', 'good']);
           } else if (spendCopper(45)) {
