@@ -4487,6 +4487,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var marketTrust = (season.id === 'autumn' || season.id === 'winter') ? 1 : 0;
     var letterCost = season.id === 'winter' ? (isLate ? 60 : 50) : 30;
     var letterFamily = season.id === 'winter' ? (isLate ? 3 : 2) : 2;
+    // 商路补一条“识字补课”——不强制，但给未开蒙者一个在同一年里慢慢补齐账房能力的入口，
+    // 让“能不能核账”不只靠出生时是否已识字，也能靠本代自己在商号里一点点磨出来。
+    // 约束：不额外耗 RNG；只在被玩家选择时改变状态。
+    var literacyCost = season.id === 'winter'
+      ? (isLate ? 100 : 90)
+      : (season.id === 'summer' ? (isMid ? 90 : 85) : 80);
     var seasonalCounts = '本年坐店=' + S.本年商路坐店 + '｜跑单=' + S.本年商路跑单 + '｜认货=' + S.本年商路认货 + '｜问价=' + S.本年商路问价 + '｜核账=' + S.本年商路核账 + '｜催账=' + S.本年商路催账 + '｜贴家=' + S.本年商路贴家 + '｜家书=' + S.本年商路家书 + '｜试贩=' + S.本年商路试贩;
     return {
       title: '徽商学生意 · 第' + S.商年 + '商年·' + season.name + '·' + xunLabel,
@@ -4560,6 +4566,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
         A.push({ id: 'm_run', name: season.id === 'autumn' ? (isLate ? '趁旺季外出催单回钱' : '跟号外出探价走货') : (season.id === 'winter' ? (isLate ? '年关短路催最后一笔账' : '趁年关外出收账') : '跟号外出跑单'), cost: 1, eff: (runSilver > 0 ? ('白银+' + runSilver + '·') : '') + '铜钱+' + runCopper + '·商历练+2·体魄-' + runBody + (runFamilyCost > 0 ? ('·家族-' + runFamilyCost) : ''), desc: season.id === 'autumn' ? '秋里跟单问价、认牙口，也把今年能不能往试贩上迈一步坐实。' : (season.id === 'winter' ? '把“账面上有”与“手里真回了钱”分开看清。' : '跟着押货、跑埠、走路子，钱厚一些，离乡也久些。'), can: !(season.id === 'winter' && isLate && S.本年商路催账 > 0), why: (season.id === 'winter' && isLate && S.本年商路催账 > 0) ? '这一旬已催过旧账' : '', once: true });
         A.push({ id: 'm_book', name: season.id === 'winter' ? (isLate ? '年关总盘账' : '年关盘账核账') : (isLate ? '趁旬尾收一遍流水' : '识字帮核账'), cost: 1, eff: '铜钱+' + bookCopper + '·账房进度+1·商信誉+1', desc: '若你识字，可帮着抄单、核账，比纯跑腿更值钱。', can: S.识字, why: S.识字 ? '' : '尚不识字', once: true });
+        if (!S.识字 && (S.识字进度 || 0) < 2) {
+          A.push({
+            id: 'm_literacy',
+            name: season.id === 'winter' ? '借账房灯下认字' : '跟账房认字记号',
+            cost: 1,
+            eff: '铜钱-' + literacyCost + '·识字进度+1(满2开蒙)·账房进度+1',
+            desc: season.id === 'winter'
+              ? '年关灯下，趁账房盘账时跟着认字记号。不是“忽然开窍”，而是一旬一旬把最基础的账面字眼磨出来。'
+              : '在号里跟着账房认几行字、记几样号记：钱花得碎，却能把“只会跑路”慢慢补成“也认得账”。',
+            can: S.铜钱 >= literacyCost,
+            why: S.铜钱 >= literacyCost ? '' : ('铜钱不足' + literacyCost + '文'),
+            once: true
+          });
+        }
         A.push({ id: 'm_collect', name: S.未回款银 > 0 ? '追催旧账回钱' : (season.id === 'winter' ? '先去盯几笔散账' : '带口信催几笔小账'), cost: 1, eff: S.未回款银 > 0 ? ('未回款银-1·白银+1' + (collectTrust > 0 ? ('·商信誉+' + collectTrust) : '')) : ('铜钱+' + collectCopper + (collectTrust > 0 ? ('·商信誉+' + collectTrust) : '')), desc: S.未回款银 > 0 ? '把“还挂在账面上”的一两先催回手里，省得年关只剩一堆空账。' : '就算还没有大笔拖账，也先把散碎口信、回话和小账盯紧。', can: season.id === 'winter' || season.id === 'autumn' || S.未回款银 > 0, once: true });
         A.push({ id: 'm_try', name: isLate ? '赶在旬尾定试贩' : '争取带本试贩', cost: 2, eff: '白银-1锁作本钱·冬里按门路/账房/承继定位判回本/小利/亏折/未回款', desc: '拿一两本钱试着跑一单。钱先锁在货里，回没回得来，不只看运气，也看你这一年把门路和账面坐实到哪一步。', can: ((season.id === 'autumn' && xun >= 2) || (season.id === 'winter' && xun === 1)) && S.本年商路试贩 < 1 && S.带本银 <= 0 && S.白银 >= 1 && (S.识货进度 >= 1 || S.账房进度 >= 1), why: ((season.id === 'autumn' && xun >= 2) || (season.id === 'winter' && xun === 1)) ? (S.本年商路试贩 < 1 ? (S.带本银 <= 0 ? (S.白银 >= 1 ? ((S.识货进度 >= 1 || S.账房进度 >= 1) ? '' : '尚未学会最基本认货/核账') : '白银不足1两') : '已有一笔本钱锁在货里') : '本年已试贩过一回') : '通常要到秋中旬以后才谈得上试贩', once: true });
         A.push({ id: 'm_support', name: season.id === 'autumn' ? '先把回钱贴回家' : '寄银回家供读', cost: 1, eff: supportProfile.effect, desc: supportProfile.desc, can: S.白银 >= 1, why: S.白银 >= 1 ? '' : '白银不足1两', once: true });
@@ -4650,6 +4670,21 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               log.push([season.id === 'winter'
                 ? ('年关盘账核账：铜钱+' + bookCopper + '、账房进度+1、商信誉+1')
                 : ('识字帮核账：铜钱+' + bookCopper + '、账房进度+1、商信誉+1'), 'good']);
+              break;
+            case 'm_literacy':
+              if (spendCopper(literacyCost)) {
+                S.账房进度 += 1;
+                S.商历练 += 1;
+                S.识字进度 += 1;
+                var becameLiterate = (!S.识字 && S.识字进度 >= 2);
+                if (becameLiterate) S.识字 = true;
+                pushMerchantSeasonTag(season.name + xunLabel + (becameLiterate ? '开蒙识字' : '认字补课'));
+                log.push([season.id === 'winter'
+                  ? ('借账房灯下认字：铜钱-' + literacyCost + '、账房进度+1、识字进度+' + 1 + (becameLiterate ? '（满2开蒙识字）' : ''))
+                  : ('跟账房认字记号：铜钱-' + literacyCost + '、账房进度+1、识字进度+' + 1 + (becameLiterate ? '（满2开蒙识字）' : '')), 'good']);
+              } else {
+                log.push(['想跟账房补一旬认字，却发现这一旬铜钱已先被脚费与门包占住，只得暂缓。', 'bad']);
+              }
               break;
             case 'm_collect':
               S.本年商路催账 += 1;
