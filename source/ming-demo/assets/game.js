@@ -12229,6 +12229,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.铜钱 >= 65 ? '' : '铜钱不足65文',
             once: true
           });
+          A.push({
+            id: 'h_summer_head_reply',
+            name: '先把伏夏回签与孩子纸样分开',
+            cost: 1,
+            eff: '铜钱-60·核账+1·通融+1·家族+1',
+            desc: '夏催账刚起头时，最怕熟号回签、孩子纸样、递话门包和锅火凉药一起冒头。先把这层伏夏回签拆开，伏夏第一旬就不只是在问路数与扛暑气，连家里读写后手也会先压回这一旬。',
+            can: S.铜钱 >= 60,
+            why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
+            once: true
+          });
         }
         A.push({ id: 'h_hire', name: '雇工顾住田面', cost: 1, eff: '铜钱-300·分家薄田不至空转', desc: '你人在外头，先花钱把薄田顾住，别让“分得了田”变成一年的空账。', can: S.铜钱 >= 300 && (S.本年户备役 || 0) < 3, why: S.铜钱 >= 300 ? '' : '铜钱不足300文', once: true });
         A.push({ id: 'h_side', name: '抽身贴补这一房', cost: 1, eff: side.effect, desc: '当户这一年照样要找现钱。哪怕只是多接一层零活，也是在给差钱和家用添后手。', can: true });
@@ -12649,6 +12659,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想在' + stepLabel + '先把伏夏家书脚费与布药纸包分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_summer_head_reply':
+              if (spendCopper(60)) {
+                S.本年户核账 += 1;
+                S.本年户通融 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('伏夏回签拆开');
+                log.push(['你在' + stepLabel + '先把熟号回签、孩子纸样、递话门包和锅火凉药分开：铜钱-60、核账+1、通融+1、家族+1。商路当户伏夏上旬终于不只是在问路数和将养身子，连“旧商路还在回话、家里读写后手先来追钱”的细账也先被拆回了真账。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把伏夏回签与孩子纸样分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_summer_market':
               if (spendCopper(65)) {
                 S.本年户通融 += 1;
@@ -12900,7 +12922,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (actionCount === 0) log.push(['这一旬你几乎没把任何实账坐下，当户这一年便更容易在年关前忽然一起撞账。', 'bad']);
         applySeasonalHouseholdFriction(log, stepLabel, season, xun, picked, {
           summer: {
-            handledIds: ['h_collect', 'h_school_fund', 'h_side', 'h_rest', 'h_literate', 'h_clan', 'h_wharf', 'h_summer_tail', 'h_summer_guest_sign', 'h_summer_cool', 'h_summer_home_packet', 'h_summer_market', 'h_summer_packet'],
+            handledIds: ['h_collect', 'h_school_fund', 'h_side', 'h_rest', 'h_literate', 'h_clan', 'h_wharf', 'h_summer_tail', 'h_summer_guest_sign', 'h_summer_cool', 'h_summer_home_packet', 'h_summer_head_reply', 'h_summer_market', 'h_summer_packet'],
             doneTag: '伏夏小耗已顾',
             doneLog: '〔伏夏小耗〕这一旬先把伏夏布药、凉药、水脚与家里零耗顾住了；商路现钱没有再被小耗悄悄磨薄。',
             cost: 60,
@@ -12970,6 +12992,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushHouseholdSeasonTag(stepLabel + '伏夏路药硬顶');
             log.push(['〔伏夏路药〕这一旬连带话脚费和家里凉药都腾挪不开，只得先硬顶过去；伏夏刚起头，熟号与家里替这一房接气的口风就先紧了一线（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'summer' && xun === 1) {
+          if (picked.h_summer_head_reply || picked.h_summer_home_packet || picked.h_school_fund || picked.h_wharf || picked.h_collect) {
+            pushHouseholdSeasonTag(stepLabel + '伏夏回签已理');
+            log.push(['〔伏夏回签〕这一旬先把熟号回签、孩子纸样、递话门包和锅火凉药分开了；夏催账刚起头时，这一房不再只顾路数与凉药，连“旧商路还在回话、孩子读写后手先来追钱”的细账也开始同旬见光。', 'good']);
+          } else if (spendCopper(35)) {
+            pushHouseholdSeasonTag(stepLabel + '伏夏回签');
+            log.push(['〔伏夏回签〕熟号回签、孩子纸样、递话门包和锅火凉药一起要钱：铜钱-35。不是新主线，却正把商路当户夏头那层“旧商路仍在回话、家里读写和锅火先来追钱”的细耗重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '伏夏回签硬顶');
+            log.push(['〔伏夏回签〕这一旬连回签脚费和孩子纸样都腾挪不开，只得先硬顶过去；伏夏刚起头，熟号与家里读写这两头口风就先紧了一线（家族-1）。', 'bad']);
           }
         }
         if (season.id === 'summer' && xun === 3) {
