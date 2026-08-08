@@ -11994,6 +11994,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
             once: true
           });
+          A.push({
+            id: 'h_autumn_register',
+            name: '先把秋尾回批与抄簿次序分开',
+            cost: 1,
+            eff: '铜钱-50·核账+1·备役+1·家族+1',
+            desc: '秋定租到了下旬，最怕租帖回批、回签抄簿、递话脚费和供读纸包一起先来抢钱。先把哪张回批先抄、哪笔脚费先付拆开，秋尾就不只是在等回款，而是真把制度次序也压回了这一旬。',
+            can: S.铜钱 >= 50,
+            why: S.铜钱 >= 50 ? '' : '铜钱不足50文',
+            once: true
+          });
         }
         if (season.id === 'winter' && xun === 1) {
           A.push({
@@ -12408,6 +12418,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想在' + stepLabel + '先把秋尾回话与差票门包分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_autumn_register':
+              if (spendCopper(50)) {
+                S.本年户核账 += 1;
+                S.本年户备役 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('秋尾抄簿拆开');
+                log.push(['你在' + stepLabel + '先把租帖回批、回签抄簿、递话脚费和供读纸包次序分开：铜钱-50、核账+1、备役+1、家族+1。秋定租到了下旬，不只是在等秋钱回手，连“哪张回批先抄进账”这层制度碎账也总算先被压回了本年。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把秋尾回批与抄簿次序分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_winter_route_split':
               if (spendCopper(70)) {
                 S.本年户备役 += 1;
@@ -12550,7 +12572,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             hardship: 'body'
           },
           autumn: {
-            handledIds: ['h_collect', 'h_pay', 'h_school_fund', 'h_clan', 'h_trust_field', 'h_side', 'h_wharf', 'h_autumn_tail', 'h_autumn_reply', 'h_autumn_receipt', 'h_autumn_sign', 'h_autumn_mid_reply'],
+            handledIds: ['h_collect', 'h_pay', 'h_school_fund', 'h_clan', 'h_trust_field', 'h_side', 'h_wharf', 'h_autumn_tail', 'h_autumn_reply', 'h_autumn_register', 'h_autumn_receipt', 'h_autumn_sign', 'h_autumn_mid_reply'],
             doneTag: '秋后细账已拆',
             doneLog: '〔秋后细账〕秋后回款、租谷、供读和差钱已被你先拆开；看着厚的秋钱这旬没再被误当成整口可花的银。',
             cost: 70,
@@ -12726,6 +12748,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushHouseholdSeasonTag(stepLabel + '秋尾门包硬顶');
             log.push(['〔秋尾门包〕这一旬连回话脚费和差票门包都腾挪不开，只得先硬顶过去；秋尾熟号与乡里两头替这一房递话的口风又紧了一线（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'autumn' && xun === 3) {
+          if (picked.h_autumn_register || picked.h_autumn_tail || picked.h_autumn_reply || picked.h_pay || picked.h_collect || picked.h_school_fund) {
+            pushHouseholdSeasonTag(stepLabel + '秋尾抄簿已理');
+            log.push(['〔秋尾抄簿〕这一旬先把租帖回批、回签抄簿、递话脚费和供读纸包次序理开了；秋定租下旬不再只剩回话和门包，连“哪张回批先抄进账”这层制度碎账也开始同年见光。', 'good']);
+          } else if (spendCopper(35)) {
+            pushHouseholdSeasonTag(stepLabel + '秋尾抄簿');
+            log.push(['〔秋尾抄簿〕租帖回批、回签抄簿、递话脚费和供读纸包次序一起要钱：铜钱-35。不是大账，却正把商路当户秋尾那层“回款将回未回、回批先要落簿”的制度细耗重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '秋尾抄簿硬顶');
+            log.push(['〔秋尾抄簿〕这一旬连回签抄簿和递话脚费都腾挪不开，只得先硬顶过去；秋尾里书与熟号替这一房回批转话的口风又紧了一线（家族-1）。', 'bad']);
           }
         }
         if (season.id === 'spring' && xun === 2) {
@@ -12954,6 +12989,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋中回签') >= 0; })) log.push(['这一任当户你又把熟号回签、租路饭钱、递话脚费和锅火后手压进了秋定租中旬；商路秋中终于不再只剩“秋路回钱拆账”，连秋钱未落手时回乡与家用先来追钱的那层细耗也开始同旬见光。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('夏尾账脚拆开') >= 0; }) || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋尾催单纸包') >= 0; })) log.push(['这一任当户你连夏尾回话脚费、秋尾催单纸包这种末尾细账都主动拆开了；商路这一年不再只是“季中有事”，连季尾也在持续咬人。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋尾门包') >= 0; })) log.push(['这一任当户你又把秋尾回话脚费、差票门包和递话小礼压回了秋定租下旬；秋钱将回未回时，连最细的门包后手也开始同年见光。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋尾抄簿') >= 0; })) log.push(['这一任当户你还把租帖回批、回签抄簿、递话脚费和供读纸包压回了秋定租下旬；商路这一年到了秋尾，连“哪张回批先抄进账”这层制度次序也不再等到冬里才现形。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('夏尾客签') >= 0; })) log.push(['这一任当户你又把夏尾客签回话、秋前样纸和递话门包压回了伏夏最后一旬；秋路还没开，秋前那层最细的样纸与客签后手已经先写进了同一年里。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('年关客礼') >= 0; }) || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('客礼已分') >= 0; })) log.push(['这一任当户连年关熟号薄礼、脚夫脚费与明春水脚都被拆开记了；“门路要不要养”不再只停在一句设定里。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('年下客礼') >= 0; })) log.push(['这一任当户你又把年下客礼先拆成熟号薄礼、脚夫脚费与炭米；冬账刚起头时，这一房连门路和锅火都开始有了各自的真账。', 'good']);
