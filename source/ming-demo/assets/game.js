@@ -3894,15 +3894,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       next: 'wage', nextLabel: isYearEnd
         ? (S.工年 < WAGE_YEARS ? '翻到下一工年春忙上旬 →' : '带着三年工账去议亲 →')
         : (wagePass >= 3 ? ('转入' + nextSeason.name + '上旬 →') : ('转入' + season.name + wageXunLabel(wagePass + 1) + ' →')),
-      ap: 2, commitLabel: isYearEnd ? '了这一工年 →' : '结这一旬工食细账 →',
-      note: '这一路现已从“全年一点式结算”继续拆成“每季上中下三旬”：上旬先排工路，中旬把家用与市面摊开，下旬再收差役、衣药与旧债。一年里真有很多小账一起发生，仍保持三币种守恒，不写成功分。',
-      narrative: '你已<span class="em">' + age + '岁</span>，这一工年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + (wagePass === 1 ? '这一旬先把主工路定下来。' : (wagePass === 2 ? '这一旬更像把家里、市面与脚下活路往一处拢。' : '这一旬最像收后账：差役、衣药、旧债与年关后手都不肯再往后拖。')) + ' 你这一旬有 <span class="em">2 个行动点</span>。',
+      // 卖工路也按“三手并行”推进：一手抓工食主线，一手摊家计/市面碎账，再留一手给差役或身子后手。
+      // 行动点用不完也可提前结算（不强制“点满”），避免强迫玩家每旬都做完美三选。
+      ap: 3, commitLabel: isYearEnd ? '了这一工年 →' : '结这一旬工食细账 →',
+      note: '这一路现已从“全年一点式结算”继续拆成“每季上中下三旬”：上旬先排工路，中旬把家用与市面摊开，下旬再收差役、衣药与旧债。并把“每旬只够做两件事”上调为“三手并行”——让工食、家计与制度/身子后手能在同一年里更真实地抢同一口现钱。仍保持三币种守恒，不写成功分。',
+      narrative: '你已<span class="em">' + age + '岁</span>，这一工年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + (wagePass === 1 ? '这一旬先把主工路定下来。' : (wagePass === 2 ? '这一旬更像把家里、市面与脚下活路往一处拢。' : '这一旬最像收后账：差役、衣药、旧债与年关后手都不肯再往后拖。')) + ' 你这一旬有 <span class="em">3 个行动点</span>。',
       dossier: function () {
         var seasonTags = (S.本年季务 && S.本年季务.length) ? S.本年季务.join('、') : '尚未坐实';
         return lifeDossier('当前工季=' + season.name + '·' + xunLabel + '｜本年雇约=' + S.本年雇约 + '｜本年工食银=' + S.本年工食银 + '两｜本年工食钱=' + S.本年工食钱 + '文｜口粮减免=' + S.本年口粮减免 + '石｜' + wageCounts + '｜已坐实=' + seasonTags + '。');
       },
       events: events,
-      prompt: wagePass === 1 ? '这一旬怎么排主工路？（分配 2 点）' : (wagePass === 2 ? '这一旬怎么把家计和市面拢住？（分配 2 点）' : '这一旬怎么把后账收住？（分配 2 点）'),
+      prompt: wagePass === 1 ? '这一旬怎么排主工路？（分配 3 点）' : (wagePass === 2 ? '这一旬怎么把家计和市面拢住？（分配 3 点）' : '这一旬怎么把后账收住？（分配 3 点）'),
       actions: function () {
         var A = [];
         var longEff = (season.id === 'spring')
@@ -14318,7 +14320,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       pack.extraActions.push({ id: 'e_route_wharf_old', name: '托熟号问明春水脚', cost: 1, eff: '铜钱-50·家族+1', desc: '趁年关熟号还在，先把哪条水脚肯接、哪笔旧账还可缓一旬摸明。它不立刻变现，却能让来年不至从两眼一抹黑开始。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
       pack.extraActions.push({ id: 'e_route_winter_tail_old', name: '先把年下回签与来春样纸分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '冬尾最怕年下回签、来春样纸定钱、递话脚费和眼前锅火一起压上来。先把这层冬尾小账拆开，明春第一程和今冬家里口风才不必继续挤在同一口现钱上。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
     } else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份 || S.优免启用) {
-      pack.note = '举业一路到了晚年，看的是名色留下多少实际照应：生员能减一层外流，笔墨底子则更容易换来教馆、抄写和体面；更磨人的，是春头馆契、旧馆回话、伏夏馆汤、伏夏纸药、夏尾回签、秋初回签、秋中馆脚、秋尾回帖、秋尾炭脚与年关帖礼会不会在同一年里一旬旬咬回来。';
+      pack.note = '举业一路到了晚年，看的是名色留下多少实际照应：生员能减一层外流，笔墨底子则更容易换来教馆、抄写和体面；更磨人的，是春头馆契、旧馆回话、伏夏馆汤、伏夏纸药、夏尾回签、秋初回签、秋中馆脚、秋尾回帖、秋尾炭脚、冬中馆札与年关帖礼会不会在同一年里一旬旬咬回来。';
       pack.dossier = '举业结局=' + S.举业结局 + '｜生员=' + (S.生员身份 ? '是' : '否') + '｜优免=' + (S.优免启用 ? '启用' : '未启用') + '｜识字转业值=' + S.识字转业值;
       pack.event = { t: 'rel', tag: '[名色]', txt: S.生员身份 ? '名色到了晚年仍有余温：不必然给你现钱，却更容易让诸子和乡里愿意按体面来办。' : '若多年应举未成，老来能靠的不是“读过几年书”，而是这点笔墨底子能不能真换来教馆、抄写与照应。' };
       if (S.生员身份 || S.优免启用) pack.negotiateAdj += 0.10;
@@ -14341,6 +14343,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       pack.extraActions.push({ id: 'e_tutor_autumn_bundle_old', name: '把秋尾炭脚拆作锅火与学生回礼', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '秋尾最怕炭脚、锅火零用和学生家谢回小礼一起冒头。先把这层小账拆开，冬里就不必再拿来春帖费去垫秋尾余账。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
       pack.extraActions.push({ id: 'e_tutor_gift_old', name: '先备塾师薄礼与年关帖费', cost: 1, eff: '铜钱-70·家族+2·体魄+1', desc: '年关若把塾师、旧学生家和递帖人的薄礼一并省掉，明春常常就得从头求人。先把这层小钱记下，门路才不至到冬里忽然断线。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
       pack.extraActions.push({ id: 'e_tutor_winter_reply_old', name: '先把冬头馆信与灯炭脚费分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬头最怕旧馆回签、灯油炭火、年下药包和递帖脚费一起冒头。先把这层冬头馆信拆开，年关帖礼和来春帖费才不至继续挤同一口过冬钱。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+      pack.extraActions.push({ id: 'e_tutor_winter_mid_old', name: '先把冬中馆札与孩子炭笔分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '冬中最怕旧馆回札、孩子炭笔、递话门包和守岁锅火一起冒头。先把这层冬中馆札拆开，不让旧馆门路与家里读写再继续抢同一口过冬钱。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
       pack.extraActions.push({ id: 'e_tutor_post_old', name: '先留来春帖费与纸墨定钱', cost: 1, eff: '铜钱-50·家族+1', desc: '趁旧馆门路还热，先把来春递帖、回话和纸墨定钱分开。它不立刻回现钱，却能让明春第一旬不至从冷面递帖开始。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
       pack.extraActions.push({ id: 'e_tutor_winter_bundle_old', name: '把冬尾笔炭拆作守岁零用与学生回话', cost: 1, eff: '铜钱-45·家族+1·体魄+1', desc: '冬尾最怕炭药、守岁零用和学生家回话脚费一起冒头。先把这层小账拆开，让举业路晚景不必把明春口风又押回同一口过冬钱上。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
     }
@@ -14683,6 +14686,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           } else if (a.id === 'e_tutor_winter_reply_old') {
             a.can = (season.id === 'winter') && xun === 1 && S.铜钱 >= 60;
             a.why = !(season.id === 'winter' && xun === 1) ? '这一旬不便先拆冬头馆信账' : (S.铜钱 >= 60 ? '' : '铜钱不足60文');
+            a.once = true;
+          } else if (a.id === 'e_tutor_winter_mid_old') {
+            a.can = (season.id === 'winter') && xun === 2 && S.铜钱 >= 55;
+            a.why = !(season.id === 'winter' && xun === 2) ? '这一旬不便先拆冬中馆札账' : (S.铜钱 >= 55 ? '' : '铜钱不足55文');
             a.once = true;
           } else if (a.id === 'e_tutor_post_old') {
             a.can = (season.id === 'winter') && xun === 2 && S.铜钱 >= 50;
@@ -15145,6 +15152,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushElderSeasonTag(stepLabel + '·冬头馆信');
                 log.push(['先把冬头馆信与灯炭脚费分开：铜钱-60、家族+1、体魄+1。旧馆回签、灯油炭火、年下药包和递帖脚费终于不再一起挤在冬头这一口过冬钱上。', 'good']);
               } else log.push(['想先把冬头馆信与灯炭脚费分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_tutor_winter_mid_old':
+              if (spendCopper(55)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·冬中馆札');
+                log.push(['〔冬中馆札〕先把冬中馆札与孩子炭笔分开：铜钱-55、家族+1、体魄+1。旧馆回札、孩子炭笔、递话门包和守岁锅火终于不再一起挤在冬中这一口过冬钱上。', 'good']);
+              } else log.push(['想先把冬中馆札与孩子炭笔分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_tutor_post_old':
               if (spendCopper(50)) {
