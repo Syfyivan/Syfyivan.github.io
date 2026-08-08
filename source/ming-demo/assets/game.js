@@ -12818,6 +12818,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
             once: true
           });
+          A.push({
+            id: 'h_summer_head_register',
+            name: '先把伏夏柜帖与差票门包分开',
+            cost: 1,
+            eff: '铜钱-65·备役+1·通融+1·家族+1',
+            desc: '伏夏上旬最怕柜帖回签、差票门包、里书帖样和递话脚费一起先来。先把这层帖册门包拆开，商路当户夏头就不只是在扛热和等回签，连里甲门上的制度小耗也会先落进这一旬。',
+            can: S.铜钱 >= 65,
+            why: S.铜钱 >= 65 ? '' : '铜钱不足65文',
+            once: true
+          });
         }
         A.push({ id: 'h_hire', name: '雇工顾住田面', cost: 1, eff: '铜钱-300·分家薄田不至空转', desc: '你人在外头，先花钱把薄田顾住，别让“分得了田”变成一年的空账。', can: S.铜钱 >= 300 && (S.本年户备役 || 0) < 3, why: S.铜钱 >= 300 ? '' : '铜钱不足300文', once: true });
         A.push({ id: 'h_side', name: '抽身贴补这一房', cost: 1, eff: side.effect, desc: '当户这一年照样要找现钱。哪怕只是多接一层零活，也是在给差钱和家用添后手。', can: true });
@@ -13262,6 +13272,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想在' + stepLabel + '先把伏夏回签与孩子纸样分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_summer_head_register':
+              if (spendCopper(65)) {
+                S.本年户备役 += 1;
+                S.本年户通融 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('伏夏帖册拆开');
+                log.push(['你在' + stepLabel + '先把伏夏柜帖、差票门包、里书帖样和递话脚费分开：铜钱-65、备役+1、通融+1、家族+1。商路当户伏夏上旬终于连“门上制度碎账比回钱先到”的那层小耗，也被你提前拆回了真账。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把伏夏柜帖与差票门包分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_summer_market':
               if (spendCopper(65)) {
                 S.本年户通融 += 1;
@@ -13596,6 +13618,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushHouseholdSeasonTag(stepLabel + '伏夏回签硬顶');
             log.push(['〔伏夏回签〕这一旬连回签脚费和孩子纸样都腾挪不开，只得先硬顶过去；伏夏刚起头，熟号与家里读写这两头口风就先紧了一线（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'summer' && xun === 1) {
+          if (picked.h_summer_head_register || picked.h_summer_home_packet || picked.h_side || picked.h_wharf || picked.h_collect) {
+            pushHouseholdSeasonTag(stepLabel + '伏夏帖册已理');
+            log.push(['〔伏夏帖册〕这一旬先把柜帖回签、差票门包、里书帖样和递话脚费分开了；夏催账刚起头时，这一房不再只是顾回签、凉药与锅火，连里甲门前最容易被一句“后头再说”带过的制度碎账也开始同旬见光。', 'good']);
+          } else if (spendCopper(30)) {
+            pushHouseholdSeasonTag(stepLabel + '伏夏帖册');
+            log.push(['〔伏夏帖册〕柜帖回签、差票门包、里书帖样和递话脚费一起要钱：铜钱-30。不是另起新主线，却正把商路当户伏夏上旬那层“门上帖册比回钱先到”的制度小耗重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '伏夏帖册硬顶');
+            log.push(['〔伏夏帖册〕这一旬连差票门包和里书帖样都腾挪不开，只得先硬顶过去；伏夏刚起头，里甲门上与熟号两头替这一房接气的口风又薄了一线（家族-1）。', 'bad']);
           }
         }
         if (season.id === 'summer' && xun === 3) {
