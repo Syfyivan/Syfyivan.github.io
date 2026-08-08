@@ -14169,6 +14169,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
           once: true
         });
+        if (season.id === 'winter' && xun === 1) A.push({
+          id: 'h_winter_school_packet',
+          name: hasSchoolChildren ? '先把冬头灯课纸包与旧馆门包分开' : '先把冬头灯课纸包后手分开',
+          cost: 1,
+          eff: hasSchoolChildren ? '铜钱-55·催账+1·供读+1·通融+1·家族+1' : '（眼下无子女，不必另留灯课纸包）',
+          desc: hasSchoolChildren
+            ? '冬应役刚起头时，最怕孩子灯课纸包、炭笔小钱、旧馆门包与锅火后手一起挤同一口现钱。先把这层冬头课纸拆开，年关第一旬就不至只顾旧馆门路和灯炭，连家里下一口读写后手也压回了同一年。'
+            : '眼下这一房还没有需要续灯课纸包的孩子，这层冬头读写后手暂时还落不到真账里。',
+          can: hasSchoolChildren && S.铜钱 >= 55 && (S.本年户供读 || 0) < 1,
+          why: !hasSchoolChildren ? '眼下尚无需要续灯课纸包的孩子'
+            : ((S.本年户供读 || 0) < 1 ? (S.铜钱 >= 55 ? '' : '铜钱不足55文') : '这一年已先留过一手供读后手'),
+          once: true
+        });
         if (season.id === 'winter' && xun === 2) A.push({
           id: 'h_winter_mid_packet',
           name: '先把冬中帖路与旧馆门包分开',
@@ -14506,6 +14519,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想在' + stepLabel + '先把旧馆回话与灯油炭火分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_winter_school_packet':
+              if (hasSchoolChildren && spendCopper(55)) {
+                S.本年户催账 += 1;
+                S.本年户供读 += 1;
+                S.本年户通融 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('冬头课纸');
+                log.push(['你在' + stepLabel + '先把孩子灯课纸包、炭笔小钱、旧馆门包与锅火后手分开：铜钱-55、催账+1、供读+1、通融+1、家族+1。举业路当户到了年关第一旬，不再只顾旧馆门路和灯炭，连家里下一口读写后手也被你压回了同一年。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把冬头灯课纸包与旧馆门包分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_winter_mid_packet':
               if (spendCopper(55)) {
                 S.本年户催账 += 1;
@@ -14629,7 +14655,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             hardship: 'clan'
           },
           winter: {
-            handledIds: ['h_exempt', 'h_copy_mid', 'h_pay', 'h_literate', 'h_side', 'h_rest', 'h_exam_split', 'h_winter_packet'],
+            handledIds: ['h_exempt', 'h_copy_mid', 'h_pay', 'h_literate', 'h_side', 'h_rest', 'h_exam_split', 'h_winter_packet', 'h_winter_school_packet'],
             doneTag: '年关碎账已分',
             doneLog: '〔年关碎账〕旧馆账、明春纸墨、灯油炭火与差钱已被你先分开；年关没再把同一口现钱重新搅混。',
             cost: 50,
@@ -14673,6 +14699,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushHouseholdSeasonTag(stepLabel + '春头课纸硬顶');
             log.push(['〔春头课纸〕这一旬连孩子春课纸包和保结帖脚都腾挪不开，只得先硬顶过去；立户开年这层家里读写与保结口风又一起紧了一线（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'winter' && xun === 1 && hasSchoolChildren) {
+          if (picked.h_winter_school_packet || picked.h_winter_packet || picked.h_copy_mid || picked.h_rest || picked.h_literate) {
+            pushHouseholdSeasonTag(stepLabel + '冬头课纸已分');
+            log.push(['〔冬头课纸〕这一旬先把孩子灯课纸包、炭笔小钱、旧馆门包与锅火后手分开了；举业路当户到了年关第一旬，不再只顾旧馆门路和灯炭，连家里读写后手也开始同年见光。', 'good']);
+          } else if (spendCopper(35)) {
+            pushHouseholdSeasonTag(stepLabel + '冬头课纸');
+            log.push(['〔冬头课纸〕孩子灯课纸包、炭笔小钱、旧馆门包与锅火后手一起要钱：铜钱-35。不是大账，却正把举业路当户冬头那层“旧馆还在回话、家里也得续灯课”的细摩擦重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '冬头课纸硬顶');
+            log.push(['〔冬头课纸〕这一旬连孩子灯课纸包和旧馆门包都腾挪不开，只得先硬顶过去；冬头这层旧馆与家里读写口风又一起紧了一线（家族-1）。', 'bad']);
           }
         }
         if (season.id === 'winter' && xun === 3) {
@@ -14749,6 +14788,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬中帖路') >= 0; })) log.push(['这一任当户你又把冬中递帖门包、旧馆回话与来春纸样提前拆开；举业路的冬中不再只是翻总账，而是在同一年里继续替明春续门路。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬中馆札') >= 0; })) log.push(['这一任当户你还把冬中馆札、孩子来春炭笔与递话脚费压进了冬应役中旬；举业路年关前那层家内读写后手，终于也被你压回了同一年里。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬馆灯炭') >= 0; })) log.push(['这一任当户连旧馆回话、灯油炭火和递帖脚费都在冬应役上旬先拆开了；举业路年关刚起头就开始有专属的细账摩擦，而不再只靠通用年关碎账代写。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬头课纸') >= 0; })) log.push(['这一任当户你还把孩子灯课纸包、炭笔小钱、旧馆门包与锅火后手压进了冬应役上旬；举业路到年关第一旬终于也不再只顾旧馆门路和灯炭，连家里读写这层冬头细账都开始同年见光。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬馆回话') >= 0; })) log.push(['这一任当户连旧馆回话、灯油纸墨与递话脚费都在冬应役中旬先拆开；举业路年关前那层“门路怎么续住”终于也成了同一年里的真细账。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬尾笔炭') >= 0; })) log.push(['这一任当户又把冬尾炭火、来春帖费和开馆脚路先拆开了；举业路到年尾也终于不只是在等一个总账结果。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬尾馆信') >= 0; }) || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬尾帖样') >= 0; })) log.push(['这一任当户你又把旧馆回信、孩子来春帖样、递话门包与锅火后手压进了冬应役下旬；举业路到年尾终于不再只剩“留明春帖费”，连家里续帖样这层生活细账也开始同年见光。', 'good']);
