@@ -6295,7 +6295,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         pack.note = '商路成家后最磨人的，不是“这一程赚没赚”，而是银在路上时家里这一旬怎么过。';
         pack.dossier = '累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜账房=' + S.账房进度 + '｜信誉=' + S.商信誉;
         pack.event = { t: 'rand', tag: '[商路]', txt: (season.id === 'spring' && xun === 3)
-          ? '春起下旬最像把“问来的路数”真拆成家里日用：哪口钱先作盐药，哪口钱还得留作脚费与旧账后手，都不能再糊成一句“回头再说”。'
+          ? '春起下旬最像把“问来的路数”真拆成家里日用：春路回钱、清明香纸、熟号门包、孩子纸包与锅火后手会在这一旬一起追钱，哪口先拆给哪边都不能再糊成一句“回头再说”。'
           : (season.id === 'autumn' && xun === 2)
             ? '秋收中旬最磨人的不是“有没有回钱”，而是回钱脚单、锅火、牙税、差票回话和供读纸包后手一起先来抢这一口现钱。'
           : (season.id === 'winter' && xun === 2)
@@ -12403,6 +12403,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
         if (season.id === 'spring' && xun === 3) {
           A.push({
+            id: 'h_spring_tail_incense',
+            name: '先把春尾香纸与熟号门包分开',
+            cost: 1,
+            eff: '铜钱-55·核账+1·通融+1·家族+1',
+            desc: '春分书到了下旬，最怕清明香纸、熟号门包、递话脚费和孩子纸包一起先来要钱。先把这层春尾香脚拆开，春路回钱、家里锅火与孩子纸笔就不必继续挤同一口现钱。',
+            can: S.铜钱 >= 55,
+            why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
+            once: true
+          });
+          A.push({
             id: 'h_spring_split',
             name: '把春路回钱拆作锅火与差钱',
             cost: 1,
@@ -12859,6 +12869,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 actionCount += 1;
               } else {
                 log.push(['想在' + stepLabel + '先把春路回钱拆作锅火与差钱，但这一旬现钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_spring_tail_incense':
+              if (spendCopper(55)) {
+                S.本年户核账 += 1;
+                S.本年户通融 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('春尾香脚拆开');
+                log.push(['你在' + stepLabel + '先把春尾香纸、熟号门包、递话脚费和孩子纸包分开：铜钱-55、核账+1、通融+1、家族+1。商路当户到了春尾，不只是在拆回钱，连清明、门包和孩子纸包这层家里与门路一起冒头的小钱也先落回了真账。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把春尾香纸与熟号门包分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
             case 'h_summer_tail':
@@ -13463,6 +13485,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             pushHouseholdSeasonTag(stepLabel + '春路硬顶');
             log.push(['〔春路锅火〕这一旬连锅火和回话脚费都腾挪不开，只得先硬顶过去；春里这房锅火和熟号口风都更薄了一线（家族-1）。', 'bad']);
           }
+          if (picked.h_spring_tail_incense || picked.h_spring_split || picked.h_collect || picked.h_school_fund || picked.h_rest) {
+            pushHouseholdSeasonTag(stepLabel + '春尾香脚已分');
+            log.push(['〔春尾香脚〕这一旬先把清明香纸、熟号门包、递话脚费和孩子纸包分开了；商路当户春尾不再只是在拆回钱，连清明与孩子纸包这层家里细账也开始同旬咬住现钱。', 'good']);
+          } else if (spendCopper(35)) {
+            pushHouseholdSeasonTag(stepLabel + '春尾香脚');
+            log.push(['〔春尾香脚〕清明香纸、熟号门包、递话脚费和孩子纸包一起要钱：铜钱-35。不是另开主线，却正把商路当户春尾最容易拖进夏里的那层清明与门包碎账重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '春尾香脚硬顶');
+            log.push(['〔春尾香脚〕这一旬连清明香纸和熟号门包都腾挪不开，只得先硬顶过去；春尾这房的锅火、孩子纸包和熟号口风又一起薄了一线（家族-1）。', 'bad']);
+          }
         }
         if (season.id === 'winter' && xun === 1) {
           if (picked.h_wharf || picked.h_literate || picked.h_clan || picked.h_side || picked.h_collect || picked.h_rest || picked.h_winter_gift) {
@@ -13619,6 +13652,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('分书回话') >= 0; })) log.push(['这一任当户你又把分书回话、代管纸票和丈绳脚费压进了春分书中旬；立户第二旬也不再只是“田先代管上”，而是真把制度小耗和家内后手继续拆开。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('春中香脚') >= 0; })) log.push(['这一任当户你又把清明香纸、代管回签、递话脚费和锅火小耗压进了春分书中旬；商路中年开春终于不只是在立纸票，也开始把清明前后最躲不开的生活碎账一起摊回同一年。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('春中回签') >= 0; })) log.push(['这一任当户你还把熟号回签、样纸门包、递话脚费和锅火小耗压进了春分书中旬；商路中年开春终于也把“旧商路尚有回音”这层市场碎账，与家内锅火一起摊回了同一年。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('春尾香脚') >= 0; })) log.push(['这一任当户你又把春尾香纸、熟号门包、递话脚费和孩子纸包压进了春分书下旬；商路中年开春终于连清明前后最细的门包、纸包与锅火次序，也不再只等夏里再来追账。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('问水脚') >= 0; })) log.push(['这一任当户你不只会“催旧账”，还一旬旬去摸水脚、行栈与熟号门路；市场摩擦终于也被写进了这一年的细账里。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏家书') >= 0; })) log.push(['这一任当户你又把伏夏家书脚费、布药纸包和锅火凉热压进了夏催账上旬；人在外头、家里要续的那口气，终于不再只由通用损耗一笔带过。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏样纸') >= 0; })) log.push(['这一任当户你连伏夏样纸、柜边包纸和学生家回话小门包都先拆进了夏催账中旬；商路这一年不只在大路数上有账，连柜边那层细碎纸签也开始单独咬住现钱。', 'good']);
