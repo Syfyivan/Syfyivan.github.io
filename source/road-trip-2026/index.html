@@ -162,6 +162,28 @@ sup a:hover{text-decoration:underline;}
 #route-map img{width:100%;height:auto;display:block;border-radius:8px;}
 .map-legend{background:white;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.1);font-size:0.82rem;line-height:1.6;margin:0 auto 20px;max-width:500px;}
 .map-legend b{color:var(--accent);}
+.map-launchers{max-width:900px;margin:0 auto 22px;background:#fff;border:1px solid var(--rule);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+.map-launchers p{margin:0;font-size:0.88rem;color:var(--muted);line-height:1.6;}
+.map-launchers .actions{display:flex;gap:10px;flex-wrap:wrap;}
+.map-launchers a{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid var(--rule);text-decoration:none;color:var(--ink);font-size:0.88rem;font-weight:700;background:#fff;}
+.map-launchers a.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.map-preview{max-width:900px;margin:0 auto 24px;background:#fff;border:1px solid var(--rule);border-radius:14px;padding:14px 16px;}
+.map-preview-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.map-preview-head p{margin:0;color:var(--muted);font-size:0.88rem;line-height:1.65;}
+.map-preview-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.map-preview-actions button{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid var(--rule);background:#fff;color:var(--ink);font-size:0.88rem;font-weight:700;cursor:pointer;}
+.map-preview-actions button.active,.map-preview-actions button.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.map-preview-frame{position:relative;border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:#faf8f5;}
+.map-preview-frame iframe{width:100%;height:760px;border:0;display:block;background:#fff;}
+.map-preview-note{margin-top:10px;color:var(--muted);font-size:0.82rem;line-height:1.6;}
+.map-modal{position:fixed;inset:0;z-index:100000;background:rgba(20,18,16,.76);display:none;align-items:center;justify-content:center;padding:16px;}
+.map-modal.open{display:flex;}
+.map-modal-inner{width:min(96vw,1600px);height:min(94vh,1000px);background:#fff;border-radius:16px;overflow:hidden;display:grid;grid-template-rows:auto 1fr;}
+.map-modal-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--rule);background:#faf8f5;}
+.map-modal-toolbar .left,.map-modal-toolbar .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.map-modal-toolbar button{display:inline-flex;align-items:center;justify-content:center;padding:9px 14px;border-radius:999px;border:1px solid var(--rule);background:#fff;color:var(--ink);font-size:0.88rem;font-weight:700;cursor:pointer;}
+.map-modal-toolbar button.active,.map-modal-toolbar button.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.map-modal-frame{width:100%;height:100%;border:0;background:#fff;}
 /* 粘性章节导航 - 固定在顶部 */
 .section-nav{position:fixed;top:0;left:0;right:0;z-index:99999;background:#faf8f5;border-bottom:2px solid var(--rule);padding:12px 0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;box-shadow:0 2px 12px rgba(0,0,0,0.15);}
 .section-nav .container{max-width:1200px;margin:0 auto;padding:0 20px;}
@@ -450,6 +472,44 @@ sup a:hover{text-decoration:underline;}
     <span style="color:#2980b9">━━━</span> 滇藏线+云南段（然乌→梅里→雨崩→丽江）<br>
     <span style="color:#8B5E3C">━━━</span> 川西返程段（稻城亚丁→新都桥→成都→西安→北京）<br>
     <small style="color:var(--muted)">新版改为中国底图路线图：这次有真实中国轮廓，路线按更接近真实方位关系重画。</small>
+  </div>
+
+  <div class="map-launchers">
+    <p><strong>交互路线图</strong> 已拆成两套入口：`在线真高德版` 用真实高德底图逐段查看，`本地离线版` 不联网也能单独查看每个点到下一个点的路线。</p>
+    <div class="actions">
+      <a class="primary" href="./route-map-amap.html">打开在线真高德版</a>
+      <a href="./route-map-offline.html">打开本地离线版</a>
+    </div>
+  </div>
+
+  <div class="map-preview">
+    <div class="map-preview-head">
+      <p><strong>主页面交互地图预览</strong>：这里默认直接接在线高德版。你可以先在这里拖动、缩放；点 `全屏看地图` 后会进入大视图，缩放时会像高德地图一样逐级显示更多细节。</p>
+      <div class="map-preview-actions">
+        <button id="mapPreviewOnline" class="active" type="button" onclick="switchMapPreview('online')">预览真高德版</button>
+        <button id="mapPreviewOffline" type="button" onclick="switchMapPreview('offline')">预览离线版</button>
+        <button class="primary" type="button" onclick="openMapFullscreen()">全屏看地图</button>
+      </div>
+    </div>
+    <div class="map-preview-frame">
+      <iframe id="routePreviewFrame" src="./route-map-amap.html?v=3" title="路线地图预览" loading="lazy"></iframe>
+    </div>
+    <div class="map-preview-note">如果你在主页面里看不清，就直接点全屏。全屏层里也能切在线高德版 / 本地离线版。</div>
+  </div>
+
+  <div id="routeMapModal" class="map-modal" aria-hidden="true">
+    <div class="map-modal-inner">
+      <div class="map-modal-toolbar">
+        <div class="left">
+          <button id="mapModalOnline" class="active" type="button" onclick="switchMapPreview('online', true)">在线真高德版</button>
+          <button id="mapModalOffline" type="button" onclick="switchMapPreview('offline', true)">本地离线版</button>
+        </div>
+        <div class="right">
+          <button type="button" onclick="closeMapFullscreen()">关闭全屏</button>
+        </div>
+      </div>
+      <iframe id="routeModalFrame" class="map-modal-frame" src="./route-map-amap.html?v=3" title="路线地图全屏"></iframe>
+    </div>
   </div>
 
   <div class="diagram">
@@ -2059,6 +2119,49 @@ function switchBudget(ver) {
 function switchPacking(tab) {
   // Compatibility function
 }
+
+function getMapPage(mode) {
+  return mode === 'offline' ? './route-map-offline.html?v=3' : './route-map-amap.html?v=3';
+}
+function switchMapPreview(mode, syncModal) {
+  var preview = document.getElementById('routePreviewFrame');
+  var modal = document.getElementById('routeModalFrame');
+  var previewOnline = document.getElementById('mapPreviewOnline');
+  var previewOffline = document.getElementById('mapPreviewOffline');
+  var modalOnline = document.getElementById('mapModalOnline');
+  var modalOffline = document.getElementById('mapModalOffline');
+  var src = getMapPage(mode);
+  if (preview) preview.src = src;
+  if (syncModal && modal) modal.src = src;
+  if (previewOnline) previewOnline.classList.toggle('active', mode !== 'offline');
+  if (previewOffline) previewOffline.classList.toggle('active', mode === 'offline');
+  if (modalOnline) modalOnline.classList.toggle('active', mode !== 'offline');
+  if (modalOffline) modalOffline.classList.toggle('active', mode === 'offline');
+}
+function openMapFullscreen() {
+  var modal = document.getElementById('routeMapModal');
+  var preview = document.getElementById('routePreviewFrame');
+  var frame = document.getElementById('routeModalFrame');
+  if (!modal || !frame || !preview) return;
+  frame.src = preview.src;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+function closeMapFullscreen() {
+  var modal = document.getElementById('routeMapModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeMapFullscreen();
+});
+document.addEventListener('click', function(e) {
+  var modal = document.getElementById('routeMapModal');
+  if (e.target === modal) closeMapFullscreen();
+});
 
 // 导航滚动高亮
 (function() {

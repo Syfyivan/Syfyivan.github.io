@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>西部大闭环真高德交互路线图</title>
+  <style>
+    :root{--bg:#f7f4ef;--card:#fff;--ink:#2d2a26;--muted:#6b6560;--line:#e5dfd8;--accent:#c75b39;}
+    *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif;background:var(--bg);color:var(--ink)}
+    .app{display:grid;grid-template-columns:340px 1fr;min-height:100vh}
+    .sidebar{background:#fff;border-right:1px solid var(--line);padding:24px 18px;overflow:auto}
+    .sidebar h1{font-size:20px;line-height:1.35;margin:0 0 8px}
+    .sidebar p{font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 16px}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .toolbar button,.toolbar a{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
+    .toolbar button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .segment-list{display:flex;flex-direction:column;gap:8px}
+    .segment-btn{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;cursor:pointer}
+    .segment-btn.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(199,91,57,.12)}
+    .segment-btn .idx{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;color:#fff;font-size:12px;font-weight:700;margin-right:8px}
+    .segment-btn .title{font-size:14px;font-weight:700;line-height:1.45}
+    .segment-btn .meta{font-size:12px;color:var(--muted);margin-top:6px}
+    .viewer{padding:22px;display:grid;grid-template-rows:auto 1fr auto;gap:16px}
+    .topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+    .topbar h2{margin:0;font-size:22px}
+    .topbar p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .stats{display:flex;gap:10px;flex-wrap:wrap}
+    .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:12px}
+    #map{background:#fff;border:1px solid var(--line);border-radius:22px;min-height:640px;overflow:hidden}
+    .detail{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+    .detail h3{margin:0 0 6px;font-size:18px}
+    .detail p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}
+    .error{background:#fff1f1;border:1px solid #efcaca;color:#9b2c2c;border-radius:16px;padding:14px 16px;font-size:14px}
+    @media (max-width: 960px){.app{grid-template-columns:1fr}.sidebar{border-right:none;border-bottom:1px solid var(--line)}#map{min-height:420px}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <h1>真高德交互路线图</h1>
+      <p>这页直接加载高德 JS API 在线底图。点击左侧任意一段，地图会聚焦到那一段，并保留真实高德底图与道路环境。</p>
+      <div class="toolbar">
+        <button id="showAllBtn" class="primary">查看全程</button>
+        <a href="./route-map-offline.html">打开离线版</a>
+      </div>
+      <div id="segmentList" class="segment-list"></div>
+    </aside>
+    <main class="viewer">
+      <div class="topbar">
+        <div>
+          <h2 id="pageTitle">全程路线</h2>
+          <p id="pageSub">在线版依赖高德 JS API。若加载失败，请检查本地 `assets/amap-config.public.js`。</p>
+        </div>
+        <div class="stats">
+          <div class="stat" id="statSegments"></div>
+          <div class="stat" id="statPoints"></div>
+          <div class="stat">模式：在线真高德</div>
+        </div>
+      </div>
+      <div id="errorBox" class="error" style="display:none"></div>
+      <div id="map"></div>
+      <div class="detail">
+        <h3 id="detailTitle">全程路线</h3>
+        <p id="detailText">已显示全部路线。左侧每一项都是一个“点到点”的独立路段，点击后会自动聚焦。</p>
+      </div>
+    </main>
+  </div>
+  <script>window.AMAP_LOCAL_CONFIG = window.AMAP_LOCAL_CONFIG || null;</script>
+  <script src="./assets/amap-config.public.js"></script>
+  <script src="./assets/route_segments_amap.js"></script>
+  <script>
+    const DATA = window.ROAD_TRIP_ROUTE_DATA;
+    const list = document.getElementById('segmentList');
+    const detailTitle = document.getElementById('detailTitle');
+    const detailText = document.getElementById('detailText');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageSub = document.getElementById('pageSub');
+    const statSegments = document.getElementById('statSegments');
+    const statPoints = document.getElementById('statPoints');
+    const errorBox = document.getElementById('errorBox');
+    statSegments.textContent = `分段数：${DATA.segments.length}`;
+    statPoints.textContent = `显示点位：${DATA.segments.reduce((s, seg) => s + seg.displayPointCount, 0).toLocaleString()}`;
+
+    function showError(msg) {
+      errorBox.style.display = 'block';
+      errorBox.textContent = msg;
+    }
+
+    const cfg = window.AMAP_LOCAL_CONFIG;
+    if (!cfg || !cfg.jsKey || !cfg.securityJsCode) {
+      showError('没有检测到本地高德配置。请检查 assets/amap-config.public.js 是否存在，且里面已填写 JSAPI key 与 securityJsCode。');
+    } else {
+      window._AMapSecurityConfig = { securityJsCode: cfg.securityJsCode };
+      const loaderScript = document.createElement('script');
+      loaderScript.src = 'https://webapi.amap.com/loader.js';
+      loaderScript.onload = async () => {
+        try {
+          const AMap = await AMapLoader.load({ key: cfg.jsKey, version: '2.0' });
+          initMap(AMap);
+        } catch (err) {
+          showError('高德底图加载失败：' + (err && err.message ? err.message : err));
+        }
+      };
+      loaderScript.onerror = () => showError('高德 loader.js 加载失败，请确认当前网络可访问高德 JS API。');
+      document.head.appendChild(loaderScript);
+    }
+
+    function initMap(AMap) {
+      const map = new AMap.Map('map', {
+        viewMode: '2D',
+        zoom: 4.8,
+        center: [95.5, 36.5],
+        mapStyle: 'amap://styles/normal'
+      });
+
+      const markerMap = new Map();
+      const segmentMap = new Map();
+
+      DATA.nodes.forEach((node, idx) => {
+        const marker = new AMap.Marker({
+          position: [node.lng, node.lat],
+          title: node.name,
+          label: { content: `${idx + 1}. ${node.name}`, direction: 'top' },
+          offset: new AMap.Pixel(-10, -10)
+        });
+        marker.setMap(map);
+        markerMap.set(node.name, marker);
+      });
+
+      DATA.segments.forEach(seg => {
+        const polyline = new AMap.Polyline({
+          path: seg.polyline,
+          strokeColor: seg.color,
+          strokeOpacity: 0.45,
+          strokeWeight: 6,
+          lineJoin: 'round',
+          lineCap: 'round',
+          extData: { id: seg.id }
+        });
+        polyline.setMap(map);
+        polyline.on('click', () => selectSegment(seg.id));
+        segmentMap.set(seg.id, polyline);
+      });
+
+      function activateButton(id) {
+        document.querySelectorAll('.segment-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.id === id));
+      }
+
+      function showAll() {
+        segmentMap.forEach(poly => poly.setOptions({ strokeOpacity: 0.45, strokeWeight: 6 }));
+        map.setFitView([...segmentMap.values(), ...markerMap.values()], false, [90, 90, 90, 90], 14);
+        pageTitle.textContent = '全程路线';
+        pageSub.textContent = '点击左侧分段后，地图会自动聚焦到那一段。';
+        detailTitle.textContent = '全程路线';
+        detailText.textContent = `已显示全部 ${DATA.segments.length} 段路线，总计约 ${DATA.segments.reduce((s, seg) => s + seg.lengthKm, 0).toFixed(0)} km。`;
+        activateButton('');
+      }
+
+      function selectSegment(id) {
+        const seg = DATA.segments.find(item => item.id === id);
+        if (!seg) return;
+        segmentMap.forEach((poly, sid) => {
+          poly.setOptions({
+            strokeOpacity: sid === id ? 1 : 0.12,
+            strokeWeight: sid === id ? 9 : 5
+          });
+        });
+        pageTitle.textContent = seg.title;
+        pageSub.textContent = `${seg.group} · 约 ${seg.lengthKm} km · 渲染点位 ${seg.displayPointCount} 个`;
+        detailTitle.textContent = seg.title;
+        detailText.textContent = `这是第 ${seg.index} 段，归属「${seg.group}」。当前是在线真高德模式，能直接看到高德底图上的这一段真实走向。`;
+        activateButton(id);
+        const overlays = [segmentMap.get(id), markerMap.get(seg.from.name), markerMap.get(seg.to.name)].filter(Boolean);
+        map.setFitView(overlays, false, [120, 120, 120, 120], 15);
+      }
+
+      document.getElementById('showAllBtn').addEventListener('click', showAll);
+
+      DATA.segments.forEach(seg => {
+        const btn = document.createElement('button');
+        btn.className = 'segment-btn';
+        btn.dataset.id = seg.id;
+        btn.innerHTML = `
+          <div class="title"><span class="idx" style="background:${seg.color}">${seg.index}</span>${seg.title}</div>
+          <div class="meta">${seg.group} · 约 ${seg.lengthKm} km · 点位 ${seg.displayPointCount}</div>
+        `;
+        btn.addEventListener('click', () => selectSegment(seg.id));
+        list.appendChild(btn);
+      });
+
+      showAll();
+    }
+  </script>
+</body>
+</html>

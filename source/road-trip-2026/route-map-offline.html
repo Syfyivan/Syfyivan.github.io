@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>西部大闭环离线交互路线图</title>
+  <style>
+    :root{--bg:#f7f4ef;--card:#fff;--ink:#2d2a26;--muted:#6b6560;--line:#e5dfd8;--accent:#c75b39;}
+    *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif;background:var(--bg);color:var(--ink)}
+    .app{display:grid;grid-template-columns:340px 1fr;min-height:100vh}
+    .sidebar{background:#fff;border-right:1px solid var(--line);padding:24px 18px;overflow:auto}
+    .sidebar h1{font-size:20px;line-height:1.35;margin:0 0 8px}
+    .sidebar p{font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 16px}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .toolbar button,.toolbar a{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
+    .toolbar button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .segment-list{display:flex;flex-direction:column;gap:8px}
+    .segment-btn{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;cursor:pointer}
+    .segment-btn.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(199,91,57,.12)}
+    .segment-btn .idx{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;color:#fff;font-size:12px;font-weight:700;margin-right:8px}
+    .segment-btn .title{font-size:14px;font-weight:700;line-height:1.45}
+    .segment-btn .meta{font-size:12px;color:var(--muted);margin-top:6px}
+    .viewer{padding:22px;display:grid;grid-template-rows:auto 1fr auto;gap:16px}
+    .topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+    .topbar h2{margin:0;font-size:22px}
+    .topbar p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .stats{display:flex;gap:10px;flex-wrap:wrap}
+    .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:12px}
+    .map-shell{background:#fff;border:1px solid var(--line);border-radius:22px;padding:12px;min-height:640px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    svg{width:100%;height:auto;max-height:78vh;display:block}
+    .china{fill:#fbfaf7;stroke:#ddd4cb;stroke-width:1.2}
+    .route{fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:.2;cursor:pointer}
+    .route.active{opacity:1}
+    .route.dimmed{opacity:.08}
+    .node{fill:#fff;stroke:#1f2937;stroke-width:2}
+    .node-label{font-size:18px;font-weight:700;fill:#1f2937;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .detail{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+    .detail h3{margin:0 0 6px;font-size:18px}
+    .detail p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}
+    .legend{font-size:13px;color:var(--muted)}
+    @media (max-width: 960px){.app{grid-template-columns:1fr}.sidebar{border-right:none;border-bottom:1px solid var(--line)}.map-shell{min-height:420px}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <h1>离线交互路线图</h1>
+      <p>这页不依赖高德在线底图，直接使用本地路线数据和中国轮廓。点击左侧任意一段，就能单独看这一段的走向。</p>
+      <div class="toolbar">
+        <button id="showAllBtn" class="primary">查看全程</button>
+        <a href="./route-map-amap.html">打开真高德版</a>
+      </div>
+      <div id="segmentList" class="segment-list"></div>
+    </aside>
+    <main class="viewer">
+      <div class="topbar">
+        <div>
+          <h2 id="pageTitle">全程路线</h2>
+          <p id="pageSub">点击左侧分段后，地图会自动聚焦到那一段。</p>
+        </div>
+        <div class="stats">
+          <div class="stat" id="statSegments"></div>
+          <div class="stat" id="statPoints"></div>
+          <div class="stat">模式：本地离线</div>
+        </div>
+      </div>
+      <div class="map-shell">
+        <svg id="mapSvg" viewBox="0 0 1600 980" aria-label="西部大闭环离线交互路线图"></svg>
+      </div>
+      <div class="detail">
+        <h3 id="detailTitle">全程路线</h3>
+        <p id="detailText">已显示全部路线。左侧每一项都是一个“点到点”的独立路段，点击后会高亮并聚焦。</p>
+      </div>
+    </main>
+  </div>
+  <script src="./assets/route_segments_amap.js"></script>
+  <script>
+    const DATA = window.ROAD_TRIP_ROUTE_DATA;
+    const svg = document.getElementById('mapSvg');
+    const list = document.getElementById('segmentList');
+    const detailTitle = document.getElementById('detailTitle');
+    const detailText = document.getElementById('detailText');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageSub = document.getElementById('pageSub');
+    const statSegments = document.getElementById('statSegments');
+    const statPoints = document.getElementById('statPoints');
+    const defaultViewBox = DATA.meta.defaultViewBox.join(' ');
+    statSegments.textContent = `分段数：${DATA.segments.length}`;
+    statPoints.textContent = `显示点位：${DATA.segments.reduce((s, seg) => s + seg.displayPointCount, 0).toLocaleString()}`;
+
+    function mk(tag, attrs = {}, parent) {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      if (parent) parent.appendChild(el);
+      return el;
+    }
+
+    DATA.outlinePaths.forEach(d => mk('path', { d, class: 'china' }, svg));
+
+    const routeEls = new Map();
+    DATA.segments.forEach(seg => {
+      const points = seg.projected.map(([x, y]) => `${x},${y}`).join(' ');
+      const poly = mk('polyline', {
+        points,
+        class: 'route',
+        'stroke-width': 7,
+        stroke: seg.color,
+        'data-id': seg.id
+      }, svg);
+      poly.addEventListener('click', () => selectSegment(seg.id));
+      routeEls.set(seg.id, poly);
+    });
+
+    const nodeLayer = mk('g', {}, svg);
+    DATA.nodes.forEach(node => {
+      mk('circle', { cx: node.x, cy: node.y, r: 5.5, class: 'node' }, nodeLayer);
+    });
+    const labelLayer = mk('g', {}, svg);
+
+    function setViewBox(bounds) {
+      if (!bounds) {
+        svg.setAttribute('viewBox', defaultViewBox);
+        return;
+      }
+      const pad = 60;
+      const x = Math.max(0, bounds.minX - pad);
+      const y = Math.max(0, bounds.minY - pad);
+      const w = Math.min(DATA.meta.width - x, bounds.maxX - bounds.minX + pad * 2);
+      const h = Math.min(DATA.meta.height - y, bounds.maxY - bounds.minY + pad * 2);
+      svg.setAttribute('viewBox', [x, y, Math.max(180, w), Math.max(120, h)].join(' '));
+    }
+
+    function clearLabels() {
+      labelLayer.innerHTML = '';
+    }
+
+    function drawLabels(seg) {
+      clearLabels();
+      [seg.from, seg.to].forEach((pt, idx) => {
+        const node = DATA.nodes.find(n => n.name === pt.name);
+        if (!node) return;
+        const text = mk('text', {
+          x: node.x + 10,
+          y: node.y + (idx === 0 ? -10 : 22),
+          class: 'node-label'
+        }, labelLayer);
+        text.textContent = pt.name;
+      });
+    }
+
+    function activateButton(id) {
+      document.querySelectorAll('.segment-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.id === id));
+    }
+
+    function showAll() {
+      routeEls.forEach((el, id) => {
+        el.classList.remove('dimmed');
+        el.classList.remove('active');
+        el.setAttribute('stroke-width', '7');
+      });
+      clearLabels();
+      setViewBox();
+      pageTitle.textContent = '全程路线';
+      pageSub.textContent = '点击左侧分段后，地图会自动聚焦到那一段。';
+      detailTitle.textContent = '全程路线';
+      detailText.textContent = `已显示全部 ${DATA.segments.length} 段路线，总计约 ${DATA.segments.reduce((s, seg) => s + seg.lengthKm, 0).toFixed(0)} km。`;
+      activateButton('');
+    }
+
+    function selectSegment(id) {
+      const seg = DATA.segments.find(item => item.id === id);
+      if (!seg) return;
+      routeEls.forEach((el, sid) => {
+        el.classList.toggle('active', sid === id);
+        el.classList.toggle('dimmed', sid !== id);
+        el.setAttribute('stroke-width', sid === id ? '11' : '6');
+      });
+      drawLabels(seg);
+      setViewBox(seg.bounds);
+      activateButton(id);
+      pageTitle.textContent = seg.title;
+      pageSub.textContent = `${seg.group} · 约 ${seg.lengthKm} km · 渲染点位 ${seg.displayPointCount} 个`;
+      detailTitle.textContent = seg.title;
+      detailText.textContent = `这是第 ${seg.index} 段，归属「${seg.group}」。当前使用的是本地离线交互版：你不用联网，也能单独查看 ${seg.from.name} 到 ${seg.to.name} 这一段。`;
+    }
+
+    document.getElementById('showAllBtn').addEventListener('click', showAll);
+
+    DATA.segments.forEach(seg => {
+      const btn = document.createElement('button');
+      btn.className = 'segment-btn';
+      btn.dataset.id = seg.id;
+      btn.innerHTML = `
+        <div class="title"><span class="idx" style="background:${seg.color}">${seg.index}</span>${seg.title}</div>
+        <div class="meta">${seg.group} · 约 ${seg.lengthKm} km · 点位 ${seg.displayPointCount}</div>
+      `;
+      btn.addEventListener('click', () => selectSegment(seg.id));
+      list.appendChild(btn);
+    });
+
+    showAll();
+  </script>
+</body>
+</html>
