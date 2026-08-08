@@ -6602,6 +6602,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 why: S.铜钱 >= 55 ? '' : '铜钱不足55文'
               });
             }
+            if (season.id === 'summer') {
+              pack.extraActions.push({
+                id: 'f_route_school_summer_soup',
+                name: '先把伏夏馆汤与凉药门包分开',
+                cost: 1,
+                eff: '铜钱-55·衣药+1·捎信+1·通融+1',
+                desc: '伏夏头一旬最怕馆里茶汤、凉药门包、递话脚费和家里锅火一起抢同一口现钱。你先把这层馆汤小耗拆开，不让夏课门路刚起头就被暑热和门包一起磨薄。',
+                can: S.铜钱 >= 55,
+                why: S.铜钱 >= 55 ? '' : '铜钱不足55文'
+              });
+            }
             pack.extraActions.push({
               id: 'f_route_school_note',
               name: season.id === 'summer' ? '先问夏课馆账与保结门路' : (season.id === 'autumn' ? '先问秋馆课与学生人情' : '先问馆课与保结门路'),
@@ -7947,6 +7958,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushFamilySeasonTag(stepTag + '夏课碎费');
                 log.push(['把潮纸、投帖脚费与塾馆茶汤分开：铜钱-70、问价+1、衣药+1、通融+1。伏夏里最先咬人的不是大账，而是这层先冒头的纸墨脚费和凉热小耗。', 'good']);
               } else log.push(['想把潮纸、投帖脚费与塾馆茶汤分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_school_summer_soup':
+              if (spendCopper(55)) {
+                S.本年家衣药 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '伏夏馆汤');
+                log.push(['先把伏夏馆汤与凉药门包分开：铜钱-55、衣药+1、捎信+1、通融+1。馆里茶汤、凉药门包、递话脚费和锅火先被拆开，举业路养家阶段的伏夏上旬不再只剩“先问馆课”，连最先冒头的暑天碎账也压回了真账。', 'good']);
+              } else log.push(['想先把伏夏馆汤与凉药门包分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_school_spring_copy':
               if (spendCopper(90)) {
@@ -9306,6 +9326,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushFamilySeasonTag(stepTag + '春尾馆批硬顶');
             log.push(['〔春尾馆批〕这一旬连旧馆回批和端午纸样都腾挪不开，只得先硬顶过去；春尾这层旧馆与学生家口风又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && season.id === 'summer' && xun === 1) {
+          if (picked.f_route_school_summer_soup || picked.f_route_school_note || picked.f_work || picked.f_repair) {
+            pushFamilySeasonTag(stepTag + '伏夏馆汤已分');
+            log.push(['〔伏夏馆汤〕这一旬先把馆里茶汤、凉药门包、递话脚费和家里锅火分开了；举业路养家阶段的伏夏上旬终于不再只剩“先问夏课馆账”，连暑天第一层会自己冒头的小耗也压回了真账。', 'good']);
+          } else if (spendCopper(35)) {
+            S.本年家衣药 += 1;
+            pushFamilySeasonTag(stepTag + '伏夏馆汤');
+            log.push(['〔伏夏馆汤〕馆里茶汤、凉药门包、递话脚费和家里锅火一起要钱：铜钱-35、衣药+1。不是大账，却正把举业路养家阶段伏夏上旬那层“门路刚起、暑热先追”的细账压回了真账。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '伏夏馆汤硬顶');
+            log.push(['〔伏夏馆汤〕这一旬连馆里茶汤和凉药门包都腾挪不开，只得先硬顶过去；伏夏刚起，塾师与学生家这层口风就先薄了一线（家族-1）。', 'bad']);
           }
         }
         if ((route.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) && season.id === 'summer' && xun === 2) {
