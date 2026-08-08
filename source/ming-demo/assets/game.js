@@ -6382,6 +6382,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.铜钱 >= 50 ? '' : '铜钱不足50文'
           });
           pack.extraActions.push({
+            id: 'f_route_summer_home_note',
+            name: '先把家书药单与柜边回帖分开',
+            cost: 1,
+            eff: '铜钱-55·衣药+1·捎信+1·供读+1·家族+1',
+            desc: '伏夏刚起时，最怕家书药单、柜边回帖、带话脚费和孩子纸样一起冒头。你先把这层家内读写和柜边回帖拆开，不让行栈路数、家里凉药和孩子纸样继续抢同一口现钱。',
+            can: S.铜钱 >= 55,
+            why: S.铜钱 >= 55 ? '' : '铜钱不足55文'
+          });
+          pack.extraActions.push({
             id: 'f_route_summer_cool',
             name: '先把行栈茶钱与家里凉药分开',
             cost: 1,
@@ -7998,6 +8007,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushFamilySeasonTag(stepTag + '伏夏回签');
                 log.push(['先把伏夏回签与行栈账单分开：铜钱-50、问价+1、捎信+1、通融+1。上一程回签、行栈账单和家里凉药这层伏夏开头最先起皱的小账，先被你拆回了真账。', 'good']);
               } else log.push(['想先把伏夏回签与行栈账单分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_summer_home_note':
+              if (spendCopper(55)) {
+                S.家族 += 1;
+                S.本年家衣药 += 1;
+                S.本年家捎信 += 1;
+                S.本年家供读 += 1;
+                pushFamilySeasonTag(stepTag + '伏夏家书药单');
+                log.push(['先把家书药单与柜边回帖分开：铜钱-55、衣药+1、捎信+1、供读+1、家族+1。伏夏起手这一口现钱先被拆作家书药单、柜边回帖和孩子纸样，家里读写、凉药与门路不再全挤在一团。', 'good']);
+              } else log.push(['想先把家书药单与柜边回帖分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_autumn_quote':
               if (spendCopper(40)) {
