@@ -13136,6 +13136,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           why: S.铜钱 >= 70 ? '' : '铜钱不足70文',
           once: true
         });
+        if (season.id === 'summer' && xun === 1) A.push({
+          id: 'h_summer_soup',
+          name: '先把伏夏馆汤与凉药门包分开',
+          cost: 1,
+          eff: '铜钱-60·催账+1·通融+1·体魄+2·家族+1',
+          desc: '夏催账刚起头时，最怕馆里茶汤、凉药、递话门包与家里伏热小耗撞在同一口现钱上。先把这层馆汤小账拆开，举业路伏夏上旬才不至一面护门路、一面把身子和锅火都熬薄。',
+          can: S.铜钱 >= 60,
+          why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
+          once: true
+        });
         if (season.id === 'summer' && xun === 2) A.push({
           id: 'h_summer_surety',
           name: '先把保结薄礼与租帖脚费分开',
@@ -13325,6 +13335,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 actionCount += 1;
               } else {
                 log.push(['想在' + stepLabel + '先把伏夏潮纸与学生家回话分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_summer_soup':
+              if (spendCopper(60)) {
+                S.本年户催账 += 1;
+                S.本年户通融 += 1;
+                S.体魄 += 2;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('伏夏馆汤');
+                log.push(['你在' + stepLabel + '先把馆里茶汤、凉药、递话门包与家里伏热小耗分开：铜钱-60、催账+1、通融+1、体魄+2、家族+1。举业路伏夏上旬最容易把门路、人情和身子一起磨薄的那层馆汤小账，这回先被你压回了这一旬。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把伏夏馆汤与凉药门包分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
             case 'h_summer_surety':
@@ -13544,7 +13567,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             hardship: 'clan'
           },
           summer: {
-            handledIds: ['h_copy_mid', 'h_exempt', 'h_rest', 'h_literate', 'h_clan', 'h_side', 'h_exam_split', 'h_summer_packet', 'h_summer_surety'],
+            handledIds: ['h_copy_mid', 'h_exempt', 'h_rest', 'h_literate', 'h_clan', 'h_side', 'h_exam_split', 'h_summer_packet', 'h_summer_soup', 'h_summer_surety'],
             doneTag: '伏夏小耗已顾',
             doneLog: '〔伏夏小耗〕这一旬先把纸墨、凉药、馆账、保结薄礼和家里锅火顾住了；识字底子没有再被伏夏杂耗一点点磨空。',
             cost: 60,
@@ -13681,6 +13704,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('春中税香') >= 0; }) || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('春中香脚') >= 0; })) log.push(['这一任当户你还把清明香纸、税则抄手、租账脚费与保结门包压进了春分书中旬；举业路开春中段终于也有了“生活与制度一起先来抢钱”的专属细账。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('春尾馆账') >= 0; })) log.push(['这一任当户连春尾旧馆回话、香纸脚费和回馆脚路都先拆开了；举业路立户第一季末终于也像同一年里不断冒头的小事，而不再只等到夏里一起算。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('夏馆纸香') >= 0; })) log.push(['这一任当户你又把伏夏潮纸、馆里茶汤与学生家回话脚费压进了夏催账上旬；举业路的伏夏不再只剩“纸墨很费”，而开始像同一年里不断冒头的小耗。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏馆汤') >= 0; })) log.push(['这一任当户你还把馆里茶汤、凉药、递话门包与家里伏热小耗压进了夏催账上旬；举业路伏夏终于不只是纸墨细账，连身子与门路一起被暑气磨薄的那层真生活也开始在同一年里见光。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('夏尾馆信') >= 0; })) log.push(['这一任当户你又把旧馆回信、秋前纸样、学生家递话脚费与锅火凉药压进了夏催账下旬；举业路夏里终于不再只靠中旬那一下撑密度，连伏夏尾声也开始在同一年里持续咬人。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋帖回话') >= 0; })) log.push(['这一任当户你还把秋帖、保结回话与回馆脚费压进了秋定租上旬；秋头那层“回话还没落定、锅火已先要用”的制度摩擦，也终于被压回了同一年里。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋中馆脚') >= 0; })) log.push(['这一任当户你又把秋中馆账、租路饭钱、回话脚费与锅火差钱压进了秋定租中旬；举业路秋中终于不再只靠通用拆账撑着，而有了自己那层“馆账刚回、租路和家用先追钱”的同旬细账。', 'good']);
