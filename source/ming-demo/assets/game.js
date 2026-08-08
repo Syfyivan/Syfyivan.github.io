@@ -6637,7 +6637,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           });
         }
       } else if (route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) {
-        pack.note = '卖工路成家后也不该只剩“这一年总共挣了多少工钱”。活路要先问、工食要分口回家、欠工要回头去结、差役也得先托旧工头探一层；现在又把伏夏汤药、秋收旺工与回乡搭手、年关欠工、年下回签与来春工棚草鞋脚路继续拆回同一年里逐旬结算。';
+        pack.note = '卖工路成家后也不该只剩“这一年总共挣了多少工钱”。活路要先问、工食要分口回家、欠工要回头去结、差役也得先托旧工头探一层；现在又把伏夏回签、汤药草鞋、秋收旺工与秋头回签、年关欠工、年下回签与来春工棚草鞋脚路继续拆回同一年里逐旬结算。';
         pack.dossier = '雇技进度=' + S.雇技进度 + '｜雇工历练=' + S.雇工历练 + '｜婚配路径=' + S.婚配路径;
         var wageEventTxt;
         if (season.id === 'summer' && xun === 1) {
@@ -6682,6 +6682,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               can: S.铜钱 >= 40,
               why: S.铜钱 >= 40 ? '' : '铜钱不足40文'
             });
+            pack.extraActions.push({
+              id: 'f_route_wage_summer_packet',
+              name: '先把伏夏回签与草鞋药包分开',
+              cost: 1,
+              eff: '铜钱-55·衣药+1·捎信+1·通融+1',
+              desc: '伏夏上旬最怕旧工棚回签、草鞋药包、递话门包和凉汤脚费一起先来。你先把这层伏夏回签拆开，活路还没断时，身子和门路也不至先被热里磨空。',
+              can: S.铜钱 >= 55,
+              why: S.铜钱 >= 55 ? '' : '铜钱不足55文'
+            });
           }
           if (season.id === 'autumn') {
             pack.extraActions.push({
@@ -6692,6 +6701,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               desc: '秋里一头是外头旺工结现快，一头是家里也等你回去搭把手。先问清哪处抢工最值、家里哪天最缺人，后面拆账才不至两头都误。',
               can: S.铜钱 >= 30,
               why: S.铜钱 >= 30 ? '' : '铜钱不足30文'
+            });
+            pack.extraActions.push({
+              id: 'f_route_wage_autumn_packet',
+              name: '先把秋头回签与草鞋脚费分开',
+              cost: 1,
+              eff: '铜钱-50·衣药+1·捎信+1·通融+1',
+              desc: '秋头最怕旺工未真落袋，旧工回签、回乡草鞋、递话脚费和锅火已先来。你先把这层秋头回签拆开，不让“秋里也许能多挣一点”先被门包与脚费吃空。',
+              can: S.铜钱 >= 50,
+              why: S.铜钱 >= 50 ? '' : '铜钱不足50文'
             });
           }
           if (season.id === 'winter') {
@@ -7877,6 +7895,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先问工棚落脚与凉汤药脚路：铜钱-40、家族+1、捎信+1、通融+1。你先把哪处工棚肯留脚、哪家药铺肯先赊一口凉汤药摸清，不让伏夏把人和工路一并熬断。', 'good']);
               } else log.push(['想先问工棚落脚与凉汤药脚路，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_route_wage_summer_packet':
+              if (spendCopper(55)) {
+                S.本年家衣药 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '伏夏回签已分');
+                log.push(['先把伏夏回签与草鞋药包分开：铜钱-55、衣药+1、捎信+1、通融+1。旧工棚回签、草鞋药包、递话门包和凉汤脚费先被拆开，卖工路伏夏上旬不再只剩“先问工棚”，连这层热里最细的小耗也回到了真账。', 'good']);
+              } else log.push(['想先把伏夏回签与草鞋药包分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_route_wage_autumn_note':
               if (spendCopper(30)) {
                 S.家族 += 1;
@@ -7885,6 +7912,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushFamilySeasonTag(stepTag + '问秋工');
                 log.push(['先问秋收旺工与回乡搭手：铜钱-30、家族+1、捎信+1、问价+1。你先把哪处旺工结现更快、家里哪天更缺人摸清，不让秋里两头都只顾着催你。', 'good']);
               } else log.push(['想先问秋收旺工与回乡搭手，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_wage_autumn_packet':
+              if (spendCopper(50)) {
+                S.本年家衣药 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '秋头回签已分');
+                log.push(['先把秋头回签与草鞋脚费分开：铜钱-50、衣药+1、捎信+1、通融+1。旧工回签、回乡草鞋、递话脚费和锅火后手先被拆开，卖工路秋头不再只剩“问哪处旺工更值”，连秋钱未落袋前那层最先冒头的小耗也进了账。', 'good']);
+              } else log.push(['想先把秋头回签与草鞋脚费分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_wage_autumn_tail':
               if (spendCopper(55)) {
