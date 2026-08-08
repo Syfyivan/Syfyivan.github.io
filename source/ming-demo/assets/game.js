@@ -6554,7 +6554,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           });
         }
       } else if (route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) {
-        pack.note = '学徒路成家后也不只是“在铺里站着”：铺里脚钱能不能捎回家、师门旧识还认不认你、哪一口人情能先替你打听差役，都会改写这一旬家计。现在连伏夏布药、秋里脚钱拆账与秋中回铺回签、年关铺账与冬尾回铺回签，也继续拆回同一年里逐旬结算。';
+        pack.note = '学徒路成家后也不只是“在铺里站着”：铺里脚钱能不能捎回家、师门旧识还认不认你、哪一口人情能先替你打听差役，都会改写这一旬家计。现在连春头回铺回签、伏夏布药与回铺回签、秋里脚钱拆账与秋中回铺回签、年关铺账与冬尾回铺回签，也继续拆回同一年里逐旬结算。';
         pack.dossier = '学徒去向=' + S.学徒去向 + '｜授艺度=' + S.学徒授艺度 + '｜学徒历练=' + S.学徒历练;
         pack.event = { t: 'rel', tag: '[铺面]', txt: season.id === 'summer' && xun === 2
           ? '伏夏最怕的是人还站在铺里，家里却先缺了布药和针线；这一旬脚钱、布药和家口细耗会一起冒头。'
@@ -6573,6 +6573,28 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             can: S.铜钱 >= 30,
             why: S.铜钱 >= 30 ? '' : '铜钱不足30文'
           });
+          if (season.id === 'spring') {
+            pack.extraActions.push({
+              id: 'f_route_shop_spring_head_reply',
+              name: '先把春头回铺回签与灯油门包分开',
+              cost: 1,
+              eff: '铜钱-55·衣药+1·捎信+1·通融+1·家族+1',
+              desc: '春头最怕旧掌柜回签、灯油门包、递话脚费和灶下锅火一起先来。你先把这层春头铺签拆开，不让“铺里也许快有回音了”又被家里的灯油锅火和回铺脚路先吃成空话。',
+              can: S.铜钱 >= 55,
+              why: S.铜钱 >= 55 ? '' : '铜钱不足55文'
+            });
+          }
+          if (season.id === 'summer') {
+            pack.extraActions.push({
+              id: 'f_route_shop_summer_head_reply',
+              name: '先把伏夏回铺回签与茶汤药脚分开',
+              cost: 1,
+              eff: '铜钱-60·衣药+1·捎信+1·通融+1·家族+1',
+              desc: '伏夏一上来最怕旧掌柜回签、铺里茶汤、凉药脚费和递话门包一起先找钱。你先把这层伏夏铺签拆开，不让“人还在铺里这层熟面”又和家里的药脚锅火抢同一口现钱。',
+              can: S.铜钱 >= 60,
+              why: S.铜钱 >= 60 ? '' : '铜钱不足60文'
+            });
+          }
           if (season.id === 'autumn') {
             pack.extraActions.push({
               id: 'f_route_shop_autumn_packet',
@@ -8089,6 +8111,26 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['托旧同门捎口信问铺账：铜钱-30、家族+1。钱还没回，可这一季哪笔脚钱能结、哪笔杂支还压着，先被你摸清了一层。', 'good']);
               } else log.push(['想托旧同门先问铺账，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_route_shop_spring_head_reply':
+              if (spendCopper(55)) {
+                S.家族 += 1;
+                S.本年家衣药 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '春头铺签已分');
+                log.push(['先把春头回铺回签与灯油门包分开：铜钱-55、衣药+1、捎信+1、通融+1、家族+1。旧掌柜回签、灯油门包、递话脚费和灶下锅火先被拆开，学徒路成年期开春第一旬终于不再只是“先问铺里口风”，连春头最先冒头的小账也压回了真账。', 'good']);
+              } else log.push(['想先把春头回铺回签与灯油门包分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_shop_summer_head_reply':
+              if (spendCopper(60)) {
+                S.家族 += 1;
+                S.本年家衣药 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '伏夏铺签已分');
+                log.push(['先把伏夏回铺回签与茶汤药脚分开：铜钱-60、衣药+1、捎信+1、通融+1、家族+1。旧掌柜回签、铺里茶汤、凉药脚费和递话门包先被拆开，学徒路成年人伏夏第一旬终于不再只靠“人在铺里”硬顶，连暑天最先追钱的那层门路与药脚也压回了真账。', 'good']);
+              } else log.push(['想先把伏夏回铺回签与茶汤药脚分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_route_shop_autumn_packet':
               if (spendCopper(70)) {
                 S.家族 += 1;
@@ -9464,8 +9506,22 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             log.push(['〔冬尾牙帖〕这一旬连牙帖脚费和熟号回签都腾挪不开，只得先硬顶过去；来春还没开市，熟号与家里口风已先薄了一线（家族-1）。', 'bad']);
           }
         }
+        if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && season.id === 'spring' && xun === 1) {
+          if (picked.f_route_shop_spring_head_reply || picked.f_route_shop_note || picked.f_work || picked.f_repair || picked.f_rest) {
+            pushFamilySeasonTag(stepTag + '春头铺签已理');
+            log.push(['〔春头铺签〕这一旬先把旧掌柜回签、灯油门包、递话脚费和灶下锅火分开了；学徒路成年期开春第一旬终于不再只剩“先问铺里口风”，连春头最先冒头的那层回签与锅火也一起压回了真账。', 'good']);
+          } else if (spendCopper(35)) {
+            S.本年家通融 += 1;
+            pushFamilySeasonTag(stepTag + '春头铺签');
+            log.push(['〔春头铺签〕旧掌柜回签、灯油门包、递话脚费和灶下锅火一起要钱：铜钱-35、通融+1。不是大账，却正把学徒路成年期开春第一旬那层“铺里回音刚起、家里灯油锅火先来”的细账压回了真账。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '春头硬顶');
+            log.push(['〔春头铺签〕这一旬连回签脚费和灯油门包都腾挪不开，只得先硬顶过去；春头这一层铺里与家里两头的口风又一齐薄了一线（家族-1）。', 'bad']);
+          }
+        }
         if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && season.id === 'summer' && xun === 1) {
-          if (picked.f_route_shop_note || picked.f_work || picked.f_repair || picked.f_child || picked.f_mend) {
+          if (picked.f_route_shop_summer_head_reply || picked.f_route_shop_note || picked.f_work || picked.f_repair || picked.f_child || picked.f_mend) {
             pushFamilySeasonTag(stepTag + '伏夏铺药已问');
             log.push(['〔伏夏铺药〕这一旬先把铺里茶汤、家里凉药、带话脚费和草鞋线头问明了；伏夏刚起头时最先冒头的那层铺里与家用小耗，没有再把这一口脚钱先磨薄。', 'good']);
           } else if (spendCopper(30)) {
