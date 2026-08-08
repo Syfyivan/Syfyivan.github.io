@@ -6082,6 +6082,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             can: S.铜钱 >= 70,
             why: S.铜钱 >= 70 ? '' : '铜钱不足70文'
           });
+          pack.extraActions.push({
+            id: 'f_route_summer_packet',
+            name: '先把柜边回帖与孩子纸样分开',
+            cost: 1,
+            eff: '铜钱-65·捎信+1·通融+1·供读+1',
+            desc: '伏夏中旬最怕柜边回帖、孩子纸样、递话脚费和锅火凉药一起冒头。你先把这层纸样与回帖拆开，不让商路反哺、家里读写和伏夏锅火抢同一口现钱。',
+            can: S.铜钱 >= 65,
+            why: S.铜钱 >= 65 ? '' : '铜钱不足65文'
+          });
         }
         if (season.id === 'autumn' && xun === 2) {
           pack.extraActions.push({
@@ -7250,6 +7259,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把样纸门包与回程脚费分开：铜钱-70、问价+1、衣药+1、家族+1。你先把样纸、门包和布药这层伏夏细耗压进账里，不让“银在路上”先把家里这一旬磨空。', 'good']);
               } else log.push(['想先把样纸门包与回程脚费分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_route_summer_packet':
+              if (spendCopper(65)) {
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                S.本年家供读 += 1;
+                pushFamilySeasonTag(stepTag + '伏夏纸样');
+                log.push(['先把柜边回帖与孩子纸样分开：铜钱-65、捎信+1、通融+1、供读+1。柜边回帖、孩子纸样、递话脚费和锅火凉药先被你拆回这一旬，商路反哺、家里读写与伏夏锅火不再抢同一口现钱。', 'good']);
+              } else log.push(['想先把柜边回帖与孩子纸样分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_route_autumn_split':
               if (spendSilver(1)) {
                 S.累计反哺银 += 1;
@@ -8390,17 +8408,31 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'summer' && xun === 2) {
-          if (picked.f_route_bundle || picked.f_route_sample || picked.f_route_wharf || picked.f_market || picked.f_work) {
+          if (picked.f_route_bundle || picked.f_route_sample || picked.f_route_summer_packet || picked.f_route_wharf || picked.f_market || picked.f_work) {
             pushFamilySeasonTag(stepTag + '行中小耗已顾');
-            log.push(['〔行中小耗〕这一旬先把样纸、门包、回程脚费和家里布药拆开了；“银还在路上”最磨人的那层小耗没有继续滚大。', 'good']);
+            log.push(['〔行中小耗〕这一旬先把样纸、门包、柜边回帖、孩子纸样、回程脚费和家里布药拆开了；“银还在路上”最磨人的那层行中小耗没有继续滚大。', 'good']);
           } else if (spendCopper(45)) {
             S.本年家衣药 += 1;
             pushFamilySeasonTag(stepTag + '行中小耗');
-            log.push(['〔行中小耗〕样纸、门包、托栈带话和家里布药一起冒头：铜钱-45、衣药+1。不是大账，却正把商路养家这一年的细钱一点点磨薄。', 'bad']);
+            log.push(['〔行中小耗〕样纸、门包、柜边回帖、孩子纸样和家里布药一起冒头：铜钱-45、衣药+1。不是大账，却正把商路养家这一年的细钱一点点磨薄。', 'bad']);
           } else {
             S.家族 = Math.max(0, S.家族 - 1);
             pushFamilySeasonTag(stepTag + '行中硬扛');
-            log.push(['〔行中小耗〕这一旬连样纸门包和布药都腾挪不开，只得先硬扛过去；熟号和家里都更吃紧了一层（家族-1）。', 'bad']);
+            log.push(['〔行中小耗〕这一旬连样纸门包、柜边回帖和布药都腾挪不开，只得先硬扛过去；熟号和家里都更吃紧了一层（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'summer' && xun === 2) {
+          if (picked.f_route_summer_packet || picked.f_route_bundle || picked.f_route_sample || picked.f_child || picked.f_market) {
+            pushFamilySeasonTag(stepTag + '伏夏纸样已分');
+            log.push(['〔伏夏纸样〕这一旬先把柜边回帖、孩子纸样、递话脚费和锅火凉药分开了；商路反哺与家里读写这层最细的小耗，也开始在伏夏中旬同年见光。', 'good']);
+          } else if (spendCopper(35)) {
+            S.本年家供读 += 1;
+            pushFamilySeasonTag(stepTag + '伏夏纸样');
+            log.push(['〔伏夏纸样〕柜边回帖、孩子纸样、递话脚费和锅火凉药一起要钱：铜钱-35、供读+1。不是大账，却正把商路养家伏夏中旬这层“钱还在路上、孩子纸样先来”的细摩擦重新压回真账。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '纸样硬顶');
+            log.push(['〔伏夏纸样〕这一旬连柜边回帖和孩子纸样都腾挪不开，只得先硬顶过去；熟号回音与家里读写这两头都更紧了一线（家族-1）。', 'bad']);
           }
         }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'summer' && xun === 3) {
