@@ -6958,6 +6958,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             can: S.铜钱 >= 100,
             why: S.铜钱 >= 100 ? '' : '铜钱不足100文'
           });
+          pack.extraActions.push({
+            id: 'f_route_school_winter_mid_reply',
+            name: '先把冬中馆札与孩子炭笔分开',
+            cost: 1,
+            eff: '铜钱-60·捎信+1·通融+1·供读+1·家族+1',
+            desc: '冬藏中旬最怕旧馆回札、孩子炭笔、递话门包和守岁锅火一起抢同一口现钱。你先把这层冬中馆札拆开，不让年关笔墨与家里读写又一起拖到年后。',
+            can: S.铜钱 >= 60,
+            why: S.铜钱 >= 60 ? '' : '铜钱不足60文'
+          });
         }
         if (season.id === 'winter' && xun === 1) {
           pack.extraActions.push({
@@ -8229,6 +8238,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushFamilySeasonTag(stepTag + '冬尾笔墨拆账');
                 log.push(['把年尾笔墨拆作炭药与帖费：铜钱-100、贴家+1、衣药+1、备役后手+1、家族+1。零碎束脩与誊账钱没有被你整手握死，而是先拆进过冬与来春两本账里。', 'good']);
               } else log.push(['想把年尾笔墨拆作炭药与帖费，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_school_winter_mid_reply':
+              if (spendCopper(60)) {
+                S.家族 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                S.本年家供读 += 1;
+                pushFamilySeasonTag(stepTag + '冬中馆札');
+                log.push(['先把冬中馆札与孩子炭笔分开：铜钱-60、捎信+1、通融+1、供读+1、家族+1。旧馆回札、孩子炭笔、递话门包和守岁锅火先被拆开，举业路冬中这层“门路未断、家里也得续写字”的细账不再一起拖到年后。', 'good']);
+              } else log.push(['想先把冬中馆札与孩子炭笔分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_school_split':
               if (spendCopper(150)) {
