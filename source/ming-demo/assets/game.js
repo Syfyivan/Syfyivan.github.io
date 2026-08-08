@@ -6265,7 +6265,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           });
         }
       } else if (route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) {
-        pack.note = '学徒路成家后也不只是“在铺里站着”：铺里脚钱能不能捎回家、师门旧识还认不认你、哪一口人情能先替你打听差役，都会改写这一旬家计。现在连伏夏布药、秋里脚钱拆账与年关铺账，也继续拆回同一年里逐旬结算。';
+        pack.note = '学徒路成家后也不只是“在铺里站着”：铺里脚钱能不能捎回家、师门旧识还认不认你、哪一口人情能先替你打听差役，都会改写这一旬家计。现在连伏夏布药、秋里脚钱拆账、年关铺账与冬尾回铺回签，也继续拆回同一年里逐旬结算。';
         pack.dossier = '学徒去向=' + S.学徒去向 + '｜授艺度=' + S.学徒授艺度 + '｜学徒历练=' + S.学徒历练;
         pack.event = { t: 'rel', tag: '[铺面]', txt: season.id === 'summer' && xun === 2
           ? '伏夏最怕的是人还站在铺里，家里却先缺了布药和针线；这一旬脚钱、布药和家口细耗会一起冒头。'
@@ -6379,6 +6379,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               desc: '冬尾不是只等过年。你先把来春回铺脚路、递话小礼和差役后手分开，免得明春第一旬又拿同一口现钱四处堵漏。',
               can: S.铜钱 >= 60,
               why: S.铜钱 >= 60 ? '' : '铜钱不足60文'
+            });
+            pack.extraActions.push({
+              id: 'f_route_shop_winter_tail',
+              name: '先把年下回铺回签与来春脚单分开',
+              cost: 1,
+              eff: '铜钱-70·催账+1·备役+1·家族+1',
+              desc: '冬尾最怕年下回铺回签、来春脚单、递话脚费和锅火后手一起抢同一口现钱。你先把这层冬尾铺签拆开，来春门路和眼前锅火才不至再互相咬住。',
+              can: S.铜钱 >= 70,
+              why: S.铜钱 >= 70 ? '' : '铜钱不足70文'
             });
           }
         }
@@ -7708,6 +7717,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先留来春回铺脚费与递话薄礼：铜钱-60、捎信+1、通融+1、备役+1。你先把来春回铺脚路、递话薄礼和差役后手分开，不让明春第一旬又拿同一口现钱四处堵漏。', 'good']);
               } else log.push(['想先留来春回铺脚费与递话薄礼，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_route_shop_winter_tail':
+              if (spendCopper(70)) {
+                S.本年家催账 += 1;
+                S.本年家备役 += 1;
+                S.家族 += 1;
+                pushFamilySeasonTag(stepTag + '冬尾铺签已分');
+                log.push(['先把年下回铺回签与来春脚单分开：铜钱-70、催账+1、备役+1、家族+1。你先把年下回铺回签、来春脚单、递话脚费和锅火后手拆开，不让旧铺回音和明春脚路继续挤同一口过冬钱。', 'good']);
+              } else log.push(['想先把年下回铺回签与来春脚单分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_route_master':
               if (spendCopper(70)) {
                 S.家族 += 1;
@@ -8923,6 +8941,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && season.id === 'winter' && xun === 3) {
+          if (picked.f_route_shop_winter_tail) {
+            pushFamilySeasonTag(stepTag + '冬尾铺签已理');
+            log.push(['〔冬尾铺签〕这一旬先把年下回铺回签、来春脚单、递话脚费和锅火后手理开了；学徒路到冬尾终于不再只剩“留明春铺路”，连旧铺回音和眼前锅火怎么抢同一口钱也压回了真账。', 'good']);
+          } else if (spendCopper(40)) {
+            S.本年家通融 += 1;
+            pushFamilySeasonTag(stepTag + '冬尾铺签');
+            log.push(['〔冬尾铺签〕年下回铺回签、来春脚单、递话脚费和锅火后手一起要钱：铜钱-40、通融+1。不是大账，却正把学徒路冬尾那层“旧铺还有回音、明春脚路也先来追钱”的碎账重新压回这一旬。', 'bad']);
+          } else {
+            S.体魄 -= 1;
+            pushFamilySeasonTag(stepTag + '冬尾铺签硬顶');
+            log.push(['〔冬尾铺签〕这一旬连回签脚费和来春脚单都腾挪不开，只得继续靠身子硬顶过去；眼前锅火与明春回铺脚路又一起更紧了一线（体魄-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && season.id === 'winter' && xun === 3) {
           if (picked.f_route_shop_winter_post || picked.f_route_shop_collect || picked.f_route_master || picked.f_duty || picked.f_rest) {
             pushFamilySeasonTag(stepTag + '来春铺路已稳');
             log.push(['〔来春铺路〕这一旬先把来春回铺脚费、递话薄礼与差役后手留住了；学徒路到冬尾也不再只剩一句“过了年再说”。', 'good']);
@@ -9105,6 +9137,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('伏夏铺药已问') >= 0; })) log.push(['这一养家年你连伏夏刚起头的茶汤、凉药和带话脚费都先问明了；学徒路不必等到最热那一旬才显出身体与家计的拉扯。', 'good']);
           if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('秋脚锅火已分') >= 0; })) log.push(['这一养家年你还把秋里脚钱、锅火、差钱与家里灯火拆回了同一旬；学徒路成年期也开始像农路那样，一年里每一口回钱都得立刻找去处。', 'good']);
           if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('年下客礼已分') >= 0 || String(tag).indexOf('年下客礼已理') >= 0; })) log.push(['这一养家年你又把年下炭药、守岁零用和回铺薄礼先分开；学徒路连年尾那层最碎的人情账，也开始像同一年里不断冒头的小事。', 'good']);
+          if ((route.indexOf('路径三') === 0 || route.indexOf('入城学徒') === 0) && (S.本年家季务 || []).some(function (tag) { return String(tag).indexOf('冬尾铺签') >= 0; })) log.push(['这一养家年你又把年下回铺回签、来春脚单和递话脚费压回了冬尾；学徒路连“旧铺还有回音、明春脚路却先来抢钱”的那层回签后手，也开始像同一年里不断冒头的小事。', 'good']);
           if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && (S.本年家贴家 || 0) > 0 && (S.本年家备役 || 0) > 0) log.push(['这一养家年你至少有一回把同一口现钱拆作家用与差役后手；商路顾家不再只是“年末寄没寄银”，而是年内一直在拆账。', 'good']);
           if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && (S.未回款银 || 0) > 0 && (S.本年家催账 || 0) <= 0) log.push(['这一养家年仍有路上旧账没被催回；家里等钱与外头账期的摩擦，被完整留到了下一年。', 'bad']);
           if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && (S.本年家衣药 || 0) > 0 && (S.本年家贴家 || 0) > 0) log.push(['这一养家年你不只把银钱捎回去，还把布药针线也拆进了家计；“商路顾家”第一次不只剩下银两本身。', 'good']);
