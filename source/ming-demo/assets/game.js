@@ -6760,6 +6760,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             can: S.铜钱 >= 80,
             why: S.铜钱 >= 80 ? '' : '铜钱不足80文'
           });
+          pack.extraActions.push({
+            id: 'f_route_wage_winter_reply',
+            name: '先把冬中欠工回话与炭鞋门包分开',
+            cost: 1,
+            eff: '铜钱-70·衣药+1·捎信+1·通融+1',
+            desc: '冬中最怕欠工回话、炭钱棉鞋、递话门包和来春头程草鞋一起冒头。你先把这层冬中小账拆开，不让年关锅火、回话与明春工路继续挤同一口现钱。',
+            can: S.铜钱 >= 70,
+            why: S.铜钱 >= 70 ? '' : '铜钱不足70文'
+          });
         }
       }
       return pack;
@@ -7822,6 +7831,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把旧工头薄礼与炭钱分开：铜钱-80、贴家+1、衣药+1、通融+1、家族+1。你先把旧工头薄礼、炭钱和回话脚费拆开，不让卖工路年下最碎的那层门路耗损继续糊成一团。', 'good']);
               } else log.push(['想先把旧工头薄礼与炭钱分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_route_wage_winter_reply':
+              if (spendCopper(70)) {
+                S.本年家衣药 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '冬中回话已留');
+                log.push(['先把冬中欠工回话与炭鞋门包分开：铜钱-70、衣药+1、捎信+1、通融+1。欠工回话、炭钱棉鞋、递话门包和来春草鞋后手先被拆开，年关这层“钱还没结、过冬与来春先要花”的小耗不再混成一句硬熬。', 'good']);
+              } else log.push(['想先把冬中欠工回话与炭鞋门包分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_route_wage_duty':
               if (spendCopper(60)) {
                 S.家族 += 1;
@@ -8284,6 +8302,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushFamilySeasonTag(stepTag + '工棚礼硬顶');
             log.push(['〔工棚年礼〕这一旬连薄礼和回话脚费都腾挪不开，只得先硬顶过去；旧工头与工棚这层熟面又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && season.id === 'winter' && xun === 2) {
+          if (picked.f_route_wage_winter_reply || picked.f_route_wage_winter_gift || picked.f_route_wage_split || picked.f_route_send || picked.f_social || picked.f_rest) {
+            pushFamilySeasonTag(stepTag + '冬中炭鞋已分');
+            log.push(['〔冬中炭鞋〕这一旬先把欠工回话、炭钱棉鞋、递话门包和来春草鞋分开了；卖工路冬中不再只剩“熬过腊月”，连过冬与来春头程这层小耗也开始同年见光。', 'good']);
+          } else if (spendCopper(40)) {
+            S.本年家衣药 += 1;
+            pushFamilySeasonTag(stepTag + '冬中炭鞋');
+            log.push(['〔冬中炭鞋〕欠工回话、炭钱棉鞋、递话门包和来春草鞋一起要钱：铜钱-40、衣药+1。不是大账，却正把卖工路冬中那层“钱还没结、过冬与来春先来抢”的细摩擦重新压回这一旬。', 'bad']);
+          } else {
+            S.体魄 -= 1;
+            pushFamilySeasonTag(stepTag + '冬中硬顶');
+            log.push(['〔冬中炭鞋〕这一旬连炭钱棉鞋和递话门包都腾挪不开，只得先硬顶过去；过冬这一口现钱先薄了一线（体魄-1）。', 'bad']);
           }
         }
         if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && season.id === 'winter' && xun === 3) {
