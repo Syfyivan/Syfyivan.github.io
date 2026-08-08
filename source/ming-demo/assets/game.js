@@ -6369,6 +6369,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               can: S.铜钱 >= 50,
               why: S.铜钱 >= 50 ? '' : '铜钱不足50文'
             });
+            pack.extraActions.push({
+              id: 'f_route_spring_child_note',
+              name: '先把春头孩子纸样与回乡药单分开',
+              cost: 1,
+              eff: '铜钱-45·衣药+1·供读+1·捎信+1·家族+1',
+              desc: '春起最怕外头熟号刚有一点回音，孩子纸样、回乡药单、递话脚费和锅火小耗就先一起冒头。你先把这层家内读写与春寒药单拆开，不让春头第一口现钱同时被旧账、孩子和锅火抢空。',
+              can: S.铜钱 >= 45,
+              why: S.铜钱 >= 45 ? '' : '铜钱不足45文'
+            });
           }
         }
         if (season.id === 'summer' && xun === 1) {
@@ -8211,6 +8220,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把样纸门包与回话脚费分开：铜钱-50、问价+1、捎信+1、通融+1。春起最先冒头的不是大银，而是样纸、门包、回话脚费和柜上零碎；你先把这层小耗压回了真账。', 'good']);
               } else log.push(['想先把样纸门包与回话脚费分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_route_spring_child_note':
+              if (spendCopper(45)) {
+                S.本年家衣药 += 1;
+                S.本年家供读 += 1;
+                S.本年家捎信 += 1;
+                S.家族 += 1;
+                pushFamilySeasonTag(stepTag + '春头纸样');
+                log.push(['先把春头孩子纸样与回乡药单分开：铜钱-45、衣药+1、供读+1、捎信+1、家族+1。春头这口现钱先被拆作孩子纸样、回乡药单和递话脚费，旧账回音、家里锅火与孩子读写没有再一起挤成一团。', 'good']);
+              } else log.push(['想先把春头孩子纸样与回乡药单分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_route_spring_ritual':
               if (spendCopper(60)) {
                 S.家族 += 1;
@@ -9636,7 +9655,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'spring' && xun === 1) {
-          if (picked.f_route_letter || picked.f_route_spring_price || picked.f_route_spring_packet || picked.f_work || picked.f_repair || picked.f_child) {
+          if (picked.f_route_letter || picked.f_route_spring_price || picked.f_route_spring_packet || picked.f_route_spring_child_note || picked.f_work || picked.f_repair || picked.f_child) {
             pushFamilySeasonTag(stepTag + '春路碎账已理');
             log.push(['〔春路碎账〕这一旬先把熟号回话脚费、样纸门包和家里盐药锅火顾住了；商路顾家最先冒头的那层春路小耗，没有再在开春就把现钱磨薄。', 'good']);
           } else if (spendCopper(40)) {
