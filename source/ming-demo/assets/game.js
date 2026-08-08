@@ -16489,6 +16489,47 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.体魄 -= 1;
             log.push(['无子无进项，这一年冬终仍未换出一口后手，晚景更清苦：体魄-1', 'bad']);
           }
+
+          // 年末再回看“这一年到底有没有被做厚”：
+          // 不给分、不排优劣，只把哪条路已经在同一年里摊开细账、哪条路仍偏空，明说给玩家看。
+          if (isYearEnd) {
+            var elderTags = S.本年养老季务 || [];
+            if ((S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定')
+              && elderTags.some(function (tag) { return String(tag).indexOf('春中铺话') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('伏夏铺签') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('秋中铺账') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('冬中铺签') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('冬尾铺签') >= 0; })) {
+              log.push(['这一养老年里，旧铺回话、伏夏铺签、秋中铺账、冬中铺签与冬尾铺签都已逐旬落账；学徒路晚景终于不再只剩“年关再看”，而是一整年都在被旧门路、锅火和来春脚路一点点咬住。', 'good']);
+            }
+            if (isWageRouteState()
+              && elderTags.some(function (tag) { return String(tag).indexOf('问旧工头') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('伏夏工汤') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('秋中工签') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('冬中回话') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('冬尾草鞋') >= 0; })) {
+              log.push(['这一养老年里，旧工头回话、伏夏工汤、秋中工签、冬中回话与冬尾草鞋都已压回同一年；卖工路晚景终于像真实日子，而不只是秋后催欠工、冬里留后手两笔粗账。', 'good']);
+            }
+            if ((S.路线.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计反哺银 > 0 || S.未回款银 > 0)
+              && elderTags.some(function (tag) { return String(tag).indexOf('春头样纸') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('伏夏水脚') >= 0 || String(tag).indexOf('伏夏回签拆开') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('秋中回签') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('冬中回话') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('年下回签') >= 0; })) {
+              log.push(['这一养老年里，春头样纸、伏夏水脚、秋中回签、冬中回话与冬尾年下回签都已逐旬见光；商路晚景终于不再只剩“旧账在外头”，而是把门路、锅火、租路和来春样纸都压回了同一年。', 'good']);
+            }
+            if ((S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份)
+              && elderTags.some(function (tag) { return String(tag).indexOf('春头馆契') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('伏夏馆汤') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('秋中馆脚') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('冬中馆札') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('冬尾馆信') >= 0; })) {
+              log.push(['这一养老年里，春头馆契、伏夏馆汤、秋中馆脚、冬中馆札与冬尾馆信都已逐旬落账；举业路晚景终于不再只剩“凭笔墨换照应”，连帖样、馆札、孩子炭笔和守岁锅火也开始在同一年里自己找钱。', 'good']);
+            }
+            if (elderTags.length <= 8) {
+              log.push(['这一养老年虽已拆成四季三旬，但真正落到账里的细务仍偏少，说明这一年还没有被你完全做厚。', 'bad']);
+            }
+          }
         }
 
         // 推进到下一旬/下一季
