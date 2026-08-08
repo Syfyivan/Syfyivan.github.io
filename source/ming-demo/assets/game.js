@@ -5003,6 +5003,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var mendBody = season.id === 'winter' ? 5 : (isLate ? 4 : 3);
     var essayGain = season.id === 'summer' ? (isMid ? 2 : 1) : (season.id === 'autumn' && isLate ? 2 : 1);
     var tutorGain = season.id === 'spring' ? 2 : (season.id === 'summer' ? 2 : 1);
+    // 举业路补“识字开蒙”入口：用于从出生/幼年未开蒙的存档进入举业时，
+    // 仍能在同一年里慢慢补齐最基础的识字底子（不额外耗 RNG；只在被选择时改写状态）。
+    // 约束：不把“认字”写成一次性神迹；仍要花铜钱（纸墨/灯油/人情），并占用行动点。
+    var literacyCost = season.id === 'winter'
+      ? (isLate ? 95 : 85)
+      : (season.id === 'summer' ? (isMid ? 85 : 75) : 70);
     var xunLead = xun === 1
       ? '上旬先把这一季到底怎么读、谁来供、钱从哪边先压进去坐实。'
       : (xun === 2
@@ -5055,12 +5061,38 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'e_tutor', name: season.id === 'spring' ? '先入塾定今年馆课' : '继续塾馆温书', cost: 2, eff: '文章火候+' + tutorGain + '·成本档+' + (season.id === 'spring' ? 2 : 1) + '·供读压力+1', desc: season.id === 'spring' ? '先把今年最重也最贵的读法定下来：银钱、纸墨、人情都得先压进去。' : '继续把时辰压在馆课与温书上，推得稳，也更吃家里。', can: S.供读状态 !== '已断供', once: true });
           A.push({ id: 'e_half', name: '半耕半读', cost: 1, eff: '文章火候+1' + (season.id === 'autumn' ? '·存米+1' : '') + '·体魄-1', desc: '农忙帮家里、农闲读书，推进慢些，却能把家里那口气续住。', can: true });
           A.push({ id: 'e_school', name: season.id === 'spring' ? '投社学/寄读' : '低成本寄读', cost: 1, eff: '成本档+1·文章火候+1', desc: '不走正经塾馆，先把这一年读书成本压低一线。', can: S.供读状态 !== '已断供', once: true });
+          if (!S.识字 && (S.识字进度 || 0) < 2) {
+            A.push({
+              id: 'e_literacy',
+              name: season.id === 'winter' ? '借灯下认字记号' : '先开蒙识字',
+              cost: 1,
+              eff: '铜钱-' + literacyCost + '·识字进度+1(满2开蒙)·文章火候+1',
+              desc: season.id === 'winter'
+                ? '年关灯下跟塾师或同窗认几行字、记几样号记。钱花得碎，却能把“只会背、不会写”的窄口慢慢撑开。'
+                : '先把最基础的字眼认出来：不求立刻会作文章，只求能看懂题目、抄得对字、记得住账。',
+              can: S.铜钱 >= literacyCost,
+              why: S.铜钱 >= literacyCost ? '' : ('铜钱不足' + literacyCost + '文'),
+              once: true
+            });
+          }
           A.push({ id: 'e_home', name: season.id === 'autumn' ? '回家帮父缓秋里家计' : '回家帮父与缓冲家计', cost: 1, eff: '家族+' + homeFamily + (homeRice > 0 ? ('·存米+' + homeRice) : '') + '·供读压力-1', desc: '这一旬少读一点，先让家里那口锅别翻。', can: true, once: true });
           A.push({ id: 'e_rest', name: '歇息养身', cost: 1, eff: '体魄+5', desc: '别把眼睛和身子先熬坏。', can: true });
         } else if (xun === 2) {
           A.push({ id: 'e_essay', name: season.id === 'summer' ? '伏夏专心评文改卷' : '请塾师评文改卷', cost: 1, eff: '文章火候+' + essayGain + '·成本档+1', desc: '再花一点纸墨和人情，把文章火候往前磨一层。', can: S.供读状态 !== '已断供' });
           A.push({ id: 'e_guarantee', name: season.id === 'autumn' ? '赶在秋里通保结' : '奔走保结与报名', cost: 1, eff: '保结进度+1·铜钱-80', desc: '资格不通，本年就算想下场也不成。', can: !S.生员身份 && S.保结进度 < 1 && (season.id === 'autumn' || season.id === 'winter') && S.铜钱 >= 80, why: !S.生员身份 ? (S.保结进度 < 1 ? ((season.id === 'autumn' || season.id === 'winter') ? (S.铜钱 >= 80 ? '' : '铜钱不足80文') : '通常到秋冬才真跑保结') : '本年保结已通') : '已是生员', once: true });
           A.push({ id: 'e_copy', name: season.id === 'winter' ? '年关抄单写契补贴' : '抄书/看账补贴', cost: 1, eff: '铜钱+' + copyCopper + '·识字转业值+1·文章火候+1', desc: '就算不中，识字、誊抄和替人看账也会慢慢沉成转业底子。', can: S.识字, why: S.识字 ? '' : '尚不识字' });
+          if (!S.识字 && (S.识字进度 || 0) < 2) {
+            A.push({
+              id: 'e_literacy',
+              name: season.id === 'summer' ? '伏夏跟塾师认字' : '补一旬认字开蒙',
+              cost: 1,
+              eff: '铜钱-' + literacyCost + '·识字进度+1(满2开蒙)·文章火候+1',
+              desc: '不求一旬就能写得好，只求把题目、号记与常用字先认全；后面誊抄补贴与写契才有路。',
+              can: S.铜钱 >= literacyCost,
+              why: S.铜钱 >= literacyCost ? '' : ('铜钱不足' + literacyCost + '文'),
+              once: true
+            });
+          }
           A.push({ id: 'e_home', name: season.id === 'autumn' ? '回家帮父缓秋里家计' : '回家帮父与缓冲家计', cost: 1, eff: '家族+' + homeFamily + (homeRice > 0 ? ('·存米+' + homeRice) : '') + '·供读压力-1', desc: '这一旬少读一点，先让家里那口锅别翻。', can: true, once: true });
           A.push({ id: 'e_rest', name: '歇息养身', cost: 1, eff: '体魄+5', desc: '让眼睛和身子缓一口气。', can: true });
         } else {
@@ -5123,6 +5155,23 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               S.铜钱 += copyCopper; S.识字转业值 += 1; S.文章火候 += 1; S.本年誊抄次数 += 1;
               pushExamSeasonTag(stepTag + '誊抄补贴');
               log.push(['抄书/看账补贴：铜钱+' + copyCopper + '、识字转业值+1、文章火候+1' + (S.家传书香 > 0 ? '（家传书香让这层笔墨活更容易接到）' : ''), 'good']);
+              break;
+            case 'e_literacy':
+              if (spendCopper(literacyCost)) {
+                S.识字进度 = (S.识字进度 || 0) + 1;
+                S.文章火候 += 1;
+                var becameLiterate = (!S.识字 && S.识字进度 >= 2);
+                if (becameLiterate) S.识字 = true;
+                pushExamSeasonTag(stepTag + (becameLiterate ? '开蒙识字' : '认字补课'));
+                log.push([
+                  (season.id === 'winter' ? '借灯下认字记号' : '开蒙识字')
+                    + '：铜钱-' + literacyCost + '、识字进度+1、文章火候+1'
+                    + (becameLiterate ? '（满2开蒙识字）' : ''),
+                  'good'
+                ]);
+              } else {
+                log.push(['想补一旬认字，但这一旬零碎开销已先把铜钱占住，只得暂缓。', 'bad']);
+              }
               break;
             case 'e_home':
               S.家族 += homeFamily; if (homeRice > 0) S.存米 += homeRice; S.供读压力 = Math.max(0, S.供读压力 - 1); S.本年归家次数 += 1;
