@@ -4170,23 +4170,38 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var marketReward = season.id === 'autumn' ? 90 : (season.id === 'winter' ? 60 : 50);
     var supportCost = season.id === 'autumn' ? 100 : (season.id === 'winter' ? 90 : 80);
     var mendCost = season.id === 'winter' ? 100 : 70;
+    // 学徒路继续把“单代一年能玩很久”做厚：在不破坏守恒与回放稳定性的前提下，
+    // 让每旬从“只够做两件事”上调到“三手并行”：一手铺里活计/门路，一手家计/脚费碎账，
+    // 再留一手给衣药/备役/回乡等后手。仍不引入成功分与最优解。
+    function apprenticeFlavorEvent(seasonId, xunIndex, yearIndex) {
+      var seasonIdx = seasonId === 'spring' ? 0 : (seasonId === 'summer' ? 1 : (seasonId === 'autumn' ? 2 : 3));
+      var base = (yearIndex * 9 + seasonIdx * 5 + xunIndex * 3);
+      var pool = [
+        { t: 'life', tag: '[城里]', txt: '城里跑久了，最磨人的不是一桩大祸，而是“处处要脚费”：过桥、递话、找人、买纸，都像一口口小钱把你磨薄。' },
+        { t: 'inst', tag: '[制度]', txt: '里甲口风总会追到城里：差役、点名、递话、回乡几步路，常常不是大账，却最怕挤在同一旬里一起要现钱。' },
+        { t: 'rel', tag: '[师门]', txt: '铺里记得谁肯先把零碎门包与回话坐实。你这一旬若只顾干活不顾口风，后头“留不留你”往往就在这些细处慢慢变冷。' },
+        { t: 'body', tag: '[身子]', txt: '站柜、搬货、跑街都要靠脚。鞋底磨破不是戏剧，却会把你这一旬的心气和门路一起磨薄。' }
+      ];
+      return pool[base % pool.length];
+    }
     return {
       title: '入城学徒 · 第' + S.学年 + '学年·' + season.name + xunLabel, label: '学徒第' + S.学年 + '年',
       next: 'apprentice',
       nextLabel: isYearEnd
         ? (S.学年 < APPRENTICE_YEARS ? '翻到下一学年投师季上旬 →' : '带着这门去向去议亲 →')
         : (xun >= 3 ? ('转入' + nextSeason.name + '上旬 →') : ('转入' + season.name + apprenticeXunLabel(xun + 1) + ' →')),
-      ap: 2, commitLabel: isYearEnd ? '了这一学年 →' : '了这一旬学徒 →',
+      ap: 3, commitLabel: isYearEnd ? '了这一学年 →' : '了这一旬学徒 →',
       note: '学徒路现改成“每学年四季三旬”推进：投师季先跑说合/作保/立据，坐店季熬守店/抄账，行市季把问价、送货、贴家与归省一并压进同一年，年关季再把口粮、差役、衣药与去留结清。保证金、食宿、去留数额仍是玩法占位，不当作明代精确契约。',
-      narrative: '你已<span class="em">' + age + '岁</span>，这一学年走到<span class="em">' + season.name + xunLabel + '</span>。' + season.actionLead + '投师不是自动成功；立据不等于学成，学成也不等于准你留下。你这一旬有 <span class="em">2 个行动点</span>，要在说合、守店、学账、奔走、问价、贴家、帮家、备差、衣药与养身之间取舍。',
+      narrative: '你已<span class="em">' + age + '岁</span>，这一学年走到<span class="em">' + season.name + xunLabel + '</span>。' + season.actionLead + '投师不是自动成功；立据不等于学成，学成也不等于准你留下。你这一旬有 <span class="em">3 个行动点</span>，要在说合、守店、学账、奔走、问价、贴家、帮家、备差、衣药与养身之间取舍。',
       dossier: function () {
         return lifeDossier('立据≠学成≠出师；师傅收不收、留不留、准不准你转伙计，都是分开判的。当前：合同=' + S.学徒合同 + '｜阶段=' + S.学徒阶段 + '｜授艺度=' + S.学徒授艺度 + '｜信任=' + S.学徒信任 + '｜' + seasonalCounts + '。');
       },
       events: [
         { t: 'rel', tag: '[师傅]', txt: S.学徒合同 === '已立据' ? '字据立成后，师傅看的是你这一旬守不守得住、账看不看得明，不会因为你已经进店就自动一路留你。' : '师傅收徒先看年貌、门路、保人和手脚是不是稳当，不因你可怜或勤快自动点头。' },
-        { t: 'rand', tag: season.id === 'autumn' ? '[行市]' : (season.id === 'winter' ? '[年关]' : '[店规]'), txt: season.note + (isYearEnd ? ' 这一旬还要把口粮、差役、旧债、衣药与去留一并结账。' : (season.id === 'autumn' ? ' 同一旬里，铺里的行市、家里的口粮和你脚上的鞋药，常常争的是同一笔现钱。' : ' 同一旬里，店里和家里往往同时来要你这双手。')) }
+        { t: 'rand', tag: season.id === 'autumn' ? '[行市]' : (season.id === 'winter' ? '[年关]' : '[店规]'), txt: season.note + (isYearEnd ? ' 这一旬还要把口粮、差役、旧债、衣药与去留一并结账。' : (season.id === 'autumn' ? ' 同一旬里，铺里的行市、家里的口粮和你脚上的鞋药，常常争的是同一笔现钱。' : ' 同一旬里，店里和家里往往同时来要你这双手。')) },
+        apprenticeFlavorEvent(season.id, xun, S.学年)
       ],
-      prompt: '这一旬怎么过？（分配 2 点）',
+      prompt: '这一旬怎么过？（分配 3 点）',
       actions: function () {
         var A = [];
         A.push({ id: 'a_seek', name: season.id === 'spring' ? '托中人说合' : '再托人续问门路', cost: 1, eff: '合同推进·信任+1', desc: season.id === 'spring' ? '先去把门路问出来，让人家肯见你。' : '门路若还没坐实，就不能真把人和钱押进去。', can: S.学徒合同 !== '已立据', once: true });
