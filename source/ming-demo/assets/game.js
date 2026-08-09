@@ -19732,11 +19732,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var shareTian = shareByOrdinal(estateTian, sons, heirOrdinal);
       var shareCopper = shareByOrdinal(estateCopper, sons, heirOrdinal);
       var shareDebt = shareByOrdinal(estateDebt, sons, heirOrdinal);
+      var delegatedRoute = S.委托营生 || '无';
       var leaseEnabled = shareTian > 0
-        && (S.委托营生 || '无') !== '无'
-        && ((S.委托租谷 || 0) > 0 || pendingRentMi > 0);
+        && delegatedRoute !== '无'
+        && (S.委托租谷 || 0) > 0;
+      var pendingRentEnabled = delegatedRoute !== '无' && pendingRentMi > 0;
       var shareLease = leaseEnabled ? shareByOrdinal(S.委托租谷 || 0, sons, heirOrdinal) : 0;
-      var sharePendingRent = leaseEnabled ? shareByOrdinal(pendingRentMi, sons, heirOrdinal) : 0;
+      var sharePendingRent = pendingRentEnabled ? shareByOrdinal(pendingRentMi, sons, heirOrdinal) : 0;
+      var carryDelegatedRoute = (shareLease > 0 || sharePendingRent > 0) ? delegatedRoute : '无';
       var remainderText = ordinalRemainderSummary(sons, heirOrdinal, [
         { total: estateSilver, label: '白银', unit: '两' },
         { total: estateCopper, label: '铜钱', unit: '文' },
@@ -19744,14 +19747,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         { total: estateTian, label: '田', unit: '亩' },
         { total: estateDebt, label: '旧债', unit: '两' },
         { total: leaseEnabled ? (S.委托租谷 || 0) : 0, label: '委托定额租谷', unit: '石' },
-        { total: leaseEnabled ? pendingRentMi : 0, label: '待收委托田租', unit: '石' }
+        { total: pendingRentEnabled ? pendingRentMi : 0, label: '待收委托田租', unit: '石' }
       ]);
       S._carry = {
         白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: shareCopper, 负债银: shareDebt, 家族: Math.min(80, S.家族), 承继身份: heirIdentity,
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         承继定位: legacyCarry.承继定位, 城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子,
         旧门路衰减: legacyCarry.旧门路衰减,
-        委托营生: leaseEnabled ? (S.委托营生 || '无') : '无',
+        委托营生: carryDelegatedRoute,
         委托租谷: shareLease,
         委托待收租谷: sharePendingRent,
         婚配路径: carriedMarriagePath,
@@ -19769,17 +19772,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。丧礼依家礼办讫（棺木等丧葬支出白银1两、米1石从遗产扣除）' + (pendingRentMi > 0 ? '；另有委托经营账上待结的租谷 ' + pendingRentMi + ' 石（未取得），记作应收，随房分到下一代' : '') + '。遗产按<span class="em">诸子均分</span>传给下一代' + (estateDebt > 0 ? '，未抵清的旧债也随房分担' : '') + (remainderText ? '；' + remainderText.replace(/。$/, '') : '') + (lifecycleResidue.text ? '。' + lifecycleResidue.text : '') + '——' + deathTag;
     } else {
       collateralEstateNote = '结清丧葬与旧债后，这一房真正还能被过继承走的，只剩白银' + estateSilver + '两、铜钱' + estateCopper + '文、存米' + estateMi + '石、田' + estateTian + '亩' + (pendingRentMi > 0 ? ('，另有账上待结租谷' + pendingRentMi + '石（未取得）') : '') + '。';
+      var collateralDelegatedRoute = S.委托营生 || '无';
       var collateralLeaseEnabled = estateTian > 0
-        && (S.委托营生 || '无') !== '无'
-        && ((S.委托租谷 || 0) > 0 || pendingRentMi > 0);
+        && collateralDelegatedRoute !== '无'
+        && (S.委托租谷 || 0) > 0;
+      var collateralPendingRentEnabled = collateralDelegatedRoute !== '无' && pendingRentMi > 0;
+      var collateralCarryDelegatedRoute = (collateralLeaseEnabled || collateralPendingRentEnabled) ? collateralDelegatedRoute : '无';
       S._carry = {
         白银: estateSilver, 存米: estateMi, 田亩: estateTian, 铜钱: estateCopper, 负债银: estateDebt, 家族: Math.max(35, Math.min(75, S.家族 - 5)), 承继身份: heirIdentity,
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         承继定位: legacyCarry.承继定位, 城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子,
         旧门路衰减: legacyCarry.旧门路衰减,
-        委托营生: collateralLeaseEnabled ? (S.委托营生 || '无') : '无',
+        委托营生: collateralCarryDelegatedRoute,
         委托租谷: collateralLeaseEnabled ? Math.max(0, S.委托租谷 || 0) : 0,
-        委托待收租谷: collateralLeaseEnabled ? pendingRentMi : 0,
+        委托待收租谷: collateralPendingRentEnabled ? pendingRentMi : 0,
         婚配路径: carriedMarriagePath,
         合爨状态: carriedJointState,
         定额佃状态: carriedFixedRent,
