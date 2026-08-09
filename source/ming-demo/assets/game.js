@@ -1590,6 +1590,80 @@
     var i = Math.max(1, Math.min(3, Number(index) || 1)) - 1;
     return XUN[i];
   }
+  function householdFlavorEvent(routeKey, seasonId, xun) {
+    var seasonIdx = seasonId === 'spring' ? 0 : (seasonId === 'summer' ? 1 : (seasonId === 'autumn' ? 2 : 3));
+    var key = routeKey || 'farm';
+    var pools = {
+      farm: [
+        { t: 'life', tag: '[田面]', txt: '分家后的薄田最怕只留在纸上：谁去看水、谁去催租、谁先留锅火，少一步都会让“有田”重新变成空话。' },
+        { t: 'inst', tag: '[里甲]', txt: '里甲看的是这一房如今到底算不算独立能扛事的人家；纸上分了户，不等于差票与口粮就会自动分清。' },
+        { t: 'rel', tag: '[兄房]', txt: '分家后兄弟仍要抬头见低头见。哪句口风算帮衬、哪句口风算推托，常比明面的田亩更伤人。' },
+        { t: 'body', tag: '[肩背]', txt: '中年当户最怕的不是“一次大病”，而是肩背、腰腿和睡不实这一点点慢耗。' }
+      ],
+      wage: [
+        { t: 'inst', tag: '[差册]', txt: '卖工人家最怕差册和工路撞在同一旬：册上催你尽户役，外头工棚却只认你能不能准时到。' },
+        { t: 'rel', tag: '[工头]', txt: '旧工头肯不肯替你递一句话，常决定这一房是多留一口现钱，还是多吃一层门包脚费。' },
+        { t: 'life', tag: '[锅火]', txt: '工食钱回得零碎，锅火却日日要烧。真磨人的不是挣不到，而是每一小口钱都还没焐热就先有去处。' },
+        { t: 'body', tag: '[劳乏]', txt: '中年卖工还要回头顾田，最先漏掉的常不是账，而是筋骨这口后劲。' }
+      ],
+      apprentice: [
+        { t: 'inst', tag: '[铺规]', txt: '到了当户年，铺里旧规矩仍在起作用：回话要有次序、回脚费要有人情，晚一步就会显得这一房“只会张口求人”。' },
+        { t: 'rel', tag: '[旧掌柜]', txt: '旧掌柜未必真帮你，可他若肯点个头，这一房回乡立户时就少一层“人在城里却没人认”的凉意。' },
+        { t: 'life', tag: '[脚路]', txt: '铺里人家最怕的不是一口大钱不来，而是脚费、包纸、灯油和回乡小耗旬旬都先来追钱。' },
+        { t: 'body', tag: '[脚底]', txt: '中年还要回城跑铺、回乡催租，最先知道日子紧不紧的，常是脚底那层旧泡和风寒。' }
+      ],
+      merchant: [
+        { t: 'inst', tag: '[行栈]', txt: '当户后再看商路，最怕的不是没门路，而是门路都要靠小钱续着：牙帖、水脚、行栈回话，少一层都可能让旧识装作没看见。' },
+        { t: 'rel', tag: '[熟号]', txt: '熟号肯不肯继续认这一房，不只看旧账多少，也看你有没有把回话、薄礼和锅火分明白。' },
+        { t: 'life', tag: '[回钱]', txt: '商路人家最磨人的不是“大亏一场”，而是“钱像快回了”，家里锅火、供读和差钱却每旬都先来抢这一口。' },
+        { t: 'body', tag: '[路耗]', txt: '年过三十再跑商，湿热风寒和路耗就不再只是小毛病；人一疲，整房的旧账都会跟着慢下来。' }
+      ],
+      exam: [
+        { t: 'inst', tag: '[名色]', txt: '名色真有用时，往往不是替你生钱，而是替这一房少漏一层差役外流；可若平日不先翻出来，到了冬里也可能只剩空体面。' },
+        { t: 'rel', tag: '[塾门]', txt: '塾师、廪保和旧学生家记得的，不只是你会不会写字，也看你这房如今还值不值得继续来往。' },
+        { t: 'life', tag: '[笔墨]', txt: '中年举业人家最怕把笔墨活误看成体面差事：纸笔、回帖、馆账和锅火一样，都是旬旬来要钱。' },
+        { t: 'body', tag: '[灯下]', txt: '年过三十再熬夜抄写，最怕的不是写不出来，而是肩背眼力和寒咳一点点把家计拖慢。' }
+      ]
+    };
+    var pool = pools[key] || pools.farm;
+    return pool[(seasonIdx * 3 + Math.max(0, (xun || 1) - 1)) % pool.length];
+  }
+  function householdSeasonPulseEvent(seasonId, xun) {
+    if (seasonId === 'spring' && xun === 1) {
+      return { t: 'rel', tag: '[春起]', txt: '立户第一旬最怕把“纸票已分清”当成“家计也分清了”；锅火、门包、脚费和乡里口风，往往比阄书落字更早来咬钱。' };
+    }
+    if (seasonId === 'spring' && xun === 2) {
+      return { t: 'inst', tag: '[回话]', txt: '春中最像等回话的时节：阄书、代管、旧账和熟人递话都像快落手，却又都还要再垫一层脚费。' };
+    }
+    if (seasonId === 'spring' && xun === 3) {
+      return { t: 'life', tag: '[春尾]', txt: '春尾最怕刚觉得“这一季总算有了眉目”，锅火、草鞋、香纸与下季脚路便一起扑上来，把手里那点现钱重新掏薄。' };
+    }
+    if (seasonId === 'summer' && xun === 1) {
+      return { t: 'body', tag: '[伏夏]', txt: '伏夏最先压垮人的，常不是大病，而是凉汤、汗药、草鞋和睡不实这些细碎慢耗。' };
+    }
+    if (seasonId === 'summer' && xun === 2) {
+      return { t: 'life', tag: '[热里]', txt: '夏中的账最难看：热里什么都贵一点、慢一点、急一点，同一口现钱往往既像要去续锅火，又像该去保门路。' };
+    }
+    if (seasonId === 'summer' && xun === 3) {
+      return { t: 'rel', tag: '[夏尾]', txt: '夏尾最怕把“等秋里再说”挂在嘴上；真正拖到秋里的，多半会变成更贵的一层人情和更硬的一层后手。' };
+    }
+    if (seasonId === 'autumn' && xun === 1) {
+      return { t: 'rand', tag: '[秋路]', txt: '秋里一有进项，家里和外头往往都更敢来开口；这不叫转运，只是同一年里该拆开的账忽然一起见光。' };
+    }
+    if (seasonId === 'autumn' && xun === 2) {
+      return { t: 'rel', tag: '[秋中]', txt: '秋中最容易错把“钱像快回了”当成“已经宽了”；真正磨人的，是回话未落手前家里和制度都先来追钱。' };
+    }
+    if (seasonId === 'autumn' && xun === 3) {
+      return { t: 'inst', tag: '[秋尾]', txt: '秋尾最该先分开的，往往不是最大的那口钱，而是门包、脚费、饭钱和锅火这些会把冬前后手悄悄磨空的小账。' };
+    }
+    if (seasonId === 'winter' && xun === 1) {
+      return { t: 'body', tag: '[冬头]', txt: '冬头最怕的是身子、锅火和来春脚路一起怕冷：炭药、夹衣和门包都不大，却最容易把同一口现钱绞紧。' };
+    }
+    if (seasonId === 'winter' && xun === 2) {
+      return { t: 'inst', tag: '[冬中]', txt: '冬中翻总账时，最难的不是认哪笔该花，而是认哪笔必须先留；差钱、来春脚费和旧账回话常都会说自己更急。' };
+    }
+    return { t: 'rel', tag: '[冬尾]', txt: '冬尾最怕把门路、人情和锅火都寄托在“过了年就好”；真能让下一年不至更薄的，只有这一旬先拆开的那几口小钱。' };
+  }
   function elderSeasonInfo(index) {
     var i = Math.max(1, Math.min(ELDER_SEASONS.length, index || 1)) - 1;
     return ELDER_SEASONS[i];
@@ -10831,7 +10905,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         { t: 'rel', tag: '[分家]', txt: '分家把 4 亩薄田真正写进了你这一房，但“名下有田”不等于“日子就稳了”。卖工出身的人，还得把这 4 亩怎么管、哪口工钱先回、哪层旧工头人情还能用逐一坐实。' },
         { t: 'rel', tag: '[' + season.name + ']', txt: season.note },
         { t: 'rel', tag: '[工账]', txt: wageEventTxt },
-        hp.event
+        hp.event,
+        householdFlavorEvent('wage', season.id, xun),
+        householdSeasonPulseEvent(season.id, xun)
       ].filter(Boolean),
       prompt: '这一旬先顾哪几笔？（分配 2 点，把卖工路的当户一年逐旬拆开）',
       actions: function () {
@@ -11896,7 +11972,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         { t: 'rel', tag: '[分家]', txt: '你年轻时若真在铺里站稳过，这一任当户看的就不是“学过几年徒”本身，而是那层旧掌柜、同门与熟客的人情，如今还能不能替这一房说上一句话。' },
         { t: 'rel', tag: '[' + season.name + ']', txt: season.note },
         { t: 'rel', tag: '[铺账]', txt: eventTxt },
-        hp.event
+        hp.event,
+        householdFlavorEvent('apprentice', season.id, xun),
+        householdSeasonPulseEvent(season.id, xun)
       ].filter(Boolean),
       prompt: '这一旬先顾哪几笔？（分配 2 点，把学徒路的当户一年逐旬拆开）',
       actions: function () {
@@ -12791,6 +12869,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var canTrustField = (S.委托租谷 || 0) <= 0 && S.田亩 > 0;
     var canSchoolFund = S.白银 >= 1 && (S.商路供读银 || 0) < 2;
     var canPay = S.白银 >= 2 && S.应役 !== '纳银代役';
+    var hasSchoolChildren = (S.子数 + S.女数) > 0;
+    var summerMidSchoolName = hasSchoolChildren ? '先把伏夏柜边回帖与孩子纸样分开' : '先把伏夏柜边回帖与来春样纸分开';
+    var summerMidSchoolDesc = hasSchoolChildren
+      ? '夏催账到了中旬，最怕柜边回帖、孩子纸样、递话脚费和锅火凉药一起先来抢钱。先把这层伏夏回帖拆开，中旬就不只是在跑行饭和等旧账，连家里读写后手也会先压回这一旬。'
+      : '夏催账到了中旬，最怕柜边回帖、来春样纸、递话脚费和锅火凉药一起先来抢钱。先把这层伏夏回帖拆开，中旬就不只是在跑行饭和等旧账，连这一房来春要续的纸样后手也会先压回这一旬。';
     var collectName = seasonIdx === 1 ? '催春路旧账' : (seasonIdx === 2 ? '催夏路旧账' : (seasonIdx === 3 ? '把旧账折回秋钱' : '赶在年关前收旧账'));
     var trustName = seasonIdx <= 2 ? '托兄代管分得薄田' : '把薄田租账坐实';
     var schoolName = seasonIdx <= 2 ? '先划一口供读后手' : '划银为供读专账';
@@ -12813,7 +12896,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     } else if (season.id === 'summer' && xun === 1) {
       eventTxt = '夏催账的上旬最怕人先被暑气和路耗熬住，账却还在外头。伏夏的布药、水脚、行栈与家里小耗，都会来抢同一口现钱。';
     } else if (season.id === 'summer' && xun === 2) {
-      eventTxt = '夏催账的中旬最像把“商路门道”和“锅火现实”一起拆开：若只顾外头行栈，家里会空等；若只顾眼前家用，旧账、水脚和明春路数又会悄悄断掉。';
+      eventTxt = '夏催账的中旬最像把“商路门道”“锅火现实”和“孩子读写后手”一起拆开：若只顾外头行栈，家里会空等；若只顾眼前家用，旧账、水脚和明春路数又会悄悄断掉，连柜边回帖与纸样都要先来抢钱。';
     } else if (season.id === 'summer' && xun === 3) {
       eventTxt = '夏催账的下旬更像给年关留后手：哪笔旧账先折回、哪层水脚先押住、哪口差钱要先留，都不能再拖到秋后才想。';
     } else if (season.id === 'autumn' && xun === 1) {
@@ -12845,7 +12928,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         { t: 'rel', tag: '[分家]', txt: '立阄书只是开始。对常年在外的人家而言，真正难的是把“这 4 亩薄田谁代看、哪笔旧账先回、哪口现银先备役”在同一年里逐笔坐实。' },
         { t: 'rel', tag: '[' + season.name + ']', txt: season.note },
         { t: 'rel', tag: '[商账]', txt: eventTxt },
-        hp.event
+        hp.event,
+        householdFlavorEvent('merchant', season.id, xun),
+        householdSeasonPulseEvent(season.id, xun)
       ].filter(Boolean),
       prompt: '这一旬先顾哪几笔？（分配 2 点，把当户这一年真正拆开）',
       actions: function () {
@@ -12985,6 +13070,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             desc: '夏催账到了中旬，最怕样纸、柜边包纸、学生家回话小门包与过路药包一起扑上来。先把这层柜边细耗拆开，伏夏不只剩“行饭和大路数”两件大事。',
             can: S.铜钱 >= 55,
             why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
+            once: true
+          });
+          A.push({
+            id: 'h_summer_mid_reply',
+            name: summerMidSchoolName,
+            cost: 1,
+            eff: '铜钱-60·核账+1·通融+1·供读+1·家族+1',
+            desc: summerMidSchoolDesc,
+            can: S.铜钱 >= 60,
+            why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
             once: true
           });
         }
@@ -13531,6 +13626,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想在' + stepLabel + '先把伏夏样纸与回签门包分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_summer_mid_reply':
+              if (spendCopper(60)) {
+                S.本年户核账 += 1;
+                S.本年户通融 += 1;
+                S.本年户供读 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('伏夏回帖拆开');
+                log.push(['你在' + stepLabel + '先把伏夏柜边回帖、' + (hasSchoolChildren ? '孩子纸样' : '来春样纸') + '、递话脚费和锅火凉药分开：铜钱-60、核账+1、通融+1、供读+1、家族+1。夏催账到了中旬，旧账未回、家里读写后手先来追钱的那层细账，总算被你提前拆回了这一旬。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把伏夏柜边回帖与' + (hasSchoolChildren ? '孩子纸样' : '来春样纸') + '分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_autumn_receipt':
               if (spendCopper(70)) {
                 S.本年户核账 += 1;
@@ -13805,7 +13913,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if (season.id === 'summer' && xun === 2) {
-          if (picked.h_summer_market || picked.h_summer_packet || picked.h_school_fund || picked.h_wharf || picked.h_collect || picked.h_clan) {
+          if (picked.h_summer_market || picked.h_summer_packet || picked.h_summer_mid_reply || picked.h_school_fund || picked.h_wharf || picked.h_collect || picked.h_clan) {
             pushHouseholdSeasonTag(stepLabel + '伏夏样纸已理');
             log.push(['〔伏夏样纸〕这一旬先把样纸、柜边包纸、学生家回话小门包与过路药包理开了；夏催账中旬不再只剩“行饭和大路数”，连柜边最细的那层零碎也开始单独落账。', 'good']);
           } else if (spendCopper(35)) {
@@ -13815,6 +13923,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushHouseholdSeasonTag(stepLabel + '伏夏样纸硬顶');
             log.push(['〔伏夏样纸〕这一旬连样纸和回话小门包都腾挪不开，只得先硬顶过去；夏里熟号与学生家那层回签口风又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'summer' && xun === 2) {
+          if (picked.h_summer_mid_reply || picked.h_school_fund || picked.h_collect || picked.h_clan || picked.h_side || picked.h_wharf) {
+            pushHouseholdSeasonTag(stepLabel + '伏夏供读回帖已理');
+            log.push(['〔伏夏供读回帖〕这一旬先把柜边回帖、' + (hasSchoolChildren ? '孩子纸样' : '来春样纸') + '、递话脚费和锅火凉药理开了；商路当户伏夏中腰终于不只是在催账，连家里读写后手也开始同旬见光。', 'good']);
+          } else if (spendCopper(35)) {
+            pushHouseholdSeasonTag(stepLabel + '伏夏供读回帖');
+            log.push(['〔伏夏供读回帖〕柜边回帖、' + (hasSchoolChildren ? '孩子纸样' : '来春样纸') + '、递话脚费和锅火凉药一起要钱：铜钱-35。不是另开主线，却正把商路当户伏夏中旬那层“旧账未回、家里读写后手先来追钱”的细耗重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '伏夏供读回帖硬顶');
+            log.push(['〔伏夏供读回帖〕这一旬连柜边回帖和' + (hasSchoolChildren ? '孩子纸样' : '来春样纸') + '都腾挪不开，只得先硬顶过去；伏夏中腰这房的熟号口风和家里读写后手又一起薄了一线（家族-1）。', 'bad']);
           }
         }
         if (season.id === 'summer' && xun === 1) {
@@ -14235,6 +14356,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏家书') >= 0; })) log.push(['这一任当户你又把伏夏家书脚费、布药纸包和锅火凉热压进了夏催账上旬；人在外头、家里要续的那口气，终于不再只由通用损耗一笔带过。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏样纸') >= 0; })) log.push(['这一任当户你连伏夏样纸、柜边包纸和学生家回话小门包都先拆进了夏催账中旬；商路这一年不只在大路数上有账，连柜边那层细碎纸签也开始单独咬住现钱。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏行饭') >= 0; })) log.push(['这一任当户你连伏夏行饭、柜边回话与家里锅火都压进了夏催账中旬；暑天里那层“人在外头、家里也要过”的摩擦终于不再只由通用损耗代写。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏回帖') >= 0; }) || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏供读回帖') >= 0; })) log.push(['这一任当户你又把柜边回帖、孩子纸样与递话脚费压进了夏催账中旬；商路中年终于连“旧账未回、家里读写后手却先来追钱”的那层细账，也开始像农路那样被压回同一年里。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋头回签') >= 0; })) log.push(['这一任当户你又把秋头回签、牙帖、回钱脚单和递话脚费拆进了秋定租上旬；秋钱还没真正落袋之前，最细的那层回签门包也已经先被写回这一房。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋中回签') >= 0; })) log.push(['这一任当户你又把熟号回签、租路饭钱、递话脚费和锅火后手压进了秋定租中旬；商路秋中终于不再只剩“秋路回钱拆账”，连秋钱未落手时回乡与家用先来追钱的那层细耗也开始同旬见光。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋中夹衣') >= 0; })) log.push(['这一任当户你又把孩子夹衣、回乡药包和锅火后手压进了秋定租中旬；秋凉刚起时，连换季这层家内小耗也开始和回钱脚路一起同旬抢钱。', 'good']);
@@ -14385,7 +14507,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         { t: 'rel', tag: '[分家]', txt: '立阄书只是开始。对举业路的人家而言，真正难的是把“名色能缓哪一层、馆账先回哪一笔、分得薄田谁代管”在同一年里逐笔坐实。' },
         { t: 'rel', tag: '[' + season.name + ']', txt: season.note },
         { t: 'rel', tag: '[名色]', txt: eventTxt },
-        hp.event
+        hp.event,
+        householdFlavorEvent('exam', season.id, xun),
+        householdSeasonPulseEvent(season.id, xun)
       ].filter(Boolean),
       prompt: '这一旬先顾哪几笔？（分配 2 点，把举业路的当户一年逐旬拆开）',
       actions: function () {
