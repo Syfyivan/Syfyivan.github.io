@@ -429,6 +429,22 @@
     var via = carry.承嗣来路 || '';
     return via.indexOf('旁支过继') >= 0 || via.indexOf('旁支续承') >= 0;
   }
+  function lineageDecayLevel(carry) {
+    if (!carry) return 0;
+    var raw = Number(carry.旧门路衰减 || 0);
+    var decay = isFinite(raw) ? Math.max(0, Math.floor(raw)) : 0;
+    if (decay <= 0 && isCollateralCarry(carry)) decay = 1;
+    return decay;
+  }
+  function currentLineageDecayLevel() {
+    return Math.max(lineageDecayLevel(carryOver || null), Math.max(0, Math.floor(Number(S.旧门路衰减 || 0))));
+  }
+  function lineageDecayHint(level) {
+    level = Math.max(0, Math.floor(level || 0));
+    if (level <= 0) return '';
+    if (level === 1) return '这一房经旁支接祧后，旧门路已比本支薄一层';
+    return '这一房旧门路已连薄' + level + '层，再往后多半只剩一点旧影子';
+  }
   function isSiblingCarry(carry) {
     if (!carry) return false;
     return (carry.承嗣来路 || '').indexOf('弟妹接续') >= 0;
@@ -461,7 +477,8 @@
   }
   function inheritedCarryNote(carry) {
     var tags = inheritedCarryTags(carry);
-    if (isCollateralCarry(carry)) tags.push('这一房经旁支接祧，门路比本支更薄一层');
+    var decayHint = lineageDecayHint(lineageDecayLevel(carry));
+    if (decayHint) tags.push(decayHint);
     if (isSiblingCarry(carry)) tags.push('这一手是幼年早夭后由弟妹接续，旧账与门路都沿前一手继续传下');
     return tags.length ? ('上一代还给这一房留下：' + tags.join('、') + '。') : '';
   }
@@ -544,7 +561,8 @@
       if ((carry.承继定位 || '').indexOf('次子候读') >= 0) hints.push('家里原本就把你这一手留作先读的一房，长兄那边续号回钱更像你背后的暗底');
       if ((carry.承继定位 || '').indexOf('次子续读') >= 0) hints.push('长兄先守着户里那摊日常，你这一手本就被家里留作续读，起手少一层“先回去扛家计”的拉扯');
     }
-    if (isCollateralCarry(carry)) hints.push('只是这份门路经旁支接祧后已薄了一层，未必还能照本支那样使');
+    var decayHint = lineageDecayHint(lineageDecayLevel(carry));
+    if (decayHint) hints.push('只是' + decayHint.replace(/^这一房/, '') + '，未必还能照本支那样使');
     if (isSiblingCarry(carry)) hints.push('这一手是弟妹接着前一个孩子的旧账往下活，门路不会凭空洗回空白');
     return hints.length ? ('上一代余绪会先替你垫这几步：' + hints.join('；') + '。') : '';
   }
@@ -674,9 +692,12 @@
       weights.flat += 0.03; weights.profit += 0.03; weights.loss -= 0.04; weights.receivable -= 0.02;
       notes.push('这一年先拿脚费与茶钱去抄过行市、摸过牙价，试贩时不至拿最生的价去硬碰');
     }
-    if (isCollateralCarry(carryOver)) {
-      weights.profit -= 0.04; weights.receivable += 0.02; weights.loss += 0.02;
-      notes.push('这一房经旁支接祧后，旧商路只剩薄薄一层，真正坐实还得靠你自己续');
+    var decay = currentLineageDecayLevel();
+    if (decay > 0) {
+      weights.profit -= 0.04 * decay; weights.receivable += 0.02 * decay; weights.loss += 0.02 * decay;
+      notes.push(decay > 1
+        ? '这一房旧商路已连薄' + decay + '层，真要把货路坐实，比旁支初接那一手还更难'
+        : '这一房经旁支接祧后，旧商路只剩薄薄一层，真正坐实还得靠你自己续');
     }
     return {
       table: normalizeProbTable(weights),
@@ -687,16 +708,19 @@
     var familyGain = 1, trustGain = 0;
     var desc = '你在外挣来的银，不只填自家嘴，还可先寄回去顶住家里供读的那条链。';
     var boosted = false;
+    var decay = currentLineageDecayLevel();
     if (S.亦贾亦儒底子 > 0 || S.供读底子 > 0 || (S.承继定位 || '').indexOf('次子候读') >= 0) {
       boosted = true;
       familyGain = 2;
       trustGain = 1;
       desc = '这一房本就认得“挣钱的人在外回钱、家里另划供读账”的老规矩；同样一两银回去，更容易被当成要紧的专账而不被日常花销冲散。';
     }
-    if (boosted && currentLineageIsCollateral()) {
-      familyGain = Math.max(1, familyGain - 1);
-      trustGain = Math.max(0, trustGain - 1);
-      desc = '这一房虽也承到一点“外头回钱、家里另划供读账”的旧规矩，但如今是旁支续起，这层门路终究比本支薄一线；同样一两银回去，仍能替家里稳住一点供读压力，却不如本支那样稳。';
+    if (boosted && decay > 0) {
+      familyGain = Math.max(1, familyGain - Math.min(1, decay));
+      trustGain = Math.max(0, trustGain - decay);
+      desc = decay > 1
+        ? '这一房虽也承到一点“外头回钱、家里另划供读账”的旧规矩，但旧门路已连薄几层；同样一两银回去，也只够勉强把供读账续住，不再像本支那样稳。'
+        : '这一房虽也承到一点“外头回钱、家里另划供读账”的旧规矩，但如今是旁支续起，这层门路终究比本支薄一线；同样一两银回去，仍能替家里稳住一点供读压力，却不如本支那样稳。';
     }
     return {
       familyGain: familyGain,
@@ -749,7 +773,8 @@
         S.家族 += 1; clampAttr('家族');
         notes.push('父辈在市镇留过些门道，卖米换钱、托人问价都少一点生分');
       }
-      if (isCollateralCarry(carryOver) && notes.length) notes.push('只是这一房经旁支接祧后，能借到的门路终究比本支薄一层');
+      var farmDecayHint = lineageDecayHint(currentLineageDecayLevel());
+      if (farmDecayHint && notes.length) notes.push('只是' + farmDecayHint.replace(/^这一房/, '') + '，能借到的门路终究不如本支稳');
     } else if (routeKey === 'wage' && !S._wageLegacyApplied) {
       S._wageLegacyApplied = true;
       if (S.家传农事 > 0) {
@@ -769,7 +794,8 @@
         notes.push('家里剩下的一点书香，让你做雇工时起码看得懂工账和契字');
       }
       if (S.亦贾亦儒底子 > 0) notes.push('这一房早知道挣工食也得给家里留后手，你入行时会更留心把现钱和手艺一起攒住');
-      if (isCollateralCarry(carryOver) && notes.length) notes.push('只是这一房经旁支接祧后，可借的旧门路已薄一层，终究还得靠你自己续上');
+      var wageDecayHint = lineageDecayHint(currentLineageDecayLevel());
+      if (wageDecayHint && notes.length) notes.push('只是' + wageDecayHint.replace(/^这一房/, '') + '，可借的旧门路终究还得靠你自己续上');
     } else if (routeKey === 'apprentice' && !S._apprenticeLegacyApplied) {
       S._apprenticeLegacyApplied = true;
       if (S.城里门路 > 0 && S.学徒合同 === '未议') {
@@ -799,7 +825,8 @@
         S.家族 += 1; clampAttr('家族');
         notes.push('这一房上一代就把你这一手留作“次子循城外求”，长兄先守着户里那摊事，你进城求师时少了一层家里拦着不放的掣肘');
       }
-      if (isCollateralCarry(carryOver) && notes.length) notes.push('只是你这一支经旁支接祧后，师门和城里旧识能借到的情分终究比本支薄一层');
+      var apprenticeDecayHint = lineageDecayHint(currentLineageDecayLevel());
+      if (apprenticeDecayHint && notes.length) notes.push('只是' + apprenticeDecayHint.replace(/^这一房/, '你这一支') + '，师门和城里旧识能借到的情分终究不如本支厚');
     } else if (routeKey === 'merchant' && !S._merchantLegacyApplied) {
       S._merchantLegacyApplied = true;
       if (S.商路门路 > 0) {
@@ -825,7 +852,8 @@
         S.商信誉 = Math.max(S.商信誉, 1);
         notes.push('这一房原就是“长兄续商、次子另起一手”的格局：你若再走商，起手就默认要在长兄旧号旁另续一支门路');
       }
-      if (isCollateralCarry(carryOver) && notes.length) notes.push('只是你这一房是旁支续起，旧商路与亦贾亦儒的余绪都只剩薄薄一层，还得靠这一代重新坐实');
+      var merchantDecayHint = lineageDecayHint(currentLineageDecayLevel());
+      if (merchantDecayHint && notes.length) notes.push('只是' + merchantDecayHint.replace(/^这一房/, '你这一房') + '，旧商路与亦贾亦儒的余绪还得靠这一代重新坐实');
     } else if (routeKey === 'civilExam' && !S._examLegacyApplied) {
       S._examLegacyApplied = true;
       if (S.家传书香 > 0 && !S.识字) {
@@ -857,7 +885,8 @@
         S.家族 += 1; clampAttr('家族');
         notes.push('这一房上一代就把你这一手留作“次子续读”，长兄先守着户里那摊日常，你起手就少一层被拉回家计的压力');
       }
-      if (isCollateralCarry(carryOver) && notes.length) notes.push('只是这一支经旁支接祧后，书香与旧识都比本支薄一层，保结与供读仍得你这一代重新坐实');
+      var examDecayHint = lineageDecayHint(currentLineageDecayLevel());
+      if (examDecayHint && notes.length) notes.push('只是' + examDecayHint.replace(/^这一房/, '这一支') + '，书香与旧识都不如本支厚，保结与供读仍得你这一代重新坐实');
     }
     return notes;
   }
@@ -873,7 +902,8 @@
     var layers = Math.max(0, S.城里门路 || 0) + Math.max(0, S.商路门路 || 0);
     if (layers <= 0) return 0;
     var bonus = Math.min(120, layers * 40);
-    if (currentLineageIsCollateral()) bonus = Math.max(20, bonus - 40);
+    var decay = currentLineageDecayLevel();
+    if (decay > 0) bonus = Math.max(0, bonus - decay * 40);
     return bonus;
   }
   function farmSellPrice() {
@@ -897,16 +927,20 @@
   function wageOutworkProfile(pass) {
     pass = pass || 1;
     var layers = Math.max(0, S.城里门路 || 0);
+    var decay = currentLineageDecayLevel();
     var bonus = 0;
     var familyCost = 1;
     var desc = '去邻县或市镇做活，现钱更多，但离乡更久，家里使唤不上你。';
     if (layers > 0) {
       bonus = Math.min(160, layers * 80);
-      if (currentLineageIsCollateral()) bonus = Math.max(40, bonus - 40);
-      else familyCost = 0;
-      desc = currentLineageIsCollateral()
-        ? '去邻县或市镇做活；上一代留过一点城里熟识，但这一房经旁支承接后，情分已比本支薄。'
-        : '去邻县或市镇做活；上一代若在城里留过熟识，这一手外出就不必全靠陌生脸硬闯。';
+      if (decay > 0) {
+        bonus = Math.max(0, bonus - decay * 40);
+        familyCost = Math.min(2, Math.max(1, decay));
+        desc = decay > 1
+          ? '去邻县或市镇做活；上一代留过的城里熟识已经连薄几层，这一手能借到的情分比旁支初接时还更少。'
+          : '去邻县或市镇做活；上一代留过一点城里熟识，但这一房经旁支承接后，情分已比本支薄。';
+      } else familyCost = 0;
+      if (decay <= 0) desc = '去邻县或市镇做活；上一代若在城里留过熟识，这一手外出就不必全靠陌生脸硬闯。';
     }
     var copper = 300 + bonus;
     var silver = 1;
@@ -930,14 +964,17 @@
   function wageMarriageOutworkProfile() {
     var base = wageOutworkProfile();
     var currentDoor = Math.max(0, S.城里门路 || 0);
-    var cityDoor = Math.max(currentDoor, currentLineageIsCollateral() ? 1 : 1);
-    if (!currentLineageIsCollateral() && currentDoor > 0) cityDoor = Math.max(cityDoor, Math.min(2, currentDoor));
+    var decay = currentLineageDecayLevel();
+    var cityDoor = Math.max(currentDoor, 1);
+    if (decay <= 0 && currentDoor > 0) cityDoor = Math.max(cityDoor, Math.min(2, currentDoor));
     else cityDoor = Math.min(2, cityDoor);
     var copper = Math.max(180, base.copper - 80);
     var cityText = cityDoor > currentDoor ? '城里门路+1' : '城里门路坐实';
     var desc = currentDoor > 0
-      ? (currentLineageIsCollateral()
-        ? '先拿现银顶过这一程差役，再去邻县或市镇做活；旧识还剩一点，但这一房经旁支承接后，情分终究比本支薄。'
+      ? (decay > 0
+        ? (decay > 1
+          ? '先拿现银顶过这一程差役，再去邻县或市镇做活；旧识还剩一点影子，但这一房旧门路已连薄几层，情分终究比初接旁支时还更淡。'
+          : '先拿现银顶过这一程差役，再去邻县或市镇做活；旧识还剩一点，但这一房经旁支承接后，情分终究比本支薄。')
         : '先拿现银顶过这一程差役，再去邻县或市镇做活；旧工头与熟识还能替你把落脚与牙口稳上一线。')
       : '先把这一程差役用现银顶过去，再外出佣工攒回几手现钱；婚事不立刻成，只是带着外出工账往后拖。';
     return {
