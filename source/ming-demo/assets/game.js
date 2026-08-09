@@ -553,6 +553,18 @@
     if ((carry.举业结局 || '') && carry.举业结局 !== '未定') tags.push('举业结局=' + carry.举业结局);
     return tags.length ? tags.join('｜') : '无额外承接状态位';
   }
+  function inheritedRouteAwareValue(key, emptyValue) {
+    var inherited = carryOver || null;
+    if (!inherited || typeof inherited !== 'object') return emptyValue;
+    var value = inherited[key];
+    if (value == null || value === '' || value === emptyValue) return emptyValue;
+    return value;
+  }
+  function carriedRouteAwareValue(key, emptyValue) {
+    var current = S ? S[key] : null;
+    if (current != null && current !== '' && current !== emptyValue) return current;
+    return inheritedRouteAwareValue(key, emptyValue);
+  }
   function lifecycleInheritanceBridge() {
     var role = currentInheritanceRole(carryOver || S || null);
     var inherited = generation > 1
@@ -589,6 +601,18 @@
     if ((S.委托营生 || '无') !== '无') parts.push('委托营生=' + S.委托营生);
     if ((S.委托租谷 || 0) > 0) parts.push('委托租谷=' + S.委托租谷 + '石/年');
     if ((S.委托待收租谷 || 0) > 0) parts.push('待收委托田租=' + S.委托待收租谷 + '石');
+    var inheritedMarriagePath = inheritedRouteAwareValue('婚配路径', '未定');
+    var inheritedJointState = inheritedRouteAwareValue('合爨状态', '未合爨');
+    var inheritedFixedRent = inheritedRouteAwareValue('定额佃状态', '未立');
+    var inheritedWageIdentity = inheritedRouteAwareValue('雇身份', '未定');
+    var inheritedApprenticeDest = inheritedRouteAwareValue('学徒去向', '未定');
+    var inheritedExamOutcome = inheritedRouteAwareValue('举业结局', '未定');
+    if (inheritedMarriagePath !== '未定') parts.push('婚配路径=' + inheritedMarriagePath);
+    if (inheritedJointState !== '未合爨') parts.push('合爨状态=' + inheritedJointState);
+    if (inheritedFixedRent !== '未立') parts.push('定额佃状态=' + inheritedFixedRent);
+    if (inheritedWageIdentity !== '未定') parts.push('雇身份=' + inheritedWageIdentity);
+    if (inheritedApprenticeDest !== '未定') parts.push('学徒去向=' + inheritedApprenticeDest);
+    if (inheritedExamOutcome !== '未定') parts.push('举业结局=' + inheritedExamOutcome);
     var explain = [];
     if ((S.父辈路线 || '') && S.父辈路线 !== '未定') explain.push('父辈这一手走的是“' + S.父辈路线 + '”');
     if (role !== '次子') explain.push('这一手眼下是以“' + role + '”续承上一代结清后的账');
@@ -608,6 +632,12 @@
     var decayHint = lineageDecayHint(decay);
     if (decayHint) explain.push(decayHint);
     if ((S.委托待收租谷 || 0) > 0) explain.push('账上另有待收委托田租' + S.委托待收租谷 + '石，不能当作已经落袋的存米');
+    if (inheritedMarriagePath !== '未定') explain.push('上一代婚配最后走到“' + inheritedMarriagePath + '”，这层婚配余绪仍挂在这一房旧账里');
+    if (inheritedJointState !== '未合爨') explain.push('上一代留下的“' + inheritedJointState + '”共账余绪还在');
+    if (inheritedFixedRent !== '未立') explain.push('上一代立过“' + inheritedFixedRent + '”，这房对押租与租账次序不算陌生');
+    if (inheritedWageIdentity !== '未定') explain.push('上一代走到“' + inheritedWageIdentity + '”，留下的旧牙口与外头回身门路仍在');
+    if (inheritedApprenticeDest !== '未定') explain.push('上一代把学徒去向坐到“' + inheritedApprenticeDest + '”，铺里那层门路没有被悄悄洗掉');
+    if (inheritedExamOutcome !== '未定') explain.push('上一代举业最后停在“' + inheritedExamOutcome + '”，这层书路余绪也还压在门前');
     return {
       note: explain.length ? ('承继底子：' + explain.join('；') + '。') : '',
       narrative: explain.length ? ('这一程不是白纸起步：' + explain.join('；') + '。') : '',
@@ -19120,6 +19150,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var lifecycleResidue = deathLifecycleResidueSummary(legacyCarry, pendingRentMi);
     S._deathLifecycleResidueText = lifecycleResidue.text || '';
     var heirIdentity = sons <= 0 ? '旁支继子' : (sons === 1 ? '独子' : (heirOrdinal === 2 ? '次子' : '长子'));
+    var carriedMarriagePath = carriedRouteAwareValue('婚配路径', '未定');
+    var carriedJointState = carriedRouteAwareValue('合爨状态', '未合爨');
+    var carriedFixedRent = carriedRouteAwareValue('定额佃状态', '未立');
+    var carriedWageIdentity = carriedRouteAwareValue('雇身份', '未定');
+    var carriedApprenticeDest = carriedRouteAwareValue('学徒去向', '未定');
+    var carriedExamOutcome = carriedRouteAwareValue('举业结局', '未定');
     var narrative, deathTag, collateralEstateNote = '';
     if (sons > 0) {
       var shareSilver = shareByOrdinal(estateSilver, sons, heirOrdinal);
@@ -19149,12 +19185,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         委托营生: leaseEnabled ? (S.委托营生 || '无') : '无',
         委托租谷: shareLease,
         委托待收租谷: sharePendingRent,
-        婚配路径: S.婚配路径 || '未定',
-        合爨状态: S.合爨状态 || '未合爨',
-        定额佃状态: S.定额佃状态 || '未立',
-        雇身份: S.雇身份 || '未定',
-        学徒去向: S.学徒去向 || '未定',
-        举业结局: S.举业结局 || '未定'
+        婚配路径: carriedMarriagePath,
+        合爨状态: carriedJointState,
+        定额佃状态: carriedFixedRent,
+        雇身份: carriedWageIdentity,
+        学徒去向: carriedApprenticeDest,
+        举业结局: carriedExamOutcome
       };
       S._deathRemainderText = remainderText;
       if (S.路线.indexOf('徽商') === 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，身后连旧账、回钱与反哺名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、尚未结回的委托田租' : '') + '也一并结进遗产。';
@@ -19175,12 +19211,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         委托营生: collateralLeaseEnabled ? (S.委托营生 || '无') : '无',
         委托租谷: collateralLeaseEnabled ? Math.max(0, S.委托租谷 || 0) : 0,
         委托待收租谷: collateralLeaseEnabled ? pendingRentMi : 0,
-        婚配路径: S.婚配路径 || '未定',
-        合爨状态: S.合爨状态 || '未合爨',
-        定额佃状态: S.定额佃状态 || '未立',
-        雇身份: S.雇身份 || '未定',
-        学徒去向: S.学徒去向 || '未定',
-        举业结局: S.举业结局 || '未定'
+        婚配路径: carriedMarriagePath,
+        合爨状态: carriedJointState,
+        定额佃状态: carriedFixedRent,
+        雇身份: carriedWageIdentity,
+        学徒去向: carriedApprenticeDest,
+        举业结局: carriedExamOutcome
       };
       S._deathRemainderText = '';
       if (S.路线.indexOf('徽商') === 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，临了虽未留下亲生承嗣，旧账、回钱与顾家名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、委托经营账上的待结田租' : '') + '仍要在旁支账里结清。';
