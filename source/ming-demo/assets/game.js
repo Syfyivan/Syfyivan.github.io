@@ -178,6 +178,7 @@
 
   function initState(carry, opts) {
     opts = opts || {};
+    carry = normalizeCarrySnapshot(carry);
     carryOver = carry || null;
     startMode = (opts.start === 'childhood' || opts.start === 'establishment') ? opts.start : startMode;
     S = {
@@ -489,6 +490,20 @@
   function currentInheritanceRole(carry) {
     if (!carry) return '次子';
     return carry.承继身份 || inheritanceRoleFromLineage(carry.承嗣来路) || (isCollateralCarry(carry) ? '旁支继子' : '次子');
+  }
+  function defaultInheritancePosition(role) {
+    if (role === '旁支继子') return '旁支接祧续户';
+    if (role === '独子') return '独子承家';
+    return '本房次子另起一手';
+  }
+  function normalizeCarrySnapshot(carry) {
+    if (!carry || typeof carry !== 'object') return null;
+    var normalized = JSON.parse(JSON.stringify(carry));
+    var role = currentInheritanceRole(normalized);
+    normalized.承继身份 = role;
+    if (!normalized.承嗣来路) normalized.承嗣来路 = directHeirLineageTag(role);
+    if (!normalized.承继定位) normalized.承继定位 = defaultInheritancePosition(role);
+    return normalized;
   }
   function inheritedRoleBirthLead(carry) {
     var role = currentInheritanceRole(carry);
@@ -4345,7 +4360,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function restartIdentityLabel() {
     // “死亡→传承→下一代重开”是闭环验收点：按钮文案必须与真实承继一致，避免把独子/过继误写成“次子”。
     if (phase === 'childhood') return '';
-    var carryIdentity = S._carry && S._carry.承继身份 ? String(S._carry.承继身份) : '';
+    var carryIdentity = currentInheritanceRole(S._carry || null);
     if (carryIdentity === '旁支继子') return '旁支继子身份';
     if (carryIdentity === '独子') return '独子身份';
     if (carryIdentity === '次子') return '次子身份';
@@ -19114,7 +19129,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   // ── 下一代递归重开 ──
   function startNextGeneration(nextStart) {
     generation += 1;
-    var carry = S._carry || null;
+    var carry = normalizeCarrySnapshot(S._carry || null);
     carryOver = carry;
     // 主闭环：默认从 16 岁立身重开；幼年“弟妹接续”分支则继续从幼年跑起。
     var start = (nextStart === 'childhood') ? 'childhood' : 'establishment';
@@ -19124,7 +19139,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   }
   function restartFromCarry(carry, gen) {
     generation = Math.max(2, gen || 2);
-    carryOver = carry || null;
+    carryOver = normalizeCarrySnapshot(carry || null);
     // 传承快照本质是“下一代 16 岁立身”的期初账：用于五路入口承接回放，固定从立身开始。
     initState(carryOver, { start: 'establishment' });
     renderStatus(); renderStage(); renderLedger();
