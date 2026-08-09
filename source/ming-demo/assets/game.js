@@ -285,6 +285,7 @@
     S._marriageDidMatch = false;
     S._marriageDidShow = false;
     S._marriageDidCollect = false;
+    S._marriageDidCollectRent = false;
   }
 
   // ── 资源守恒台账 ─────────────────────────────────
@@ -7008,6 +7009,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       if (S.未回款银 > 0) {
         pack.extraActions.push({ id: 'm_collect', name: '折价催收旧账', cost: 1, eff: '未回款→部分现银·成算+', desc: '议亲前先把路上旧账折价催回来一些，媒人才认得手里现银。', can: true, once: true });
       }
+      if ((S.供读底子 || 0) > 0) {
+        pack.note += ' 这房还背着上一代留下的供读底子，女方家也会看你是不是只会跑外头账、不顾屋里往后有没有读书路。';
+        pack.dossier += '｜承继供读=' + (S.供读底子 || 0) + '层';
+      }
     } else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) {
       pack.note = '读书路议亲看的是名分与退路：生员、童生、屡试未第或断供改路，行情并不一样。';
       pack.dossier = '举业结局=' + S.举业结局 + '｜童试层级=' + S.童试层级 + '｜识字转业值=' + S.识字转业值 + (S.生员身份 ? '｜已入泮（优免只减流出，不算现银）' : '');
@@ -7055,6 +7060,30 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         pack.showBonus = S.识字 ? 0.06 : 0;
         pack.showLog = '亮出你这些年读下来的识字底子（成算小增）';
       }
+      if ((S.供读底子 || 0) > 0) {
+        pack.note += ' 上一代划下来的供读底子还在，议亲时别人也会掂量：你这一房婚后是不是还得继续把书路供下去。';
+        pack.dossier += '｜承继供读=' + (S.供读底子 || 0) + '层';
+      }
+    }
+    var inheritedPendingRent = Math.max(0, S.委托待收租谷 || 0);
+    var inheritedDebt = Math.max(0, S.负债银 || 0);
+    if (inheritedDebt > 0) {
+      pack.baseAdj -= Math.min(0.08, inheritedDebt * 0.02);
+      pack.note += (pack.note ? ' ' : '') + '议亲时还得把上一代留下的旧债一起端上桌，媒人认的是现成家底，不会把“往后慢慢还”当成白得的体面。';
+      pack.dossier += (pack.dossier ? '｜' : '') + '旧债=' + inheritedDebt + '两';
+    }
+    if (inheritedPendingRent > 0) {
+      pack.note += (pack.note ? ' ' : '') + '账上另有上一代留下的待收委托田租' + inheritedPendingRent + '石，这不是已经进仓的粮；真想拿它垫聘礼，得先把旧租催回来。';
+      pack.dossier += (pack.dossier ? '｜' : '') + '待收租谷=' + inheritedPendingRent + '石';
+      pack.extraActions.push({
+        id: 'm_collect_rent',
+        name: inheritedPendingRent > 1 ? '催回旧租·先收一石' : '催回旧租',
+        cost: 1,
+        eff: '待收租谷-1石·存米+1·家族+1',
+        desc: '把上一代挂在账上的委托田租先催回一石，先落回米缸，再决定要不要卖粮作聘礼。',
+        can: true,
+        once: true
+      });
     }
     return pack;
   }
@@ -7220,6 +7249,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (!S._marriageDidCollect) { S._marriageBonus = (S._marriageBonus || 0) + 0.08; S._marriageDidCollect = true; }
               log.push(['折价催收旧账：未回款' + owed + '两里先收回白银+' + got + (lost > 0 ? '，另有' + lost + '两只得认亏' : '') + '（成算增）', 'good']);
               break;
+            case 'm_collect_rent':
+              if ((S.委托待收租谷 || 0) > 0) {
+                S.委托待收租谷 -= 1;
+                S.存米 += 1;
+                S.家族 += 1;
+                if (!S._marriageDidCollectRent) {
+                  S._marriageBonus = (S._marriageBonus || 0) + 0.06;
+                  S._marriageDidCollectRent = true;
+                }
+                log.push(['催回旧租一石：待收委托田租-1、存米+1、家族+1；媒人总算看见这不是悬账（成算增）', 'good']);
+              }
+              break;
             case 'm_copywork':
               S.铜钱 += 180;
               S._marriageBonus = (S._marriageBonus || 0) + 0.08;
@@ -7296,7 +7337,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         // 前两旬：只结细账并推进到下一旬；不做“女方是否应允”的 roll。
         if (step < 3) {
           // 议亲细碎脚费：不额外耗 RNG，只把媒人茶水/递话脚费这层小钱压回旬账。
-          var handled = lifePicks.some(function (p) { return p.id === 'm_match' || p.id === 'm_show' || p.id === 'm_borrow' || p.id === 'm_save' || p.id === 'm_wait'; });
+          var handled = lifePicks.some(function (p) { return p.id === 'm_match' || p.id === 'm_show' || p.id === 'm_borrow' || p.id === 'm_save' || p.id === 'm_wait' || p.id === 'm_collect_rent'; });
           if (!handled) {
             if (spendCopper(20)) log.push(['〔递话脚费〕这一旬连托媒都没能跑通，只得先掏递话脚费与茶水钱：铜钱-20。', 'bad']);
             else { S.家族 = Math.max(0, S.家族 - 1); log.push(['〔递话脚费〕这一旬连递话脚费都腾挪不开，只得先硬顶过去；媒人这层口风更冷一线（家族-1）。', 'bad']); }
