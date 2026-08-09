@@ -4136,7 +4136,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         {
           name: '路径四 · 徽商式亦贾亦儒',
           gain: '进入三商年学生意循环（16→18岁）',
-          note: '首版先做“随号学生意 + 少量带本试贩 + 年终结账”，把未回款、反哺银、原籍赋役先接进运行时。' + (generation > 1 ? ' ' + routeEntryHook('merchant', carryOver) : ''),
+          note: '这一路现已拆成“三商年学生意 + 成年后养家/当户/养老继续四季三旬推进”：认货、坐店、跑单、回钱、拖欠、反哺、供读、差役与身家冲突都回到同一年里逐旬落账。' + (generation > 1 ? ' ' + routeEntryHook('merchant', carryOver) : ''),
           run: function (log) {
             curStage.next = 'merchant'; curStage.nextLabel = '去学生意 →'; S.路线 = '徽商式亦贾亦儒';
             log.push(['你决定投族叔商号学生意：这一路已接入首版三商年循环。', 'good']);
@@ -9962,6 +9962,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (season.id === 'spring' && xun === 2) {
           var springHandled = !!(picked.f_market || picked.f_social || picked.f_child || picked.f_kitchen
             || picked.f_route_split || picked.f_route_spring_price || picked.f_route_spring_bundle
+            || picked.f_route_spring_ritual || picked.f_route_spring_mid_reply || picked.f_route_remit
             || picked.f_route_shop_note || picked.f_route_school_note || picked.f_route_wage_note);
           if (springHandled) {
             pushFamilySeasonTag(stepTag + '春起细账已理');
@@ -10000,7 +10001,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
         if (season.id === 'summer' && xun === 2) {
           var summerHandled = !!(picked.f_child || picked.f_mend || picked.f_rest || picked.f_cool
-            || picked.f_route_bundle || picked.f_route_shop_bundle || picked.f_route_wage_summer_bundle || picked.f_route_write);
+            || picked.f_route_bundle || picked.f_route_shop_bundle || picked.f_route_wage_summer_bundle || picked.f_route_write
+            || picked.f_route_summer_home_note || picked.f_route_summer_heat || picked.f_route_summer_register
+            || picked.f_route_sample || picked.f_route_summer_packet);
           if (summerHandled) {
             pushFamilySeasonTag(stepTag + '伏夏小耗已顾');
             log.push(['〔伏夏小耗〕这一旬先把孩子热耗、草鞋针线、零碎汤药或伏夏布药顾住了；小耗没有消失，但没再继续滚成更大的缺口。', 'good']);
@@ -10018,6 +10021,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (season.id === 'autumn' && xun === 2) {
           var autumnHandled = !!(picked.f_social || picked.f_duty
             || picked.f_route_autumn_split || picked.f_route_shop_split || picked.f_route_wage_autumn_split
+            || picked.f_route_autumn_mid_reply || picked.f_route_autumn_mid_clothes || picked.f_route_remit
             || picked.f_route_school_split || picked.f_route_split);
           if (autumnHandled) {
             pushFamilySeasonTag(stepTag + '秋后细账已拆');
@@ -10034,6 +10038,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (season.id === 'autumn' && xun === 3) {
           var taxHandled = !!(picked.f_duty || picked.f_tax || picked.f_registry
             || picked.f_route_autumn_split || picked.f_route_school_split || picked.f_route_shop_split
+            || picked.f_route_receipt || picked.f_route_autumn_tail || picked.f_route_autumn_gate
             || picked.f_route_wage_autumn_split || picked.f_route_split);
           if (taxHandled) {
             pushFamilySeasonTag(stepTag + '秋后催缴已压');
@@ -10051,6 +10056,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (season.id === 'winter' && xun === 1) {
           var winterHandled = !!(picked.f_repair || picked.f_duty
             || picked.f_route_winter_book || picked.f_route_shop_book || picked.f_route_wage_winter_book
+            || picked.f_route_winter_medicine || picked.f_route_guest_gift
             || picked.f_route_school_winter_book || picked.f_route_winter_wharf);
           if (winterHandled) {
             pushFamilySeasonTag(stepTag + '年关碎账已分');
@@ -10067,6 +10073,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (season.id === 'winter' && xun === 2) {
           var lunarHandled = !!(picked.f_kitchen || picked.f_mend || picked.f_rest
             || picked.f_route_winter_split || picked.f_route_winter_book || picked.f_route_winter_wharf
+            || picked.f_route_winter_clear || picked.f_route_winter_coal
             || picked.f_route_shop_book || picked.f_route_wage_winter_book || picked.f_route_wage_winter_register
             || picked.f_route_wage_winter_reply || picked.f_route_wage_winter_gift || picked.f_route_school_winter_book);
           if (lunarHandled) {
