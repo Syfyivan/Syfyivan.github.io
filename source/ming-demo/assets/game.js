@@ -2979,7 +2979,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'spring' && xun === 2) apply({
-      handledIds: ['m_book', 'm_market', 'm_letter', 'm_packet', 'm_spring_home_split'],
+      handledIds: ['m_book', 'm_market', 'm_letter', 'm_packet', 'm_spring_home_split', 'm_spring_mid_school'],
       doneTag: '开路回话已压',
       doneLog: '〔开路回话〕这一旬先把样价抄单、回话脚费和柜边包纸拆开了；春里第二程不再只剩“继续学生意”，而是真把人情回话和门面零耗压回同一年里。',
       cost: 30,
@@ -3034,7 +3034,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'autumn' && xun === 1) apply({
-      handledIds: ['m_market', 'm_run', 'm_goods', 'm_collect', 'm_trial_capital', 'm_autumn_receipt', 'm_autumn_supply_split'],
+      handledIds: ['m_market', 'm_run', 'm_goods', 'm_collect', 'm_trial_capital', 'm_autumn_receipt', 'm_autumn_supply_split', 'm_autumn_head_drag'],
       doneTag: '秋市碎费已拆',
       doneLog: '〔秋市碎费〕这一旬先把样货、牙行照面和秋路脚费拆开了；看着只是小钱，却没再把本年试手前的商路判断搅浑。',
       cost: 50,
@@ -3056,7 +3056,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'autumn' && xun === 3) apply({
-      handledIds: ['m_support', 'm_home', 'm_collect', 'm_letter', 'm_autumn_tail_split', 'm_autumn_tail_body'],
+      handledIds: ['m_support', 'm_support_school', 'm_home', 'm_collect', 'm_letter', 'm_supply_split', 'm_autumn_tail_split', 'm_autumn_tail_body'],
       doneTag: '回钱碎耗已拆',
       doneLog: '〔回钱碎耗〕这一旬先把回乡带话、样货耗损、药包和催回钱前的脚费拆开了；秋里最后这层“银快回却还没落手”的摩擦没再混成一团。',
       cost: 45,
@@ -5419,6 +5419,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var marketCost = season.id === 'autumn' ? (isLate ? 60 : 50) : (season.id === 'winter' ? 40 : 30);
     var marketGoods = season.id === 'autumn' ? (isLate ? 2 : 1) : 1;
     var marketTrust = (season.id === 'autumn' || season.id === 'winter') ? 1 : 0;
+    var trialCapitalCost = season.id === 'winter' ? 55 : (xun === 1 ? 40 : 45);
     var letterCost = season.id === 'winter' ? (isLate ? 60 : 50) : 30;
     var letterFamily = season.id === 'winter' ? (isLate ? 3 : 2) : 2;
     // 商路补一条“识字补课”——不强制，但给未开蒙者一个在同一年里慢慢补齐账房能力的入口，
@@ -5551,7 +5552,6 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_autumn_mid_drag', name: '先把秋中拖欠口风与回乡饭钱分开', cost: 1, eff: '铜钱-70·催账+1·家书+1·拖欠+1·家族+1', desc: '秋试手中旬最怕拖欠口风、回乡饭钱、递话脚费和家里催问一起追钱。先把这层秋中拖账拆开，银还没落手时，家里那头也不至只听见一句“账还在路上”。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
         }
         if ((season.id === 'autumn' && xun >= 1 && xun <= 2) || (season.id === 'winter' && xun === 1)) {
-          var trialCapitalCost = season.id === 'winter' ? 55 : (xun === 1 ? 40 : 45);
           A.push({
             id: 'm_trial_capital',
             name: season.id === 'winter' ? '先把试本回话与来春本钱分开' : (xun === 1 ? '先把试本口风与牙行照面坐实' : '先把试本口风与牙帖回话坐实'),
@@ -5974,7 +5974,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               }
               break;
             case 'm_trial_capital':
-              if (spendCopper(season.id === 'winter' ? 55 : 45)) {
+              if (spendCopper(trialCapitalCost)) {
                 S.本年商路议本 += 1;
                 S.本年商路家书 += 1;
                 S.商信誉 += 1;
