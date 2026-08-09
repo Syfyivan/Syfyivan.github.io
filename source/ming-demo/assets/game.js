@@ -4307,6 +4307,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   // ── 立身分叉（16岁）：五路入口（佃田/受雇/学徒/商路/举业）──
   function stageEstablishment() {
     var 底子 = routeBaseSummary();
+    var inheritanceBridge = lifecycleInheritanceBridge();
     var startNote = generation > 1
       ? '这一代不再沿用初代那张“固定父快照”，而是直接吃上一代真实死亡结算留下的期初账。五条路仍共享同一个过去，但这个“过去”现在来自真实传承，不再回滚。'
       : '你要求的是“同一父快照、16岁再分路”。这里不再默认锁死进佃田，而是在同一户、同一年、同一份家底下分叉。现在五条路都接了首版循环：佃田、受雇、学徒、商路、举业。';
@@ -4323,7 +4324,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       note: startNote,
       narrative: currentEstablishmentLead(底子),
       dossier: function () {
-        return lifeDossier(currentFamilySnapshotText()) + establishmentAtlasDossier();
+        var summary = currentFamilySnapshotText();
+        if (inheritanceBridge.dossier) summary += '｜' + inheritanceBridge.dossier;
+        return lifeDossier(summary) + establishmentAtlasDossier();
       },
       events: startEvents,
       prompt: '十六成丁，你先走哪条路？',
@@ -16662,7 +16665,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         : '雇工一路到了晚年，老来靠不靠得住，不看你年轻时卖过多少工，而看分家后这 4 亩薄田有没有真的替你挡住断炊。';
       if (S.定额佃状态 === '已立定额佃') pack.note += ' 早年那次“先押租、后议亲”的决定，到了老来仍会体现在你守薄田时更不陌生。';
       if (S.合爨状态 === '已析爨') pack.note += ' 先前合爨再析爨留下的那层共账缓冲，也会继续改写你如今向兄弟与子孙开口时的分寸。';
-      if (isWageRouteState() && (S.婚配路径 === '先应差·外出佣工' || S.城里门路 > 0)) pack.note += ' 早年先应差再外出佣工攒下的那层旧牙口，到老来仍可能替你换回一点外头照应，不必只靠家里这口饭。';
+      if (isWageRouteState() && (S.婚配路径 === '先应差·外出佣工' || S.城里门路 > 0)) pack.note += ' 早年先应差再外出佣工攒下的那层旧牙口与城里熟识，到老来仍可能替你换回一点外头照应，不必只靠家里这口饭。';
       pack.dossier = '农事历练=' + S.农事历练 + '｜雇工历练=' + S.雇工历练 + '｜婚配路径=' + S.婚配路径 + '｜定额佃=' + S.定额佃状态 + '｜合爨=' + S.合爨状态 + '｜委托营生=' + S.委托营生 + '｜委托租谷=' + S.委托租谷 + '｜待收租谷=' + (S.委托待收租谷 || 0) + '｜田亩=' + S.田亩 + '｜应役=' + S.应役 +
         '｜最近农闲营生=' + S.最近农闲营生层级 + (S.最近农闲营生收益 > 0 ? ('(' + S.最近农闲营生收益 + '文)') : '');
       pack.event = { t: 'rel', tag: '[田面]', txt: S.委托营生 === '分得薄田自耕'
@@ -17861,6 +17864,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         legacy.承继定位 = '长兄守户·次子循城外求';
       } else if ((isFarmRouteState() || isWageRouteState()) && S.子数 > 1) {
         legacy.承继定位 = '长兄守田·次子另起一手';
+      }
+      if (isFarmRouteState() && (S.定额佃状态 === '已立定额佃' || S.婚配路径 === '暂不婚·改定额佃')) {
+        legacy.家传农事 = Math.max(legacy.家传农事, 1);
       }
       if (isFarmRouteState() && S.委托营生 === '分得薄田自耕' && S.农事历练 >= 5) legacy.家传农事 = Math.max(legacy.家传农事, 2);
       else if ((isFarmRouteState() && S.农事历练 >= 3) || (isWageRouteState() && S.委托营生 === '分得薄田自耕' && S.农事历练 >= 2)) legacy.家传农事 = Math.max(legacy.家传农事, 1);
