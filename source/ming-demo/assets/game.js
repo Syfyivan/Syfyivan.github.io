@@ -1853,7 +1853,7 @@
       hardship: 'body'
     });
     if (season.id === 'winter' && xun === 1) apply({
-      handledIds: ['e_home', 'e_rest', 'e_copy', 'e_mend', 'e_mother_help', 'e_winter_open_packet'],
+      handledIds: ['e_home', 'e_rest', 'e_copy', 'e_mend', 'e_mother_help', 'e_winter_open_packet', 'e_fail_talk'],
       doneTag: '年关纸墨已分',
       doneLog: '〔年关纸墨〕旧馆账、来春纸墨定钱、灯油和拜帖脚费已被你先分开；举业路这层门路没有在年关忽然断掉。',
       cost: 40,
@@ -1864,7 +1864,7 @@
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 2) apply({
-      handledIds: ['e_copy', 'e_mend', 'e_rest', 'e_winter_mid_packet'],
+      handledIds: ['e_copy', 'e_mend', 'e_rest', 'e_winter_mid_packet', 'e_fail_copy'],
       doneTag: '冬中灯炭已分',
       doneLog: '〔冬中灯炭〕这一旬先把灯炭、旧馆回话脚费与来春笔墨样纸分开了；冬清账中旬不再只是翻旧账，而把“明春这条笔墨门路怎么续”提前压进了这一旬。',
       cost: 45,
@@ -6283,6 +6283,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             A.push({ id: 'e_autumn_open_packet', name: '先把秋前盘缠与拜帖小礼分开', cost: 1, eff: '铜钱-50·家族+1', desc: '秋试上旬最怕应试盘缠、拜帖小礼和家里秋收锅火一起追钱。先把这层临场前的后手拆开，保结与应场才不至先被现钱卡死。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
           } else if (season.id === 'winter') {
             A.push({ id: 'e_winter_open_packet', name: '先把年关纸墨与来春定钱分开', cost: 1, eff: '铜钱-55·家族+1', desc: '冬清账上旬最怕旧馆账脚费、来春纸墨定钱、灯油和拜帖脚费一起追钱。先把这层门路钱拆开，年关就不至先把读书路掐断。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
+            if (S.本年应试结果 === '落第') {
+              A.push({
+                id: 'e_fail_talk',
+                name: '落第后先回家缓口风',
+                cost: 1,
+                eff: '家族+2·供读压力-1',
+                desc: '秋里落第回话已在当旬见了。冬头若不先回家把父兄母那口气缓住，来春束脩、纸墨与婚事口风就会一起更硬。',
+                can: true,
+                once: true
+              });
+            }
           }
           A.push({ id: 'e_home', name: season.id === 'autumn' ? '回家帮父缓秋里家计' : '回家帮父与缓冲家计', cost: 1, eff: '家族+' + homeFamily + (homeRice > 0 ? ('·存米+' + homeRice) : '') + '·供读压力-1', desc: '这一旬少读一点，先让家里那口锅别翻。', can: true, once: true });
           A.push({ id: 'e_rest', name: '歇息养身', cost: 1, eff: '体魄+5', desc: '别把眼睛和身子先熬坏。', can: true });
@@ -6311,6 +6322,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             A.push({ id: 'e_autumn_packet', name: '先把保结薄礼与学生回话脚费分开', cost: 1, eff: '铜钱-55·家族+1', desc: '秋试中旬最怕保结薄礼、学生家回话脚费和润笔纸墨一起追钱。先把这层后手拆开，临场前这口人情就不至先薄掉。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
           } else if (season.id === 'winter') {
             A.push({ id: 'e_winter_mid_packet', name: '先把冬中灯炭与旧馆回话脚费分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬清账中旬最怕灯炭、旧馆回话脚费和来春样纸一起追钱。先把这层续门路的钱拆开，冬里就不至一边熬身子一边把来春口风熬断。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+            if (S.本年应试结果 === '落第') {
+              A.push({
+                id: 'e_fail_copy',
+                name: '落第后重抄卷样与回帖',
+                cost: 1,
+                eff: '铜钱-45·文章火候+1·家族+1',
+                desc: '冬中若还想把来春这一口门路续住，就得把落第后该递的回帖、卷样与口风当旬重整。钱花得碎，却能把“落第后是不是就此散掉”重新压回手里。',
+                can: S.铜钱 >= 45 && S.识字,
+                why: !S.识字 ? '尚不识字，难以自己重抄卷样' : (S.铜钱 >= 45 ? '' : '铜钱不足45文'),
+                once: true
+              });
+            }
           }
           if (!S.识字 && (S.识字进度 || 0) < 2) {
             A.push({
@@ -6532,6 +6555,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把年关纸墨与来春定钱拆开，但这一旬铜钱已先被别处占住，只得让年关这层续门路钱继续一股脑追上来。', 'bad']);
               }
               break;
+            case 'e_fail_talk':
+              S.家族 += 2;
+              S.供读压力 = Math.max(0, S.供读压力 - 1);
+              S.本年归家次数 += 1;
+              S.本年家中贴补次 += 1;
+              pushExamSeasonTag(stepTag + '落第后回家缓口风');
+              log.push(['落第后先回家缓口风：家族+2、供读压力-1。秋里落第的回话没有被拖成“明年再说”，而是在冬头这一旬就先去把父兄母那口气稳住。', 'good']);
+              break;
             case 'e_winter_mid_packet':
               if (spendCopper(60)) {
                 noteExamOutlay(60, { buckets: { 本年零耗支出文: 60 } });
@@ -6540,6 +6571,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把冬中灯炭与旧馆回话脚费分开：铜钱-60、家族+1、体魄+1。冬清账中旬这层灯炭、旧馆回话脚费和来春样纸先被拆开，冬里就没再一边熬身子一边把来春口风熬断。', 'good']);
               } else {
                 log.push(['想先把冬中灯炭与旧馆回话脚费拆开，但这一旬铜钱已先被别处占住，只得让冬里这层续门路钱继续贴着锅火来。', 'bad']);
+              }
+              break;
+            case 'e_fail_copy':
+              if (spendCopper(45)) {
+                noteExamOutlay(45, { buckets: { 本年纸墨支出文: 45 } });
+                S.文章火候 += 1;
+                S.家族 += 1;
+                S.本年评文次数 += 1;
+                pushExamSeasonTag(stepTag + '落第后重抄卷样');
+                log.push(['落第后重抄卷样与回帖：铜钱-45、文章火候+1、家族+1。冬中这一旬把卷样、回帖和塾门口风重新理顺，来春这一手才不至因秋里落第就整口散掉。', 'good']);
+              } else {
+                log.push(['想在落第后先把卷样与回帖重抄一遍，但这一旬铜钱已被别处占住，只得先拖着，来春门路也就更虚一线。', 'bad']);
               }
               break;
             case 'e_spring_tail_packet':
