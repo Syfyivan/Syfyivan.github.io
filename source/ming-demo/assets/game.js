@@ -1612,6 +1612,22 @@
   function examArticleReady() {
     return examStudyTrackReady() && (((S.文章火候 || 0) >= 2) || (S.本年评文次数 || 0) > 0);
   }
+  function examAttemptReady() {
+    return !S.生员身份
+      && !S.本年下场
+      && (S.保结进度 || 0) >= 2
+      && S.供读状态 !== '已断供'
+      && examArticleReady();
+  }
+  function examAttemptBlockedWhy(seasonId) {
+    if (S.生员身份) return '已是生员';
+    if (S.本年下场) return '本年已下场过';
+    if (!(seasonId === 'autumn' || seasonId === 'winter')) return '通常要到秋冬才真正下场';
+    if ((S.保结进度 || 0) < 2) return '保结未通';
+    if (S.供读状态 === '已断供') return '家中已断供';
+    if (!examArticleReady()) return '先把文章火候磨到可下场';
+    return '';
+  }
   function noteExamIntraYearSignals(log, stepTag, beforeSignals) {
     beforeSignals = beforeSignals || {};
     var support = examSupportStateDetail();
@@ -1756,7 +1772,7 @@
       }
     }
     if (season.id === 'spring' && xun === 1) apply({
-      handledIds: ['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_family_grain', 'e_mother_help', 'e_spring_open_packet'],
+      handledIds: ['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_family_grain', 'e_mother_help', 'e_brother_help', 'e_spring_open_packet'],
       doneTag: '春课开销已理',
       doneLog: '〔春课开销〕这一旬先把拜师帖、启蒙纸样、塾馆茶水与家里开春锅火分开了；春课刚起头时最容易被当作“不过几文钱”的那层开销，没有再悄悄把今年第一口供读钱磨薄。',
       cost: 30,
@@ -1789,7 +1805,7 @@
       hardship: 'clan'
     });
     if (season.id === 'summer' && xun === 1) apply({
-      handledIds: ['e_enroll', 'e_tutor', 'e_school', 'e_home', 'e_family_grain', 'e_mother_help', 'e_summer_open_packet'],
+      handledIds: ['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_home', 'e_family_grain', 'e_mother_help', 'e_brother_help', 'e_summer_open_packet'],
       doneTag: '伏夏馆账已顾',
       doneLog: '〔伏夏馆账〕这一旬先把夏课束脩、凉茶脚费与家里消暑小耗分开了；伏夏刚起头时最容易把“继续读书”磨成一句空话的那层馆账，没有继续滚大。',
       cost: 30,
@@ -1823,7 +1839,7 @@
       hardship: 'body'
     });
     if (season.id === 'autumn' && xun === 1) apply({
-      handledIds: ['e_enroll', 'e_tutor', 'e_home', 'e_rest', 'e_family_grain', 'e_mother_help', 'e_autumn_open_packet'],
+      handledIds: ['e_enroll', 'e_tutor', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_family_grain', 'e_mother_help', 'e_brother_help', 'e_autumn_open_packet'],
       doneTag: '秋前盘缠已理',
       doneLog: '〔秋前盘缠〕这一旬先把应试盘缠、拜帖小礼与家里秋收锅火分开了；秋试刚起头时最容易被一句“先把书读下去”盖过去的那层临场后手，没有再混成一团。',
       cost: 40,
@@ -1856,7 +1872,7 @@
       hardship: 'body'
     });
     if (season.id === 'winter' && xun === 1) apply({
-      handledIds: ['e_home', 'e_rest', 'e_copy', 'e_mend', 'e_mother_help', 'e_winter_open_packet', 'e_fail_talk'],
+      handledIds: ['e_enroll', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_copy', 'e_mend', 'e_mother_help', 'e_brother_help', 'e_winter_open_packet', 'e_fail_talk'],
       doneTag: '年关纸墨已分',
       doneLog: '〔年关纸墨〕旧馆账、来春纸墨定钱、灯油和拜帖脚费已被你先分开；举业路这层门路没有在年关忽然断掉。',
       cost: 40,
@@ -2001,6 +2017,13 @@
   }
   function resolveExamAttempt(log, stepTag) {
     if (!S.本年下场 || S.本年应试结果 !== '未下场') return false;
+    if ((S.保结进度 || 0) < 2 || S.供读状态 === '已断供' || !examArticleReady()) {
+      S.本年下场 = false;
+      pushExamSeasonTag(stepTag + '应场受阻');
+      log.push(['〔应场受阻〕这一旬纵把盘缠、誊卷纸样和人情后手先花出去了，塾门、文章或保结链条仍未真坐实，结果只算“赶到场外”，不算已下场。举业路这层资格闸，不再能被旧状态或一句“先撞一回再说”绕过去。', 'bad']);
+      refreshExamSupportState();
+      return false;
+    }
     var chance = 0.12
       + S.文章火候 * 0.08
       + (S.读书方式 === '塾馆' ? 0.08 : 0)
@@ -6408,7 +6431,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'e_rest', name: '歇息养身', cost: 1, eff: '体魄+5', desc: '让眼睛和身子缓一口气。', can: true });
         } else {
           A.push({ id: 'e_essay', name: season.id === 'autumn' ? '临场再磨一轮文章' : '再请塾师评文改卷', cost: 1, eff: '文章火候+' + essayGain + '·成本档+1', desc: '把这一旬能再稳一稳的文章火候压出来。临场前还能再改一轮，但前提仍是今年真有塾门、读法和评文链条。', can: S.供读状态 !== '已断供' && examStudyTrackReady(), why: S.供读状态 !== '已断供' ? (examStudyTrackReady() ? '' : '先把塾门或半读读法坐实') : '家中已断供' });
-          A.push({ id: 'e_exam', name: season.id === 'winter' ? '冬前补撞一回童试' : '下场应童试', cost: 2, eff: '触发童试结果·盘缠档+1', desc: '只有保结真通了、这一年又真下了功夫，才值得去撞一撞。先有读法、再有评文和火候、再有保结，最后才是下场。', can: !S.生员身份 && !S.本年下场 && (season.id === 'autumn' || season.id === 'winter') && S.保结进度 >= 2 && S.供读状态 !== '已断供' && examArticleReady(), why: !S.生员身份 ? (!S.本年下场 ? ((season.id === 'autumn' || season.id === 'winter') ? (S.保结进度 >= 2 ? (S.供读状态 !== '已断供' ? (examArticleReady() ? '' : '先把文章火候磨到可下场') : '家中已断供') : '保结未通') : '通常要到秋冬才真正下场') : '本年已下场过') : '已是生员', once: true });
+          A.push({ id: 'e_exam', name: season.id === 'winter' ? '冬前补撞一回童试' : '下场应童试', cost: 2, eff: '触发童试结果·盘缠档+1', desc: '只有保结真通了、这一年又真下了功夫，才值得去撞一撞。先有读法、再有评文和火候、再有保结，最后才是下场。', can: (season.id === 'autumn' || season.id === 'winter') && examAttemptReady(), why: examAttemptBlockedWhy(season.id), once: true });
           A.push({ id: 'e_copy', name: season.id === 'winter' ? '誊抄契字补年关钱' : '抄书/看账补贴', cost: 1, eff: '铜钱+' + copyCopper + '·识字转业值+1·文章火候+1', desc: '把识字底子临时换成一点现钱，也算给后路添一层。', can: S.识字, why: S.识字 ? '' : '尚不识字' });
           if (season.id === 'spring') {
             A.push({ id: 'e_spring_tail_packet', name: '先把春尾香纸与回馆脚费分开', cost: 1, eff: '铜钱-45·家族+1', desc: '春课下旬最怕清明香纸、回馆脚费和春尾抄写纸墨一起追钱。先把这层季末细账拆开，春尾就不至把夏里的纸墨后手一起拖进来。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
@@ -6658,6 +6681,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.识字进度 = (S.识字进度 || 0) + 1;
                 S.本年识字旬数 += 1;
                 S.文章火候 += 1;
+                didStudy = true;
                 var becameLiterate = (!S.识字 && S.识字进度 >= 2);
                 if (becameLiterate) S.识字 = true;
                 pushExamSeasonTag(stepTag + (becameLiterate ? '开蒙识字' : '认字补课'));
