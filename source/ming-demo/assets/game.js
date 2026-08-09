@@ -3095,14 +3095,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'spring' && xun === 3) apply({
-      handledIds: ['m_letter', 'm_home', 'm_reserve', 'm_market', 'm_spring_tail_split', 'm_spring_tail_supply'],
+      handledIds: ['m_letter', 'm_home', 'm_reserve', 'm_market', 'm_spring_tail_split', 'm_spring_tail_supply', 'm_spring_tail_body'],
       doneTag: '春尾脚费已留',
-      doneLog: '〔春尾脚费〕这一旬先把回乡带话脚费、柜边包纸和递话门包分开了；春开路收尾不再只剩一句“过了春再说”，这一口细账也被压回同一年里。',
+      doneLog: '〔春尾脚费〕这一旬先把回乡带话脚费、柜边包纸、归乡药包和递话门包分开了；春开路收尾不再只剩一句“过了春再说”，连身子与家里催问也被压回同一年里。',
       cost: 30,
       costTag: '春尾脚费',
-      costLog: '〔春尾脚费〕回乡带话脚费、柜边包纸和递话门包一起要钱：铜钱-{cost}。钱不大，却正把春尾那层“回不回话、认不认熟面”的碎账摊回这一旬。',
+      costLog: '〔春尾脚费〕回乡带话脚费、柜边包纸、归乡药包和递话门包一起要钱：铜钱-{cost}。钱不大，却正把春尾那层“回不回话、认不认熟面、身子顶不顶得住”的碎账摊回这一旬。',
       failTag: '春尾脚费硬顶',
-      failLog: '〔春尾脚费〕这一旬连回话脚费都腾挪不开，只得先硬顶过去；春尾回话更像拖着不回（家族-1）。',
+      failLog: '〔春尾脚费〕这一旬连回话脚费与归乡药包都腾挪不开，只得先硬顶过去；春尾回话更像拖着不回，身子和家里口气也一起发紧（家族-1）。',
       hardship: 'clan'
     });
     if (season.id === 'summer' && xun === 1) apply({
@@ -3128,14 +3128,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'body'
     });
     if (season.id === 'summer' && xun === 3) apply({
-      handledIds: ['m_shop', 'm_market', 'm_letter', 'm_mend', 'm_counter', 'm_summer_tail_duty'],
+      handledIds: ['m_shop', 'm_market', 'm_letter', 'm_mend', 'm_counter', 'm_summer_tail_duty', 'm_summer_tail_school'],
       doneTag: '伏夏柜耗已分',
-      doneLog: '〔伏夏柜耗〕这一旬先把柜边包纸、请脚夫的小茶钱、回客话的门包和凉茶杂支分开了；伏夏尾声这层“不大、却天天有”的柜上摩擦没有再混成一团。',
+      doneLog: '〔伏夏柜耗〕这一旬先把柜边包纸、请脚夫的小茶钱、回客话门包、供读纸样和凉药门包分开了；伏夏尾声这层“不大、却天天有”的柜上、家里与身子摩擦没有再混成一团。',
       cost: 35,
       costTag: '伏夏柜耗',
-      costLog: '〔伏夏柜耗〕柜边包纸、脚夫茶钱、回客话门包和凉茶杂支一起冒头：铜钱-{cost}。不是另开一条新主线，只是把伏夏尾声那层细耗重新摊回这一旬。',
+      costLog: '〔伏夏柜耗〕柜边包纸、脚夫茶钱、回客话门包、供读纸样和凉药门包一起冒头：铜钱-{cost}。不是另开一条新主线，只是把伏夏尾声那层细耗重新摊回这一旬。',
       failTag: '伏夏柜耗硬顶',
-      failLog: '〔伏夏柜耗〕这一旬连脚夫茶钱和回客话门包都先腾挪不开，只得硬顶过去；人还站在柜上，门面却先薄了一层（商信誉-1）。',
+      failLog: '〔伏夏柜耗〕这一旬连脚夫茶钱、回客话门包和药包都先腾挪不开，只得硬顶过去；人还站在柜上，门面和身子却一起先薄了一层（商信誉-1）。',
       hardship: 'trust'
     });
     if (season.id === 'autumn' && xun === 1) apply({
@@ -5663,6 +5663,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (season.id === 'spring' && xun === 3) {
           A.push({ id: 'm_spring_tail_split', name: '先把春尾回签与归乡脚费分开', cost: 1, eff: '铜钱-55·家书+1·家族+1·商信誉+1', desc: '春开路收尾这一旬，最怕熟号回签、归乡脚费、柜边包纸和递话门包一齐来要钱。先把这层春尾回签拆开，夏里要继续坐店、跑单与捎家书时，才不至还被春尾后手拖着走。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
           A.push({ id: 'm_spring_tail_supply', name: '先把春尾供读纸包与差钱口风分开', cost: 1, eff: '铜钱-60·家书+1·供读+1·备役+1·家族+1', desc: '春开路收尾这一旬，最怕家书回话、供读纸包、差钱口风和柜边包纸一起追钱。先把这层春尾供差去向拆开，夏里刚坐店时，家里那口供读和差役后手就不至继续混成一句“等你回钱”。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+          A.push({ id: 'm_spring_tail_body', name: '先把春尾药包与回签家书分开', cost: 1, eff: '铜钱-65·家书+1·歇养+1·体魄+1·家族+1', desc: '春开路收尾这一旬，最怕归乡药包、回签家书、回乡脚费和锅火后手一起追钱。先把这层春尾药信拆开，夏里刚坐店时，自己的身子和家里催问也不至继续抢同一口现钱。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
         }
         if (season.id === 'summer' && xun === 1) {
           A.push({ id: 'm_summer_head_packet', name: '先把伏夏行栈茶脚与家书药包分开', cost: 1, eff: '铜钱-50·家书+1·体魄+1·商信誉+1', desc: '伏夏第一旬最怕行栈茶脚、脚夫点心、家书药包和带话脚费一起冒头。先把这层起手碎账拆开，落脚、递话和这一旬身子后手才不至一并被热里磨薄。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
@@ -5757,6 +5758,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (season.id === 'summer' && xun === 3) {
           A.push({ id: 'm_counter', name: '先把柜边包纸与回客话门包分开', cost: 1, eff: '铜钱-60·家书+1·体魄+1·商信誉+1', desc: '伏夏尾声最磨人的不是哪一笔大钱，而是柜边包纸、脚夫茶钱、回客话门包和凉茶杂支一起压来。先把这层柜耗拆开，柜上和家里都不至被热里一并磨薄。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
           A.push({ id: 'm_summer_tail_duty', name: '先把伏夏差票与回客话门包分开', cost: 1, eff: '铜钱-65·备役+1·家书+1·商信誉+1·家族+1', desc: '伏夏尾声最怕差票回话、回客话门包、递话脚费和柜边碎耗一起上来。先把这层夏尾差票拆开，不让商路、家计和年底差役后手还没到秋里就先挤在同一口现钱上。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
+          A.push({ id: 'm_summer_tail_school', name: '先把伏夏尾供读纸样与凉药门包分开', cost: 1, eff: '铜钱-70·家书+1·供读+1·歇养+1·体魄+1·家族+1', desc: '伏夏尾声最怕供读纸样、凉药门包、回客话脚费和柜边碎耗一起追钱。先把这层夏尾供身账拆开，秋路未开前，家里供读、自己的身子和家书回话就不至继续抢同一口现钱。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
         }
         A.push({ id: 'm_home', name: season.id === 'autumn' ? '回乡省亲搭秋收' : (isLate ? '回乡把家里这旬过住' : '回乡省亲'), cost: 1, eff: '家族+' + homeFamily + (homeRice > 0 ? ('·存米+' + homeRice) : ''), desc: season.id === 'autumn' ? '秋里先回乡搭一把，虽少跑一程货，却把家里口粮与脸面先稳住。' : '回乡看看父母，也把一点心力和米粮带回去。', can: true, once: true });
         A.push({ id: 'm_reserve', name: '先留一角差役钱', cost: 1, eff: '铜钱-' + reserveCost + '·本年差役准备+1', desc: '先把年关差役钱留出一角，等真轮到本户时，不至两手一空。', can: S.铜钱 >= reserveCost, why: S.铜钱 >= reserveCost ? '' : ('铜钱不足' + reserveCost + '文'), once: true });
@@ -5922,6 +5924,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把春尾供读纸包与差钱口风分开：铜钱-60、家书+1、供读+1、备役+1、家族+1。春尾这层家书回话、供读纸包、差钱口风和柜边包纸先被拆回了这一旬，夏里刚坐店时，家里的供读与差役后手便不再只停在一句“等回钱再说”。', 'good']);
               } else {
                 log.push(['想先把春尾供读纸包与差钱口风分开，但这旬铜钱已先被别处占住，只得让供读纸包、差钱口风和家书回话继续一起追这口现钱。', 'bad']);
+              }
+              break;
+            case 'm_spring_tail_body':
+              if (spendCopper(65)) {
+                S.本年商路家书 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.家族 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆春尾药信');
+                log.push(['先把春尾药包与回签家书分开：铜钱-65、家书+1、体魄+1、家族+1。春尾这层归乡药包、回签家书、回乡脚费和锅火后手先被拆回了这一旬，夏里刚坐店时，自己的身子和家里催问也不再继续抢同一口现钱。', 'good']);
+              } else {
+                log.push(['想先把春尾药包与回签家书分开，但这旬铜钱已先被别处占住，只得让药包、回签和家书催问继续一起追这口现钱。', 'bad']);
               }
               break;
             case 'm_summer_head_packet':
@@ -6243,6 +6257,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把伏夏差票与回客话门包分开：铜钱-65、备役+1、家书+1、商信誉+1、家族+1。差票回话、回客话门包、递话脚费和柜边碎耗先被拆回这一旬，秋路未开前，差役后手就不再和伏夏柜耗一起抢钱。', 'good']);
               } else {
                 log.push(['想先把伏夏差票与回客话门包分开，但这旬铜钱已先紧，只得让差票回话、门包和柜边碎耗继续挤在同一口现钱上。', 'bad']);
+              }
+              break;
+            case 'm_summer_tail_school':
+              if (spendCopper(70)) {
+                S.本年商路家书 += 1;
+                S.本年商路供读 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.家族 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                pushMerchantSeasonTag(season.name + xunLabel + '拆夏尾供身账');
+                log.push(['先把伏夏尾供读纸样与凉药门包分开：铜钱-70、家书+1、供读+1、体魄+1、家族+1。伏夏尾声这层供读纸样、凉药门包、回客话脚费和柜边碎耗先被压回了这一旬，秋路未开前，家里供读、自己的身子和家书回话也不再继续抢同一口现钱。', 'good']);
+              } else {
+                log.push(['想先把伏夏尾供读纸样与凉药门包分开，但这旬铜钱已先紧，只得让纸样、药包和回客话脚费继续一起追这口现钱。', 'bad']);
               }
               break;
             case 'm_home':
