@@ -1715,6 +1715,20 @@
     if (wear >= 1 || body <= 55) return '灯下微亏';
     return '身子尚稳';
   }
+  function examLiteracyFoundationLabel() {
+    var progress = Math.max(0, Number(S.识字进度) || 0);
+    if (!S.识字) {
+      if (progress >= 1) return '将开蒙';
+      return '未开蒙';
+    }
+    if (progress >= 4) return '题样已熟';
+    if (progress >= 3) return '能看题样';
+    return '三百千底子';
+  }
+  function examLiteracyActionReady() {
+    if (!S.识字) return (S.识字进度 || 0) < 2;
+    return (S.识字进度 || 0) < 4 || (S.本年识字旬数 || 0) < 1;
+  }
   function examStudyTrackReady() {
     return ((S.本年馆课次数 || 0) + (S.本年半读次数 || 0) + (S.本年寄读次数 || 0)) > 0
       || (S.投塾进度 || 0) >= 1
@@ -6646,11 +6660,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (S.家传书香 > 0) copyCopper += 40;
     if (S.供读底子 > 0) copyCopper += 20;
     function examEnrollGateScore() {
-      var literacyScore = S.识字 ? 6 : Math.min(4, (S.识字进度 || 0) * 2);
+      var literacyProgress = Math.max(0, Number(S.识字进度) || 0);
+      var literacyScore = S.识字 ? 6 : Math.min(4, literacyProgress * 2);
+      var literacyDepthBonus = S.识字 ? Math.min(4, Math.max(0, literacyProgress - 2) * 2) : 0;
       var familySupportScore = Math.min(2, S.本年家中供读次 || 0) * 3;
       var familyBase = (S.家族 || 0) + (S.家传书香 > 0 ? 4 : 0);
       var pressurePenalty = Math.max(0, (S.供读压力 || 0) - 1) * 4;
-      return familyBase + literacyScore + familySupportScore - pressurePenalty;
+      return familyBase + literacyScore + literacyDepthBonus + familySupportScore - pressurePenalty;
     }
     function examEnrollGateTarget() {
       return season.id === 'spring' ? 58 : (season.id === 'summer' ? 56 : 54);
@@ -6677,7 +6693,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       note: '举业路现改成“春课→夏课→秋试→冬清账”四季、每季三旬：上旬先定主读法、投塾与供读口风，中旬再磨文章、跑资格、补识字、接誊抄，下旬把应场、回家缓家计、差役钱与衣药后手一笔笔收紧。每旬现在按“四手预算”推进：一手顾课业主线，一手跑塾门/保结，一手拆家计与供读碎账，再留一手给身子、差役或回乡后手；供读口风、婚事口风与身子账的翻动，也会按旬累计，不再只留在年终一句“苦读几年”。若家里真要续供，也得显式粜米或另挪口粮来换纸墨盘缠，而不是把存米自动折成现银。如今下场后会在同一年里直接见“过县试 / 过府试 / 落第 / 成生员”的回话；冬里只继续收余账，不再把应试结果整笔拖到年终。跨到下一举业年时，塾门与保结也只保留一层旧门路，不会把“已坐实 / 已通保结”整笔原封带过去。',
       narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + xunLabel + '</span>。' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火、婚事口风和身子亏空都在争同一笔钱。') + ' 你这一旬有 <span class="em">4 个行动点</span>，最好别只顾课业本身。',
       dossier: function () {
-        return lifeDossier('当前举程=' + season.name + '·' + xunLabel + '｜投塾=' + examEnrollmentLabel(S.投塾进度) + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜文章火候=' + S.文章火候 + '｜供读状态=' + examSupportStateDetail() + '｜婚事口风=' + examDelayStatusLabel() + '｜三年婚事承压=' + examLifetimeDelayLabel() + '｜身耗=' + examBodyStatusLabel() + '｜本年应试=' + examAttemptResultLabel(S.本年应试结果) + '｜本年投塾=' + S.本年投塾次数 + '｜识字旬=' + S.本年识字旬数 + '｜馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保结奔走=' + S.本年保结次数 + '｜誊抄=' + S.本年誊抄次数 + '｜归家缓家=' + S.本年归家次数 + '回/' + S.本年家中贴补米 + '石｜母纺贴补=' + (S.本年母纺贴补次 || 0) + '回/' + (S.本年母纺贴补文 || 0) + '文｜兄婚让读=' + (S.本年兄婚让读次 || 0) + '回/' + (S.本年兄婚让读文 || 0) + '文｜供读转折=' + (S.本年供读转折旬数 || 0) + '旬｜婚事转折=' + (S.本年婚事转折旬数 || 0) + '旬｜身耗转折=' + (S.本年身耗转折旬数 || 0) + '旬｜家中供读=' + S.本年家中供读次 + '回/' + S.本年家中供读文 + '文/' + S.本年家中供读米 + '石｜笔墨自筹=' + (S.本年举业自筹文 || 0) + '文' + ((S.本年举业自筹缓压 || 0) > 0 ? '｜已缓供读一线' : '') + '｜已落举业支出=' + S.本年已落举业支出文 + '文｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜盘缠=' + S.本年盘缠支出文 + '文｜零耗=' + S.本年零耗支出文 + '文｜衣药=' + S.本年衣药支出文 + '文｜役扰=' + (S.本年役扰支出文 || 0) + '文' + ((S.本年役扰已结 || false) ? '｜役钱已见光' : '') + '｜债息=' + (S.本年债息增银 || 0) + '两' + ((S.本年债息已结 || false) ? '｜债息已滚' : '') + '｜落第=' + S.本年落第次数 + '｜延婚牵扯=' + S.本年延婚牵扯 + '｜身子亏空=' + S.本年身子亏空 + '｜累计投塾=' + (S.举业累计投塾次数 || 0) + '｜累计识字=' + (S.举业累计识字旬数 || 0) + '｜累计保结=' + (S.举业累计保结次数 || 0) + '｜累计落第=' + (S.举业累计落第次数 || 0) + '｜累计延婚=' + (S.举业累计延婚牵扯 || 0) + '｜累计身耗=' + (S.举业累计身子亏空 || 0) + (S.生员身份 ? '｜已是生员' : '') + '。');
+        return lifeDossier('当前举程=' + season.name + '·' + xunLabel + '｜投塾=' + examEnrollmentLabel(S.投塾进度) + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜文章火候=' + S.文章火候 + '｜识字底子=' + examLiteracyFoundationLabel() + '｜供读状态=' + examSupportStateDetail() + '｜婚事口风=' + examDelayStatusLabel() + '｜三年婚事承压=' + examLifetimeDelayLabel() + '｜身耗=' + examBodyStatusLabel() + '｜本年应试=' + examAttemptResultLabel(S.本年应试结果) + '｜本年投塾=' + S.本年投塾次数 + '｜识字旬=' + S.本年识字旬数 + '｜馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保结奔走=' + S.本年保结次数 + '｜誊抄=' + S.本年誊抄次数 + '｜归家缓家=' + S.本年归家次数 + '回/' + S.本年家中贴补米 + '石｜母纺贴补=' + (S.本年母纺贴补次 || 0) + '回/' + (S.本年母纺贴补文 || 0) + '文｜兄婚让读=' + (S.本年兄婚让读次 || 0) + '回/' + (S.本年兄婚让读文 || 0) + '文｜供读转折=' + (S.本年供读转折旬数 || 0) + '旬｜婚事转折=' + (S.本年婚事转折旬数 || 0) + '旬｜身耗转折=' + (S.本年身耗转折旬数 || 0) + '旬｜家中供读=' + S.本年家中供读次 + '回/' + S.本年家中供读文 + '文/' + S.本年家中供读米 + '石｜笔墨自筹=' + (S.本年举业自筹文 || 0) + '文' + ((S.本年举业自筹缓压 || 0) > 0 ? '｜已缓供读一线' : '') + '｜已落举业支出=' + S.本年已落举业支出文 + '文｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜盘缠=' + S.本年盘缠支出文 + '文｜零耗=' + S.本年零耗支出文 + '文｜衣药=' + S.本年衣药支出文 + '文｜役扰=' + (S.本年役扰支出文 || 0) + '文' + ((S.本年役扰已结 || false) ? '｜役钱已见光' : '') + '｜债息=' + (S.本年债息增银 || 0) + '两' + ((S.本年债息已结 || false) ? '｜债息已滚' : '') + '｜落第=' + S.本年落第次数 + '｜延婚牵扯=' + S.本年延婚牵扯 + '｜身子亏空=' + S.本年身子亏空 + '｜累计投塾=' + (S.举业累计投塾次数 || 0) + '｜累计识字=' + (S.举业累计识字旬数 || 0) + '｜累计保结=' + (S.举业累计保结次数 || 0) + '｜累计落第=' + (S.举业累计落第次数 || 0) + '｜累计延婚=' + (S.举业累计延婚牵扯 || 0) + '｜累计身耗=' + (S.举业累计身子亏空 || 0) + (S.生员身份 ? '｜已是生员' : '') + '。');
       },
       events: [
         {
@@ -6724,15 +6740,25 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'e_tutor', name: season.id === 'spring' ? '先入塾定今年馆课' : '继续塾馆温书', cost: 2, eff: '文章火候+' + tutorGain + '·成本档+' + (season.id === 'spring' ? 2 : 1) + '·供读压力+1', desc: season.id === 'spring' ? '先把今年最重也最贵的读法定下来：银钱、纸墨、人情都得先压进去。' : '继续把时辰压在馆课与温书上，推得稳，也更吃家里。', can: S.供读状态 !== '已断供', once: true });
           A.push({ id: 'e_half', name: '半耕半读', cost: 1, eff: '文章火候+1' + (season.id === 'autumn' ? '·存米+1' : '') + '·体魄-1', desc: '农忙帮家里、农闲读书，推进慢些，却能把家里那口气续住。', can: true });
           A.push({ id: 'e_school', name: season.id === 'spring' ? '投社学/寄读' : '低成本寄读', cost: 1, eff: '成本档+1·文章火候+1', desc: '不走正经塾馆，先把这一年读书成本压低一线。', can: S.供读状态 !== '已断供', once: true });
-          if (!S.识字 && (S.识字进度 || 0) < 2) {
+          if (examLiteracyActionReady()) {
             A.push({
               id: 'e_literacy',
-              name: season.id === 'winter' ? '借灯下认字记号' : '先开蒙识字',
+              name: !S.识字
+                ? (season.id === 'winter' ? '借灯下认字记号' : '先开蒙识字')
+                : (season.id === 'spring'
+                  ? '温三百千与题样'
+                  : (season.id === 'summer'
+                    ? '借塾角校题样'
+                    : (season.id === 'autumn' ? '先把履历题样认熟' : '灯下温旧书认帖样'))),
               cost: 1,
-              eff: '铜钱-' + literacyCost + '·识字进度+1(满2开蒙)·文章火候+1',
-              desc: season.id === 'winter'
-                ? '年关灯下跟塾师或同窗认几行字、记几样号记。钱花得碎，却能把“只会背、不会写”的窄口慢慢撑开。'
-                : '先把最基础的字眼认出来：不求立刻会作文章，只求能看懂题目、抄得对字、记得住账。',
+              eff: '铜钱-' + literacyCost + '·识字进度+1' + (S.识字 ? '(满4稳底子)' : '(满2开蒙)') + '·文章火候+1',
+              desc: !S.识字
+                ? (season.id === 'winter'
+                  ? '年关灯下跟塾师或同窗认几行字、记几样号记。钱花得碎，却能把“只会背、不会写”的窄口慢慢撑开。'
+                  : '先把最基础的字眼认出来：不求立刻会作文章，只求能看懂题目、抄得对字、记得住账。')
+                : (season.id === 'winter'
+                  ? '你并非从零开蒙，只是要把先前读过的“三百千”和来春帖样重新温熟。履历、帖样、题面若认不稳，旧门路也会虚一层。'
+                  : '父快照里你本就读过“三百千”。这一旬不是从零认字，而是把题样、履历、常见考语再磨熟一层，让投塾、评文和保结不只靠一句“识字”。'),
               can: S.铜钱 >= literacyCost,
               why: S.铜钱 >= literacyCost ? '' : ('铜钱不足' + literacyCost + '文'),
               once: true
@@ -6866,13 +6892,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               });
             }
           }
-          if (!S.识字 && (S.识字进度 || 0) < 2) {
+          if (examLiteracyActionReady()) {
             A.push({
               id: 'e_literacy',
-              name: season.id === 'summer' ? '伏夏跟塾师认字' : '补一旬认字开蒙',
+              name: !S.识字
+                ? (season.id === 'summer' ? '伏夏跟塾师认字' : '补一旬认字开蒙')
+                : (season.id === 'summer'
+                  ? '伏夏温经认题'
+                  : (season.id === 'winter' ? '借卷样认考语' : '补一旬认题样')),
               cost: 1,
-              eff: '铜钱-' + literacyCost + '·识字进度+1(满2开蒙)·文章火候+1',
-              desc: '不求一旬就能写得好，只求把题目、号记与常用字先认全；后面誊抄补贴与写契才有路。',
+              eff: '铜钱-' + literacyCost + '·识字进度+1' + (S.识字 ? '(满4稳底子)' : '(满2开蒙)') + '·文章火候+1',
+              desc: !S.识字
+                ? '不求一旬就能写得好，只求把题目、号记与常用字先认全；后面誊抄补贴与写契才有路。'
+                : '不是重开蒙，而是把题面、卷样、履历和常见考语再认熟一层。识字若只停在“三百千”，投塾、评文与保结都容易只剩一层虚口风。',
               can: S.铜钱 >= literacyCost,
               why: S.铜钱 >= literacyCost ? '' : ('铜钱不足' + literacyCost + '文'),
               once: true
@@ -7346,17 +7378,24 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             case 'e_literacy':
               if (spendCopper(literacyCost)) {
                 noteExamOutlay(literacyCost, { buckets: { 本年纸墨支出文: literacyCost } });
-                S.识字进度 = (S.识字进度 || 0) + 1;
+                var literacyWasLiterate = !!S.识字;
+                S.识字进度 = Math.min(4, (S.识字进度 || 0) + 1);
                 S.本年识字旬数 += 1;
                 S.文章火候 += 1;
                 didStudy = true;
                 var becameLiterate = (!S.识字 && S.识字进度 >= 2);
                 if (becameLiterate) S.识字 = true;
-                pushExamSeasonTag(stepTag + (becameLiterate ? '开蒙识字' : '认字补课'));
+                pushExamSeasonTag(stepTag + (becameLiterate ? '开蒙识字' : (literacyWasLiterate ? '温书识样' : '认字补课')));
                 log.push([
-                  (season.id === 'winter' ? '借灯下认字记号' : '开蒙识字')
-                    + '：铜钱-' + literacyCost + '、识字进度+1、文章火候+1'
-                    + (becameLiterate ? '（满2开蒙识字）' : ''),
+                  (!literacyWasLiterate
+                    ? ((season.id === 'winter' ? '借灯下认字记号' : '开蒙识字')
+                      + '：铜钱-' + literacyCost + '、识字进度+1、文章火候+1'
+                      + (becameLiterate ? '（满2开蒙识字）' : ''))
+                    : ((season.id === 'summer'
+                        ? '伏夏温经认题'
+                        : (season.id === 'winter' ? '借卷样认考语' : '温书识样'))
+                      + '：铜钱-' + literacyCost + '、识字底子+' + 1 + '、文章火候+1'
+                      + (S.识字进度 >= 4 ? '（题样与履历更稳）' : '。这不是从零开蒙，而是把先前“三百千”的底子磨到能看题、抄样和写履历。'))),
                   'good'
                 ]);
               } else {
