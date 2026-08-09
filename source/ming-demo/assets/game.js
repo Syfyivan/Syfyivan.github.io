@@ -7493,7 +7493,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           });
         }
       } else if (route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) {
-        pack.note = '卖工路成家后也不该只剩“这一年总共挣了多少工钱”。活路要先问、工食要分口回家、欠工要回头去结、差役也得先托旧工头探一层；现在又把春中回签与孩子草鞋、春尾回签与量斗草席、伏夏回签与锅火凉药、秋收旺工与秋中回签、秋中回签与孩子夹衣、冬头夹衣与回签门包、冬中里书催册与工棚回话、年关欠工、年下回签与来春工棚草鞋脚路继续拆回同一年里逐旬结算。';
+        pack.note = '卖工路成家后也不该只剩“这一年总共挣了多少工钱”。活路要先问、工食要分口回家、欠工要回头去结、差役也得先托旧工头探一层；现在又把春中回签与孩子草鞋、春尾回签与量斗草席、伏夏回签与锅火凉药、秋收旺工与秋中回签、秋尾回签与灯油针线、秋中回签与孩子夹衣、冬头夹衣与回签门包、冬头回签与孩子炭笔、冬中里书催册与工棚回话、年关欠工、年下回签与来春工棚草鞋脚路继续拆回同一年里逐旬结算。';
         pack.dossier = '雇技进度=' + S.雇技进度 + '｜雇工历练=' + S.雇工历练 + '｜婚配路径=' + S.婚配路径;
         var wageEventTxt;
         if (season.id === 'spring' && xun === 3) {
@@ -7507,7 +7507,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         } else if (season.id === 'autumn' && xun === 2) {
           wageEventTxt = '秋工钱看着比夏里厚一点，可锅火、差钱和回乡口粮也一起更急；若不先拆账，很容易错把忙季当宽裕。';
         } else if (season.id === 'winter' && xun === 1) {
-          wageEventTxt = '冬里看着像缓下来，实际最像翻旧账：欠工结没结、明春哪处还有活、棉衣炭钱先留哪一口，都要今冬先说清。';
+          wageEventTxt = '冬里看着像缓下来，实际最像翻旧账：欠工结没结、明春哪处还有活、棉衣炭钱与孩子炭笔先留哪一口，都要今冬先说清。';
         } else if (season.id === 'winter' && xun === 2) {
           wageEventTxt = '冬中最像一手是欠工回话、炭鞋门包和来春草鞋，一手是里书催册、差票回签与工棚回话；年还没过，制度册子和旧工路已经先来抢同一口现钱。';
         } else if (xun === 1) {
@@ -7602,6 +7602,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 desc: '冬头最怕孩子夹衣、旧工头回签门包、递话脚费和灶下锅火后手一起冒头。你先把这层冬头家内小耗拆开，不让“工路还在回话”先被换季衣物和门包磨成空话。',
                 can: S.铜钱 >= 55,
                 why: S.铜钱 >= 55 ? '' : '铜钱不足55文'
+              });
+              pack.extraActions.push({
+                id: 'f_route_wage_winter_paper',
+                name: '先把冬头回签与孩子炭笔分开',
+                cost: 1,
+                eff: '铜钱-60·供读+1·捎信+1·通融+1·家族+1',
+                desc: '冬头最怕旧工头回签、孩子炭笔、递话门包和守岁锅火一起抢同一口现钱。你先把这层冬头炭笔拆开，不让“回话还在路上”又先被孩子来春读写和锅火后手吃空。',
+                can: S.铜钱 >= 60,
+                why: S.铜钱 >= 60 ? '' : '铜钱不足60文'
               });
             }
           }
@@ -7723,6 +7732,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               desc: '秋尾最怕旺工将歇、回话差脚与递话门包却先一起要钱，锅火药钱也不肯等。你先把这层秋尾小账拆开，不让“秋里看着厚”转头就被年关前的细耗磨薄。',
               can: S.铜钱 >= 55,
               why: S.铜钱 >= 55 ? '' : '铜钱不足55文'
+            });
+            pack.extraActions.push({
+              id: 'f_route_wage_autumn_lamp',
+              name: '先把秋尾回签与灯油针线分开',
+              cost: 1,
+              eff: '铜钱-50·照家+1·捎信+1·通融+1·家族+1',
+              desc: '秋尾最怕旧工回签、灯油针线、递话门包和年关前锅火后手一起先来。你先把这层秋尾灯油拆开，不让“旺工钱像还有余温”又先被年下家用和回话脚费磨薄。',
+              can: S.铜钱 >= 50,
+              why: S.铜钱 >= 50 ? '' : '铜钱不足50文'
             });
           }
           if (season.id === 'spring') {
@@ -9155,6 +9173,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把秋尾差脚与锅火门包分开：铜钱-55、衣药+1、捎信+1、通融+1。回话差脚、递话门包和锅火药钱先被拆开，旺工将歇时这层最不起眼的细耗不再混成一句“秋后再算”。', 'good']);
               } else log.push(['想先把秋尾差脚与锅火门包分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_route_wage_autumn_lamp':
+              if (spendCopper(50)) {
+                S.家族 += 1;
+                S.本年家照家 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '秋尾灯油已分');
+                log.push(['先把秋尾回签与灯油针线分开：铜钱-50、照家+1、捎信+1、通融+1、家族+1。旧工回签、灯油针线、递话门包和年下锅火后手先被拆开，卖工路秋尾不再只剩“再等等回话”，连年关前最细的家内小耗也开始同旬见光。', 'good']);
+              } else log.push(['想先把秋尾回签与灯油针线分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
             case 'f_route_wage_split':
               if (spendCopper(140)) {
                 S.家族 += (S.本年家捎信 || 0) > 0 ? 3 : 2;
@@ -9252,6 +9280,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushFamilySeasonTag(stepTag + '冬头夹衣已分');
                 log.push(['先把孩子夹衣与回签门包分开：铜钱-55、衣药+1、捎信+1、通融+1。孩子夹衣、旧工头回签门包、递话脚费和锅火后手先被拆回这一旬，卖工路冬头不再只剩“问明春工路”，连家里换季这层小耗也开始同年见光。', 'good']);
               } else log.push(['想先把孩子夹衣与回签门包分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'f_route_wage_winter_paper':
+              if (spendCopper(60)) {
+                S.家族 += 1;
+                S.本年家供读 += 1;
+                S.本年家捎信 += 1;
+                S.本年家通融 += 1;
+                pushFamilySeasonTag(stepTag + '冬头炭笔已分');
+                log.push(['先把冬头回签与孩子炭笔分开：铜钱-60、供读+1、捎信+1、通融+1、家族+1。旧工头回签、孩子炭笔、递话门包和守岁锅火先被拆开，卖工路冬头不再只剩“先问明春活路”，连孩子来春读写这层家内细账也开始同旬见光。', 'good']);
+              } else log.push(['想先把冬头回签与孩子炭笔分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_wage_winter_gift':
               if (spendCopper(80)) {
@@ -9802,6 +9840,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             pushFamilySeasonTag(stepTag + '秋尾硬顶');
             log.push(['〔秋尾差脚〕这一旬连回话脚费和催差门包都腾挪不开，只得先硬顶过去；秋后这房在人情与差票上都更吃紧了一线（家族-1）。', 'bad']);
           }
+          if (picked.f_route_wage_autumn_lamp || picked.f_kitchen || picked.f_child || picked.f_mend) {
+            pushFamilySeasonTag(stepTag + '秋尾灯油已理');
+            log.push(['〔秋尾灯油〕这一旬先把旧工回签、灯油针线、递话门包和锅火后手分开了；卖工路秋尾不再只剩“等回话再说”，连年下最细的灯火针线也开始同旬咬钱。', 'good']);
+          } else if (spendCopper(35)) {
+            S.本年家照家 += 1;
+            pushFamilySeasonTag(stepTag + '秋尾灯油');
+            log.push(['〔秋尾灯油〕旧工回签、灯油针线、递话门包和锅火后手一起要钱：铜钱-35、照家+1。不是大账，却正把卖工路秋尾那层“回签未净、年下灯火先来”的细摩擦重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '秋尾灯油硬顶');
+            log.push(['〔秋尾灯油〕这一旬连灯油针线和回签门包都腾挪不开，只得先硬顶过去；年下这房的锅火与回话口风又更薄了一线（家族-1）。', 'bad']);
+          }
         }
         if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && season.id === 'winter' && xun === 1) {
           if (picked.f_route_wage_winter_book || picked.f_work || picked.f_rest || picked.f_mend) {
@@ -9828,6 +9878,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushFamilySeasonTag(stepTag + '冬头硬顶');
             log.push(['〔冬头夹衣〕这一旬连孩子夹衣和回签门包都腾挪不开，只得先硬顶过去；旧工头与家里这层过冬口风又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && season.id === 'winter' && xun === 1) {
+          if (picked.f_route_wage_winter_paper || picked.f_child || picked.f_route_wage_winter_book || picked.f_mend) {
+            pushFamilySeasonTag(stepTag + '冬头炭笔已理');
+            log.push(['〔冬头炭笔〕这一旬先把旧工头回签、孩子炭笔、递话门包和守岁锅火分开了；卖工路冬头不再只剩“明春活路要不要先问”，连孩子来春读写与守岁锅火也开始同旬咬钱。', 'good']);
+          } else if (spendCopper(35)) {
+            S.本年家供读 += 1;
+            pushFamilySeasonTag(stepTag + '冬头炭笔');
+            log.push(['〔冬头炭笔〕旧工头回签、孩子炭笔、递话门包和守岁锅火一起要钱：铜钱-35、供读+1。不是大账，却正把卖工路冬头那层“回话未净、孩子来春读写先来”的细摩擦重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '冬头笔硬顶');
+            log.push(['〔冬头炭笔〕这一旬连孩子炭笔和回签门包都腾挪不开，只得先硬顶过去；旧工头与家里这层守岁口风又更紧了一线（家族-1）。', 'bad']);
           }
         }
         if ((route.indexOf('路径二') === 0 || route.indexOf('受雇') === 0) && season.id === 'winter' && xun === 2) {
