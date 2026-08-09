@@ -196,7 +196,7 @@
       本年学徒说合: 0, 本年学徒守店: 0, 本年学徒学账: 0, 本年学徒帮家: 0, 本年学徒奔走: 0, 本年学徒问价: 0, 本年学徒贴家: 0, 本年学徒衣药: 0, 本年学徒歇养: 0, 本年学徒备役: 0, 本年学徒旬记: [],
       // 徽商路径字段（四季三旬：借用“商段”字段记录当前旬位 1/2/3，避免破坏既有快照结构）
       商年: 1, 商季: 1, 商段: 1, 商身份: '未定', 商历练: 0, 识货进度: 0, 账房进度: 0, 商信誉: 0,
-      带本银: 0, 未回款银: 0, 累计反哺银: 0, 商路供读银: 0, 商路亏折: 0, _merchantLockedTradeTable: null, _advanceMerchantYear: false, _advanceMerchantSeason: false,
+      带本银: 0, 未回款银: 0, 累计回钱银: 0, 累计反哺银: 0, 商路供读银: 0, 商路亏折: 0, _merchantLockedTradeTable: null, _advanceMerchantYear: false, _advanceMerchantSeason: false,
       本年商路坐店: 0, 本年商路跑单: 0, 本年商路认货: 0, 本年商路问价: 0, 本年商路核账: 0, 本年商路催账: 0, 本年商路贴家: 0, 本年商路归乡: 0, 本年商路家书: 0, 本年商路试贩: 0, 本年商路备役: 0, 本年商路歇养: 0, 本年商路拖欠: 0, 本年商路供读: 0, 本年商路身乏: 0, 本年商路龃龉: 0, 本年商路役扰: 0, 本年商路季务: [],
       // 科举路径字段
       举业年: 1, 举季: 1, 举段: 1, 读书方式: '未定', 投塾进度: 0, 童试层级: 0, 保结进度: 0, 文章火候: 0,
@@ -646,7 +646,7 @@
       profile.fertilityTag = 'lateStrict';
       profile.marriageLead = '举业路会先把几年乃至十余年的束脩、下场、保结和笔墨底子折进婚事账，迟婚是这一路最明显的结构性代价。';
       profile.fertilityLead = '成婚更晚，生育窗口最窄，绝嗣风险也会比其他路更高。';
-    } else if (route.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计反哺银 > 0) {
+    } else if (route.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计回钱银 > 0 || S.累计反哺银 > 0) {
       profile.fertilityTag = 'split';
       profile.marriageLead = '商路现金往来更活，但“到账”和“在路上”不是一回事；议亲时认的是手里现钱与这些年有没有回钱。';
       profile.fertilityLead = '婚龄未必更晚，但常年在外、聚少离多，会把添丁的节奏拉长。';
@@ -1875,7 +1875,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   }
   var isWageElder = isWageRouteState();
   var isApprenticeElder = (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定');
-  var isMerchantElder = (S.路线.indexOf('徽商') === 0 || (S.商历练 || 0) > 0 || (S.累计反哺银 || 0) > 0 || (S.未回款银 || 0) > 0);
+  var isMerchantElder = (S.路线.indexOf('徽商') === 0 || (S.商历练 || 0) > 0 || (S.累计回钱银 || 0) > 0 || (S.累计反哺银 || 0) > 0 || (S.未回款银 || 0) > 0);
   var isExamElder = (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份 || S.优免启用);
   if (isMerchantElder && season.id === 'spring' && xun === 1) apply({
     handledIds: ['e_negotiate', 'e_route_spring_head_old', 'e_rest'],
@@ -2740,6 +2740,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function isMerchantRouteState() {
     return !!S && (
       (S.路线 || '').indexOf('徽商') === 0 ||
+      (S.累计回钱银 || 0) > 0 ||
       (S.累计反哺银 || 0) > 0 ||
       (S.未回款银 || 0) > 0 ||
       (S.商历练 || 0) > 0
@@ -4977,7 +4978,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         + ' 你这一旬有 <span class="em">3 个行动点</span>。',
       dossier: function () {
         var seasonTags = (S.本年商路季务 && S.本年商路季务.length) ? S.本年商路季务.join('、') : '尚未坐实';
-        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。');
+        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。');
       },
       events: [
         {
@@ -5208,7 +5209,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               }
               break;
             case 'm_run':
-              if (runSilver > 0) { S.白银 += runSilver; S.累计反哺银 += runSilver; }
+              if (runSilver > 0) { S.白银 += runSilver; S.累计回钱银 += runSilver; }
               S.铜钱 += runCopper; S.商历练 += 2; S.体魄 -= runBody; if (runFamilyCost > 0) S.家族 -= runFamilyCost;
               if (runBody >= 4) S.本年商路身乏 += 1;
               if (runFamilyCost > 0) S.本年商路龃龉 += 1;
@@ -5246,7 +5247,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               pushMerchantSeasonTag(season.name + xunLabel + '催账');
               if (S.未回款银 > 0) {
                 S.本年商路拖欠 += 1;
-                S.未回款银 -= 1; S.白银 += 1; if (collectTrust > 0) S.商信誉 += collectTrust;
+                S.未回款银 -= 1; S.白银 += 1; S.累计回钱银 += 1; if (collectTrust > 0) S.商信誉 += collectTrust;
                 log.push(['追催旧账回钱：未回款银-1、白银+1' + (collectTrust > 0 ? ('、商信誉+' + collectTrust) : '') + '。账面上的银，终于落回手里。', 'good']);
               } else {
                 S.铜钱 += collectCopper; if (collectTrust > 0) S.商信誉 += collectTrust;
@@ -5470,9 +5471,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           log.push(['〔试贩成算〕这一单不再只按固定概率落下：会继续吃到旧商路、账房、承继定位与旁支衰减的影响。', 'good']);
           if (r === 'flat') {
             S.白银 += S.带本银;
+            S.累计回钱银 += S.带本银;
             log.push(['〔试贩结账〕回本而已：锁定本钱如数回账。', 'good']);
           } else if (r === 'profit') {
-            S.白银 += S.带本银 + 1; S.累计反哺银 += 1;
+            S.白银 += S.带本银 + 1; S.累计回钱银 += S.带本银 + 1;
             log.push(['〔试贩结账〕小利：回本并净得白银+1。', 'good']);
           } else if (r === 'loss') {
             S.商路亏折 += 1;
@@ -6141,16 +6143,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         pack.showBonus = 0.05;
         pack.showLog = '亮出你在城里历练过几年（成算小增）';
       }
-    } else if (S.路线.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计反哺银 > 0 || S.未回款银 > 0) {
+    } else if (S.路线.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计回钱银 > 0 || S.累计反哺银 > 0 || S.未回款银 > 0) {
       pack.note = '商路议亲看的是回钱、旧账和顾不顾家，不是只看你在外跑过多少路。';
-      pack.dossier = '商身份=' + S.商身份 + '｜账房=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜供读银=' + S.商路供读银 + '两';
+      pack.dossier = '商身份=' + S.商身份 + '｜账房=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜供读银=' + S.商路供读银 + '两';
       pack.event = { t: 'rand', tag: '[账期]', txt: '在外学生意，媒人不认“路上银”，只认你手里现钱、这些年有没有寄回过银、账上还有没有旧货款压着。' };
-      pack.baseAdj = S.累计反哺银 >= 2 ? 0.04 : ((S.账房进度 + S.商信誉) >= 3 ? 0.02 : 0);
+      pack.baseAdj = S.累计反哺银 >= 2 ? 0.04 : ((S.累计回钱银 || 0) >= 2 ? 0.03 : ((S.账房进度 + S.商信誉) >= 3 ? 0.02 : 0));
       pack.showName = '亮账面·说这些年有回钱';
-      pack.showCan = S.商历练 > 0 || S.累计反哺银 > 0 || S.账房进度 > 0 || S.未回款银 > 0;
+      pack.showCan = S.商历练 > 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.账房进度 > 0 || S.未回款银 > 0;
       pack.showWhy = pack.showCan ? '' : '眼下还无可亮的商路账面';
       pack.showDesc = '让女方家看到你这几年不是空跑商路：账面门道、回家银路、旧账压力都摆在眼前。';
-      pack.showBonus = (S.累计反哺银 >= 2 ? 0.14 : (S.累计反哺银 >= 1 ? 0.10 : 0.04)) + ((S.账房进度 + S.商信誉) >= 3 ? 0.04 : 0) - (S.未回款银 > 0 ? 0.03 : 0) - (S.商路亏折 > 0 ? 0.02 : 0);
+      pack.showBonus = (S.累计反哺银 >= 2 ? 0.10 : (S.累计反哺银 >= 1 ? 0.07 : 0.02))
+        + ((S.累计回钱银 || 0) >= 2 ? 0.04 : ((S.累计回钱银 || 0) >= 1 ? 0.02 : 0))
+        + ((S.账房进度 + S.商信誉) >= 3 ? 0.04 : 0)
+        - (S.未回款银 > 0 ? 0.03 : 0) - (S.商路亏折 > 0 ? 0.02 : 0);
       pack.showBonus = Math.max(0, pack.showBonus);
       pack.showLog = '亮出这几年回家的银路与账面门道（成算增）';
       if (S.未回款银 > 0) {
@@ -6607,11 +6612,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       if ((S.学徒去向 === '留店伙计' || S.学徒去向 === '店铺做工' || S.学徒去向 === '随行商') && S.委托租谷 <= 0) {
         pack.extraActions.push({ id: 'h_lease_city', name: '把分得薄田出佃收租', cost: 1, eff: '立委托经营账·年租谷+1·风险降', desc: '你人在城里，就把分得的薄田立约出佃：租谷归你，欠租记应收，不再硬把身子摁回田里。', can: true, once: true });
       }
-    } else if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.未回款银 > 0 || S.商历练 > 0) {
+    } else if (S.路线.indexOf('徽商') === 0 || S.累计回钱银 > 0 || S.累计反哺银 > 0 || S.未回款银 > 0 || S.商历练 > 0) {
       pack.note = '商路到当户，看的是旧账、回钱与顾不顾家，不是只看你跑过多少路。';
-      pack.dossier = '累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜账房=' + S.账房进度 + '｜信誉=' + S.商信誉;
+      pack.dossier = '累计回钱=' + (S.累计回钱银 || 0) + '两｜累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜账房=' + S.账房进度 + '｜信誉=' + S.商信誉;
       pack.event = { t: 'rand', tag: '[账期]', txt: '里甲不认“路上银”，只认你眼下能不能拿出代役钱；乡里却记得你这些年有没有寄银回家。账在外，役在乡，两头都要结。' };
       if (S.累计反哺银 >= 2) pack.baseAdj -= 0.04;
+      else if ((S.累计回钱银 || 0) >= 2) pack.baseAdj -= 0.02;
       if ((S.账房进度 + S.商信誉) >= 3) pack.baseAdj -= 0.03;
       if (S.未回款银 > 0) pack.baseAdj += 0.03;
       if (S.未回款银 > 0) {
@@ -6862,7 +6868,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
       } else if (route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) {
         pack.note = '商路成家后最磨人的，不是“这一程赚没赚”，而是银在路上时家里这一旬怎么过。';
-        pack.dossier = '累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜账房=' + S.账房进度 + '｜信誉=' + S.商信誉;
+        pack.dossier = '累计回钱=' + (S.累计回钱银 || 0) + '两｜累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜账房=' + S.账房进度 + '｜信誉=' + S.商信誉;
         pack.event = { t: 'rand', tag: '[商路]', txt: (season.id === 'spring' && xun === 3)
           ? '春起下旬最像把“问来的路数”真拆成家里日用：春路回钱、清明香纸、熟号门包、孩子纸包与锅火后手会在这一旬一起追钱，哪口先拆给哪边都不能再糊成一句“回头再说”。'
           : (season.id === 'autumn' && xun === 2)
@@ -16153,7 +16159,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。只是你人在城里，这 4 亩薄田更像待立约的租谷来路，不再是能日日亲耕的田面。', 'good']);
       return;
     }
-    if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) {
+    if (S.路线.indexOf('徽商') === 0 || S.累计回钱银 > 0 || S.累计反哺银 > 0 || S.商历练 > 0) {
       log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。你常年在外，这份田更接近“委托兄长/佃户代管后按账回租”的资产。', 'good']);
       return;
     }
@@ -16239,11 +16245,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         pack.extraActions.push({ id: 'e_shop_winter_tail_old', name: '先把年下回铺回签与灯炭针线分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '冬尾最怕旧掌柜年下回签、灯炭针线、递话脚费和来春回铺脚单一起压来。先把这层冬尾小账拆开，别让旧铺回音和眼前锅火继续抢同一口过冬钱。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
         pack.extraActions.push({ id: 'e_shop_route_old', name: '先问来春回铺脚路与递话口风', cost: 1, eff: '铜钱-50·家族+1', desc: '趁年关旧掌柜和同门还肯回话，先把来春回铺脚路、递话薄礼与催佃回城的口风摸明。它不立刻变现，却能让明春第一旬不必重新瞎撞。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
       }
-    } else if (S.路线.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计反哺银 > 0 || S.未回款银 > 0) {
+    } else if (S.路线.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计回钱银 > 0 || S.累计反哺银 > 0 || S.未回款银 > 0) {
       pack.note = '商路一路到了晚年，关键不只在旧账、分红和反哺名声能不能真的落回养老账，也在于春头样纸、春价回话、伏夏水脚与布药、秋后脚单与冬里熟号门路能不能一旬旬接住。';
-      pack.dossier = '累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜商身份=' + S.商身份 + '｜委托营生=' + S.委托营生;
+      pack.dossier = '累计回钱=' + (S.累计回钱银 || 0) + '两｜累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜商身份=' + S.商身份 + '｜委托营生=' + S.委托营生;
       pack.event = { t: 'rand', tag: '[旧账]', txt: '商路上最怕的是老来还有账压在外头：你年轻时寄回家的银会被诸子记住，路上的旧账却未必能赶在身子垮前收齐。' };
       if (S.累计反哺银 >= 2) pack.negotiateAdj += 0.06;
+      else if ((S.累计回钱银 || 0) >= 2) pack.negotiateAdj += 0.03;
       if (S.商路供读银 >= 1) pack.negotiateAdj += 0.04;
       if (S.未回款银 > 0) {
         pack.extraActions.push({ id: 'e_collect_old', name: '催回商路旧账', cost: 1, eff: '未回款→部分现银', desc: '趁还走得动，把商路上的旧账催回一部分作养老钱。', can: true, once: true });
@@ -17339,8 +17346,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       if (isWageRouteState() && (S.雇身份 === '外出佣工' || S.婚配路径 === '先应差·外出佣工')) {
         legacy.城里门路 = Math.max(legacy.城里门路, S.雇工历练 >= 3 ? 2 : 1);
       }
-      if (S.商历练 > 0 || S.累计反哺银 > 0 || S.商身份 !== '未定') legacy.商路门路 = 1;
-      if ((S.账房进度 + S.商信誉) >= 3 || S.累计反哺银 >= 2) legacy.商路门路 = 2;
+      if (S.商历练 > 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商身份 !== '未定') legacy.商路门路 = 1;
+      if ((S.账房进度 + S.商信誉) >= 3 || (S.累计回钱银 || 0) >= 2 || S.累计反哺银 >= 2) legacy.商路门路 = 2;
       if (S.生员身份) legacy.家传书香 = 2;
       else if (S.识字 || S.识字转业值 >= 2 || S.举业结局 === '屡试未第') legacy.家传书香 = 1;
       if ((legacy.商路门路 > 0 && legacy.家传书香 > 0) || S.商路供读银 >= 1) legacy.亦贾亦儒底子 = 1;
@@ -17349,7 +17356,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         legacy.承继定位 = '旁支接祧续户';
       } else if (S.子数 === 1) {
         legacy.承继定位 = '独子承家';
-      } else if ((S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) && S.子数 > 1) {
+      } else if ((S.路线.indexOf('徽商') === 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商历练 > 0) && S.子数 > 1) {
         legacy.承继定位 = (legacy.亦贾亦儒底子 > 0 || legacy.供读底子 > 0)
           ? '长兄续商·次子候读'
           : '长兄续商·次子另起一手';
@@ -17411,7 +17418,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         委托租谷: shareLease,
         委托待收租谷: sharePendingRent
       };
-      if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，身后连旧账、反哺名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、尚未结回的委托田租' : '') + '也一并结进遗产。';
+      if (S.路线.indexOf('徽商') === 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，身后连旧账、回钱与反哺名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、尚未结回的委托田租' : '') + '也一并结进遗产。';
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了能传下去的不只是薄田' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '与委托田租' : '') + '，还有一层见过世面的门路。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨不会直接分成银两，却会作为体面与起点留在下一代门前。';
       else deathTag = '你这一辈子的每一分积累与亏空，都成了子孙的期初。';
@@ -17430,7 +17437,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         委托租谷: collateralLeaseEnabled ? Math.max(0, S.委托租谷 || 0) : 0,
         委托待收租谷: collateralLeaseEnabled ? pendingRentMi : 0
       };
-      if (S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，临了虽未留下亲生承嗣，旧账、顾家名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、委托经营账上的待结田租' : '') + '仍要在旁支账里结清。';
+      if (S.路线.indexOf('徽商') === 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，临了虽未留下亲生承嗣，旧账、回钱与顾家名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、委托经营账上的待结田租' : '') + '仍要在旁支账里结清。';
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了虽绝嗣，城中门路与见识' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '连同委托田租的薄底子' : '') + '也只剩旁支可续。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨终究未能直接传给亲子，只在旁支门前留下些体面与余绪。';
       else deathTag = '这不是"游戏失败"，而是明代极高绝嗣率下的真实分支。';
