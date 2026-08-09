@@ -7234,6 +7234,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     function examEnrollGateTarget() {
       return season.id === 'spring' ? 58 : (season.id === 'summer' ? 56 : 54);
     }
+    function examSchoolGateScore() {
+      var literacyProgress = Math.max(0, Number(S.识字进度) || 0);
+      var familyDoor = Math.max(0, Math.floor(((S.家族 || 0) - 50) / 3));
+      var literacyDoor = S.识字 ? 6 : Math.min(4, literacyProgress);
+      var supportDoor = Math.min(2, S.本年家中供读次 || 0) * 2;
+      var bookishDoor = (S.家传书香 > 0 ? 2 : 0) + ((S.投塾进度 || 0) > 0 ? 2 : 0);
+      var pressurePenalty = Math.max(0, Number(S.供读压力) || 0) * 3;
+      return familyDoor + literacyDoor + supportDoor + bookishDoor - pressurePenalty;
+    }
+    function examSchoolGateTarget() {
+      return season.id === 'spring' ? 9 : (season.id === 'summer' ? 8 : 7);
+    }
     function examGuaranteeGateScore() {
       return (S.家族 || 0)
         + (S.文章火候 || 0) * 6
@@ -7305,7 +7317,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
           A.push({ id: 'e_tutor', name: season.id === 'spring' ? '先入塾定今年馆课' : '继续塾馆温书', cost: 2, eff: '塾门稳则文章火候+' + tutorGain + '·成本档+' + (season.id === 'spring' ? 2 : 1) + '·供读压力+1；塾门未稳只算借馆旁听', desc: season.id === 'spring' ? '先把今年最重也最贵的读法定下来：银钱、纸墨、人情都得先压进去。若塾门这旬还没点头，这口馆课也只能先算借馆旁听。' : '继续把时辰压在馆课与温书上，推得稳，也更吃家里；若塾门未坐实，这旬也只能先蹭馆试坐。', can: S.供读状态 !== '已断供', once: true });
           A.push({ id: 'e_half', name: '半耕半读', cost: 1, eff: '文章火候+1' + (season.id === 'autumn' ? '·存米+1' : '') + '·体魄-1', desc: '农忙帮家里、农闲读书，推进慢些，却能把家里那口气续住。', can: true });
-          A.push({ id: 'e_school', name: season.id === 'spring' ? '投社学/寄读' : '低成本寄读', cost: 1, eff: '成本档+1·文章火候+1', desc: '不走正经塾馆，先把这一年读书成本压低一线。', can: S.供读状态 !== '已断供', once: true });
+          A.push({
+            id: 'e_school',
+            name: season.id === 'spring' ? '投社学/寄读' : '低成本寄读',
+            cost: 1,
+            eff: '若寄读坐实则成本档+1·文章火候+1；未被收只落投学脚费',
+            desc: '不走正经塾馆，先去探社学、族学或寄读入口。它只是低成本读法，不是默认会收；若学位、族里口风或门包没坐实，这一旬也只算把投学脚费与回话先压进去。',
+            can: S.供读状态 !== '已断供',
+            once: true
+          });
           if (examLiteracyActionReady()) {
             A.push({
               id: 'e_literacy',
@@ -7770,9 +7790,39 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               break;
             case 'e_school':
               var schoolPay = settleExamAdvanceCost(80);
-              S.文章火候 += 1; S.读书成本档 += 1; S.读书方式 = '社学寄读'; S.本年寄读次数 += 1; S.本年束脩支出文 += 60; S.本年纸墨支出文 += 20; S.本年延婚牵扯 += 1; S.投塾进度 = Math.max(1, S.投塾进度 || 0); didStudy = true;
-              pushExamSeasonTag(stepTag + '寄读');
-              log.push(['投社学/寄读：文章火候+1、成本档+1' + schoolPay.text, 'good']);
+              var schoolGateOk = examSchoolGateScore() >= examSchoolGateTarget();
+              S.本年延婚牵扯 += 1;
+              if (schoolGateOk) {
+                S.文章火候 += 1;
+                S.读书成本档 += 1;
+                S.读书方式 = '社学寄读';
+                S.本年寄读次数 += 1;
+                S.本年束脩支出文 += 60;
+                S.本年纸墨支出文 += 20;
+                S.投塾进度 = Math.max(1, S.投塾进度 || 0);
+                didStudy = true;
+                pushExamSeasonTag(stepTag + '寄读');
+                log.push([
+                  (season.id === 'spring' ? '先探社学/寄读' : (season.id === 'summer' ? '再催寄读回话' : '补一道寄读回签'))
+                    + '：这一旬终于把低成本读法坐到了“社学/寄读”，文章火候+1、成本档+1'
+                    + schoolPay.text
+                    + '。这只说明有人肯收、有人肯续，不说明供读压力和后头应试就自动轻了。',
+                  'good'
+                ]);
+              } else {
+                S.家族 = Math.max(0, S.家族 - 1);
+                S.供读压力 += 1;
+                S.本年零耗支出文 += 30;
+                S.本年纸墨支出文 += 20;
+                pushExamSeasonTag(stepTag + '寄读回话未定');
+                log.push([
+                  (season.id === 'spring' ? '先探社学/寄读' : (season.id === 'summer' ? '再催寄读回话' : '补一道寄读回签'))
+                    + '：学位、族中口风或寄读门包这一旬还没坐实，只先把投学样纸、门包与回话脚费压了下去'
+                    + schoolPay.text
+                    + '；读书方式仍未坐实、家族-1、供读压力+1。低成本入口不等于默认有人肯收。',
+                  'bad'
+                ]);
+              }
               break;
             case 'e_essay':
               var essayPay = settleExamAdvanceCost(35);
