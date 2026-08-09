@@ -203,6 +203,7 @@
       供读状态: '家中供读', 供读压力: 0, 读书成本档: 0, 本年下场: false,
       生员身份: false, 生员层级: '无', 优免启用: false, 举业结局: '未定', 识字转业值: 0, _advanceExamYear: false, _advanceExamSeason: false,
       本年馆课次数: 0, 本年半读次数: 0, 本年寄读次数: 0, 本年评文次数: 0, 本年保结次数: 0, 本年誊抄次数: 0, 本年归家次数: 0, 本年备役次数: 0, 本年将养次数: 0, 本年举业季务: [],
+      本年束脩支出文: 0, 本年纸墨支出文: 0, 本年保结支出文: 0, 本年家中贴补次: 0, 本年家中贴补米: 0, 本年落第次数: 0, 本年身子亏空: 0,
       // 人生链路字段
       妻室: false, 子数: 0, 女数: 0, 负债银: 0, 口食田: 0, 分家: false, 应役: '未役',
       婚配路径: '未定', 合爨状态: '未合爨', 定额佃状态: '未立',
@@ -326,6 +327,7 @@
     if (S.生员身份 && S.童试层级 < 3) v.push('未过院试却写成生员');
     if (S.优免启用 && !S.生员身份) v.push('未成生员却启用优免');
     if (S.童试层级 < 0 || S.童试层级 > 3) v.push('童试层级越界(' + S.童试层级 + ')');
+    if (S.保结进度 < 0 || S.保结进度 > 2) v.push('保结进度越界(' + S.保结进度 + ')');
     if (S.学徒阶段 === '留店伙计' && S.学徒授艺度 < 2) v.push('学徒授艺未达标却留店为伙计');
     if (S.带本银 > 0 && S.白银 < 0) v.push('带本与现银结算异常');
     if (v.length) {
@@ -1400,6 +1402,18 @@
     var i = Math.max(1, Math.min(3, Number(index) || 1)) - 1;
     return XUN[i];
   }
+  function examGuaranteeLabel(progress) {
+    if ((progress || 0) >= 2) return '保结已通';
+    if ((progress || 0) >= 1) return '已递帖样';
+    return '未递保结';
+  }
+  function examTierLabel(level, shengyuan) {
+    if (shengyuan) return '生员';
+    if ((level || 0) <= 0) return '未过县试';
+    if (level === 1) return '县试已过';
+    if (level === 2) return '府试已过';
+    return '院试待核';
+  }
   function pushExamSeasonTag(tag) {
     if (!tag) return;
     if (!S.本年举业季务) S.本年举业季务 = [];
@@ -1573,6 +1587,13 @@
     S.本年备役次数 = 0;
     S.本年将养次数 = 0;
     S.本年举业季务 = [];
+    S.本年束脩支出文 = 0;
+    S.本年纸墨支出文 = 0;
+    S.本年保结支出文 = 0;
+    S.本年家中贴补次 = 0;
+    S.本年家中贴补米 = 0;
+    S.本年落第次数 = 0;
+    S.本年身子亏空 = 0;
   }
   function familySeasonInfo(index) {
     var i = Math.max(1, Math.min(FAMILY_SEASONS.length, index || 1)) - 1;
@@ -2773,7 +2794,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += '<span class="chip">路线 <b>读书应举</b></span>';
       h += '<span class="chip">举业 <b>' + S.举业年 + '/' + EXAM_YEARS + '</b>年</span>';
       h += '<span class="chip">举程 <b>' + examSeasonInfo(S.举季 || 1).name + '·' + examXunLabel(S.举段 || 1) + '</b></span>';
-      h += '<span class="chip">童试层级 <b>' + (S.生员身份 ? '生员' : ('第' + S.童试层级 + '层')) + '</b></span>';
+      h += '<span class="chip">童试层级 <b>' + examTierLabel(S.童试层级, S.生员身份) + '</b></span>';
+      h += '<span class="chip">保结 <b>' + examGuaranteeLabel(S.保结进度) + '</b></span>';
     } else if (phase === 'family') {
       var familySeason = familySeasonInfo(S.家季 || 1);
       h += '<span class="chip">阶段 <b>养家</b></span>';
@@ -5308,7 +5330,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       note: '举业路现改成“春课→夏课→秋试→冬清账”四季、每季三旬：上旬先定主读法，中旬再磨文章、跑资格、抄写补贴，下旬把应场、回家缓家计、差役钱与衣药后手一笔笔收紧。每旬默认按“三手并行”来想，一手顾课业主线，一手拆家计或门路碎账，再留一手给身子、差役或回乡后手。供读不推出录取，仍不展开乡试会试。',
       narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，文章火候、保结、盘缠、家里锅火和身子亏空都在争同一笔钱。') + ' 你这一旬有 <span class="em">3 个行动点</span>，最好别只顾课业本身。',
       dossier: function () {
-        return lifeDossier('当前举程=' + season.name + '·' + xunLabel + '｜童试层级=' + S.童试层级 + '｜保结进度=' + S.保结进度 + '｜文章火候=' + S.文章火候 + '｜供读状态=' + S.供读状态 + '｜本年馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保结=' + S.本年保结次数 + '｜誊抄=' + S.本年誊抄次数 + '｜归家=' + S.本年归家次数 + '｜备役=' + S.本年备役次数 + (S.生员身份 ? '｜已是生员' : '') + '。');
+        return lifeDossier('当前举程=' + season.name + '·' + xunLabel + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜文章火候=' + S.文章火候 + '｜供读状态=' + S.供读状态 + '｜本年馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保结奔走=' + S.本年保结次数 + '｜誊抄=' + S.本年誊抄次数 + '｜归家=' + S.本年归家次数 + '｜贴补=' + S.本年家中贴补次 + '次/' + S.本年家中贴补米 + '石｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜落第=' + S.本年落第次数 + '｜身子亏空=' + S.本年身子亏空 + (S.生员身份 ? '｜已是生员' : '') + '。');
       },
       events: [
         {
@@ -5360,7 +5382,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'e_rest', name: '歇息养身', cost: 1, eff: '体魄+5', desc: '别把眼睛和身子先熬坏。', can: true });
         } else if (xun === 2) {
           A.push({ id: 'e_essay', name: season.id === 'summer' ? '伏夏专心评文改卷' : '请塾师评文改卷', cost: 1, eff: '文章火候+' + essayGain + '·成本档+1', desc: '再花一点纸墨和人情，把文章火候往前磨一层。', can: S.供读状态 !== '已断供' });
-          A.push({ id: 'e_guarantee', name: season.id === 'autumn' ? '赶在秋里通保结' : '奔走保结与报名', cost: 1, eff: '保结进度+1·铜钱-80', desc: '资格不通，本年就算想下场也不成。', can: !S.生员身份 && S.保结进度 < 1 && (season.id === 'autumn' || season.id === 'winter') && S.铜钱 >= 80, why: !S.生员身份 ? (S.保结进度 < 1 ? ((season.id === 'autumn' || season.id === 'winter') ? (S.铜钱 >= 80 ? '' : '铜钱不足80文') : '通常到秋冬才真跑保结') : '本年保结已通') : '已是生员', once: true });
+          A.push({ id: 'e_guarantee', name: season.id === 'autumn' ? '赶在秋里通保结' : '奔走保结与报名', cost: 1, eff: '保结进度+1档·铜钱-80', desc: '资格不通，本年就算想下场也不成。先把“递帖样”推进到“保结已通”，而不是一句话全算完。', can: !S.生员身份 && S.保结进度 < 2 && (season.id === 'autumn' || season.id === 'winter') && S.铜钱 >= 80, why: !S.生员身份 ? (S.保结进度 < 2 ? ((season.id === 'autumn' || season.id === 'winter') ? (S.铜钱 >= 80 ? '' : '铜钱不足80文') : '通常到秋冬才真跑保结') : '本年保结已通') : '已是生员', once: true });
           A.push({ id: 'e_copy', name: season.id === 'winter' ? '年关抄单写契补贴' : '抄书/看账补贴', cost: 1, eff: '铜钱+' + copyCopper + '·识字转业值+1·文章火候+1', desc: '就算不中，识字、誊抄和替人看账也会慢慢沉成转业底子。', can: S.识字, why: S.识字 ? '' : '尚不识字' });
           if (season.id === 'spring') {
             A.push({ id: 'e_spring_packet', name: '先把春中评文回话与税则脚费分开', cost: 1, eff: '铜钱-45·家族+1', desc: '春课中旬最怕评文回话、税则小纸、递话脚费和家里锅火一起冒头。先把这层小钱拆开，馆课口风才不至刚起就被磨薄。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
@@ -5385,7 +5407,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'e_rest', name: '歇息养身', cost: 1, eff: '体魄+5', desc: '让眼睛和身子缓一口气。', can: true });
         } else {
           A.push({ id: 'e_essay', name: season.id === 'autumn' ? '临场再磨一轮文章' : '再请塾师评文改卷', cost: 1, eff: '文章火候+' + essayGain + '·成本档+1', desc: '把这一旬能再稳一稳的文章火候压出来。', can: S.供读状态 !== '已断供' });
-          A.push({ id: 'e_exam', name: season.id === 'winter' ? '冬前补撞一回童试' : '下场应童试', cost: 2, eff: '触发童试结果·盘缠档+1', desc: '只有保结通了、这一年又真下了功夫，才值得去撞一撞。', can: !S.生员身份 && !S.本年下场 && (season.id === 'autumn' || season.id === 'winter') && S.保结进度 >= 1 && S.供读状态 !== '已断供', why: !S.生员身份 ? (!S.本年下场 ? ((season.id === 'autumn' || season.id === 'winter') ? (S.保结进度 >= 1 ? (S.供读状态 !== '已断供' ? '' : '家中已断供') : '保结未通') : '通常要到秋冬才真正下场') : '本年已下场过') : '已是生员', once: true });
+          A.push({ id: 'e_exam', name: season.id === 'winter' ? '冬前补撞一回童试' : '下场应童试', cost: 2, eff: '触发童试结果·盘缠档+1', desc: '只有保结真通了、这一年又真下了功夫，才值得去撞一撞。', can: !S.生员身份 && !S.本年下场 && (season.id === 'autumn' || season.id === 'winter') && S.保结进度 >= 2 && S.供读状态 !== '已断供', why: !S.生员身份 ? (!S.本年下场 ? ((season.id === 'autumn' || season.id === 'winter') ? (S.保结进度 >= 2 ? (S.供读状态 !== '已断供' ? '' : '家中已断供') : '保结未通') : '通常要到秋冬才真正下场') : '本年已下场过') : '已是生员', once: true });
           A.push({ id: 'e_copy', name: season.id === 'winter' ? '誊抄契字补年关钱' : '抄书/看账补贴', cost: 1, eff: '铜钱+' + copyCopper + '·识字转业值+1·文章火候+1', desc: '把识字底子临时换成一点现钱，也算给后路添一层。', can: S.识字, why: S.识字 ? '' : '尚不识字' });
           A.push({ id: 'e_home', name: season.id === 'winter' ? '回家陪着把年关过住' : '回家帮父与缓冲家计', cost: 1, eff: '家族+' + homeFamily + (homeRice > 0 ? ('·存米+' + homeRice) : '') + '·供读压力-1', desc: '读书这条路还没坐实的时候，家里先稳住就是一笔真账。', can: true, once: true });
           A.push({ id: 'e_reserve', name: '先留一角差役钱', cost: 1, eff: '铜钱-' + reserveCost + '·本年差役准备+1', desc: '先把差役钱留出来，免得到年关再把读书账拆得满地都是。', can: S.铜钱 >= reserveCost, why: S.铜钱 >= reserveCost ? '' : ('铜钱不足' + reserveCost + '文'), once: true });
@@ -5407,43 +5429,43 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             case 'e_tutor':
               var tutorPressure = 1;
               if (S.供读底子 > 0 && S.本年馆课次数 <= 0) tutorPressure = 0;
-              S.文章火候 += tutorGain; S.读书成本档 += (season.id === 'spring' ? 2 : 1); S.供读压力 += tutorPressure; S.读书方式 = '塾馆'; S.本年馆课次数 += 1; didStudy = true;
+              S.文章火候 += tutorGain; S.读书成本档 += (season.id === 'spring' ? 2 : 1); S.供读压力 += tutorPressure; S.读书方式 = '塾馆'; S.本年馆课次数 += 1; S.本年束脩支出文 += (season.id === 'spring' ? 120 : 80); S.本年纸墨支出文 += 30; if (S.保结进度 < 1) S.保结进度 = 1; didStudy = true;
               pushExamSeasonTag(stepTag + '馆课');
               log.push([season.id === 'spring'
                 ? ('先把今年馆课定下来：文章火候+' + tutorGain + '、成本档+2、供读压力+' + tutorPressure + (tutorPressure === 0 ? '（供读专账先替你垫住了第一口气）' : ''))
                 : ('继续塾馆温书：文章火候+' + tutorGain + '、成本档+1、供读压力+' + tutorPressure + (tutorPressure === 0 ? '（供读专账先替你垫住了第一口气）' : '')), 'good']);
               break;
             case 'e_half':
-              S.文章火候 += 1; if (season.id === 'autumn') S.存米 += 1; S.体魄 -= 1; S.读书方式 = '半耕半读'; S.本年半读次数 += 1; didStudy = true;
+              S.文章火候 += 1; if (season.id === 'autumn') S.存米 += 1; S.体魄 -= 1; S.本年身子亏空 += 1; S.读书方式 = '半耕半读'; S.本年半读次数 += 1; S.本年纸墨支出文 += 20; didStudy = true;
               pushExamSeasonTag(stepTag + '半耕半读');
               log.push(['半耕半读：文章火候+1' + (season.id === 'autumn' ? '、存米+1' : '') + '、体魄-1', 'good']);
               break;
             case 'e_school':
-              S.文章火候 += 1; S.读书成本档 += 1; S.读书方式 = '社学寄读'; S.本年寄读次数 += 1; didStudy = true;
+              S.文章火候 += 1; S.读书成本档 += 1; S.读书方式 = '社学寄读'; S.本年寄读次数 += 1; S.本年束脩支出文 += 60; S.本年纸墨支出文 += 20; if (S.保结进度 < 1) S.保结进度 = 1; didStudy = true;
               pushExamSeasonTag(stepTag + '寄读');
               log.push(['投社学/寄读：文章火候+1、成本档+1', 'good']);
               break;
             case 'e_essay':
-              S.文章火候 += essayGain; S.读书成本档 += 1; S.本年评文次数 += 1; didStudy = true;
+              S.文章火候 += essayGain; S.读书成本档 += 1; S.本年评文次数 += 1; S.本年纸墨支出文 += 35; didStudy = true;
               pushExamSeasonTag(stepTag + '评文');
               log.push([(season.id === 'summer' ? '伏夏专心评文改卷' : '请塾师评文改卷') + '：文章火候+' + essayGain + '、成本档+1', 'good']);
               break;
             case 'e_guarantee':
               if (spendCopper(80)) {
-                S.保结进度 = Math.min(1, S.保结进度 + 1); S.本年保结次数 += 1;
+                S.保结进度 = Math.min(2, Math.max(1, S.保结进度) + 1); S.本年保结次数 += 1; S.本年保结支出文 += 80;
                 pushExamSeasonTag(stepTag + '保结');
-                log.push(['奔走保结与报名：保结进度+1、铜钱-80', 'bad']);
+                log.push(['奔走保结与报名：保结进度推进到“' + examGuaranteeLabel(S.保结进度) + '”、铜钱-80', 'bad']);
               } else {
                 log.push(['想把保结赶紧通下，但这一旬零碎开销已先把铜钱占住，只得暂缓。', 'bad']);
               }
               break;
             case 'e_exam':
-              S.本年下场 = true; S.读书成本档 += 1;
+              S.本年下场 = true; S.读书成本档 += 1; S.本年保结支出文 += 60; S.本年纸墨支出文 += 40;
               pushExamSeasonTag(stepTag + '下场');
               log.push(['你决定这一年下场试一次：盘缠成本再记一档。', 'good']);
               break;
             case 'e_copy':
-              S.铜钱 += copyCopper; S.识字转业值 += 1; S.文章火候 += 1; S.本年誊抄次数 += 1;
+              S.铜钱 += copyCopper; S.识字转业值 += 1; S.文章火候 += 1; S.本年誊抄次数 += 1; S.本年纸墨支出文 += 15;
               pushExamSeasonTag(stepTag + '誊抄补贴');
               log.push(['抄书/看账补贴：铜钱+' + copyCopper + '、识字转业值+1、文章火候+1' + (S.家传书香 > 0 ? '（家传书香让这层笔墨活更容易接到）' : ''), 'good']);
               break;
@@ -5492,7 +5514,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               }
               break;
             case 'e_home':
-              S.家族 += homeFamily; if (homeRice > 0) S.存米 += homeRice; S.供读压力 = Math.max(0, S.供读压力 - 1); S.本年归家次数 += 1;
+              S.家族 += homeFamily; if (homeRice > 0) { S.存米 += homeRice; S.本年家中贴补米 += homeRice; } S.供读压力 = Math.max(0, S.供读压力 - 1); S.本年归家次数 += 1; S.本年家中贴补次 += 1;
               pushExamSeasonTag(stepTag + '归家');
               log.push(['回家帮父与缓冲家计：家族+' + homeFamily + (homeRice > 0 ? ('、存米+' + homeRice) : '') + '、供读压力-1', 'good']);
               break;
@@ -5516,7 +5538,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               break;
             case 'e_mend':
               if (spendCopper(mendCost)) {
-                S.体魄 += mendBody; S.本年将养次数 += 1;
+                S.体魄 += mendBody; S.本年将养次数 += 1; if (S.本年身子亏空 > 0) S.本年身子亏空 -= 1;
                 pushExamSeasonTag(stepTag + '补衣买药');
                 log.push([(season.id === 'winter' ? '补衣买药过冬' : '补鞋买药养身') + '：铜钱-' + mendCost + '、体魄+' + mendBody, 'good']);
               } else {
@@ -5524,7 +5546,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               }
               break;
             case 'e_rest':
-              S.体魄 += 5; S.本年将养次数 += 1;
+              S.体魄 += 5; S.本年将养次数 += 1; if (S.本年身子亏空 > 0) S.本年身子亏空 -= 1;
               pushExamSeasonTag(stepTag + '歇养');
               log.push(['歇息养身：体魄+5', 'good']);
               break;
@@ -5544,7 +5566,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
 
         if (S.本年下场) {
-          if (S.保结进度 < 1) {
+          if (S.保结进度 < 2) {
             log.push(['〔资格闸〕本年保结未通，终究没能真正下场。', 'bad']);
           } else {
             var chance = 0.12 + S.文章火候 * 0.08 + (S.读书方式 === '塾馆' ? 0.08 : 0) + (S.读书方式 === '社学寄读' ? 0.03 : 0) + Math.min(0.08, S.本年评文次数 * 0.03) + (S.本年保结次数 > 0 ? 0.02 : 0);
@@ -5556,9 +5578,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.生员身份 = true; S.生员层级 = '生员'; S.优免启用 = true; S.身份 = '民籍·生员';
                 log.push(['〔院试中式〕你这一年终于冲过童试最后一关，成了生员。', 'good']);
               } else {
-                log.push(['〔童试推进〕这一年应试有进：童试层级升到第 ' + S.童试层级 + ' 层。', 'good']);
+                log.push(['〔童试推进〕这一年应试有进：' + examTierLabel(S.童试层级, false) + '。', 'good']);
               }
             } else {
+              S.本年落第次数 += 1;
               log.push(['〔应试未进〕你下了场，但这一年未能再推进一层。', 'bad']);
             }
           }
@@ -5568,23 +5591,32 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           S.供读压力 = Math.max(0, S.供读压力 - 1);
           log.push(['〔供读专账〕上一代留下的供读底子替这一年缓去一线压力（供读压力-1，不折现成现银）。', 'good']);
         }
-        var studyCost = S.读书成本档 * 120;
+        var studyCost = Math.max(
+          S.读书成本档 * 120,
+          S.本年束脩支出文 + S.本年纸墨支出文 + S.本年保结支出文
+        );
         if (studyCost > 0) {
           if (S.铜钱 >= studyCost) {
             S.铜钱 -= studyCost;
-            log.push(['〔束脩纸墨〕本年读书成本结算：铜钱-' + studyCost, 'bad']);
+            log.push(['〔束脩纸墨〕本年束脩、纸墨、保结脚费合计：铜钱-' + studyCost + '（其中束脩约' + S.本年束脩支出文 + '、纸墨约' + S.本年纸墨支出文 + '、保结与盘缠脚费约' + S.本年保结支出文 + '）。', 'bad']);
           } else {
             var left = studyCost - S.铜钱;
             S.铜钱 = 0;
             var silverNeed = Math.ceil(left / 300);
             if (S.白银 >= silverNeed) {
               S.白银 -= silverNeed;
-              log.push(['〔束脩纸墨〕铜钱不够，改从白银支出 ' + silverNeed + ' 两。', 'bad']);
+              log.push(['〔束脩纸墨〕铜钱不够，改从白银支出 ' + silverNeed + ' 两；这一年举业真账终究仍落到家里硬银上。', 'bad']);
             } else {
               var gap = silverNeed - S.白银;
               S.白银 = 0; S.负债银 += gap;
               log.push(['〔束脩纸墨〕供读链吃紧，读书成本最终压成债（负债+' + gap + '两）。', 'bad']);
             }
+          }
+        }
+        if (studyCost > 0) {
+          var familySupportNeed = Math.max(0, studyCost - (S.本年誊抄次数 * copyCopper));
+          if (familySupportNeed > 0 || S.本年家中贴补次 > 0 || S.本年家中贴补米 > 0) {
+            log.push(['〔家中供养〕这一年家里至少替你顶了束脩、纸墨与口粮中的一段：贴补' + S.本年家中贴补次 + '回、贴米' + S.本年家中贴补米 + '石；供读只是家里继续让钱和口粮先往你这边压，不推出录取。', 'bad']);
           }
         }
 
@@ -5616,7 +5648,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.铜钱 -= 200;
             log.push(['〔赋役〕本户轮到差役，拿铜钱200文找人顶上。', 'bad']);
           } else {
-            S.体魄 -= 5; S.家族 -= 2;
+            S.体魄 -= 5; S.家族 -= 2; S.本年身子亏空 += 1;
             log.push(['〔赋役〕无钱代役，只得误业应付差役（体魄-5、家族-2）。', 'bad']);
           }
         }
@@ -5630,6 +5662,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (!progressed && !S.生员身份 && didStudy) {
           S.供读压力 += 1;
           log.push(['这一年供读有投入却未见推进，家里继续供你的压力又重了一层。', 'bad']);
+        }
+        if (S.本年落第次数 > 0) {
+          log.push(['〔落第〕这一年确曾下场却未进一层；人情、纸墨和盘缠都已先花出去，婚事与家里口风也会跟着更迟疑。', 'bad']);
+        }
+        if (S.本年身子亏空 > 0) {
+          S.体魄 -= S.本年身子亏空;
+          log.push(['〔身子消耗〕久坐、奔走与差役后手一并落到身上：体魄-' + S.本年身子亏空 + '。', 'bad']);
         }
         if ((S.本年馆课次数 + S.本年半读次数 + S.本年寄读次数 + S.本年评文次数) <= 0) {
           S.家族 -= 2;
@@ -5652,6 +5691,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           else if (S.供读状态 === '已断供') S.举业结局 = '断供改路';
           else if (S.识字转业值 >= 2) S.举业结局 = '屡试未第';
           else S.举业结局 = '仍是童生';
+          if (!S.生员身份) {
+            var marriageDelay = 0;
+            if (S.负债银 >= 2) marriageDelay += 2;
+            if (S.本年落第次数 > 0 || S.供读状态 === '已断供') marriageDelay += 2;
+            if (marriageDelay > 0) {
+              S._marriageAgeAdj = Math.max(S._marriageAgeAdj || 0, marriageDelay);
+              log.push(['〔延婚〕举业余账未清，议亲至少顺延 ' + marriageDelay + ' 年；不是惩罚，而是把供读、落第与债务怎样挤窄婚配窗口，显式写回人生账。', 'bad']);
+            }
+          }
           curStage.next = 'marriage';
           curStage.nextLabel = '带着这三年账本去议亲 →';
           S.年龄 = 20;
