@@ -2983,14 +2983,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     hardship: 'clan'
   });
   if (isMerchantElder && season.id === 'autumn' && xun === 1) apply({
-    handledIds: ['e_rent', 'e_route_receipt_old', 'e_route_autumn_note_old', 'e_rest'],
+    handledIds: ['e_rent', 'e_route_receipt_old', 'e_route_autumn_note_old', 'e_route_autumn_head_school_old', 'e_rest'],
     doneTag: '秋头回签已理',
-    doneLog: '〔秋头回签〕这一旬先把秋头回签、米脚锅火和收租脚费分开了；商路晚景秋头最怕“租谷刚起、熟号回话先催、家里锅火也来要钱”的那层头账，没有再顺手拖进秋中。',
+    doneLog: '〔秋头回签〕这一旬先把秋头回签、米脚锅火、孙辈夹衣纸样和收租脚费分开了；商路晚景秋头最怕“租谷刚起、熟号回话先催、家里锅火与换季供读后手也一齐来要钱”的那层头账，没有再顺手拖进秋中。',
     cost: 40,
     costTag: '秋头回签',
-    costLog: '〔秋头回签〕秋头回签、米脚锅火和收租脚单一起要钱：铜钱-{cost}。不是另起一笔大账，只是把商路养老秋头最先冒出来的家用、回签与租路碎费重新压回这一旬。',
+    costLog: '〔秋头回签〕秋头回签、米脚锅火、孙辈夹衣纸样和收租脚单一起要钱：铜钱-{cost}。不是另起一笔大账，只是把商路养老秋头最先冒出来的家用、换季供读后手、回签与租路碎费重新压回这一旬。',
     failTag: '秋头回签硬顶',
-    failLog: '〔秋头回签〕这一旬连回签脚费和米脚锅火都腾挪不开，只得先硬顶过去；熟号与家里锅火两头都更紧了一线（家族-1）。',
+    failLog: '〔秋头回签〕这一旬连回签脚费、米脚锅火和孙辈换季夹衣都腾挪不开，只得先硬顶过去；熟号、家里锅火与供读后手三头都更紧了一线（家族-1）。',
     hardship: 'clan'
   });
   if (isExamElder && season.id === 'autumn' && xun === 1) apply({
@@ -18774,6 +18774,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       pack.extraActions.push({ id: 'e_route_summer_packet_old', name: '先把夏尾客签与秋前样纸分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '伏夏收尾最怕秋路未开，客签回话、秋前样纸、递话门包和过路药包却先一起找上门。先把这层秋前后手拆开，不让同一口现钱既顾夏尾锅火、又顾秋前脚路。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
       pack.extraActions.push({ id: 'e_route_receipt_old', name: '先抄旧账脚单与租路次序', cost: 1, eff: '铜钱-40·家族+1', desc: '秋后最怕“都说在路上，却不知道先催哪笔”。先把脚单、拖欠次序和租路回话抄明，后面的养老账才不至继续糊着走。', can: S.铜钱 >= 40, why: S.铜钱 >= 40 ? '' : '铜钱不足40文', once: true });
       pack.extraActions.push({ id: 'e_route_autumn_note_old', name: '先把秋头回签与米脚锅火分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '秋头租谷刚起时，最怕熟号回签、米脚锅火和收租脚费一起冒头。先把这层头账拆开，秋中催旧账时才不必一边等回钱、一边让家里和熟号都空着。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
+      if (S.商路供读银 >= 1) {
+        pack.extraActions.push({ id: 'e_route_autumn_head_school_old', name: '先把秋头回签与孙辈夹衣分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '入秋头一旬时，最怕熟号回签、孙辈夹衣纸样、米脚锅火和递话脚费一起追钱。先把这层换季供读后手拆开，不让秋里的旧账回音还没落手，就先被换季夹衣和来春纸包磨空。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+      }
       pack.extraActions.push({ id: 'e_route_autumn_mid_old', name: '先把秋中回签与租路饭钱分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '秋中最怕熟号回签刚有回音，租路饭钱、递话脚费和家里锅火就先一起追着找钱。先把这层秋中回签拆开，不让“账说快回”的这口现钱还没落手，就先被回乡路费和锅火小耗挤薄。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
       if (S.商路供读银 >= 1) {
         pack.extraActions.push({ id: 'e_route_autumn_school_old', name: '先把秋中回签与孙辈纸包分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '秋中最怕熟号回签、孙辈来春纸包、租路饭钱和递话脚费一起追钱。先把这层供读后手拆开，不让秋里的旧账回音还没落手，就先被来春蒙馆纸包和锅火抢空。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
@@ -19090,6 +19093,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           } else if (a.id === 'e_route_autumn_note_old') {
             a.can = (season.id === 'autumn') && xun === 1 && S.铜钱 >= 55;
             a.why = !(season.id === 'autumn' && xun === 1) ? '这一旬不便先拆秋头回签账' : (S.铜钱 >= 55 ? '' : '铜钱不足55文');
+            a.once = true;
+          } else if (a.id === 'e_route_autumn_head_school_old') {
+            a.can = (season.id === 'autumn') && xun === 1 && S.商路供读银 >= 1 && S.铜钱 >= 60;
+            a.why = !(season.id === 'autumn' && xun === 1) ? '这一旬不便先拆秋头护读后手'
+              : (S.商路供读银 >= 1 ? (S.铜钱 >= 60 ? '' : '铜钱不足60文') : '眼下没有可守的商路供读底银');
             a.once = true;
           } else if (a.id === 'e_route_autumn_mid_old') {
             a.can = (season.id === 'autumn') && xun === 2 && S.铜钱 >= 55;
@@ -19582,6 +19590,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushElderSeasonTag(stepLabel + '·秋头回签');
                 log.push(['先把秋头回签与米脚锅火分开：铜钱-55、家族+1、体魄+1。秋头这层回签、米脚锅火和收租脚费终于不再一起抢同一口现钱，后头催旧账时也不必把家里先晾着。', 'good']);
               } else log.push(['想先把秋头回签与米脚锅火分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_route_autumn_head_school_old':
+              if (S.商路供读银 >= 1 && spendCopper(60)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·秋头护读');
+                log.push(['先把秋头回签与孙辈夹衣分开：铜钱-60、家族+1、体魄+1。熟号回签、孙辈夹衣纸样、米脚锅火和递话脚费先被拆开，商路晚景这层“秋账未净、换季与供读后手先来”的细账终于没再一路滚到秋中。', 'good']);
+              } else if (S.商路供读银 >= 1) log.push(['想先把秋头回签与孙辈夹衣分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_route_autumn_school_old':
               if (S.商路供读银 >= 1 && spendCopper(55)) {
