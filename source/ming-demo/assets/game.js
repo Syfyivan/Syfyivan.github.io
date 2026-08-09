@@ -17774,22 +17774,33 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var legacy = {
         父辈路线: S.路线 || '未定',
         承嗣来路: composeLineageSource(S.承嗣来路, S.子数 > 0 ? (isCollateralCarry(S) ? '旁支续承' : '本支次子承继') : '旁支过继'),
-        承继定位: '本房次子另起一手',
-        家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0,
-        旧门路衰减: 0
+        承继定位: S.承继定位 || '本房次子另起一手',
+        // 这里要把“已经继承到这一代的底子”继续带到身后结算里，
+        // 否则上一代留下的供读专账/亦贾亦儒分工/旧门路衰减只会活在入口文案里，
+        // 一旦本代没有再次显式加码，就会在死亡与重开之间被悄悄洗掉。
+        家传书香: Math.max(0, Number(S.家传书香 || 0)),
+        城里门路: Math.max(0, Number(S.城里门路 || 0)),
+        商路门路: Math.max(0, Number(S.商路门路 || 0)),
+        家传手艺: Math.max(0, Number(S.家传手艺 || 0)),
+        家传农事: Math.max(0, Number(S.家传农事 || 0)),
+        亦贾亦儒底子: Math.max(0, Number(S.亦贾亦儒底子 || 0)),
+        供读底子: Math.max(0, Number(S.供读底子 || 0)),
+        旧门路衰减: currentLineageDecayLevel()
       };
-      if (S.技艺 !== '无' || S.雇技进度 >= 2 || S.雇工历练 >= 3) legacy.家传手艺 = 1;
-      if (S.学徒去向 === '留店伙计') legacy.城里门路 = 2;
-      else if (S.学徒去向 === '店铺做工' || S.学徒去向 === '随行商') legacy.城里门路 = 1;
+      if (S.技艺 !== '无' || S.雇技进度 >= 2 || S.雇工历练 >= 3) legacy.家传手艺 = Math.max(legacy.家传手艺, 1);
+      if (S.学徒去向 === '留店伙计') legacy.城里门路 = Math.max(legacy.城里门路, 2);
+      else if (S.学徒去向 === '店铺做工' || S.学徒去向 === '随行商') legacy.城里门路 = Math.max(legacy.城里门路, 1);
       if (isWageRouteState() && (S.雇身份 === '外出佣工' || S.婚配路径 === '先应差·外出佣工')) {
         legacy.城里门路 = Math.max(legacy.城里门路, S.雇工历练 >= 3 ? 2 : 1);
       }
-      if (S.商历练 > 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商身份 !== '未定') legacy.商路门路 = 1;
-      if ((S.账房进度 + S.商信誉) >= 3 || (S.累计回钱银 || 0) >= 2 || S.累计反哺银 >= 2) legacy.商路门路 = 2;
-      if (S.生员身份) legacy.家传书香 = 2;
-      else if (S.识字 || S.识字转业值 >= 2 || S.举业结局 === '屡试未第') legacy.家传书香 = 1;
-      if ((legacy.商路门路 > 0 && legacy.家传书香 > 0) || S.商路供读银 >= 1) legacy.亦贾亦儒底子 = 1;
-      if (S.商路供读银 >= 1) legacy.供读底子 = S.商路供读银 >= 2 ? 2 : 1;
+      if (S.商历练 > 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商身份 !== '未定') legacy.商路门路 = Math.max(legacy.商路门路, 1);
+      if ((S.账房进度 + S.商信誉) >= 3 || (S.累计回钱银 || 0) >= 2 || S.累计反哺银 >= 2) legacy.商路门路 = Math.max(legacy.商路门路, 2);
+      if (S.生员身份) legacy.家传书香 = Math.max(legacy.家传书香, 2);
+      else if (S.识字 || S.识字转业值 >= 2 || S.举业结局 === '屡试未第') legacy.家传书香 = Math.max(legacy.家传书香, 1);
+      if (S.商路供读银 >= 1) legacy.供读底子 = Math.max(legacy.供读底子, S.商路供读银 >= 2 ? 2 : 1);
+      if ((legacy.商路门路 > 0 && legacy.家传书香 > 0) || legacy.供读底子 > 0 || S.商路供读银 >= 1) {
+        legacy.亦贾亦儒底子 = Math.max(legacy.亦贾亦儒底子, 1);
+      }
       if (S.子数 <= 0) {
         legacy.承继定位 = '旁支接祧续户';
       } else if (S.子数 === 1) {
@@ -17805,13 +17816,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       } else if ((isFarmRouteState() || isWageRouteState()) && S.子数 > 1) {
         legacy.承继定位 = '长兄守田·次子另起一手';
       }
-      if (isFarmRouteState() && S.委托营生 === '分得薄田自耕' && S.农事历练 >= 5) legacy.家传农事 = 2;
-      else if ((isFarmRouteState() && S.农事历练 >= 3) || (isWageRouteState() && S.委托营生 === '分得薄田自耕' && S.农事历练 >= 2)) legacy.家传农事 = 1;
-      var collateralDepth = 0;
-      if (isCollateralCarry(S)) collateralDepth += 1;
-      if (S.子数 <= 0) collateralDepth += 1;
-      legacy.旧门路衰减 = collateralDepth;
-      attenuateLegacy(legacy, collateralDepth);
+      if (isFarmRouteState() && S.委托营生 === '分得薄田自耕' && S.农事历练 >= 5) legacy.家传农事 = Math.max(legacy.家传农事, 2);
+      else if ((isFarmRouteState() && S.农事历练 >= 3) || (isWageRouteState() && S.委托营生 === '分得薄田自耕' && S.农事历练 >= 2)) legacy.家传农事 = Math.max(legacy.家传农事, 1);
+
+      // “旧门路衰减”是代际累计项：已因旁支接续而变薄的门路，不能在本代有嗣时突然洗回 0；
+      // 只有本代再次走到绝嗣/旁支过继时，才在既有层数上继续再薄一层。
+      var inheritedDecay = currentLineageDecayLevel();
+      var addedDecay = S.子数 <= 0 ? 1 : 0;
+      legacy.旧门路衰减 = inheritedDecay + addedDecay;
+      if (addedDecay > 0) attenuateLegacy(legacy, addedDecay);
       return legacy;
     }
     // 寿命 roll：多数五十余，长尾少数活到60-70+
