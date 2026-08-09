@@ -508,6 +508,12 @@
       || role !== '次子'
       || (S.承嗣来路 || '') !== '本支次子承继'
       || (S.承继定位 || '') !== '本房次子另起一手'
+      || (S.家传书香 || 0) > 0
+      || (S.城里门路 || 0) > 0
+      || (S.商路门路 || 0) > 0
+      || (S.家传手艺 || 0) > 0
+      || (S.家传农事 || 0) > 0
+      || (S.亦贾亦儒底子 || 0) > 0
       || (S.供读底子 || 0) > 0
       || currentLineageDecayLevel() > 0
       || ((S.委托营生 || '无') !== '无' && ((S.委托租谷 || 0) > 0 || (S.委托待收租谷 || 0) > 0));
@@ -515,6 +521,12 @@
     var parts = ['承继身份=' + role];
     if (S.承继定位) parts.push('承继定位=' + S.承继定位);
     if (S.承嗣来路) parts.push('承嗣来路=' + S.承嗣来路);
+    if ((S.家传书香 || 0) > 0) parts.push('家传书香=' + S.家传书香 + '层');
+    if ((S.城里门路 || 0) > 0) parts.push('城里门路=' + S.城里门路 + '层');
+    if ((S.商路门路 || 0) > 0) parts.push('商路门路=' + S.商路门路 + '层');
+    if ((S.家传手艺 || 0) > 0) parts.push('家传手艺=' + S.家传手艺 + '层');
+    if ((S.家传农事 || 0) > 0) parts.push('家传农事=' + S.家传农事 + '层');
+    if ((S.亦贾亦儒底子 || 0) > 0) parts.push('亦贾亦儒底子=' + S.亦贾亦儒底子 + '层');
     var decay = currentLineageDecayLevel();
     if (decay > 0) parts.push('旧门路衰减=' + decay + '层');
     if ((S.供读底子 || 0) > 0) parts.push('供读底子=' + S.供读底子 + '层');
@@ -524,6 +536,16 @@
     var explain = [];
     if (role !== '次子') explain.push('这一手眼下是以“' + role + '”续承上一代结清后的账');
     if (S.承继定位) explain.push('这一房仍按“' + S.承继定位 + '”分工');
+    if ((S.家传书香 || 0) > 1) explain.push('屋里旧书、师承和识字底子还算扎实');
+    else if ((S.家传书香 || 0) > 0) explain.push('屋里还留着一点书香与识字底子');
+    if ((S.城里门路 || 0) > 1) explain.push('父辈在城里留了较熟的铺面人脉');
+    else if ((S.城里门路 || 0) > 0) explain.push('父辈在城里还认得几层熟识');
+    if ((S.商路门路 || 0) > 1) explain.push('旧商路上的熟号、账面与回钱门道还在');
+    else if ((S.商路门路 || 0) > 0) explain.push('家里还认得几条旧商路');
+    if ((S.家传手艺 || 0) > 0) explain.push('上一代留下的一层手艺门路还没断');
+    if ((S.家传农事 || 0) > 1) explain.push('父辈把守薄田、看水色的农事门道守下来了');
+    else if ((S.家传农事 || 0) > 0) explain.push('家里还留着一层守薄田的农事底子');
+    if ((S.亦贾亦儒底子 || 0) > 0) explain.push('这一房仍带着一点亦贾亦儒的家内分工底子');
     if ((S.供读底子 || 0) > 0) explain.push('上一代划下的供读专账老规矩还在');
     var decayHint = lineageDecayHint(decay);
     if (decayHint) explain.push(decayHint);
