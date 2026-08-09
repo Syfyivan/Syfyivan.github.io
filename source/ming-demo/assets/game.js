@@ -17345,7 +17345,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       else if (S.识字 || S.识字转业值 >= 2 || S.举业结局 === '屡试未第') legacy.家传书香 = 1;
       if ((legacy.商路门路 > 0 && legacy.家传书香 > 0) || S.商路供读银 >= 1) legacy.亦贾亦儒底子 = 1;
       if (S.商路供读银 >= 1) legacy.供读底子 = S.商路供读银 >= 2 ? 2 : 1;
-      if ((S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) && S.子数 > 1) {
+      if (S.子数 <= 0) {
+        legacy.承继定位 = '旁支接祧续户';
+      } else if (S.子数 === 1) {
+        legacy.承继定位 = '独子承家';
+      } else if ((S.路线.indexOf('徽商') === 0 || S.累计反哺银 > 0 || S.商历练 > 0) && S.子数 > 1) {
         legacy.承继定位 = (legacy.亦贾亦儒底子 > 0 || legacy.供读底子 > 0)
           ? '长兄续商·次子候读'
           : '长兄续商·次子另起一手';
