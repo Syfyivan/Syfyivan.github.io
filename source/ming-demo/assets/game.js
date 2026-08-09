@@ -3657,10 +3657,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (phase === 'childhood') { renderChildhood(); return; }
     if (phase !== 'farm') { renderLifeStage(); return; }
     if (gameOver) return;
+    var farmCarryHook = xunIndex === 0 ? routeStageInheritanceHook('farm') : { note: '', dossier: '' };
     var isHarvest = (xunIndex === HARVEST_XUN);
     var isLastXun = (xunIndex === (TOTAL_XUN - 1));
     var h = '';
     h += '<div class="season-line">◆ ' + curLabel() + ' ｜ 天气：' + curWeather.k + '（' + curWeather.note + '）</div>';
+    if (farmCarryHook.note) h += '<div class="phase-note">' + farmCarryHook.note + '</div>';
     var g = growthInfo();
     h += '<div class="crop-bar ' + g.cls + '">' +
       '<div class="cb-head"><span class="cb-title">🌾 田亩 ' + S.田亩 + ' 亩 · 庄稼长势</span>' +
@@ -3668,6 +3670,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       '<div class="cb-track"><i style="width:' + g.pct + '%"></i></div>' +
       '<div class="cb-tip">' + (g.planted ? (S.秧苗进度 >= GROW_TARGET ? '禾苗已<b>长足封顶（12/12）</b>，再看水也不会长了——把人手匀去挣钱或顾家更划算。' : '离"长足丰收（12/12）"还差 ' + (GROW_TARGET - S.秧苗进度) + ' 点生长；勤看水除草、遇喜雨可加快。到 12 即封顶。') : '春耕正是插秧时，越早插下，可生长的旬数越多（生长满 12 即达丰收上限）。') + '</div>' +
       '</div>';
+    if (farmCarryHook.dossier) h += lifeDossier(farmCarryHook.dossier);
     h += '<div class="narr">' + narrative() + '</div>';
 
     h += '<div class="events">';
@@ -4873,6 +4876,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var mend = wageMendProfile(season.id);
     var longCost = season.id === 'spring' ? (wagePass === 1 ? 2 : 1) : (season.id === 'summer' ? (wagePass === 3 ? 1 : 2) : (season.id === 'autumn' ? (wagePass === 2 ? 2 : 1) : 1));
     var wageCounts = '本年短工=' + S.本年短工次数 + '｜外出=' + S.本年外出次数 + '｜看账=' + S.本年看账次数 + '｜学活=' + S.本年学艺次数 + '｜贴家=' + S.本年贴家次数 + '｜备差=' + S.本年备役次数;
+    var wageCarryHook = (S.工年 === 1 && season.id === 'spring' && wagePass === 1) ? routeStageInheritanceHook('wage') : { note: '', dossier: '' };
     var seasonalEvents = {
       spring: [
         { t: 'rel', tag: '[雇主]', txt: '春忙前后正是签长工、抢旺工的时候。东家和地主都在挑人，不是谁先开口谁就一定能接到。' },
@@ -4906,11 +4910,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       // 卖工路也按“三手并行”推进：一手抓工食主线，一手摊家计/市面碎账，再留一手给差役或身子后手。
       // 行动点用不完也可提前结算（不强制“点满”），避免强迫玩家每旬都做完美三选。
       ap: 3, commitLabel: isYearEnd ? '了这一工年 →' : '结这一旬工食细账 →',
-      note: '这一路现已从“全年一点式结算”继续拆成“每季上中下三旬”：上旬先排工路，中旬把家用与市面摊开，下旬再收差役、衣药与旧债。并把“每旬只够做两件事”上调为“三手并行”——让工食、家计与制度/身子后手能在同一年里更真实地抢同一口现钱。仍保持三币种守恒，不写成功分。',
+      note: '这一路现已从“全年一点式结算”继续拆成“每季上中下三旬”：上旬先排工路，中旬把家用与市面摊开，下旬再收差役、衣药与旧债。并把“每旬只够做两件事”上调为“三手并行”——让工食、家计与制度/身子后手能在同一年里更真实地抢同一口现钱。仍保持三币种守恒，不写成功分。'
+        + (wageCarryHook.note ? (' ' + wageCarryHook.note) : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一工年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + (wagePass === 1 ? '这一旬先把主工路定下来。' : (wagePass === 2 ? '这一旬更像把家里、市面与脚下活路往一处拢。' : '这一旬最像收后账：差役、衣药、旧债与年关后手都不肯再往后拖。')) + ' 你这一旬有 <span class="em">3 个行动点</span>。',
       dossier: function () {
         var seasonTags = (S.本年季务 && S.本年季务.length) ? S.本年季务.join('、') : '尚未坐实';
-        return lifeDossier('当前工季=' + season.name + '·' + xunLabel + '｜本年雇约=' + S.本年雇约 + '｜本年工食银=' + S.本年工食银 + '两｜本年工食钱=' + S.本年工食钱 + '文｜口粮减免=' + S.本年口粮减免 + '石｜' + wageCounts + '｜已坐实=' + seasonTags + '。');
+        return lifeDossier('当前工季=' + season.name + '·' + xunLabel + '｜本年雇约=' + S.本年雇约 + '｜本年工食银=' + S.本年工食银 + '两｜本年工食钱=' + S.本年工食钱 + '文｜口粮减免=' + S.本年口粮减免 + '石｜' + wageCounts + '｜已坐实=' + seasonTags + '。'
+          + (wageCarryHook.dossier ? ('｜' + wageCarryHook.dossier) : ''));
       },
       events: events,
       prompt: wagePass === 1 ? '这一旬怎么排主工路？（分配 3 点）' : (wagePass === 2 ? '这一旬怎么把家计和市面拢住？（分配 3 点）' : '这一旬怎么把后账收住？（分配 3 点）'),
@@ -5192,6 +5198,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var marketReward = season.id === 'autumn' ? 90 : (season.id === 'winter' ? 60 : 50);
     var supportCost = season.id === 'autumn' ? 100 : (season.id === 'winter' ? 90 : 80);
     var mendCost = season.id === 'winter' ? 100 : 70;
+    var apprenticeCarryHook = (S.学年 === 1 && season.id === 'spring' && xun === 1) ? routeStageInheritanceHook('apprentice') : { note: '', dossier: '' };
     // 学徒路继续把“单代一年能玩很久”做厚：在不破坏守恒与回放稳定性的前提下，
     // 让每旬从“只够做两件事”上调到“三手并行”：一手铺里活计/门路，一手家计/脚费碎账，
     // 再留一手给衣药/备役/回乡等后手。仍不引入成功分与最优解。
@@ -5213,10 +5220,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         ? (S.学年 < APPRENTICE_YEARS ? '翻到下一学年投师季上旬 →' : '带着这门去向去议亲 →')
         : (xun >= 3 ? ('转入' + nextSeason.name + '上旬 →') : ('转入' + season.name + apprenticeXunLabel(xun + 1) + ' →')),
       ap: 3, commitLabel: isYearEnd ? '了这一学年 →' : '了这一旬学徒 →',
-      note: '学徒路现改成“每学年四季三旬”推进：投师季先跑说合/作保/立据，坐店季熬守店/抄账，行市季把问价、送货、贴家与归省一并压进同一年，年关季再把口粮、差役、衣药与去留结清。保证金、食宿、去留数额仍是玩法占位，不当作明代精确契约。',
+      note: '学徒路现改成“每学年四季三旬”推进：投师季先跑说合/作保/立据，坐店季熬守店/抄账，行市季把问价、送货、贴家与归省一并压进同一年，年关季再把口粮、差役、衣药与去留结清。保证金、食宿、去留数额仍是玩法占位，不当作明代精确契约。'
+        + (apprenticeCarryHook.note ? (' ' + apprenticeCarryHook.note) : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一学年走到<span class="em">' + season.name + xunLabel + '</span>。' + season.actionLead + '投师不是自动成功；立据不等于学成，学成也不等于准你留下。你这一旬有 <span class="em">3 个行动点</span>，要在说合、守店、学账、奔走、问价、贴家、帮家、备差、衣药与养身之间取舍。',
       dossier: function () {
-        return lifeDossier('立据≠学成≠出师；师傅收不收、留不留、准不准你转伙计，都是分开判的。当前：合同=' + S.学徒合同 + '｜阶段=' + S.学徒阶段 + '｜授艺度=' + S.学徒授艺度 + '｜信任=' + S.学徒信任 + '｜' + seasonalCounts + '。');
+        return lifeDossier('立据≠学成≠出师；师傅收不收、留不留、准不准你转伙计，都是分开判的。当前：合同=' + S.学徒合同 + '｜阶段=' + S.学徒阶段 + '｜授艺度=' + S.学徒授艺度 + '｜信任=' + S.学徒信任 + '｜' + seasonalCounts + '。'
+          + (apprenticeCarryHook.dossier ? ('｜' + apprenticeCarryHook.dossier) : ''));
       },
       events: [
         { t: 'rel', tag: '[师傅]', txt: S.学徒合同 === '已立据' ? '字据立成后，师傅看的是你这一旬守不守得住、账看不看得明，不会因为你已经进店就自动一路留你。' : '师傅收徒先看年貌、门路、保人和手脚是不是稳当，不因你可怜或勤快自动点头。' },
@@ -5640,6 +5649,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       : (season.id === 'summer' ? (isMid ? 90 : 85) : 80);
     var seasonalCounts = '本年坐店=' + S.本年商路坐店 + '｜跑单=' + S.本年商路跑单 + '｜认货=' + S.本年商路认货 + '｜问价=' + S.本年商路问价 + '｜核账=' + S.本年商路核账 + '｜催账=' + S.本年商路催账 + '｜贴家=' + S.本年商路贴家 + '｜家书=' + S.本年商路家书 + '｜议本=' + S.本年商路议本 + '｜试贩=' + S.本年商路试贩 + '｜回钱银=' + S.本年商路回钱银 + '｜反哺银=' + S.本年商路反哺银 + '｜拖欠=' + S.本年商路拖欠 + '｜供读=' + S.本年商路供读 + '｜身乏=' + S.本年商路身乏 + '｜龃龉=' + S.本年商路龃龉 + '｜役扰=' + S.本年商路役扰;
     var bridge = lifecycleInheritanceBridge();
+    var merchantCarryHook = (S.商年 === 1 && season.id === 'spring' && xun === 1) ? routeStageInheritanceHook('merchant') : { note: '', dossier: '' };
     return {
       title: '徽商学生意 · 第' + S.商年 + '商年·' + season.name + '·' + xunLabel,
       label: '商路第' + S.商年 + '年·' + season.name + '·' + xunLabel,
@@ -5653,7 +5663,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       commitLabel: isYearEnd ? '了这一商年 →' : '了这一旬商路 →',
       note: '商路现改成“春开路→夏坐店→秋试手→冬清账”四季、每季三旬。关键不是多给几次发财判定，而是把认货、问价、跑单、家书、催账、贴家、差役准备、补衣药与旧债都拆回一年里的真实节奏。'
         + (generation > 1 ? ' ' + tradePreview.note : '')
-        + (bridge.note ? ' ' + bridge.note : ''),
+        + (bridge.note ? ' ' + bridge.note : '')
+        + (merchantCarryHook.note ? ' ' + merchantCarryHook.note : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一商年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead
         + (isLate ? '这一旬最像收账：哪笔钱先回、哪笔钱先贴家、差役钱和药钱有没有先留，都开始逼到眼前。' : '这一旬还在铺里、货路和家里之间掂量先后，真正厚的地方是同一年里许多小账一起抢。')
         + (((S.承继定位 || '').indexOf('长兄续商') >= 0)
@@ -5663,7 +5674,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       dossier: function () {
         var seasonTags = (S.本年商路季务 && S.本年商路季务.length) ? S.本年商路季务.join('、') : '尚未坐实';
         return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜可调度回家商账=' + supportCapacity + '两（贴家/供读共用）｜试本口风=' + (S.本年商路议本 > 0 ? '已坐实' : '未坐实') + '｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。'
-          + (bridge.dossier ? ('｜' + bridge.dossier) : ''));
+          + (bridge.dossier ? ('｜' + bridge.dossier) : '')
+          + (merchantCarryHook.dossier ? ('｜' + merchantCarryHook.dossier) : ''));
       },
       events: [
         {
@@ -6833,6 +6845,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     function examGuaranteeGateTarget() {
       return (S.保结进度 || 0) <= 0 ? 66 : 74;
     }
+    var examCarryHook = (S.举业年 === 1 && season.id === 'spring' && xun === 1) ? routeStageInheritanceHook('civilExam') : { note: '', dossier: '' };
     return {
       title: '读书应举 · 第' + S.举业年 + '举业年·' + season.name + '·' + xunLabel, label: '举业第' + S.举业年 + '年·' + season.name + '·' + xunLabel,
       next: 'civilExam',
@@ -6841,10 +6854,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         : (isLate ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + examXunLabel(xun + 1) + ' →')),
       ap: 4,
       commitLabel: isYearEnd ? '了这一举业年 →' : '了这一旬举业细账 →',
-      note: '举业路现改成“春课→夏课→秋试→冬清账”四季、每季三旬：上旬先定主读法、投塾与供读口风，中旬再磨文章、跑资格、补识字、接誊抄，下旬把应场、回家缓家计、差役钱与衣药后手一笔笔收紧。每旬现在按“四手预算”推进：一手顾课业主线，一手跑塾门/保结，一手拆家计与供读碎账，再留一手给身子、差役或回乡后手；供读口风、婚事口风与身子账的翻动，也会按旬累计，不再只留在年终一句“苦读几年”。若家里真要续供，也得显式粜米或另挪口粮来换纸墨盘缠，而不是把存米自动折成现银。如今下场后会在同一年里直接见“过县试 / 过府试 / 落第 / 成生员”的回话；冬里只继续收余账，不再把应试结果整笔拖到年终。跨到下一举业年时，塾门与保结也只保留一层旧门路，不会把“已坐实 / 已通保结”整笔原封带过去。',
+      note: '举业路现改成“春课→夏课→秋试→冬清账”四季、每季三旬：上旬先定主读法、投塾与供读口风，中旬再磨文章、跑资格、补识字、接誊抄，下旬把应场、回家缓家计、差役钱与衣药后手一笔笔收紧。每旬现在按“四手预算”推进：一手顾课业主线，一手跑塾门/保结，一手拆家计与供读碎账，再留一手给身子、差役或回乡后手；供读口风、婚事口风与身子账的翻动，也会按旬累计，不再只留在年终一句“苦读几年”。若家里真要续供，也得显式粜米或另挪口粮来换纸墨盘缠，而不是把存米自动折成现银。如今下场后会在同一年里直接见“过县试 / 过府试 / 落第 / 成生员”的回话；冬里只继续收余账，不再把应试结果整笔拖到年终。跨到下一举业年时，塾门与保结也只保留一层旧门路，不会把“已坐实 / 已通保结”整笔原封带过去。'
+        + (examCarryHook.note ? (' ' + examCarryHook.note) : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + xunLabel + '</span>。' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火、婚事口风和身子亏空都在争同一笔钱。') + ' 你这一旬有 <span class="em">4 个行动点</span>，最好别只顾课业本身。',
       dossier: function () {
-        return lifeDossier('当前举程=' + season.name + '·' + xunLabel + '｜投塾=' + examEnrollmentLabel(S.投塾进度) + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜文章火候=' + S.文章火候 + '｜识字底子=' + examLiteracyFoundationLabel() + '｜供读状态=' + examSupportStateDetail() + '｜婚事口风=' + examDelayStatusLabel() + '｜三年婚事承压=' + examLifetimeDelayLabel() + '｜身耗=' + examBodyStatusLabel() + '｜本年应试=' + examAttemptResultLabel(S.本年应试结果) + '｜本年投塾=' + S.本年投塾次数 + '｜识字旬=' + S.本年识字旬数 + '｜馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保结奔走=' + S.本年保结次数 + '｜誊抄=' + S.本年誊抄次数 + '｜归家缓家=' + S.本年归家次数 + '回/' + S.本年家中贴补米 + '石｜公账贴补=' + (S.本年公账贴补次 || 0) + '回/' + (S.本年公账贴补文 || 0) + '文（已落' + (S.本年家中供读公账文 || 0) + '）｜母纺贴补=' + (S.本年母纺贴补次 || 0) + '回/' + (S.本年母纺贴补文 || 0) + '文（已落' + (S.本年母纺供读已用文 || 0) + '）｜兄婚让读=' + (S.本年兄婚让读次 || 0) + '回/' + (S.本年兄婚让读文 || 0) + '文（已落' + (S.本年兄婚供读已用文 || 0) + '）｜供读转折=' + (S.本年供读转折旬数 || 0) + '旬｜婚事转折=' + (S.本年婚事转折旬数 || 0) + '旬｜身耗转折=' + (S.本年身耗转折旬数 || 0) + '旬｜家中供读=' + S.本年家中供读次 + '回/' + S.本年家中供读文 + '文/' + S.本年家中供读米 + '石（公账已落' + (S.本年家中供读公账文 || 0) + '｜粜米已落' + (S.本年粜米供读已用文 || 0) + '｜母纺已落' + (S.本年母纺供读已用文 || 0) + '｜兄让已落' + (S.本年兄婚供读已用文 || 0) + '）｜笔墨自筹=' + (S.本年举业自筹文 || 0) + '文（已落' + (S.本年举业自筹已用文 || 0) + '）' + ((S.本年举业自筹缓压 || 0) > 0 ? '｜已缓供读一线' : '') + '｜已落举业支出=' + S.本年已落举业支出文 + '文｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜盘缠=' + S.本年盘缠支出文 + '文｜零耗=' + S.本年零耗支出文 + '文｜衣药=' + S.本年衣药支出文 + '文｜役扰=' + (S.本年役扰支出文 || 0) + '文' + ((S.本年役扰已结 || false) ? '｜役钱已见光' : '') + '｜债息=' + (S.本年债息增银 || 0) + '两' + ((S.本年债息已结 || false) ? '｜债息已滚' : '') + '｜落第=' + S.本年落第次数 + '｜延婚牵扯=' + S.本年延婚牵扯 + '｜身子亏空=' + S.本年身子亏空 + '｜累计投塾=' + (S.举业累计投塾次数 || 0) + '｜累计识字=' + (S.举业累计识字旬数 || 0) + '｜累计保结=' + (S.举业累计保结次数 || 0) + '｜累计落第=' + (S.举业累计落第次数 || 0) + '｜累计延婚=' + (S.举业累计延婚牵扯 || 0) + '｜累计身耗=' + (S.举业累计身子亏空 || 0) + (S.生员身份 ? '｜已是生员' : '') + '。');
+        return lifeDossier('当前举程=' + season.name + '·' + xunLabel + '｜投塾=' + examEnrollmentLabel(S.投塾进度) + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜文章火候=' + S.文章火候 + '｜识字底子=' + examLiteracyFoundationLabel() + '｜供读状态=' + examSupportStateDetail() + '｜婚事口风=' + examDelayStatusLabel() + '｜三年婚事承压=' + examLifetimeDelayLabel() + '｜身耗=' + examBodyStatusLabel() + '｜本年应试=' + examAttemptResultLabel(S.本年应试结果) + '｜本年投塾=' + S.本年投塾次数 + '｜识字旬=' + S.本年识字旬数 + '｜馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保结奔走=' + S.本年保结次数 + '｜誊抄=' + S.本年誊抄次数 + '｜归家缓家=' + S.本年归家次数 + '回/' + S.本年家中贴补米 + '石｜公账贴补=' + (S.本年公账贴补次 || 0) + '回/' + (S.本年公账贴补文 || 0) + '文（已落' + (S.本年家中供读公账文 || 0) + '）｜母纺贴补=' + (S.本年母纺贴补次 || 0) + '回/' + (S.本年母纺贴补文 || 0) + '文（已落' + (S.本年母纺供读已用文 || 0) + '）｜兄婚让读=' + (S.本年兄婚让读次 || 0) + '回/' + (S.本年兄婚让读文 || 0) + '文（已落' + (S.本年兄婚供读已用文 || 0) + '）｜供读转折=' + (S.本年供读转折旬数 || 0) + '旬｜婚事转折=' + (S.本年婚事转折旬数 || 0) + '旬｜身耗转折=' + (S.本年身耗转折旬数 || 0) + '旬｜家中供读=' + S.本年家中供读次 + '回/' + S.本年家中供读文 + '文/' + S.本年家中供读米 + '石（公账已落' + (S.本年家中供读公账文 || 0) + '｜粜米已落' + (S.本年粜米供读已用文 || 0) + '｜母纺已落' + (S.本年母纺供读已用文 || 0) + '｜兄让已落' + (S.本年兄婚供读已用文 || 0) + '）｜笔墨自筹=' + (S.本年举业自筹文 || 0) + '文（已落' + (S.本年举业自筹已用文 || 0) + '）' + ((S.本年举业自筹缓压 || 0) > 0 ? '｜已缓供读一线' : '') + '｜已落举业支出=' + S.本年已落举业支出文 + '文｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜盘缠=' + S.本年盘缠支出文 + '文｜零耗=' + S.本年零耗支出文 + '文｜衣药=' + S.本年衣药支出文 + '文｜役扰=' + (S.本年役扰支出文 || 0) + '文' + ((S.本年役扰已结 || false) ? '｜役钱已见光' : '') + '｜债息=' + (S.本年债息增银 || 0) + '两' + ((S.本年债息已结 || false) ? '｜债息已滚' : '') + '｜落第=' + S.本年落第次数 + '｜延婚牵扯=' + S.本年延婚牵扯 + '｜身子亏空=' + S.本年身子亏空 + '｜累计投塾=' + (S.举业累计投塾次数 || 0) + '｜累计识字=' + (S.举业累计识字旬数 || 0) + '｜累计保结=' + (S.举业累计保结次数 || 0) + '｜累计落第=' + (S.举业累计落第次数 || 0) + '｜累计延婚=' + (S.举业累计延婚牵扯 || 0) + '｜累计身耗=' + (S.举业累计身子亏空 || 0) + (S.生员身份 ? '｜已是生员' : '') + '。'
+          + (examCarryHook.dossier ? ('｜' + examCarryHook.dossier) : ''));
       },
       events: [
         {
