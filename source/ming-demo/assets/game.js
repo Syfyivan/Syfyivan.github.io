@@ -197,7 +197,7 @@
       // 徽商路径字段（四季三旬：借用“商段”字段记录当前旬位 1/2/3，避免破坏既有快照结构）
       商年: 1, 商季: 1, 商段: 1, 商身份: '未定', 商历练: 0, 识货进度: 0, 账房进度: 0, 商信誉: 0,
       带本银: 0, 未回款银: 0, 累计回钱银: 0, 累计反哺银: 0, 商路供读银: 0, 商路亏折: 0, _merchantLockedTradeTable: null, _advanceMerchantYear: false, _advanceMerchantSeason: false,
-      本年商路坐店: 0, 本年商路跑单: 0, 本年商路认货: 0, 本年商路问价: 0, 本年商路核账: 0, 本年商路催账: 0, 本年商路贴家: 0, 本年商路归乡: 0, 本年商路家书: 0, 本年商路试贩: 0, 本年商路备役: 0, 本年商路歇养: 0, 本年商路拖欠: 0, 本年商路供读: 0, 本年商路回钱银: 0, 本年商路反哺银: 0, 本年商路身乏: 0, 本年商路龃龉: 0, 本年商路役扰: 0, 本年商路季务: [],
+      本年商路坐店: 0, 本年商路跑单: 0, 本年商路认货: 0, 本年商路问价: 0, 本年商路核账: 0, 本年商路催账: 0, 本年商路贴家: 0, 本年商路归乡: 0, 本年商路家书: 0, 本年商路试贩: 0, 本年商路议本: 0, 本年商路备役: 0, 本年商路歇养: 0, 本年商路拖欠: 0, 本年商路供读: 0, 本年商路回钱银: 0, 本年商路反哺银: 0, 本年商路身乏: 0, 本年商路龃龉: 0, 本年商路役扰: 0, 本年商路季务: [],
       // 科举路径字段
       // `举旬` 为当前主字段；`举段` 作为兼容镜像保留，避免旧快照/旧回放直接失效。
       举业年: 1, 举季: 1, 举旬: 1, 举段: 1, 读书方式: '未定', 投塾进度: 0, 童试层级: 0, 保结进度: 0, 文章火候: 0,
@@ -1557,6 +1557,7 @@
     S.本年商路归乡 = 0;
     S.本年商路家书 = 0;
     S.本年商路试贩 = 0;
+    S.本年商路议本 = 0;
     S.本年商路备役 = 0;
     S.本年商路歇养 = 0;
     S.本年商路拖欠 = 0;
@@ -2964,7 +2965,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'autumn' && xun === 1) apply({
-      handledIds: ['m_market', 'm_run', 'm_goods', 'm_collect', 'm_autumn_receipt', 'm_autumn_supply_split'],
+      handledIds: ['m_market', 'm_run', 'm_goods', 'm_collect', 'm_trial_capital', 'm_autumn_receipt', 'm_autumn_supply_split'],
       doneTag: '秋市碎费已拆',
       doneLog: '〔秋市碎费〕这一旬先把样货、牙行照面和秋路脚费拆开了；看着只是小钱，却没再把本年试手前的商路判断搅浑。',
       cost: 50,
@@ -2975,7 +2976,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'autumn' && xun === 2) apply({
-      handledIds: ['m_try', 'm_market', 'm_book', 'm_autumn_mid_bundle', 'm_autumn_mid_school', 'm_autumn_mid_drag'],
+      handledIds: ['m_try', 'm_trial_capital', 'm_market', 'm_book', 'm_autumn_mid_bundle', 'm_autumn_mid_school', 'm_autumn_mid_drag'],
       doneTag: '试贩门包已分',
       doneLog: '〔试贩门包〕这一旬争取带本试贩前，先把门包、脚费与样纸茶钱分开了；不是多掷一次运气，而是把押出去的那一两银前后的碎账先摊开。',
       cost: 45,
@@ -2997,7 +2998,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 1) apply({
-      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_mend', 'm_winter_head_packet', 'm_winter_head_school', 'm_corvee_split', 'm_winter_head_body'],
+      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_mend', 'm_trial_capital', 'm_winter_head_packet', 'm_winter_head_school', 'm_corvee_split', 'm_winter_head_body'],
       doneTag: '年关路费已分',
       doneLog: '〔年关路费〕这一旬先把灯油、客脚、年礼和来春第一程水脚分开记了；钱没变多，却没再因为“只差一点”把清账路数搅混。',
       cost: 60,
@@ -5343,7 +5344,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var literacyCost = season.id === 'winter'
       ? (isLate ? 100 : 90)
       : (season.id === 'summer' ? (isMid ? 90 : 85) : 80);
-    var seasonalCounts = '本年坐店=' + S.本年商路坐店 + '｜跑单=' + S.本年商路跑单 + '｜认货=' + S.本年商路认货 + '｜问价=' + S.本年商路问价 + '｜核账=' + S.本年商路核账 + '｜催账=' + S.本年商路催账 + '｜贴家=' + S.本年商路贴家 + '｜家书=' + S.本年商路家书 + '｜试贩=' + S.本年商路试贩 + '｜回钱银=' + S.本年商路回钱银 + '｜反哺银=' + S.本年商路反哺银 + '｜拖欠=' + S.本年商路拖欠 + '｜供读=' + S.本年商路供读 + '｜身乏=' + S.本年商路身乏 + '｜龃龉=' + S.本年商路龃龉 + '｜役扰=' + S.本年商路役扰;
+    var seasonalCounts = '本年坐店=' + S.本年商路坐店 + '｜跑单=' + S.本年商路跑单 + '｜认货=' + S.本年商路认货 + '｜问价=' + S.本年商路问价 + '｜核账=' + S.本年商路核账 + '｜催账=' + S.本年商路催账 + '｜贴家=' + S.本年商路贴家 + '｜家书=' + S.本年商路家书 + '｜议本=' + S.本年商路议本 + '｜试贩=' + S.本年商路试贩 + '｜回钱银=' + S.本年商路回钱银 + '｜反哺银=' + S.本年商路反哺银 + '｜拖欠=' + S.本年商路拖欠 + '｜供读=' + S.本年商路供读 + '｜身乏=' + S.本年商路身乏 + '｜龃龉=' + S.本年商路龃龉 + '｜役扰=' + S.本年商路役扰;
     var bridge = lifecycleInheritanceBridge();
     return {
       title: '徽商学生意 · 第' + S.商年 + '商年·' + season.name + '·' + xunLabel,
@@ -5367,7 +5368,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         + ' 你这一旬有 <span class="em">3 个行动点</span>。',
       dossier: function () {
         var seasonTags = (S.本年商路季务 && S.本年商路季务.length) ? S.本年商路季务.join('、') : '尚未坐实';
-        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜可调度回家商账=' + supportCapacity + '两（贴家/供读共用）｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。'
+        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜可调度回家商账=' + supportCapacity + '两（贴家/供读共用）｜试本口风=' + (S.本年商路议本 > 0 ? '已坐实' : '未坐实') + '｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。'
           + (bridge.dossier ? ('｜' + bridge.dossier) : ''));
       },
       events: [
@@ -5465,12 +5466,35 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_autumn_mid_school', name: '先把秋中回签与供读差票分开', cost: 1, eff: '铜钱-65·家书+1·供读+1·备役+1·家族+1', desc: '秋试手中旬最怕熟号回签、供读纸包、差票门包和租路饭钱一起追钱。先把这层秋中去向拆开，银还没真回手时，供读、差役和家里那口现钱也不至继续混成一团。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
           A.push({ id: 'm_autumn_mid_drag', name: '先把秋中拖欠口风与回乡饭钱分开', cost: 1, eff: '铜钱-70·催账+1·家书+1·拖欠+1·家族+1', desc: '秋试手中旬最怕拖欠口风、回乡饭钱、递话脚费和家里催问一起追钱。先把这层秋中拖账拆开，银还没落手时，家里那头也不至只听见一句“账还在路上”。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
         }
+        if ((season.id === 'autumn' && xun >= 1 && xun <= 2) || (season.id === 'winter' && xun === 1)) {
+          var trialCapitalCost = season.id === 'winter' ? 55 : (xun === 1 ? 40 : 45);
+          A.push({
+            id: 'm_trial_capital',
+            name: season.id === 'winter' ? '先把试本回话与来春本钱分开' : (xun === 1 ? '先把试本口风与牙行照面坐实' : '先把试本口风与牙帖回话坐实'),
+            cost: 1,
+            eff: '铜钱-' + trialCapitalCost + '·家书+1·商信誉+1·议本+1',
+            desc: season.id === 'winter'
+              ? '冬清账上旬若还想试贩，就得先把“这一两试本从谁账上先挪、回话口风怎么走、来春本钱还留不留”说清。先把这层口风坐实，才不至像默认能直接动家里的银。'
+              : (xun === 1
+                ? '秋试手上旬若已开始探路，就得先把“这一两试本从谁账上先挪、牙行熟脸肯不肯替你递一句、家里认不认这口试手”坐实。先把这层议本口风拆开，秋中真试贩时才不至像默认能直接动家里的银。'
+                : '秋试手中旬若真想带本试贩，就得先把“这一两试本从谁账上先挪、族叔肯不肯点头、回话门包由谁先出”坐实。先把这层议本口风拆开，试贩才不再像默认能直接动家里的银。'),
+            can: S.本年商路议本 < 1 && S.铜钱 >= trialCapitalCost && (S.识货进度 >= 1 || S.账房进度 >= 1),
+            why: S.本年商路议本 < 1
+              ? (S.铜钱 >= trialCapitalCost
+                ? ((S.识货进度 >= 1 || S.账房进度 >= 1)
+                  ? ''
+                  : '先学会一点认货或核账再谈试本')
+                : ('铜钱不足' + trialCapitalCost + '文'))
+              : '这一年已把试本口风坐实',
+            once: true
+          });
+        }
         if (season.id === 'autumn' && xun === 3) {
           A.push({ id: 'm_autumn_tail_split', name: '先把秋尾回话与样货耗损分开', cost: 1, eff: '铜钱-70·催账+1·家书+1·商信誉+1', desc: '秋试手收尾这一旬，最怕熟号回话、样货耗损、回乡脚费和递话门包一起把现钱咬薄。先把这层秋尾回话拆开，冬里清账、贴家和催回旧账时，才不至还被秋尾后手绊住。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
           A.push({ id: 'm_supply_split', name: '先把回钱拆作锅火与供读纸包', cost: 1, eff: '铜钱-65·家书+1·家族+1·供读+1', desc: '秋试手收尾这一旬，最怕银还在路上，家里锅火、供读纸包和差票后手却已先来追钱。先把这层回钱去处分开，冬里就不至只剩一句“等银回”。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
           A.push({ id: 'm_autumn_tail_body', name: '先把秋尾药包与回钱家书分开', cost: 1, eff: '铜钱-70·催账+1·家书+1·歇养+1·体魄+1·家族+1', desc: '秋试手收尾这一旬，最怕药包、回钱家书、回乡脚费和锅火后手一起追钱。先把这层秋尾身家冲突拆开，银未落手时，自己的身子和家里催信也不至继续抢同一口现钱。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
         }
-        A.push({ id: 'm_try', name: isLate ? '赶在旬尾定试贩' : '争取带本试贩', cost: 2, eff: '白银-1锁作本钱·冬里按门路/账房/承继定位判回本/小利/亏折/未回款', desc: '拿一两本钱试着跑一单。钱先锁在货里，回没回得来，不只看运气，也看你这一年把门路和账面坐实到哪一步。', can: ((season.id === 'autumn' && xun >= 2) || (season.id === 'winter' && xun === 1)) && S.本年商路试贩 < 1 && S.带本银 <= 0 && S.白银 >= 1 && (S.识货进度 >= 1 || S.账房进度 >= 1), why: ((season.id === 'autumn' && xun >= 2) || (season.id === 'winter' && xun === 1)) ? (S.本年商路试贩 < 1 ? (S.带本银 <= 0 ? (S.白银 >= 1 ? ((S.识货进度 >= 1 || S.账房进度 >= 1) ? '' : '尚未学会最基本认货/核账') : '白银不足1两') : '已有一笔本钱锁在货里') : '本年已试贩过一回') : '通常要到秋中旬以后才谈得上试贩', once: true });
+        A.push({ id: 'm_try', name: isLate ? '赶在旬尾定试贩' : '争取带本试贩', cost: 2, eff: '白银-1锁作本钱·冬里按门路/账房/承继定位判回本/小利/亏折/未回款', desc: '拿一两本钱试着跑一单。前头得先把“谁肯让你动这一两、口风是否坐实”拆开记账；钱锁进货里后，回没回得来，才继续看你这一年把门路和账面坐实到哪一步。', can: ((season.id === 'autumn' && xun >= 2) || (season.id === 'winter' && xun === 1)) && S.本年商路试贩 < 1 && S.带本银 <= 0 && S.白银 >= 1 && (S.识货进度 >= 1 || S.账房进度 >= 1) && S.本年商路议本 > 0, why: ((season.id === 'autumn' && xun >= 2) || (season.id === 'winter' && xun === 1)) ? (S.本年商路试贩 < 1 ? (S.带本银 <= 0 ? (S.白银 >= 1 ? ((S.识货进度 >= 1 || S.账房进度 >= 1) ? (S.本年商路议本 > 0 ? '' : '还没先把试本口风坐实') : '尚未学会最基本认货/核账') : '白银不足1两') : '已有一笔本钱锁在货里') : '本年已试贩过一回') : '通常要到秋中旬以后才谈得上试贩', once: true });
         A.push({
           id: 'm_support',
           name: season.id === 'autumn' ? '先把回钱贴回家' : '先寄一两回家过锅火',
@@ -5850,6 +5874,25 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把秋中拖欠口风与回乡饭钱分开，但这旬铜钱已先紧，只得让拖欠口风、回乡饭钱和家里催问继续一起追这口未回银。', 'bad']);
               }
               break;
+            case 'm_trial_capital':
+              if (spendCopper(season.id === 'winter' ? 55 : 45)) {
+                S.本年商路议本 += 1;
+                S.本年商路家书 += 1;
+                S.商信誉 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '议试本');
+                log.push([season.id === 'winter'
+                  ? '先把试本回话与来春本钱分开：铜钱-55、家书+1、商信誉+1、议本+1。冬头先把“这一两试本从谁账上先挪、来春本钱还留不留”说清，试贩不再像默认能直接动家里的银。'
+                  : (xun === 1
+                    ? '先把试本口风与牙行照面坐实：铜钱-40、家书+1、商信誉+1、议本+1。秋头先把“这一两试本从谁账上先挪、熟脸肯不肯替你递一句”说清，秋中试贩不再像默认能直接动家里的银。'
+                    : '先把试本口风与牙帖回话坐实：铜钱-45、家书+1、商信誉+1、议本+1。秋中先把“这一两试本从谁账上先挪、族叔肯不肯点头”说清，试贩不再像默认能直接动家里的银。'), 'good']);
+              } else {
+                log.push([season.id === 'winter'
+                  ? '想先把试本回话与来春本钱分开，但这一旬铜钱已先紧，只得让试本与来春后手继续糊在一句“回头再说”里。'
+                  : (xun === 1
+                    ? '想先把试本口风与牙行照面坐实，但这一旬铜钱已先紧，只得让这一两试本继续停在一句“回头再探”里。'
+                    : '想先把试本口风与牙帖回话坐实，但这一旬铜钱已先紧，只得让这一两试本继续停在一句“回头再议”里。'), 'bad']);
+              }
+              break;
             case 'm_autumn_tail_split':
               if (spendCopper(70)) {
                 S.本年商路催账 += 1;
@@ -6200,6 +6243,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (S.本年商路认货 > 0) log.push(['〔认货账〕这一商年你有 ' + S.本年商路认货 + ' 次把认货、辨价和看样真正落成旬内活计，而不只是在年尾笼统说“见过些世面”。', 'good']);
         if (S.本年商路坐店 > 0) log.push(['〔坐店账〕这一商年你有 ' + S.本年商路坐店 + ' 旬把时辰压在柜上与账边；坐店不是背景板，而是能被逐旬点清的门面工夫。', 'good']);
         if (S.本年商路跑单 > 0) log.push(['〔跑单账〕这一商年你有 ' + S.本年商路跑单 + ' 旬真在外头跑货、催路或追单；商路不是年底才忽然“算跑过”。', 'good']);
+        if (S.本年商路议本 > 0) log.push(['〔议本账〕这一商年你有 ' + S.本年商路议本 + ' 次先把试本口风坐实；“带本”不再像默认能直接动家里银子，而是要先过一层门包、回话与点头。', 'good']);
         if (S.本年商路回钱银 > 0) log.push(['〔回钱账〕这一商年共有 ' + S.本年商路回钱银 + ' 两白银真从外头回到了手里；不是账面上写着“应得”，而是已经落成现银。', 'good']);
         if (S.本年商路反哺银 > 0) log.push(['〔反哺账〕这一商年你有 ' + S.本年商路反哺银 + ' 两白银真从手里划回家中；“亦贾亦儒”的反哺不是死后评语，而是当年就能点清的现银去向。', 'good']);
         if (S.本年商路供读 > 0) {
@@ -6359,6 +6403,27 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         : '下旬则把应不应场、回不回家、差役钱和衣药这些后手一并收住。');
     if (S.家传书香 > 0) copyCopper += 40;
     if (S.供读底子 > 0) copyCopper += 20;
+    function examEnrollGateScore() {
+      var literacyScore = S.识字 ? 6 : Math.min(4, (S.识字进度 || 0) * 2);
+      var familySupportScore = Math.min(2, S.本年家中供读次 || 0) * 3;
+      var familyBase = (S.家族 || 0) + (S.家传书香 > 0 ? 4 : 0);
+      var pressurePenalty = Math.max(0, (S.供读压力 || 0) - 1) * 4;
+      return familyBase + literacyScore + familySupportScore - pressurePenalty;
+    }
+    function examEnrollGateTarget() {
+      return season.id === 'spring' ? 58 : (season.id === 'summer' ? 56 : 54);
+    }
+    function examGuaranteeGateScore() {
+      return (S.家族 || 0)
+        + (S.文章火候 || 0) * 6
+        + Math.min(2, S.本年评文次数 || 0) * 4
+        + Math.min(2, S.本年保结次数 || 0) * 3
+        + (S.家传书香 > 0 ? 4 : 0)
+        - (S.供读压力 || 0) * 4;
+    }
+    function examGuaranteeGateTarget() {
+      return (S.保结进度 || 0) <= 0 ? 66 : 74;
+    }
     return {
       title: '读书应举 · 第' + S.举业年 + '举业年·' + season.name + '·' + xunLabel, label: '举业第' + S.举业年 + '年·' + season.name + '·' + xunLabel,
       next: 'civilExam',
@@ -6406,10 +6471,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               id: 'e_enroll',
               name: season.id === 'spring' ? '先递塾帖试坐馆' : (season.id === 'summer' ? '催塾门回话' : '补一道塾门回帖'),
               cost: 1,
-              eff: '投塾进度+1档·家族+1·供读压力+1',
+              eff: '尝试推进投塾进度·若塾门未点头则只落帖样脚费',
               desc: season.id === 'spring'
-                ? '先把塾师肯不肯收、帖子怎么递、第一口束脩从谁账上先压进去坐实。'
-                : '塾门不续、回帖不来，后头的馆课、评文和应试都容易变成空话。',
+                ? '先把塾师肯不肯收、帖子怎么递、第一口束脩从谁账上先压进去坐实。钱得真花，塾门却未必这一旬就肯点头。'
+                : '塾门不续、回帖不来，后头的馆课、评文和应试都容易变成空话。这一旬就算花了帖样脚费，也可能只换来一句“再看看”。',
               can: S.供读状态 !== '已断供',
               once: true
             });
@@ -6499,10 +6564,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               ? '先递保结帖样'
               : (season.id === 'autumn' ? '赶在秋里通保结' : '奔走廪保通保结'),
             cost: 1,
-            eff: ((S.保结进度 || 0) <= 0 ? '保结进度到“已递帖样”' : '保结进度到“保结已通”') + '·保结脚费先支80文',
+            eff: '尝试推进保结进度·保结脚费先支80文·未点头则只落人情脚费',
             desc: (S.保结进度 || 0) <= 0
-              ? '资格不通，本年就算想下场也不成。先把帖样、履历与廪保口风递到位，别把“已递帖样”省成一句话。没先坐实读法与塾门，保结也只是空跑人情。'
-              : '资格不通，本年就算想下场也不成。帖样既已递过，这一旬再把廪保、互结与报名链条真正走通，才配说“保结已通”。',
+              ? '资格不通，本年就算想下场也不成。先把帖样、履历与廪保口风递到位，别把“已递帖样”省成一句话。没先坐实读法与塾门，保结也只是空跑人情；就算坐实了，也未必这一旬立刻放话。'
+              : '资格不通，本年就算想下场也不成。帖样既已递过，这一旬再把廪保、互结与报名链条真正走通，才配说“保结已通”；人情脚费先花出去，回话却还可能拖着。',
             can: !S.生员身份 && S.保结进度 < 2 && (season.id === 'autumn' || season.id === 'winter') && examStudyTrackReady(),
             why: !S.生员身份 ? (S.保结进度 < 2 ? ((season.id === 'autumn' || season.id === 'winter') ? (examStudyTrackReady() ? '' : '先把塾门或半读读法坐实') : '通常到秋冬才真跑保结') : '本年保结已通') : '已是生员',
             once: true
@@ -6669,22 +6734,38 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             case 'e_enroll':
               var enrollCost = season.id === 'spring' ? 45 : (season.id === 'summer' ? 35 : 30);
               var enrollPay = settleExamAdvanceCost(enrollCost);
-              S.投塾进度 = Math.min(2, (S.投塾进度 || 0) + 1);
               S.本年投塾次数 += 1;
-              S.家族 += 1;
-              S.供读压力 += 1;
               S.本年延婚牵扯 += 1;
-              S.本年束脩支出文 += 20;
-              S.本年纸墨支出文 += 10;
-              S.本年零耗支出文 += Math.max(0, enrollCost - 30);
-              pushExamSeasonTag(stepTag + '投塾');
-              log.push([
-                (season.id === 'spring' ? '先递塾帖试坐馆' : (season.id === 'summer' ? '催塾门回话' : '补一道塾门回帖'))
-                  + '：投塾进度推进到“' + examEnrollmentLabel(S.投塾进度) + '”、家族+1、供读压力+1'
-                  + enrollPay.text
-                  + ((S.投塾进度 || 0) >= 2 ? '。塾门终于坐实，后头的馆课、评文和应试才像真能往前走。' : '。这还只是把塾门和帖子先递到位，不等于全年供读就稳了。'),
-                'good'
-              ]);
+              var enrollGateOk = examEnrollGateScore() >= examEnrollGateTarget();
+              if (enrollGateOk) {
+                S.投塾进度 = Math.min(2, (S.投塾进度 || 0) + 1);
+                S.家族 += 1;
+                S.供读压力 += 1;
+                S.本年束脩支出文 += 20;
+                S.本年纸墨支出文 += 10;
+                S.本年零耗支出文 += Math.max(0, enrollCost - 30);
+                pushExamSeasonTag(stepTag + '投塾');
+                log.push([
+                  (season.id === 'spring' ? '先递塾帖试坐馆' : (season.id === 'summer' ? '催塾门回话' : '补一道塾门回帖'))
+                    + '：投塾进度推进到“' + examEnrollmentLabel(S.投塾进度) + '”、家族+1、供读压力+1'
+                    + enrollPay.text
+                    + ((S.投塾进度 || 0) >= 2 ? '。塾门终于坐实，后头的馆课、评文和应试才像真能往前走。' : '。这还只是把塾门和帖子先递到位，不等于全年供读就稳了。'),
+                  'good'
+                ]);
+              } else {
+                S.家族 = Math.max(0, S.家族 - 1);
+                S.供读压力 += 1;
+                S.本年纸墨支出文 += Math.min(15, enrollCost);
+                S.本年零耗支出文 += Math.max(0, enrollCost - 15);
+                pushExamSeasonTag(stepTag + '塾门回话未定');
+                log.push([
+                  (season.id === 'spring' ? '先递塾帖试坐馆' : (season.id === 'summer' ? '催塾门回话' : '补一道塾门回帖'))
+                    + '：这一旬只把帖样、人情与脚费先递到了'
+                    + enrollPay.text
+                    + '，塾门却还只肯说“再看看”；投塾进度没坐实、家族-1、供读压力+1。钱已经花出去，但这口回话并不会自动给你。',
+                  'bad'
+                ]);
+              }
               break;
             case 'e_tutor':
               var tutorCost = season.id === 'spring' ? 150 : 110;
@@ -6718,19 +6799,36 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             case 'e_guarantee':
               var guaranteePay = settleExamAdvanceCost(80);
               var guaranteeBefore = S.保结进度 || 0;
-              S.保结进度 = Math.min(2, guaranteeBefore + 1); S.本年保结次数 += 1; S.本年保结支出文 += 80; S.本年延婚牵扯 += 1;
-              pushExamSeasonTag(stepTag + '保结');
-              log.push([
-                ((guaranteeBefore <= 0)
-                  ? '先递保结帖样'
-                  : (season.id === 'autumn' ? '赶在秋里通保结' : '奔走廪保通保结'))
-                  + '：保结进度推进到“' + examGuaranteeLabel(S.保结进度) + '”'
-                  + guaranteePay.text
-                  + (S.保结进度 >= 2
-                    ? '。到这一步，廪保与报名链条才算真正走通。'
-                    : '。这一旬只先把帖样、履历与廪保口风递到位，离“保结已通”还差后一步。'),
-                'bad'
-              ]);
+              var guaranteeGateOk = examGuaranteeGateScore() >= examGuaranteeGateTarget();
+              S.本年保结次数 += 1; S.本年保结支出文 += 80; S.本年延婚牵扯 += 1;
+              if (guaranteeGateOk) {
+                S.保结进度 = Math.min(2, guaranteeBefore + 1);
+                pushExamSeasonTag(stepTag + '保结');
+                log.push([
+                  ((guaranteeBefore <= 0)
+                    ? '先递保结帖样'
+                    : (season.id === 'autumn' ? '赶在秋里通保结' : '奔走廪保通保结'))
+                    + '：保结进度推进到“' + examGuaranteeLabel(S.保结进度) + '”'
+                    + guaranteePay.text
+                    + (S.保结进度 >= 2
+                      ? '。到这一步，廪保与报名链条才算真正走通。'
+                      : '。这一旬只先把帖样、履历与廪保口风递到位，离“保结已通”还差后一步。'),
+                  'bad'
+                ]);
+              } else {
+                S.家族 = Math.max(0, S.家族 - 1);
+                S.供读压力 += 1;
+                pushExamSeasonTag(stepTag + '保结回话未定');
+                log.push([
+                  ((guaranteeBefore <= 0)
+                    ? '先递保结帖样'
+                    : (season.id === 'autumn' ? '赶在秋里通保结' : '奔走廪保通保结'))
+                    + '：帖样、薄礼与脚费先支了'
+                    + guaranteePay.text
+                    + '，廪保和互结这一旬却还没肯把口风放实；保结进度未动、家族-1、供读压力+1。资格链条不是你肯花钱就会立刻点头。',
+                  'bad'
+                ]);
+              }
               break;
             case 'e_exam':
               var examOutlay = season.id === 'winter' ? 240 : 200;
