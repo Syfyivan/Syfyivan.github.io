@@ -28,18 +28,14 @@
   </div>
 
   <main class="wrap">
-    <header class="signboard">
-      <img class="signboard__school" src="../img/village/h-school.png" alt="像素风小学校" />
-      <div class="signboard__posts"><span></span><span></span></div>
-      <div class="signboard__plank">
-        <p class="signboard__eyebrow">🌱 我的大学生活，正在加载中</p>
-        <h1>如一的大学准备手账</h1>
-        <p>这里装着出发前要准备的小事，也装着一路上的期待和碎碎念。</p>
-      </div>
+    <header class="cover-hero">
+      <img src="./social-card.png" alt="如一的大学准备手账：准备清单、选择计划、大学前随笔" />
+      <div class="cover-caption"><span>🌱 我的大学生活，正在加载中</span><p>这里装着出发前要准备的小事，也装着一路上的期待和碎碎念。</p></div>
     </header>
 
-    <nav class="pixel-tabs" aria-label="手账栏目">
+    <nav class="pixel-tabs pixel-tabs--four" aria-label="手账栏目">
       <button class="tab is-active" data-tab="prepare" type="button">🎒 准备清单</button>
+      <button class="tab" data-tab="journey" type="button">🗺️ 出发计划</button>
       <button class="tab" data-tab="diary" type="button">✍️ 我的随笔</button>
       <button class="tab" data-tab="about" type="button">🌻 出发愿望</button>
     </nav>
@@ -74,7 +70,7 @@
 
       <section class="panel checklist-panel">
         <div class="section-heading section-heading--stack-mobile">
-          <div><span class="kicker">PACKING LIST</span><h2>要准备的东西</h2><p class="subcopy">先写一个选择，需要比较时再继续添加。</p></div>
+          <div><span class="kicker">NOTION PACKING LIST</span><h2>要准备的东西</h2><p class="subcopy">Notion 里的 <strong id="notion-total">0</strong> 件物品已经搬进来；先写一个选择，需要比较时再继续添加。</p></div>
           <button class="primary-btn" id="add-item-btn" type="button">＋ 添加东西</button>
         </div>
         <div class="filter-row" role="group" aria-label="筛选清单">
@@ -90,6 +86,18 @@
         <span>💾 我的修改会自动保存在这台设备上</span>
         <div><button class="text-btn" id="export-btn" type="button">备份手账</button><label class="text-btn file-btn">恢复备份<input id="import-input" type="file" accept="application/json" /></label></div>
       </section>
+    </section>
+
+    <section class="tab-page" id="journey-page">
+      <section class="panel journey-intro">
+        <div class="journey-stamp" aria-hidden="true">🧳</div>
+        <span class="kicker">READY TO GO</span>
+        <h2>出发前的路线便签</h2>
+        <p>从住哪一晚、怎么寄行李，到证件照和军训才艺，把出发前的大事也一件件完成。</p>
+        <div class="journey-progress"><div><span id="journey-progress-fill"></span></div><strong><span id="journey-done">0</span>/<span id="journey-total">0</span></strong></div>
+        <button class="primary-btn" id="add-journey-btn" type="button">＋ 添加计划</button>
+      </section>
+      <div id="journey-root" class="journey-grid"></div>
     </section>
 
     <section class="tab-page" id="diary-page">

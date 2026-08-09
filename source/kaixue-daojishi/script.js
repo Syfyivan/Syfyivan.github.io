@@ -1,25 +1,46 @@
 const STORAGE_KEY = 'ruyi-college-journal-v1';
 
+const NOTION_CATALOG = [
+  { key:'medicine', category:'💊 药品 · 健康', emoji:'💊', items:['碘伏棉签','酒精喷雾','退烧药','消炎药','创可贴','感冒药','腹泻药','西瓜霜','卫生巾'] },
+  { key:'electronics', category:'🔌 电子 · 学习', emoji:'🔌', items:['电脑','手机','插台（带USB接口）','耳机降噪','充电宝（随身携带）','充电器充电线','充电台灯','usb3.2和typeC双接口U盘','小风扇夹款？','吹风机（低功率）违规品'] },
+  { key:'wash', category:'🫧 洗漱 · 护肤', emoji:'🫧', items:['牙刷','防晒（通勤用春夏防晒）','牙具盒','洗面奶','洗面巾','化妆棉','爽肤水','化妆品','护肤品（护手霜，身体乳）','沐浴露','洗发水','搓澡巾','浴巾','毛巾','干发帽','香皂＋香皂盒','洗衣粉 or 洗衣液＋消毒片','消毒液（有一个大连的消毒液不错）','指甲刀','吹风机静音'] },
+  { key:'training', category:'🪖 军训 · 防护', emoji:'🪖', items:['防晒大哥大小黄帽泰版涂身子','腰带','鞋垫','帽檐贴','芦荟胶','医用冷敷贴','大水壶','六神劲凉花露水','纯水无酒精小湿巾','龙虎清凉油','眼镜托','爽身粉','独立包装润喉糖','一次性内裤','一次性袜子','医用防水贴（磨脚的话）'] },
+  { key:'clothes', category:'👕 衣服 · 鞋子', emoji:'👕', items:['睡衣','防晒衣','夏季衣物','圣诞老人睡袍？','贴身衣物','鞋子 2 双'] },
+  { key:'life', category:'🛏️ 宿舍 · 生活', emoji:'🛏️', items:['雨伞','不要床单要床笠（小红书收藏山姆）','蚊帐窗帘（看学校要求）（云瑾加高床帘）','被子（躺岛起球、亚朵星球贵、二狗质量一般但便宜）','枕头（蓝盒子很贵，亚朵、抖音宵吉家纺）决明子（但重）','床垫（壮丽 8cm 软、云瑾）','真丝枕套（慈云）真丝枕巾（真丝布料自己做）'] },
+  { key:'prepare', category:'📮 报到 · 证件', emoji:'📮', items:['录取通知书','团员证','红蓝白一二寸照（电子＋照片）','准考证','档案袋','复印件黑白彩色（身份证、户口本、团员证、团组织关系证明）'] },
+  { key:'other', category:'🧳 行李 · 其他', emoji:'🧳', items:['行李箱（21 寸？）待定','现金（300 整、200 零）','双肩包带电脑隔层背部固定带','真空压缩袋？真空泵？'] },
+  { key:'snacks', category:'🍤 家乡特产 · 小吃', emoji:'🍤', items:['烤鱼饼','虾酥糖','糖烤虾','鱿鱼仔','蚬子肉','扇贝肉干','蒜肠'] },
+  { key:'campus', category:'🏫 到校后再买', emoji:'🏫', note:'到学校后再买，先问学长学姐哪家超市性价比高。', items:['床头挂篮','床上折叠桌','拖鞋','镜子','梳子','指甲刀','洗脸盆','牙刷','牙缸','牙膏','毛巾','浴巾','洗衣粉','卫生纸','水杯','宿舍柜的小锁','挂钩','垃圾桶（带盖？）','垃圾袋'] }
+];
+
+const DEFAULT_ITEMS = NOTION_CATALOG.flatMap(group => group.items.map((title,index) => ({
+  id:`notion-${group.key}-${index + 1}`,
+  category:group.category,
+  emoji:group.emoji,
+  title,
+  note:group.note || '',
+  done:false,
+  picked:'',
+  plans:[]
+})));
+
+const DEFAULT_JOURNEY_PLANS = [
+  '酒店住一晚？？maybe',
+  '寄行李到附近酒店',
+  '携带录取通知书到火车线下窗口，购买 75 折火车票',
+  '做新生开学详细流程',
+  '整理好需准备的东西',
+  '测评床品',
+  '档案整好',
+  '拍证件照',
+  '军训才艺准备（简单魔术、口琴）'
+].map((title,index) => ({ id:`journey-${index + 1}`, title, done:false }));
+
 const DEFAULT_STATE = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   profile: { school: '我的大学', date: '2026-09-02T08:00' },
-  items: [
-    { id:'sunscreen', category:'🧴 护肤 · 日用', emoji:'☀️', title:'防晒霜', note:'想选一支不黏、适合每天用的防晒。', done:false, picked:'', plans:[
-      { id:'A', name:'清爽型防晒', price:'79', thought:'肤感轻薄，平时上课和通勤都能用。' }
-    ]},
-    { id:'id-card', category:'🪪 证件 · 报到', emoji:'🪪', title:'身份证和复印件', note:'原件随身带，复印件单独放。', done:false, picked:'', plans:[] },
-    { id:'admission', category:'🪪 证件 · 报到', emoji:'💌', title:'录取通知书', note:'出发前再检查一次。', done:false, picked:'', plans:[] },
-    { id:'photos', category:'🪪 证件 · 报到', emoji:'🖼️', title:'一寸 / 两寸证件照', note:'纸质版和电子版都留好。', done:false, picked:'', plans:[] },
-    { id:'laptop', category:'🔌 数码 · 学习', emoji:'💻', title:'笔记本电脑和充电器', note:'资料提前备份。', done:false, picked:'', plans:[] },
-    { id:'powerbank', category:'🔌 数码 · 学习', emoji:'🔋', title:'充电宝', note:'确认符合乘车规定。', done:false, picked:'', plans:[] },
-    { id:'earphone', category:'🔌 数码 · 学习', emoji:'🎧', title:'耳机', note:'自习和路上都能用。', done:false, picked:'', plans:[] },
-    { id:'bedding', category:'🛏️ 宿舍 · 收纳', emoji:'🛏️', title:'床单被套', note:'先确认宿舍床的尺寸。', done:false, picked:'', plans:[
-      {id:'A',name:'在家买好',price:'159',thought:'可以提前洗晒，开学到宿舍就能直接用。'}
-    ]},
-    { id:'hanger', category:'🛏️ 宿舍 · 收纳', emoji:'🧺', title:'衣架和收纳袋', note:'不一次买太多，住进去再补。', done:false, picked:'', plans:[] },
-    { id:'medicine', category:'🌿 健康 · 军训', emoji:'💊', title:'常用药和创可贴', note:'按自己的实际需要准备。', done:false, picked:'', plans:[] },
-    { id:'shoes', category:'🌿 健康 · 军训', emoji:'👟', title:'舒服的运动鞋', note:'提前穿几次，别让新鞋磨脚。', done:false, picked:'', plans:[] }
-  ],
+  items: DEFAULT_ITEMS,
+  journeyPlans: DEFAULT_JOURNEY_PLANS,
   diaries: [{ id:'first-note', date:'2026-08-09', mood:'🌻 期待', title:'我的大学准备手账开张啦', content:'离出发还有一段时间。我要一边慢慢收拾东西，一边记住这个很特别的夏天。希望开学后的我回来看，会觉得现在的期待很可爱。' }],
   wish: '希望我可以慢慢认识新的朋友，认真喜欢自己的专业，也别忘了好好吃饭、好好睡觉。第一次离家很远也没关系，我会长成更勇敢的大人。',
   wishes: ['在校园里找到最喜欢的那棵树','认识可以一起吃饭的新朋友','勇敢参加一次社团活动','给家里拍很多校园照片']
@@ -36,20 +57,42 @@ function loadState() {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!saved || !Array.isArray(saved.items)) return clone(DEFAULT_STATE);
     const migrated = { ...clone(DEFAULT_STATE), ...saved };
-    migrated.items = saved.items.map(item => {
-      let plans = (item.plans || []).map((plan,index) => ({
+    const normalizeItem = item => {
+      const plans = (item.plans || []).map((plan,index) => ({
         id: String.fromCharCode(65 + index),
         name: String(plan.name || '').replace(/^Plan [A-Z] ·\s*/, ''),
         price: plan.price || '',
         thought: plan.thought || plan.reason || ''
       }));
-      const isOldSunscreenExample = item.id === 'sunscreen' && plans.length === 3 && plans[0].name === '清爽型防晒';
-      const isOldBeddingExample = item.id === 'bedding' && plans.length === 2 && plans[0].name === '在家买好';
-      if (saved.schemaVersion !== 2 && (isOldSunscreenExample || isOldBeddingExample)) plans = plans.slice(0,1);
       const picked = plans.some(plan => plan.id === item.picked) ? item.picked : '';
       return { ...item, picked, plans };
+    };
+    const normalizedSaved = saved.items.map(normalizeItem);
+    const byTitle = new Map(normalizedSaved.map(item => [item.title,item]));
+    const legacyTargets = {
+      sunscreen:'notion-wash-2', 'id-card':'notion-prepare-6', admission:'notion-prepare-1', photos:'notion-prepare-3',
+      laptop:'notion-electronics-1', powerbank:'notion-electronics-5', earphone:'notion-electronics-4', bedding:'notion-life-2',
+      hanger:'notion-campus-17', medicine:'notion-medicine-5', shoes:'notion-clothes-6'
+    };
+    const byTarget = new Map(normalizedSaved.filter(item => legacyTargets[item.id]).map(item => [legacyTargets[item.id],item]));
+    const matchedSaved = new Set();
+    migrated.items = clone(DEFAULT_ITEMS).map(item => {
+      const previous = byTitle.get(item.title) || byTarget.get(item.id);
+      if (!previous) return item;
+      matchedSaved.add(previous.id);
+      return { ...item, done:Boolean(previous.done), picked:previous.picked || '', plans:previous.plans || [] };
     });
-    migrated.schemaVersion = 2;
+    const legacyIds = new Set(Object.keys(legacyTargets));
+    normalizedSaved.forEach(item => {
+      if (!matchedSaved.has(item.id) && !legacyIds.has(item.id) && !String(item.id).startsWith('notion-')) migrated.items.push(item);
+    });
+    const savedJourney = Array.isArray(saved.journeyPlans) ? saved.journeyPlans : [];
+    const savedJourneyByTitle = new Map(savedJourney.map(item => [item.title,item]));
+    migrated.journeyPlans = clone(DEFAULT_JOURNEY_PLANS).map(item => ({ ...item, done:Boolean(savedJourneyByTitle.get(item.title)?.done) }));
+    savedJourney.forEach(item => {
+      if (!DEFAULT_JOURNEY_PLANS.some(defaultItem => defaultItem.title === item.title) && !migrated.journeyPlans.some(plan => plan.id === item.id || plan.title === item.title)) migrated.journeyPlans.push(item);
+    });
+    migrated.schemaVersion = 3;
     return migrated;
   } catch { return clone(DEFAULT_STATE); }
 }
@@ -114,6 +157,7 @@ function updateProgress() {
   $('#todo-count').textContent = `${total - done} 件`;
   $('#picked-count').textContent = `${pickedItems.length} 项`;
   $('#budget-total').textContent = budget ? `¥${budget.toFixed(budget % 1 ? 2 : 0)}` : '待填写';
+  $('#notion-total').textContent = state.items.filter(item => String(item.id).startsWith('notion-')).length;
 }
 
 function renderList() {
@@ -247,6 +291,46 @@ function setupProfile() {
   });
 }
 
+function renderJourneyPlans() {
+  const plans = state.journeyPlans || [];
+  const root = $('#journey-root');
+  const done = plans.filter(plan => plan.done).length;
+  $('#journey-done').textContent = done;
+  $('#journey-total').textContent = plans.length;
+  $('#journey-progress-fill').style.width = `${plans.length ? Math.round(done / plans.length * 100) : 0}%`;
+  if (!plans.length) {
+    root.innerHTML = '<div class="journey-empty">🗺️ 路线便签还是空的，写下第一件出发前要做的事吧。</div>';
+    return;
+  }
+  root.innerHTML = plans.map((plan,index) => `<article class="journey-card ${plan.done?'is-done':''}" data-id="${safeText(plan.id)}">
+    <span class="journey-number">${String(index + 1).padStart(2,'0')}</span>
+    <button class="journey-check" type="button" role="checkbox" aria-checked="${plan.done}" aria-label="${plan.done?'取消完成':'标记完成'}：${safeText(plan.title)}"></button>
+    <strong>${safeText(plan.title)}</strong>
+    <div class="journey-actions"><button class="text-btn edit-journey" type="button">编辑</button><button class="text-btn danger delete-journey" type="button">删除</button></div>
+  </article>`).join('');
+  $$('.journey-card',root).forEach(card => {
+    const plan = plans.find(item => item.id === card.dataset.id);
+    $('.journey-check',card).addEventListener('click',() => { plan.done = !plan.done; save('出发进度保存好啦'); renderJourneyPlans(); });
+    $('.edit-journey',card).addEventListener('click',() => {
+      const next = prompt('修改这张出发便签：',plan.title);
+      if (next?.trim()) { plan.title = next.trim(); save('便签修改好啦'); renderJourneyPlans(); }
+    });
+    $('.delete-journey',card).addEventListener('click',() => {
+      if (confirm(`要删除“${plan.title}”吗？`)) { state.journeyPlans = plans.filter(item => item.id !== plan.id); save('便签已经删除'); renderJourneyPlans(); }
+    });
+  });
+}
+
+function setupJourney() {
+  $('#add-journey-btn').addEventListener('click',() => {
+    const title = prompt('写下一件出发前要完成的事：');
+    if (!title?.trim()) return;
+    state.journeyPlans.push({ id:`journey-${uid()}`, title:title.trim(), done:false });
+    save('新的出发便签贴好啦');
+    renderJourneyPlans();
+  });
+}
+
 function renderDiaries() {
   const root=$('#diary-root');
   if(!state.diaries.length){root.innerHTML='<div class="diary-empty">📖 第一页还空着。<br>等我写下此刻的心情。</div>';return;}
@@ -289,6 +373,6 @@ function setupDialogs(){
   $$('.pixel-dialog').forEach(dialog=>dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close();}));
 }
 
-function renderAll(){renderList();renderDiaries();renderWishes();updateCountdown();}
-function init(){setupTabs();setupItemEditor();setupProfile();setupDiary();setupWishes();setupBackup();setupDialogs();renderAll();clearInterval(countdownTimer);countdownTimer=setInterval(updateCountdown,1000);}
+function renderAll(){renderList();renderJourneyPlans();renderDiaries();renderWishes();updateCountdown();}
+function init(){setupTabs();setupItemEditor();setupProfile();setupJourney();setupDiary();setupWishes();setupBackup();setupDialogs();renderAll();clearInterval(countdownTimer);countdownTimer=setInterval(updateCountdown,1000);}
 document.addEventListener('DOMContentLoaded',init);
