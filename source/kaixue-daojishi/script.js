@@ -1,12 +1,11 @@
 const STORAGE_KEY = 'ruyi-college-journal-v1';
 
 const DEFAULT_STATE = {
+  schemaVersion: 2,
   profile: { school: '我的大学', date: '2026-09-02T08:00' },
   items: [
-    { id:'sunscreen', category:'🧴 护肤 · 日用', emoji:'☀️', title:'防晒霜', note:'想选一支不黏、适合每天用的防晒。', done:false, picked:'A', plans:[
-      { id:'A', name:'Plan A · 清爽型防晒', reason:'肤感轻薄，适合日常通勤' },
-      { id:'B', name:'Plan B · 高倍防晒', reason:'户外军训时更安心' },
-      { id:'C', name:'Plan C · 平价防晒', reason:'预算友好，方便补涂' }
+    { id:'sunscreen', category:'🧴 护肤 · 日用', emoji:'☀️', title:'防晒霜', note:'想选一支不黏、适合每天用的防晒。', done:false, picked:'', plans:[
+      { id:'A', name:'清爽型防晒', price:'79', thought:'肤感轻薄，平时上课和通勤都能用。' }
     ]},
     { id:'id-card', category:'🪪 证件 · 报到', emoji:'🪪', title:'身份证和复印件', note:'原件随身带，复印件单独放。', done:false, picked:'', plans:[] },
     { id:'admission', category:'🪪 证件 · 报到', emoji:'💌', title:'录取通知书', note:'出发前再检查一次。', done:false, picked:'', plans:[] },
@@ -14,9 +13,8 @@ const DEFAULT_STATE = {
     { id:'laptop', category:'🔌 数码 · 学习', emoji:'💻', title:'笔记本电脑和充电器', note:'资料提前备份。', done:false, picked:'', plans:[] },
     { id:'powerbank', category:'🔌 数码 · 学习', emoji:'🔋', title:'充电宝', note:'确认符合乘车规定。', done:false, picked:'', plans:[] },
     { id:'earphone', category:'🔌 数码 · 学习', emoji:'🎧', title:'耳机', note:'自习和路上都能用。', done:false, picked:'', plans:[] },
-    { id:'bedding', category:'🛏️ 宿舍 · 收纳', emoji:'🛏️', title:'床单被套', note:'先确认宿舍床的尺寸。', done:false, picked:'A', plans:[
-      {id:'A',name:'Plan A · 在家买好',reason:'提前洗晒，开学直接用'},
-      {id:'B',name:'Plan B · 到校再买',reason:'不用一路带着，比较轻松'}
+    { id:'bedding', category:'🛏️ 宿舍 · 收纳', emoji:'🛏️', title:'床单被套', note:'先确认宿舍床的尺寸。', done:false, picked:'', plans:[
+      {id:'A',name:'在家买好',price:'159',thought:'可以提前洗晒，开学到宿舍就能直接用。'}
     ]},
     { id:'hanger', category:'🛏️ 宿舍 · 收纳', emoji:'🧺', title:'衣架和收纳袋', note:'不一次买太多，住进去再补。', done:false, picked:'', plans:[] },
     { id:'medicine', category:'🌿 健康 · 军训', emoji:'💊', title:'常用药和创可贴', note:'按自己的实际需要准备。', done:false, picked:'', plans:[] },
@@ -37,7 +35,22 @@ function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!saved || !Array.isArray(saved.items)) return clone(DEFAULT_STATE);
-    return { ...clone(DEFAULT_STATE), ...saved };
+    const migrated = { ...clone(DEFAULT_STATE), ...saved };
+    migrated.items = saved.items.map(item => {
+      let plans = (item.plans || []).map((plan,index) => ({
+        id: String.fromCharCode(65 + index),
+        name: String(plan.name || '').replace(/^Plan [A-Z] ·\s*/, ''),
+        price: plan.price || '',
+        thought: plan.thought || plan.reason || ''
+      }));
+      const isOldSunscreenExample = item.id === 'sunscreen' && plans.length === 3 && plans[0].name === '清爽型防晒';
+      const isOldBeddingExample = item.id === 'bedding' && plans.length === 2 && plans[0].name === '在家买好';
+      if (saved.schemaVersion !== 2 && (isOldSunscreenExample || isOldBeddingExample)) plans = plans.slice(0,1);
+      const picked = plans.some(plan => plan.id === item.picked) ? item.picked : '';
+      return { ...item, picked, plans };
+    });
+    migrated.schemaVersion = 2;
+    return migrated;
   } catch { return clone(DEFAULT_STATE); }
 }
 let state = loadState();
@@ -92,11 +105,25 @@ function updateProgress() {
   $('#progress-fill').style.width = `${pct}%`;
   const tips = pct === 100 ? '🎉 全部准备好啦，我可以安心出发了！' : pct >= 70 ? '就差一点点，行李箱快装满啦。' : pct >= 35 ? '已经完成不少了，继续慢慢来。' : '一件一件慢慢来，我会准备好的。';
   $('#progress-tip').textContent = tips;
+  const pickedItems = state.items.filter(item => item.plans?.some(plan => plan.id === item.picked));
+  const budget = pickedItems.reduce((sum,item) => {
+    const price = item.plans.find(plan => plan.id === item.picked)?.price || '';
+    const match = String(price).match(/\d+(?:\.\d+)?/);
+    return sum + (match ? Number(match[0]) : 0);
+  },0);
+  $('#todo-count').textContent = `${total - done} 件`;
+  $('#picked-count').textContent = `${pickedItems.length} 项`;
+  $('#budget-total').textContent = budget ? `¥${budget.toFixed(budget % 1 ? 2 : 0)}` : '待填写';
 }
 
 function renderList() {
   const root = $('#list-root');
-  const visible = state.items.filter(item => activeFilter === 'all' || (activeFilter === 'done' ? item.done : !item.done));
+  const visible = state.items.filter(item => {
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'done') return item.done;
+    if (activeFilter === 'undecided') return !item.done && !item.picked;
+    return !item.done;
+  });
   if (!visible.length) {
     root.innerHTML = '<div class="empty-state">🌱 这里暂时空空的，换个筛选看看吧。</div>';
     updateProgress(); return;
@@ -120,9 +147,9 @@ function itemTemplate(item) {
       <button class="expand-btn" type="button" aria-expanded="false" aria-label="展开${safeText(item.title)}的候选方案">⌄</button>
     </div>
     <div class="item-details">
-      <div class="detail-head"><h4>🌼 我的选择小铺</h4><span class="kicker">PLAN A / B / C</span></div>
-      ${item.plans?.length ? `<div class="plan-grid">${item.plans.map(plan => `<div class="plan-card ${item.picked===plan.id?'is-picked':''}"><label><span class="plan-letter"><input type="radio" name="pick-${safeText(item.id)}" value="${safeText(plan.id)}" ${item.picked===plan.id?'checked':''}>${safeText(plan.id)}</span><strong class="plan-name">${safeText(plan.name)}</strong><small class="plan-reason">${safeText(plan.reason)}</small></label></div>`).join('')}</div>` : '<div class="empty-plans">还没有候选方案。点“编辑”就能写下我的 Plan A / B / C。</div>'}
-      <div class="item-actions"><button class="text-btn edit-item" type="button">编辑</button><button class="text-btn danger delete-item" type="button">删除</button></div>
+      <div class="detail-head"><h4>🌼 我的选择小铺</h4><span class="kicker">MY OPTIONS</span></div>
+      ${item.plans?.length ? `<div class="plan-grid">${item.plans.map(plan => `<div class="plan-card ${item.picked===plan.id?'is-picked':''}"><label><span class="plan-letter"><input type="radio" name="pick-${safeText(item.id)}" value="${safeText(plan.id)}" ${item.picked===plan.id?'checked':''}>选择 ${safeText(plan.id)}</span><strong class="plan-name">${safeText(plan.name)}</strong>${plan.price?`<span class="plan-price">¥ ${safeText(plan.price)}</span>`:''}<small class="plan-thought">${safeText(plan.thought || '')}</small></label></div>`).join('')}</div>` : '<div class="empty-plans">还没有选择。点“编辑”写下名字、价格和我的想法吧。</div>'}
+      <div class="item-actions">${item.picked?'<button class="text-btn clear-pick" type="button">取消决定</button>':''}<button class="text-btn edit-item" type="button">编辑</button><button class="text-btn danger delete-item" type="button">删除</button></div>
     </div>
   </article>`;
 }
@@ -137,8 +164,18 @@ function bindListEvents() {
       const open = card.classList.toggle('is-open'); $('.expand-btn',card).setAttribute('aria-expanded',String(open));
     });
     $$('input[type=radio]',card).forEach(radio => radio.addEventListener('change', () => {
-      state.items.find(x => x.id === id).picked = radio.value; save('最终选择记下来啦'); renderList();
+      const item = state.items.find(x => x.id === id);
+      item.picked = radio.value;
+      save('最终选择记下来啦');
+      $$('.plan-card',card).forEach(planCard => planCard.classList.toggle('is-picked',$('input',planCard).checked));
+      let badge = $('.decision-badge',card);
+      if (!badge) { badge = document.createElement('span'); badge.className='decision-badge'; $('.item-copy',card).appendChild(badge); }
+      badge.textContent = `决定买：${item.plans.find(plan => plan.id === item.picked).name}`;
+      if (!$('.clear-pick',card)) { const clear=document.createElement('button'); clear.className='text-btn clear-pick'; clear.type='button'; clear.textContent='取消决定'; $('.item-actions',card).prepend(clear); bindClearPick(clear,item,card); }
+      updateProgress();
     }));
+    const clearPick = $('.clear-pick',card);
+    if (clearPick) bindClearPick(clearPick,state.items.find(x => x.id === id),card);
     $('.edit-item',card).addEventListener('click', () => openItemDialog(id));
     $('.delete-item',card).addEventListener('click', () => {
       const item = state.items.find(x => x.id === id);
@@ -147,12 +184,24 @@ function bindListEvents() {
   });
 }
 
+function bindClearPick(button,item,card) {
+  button.addEventListener('click',()=>{
+    item.picked='';
+    save('已经取消这个决定');
+    $$('.plan-card',card).forEach(planCard => planCard.classList.remove('is-picked'));
+    $$('input[type=radio]',card).forEach(radio => { radio.checked=false; });
+    $('.decision-badge',card)?.remove();
+    button.remove();
+    updateProgress();
+  },{once:true});
+}
+
 function addPlanRow(plan={}) {
   const count = $$('.plan-edit-row', $('#plan-editor')).length;
   const letter = plan.id || String.fromCharCode(65 + Math.min(count,25));
   const row = document.createElement('div');
   row.className = 'plan-edit-row';
-  row.innerHTML = `<input class="plan-name-input" aria-label="${letter} 方案名称" value="${safeText(plan.name||`Plan ${letter} · `)}" placeholder="品牌 / 型号"><input class="plan-reason-input" aria-label="${letter} 方案理由" value="${safeText(plan.reason||'')}" placeholder="优点、价格或购买渠道"><button class="remove-plan" type="button" aria-label="删除这个方案">×</button>`;
+  row.innerHTML = `<div class="plan-row-title"><strong>选择 ${letter}</strong><button class="remove-plan" type="button" aria-label="删除这个选择">×</button></div><label><span>名字</span><input class="plan-name-input" value="${safeText(plan.name||'')}" placeholder="品牌、型号或方案名"></label><label><span>价格</span><input class="plan-price-input" inputmode="decimal" value="${safeText(plan.price||'')}" placeholder="例如 79"></label><label class="plan-thought-field"><span>我的想法</span><textarea class="plan-thought-input" rows="2" placeholder="喜欢哪里、担心什么、为什么想选它……">${safeText(plan.thought||plan.reason||'')}</textarea></label>`;
   row.dataset.letter = letter;
   $('.remove-plan',row).addEventListener('click',()=>row.remove());
   $('#plan-editor').appendChild(row);
@@ -167,7 +216,7 @@ function openItemDialog(id='') {
   $('#item-title').value = item?.title || '';
   $('#item-note').value = item?.note || '';
   $('#plan-editor').innerHTML = '';
-  (item?.plans || [{},{},{}]).forEach(addPlanRow);
+  (item?.plans?.length ? item.plans : [{}]).forEach(addPlanRow);
   $('#item-dialog').showModal();
   setTimeout(()=>$('#item-title').focus(),0);
 }
@@ -178,7 +227,7 @@ function setupItemEditor() {
   $('#item-form').addEventListener('submit',event=>{
     event.preventDefault();
     const existing = state.items.find(x=>x.id === $('#item-id').value);
-    const plans = $$('.plan-edit-row', $('#plan-editor')).map((row,index)=>({id:String.fromCharCode(65+index),name:$('.plan-name-input',row).value.trim(),reason:$('.plan-reason-input',row).value.trim()})).filter(plan=>plan.name);
+    const plans = $$('.plan-edit-row', $('#plan-editor')).map((row,index)=>({id:String.fromCharCode(65+index),name:$('.plan-name-input',row).value.trim(),price:$('.plan-price-input',row).value.trim(),thought:$('.plan-thought-input',row).value.trim()})).filter(plan=>plan.name);
     const data = { id: existing?.id || uid(), category:$('#item-category').value.trim(), emoji:$('#item-emoji').value.trim() || '📦', title:$('#item-title').value.trim(), note:$('#item-note').value.trim(), done:existing?.done||false, picked:existing?.picked||'', plans };
     if (data.picked && !plans.some(plan=>plan.id===data.picked)) data.picked='';
     if (existing) state.items[state.items.indexOf(existing)] = data; else state.items.push(data);
@@ -232,7 +281,7 @@ function setupWishes(){
 
 function setupBackup(){
   $('#export-btn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='如一的大学准备手账-备份.json';a.click();URL.revokeObjectURL(url);toast('备份下载好啦');});
-  $('#import-input').addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{const next=JSON.parse(await file.text());if(!Array.isArray(next.items))throw new Error();state={...clone(DEFAULT_STATE),...next};save('手账已经恢复');renderAll();}catch{alert('这个备份文件好像不对，请换一个试试。')}event.target.value='';});
+  $('#import-input').addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{const next=JSON.parse(await file.text());if(!Array.isArray(next.items))throw new Error();localStorage.setItem(STORAGE_KEY,JSON.stringify(next));state=loadState();save('手账已经恢复');renderAll();}catch{alert('这个备份文件好像不对，请换一个试试。')}event.target.value='';});
 }
 
 function setupDialogs(){

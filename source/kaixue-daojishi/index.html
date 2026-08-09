@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#7ec0ee" />
   <meta name="description" content="如一的大学准备手账：行李清单、心愿选择和大学前随笔。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="如一的大学准备手账" />
+  <meta property="og:description" content="准备清单、选择计划和大学前随笔。" />
+  <meta property="og:url" content="https://syfyivan.github.io/kaixue-daojishi/" />
+  <meta property="og:image" content="https://syfyivan.github.io/kaixue-daojishi/social-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="如一的大学准备手账" />
+  <meta name="twitter:description" content="准备清单、选择计划和大学前随笔。" />
+  <meta name="twitter:image" content="https://syfyivan.github.io/kaixue-daojishi/social-card.png" />
   <title>如一的大学准备手账</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,7 +34,7 @@
       <div class="signboard__plank">
         <p class="signboard__eyebrow">🌱 我的大学生活，正在加载中</p>
         <h1>如一的大学准备手账</h1>
-        <p>我是如一。这里装着出发前要准备的小事，也装着我一路上的期待和碎碎念。</p>
+        <p>这里装着出发前要准备的小事，也装着一路上的期待和碎碎念。</p>
       </div>
     </header>
 
@@ -56,14 +65,22 @@
         <p id="progress-tip">一件一件慢慢来，我会准备好的。</p>
       </section>
 
+      <section class="prep-overview" aria-label="准备概览">
+        <article><span class="overview-icon">📦</span><small>还没准备</small><strong id="todo-count">0 件</strong></article>
+        <article><span class="overview-icon">💡</span><small>已经决定</small><strong id="picked-count">0 项</strong></article>
+        <article><span class="overview-icon">🪙</span><small>预计预算</small><strong id="budget-total">待填写</strong></article>
+        <p>预算只统计已经选定、并填写了价格的方案。</p>
+      </section>
+
       <section class="panel checklist-panel">
         <div class="section-heading section-heading--stack-mobile">
-          <div><span class="kicker">PACKING LIST</span><h2>要准备的东西</h2><p class="subcopy">点开每一项，可以比较我的 Plan A / B / C。</p></div>
+          <div><span class="kicker">PACKING LIST</span><h2>要准备的东西</h2><p class="subcopy">先写一个选择，需要比较时再继续添加。</p></div>
           <button class="primary-btn" id="add-item-btn" type="button">＋ 添加东西</button>
         </div>
         <div class="filter-row" role="group" aria-label="筛选清单">
           <button class="filter is-active" data-filter="all" type="button">全部</button>
           <button class="filter" data-filter="todo" type="button">还没买</button>
+          <button class="filter" data-filter="undecided" type="button">待决定</button>
           <button class="filter" data-filter="done" type="button">已准备</button>
         </div>
         <div id="list-root"></div>
