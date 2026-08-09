@@ -1601,6 +1601,11 @@
     S.本年商路身乏 = 0;
     S.本年商路龃龉 = 0;
     S.本年商路役扰 = 0;
+    S.本年商路役扰支出文 = 0;
+    S.本年商路债息增银 = 0;
+    S.本年商路已结口粮石 = 0;
+    S.本年商路役扰已结 = false;
+    S.本年商路债息已结 = false;
     S.本年商路季务 = [];
     S._merchantLockedTradeTable = null;
   }
@@ -3126,6 +3131,51 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       failLog: '〔年下客礼〕这一旬连炭钱与薄礼都腾挪不开，只得先硬顶过去；年下口风更冷一层（家族-1）。',
       hardship: 'clan'
     });
+  }
+  function merchantAnnualMouthsTarget() {
+    return (S.本年商路跑单 || 0) > 1 ? 1 : 2;
+  }
+  function settleMerchantSeasonFood(log, stepLabel, label, mouths) {
+    if (!(mouths > 0)) return;
+    if (S.存米 >= mouths) {
+      S.存米 -= mouths;
+      S.本年商路已结口粮石 = (S.本年商路已结口粮石 || 0) + mouths;
+      pushMerchantSeasonTag(stepLabel + label + '口粮');
+      log.push(['〔' + label + '口粮〕这一旬先把家里口粮压了 ' + mouths + ' 石（存米-' + mouths + '）。商路跑得再碎，也没有把吃饭这层真账继续拖到年终总算。', 'bad']);
+      return;
+    }
+    var lack = mouths - Math.max(0, S.存米 || 0);
+    S.本年商路已结口粮石 = (S.本年商路已结口粮石 || 0) + mouths;
+    S.存米 = 0;
+    if (S.铜钱 >= lack * 350) {
+      S.铜钱 -= lack * 350;
+      pushMerchantSeasonTag(stepLabel + label + '籴米');
+      log.push(['〔' + label + '口粮〕这一旬家里米不够，只得当场籴米补上口粮：铜钱-' + (lack * 350) + '。锅火与脚路一样，都是当旬真要过的。', 'bad']);
+    } else {
+      S.负债银 += lack;
+      S.体魄 -= 4;
+      pushMerchantSeasonTag(stepLabel + label + '举债糊口');
+      log.push(['〔' + label + '口粮〕这一旬商路也补不上口粮缺口，只得先举债糊口（负债+' + lack + '两、体魄-4）。口粮没有再拖到年终才忽然短出来。', 'bad']);
+    }
+  }
+  function applyMerchantSeasonCarry(log, stepLabel, season, xun) {
+    if (season.id === 'autumn' && xun === 3) {
+      var autumnNeed = Math.max(0, Math.min(1, merchantAnnualMouthsTarget()) - (S.本年商路已结口粮石 || 0));
+      if (autumnNeed > 0) settleMerchantSeasonFood(log, stepLabel, '秋尾', autumnNeed);
+    }
+    if (season.id === 'winter' && xun === 2 && !S.本年商路债息已结 && (S.负债银 || 0) > 0) {
+      var oldDebt = S.负债银;
+      var interest = Math.ceil(oldDebt * DEBT_RATE);
+      S.负债银 += interest;
+      S.本年商路债息增银 += interest;
+      S.本年商路债息已结 = true;
+      pushMerchantSeasonTag(stepLabel + '冬中债息');
+      log.push(['〔冬中债息〕冬清账中旬把旧债利上先滚了一回：旧债' + oldDebt + '两滚息' + interest + '两（负债→' + S.负债银 + '）。这层拿来顶锅火、口粮和脚路的旧债，如今就在冬中见光，不再等到年终才忽然多一笔。', 'bad']);
+    }
+    if (season.id === 'winter' && xun === 3) {
+      var winterNeed = Math.max(0, merchantAnnualMouthsTarget() - (S.本年商路已结口粮石 || 0));
+      if (winterNeed > 0) settleMerchantSeasonFood(log, stepLabel, '冬尾', winterNeed);
+    }
   }
   function applySeasonalHouseholdFriction(log, stepLabel, season, xun, picked, pack) {
     if (!pack) return;
@@ -6325,6 +6375,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         });
         applySeasonalMerchantFriction(log, season.name + xunLabel, season, xun, picked);
+        applyMerchantSeasonCarry(log, season.name + xunLabel, season, xun);
 
         if (!isYearEnd) {
           curStage.next = 'merchant';
@@ -6400,41 +6451,47 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           log.push(['〔家中口角〕银还在路上，家里又迟迟收不到信，这一年外头与家里之间的那层冲突便没有被拖到下一代才算（家族-1）。', 'bad']);
         }
 
-        var mouths = S.本年商路跑单 > 1 ? 1 : 2;
-        if (S.存米 >= mouths) {
-          S.存米 -= mouths;
-          log.push(['〔口粮〕这一商年口粮计 ' + mouths + ' 石（存米-' + mouths + '）', 'bad']);
-        } else {
-          var lack = mouths - S.存米;
-          S.存米 = 0;
-          if (S.铜钱 >= lack * 350) {
-            S.铜钱 -= lack * 350;
-            log.push(['〔口粮〕家中米不够，籴米补口粮：铜钱-' + (lack * 350), 'bad']);
-          } else {
-            S.负债银 += lack;
-            S.体魄 -= 4;
-            log.push(['〔口粮〕商路也补不上口粮缺口，只得举债糊口（负债+' + lack + '两、体魄-4）', 'bad']);
-          }
-        }
-        if (rand() < 0.35) {
+        var mouths = merchantAnnualMouthsTarget();
+        if (!S.本年商路役扰已结 && rand() < 0.35) {
+          S.本年商路役扰已结 = true;
           if (S.本年商路备役 > 0) {
             S.本年商路役扰 += 1;
             log.push(['〔赋役〕先前留出的一角差役钱派上了用场，这一回没有再临时拆别的现钱。', 'good']);
           } else if (S.铜钱 >= 200) {
             S.本年商路役扰 += 1;
             S.铜钱 -= 200;
+            S.本年商路役扰支出文 += 200;
             log.push(['〔赋役〕本户轮到差役，拿铜钱200文找人顶上', 'bad']);
           } else {
             S.本年商路役扰 += 1;
-            S.体魄 -= 6; S.家族 -= 2;
+            S.体魄 -= 6; S.家族 = Math.max(0, S.家族 - 2);
             log.push(['〔赋役〕无钱代役，只得误业亲身应付差役（体魄-6、家族-2）', 'bad']);
           }
         }
-        if (S.负债银 > 0) {
+        if (!S.本年商路债息已结 && S.负债银 > 0) {
           var oldDebt = S.负债银;
           var interest = Math.ceil(oldDebt * DEBT_RATE);
           S.负债银 += interest;
+          S.本年商路债息增银 += interest;
+          S.本年商路债息已结 = true;
           log.push(['〔债息〕旧债 ' + oldDebt + ' 两滚息 ' + interest + ' 两（负债→' + S.负债银 + '）', 'bad']);
+        }
+        if ((S.本年商路已结口粮石 || 0) > 0) {
+          if ((S.本年商路已结口粮石 || 0) >= mouths) {
+            log.push(['〔口粮〕这一年口粮已在秋尾、冬尾旬内陆续见光，共结 ' + S.本年商路已结口粮石 + ' 石；年终不再把整年锅火一把压下。', 'bad']);
+          } else {
+            log.push(['〔口粮〕这一年已有 ' + S.本年商路已结口粮石 + ' 石口粮先在旬内落账，剩下那一口仍待年尾补齐。', 'bad']);
+          }
+        }
+        if (S.本年商路役扰已结) {
+          if ((S.本年商路役扰支出文 || 0) > 0) {
+            log.push(['〔赋役〕这一年差钱已在冬头旬内见光，共支出约' + S.本年商路役扰支出文 + '文；不再把制度后手整笔拖到年终才一起算。', 'bad']);
+          } else if (S.本年商路备役 > 0 && S.本年商路役扰 > 0) {
+            log.push(['〔赋役〕这一年差钱已在冬头按“先留后用”的口子落过一回；年终不再另起一整笔制度账。', 'good']);
+          }
+        }
+        if (S.本年商路债息已结 && (S.本年商路债息增银 || 0) > 0) {
+          log.push(['〔债息〕旧债利上已在冬中旬内滚过一回（+' + S.本年商路债息增银 + '两）；不再等到年终才忽然多出一笔。', 'bad']);
         }
         if ((S.本年商路坐店 + S.本年商路跑单 + S.本年商路核账) <= 0) {
           S.家族 -= 3;
