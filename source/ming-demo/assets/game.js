@@ -815,12 +815,11 @@
     var received = Math.max(0, S.累计回钱银 || 0);
     var remitted = Math.max(0, S.累计反哺银 || 0);
     var settled = Math.max(0, received - remitted);
+    var pending = Math.max(0, S.未回款银 || 0);
+    var lockedTrial = Math.max(0, S.带本银 || 0);
     if (settled > 0) return settled;
-    if ((S.未回款银 || 0) > 0) return 1;
-    if ((S.本年商路试贩 || 0) > 0) return 1;
-    if ((S.供读底子 || 0) > 0) return 1;
-    if ((S.亦贾亦儒底子 || 0) > 0) return 1;
-    if ((S.商路门路 || 0) > 0) return 1;
+    if (pending > 0) return 1;
+    if (lockedTrial > 0 && (S.本年商路试贩 || 0) > 0) return 1;
     return 0;
   }
   function childbearingProfile() {
