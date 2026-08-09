@@ -1534,6 +1534,62 @@
     if (result === '成生员') return '生员';
     return result;
   }
+  function examSupportStateDetail() {
+    return (S.供读状态 || '观望供读') + '·压' + (S.供读压力 || 0);
+  }
+  function examDelayStatusLabel() {
+    var drag = Math.max(0, Number(S.本年延婚牵扯) || 0);
+    if (drag >= 5) return '婚窗更窄';
+    if (drag >= 3) return '婚期越拖越迟';
+    if (drag >= 1) return '已见拖延';
+    return '暂未受牵';
+  }
+  function examBodyStatusLabel() {
+    var wear = Math.max(0, Number(S.本年身子亏空) || 0);
+    var body = Number(S.体魄) || 0;
+    if (wear >= 4 || body <= 35) return '已伤根气';
+    if (wear >= 2 || body <= 45) return '肩眼见亏';
+    if (wear >= 1 || body <= 55) return '灯下微亏';
+    return '身子尚稳';
+  }
+  function noteExamIntraYearSignals(log, stepTag, beforeSignals) {
+    beforeSignals = beforeSignals || {};
+    var support = examSupportStateDetail();
+    var delay = examDelayStatusLabel();
+    var body = examBodyStatusLabel();
+    if (support !== beforeSignals.support) {
+      pushExamSeasonTag(stepTag + '供读口风·' + support);
+      if (S.供读状态 === '已断供') {
+        log.push(['〔供读口风〕这一旬过后，父兄母对再压束脩、纸墨与盘缠的口风已经实质断掉；你若还想续读，往后就得另找米脚、人情或转靠识字补贴来拖住。', 'bad']);
+      } else if (S.供读状态 === '断供边缘') {
+        log.push(['〔供读口风〕这一旬过后，家里这条供读线已逼到断供边缘。账不是年终才忽然坏，而是在这一旬就已经露出“再多压一口便要翻锅”的样子。', 'bad']);
+      } else if (S.供读状态 === '家中供读') {
+        log.push(['〔供读口风〕这一旬过后，家里仍肯把锅火、口粮与现钱往你这边压。供读继续成立，但也只是把这条线又勉强续住，不推出录取。', 'good']);
+      } else if (S.供读状态 === '观望供读') {
+        log.push(['〔供读口风〕这一旬过后，家里对继续供读转成观望：不是当场赶你停读，而是这条钱路和口粮路都开始等下一旬的回话。', 'bad']);
+      }
+    }
+    if (delay !== beforeSignals.delay) {
+      pushExamSeasonTag(stepTag + '婚事口风·' + delay);
+      if (delay === '已见拖延') {
+        log.push(['〔婚事口风〕这一旬的束脩、保结和家中贴补，已经开始往婚事上挤。议亲还没明着停，但口风先慢了一层。', 'bad']);
+      } else if (delay === '婚期越拖越迟') {
+        log.push(['〔婚事口风〕这一旬过后，婚期已不只是“以后再议”，而是被举业开销和家里供读真往后拖开了一截。', 'bad']);
+      } else if (delay === '婚窗更窄') {
+        log.push(['〔婚事口风〕这一旬过后，延婚已经不是一句客气话，而是把婚配窗口真往后挤窄了。举业并非道德加分，只是实打实改写了成家的时点。', 'bad']);
+      }
+    }
+    if (body !== beforeSignals.body) {
+      pushExamSeasonTag(stepTag + '身子账·' + body);
+      if (body === '灯下微亏') {
+        log.push(['〔身子账〕这一旬的灯下久坐、往返跑腿或回家帮工，已经先在肩眼和睡气上留下了细亏。', 'bad']);
+      } else if (body === '肩眼见亏') {
+        log.push(['〔身子账〕这一旬过后，肩背、眼力与寒热的亏空已经见了形；举业耗的不是抽象毅力，而是你这一副身子。', 'bad']);
+      } else if (body === '已伤根气') {
+        log.push(['〔身子账〕这一旬过后，身子亏空已伤到根气。若还只按“年轻扛得住”来写，这条路就不诚实了。', 'bad']);
+      }
+    }
+  }
   function applyCivilExamSharedBaseline() {
     var notes = [];
     if (generation !== 1 || !S || S._startMode !== 'establishment' || S._civilExamSharedBaselineApplied) return notes;
@@ -3043,6 +3099,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += '<span class="chip">举程 <b>' + examSeasonInfo(S.举季 || 1).name + '·' + examXunLabel(S.举段 || 1) + '</b></span>';
       h += '<span class="chip">童试层级 <b>' + examTierLabel(S.童试层级, S.生员身份) + '</b></span>';
       h += '<span class="chip">保结 <b>' + examGuaranteeLabel(S.保结进度) + '</b></span>';
+      h += '<span class="chip">供读 <b>' + examSupportStateDetail() + '</b></span>';
+      h += '<span class="chip">婚事 <b>' + examDelayStatusLabel() + '</b></span>';
+      h += '<span class="chip">身耗 <b>' + examBodyStatusLabel() + '</b></span>';
     } else if (phase === 'family') {
       var familySeason = familySeasonInfo(S.家季 || 1);
       h += '<span class="chip">阶段 <b>养家</b></span>';
@@ -3852,6 +3911,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     S.年龄 = 16 + (S.举业年 - 1);
     S.身份 = S.生员身份 ? '民籍·生员' : '民籍·读书子';
     S.路线 = '读书应举';
+    refreshExamSupportState();
     var baselineNotes = (S.举业年 === 1) ? applyCivilExamSharedBaseline() : [];
     var inherited = (S.举业年 === 1) ? applyRouteInheritance('civilExam') : [];
     picks = []; resolved = null; lifePicks = [];
@@ -5812,7 +5872,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       note: '举业路现改成“春课→夏课→秋试→冬清账”四季、每季三旬：上旬先定主读法、投塾与供读口风，中旬再磨文章、跑资格、补识字、接誊抄，下旬把应场、回家缓家计、差役钱与衣药后手一笔笔收紧。每旬默认按“三手并行”来想，一手顾课业主线，一手拆家计或门路碎账，再留一手给身子、差役或回乡后手；若家里真要续供，也得显式粜米或另挪口粮来换纸墨盘缠，而不是把存米自动折成现银。如今下场后会在同一年里直接见“过县试 / 过府试 / 落第 / 成生员”的回话；冬里只继续收余账，不再把应试结果整笔拖到年终。',
       narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火和身子亏空都在争同一笔钱。') + ' 你这一旬有 <span class="em">3 个行动点</span>，最好别只顾课业本身。',
       dossier: function () {
-        return lifeDossier('当前举程=' + season.name + '·' + xunLabel + '｜投塾=' + examEnrollmentLabel(S.投塾进度) + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜文章火候=' + S.文章火候 + '｜供读状态=' + S.供读状态 + '｜本年应试=' + examAttemptResultLabel(S.本年应试结果) + '｜本年投塾=' + S.本年投塾次数 + '｜识字旬=' + S.本年识字旬数 + '｜馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保结奔走=' + S.本年保结次数 + '｜誊抄=' + S.本年誊抄次数 + '｜归家缓家=' + S.本年归家次数 + '回/' + S.本年家中贴补米 + '石｜家中供读=' + S.本年家中供读次 + '回/' + S.本年家中供读文 + '文/' + S.本年家中供读米 + '石｜已落举业支出=' + S.本年已落举业支出文 + '文｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜盘缠=' + S.本年盘缠支出文 + '文｜零耗=' + S.本年零耗支出文 + '文｜衣药=' + S.本年衣药支出文 + '文｜落第=' + S.本年落第次数 + '｜延婚牵扯=' + S.本年延婚牵扯 + '｜身子亏空=' + S.本年身子亏空 + (S.生员身份 ? '｜已是生员' : '') + '。');
+        return lifeDossier('当前举程=' + season.name + '·' + xunLabel + '｜投塾=' + examEnrollmentLabel(S.投塾进度) + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜文章火候=' + S.文章火候 + '｜供读状态=' + examSupportStateDetail() + '｜婚事口风=' + examDelayStatusLabel() + '｜身耗=' + examBodyStatusLabel() + '｜本年应试=' + examAttemptResultLabel(S.本年应试结果) + '｜本年投塾=' + S.本年投塾次数 + '｜识字旬=' + S.本年识字旬数 + '｜馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保结奔走=' + S.本年保结次数 + '｜誊抄=' + S.本年誊抄次数 + '｜归家缓家=' + S.本年归家次数 + '回/' + S.本年家中贴补米 + '石｜家中供读=' + S.本年家中供读次 + '回/' + S.本年家中供读文 + '文/' + S.本年家中供读米 + '石｜已落举业支出=' + S.本年已落举业支出文 + '文｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜盘缠=' + S.本年盘缠支出文 + '文｜零耗=' + S.本年零耗支出文 + '文｜衣药=' + S.本年衣药支出文 + '文｜落第=' + S.本年落第次数 + '｜延婚牵扯=' + S.本年延婚牵扯 + '｜身子亏空=' + S.本年身子亏空 + (S.生员身份 ? '｜已是生员' : '') + '。');
       },
       events: [
         {
@@ -5954,6 +6014,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         var didStudy = false, progressed = false;
         var picked = {};
         var stepTag = season.name + '·' + xunLabel;
+        var beforeSignals = {
+          support: examSupportStateDetail(),
+          delay: examDelayStatusLabel(),
+          body: examBodyStatusLabel()
+        };
         lifePicks.forEach(function (p) {
           picked[p.id] = true;
           switch (p.id) {
@@ -6222,6 +6287,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         });
         applySeasonalExamFriction(log, stepTag, season, xun, picked);
         refreshExamSupportState();
+        noteExamIntraYearSignals(log, stepTag, beforeSignals);
 
         if (!isYearEnd) {
           curStage.next = 'civilExam';
