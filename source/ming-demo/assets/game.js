@@ -12188,6 +12188,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             log.push(['〔腊月小耗〕这一旬连灯油炭火都挪不开，只得靠身子硬顶过去（体魄-1）。', 'bad']);
           }
         }
+        if ((route.indexOf('路径一') === 0 || route.indexOf('留乡佃田') === 0) && season.id === 'spring' && xun === 3) {
+          if (picked.f_route_farm_store || picked.f_duty || picked.f_mend || picked.f_rest || picked.f_route_farm_note) {
+            pushFamilySeasonTag(stepTag + '春尾香纸已分');
+            log.push(['〔春尾香纸〕这一旬先把清明香纸、草鞋补绳、递话脚费与夏前挑水后手分开了；农路养家春尾不再只剩“记完换工与佃账”，连香纸、草鞋与夏前脚路也先压回了这一旬。', 'good']);
+          } else if (spendCopper(30)) {
+            S.本年家衣药 += 1;
+            pushFamilySeasonTag(stepTag + '春尾香纸');
+            log.push(['〔春尾香纸〕清明香纸、草鞋补绳、递话脚费和夏前挑水小耗一起要钱：铜钱-30、衣药+1。不是大账，却正把农路养家春尾最躲不开的一层香纸与脚路重新压回真账。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '春尾硬顶');
+            log.push(['〔春尾香纸〕这一旬连香纸和草鞋补绳都腾挪不开，只得先硬顶过去；春尾这层香纸与夏前脚路都更紧了一线（家族-1）。', 'bad']);
+          }
+        }
         if ((route.indexOf('路径一') === 0 || route.indexOf('留乡佃田') === 0) && season.id === 'summer' && xun === 2) {
           if (picked.f_route_farm_split || picked.f_route_farm_note || picked.f_cool || picked.f_mend || picked.f_rest) {
             pushFamilySeasonTag(stepTag + '田头小耗已顾');
