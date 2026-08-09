@@ -2119,7 +2119,7 @@
       hardship: 'clan'
     });
     if (season.id === 'spring' && xun === 3) apply({
-      handledIds: examSupportHandledIds(['e_copy', 'e_home', 'e_rest', 'e_spring_tail_packet']),
+      handledIds: examSupportHandledIds(['e_copy', 'e_home', 'e_rest', 'e_spring_tail_packet', 'e_spring_fan']),
       doneTag: '春尾香纸已分',
       doneLog: '〔春尾香纸〕这一旬先把清明香纸、回馆脚费与春尾抄写纸墨分开了；春课收尾不再只是“再抄两页补贴”，而把季末这层家用与笔墨碎账一并摊回了同一年里。',
       cost: 40,
@@ -2128,6 +2128,18 @@
       failTag: '春尾香纸硬顶',
       failLog: '〔春尾香纸〕这一旬连清明香纸和回馆脚费都腾挪不开，只得先硬顶过去；春尾这层馆课与家计后手又更薄了一线（家族-1）。',
       hardship: 'clan'
+    });
+    if (season.id === 'spring' && xun === 3) apply({
+      handledIds: examSupportHandledIds(['e_copy', 'e_home', 'e_rest', 'e_spring_tail_packet', 'e_spring_fan']),
+      doneTag: '春尾扇药已分',
+      doneLog: '〔春尾扇药〕这一旬先把换季扇药、塾门回帖门包与春尾草鞋脚费分开了；春尾这层“馆批将回未回、换季小耗却先来”的细账终于也回到了同一年里。',
+      cost: 45,
+      buckets: { 本年衣药支出文: 45 },
+      costTag: '春尾扇药',
+      costLog: '〔春尾扇药〕换季蒲扇凉药、塾门回帖门包与草鞋脚费一起要钱：铜钱-{cost}。不是大账，却正把春尾最容易被一句“熬到入夏再说”带过去的身子与门路小耗压回了这一旬。',
+      failTag: '春尾扇药硬顶',
+      failLog: '〔春尾扇药〕这一旬连换季扇药与塾门回帖门包都腾挪不开，只得先硬扛过去；春尾这层换季亏空先落到了身子上（体魄-1）。',
+      hardship: 'body'
     });
     if (season.id === 'summer' && xun === 1) apply({
       handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_home', 'e_summer_open_packet']),
@@ -2219,7 +2231,7 @@
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 3) apply({
-      handledIds: examSupportHandledIds(['e_reserve', 'e_home', 'e_mend', 'e_rest', 'e_exam', 'e_winter_packet']),
+      handledIds: examSupportHandledIds(['e_reserve', 'e_home', 'e_mend', 'e_rest', 'e_exam', 'e_winter_packet', 'e_winter_tail_cure']),
       doneTag: '冬尾门包已留',
       doneLog: '〔冬尾门包〕这一旬先把来春投帖门包、年下薄礼、回乡脚钱与锅火后手分开了；冬清账最后一程终于也不再只是等总账，而把明春第一口门路和眼前家计一并收住。',
       cost: 50,
@@ -2228,6 +2240,18 @@
       failTag: '冬尾门包硬顶',
       failLog: '〔冬尾门包〕这一旬连投帖门包和年下薄礼都腾挪不开，只得先硬顶过去；明春门路还没开，冬尾这层后手先薄了一线（家族-1）。',
       hardship: 'clan'
+    });
+    if (season.id === 'winter' && xun === 3) apply({
+      handledIds: examSupportHandledIds(['e_reserve', 'e_home', 'e_mend', 'e_rest', 'e_exam', 'e_winter_packet', 'e_winter_tail_cure']),
+      doneTag: '冬尾炭鞋已分',
+      doneLog: '〔冬尾炭鞋〕这一旬先把守岁炭药、来春草鞋与旧馆年下回话脚费分开了；冬尾这层过冬与明春脚路后手，不再只留到年终一句话里。',
+      cost: 60,
+      buckets: { 本年衣药支出文: 60 },
+      costTag: '冬尾炭鞋',
+      costLog: '〔冬尾炭鞋〕守岁炭药、来春草鞋与旧馆年下回话脚费一起要钱：铜钱-{cost}。不是新主线，却正把冬尾最容易被“反正快过年了”带过去的过冬小耗重新压回了这一旬。',
+      failTag: '冬尾炭鞋硬顶',
+      failLog: '〔冬尾炭鞋〕这一旬连守岁炭药和来春草鞋后手都腾挪不开，只得继续硬扛过去；冬尾这层过冬亏空先落到了身子上（体魄-1）。',
+      hardship: 'body'
     });
   }
   function applyExamSeasonCarry(log, stepLabel, season, xun) {
@@ -2283,6 +2307,7 @@
       'e_home', 'e_fail_talk',
       'e_rest', 'e_mend',
       'e_summer_cough', 'e_autumn_cough', 'e_winter_cough',
+      'e_spring_fan', 'e_winter_tail_cure',
       'e_spring_open_packet', 'e_spring_packet', 'e_spring_tail_packet',
       'e_summer_open_packet', 'e_summer_packet', 'e_summer_tail_packet',
       'e_autumn_open_packet', 'e_autumn_packet', 'e_autumn_tail_packet', 'e_autumn_register',
@@ -2306,6 +2331,7 @@
       'e_rest', 'e_mend',
       'e_home', 'e_fail_talk',
       'e_summer_cough', 'e_autumn_cough', 'e_winter_cough',
+      'e_spring_fan', 'e_winter_tail_cure',
       'e_summer_packet', 'e_summer_tail_packet',
       'e_winter_mid_packet', 'e_winter_packet'
     ]);
@@ -7545,6 +7571,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           });
           if (season.id === 'spring') {
             A.push({ id: 'e_spring_tail_packet', name: '先把春尾香纸与回馆脚费分开', cost: 1, eff: '铜钱-45·家族+1', desc: '春课下旬最怕清明香纸、回馆脚费和春尾抄写纸墨一起追钱。先把这层季末细账拆开，春尾就不至把夏里的纸墨后手一起拖进来。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
+            A.push({
+              id: 'e_spring_fan',
+              name: '先把春尾扇药与塾门回帖分开',
+              cost: 1,
+              eff: '铜钱-50·体魄+1·家族+1·将养+1',
+              desc: '春尾最怕塾门回帖还没落手，换季蒲扇凉药、草鞋脚费与递话门包却先来追钱。先把这层换季小耗拆开，不让春尾身子账和门路钱一起拖进入夏。',
+              can: S.铜钱 >= 50,
+              why: S.铜钱 >= 50 ? '' : '铜钱不足50文',
+              once: true
+            });
           } else if (season.id === 'summer') {
             A.push({ id: 'e_summer_tail_packet', name: '先把夏尾衣药与回家带药小耗分开', cost: 1, eff: '铜钱-50·体魄+2', desc: '夏课下旬最怕补鞋药钱、伏夏尾声纸墨和回家带药小耗一起追钱。先把这层身子账拆开，伏夏尾声就不至只剩硬熬。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
           } else if (season.id === 'autumn') {
@@ -7584,6 +7620,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'e_reserve', name: '先留一角差役钱', cost: 1, eff: '铜钱-' + reserveCost + '·本年差役准备+1', desc: '先把差役钱留出来，免得到年关再把读书账拆得满地都是。', can: S.铜钱 >= reserveCost, why: S.铜钱 >= reserveCost ? '' : ('铜钱不足' + reserveCost + '文'), once: true });
           if (season.id === 'winter') {
             A.push({ id: 'e_winter_packet', name: '先把来春投帖门包与年下薄礼分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬尾最怕来春投帖门包、年下薄礼、回乡脚钱和锅火后手一起压上来。先把这层小钱拆开，明春门路和今冬家计就不至继续挤同一口现钱。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+            A.push({
+              id: 'e_winter_tail_cure',
+              name: '先把冬尾炭药与草鞋脚费分开',
+              cost: 1,
+              eff: '铜钱-70·体魄+2·家族+1·将养+1',
+              desc: '冬尾最怕守岁炭药、来春草鞋、旧馆年下回话脚费和锅火一起追钱。先把这层过冬小耗拆开，不让今冬身子和明春脚路继续抢同一口现钱。',
+              can: S.铜钱 >= 70,
+              why: S.铜钱 >= 70 ? '' : '铜钱不足70文',
+              once: true
+            });
           }
           A.push({ id: 'e_mend', name: season.id === 'winter' ? '补衣买药过冬' : '补鞋买药养身', cost: 1, eff: '铜钱-' + mendCost + '·体魄+' + mendBody, desc: season.id === 'winter' ? '先补棉衣、药钱和灯下熬出来的亏空。' : '先把眼睛和身子这口气养回一点。', can: S.铜钱 >= mendCost, why: S.铜钱 >= mendCost ? '' : ('铜钱不足' + mendCost + '文'), once: true });
           A.push({ id: 'e_rest', name: '歇息养身', cost: 1, eff: '体魄+5', desc: '让这一旬别只剩下硬熬。', can: true });
@@ -7899,6 +7945,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把春尾香纸与回馆脚费拆开，但这一旬铜钱已先被别处占住，只得让春尾这层季末细账继续拖着走。', 'bad']);
               }
               break;
+            case 'e_spring_fan':
+              if (spendCopper(50)) {
+                noteExamOutlay(50, { buckets: { 本年衣药支出文: 50 } });
+                S.体魄 += 1;
+                S.家族 += 1;
+                S.本年将养次数 += 1;
+                if (S.本年身子亏空 > 0) S.本年身子亏空 -= 1;
+                pushExamSeasonTag(stepTag + '拆春尾扇药');
+                log.push(['先把春尾扇药与塾门回帖分开：铜钱-50、体魄+1、家族+1。春尾这层换季蒲扇凉药、塾门回帖门包和草鞋脚费先被拆开，入夏前不再让身子账和门路钱一起往后滚。', 'good']);
+              } else {
+                log.push(['想先把春尾扇药与塾门回帖拆开，但这一旬铜钱已先被别处占住，只得让春尾这层换季亏空继续贴着身子和门路一起追钱。', 'bad']);
+              }
+              break;
             case 'e_literacy':
               if (spendCopper(literacyCost)) {
                 noteExamOutlay(literacyCost, { buckets: { 本年纸墨支出文: literacyCost } });
@@ -8011,6 +8070,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把来春投帖门包与年下薄礼分开：铜钱-60、家族+1、体魄+1。冬尾这层来春门包、年下薄礼与回乡脚钱先被拆开，今冬锅火和明春门路没有再硬挤同一口现钱。', 'good']);
               } else {
                 log.push(['想先把来春投帖门包与年下薄礼拆开，但这一旬铜钱已先被别处占住，只得继续让冬尾锅火和明春门路抢同一口现钱。', 'bad']);
+              }
+              break;
+            case 'e_winter_tail_cure':
+              if (spendCopper(70)) {
+                noteExamOutlay(70, { buckets: { 本年衣药支出文: 70 } });
+                S.体魄 += 2;
+                S.家族 += 1;
+                S.本年将养次数 += 1;
+                if (S.本年身子亏空 > 0) S.本年身子亏空 -= 1;
+                pushExamSeasonTag(stepTag + '拆冬尾炭鞋');
+                log.push(['先把冬尾炭药与草鞋脚费分开：铜钱-70、体魄+2、家族+1。守岁炭药、来春草鞋和旧馆年下回话脚费先被拆开，冬尾这层过冬亏空没再继续贴着明春门路一起追钱。', 'good']);
+              } else {
+                log.push(['想先把冬尾炭药与草鞋脚费拆开，但这一旬铜钱已先被别处占住，只得让冬尾这层过冬小耗继续贴着身子和明春脚路一起追钱。', 'bad']);
               }
               break;
             case 'e_mend':
