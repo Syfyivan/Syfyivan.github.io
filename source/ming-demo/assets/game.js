@@ -16757,8 +16757,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       pack.extraActions.push({ id: 'e_route_winter_medicine_old', name: '先把冬头炭药与熟号回签分开', cost: 1, eff: '铜钱-65·家族+1·体魄+1', desc: '冬头最怕炭米、年下药包、熟号回签与回话脚费一起冒头。先把这层小钱拆开，不让年关锅火和明春路数继续挤在同一口现钱上。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
       pack.extraActions.push({ id: 'e_route_guest_old', name: '先备熟号薄礼与回话脚费', cost: 1, eff: '铜钱-70·家族+1·体魄+1', desc: '年关若把熟号、脚夫和带话人的薄礼一并省掉，明春常常就得从头求人。先把这层小钱记下，门路才不至到冬里忽然断线。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
       pack.extraActions.push({ id: 'e_route_winter_reply_old', name: '先把冬中回话脚费与样纸定钱分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬中最怕熟号回话脚费、脚夫门包、来春样纸定钱和柜边回签门包一起冒头。先把这层回话碎账拆开，年下客礼和明春水脚才不必继续拿同一口现钱四处堵漏。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+      if (S.商路供读银 >= 1) {
+        pack.extraActions.push({ id: 'e_route_winter_school_old', name: '先把冬中供读底银与灯炭炭笔分开', cost: 1, eff: '铜钱-65·家族+1·体魄+1', desc: '冬中最怕孙辈炭笔、来春蒙馆定钱、灯炭药包和熟号回话脚费一起追钱。先把这层供读余绪拆开，商路一路攒下的供读底银就不必在晚景里被锅火和回话先吞掉。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
+      }
       pack.extraActions.push({ id: 'e_route_wharf_old', name: '托熟号问明春水脚', cost: 1, eff: '铜钱-50·家族+1', desc: '趁年关熟号还在，先把哪条水脚肯接、哪笔旧账还可缓一旬摸明。它不立刻变现，却能让来年不至从两眼一抹黑开始。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
       pack.extraActions.push({ id: 'e_route_winter_tail_old', name: '先把年下回签与来春样纸分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '冬尾最怕年下回签、来春样纸定钱、递话脚费和眼前锅火一起压上来。先把这层冬尾小账拆开，明春第一程和今冬家里口风才不必继续挤在同一口现钱上。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
+      if (S.商路供读银 >= 1) {
+        pack.extraActions.push({ id: 'e_route_winter_school_tail_old', name: '先把冬尾供读帖样与年下锅火分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬尾最怕孙辈来春帖样、炭笔门包、年下锅火和熟号回签一起冒头。先把这层供读帖样拆开，不让家里读写后手和明春商路门路继续抢同一口过冬钱。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+      }
     } else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份 || S.优免启用) {
       pack.note = '举业一路到了晚年，看的是名色留下多少实际照应：生员能减一层外流，笔墨底子则更容易换来教馆、抄写和体面；更磨人的，是春头馆契、旧馆回话、伏夏馆汤、伏夏纸药、夏尾回签、秋初回签、秋中馆脚、秋尾回帖、秋尾炭脚、冬中馆札、年关帖礼与冬尾馆信会不会在同一年里一旬旬咬回来。';
       pack.dossier = '举业结局=' + S.举业结局 + '｜生员=' + (S.生员身份 ? '是' : '否') + '｜优免=' + (S.优免启用 ? '启用' : '未启用') + '｜识字转业值=' + S.识字转业值;
@@ -17068,6 +17074,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             a.can = (season.id === 'winter') && xun === 2 && S.铜钱 >= 60;
             a.why = !(season.id === 'winter' && xun === 2) ? '这一旬不便先拆冬中回话账' : (S.铜钱 >= 60 ? '' : '铜钱不足60文');
             a.once = true;
+          } else if (a.id === 'e_route_winter_school_old') {
+            a.can = (season.id === 'winter') && xun === 2 && S.商路供读银 >= 1 && S.铜钱 >= 65;
+            a.why = !(season.id === 'winter' && xun === 2) ? '这一旬不便先拆冬中供读底银'
+              : (S.商路供读银 >= 1 ? (S.铜钱 >= 65 ? '' : '铜钱不足65文') : '眼下没有可守的商路供读底银');
+            a.once = true;
           } else if (a.id === 'e_route_wharf_old') {
             a.can = (season.id === 'winter') && xun === 3 && S.铜钱 >= 50;
             a.why = !(season.id === 'winter' && xun === 3) ? '这一旬不便先问明春水脚' : (S.铜钱 >= 50 ? '' : '铜钱不足50文');
@@ -17075,6 +17086,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           } else if (a.id === 'e_route_winter_tail_old') {
             a.can = (season.id === 'winter') && xun === 3 && S.铜钱 >= 55;
             a.why = !(season.id === 'winter' && xun === 3) ? '这一旬不便先拆年下回签账' : (S.铜钱 >= 55 ? '' : '铜钱不足55文');
+            a.once = true;
+          } else if (a.id === 'e_route_winter_school_tail_old') {
+            a.can = (season.id === 'winter') && xun === 3 && S.商路供读银 >= 1 && S.铜钱 >= 60;
+            a.why = !(season.id === 'winter' && xun === 3) ? '这一旬不便先拆冬尾供读帖样'
+              : (S.商路供读银 >= 1 ? (S.铜钱 >= 60 ? '' : '铜钱不足60文') : '眼下没有可守的商路供读底银');
             a.once = true;
           } else if (a.id === 'e_write_old') {
             a.can = (season.id === 'spring' || season.id === 'winter') && (S.本年养老旧识 || 0) <= 0;
@@ -17663,8 +17679,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (spendCopper(60)) {
                 S.家族 += 1; S.体魄 += 1;
                 pushElderSeasonTag(stepLabel + '·冬中回话');
-                log.push(['先把冬中回话脚费与样纸定钱分开：铜钱-60、家族+1、体魄+1。熟号回话脚费、脚夫门包、来春样纸定钱和柜边回签门包终于不再一起挤在冬中这一口现钱上。', 'good']);
-              } else log.push(['想先把冬中回话脚费与样纸定钱分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+                log.push(['〔冬中回话〕先把冬中回话脚费与样纸定钱分开：铜钱-60、家族+1、体魄+1。熟号回话脚费、脚夫门包、来春样纸定钱和柜边回签门包终于不再一起挤在冬中这一口现钱上。', 'good']);
+              } else log.push(['〔冬中回话〕想先把冬中回话脚费与样纸定钱分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_route_winter_school_old':
+              if (S.商路供读银 >= 1 && spendCopper(65)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·冬中供读');
+                log.push(['〔冬中供读〕先把冬中供读底银与灯炭炭笔分开：铜钱-65、家族+1、体魄+1。孙辈炭笔、来春蒙馆定钱、灯炭药包和熟号回话脚费终于不再一起挤在冬中这一口现钱上，商路留下的供读底银也没被锅火顺手吞掉。', 'good']);
+              } else if (S.商路供读银 >= 1) log.push(['〔冬中供读〕想先把冬中供读底银与灯炭炭笔分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_route_winter_medicine_old':
               if (spendCopper(65)) {
@@ -17684,8 +17707,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (spendCopper(55)) {
                 S.家族 += 1; S.体魄 += 1;
                 pushElderSeasonTag(stepLabel + '·年下回签');
-                log.push(['先把年下回签与来春样纸分开：铜钱-55、家族+1、体魄+1。年下回签、来春样纸定钱、递话脚费和眼前锅火终于不再一起挤在冬尾这一口现钱上。', 'good']);
-              } else log.push(['想先把年下回签与来春样纸分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+                log.push(['〔冬尾铺签〕先把年下回签与来春样纸分开：铜钱-55、家族+1、体魄+1。年下回签、来春样纸定钱、递话脚费和眼前锅火终于不再一起挤在冬尾这一口现钱上。', 'good']);
+              } else log.push(['〔冬尾铺签〕想先把年下回签与来春样纸分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_route_winter_school_tail_old':
+              if (S.商路供读银 >= 1 && spendCopper(60)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·冬尾供读');
+                log.push(['〔冬尾供读〕先把冬尾供读帖样与年下锅火分开：铜钱-60、家族+1、体魄+1。孙辈来春帖样、炭笔门包、年下锅火和熟号回签终于不再一起挤在冬尾这一口过冬钱上，家里读写后手也没再去硬抢明春商路门路。', 'good']);
+              } else if (S.商路供读银 >= 1) log.push(['〔冬尾供读〕想先把冬尾供读帖样与年下锅火分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_shop_gift_old':
               if (S.本年养老节礼 <= 0 && spendCopper(80)) {
