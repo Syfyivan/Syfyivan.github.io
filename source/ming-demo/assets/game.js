@@ -2008,6 +2008,56 @@
       log.push(['〔冬中债息〕冬清账中旬把旧债利上先滚了一回：旧债' + oldDebt + '两滚息' + interest + '两（负债→' + S.负债银 + '）。这层借来撑束脩、纸墨与盘缠的后手，现在就在冬中见光，不再等到年终才忽然多一笔。', 'bad']);
     }
   }
+  function applyExamStudyBurden(log, stepLabel, season, xun, picked) {
+    function countPicked(ids) {
+      return (ids || []).reduce(function (sum, id) {
+        return sum + (picked && picked[id] ? 1 : 0);
+      }, 0);
+    }
+    var heavyStudyCount = countPicked(['e_enroll', 'e_tutor', 'e_school', 'e_literacy', 'e_essay', 'e_guarantee', 'e_exam']);
+    var supportCount = countPicked([
+      'e_family_grain', 'e_mid_grain',
+      'e_mother_help', 'e_mid_mother_help',
+      'e_brother_help', 'e_tail_brother_help',
+      'e_home', 'e_fail_talk',
+      'e_rest', 'e_mend',
+      'e_summer_cough', 'e_winter_cough',
+      'e_spring_open_packet', 'e_spring_packet', 'e_spring_tail_packet',
+      'e_summer_open_packet', 'e_summer_packet', 'e_summer_tail_packet',
+      'e_autumn_open_packet', 'e_autumn_packet', 'e_autumn_tail_packet', 'e_autumn_register',
+      'e_winter_open_packet', 'e_winter_mid_packet', 'e_winter_packet'
+    ]);
+    if (heavyStudyCount >= 2 && supportCount <= 0) {
+      S.供读压力 += 1;
+      S.本年延婚牵扯 += 1;
+      pushExamSeasonTag(stepLabel + '举业内并账');
+      log.push([
+        '〔举业内并账〕这一旬你把塾门、评文、资格或下场往前赶得太实，家里却没能同时腾出米脚、私账或缓口风的后手。于是这一口供读压力和婚事牵扯没有留到年终才忽然冒出来，而是在这一旬就先压回了家里。',
+        'bad'
+      ]);
+    }
+    var bodyHeavyCount = countPicked(['e_tutor', 'e_school', 'e_essay', 'e_exam', 'e_copy']);
+    var bodyCareCount = countPicked([
+      'e_rest', 'e_mend',
+      'e_home', 'e_fail_talk',
+      'e_summer_cough', 'e_winter_cough',
+      'e_summer_packet', 'e_summer_tail_packet',
+      'e_winter_mid_packet', 'e_winter_packet'
+    ]);
+    if ((season.id === 'summer' || season.id === 'winter' || (season.id === 'autumn' && xun === 3))
+      && bodyHeavyCount >= 2
+      && bodyCareCount <= 0) {
+      S.体魄 -= 1;
+      S.本年身子亏空 += 1;
+      pushExamSeasonTag(stepLabel + '灯下透支');
+      log.push([
+        season.id === 'winter'
+          ? '〔灯下透支〕这一旬灯下坐馆、誊抄和跑门路凑在一处，偏又没把衣药、将养或回家缓气一并顾住。寒里这层亏空当旬就先落到了肩眼与睡气上（体魄-1）。'
+          : '〔灯下透支〕这一旬评文、抄书或临场前后手一起往前赶，偏又没把药钱、歇养或回家缓气一并顾住。人不是到年终才忽然吃不消，而是在这一旬就先被灯下久坐和奔走耗掉了一线（体魄-1）。',
+        'bad'
+      ]);
+    }
+  }
   function resetExamYearLedger() {
     S.举季 = 1;
     S.举旬 = 1;
@@ -7169,6 +7219,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         });
         applySeasonalExamFriction(log, stepTag, season, xun, picked);
+        applyExamStudyBurden(log, stepTag, season, xun, picked);
         applyExamSeasonCarry(log, stepTag, season, xun);
         refreshExamSupportState();
         noteExamIntraYearSignals(log, stepTag, beforeSignals);
