@@ -786,6 +786,18 @@
       desc: desc
     };
   }
+  function merchantRemittanceCapacity() {
+    var received = Math.max(0, S.累计回钱银 || 0);
+    var remitted = Math.max(0, S.累计反哺银 || 0);
+    var settled = Math.max(0, received - remitted);
+    if (settled > 0) return settled;
+    if ((S.未回款银 || 0) > 0) return 1;
+    if ((S.本年商路试贩 || 0) > 0) return 1;
+    if ((S.供读底子 || 0) > 0) return 1;
+    if ((S.亦贾亦儒底子 || 0) > 0) return 1;
+    if ((S.商路门路 || 0) > 0) return 1;
+    return 0;
+  }
   function childbearingProfile() {
     var life = currentLifeProfile();
     var profile = {
@@ -5090,6 +5102,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var nextSeason = merchantSeasonInfo(Math.min(MERCHANT_SEASONS.length, (S.商季 || 1) + 1));
     var tradePreview = merchantTradeProfile();
     var supportProfile = merchantSupportProfile();
+    var supportCapacity = merchantRemittanceCapacity();
     var xunLead = xun === 1
       ? '上旬先认人认路、把脚钱和货路摸清。'
       : (xun === 2
@@ -5156,7 +5169,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         + ' 你这一旬有 <span class="em">3 个行动点</span>。',
       dossier: function () {
         var seasonTags = (S.本年商路季务 && S.本年商路季务.length) ? S.本年商路季务.join('、') : '尚未坐实';
-        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。');
+        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜可划供读商账=' + supportCapacity + '两｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。');
       },
       events: [
         {
@@ -5252,7 +5265,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_supply_split', name: '先把回钱拆作锅火与供读纸包', cost: 1, eff: '铜钱-65·家书+1·家族+1·供读+1', desc: '秋试手收尾这一旬，最怕银还在路上，家里锅火、供读纸包和差票后手却已先来追钱。先把这层回钱去处分开，冬里就不至只剩一句“等银回”。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
         }
         A.push({ id: 'm_try', name: isLate ? '赶在旬尾定试贩' : '争取带本试贩', cost: 2, eff: '白银-1锁作本钱·冬里按门路/账房/承继定位判回本/小利/亏折/未回款', desc: '拿一两本钱试着跑一单。钱先锁在货里，回没回得来，不只看运气，也看你这一年把门路和账面坐实到哪一步。', can: ((season.id === 'autumn' && xun >= 2) || (season.id === 'winter' && xun === 1)) && S.本年商路试贩 < 1 && S.带本银 <= 0 && S.白银 >= 1 && (S.识货进度 >= 1 || S.账房进度 >= 1), why: ((season.id === 'autumn' && xun >= 2) || (season.id === 'winter' && xun === 1)) ? (S.本年商路试贩 < 1 ? (S.带本银 <= 0 ? (S.白银 >= 1 ? ((S.识货进度 >= 1 || S.账房进度 >= 1) ? '' : '尚未学会最基本认货/核账') : '白银不足1两') : '已有一笔本钱锁在货里') : '本年已试贩过一回') : '通常要到秋中旬以后才谈得上试贩', once: true });
-        A.push({ id: 'm_support', name: season.id === 'autumn' ? '先把回钱贴回家' : '寄银回家供读', cost: 1, eff: supportProfile.effect, desc: supportProfile.desc, can: S.白银 >= 1, why: S.白银 >= 1 ? '' : '白银不足1两', once: true });
+        A.push({
+          id: 'm_support',
+          name: season.id === 'autumn' ? '先把回钱贴回家' : '寄银回家供读',
+          cost: 1,
+          eff: supportProfile.effect,
+          desc: supportProfile.desc + ' 但只可动用已经回到账、或账上已有明确回签/试贩可供划账的商路银。',
+          can: S.白银 >= 1 && supportCapacity >= 1,
+          why: S.白银 >= 1
+            ? (supportCapacity >= 1 ? '' : '眼下还没有可另划供读的商路回账或浮账')
+            : '白银不足1两',
+          once: true
+        });
         A.push({ id: 'm_letter', name: season.id === 'winter' ? '托客脚捎家书回乡' : '托熟客捎家书回乡', cost: 1, eff: '铜钱-' + letterCost + '·家族+' + letterFamily + '·家书+1', desc: season.id === 'winter' ? '不一定立刻把银寄回去，但至少先让家里知道哪笔账还在外头、哪笔钱可等，省得年关两边都空等。' : '先花一点脚钱托人带家书报平安、问家计；不代替贴银，却能把家里的焦躁先压一线。', can: S.铜钱 >= letterCost, why: S.铜钱 >= letterCost ? '' : ('铜钱不足' + letterCost + '文'), once: true });
         if (season.id === 'summer' && xun === 3) {
           A.push({ id: 'm_counter', name: '先把柜边包纸与回客话门包分开', cost: 1, eff: '铜钱-60·家书+1·体魄+1·商信誉+1', desc: '伏夏尾声最磨人的不是哪一笔大钱，而是柜边包纸、脚夫茶钱、回客话门包和凉茶杂支一起压来。先把这层柜耗拆开，柜上和家里都不至被热里一并磨薄。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
@@ -5562,7 +5586,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.本年商路供读 += 1;
                 S.本年商路贴家 += 1;
                 pushMerchantSeasonTag(season.name + xunLabel + '贴家供读');
-                log.push(['寄银回家供读：白银-1、累计反哺+1、商路供读+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '；这笔银被更稳地划进家里的供读账。', 'good']);
+                log.push(['寄银回家供读：白银-1、累计反哺+1、商路供读+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '；这笔商路回账/浮账被更稳地划进家里的供读账。', 'good']);
               } else {
                 log.push(['本想寄银回家供读，但这一旬手头现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
               }
