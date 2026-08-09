@@ -1577,7 +1577,7 @@
       }
     }
     if (season.id === 'spring' && xun === 1) apply({
-      handledIds: ['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_family_grain'],
+      handledIds: ['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_family_grain', 'e_spring_open_packet'],
       doneTag: '春课开销已理',
       doneLog: '〔春课开销〕这一旬先把拜师帖、启蒙纸样、塾馆茶水与家里开春锅火分开了；春课刚起头时最容易被当作“不过几文钱”的那层开销，没有再悄悄把今年第一口供读钱磨薄。',
       cost: 30,
@@ -1599,7 +1599,7 @@
       hardship: 'clan'
     });
     if (season.id === 'spring' && xun === 3) apply({
-      handledIds: ['e_copy', 'e_home', 'e_rest'],
+      handledIds: ['e_copy', 'e_home', 'e_rest', 'e_spring_tail_packet'],
       doneTag: '春尾香纸已分',
       doneLog: '〔春尾香纸〕这一旬先把清明香纸、回馆脚费与春尾抄写纸墨分开了；春课收尾不再只是“再抄两页补贴”，而把季末这层家用与笔墨碎账一并摊回了同一年里。',
       cost: 40,
@@ -1610,7 +1610,7 @@
       hardship: 'clan'
     });
     if (season.id === 'summer' && xun === 1) apply({
-      handledIds: ['e_enroll', 'e_tutor', 'e_school', 'e_home', 'e_family_grain'],
+      handledIds: ['e_enroll', 'e_tutor', 'e_school', 'e_home', 'e_family_grain', 'e_summer_open_packet'],
       doneTag: '伏夏馆账已顾',
       doneLog: '〔伏夏馆账〕这一旬先把夏课束脩、凉茶脚费与家里消暑小耗分开了；伏夏刚起头时最容易把“继续读书”磨成一句空话的那层馆账，没有继续滚大。',
       cost: 30,
@@ -1632,7 +1632,7 @@
       hardship: 'clan'
     });
     if (season.id === 'summer' && xun === 3) apply({
-      handledIds: ['e_copy', 'e_mend', 'e_rest', 'e_home'],
+      handledIds: ['e_copy', 'e_mend', 'e_rest', 'e_home', 'e_summer_tail_packet'],
       doneTag: '夏尾衣药已分',
       doneLog: '〔夏尾衣药〕这一旬先把补鞋药钱、伏夏尾声纸墨与回家带药小耗分开了；夏课收尾不再只剩“熬过这一旬”，而是真把人和账都往秋里收住了一层。',
       cost: 35,
@@ -1643,7 +1643,7 @@
       hardship: 'body'
     });
     if (season.id === 'autumn' && xun === 1) apply({
-      handledIds: ['e_enroll', 'e_tutor', 'e_home', 'e_rest', 'e_family_grain'],
+      handledIds: ['e_enroll', 'e_tutor', 'e_home', 'e_rest', 'e_family_grain', 'e_autumn_open_packet'],
       doneTag: '秋前盘缠已理',
       doneLog: '〔秋前盘缠〕这一旬先把应试盘缠、拜帖小礼与家里秋收锅火分开了；秋试刚起头时最容易被一句“先把书读下去”盖过去的那层临场后手，没有再混成一团。',
       cost: 40,
@@ -1665,7 +1665,7 @@
       hardship: 'clan'
     });
     if (season.id === 'autumn' && xun === 3) apply({
-      handledIds: ['e_exam', 'e_reserve', 'e_mend', 'e_home'],
+      handledIds: ['e_exam', 'e_reserve', 'e_mend', 'e_home', 'e_autumn_tail_packet'],
       doneTag: '临场盘缠已留',
       doneLog: '〔临场盘缠〕这一旬先把下场盘缠、誊卷纸样、回乡脚费与秋尾锅火分开了；秋试下旬终于不再只是“去不去考”，而把临场前后那层真后手压进了这一旬。',
       cost: 50,
@@ -1676,7 +1676,7 @@
       hardship: 'body'
     });
     if (season.id === 'winter' && xun === 1) apply({
-      handledIds: ['e_home', 'e_rest', 'e_copy', 'e_mend'],
+      handledIds: ['e_home', 'e_rest', 'e_copy', 'e_mend', 'e_winter_open_packet'],
       doneTag: '年关纸墨已分',
       doneLog: '〔年关纸墨〕旧馆账、来春纸墨定钱、灯油和拜帖脚费已被你先分开；举业路这层门路没有在年关忽然断掉。',
       cost: 40,
@@ -1687,7 +1687,7 @@
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 2) apply({
-      handledIds: ['e_copy', 'e_mend', 'e_rest'],
+      handledIds: ['e_copy', 'e_mend', 'e_rest', 'e_winter_mid_packet'],
       doneTag: '冬中灯炭已分',
       doneLog: '〔冬中灯炭〕这一旬先把灯炭、旧馆回话脚费与来春笔墨样纸分开了；冬清账中旬不再只是翻旧账，而把“明春这条笔墨门路怎么续”提前压进了这一旬。',
       cost: 45,
@@ -5700,6 +5700,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.存米 >= 1 ? (S.供读状态 !== '已断供' ? '' : '家中已断供') : '存米不足1石',
             once: true
           });
+          if (season.id === 'spring') {
+            A.push({ id: 'e_spring_open_packet', name: '先把拜师帖与开春锅火分开', cost: 1, eff: '铜钱-40·家族+1', desc: '春课上旬最怕拜师帖、启蒙纸样、塾馆茶水和家里开春锅火一起追钱。先把这层小账拆开，第一口供读钱才不至刚压进去就被磨薄。', can: S.铜钱 >= 40, why: S.铜钱 >= 40 ? '' : '铜钱不足40文', once: true });
+          } else if (season.id === 'summer') {
+            A.push({ id: 'e_summer_open_packet', name: '先把伏夏馆账与凉茶脚费分开', cost: 1, eff: '铜钱-45·家族+1·体魄+1', desc: '夏课上旬最怕束脩、凉茶脚费和家里消暑小耗一起冒头。先把这层馆账拆开，伏夏刚起头时才不至又是钱紧又是气短。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
+          } else if (season.id === 'autumn') {
+            A.push({ id: 'e_autumn_open_packet', name: '先把秋前盘缠与拜帖小礼分开', cost: 1, eff: '铜钱-50·家族+1', desc: '秋试上旬最怕应试盘缠、拜帖小礼和家里秋收锅火一起追钱。先把这层临场前的后手拆开，保结与应场才不至先被现钱卡死。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
+          } else if (season.id === 'winter') {
+            A.push({ id: 'e_winter_open_packet', name: '先把年关纸墨与来春定钱分开', cost: 1, eff: '铜钱-55·家族+1', desc: '冬清账上旬最怕旧馆账脚费、来春纸墨定钱、灯油和拜帖脚费一起追钱。先把这层门路钱拆开，年关就不至先把读书路掐断。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
+          }
           A.push({ id: 'e_home', name: season.id === 'autumn' ? '回家帮父缓秋里家计' : '回家帮父与缓冲家计', cost: 1, eff: '家族+' + homeFamily + (homeRice > 0 ? ('·存米+' + homeRice) : '') + '·供读压力-1', desc: '这一旬少读一点，先让家里那口锅别翻。', can: true, once: true });
           A.push({ id: 'e_rest', name: '歇息养身', cost: 1, eff: '体魄+5', desc: '别把眼睛和身子先熬坏。', can: true });
         } else if (xun === 2) {
@@ -5712,6 +5721,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             A.push({ id: 'e_summer_packet', name: '先把潮纸、投帖脚费与塾馆茶汤分开', cost: 1, eff: '铜钱-50·家族+1·体魄+1', desc: '伏夏中旬最怕潮纸、投帖脚费、塾馆茶汤和家里凉热小耗一起冒头。先把这层细耗拆开，文章和身子都不至同时被暑气磨薄。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
           } else if (season.id === 'autumn') {
             A.push({ id: 'e_autumn_packet', name: '先把保结薄礼与学生回话脚费分开', cost: 1, eff: '铜钱-55·家族+1', desc: '秋试中旬最怕保结薄礼、学生家回话脚费和润笔纸墨一起追钱。先把这层后手拆开，临场前这口人情就不至先薄掉。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
+          } else if (season.id === 'winter') {
+            A.push({ id: 'e_winter_mid_packet', name: '先把冬中灯炭与旧馆回话脚费分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬清账中旬最怕灯炭、旧馆回话脚费和来春样纸一起追钱。先把这层续门路的钱拆开，冬里就不至一边熬身子一边把来春口风熬断。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
           }
           if (!S.识字 && (S.识字进度 || 0) < 2) {
             A.push({
@@ -5731,6 +5742,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'e_essay', name: season.id === 'autumn' ? '临场再磨一轮文章' : '再请塾师评文改卷', cost: 1, eff: '文章火候+' + essayGain + '·成本档+1', desc: '把这一旬能再稳一稳的文章火候压出来。', can: S.供读状态 !== '已断供' });
           A.push({ id: 'e_exam', name: season.id === 'winter' ? '冬前补撞一回童试' : '下场应童试', cost: 2, eff: '触发童试结果·盘缠档+1', desc: '只有保结真通了、这一年又真下了功夫，才值得去撞一撞。', can: !S.生员身份 && !S.本年下场 && (season.id === 'autumn' || season.id === 'winter') && S.保结进度 >= 2 && S.供读状态 !== '已断供', why: !S.生员身份 ? (!S.本年下场 ? ((season.id === 'autumn' || season.id === 'winter') ? (S.保结进度 >= 2 ? (S.供读状态 !== '已断供' ? '' : '家中已断供') : '保结未通') : '通常要到秋冬才真正下场') : '本年已下场过') : '已是生员', once: true });
           A.push({ id: 'e_copy', name: season.id === 'winter' ? '誊抄契字补年关钱' : '抄书/看账补贴', cost: 1, eff: '铜钱+' + copyCopper + '·识字转业值+1·文章火候+1', desc: '把识字底子临时换成一点现钱，也算给后路添一层。', can: S.识字, why: S.识字 ? '' : '尚不识字' });
+          if (season.id === 'spring') {
+            A.push({ id: 'e_spring_tail_packet', name: '先把春尾香纸与回馆脚费分开', cost: 1, eff: '铜钱-45·家族+1', desc: '春课下旬最怕清明香纸、回馆脚费和春尾抄写纸墨一起追钱。先把这层季末细账拆开，春尾就不至把夏里的纸墨后手一起拖进来。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
+          } else if (season.id === 'summer') {
+            A.push({ id: 'e_summer_tail_packet', name: '先把夏尾衣药与回家带药小耗分开', cost: 1, eff: '铜钱-50·体魄+2', desc: '夏课下旬最怕补鞋药钱、伏夏尾声纸墨和回家带药小耗一起追钱。先把这层身子账拆开，伏夏尾声就不至只剩硬熬。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
+          } else if (season.id === 'autumn') {
+            A.push({ id: 'e_autumn_tail_packet', name: '先把临场盘缠与誊卷纸样分开', cost: 1, eff: '铜钱-60·体魄+1·家族+1', desc: '秋试下旬最怕下场盘缠、誊卷纸样、回乡脚费和秋尾锅火一起追钱。先把这层临场细账拆开，真到下场时才不至临门又先被细钱绊住。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+          }
           A.push({ id: 'e_home', name: season.id === 'winter' ? '回家陪着把年关过住' : '回家帮父与缓冲家计', cost: 1, eff: '家族+' + homeFamily + (homeRice > 0 ? ('·存米+' + homeRice) : '') + '·供读压力-1', desc: '读书这条路还没坐实的时候，家里先稳住就是一笔真账。', can: true, once: true });
           A.push({ id: 'e_reserve', name: '先留一角差役钱', cost: 1, eff: '铜钱-' + reserveCost + '·本年差役准备+1', desc: '先把差役钱留出来，免得到年关再把读书账拆得满地都是。', can: S.铜钱 >= reserveCost, why: S.铜钱 >= reserveCost ? '' : ('铜钱不足' + reserveCost + '文'), once: true });
           if (season.id === 'winter') {
@@ -5813,6 +5831,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               pushExamSeasonTag(stepTag + '誊抄补贴');
               log.push(['抄书/看账补贴：铜钱+' + copyCopper + '、识字转业值+1、文章火候+1' + copyPaperPay.text + (S.家传书香 > 0 ? '（家传书香让这层笔墨活更容易接到）' : ''), 'good']);
               break;
+            case 'e_spring_open_packet':
+              if (spendCopper(40)) {
+                S.家族 += 1;
+                pushExamSeasonTag(stepTag + '拆春课开销');
+                log.push(['先把拜师帖与开春锅火分开：铜钱-40、家族+1。春课上旬这层拜师帖、启蒙纸样、塾馆茶水和锅火先被拆开，第一口供读钱没再刚压进去就被磨薄。', 'good']);
+              } else {
+                log.push(['想先把拜师帖与开春锅火拆开，但这一旬铜钱已先被别处占住，只得继续让春头这层细账磨第一口供读钱。', 'bad']);
+              }
+              break;
             case 'e_spring_packet':
               if (spendCopper(45)) {
                 S.家族 += 1;
@@ -5831,6 +5858,24 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把潮纸、投帖脚费与塾馆茶汤拆开，但这一旬铜钱已先被别处占住，只得让伏夏中旬这层细耗继续一股脑追钱。', 'bad']);
               }
               break;
+            case 'e_summer_open_packet':
+              if (spendCopper(45)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushExamSeasonTag(stepTag + '拆伏夏馆账');
+                log.push(['先把伏夏馆账与凉茶脚费分开：铜钱-45、家族+1、体魄+1。夏课上旬这层束脩、凉茶脚费和家里消暑小耗先被拆开，伏夏刚起头时就没再又是钱紧又是气短。', 'good']);
+              } else {
+                log.push(['想先把伏夏馆账与凉茶脚费拆开，但这一旬铜钱已先被别处占住，只得让伏夏刚起头这层馆账继续贴着身子来。', 'bad']);
+              }
+              break;
+            case 'e_summer_tail_packet':
+              if (spendCopper(50)) {
+                S.体魄 += 2;
+                pushExamSeasonTag(stepTag + '拆夏尾衣药');
+                log.push(['先把夏尾衣药与回家带药小耗分开：铜钱-50、体魄+2。夏课下旬这层补鞋药钱、伏夏尾声纸墨和回家带药小耗先被拆开，秋前总算没再只剩硬熬。', 'good']);
+              } else {
+                log.push(['想先把夏尾衣药与回家带药小耗拆开，但这一旬铜钱已先被别处占住，只得让伏夏尾声这层亏空先压到身上。', 'bad']);
+              }
+              break;
             case 'e_autumn_packet':
               if (spendCopper(55)) {
                 S.家族 += 1;
@@ -5838,6 +5883,51 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把保结薄礼与学生回话脚费分开：铜钱-55、家族+1。秋试中旬这层保结薄礼、学生回话脚费和润笔纸墨先被拆开，临场前的人情后手没有再混成一团。', 'good']);
               } else {
                 log.push(['想先把保结薄礼与学生回话脚费拆开，但这一旬铜钱已先被别处占住，只得继续让临场前的人情和纸墨挤在同一口现钱里。', 'bad']);
+              }
+              break;
+            case 'e_autumn_open_packet':
+              if (spendCopper(50)) {
+                S.家族 += 1;
+                pushExamSeasonTag(stepTag + '拆秋前盘缠');
+                log.push(['先把秋前盘缠与拜帖小礼分开：铜钱-50、家族+1。秋试上旬这层应试盘缠、拜帖小礼和家里秋收锅火先被拆开，保结与应场没再先被现钱卡住。', 'good']);
+              } else {
+                log.push(['想先把秋前盘缠与拜帖小礼拆开，但这一旬铜钱已先被别处占住，只得让秋头临场后手继续和锅火挤同一口现钱。', 'bad']);
+              }
+              break;
+            case 'e_autumn_tail_packet':
+              if (spendCopper(60)) {
+                S.体魄 += 1; S.家族 += 1;
+                pushExamSeasonTag(stepTag + '拆临场盘缠');
+                log.push(['先把临场盘缠与誊卷纸样分开：铜钱-60、体魄+1、家族+1。秋试下旬这层盘缠、誊卷纸样、回乡脚费和锅火先被拆开，真到临场时没再被细钱绊住。', 'good']);
+              } else {
+                log.push(['想先把临场盘缠与誊卷纸样拆开，但这一旬铜钱已先被别处占住，只得让临场前这层细账继续一起追钱。', 'bad']);
+              }
+              break;
+            case 'e_winter_open_packet':
+              if (spendCopper(55)) {
+                S.家族 += 1;
+                pushExamSeasonTag(stepTag + '拆年关纸墨');
+                log.push(['先把年关纸墨与来春定钱分开：铜钱-55、家族+1。冬清账上旬这层旧馆账脚费、来春纸墨定钱、灯油和拜帖脚费先被拆开，年关没有先把读书路掐断。', 'good']);
+              } else {
+                log.push(['想先把年关纸墨与来春定钱拆开，但这一旬铜钱已先被别处占住，只得让年关这层续门路钱继续一股脑追上来。', 'bad']);
+              }
+              break;
+            case 'e_winter_mid_packet':
+              if (spendCopper(60)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushExamSeasonTag(stepTag + '拆冬中灯炭');
+                log.push(['先把冬中灯炭与旧馆回话脚费分开：铜钱-60、家族+1、体魄+1。冬清账中旬这层灯炭、旧馆回话脚费和来春样纸先被拆开，冬里就没再一边熬身子一边把来春口风熬断。', 'good']);
+              } else {
+                log.push(['想先把冬中灯炭与旧馆回话脚费拆开，但这一旬铜钱已先被别处占住，只得让冬里这层续门路钱继续贴着锅火来。', 'bad']);
+              }
+              break;
+            case 'e_spring_tail_packet':
+              if (spendCopper(45)) {
+                S.家族 += 1;
+                pushExamSeasonTag(stepTag + '拆春尾香纸');
+                log.push(['先把春尾香纸与回馆脚费分开：铜钱-45、家族+1。春课下旬这层清明香纸、回馆脚费和春尾抄写纸墨先被拆开，春尾没再把夏里的纸墨后手一并拖上身。', 'good']);
+              } else {
+                log.push(['想先把春尾香纸与回馆脚费拆开，但这一旬铜钱已先被别处占住，只得让春尾这层季末细账继续拖着走。', 'bad']);
               }
               break;
             case 'e_literacy':
@@ -16134,40 +16224,64 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function doInherit(log) {
     if (S.分家) return;
     S.分家 = true;
-    S.存米 += 2; S.家族 += 4; S.口食田 = 1; S.委托待收租谷 = 0;
+    var inheritedDelegation = (S.委托营生 || '无') !== '无';
+    var inheritedDelegationLabel = S.委托营生 || '无';
+    var inheritedLeaseRent = Math.max(0, S.委托租谷 || 0);
+    var inheritedPendingRent = Math.max(0, S.委托待收租谷 || 0);
+    function pushInheritedDelegationCarryLog() {
+      if (!inheritedDelegation && inheritedLeaseRent <= 0 && inheritedPendingRent <= 0) return;
+      var parts = [];
+      if (inheritedDelegation && inheritedDelegationLabel !== '无') parts.push('上一代留下的委托经营账“' + inheritedDelegationLabel + '”还挂在这一房名下');
+      if (inheritedLeaseRent > 0) parts.push('年租谷仍按旧账记着' + inheritedLeaseRent + '石');
+      if (inheritedPendingRent > 0) parts.push('另有待收租谷' + inheritedPendingRent + '石尚未结回');
+      log.push([parts.join('，') + '；父故分家不会把这层旧账自动洗掉。若要改回自耕、另换代管或改写租账，得在这一任当户里自己动手。', 'good']);
+    }
+    S.存米 += 2; S.家族 += 4; S.口食田 = 1;
     if (isFarmRouteState()) {
       if (S.合爨状态 === '随兄合户') {
         log.push(['分家均分：先前一直随兄合爨，到父故这一步才把共账清开。你这一房照样分得应有那份田与口粮，只是多带着几年的合爨余绪一起立户。', 'good']);
         S.合爨状态 = '已析爨';
-        S.委托营生 = '分得薄田自耕';
+        if (!inheritedDelegation) S.委托营生 = '分得薄田自耕';
+        pushInheritedDelegationCarryLog();
         return;
       }
-      S.委托营生 = '分得薄田自耕';
-      log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。你这一房眼下先把薄田按自耕账守住，往后若撑不住，再改写成出佃/换工的账。', 'good']);
+      if (!inheritedDelegation) S.委托营生 = '分得薄田自耕';
+      log.push([inheritedDelegation
+        ? '分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。你这一房眼下先带着上一代留下的委托经营账往后过，若要改回自耕或另换租账，得在这一任当户里自己改写。'
+        : '分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。你这一房眼下先把薄田按自耕账守住，往后若撑不住，再改写成出佃/换工的账。', 'good']);
+      pushInheritedDelegationCarryLog();
       return;
     }
     if (isWageRouteState()) {
       if (S.合爨状态 === '随兄合户') {
         log.push(['分家均分：这些年先随兄合爨，父故后才把共账清开。你这时第一次把该归自己这一房的田与口粮真正写进独户账里，不再只是跟着兄户吃饭。', 'good']);
         S.合爨状态 = '已析爨';
+        pushInheritedDelegationCarryLog();
         return;
       }
-      log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。这 4 亩是你前半生第一次真正攥到手里的田面：可改作自耕，也可另立租账，但无论怎么选，都不再只是“纯卖工”的账。', 'good']);
+      log.push([inheritedDelegation
+        ? '分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。你这一房不是白纸得田，而是带着上一代已经挂着的委托经营账进这一步；若要改回自耕或另换租账，得在这一任当户里自己改写。'
+        : '分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。这 4 亩是你前半生第一次真正攥到手里的田面：可改作自耕，也可另立租账，但无论怎么选，都不再只是“纯卖工”的账。', 'good']);
+      pushInheritedDelegationCarryLog();
       return;
     }
     if ((S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') && (S.学徒去向 === '留店伙计' || S.学徒去向 === '店铺做工' || S.学徒去向 === '随行商')) {
       log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。只是你人在城里，这 4 亩薄田更像待立约的租谷来路，不再是能日日亲耕的田面。', 'good']);
+      pushInheritedDelegationCarryLog();
       return;
     }
     if (S.路线.indexOf('徽商') === 0 || S.累计回钱银 > 0 || S.累计反哺银 > 0 || S.商历练 > 0) {
       log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。你常年在外，这份田更接近“委托兄长/佃户代管后按账回租”的资产。', 'good']);
+      pushInheritedDelegationCarryLog();
       return;
     }
     if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) {
       log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩。只是父账早被多年供读侵蚀过，这一份分到你手里，更显得薄。', 'good']);
+      pushInheritedDelegationCarryLog();
       return;
     }
     log.push(['分家均分：品搭拈阄，分得存粮存米+2、家族+4；另立养老田1亩(口食田，不入可支配)', 'good']);
+    pushInheritedDelegationCarryLog();
   }
 
   function elderRoutePack() {
@@ -17537,8 +17651,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       recordEntry('丧葬支出结算', before, '棺木等：白银-1、存米-1（从遗产扣，镜像入出资子账）');
       var rh = '<div class="resolve"><h4>身后结算 · 享年 ' + S.年龄 + ' 岁</h4>';
       rh += '<div class="line bad">· 丧葬支出：白银-1、存米-1</div>';
-      if (S.子数 > 0) rh += '<div class="line good">· 遗产品搭均分给 ' + S.子数 + ' 子；你继续跟的这一房分得白银' + (S._carry.白银) + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩' + (S._carry.负债银 > 0 ? ('，并分担旧债' + S._carry.负债银 + '两') : '') + '</div>';
-      else rh += '<div class="line bad">· 绝嗣过继：旁支承进这一房结清后的真实余产，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩' + (S._carry.负债银 > 0 ? ('，并接过旧债' + S._carry.负债银 + '两') : '') + '</div>';
+      if (S.子数 > 0) rh += '<div class="line good">· 遗产品搭均分给 ' + S.子数 + ' 子；你继续跟的这一房分得白银' + (S._carry.白银) + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩' + (S._carry.委托待收租谷 > 0 ? ('，另有待收委托田租' + S._carry.委托待收租谷 + '石') : '') + (S._carry.负债银 > 0 ? ('，并分担旧债' + S._carry.负债银 + '两') : '') + '</div>';
+      else rh += '<div class="line bad">· 绝嗣过继：旁支承进这一房结清后的真实余产，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩' + (S._carry.委托待收租谷 > 0 ? ('，另有待收委托田租' + S._carry.委托待收租谷 + '石') : '') + (S._carry.负债银 > 0 ? ('，并接过旧债' + S._carry.负债银 + '两') : '') + '</div>';
       rh += '<div class="line">· 下一代承接：' + carryRouteAwareSummary(S._carry) + '</div>';
       rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">这一世了结。账本可继承、可回放、可重开——这正是徽州文书"归户"的玩法化。</div>';
       rh += '</div>';
