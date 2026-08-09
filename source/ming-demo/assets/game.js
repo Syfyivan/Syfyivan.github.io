@@ -8521,6 +8521,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
 
     var wp = workProfile();
     var rp = familyRoutePack();
+    var bridge = lifecycleInheritanceBridge();
     // 养家阶段的“旬节碎事”：只加内容密度与气口，不引入评分、也不额外消耗 RNG。
     // 注意史料口径：只写“常见碎事/口风/规矩”，不写确定的政策细则与数字。
     function familyFlavorEvent(route, year, seasonId, xun) {
@@ -8572,6 +8573,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       { t: 'rand', tag: '[行情]', txt: '今旬米价走' + (priceHigh ? '高' : '低') + '（1石≈' + miPrice + '文，占位）。' },
       { t: 'body', tag: '[身子]', txt: season.note + (xun === 3 ? ' 到了下旬，衣药、汗疹、腰腿酸痛和明年后手常常不肯再往后拖。' : ' 这一旬里，锅火、孩子、身子和人情都在争同一笔钱。') }
     ];
+    if (bridge.event) events.push(bridge.event);
     if (rp.event) events.push(rp.event);
     events.push(familyFlavorEvent(route, year, season.id, xun));
     // 节令：只做“密度”与气口，不给成功分与排名；影响尽量落在微小开销与家口关系上。
@@ -8598,10 +8600,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       ap: 3,
       commitLabel: isYearEnd ? '了这一养家年 →' : '了这一旬家计细账 →',
       shock: false,
-      note: '养家阶段现改成“春起→夏长→秋收→冬藏”四季、每季三旬，并把每旬操作厚到 3 手：通常要同时兼顾一手主营生、一手家内或市面细账，再留一手给差役、衣药、旧债或明春后手。仍不评分，只把家计与制度压力摊回同一年。' + (rp.note ? ' ' + rp.note : ''),
-      narrative: '你已<span class="em">' + S.年龄 + '岁</span>，这一养家年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead + ' 这一旬你有 <span class="em">3 个行动点</span>，得尽量把主营生、家里细账和制度后手一起摊开；若只顾一头，另一头往往会在同一年里立刻反咬回来。',
+      note: '养家阶段现改成“春起→夏长→秋收→冬藏”四季、每季三旬，并把每旬操作厚到 3 手：通常要同时兼顾一手主营生、一手家内或市面细账，再留一手给差役、衣药、旧债或明春后手。仍不评分，只把家计与制度压力摊回同一年。'
+        + (bridge.note ? ' ' + bridge.note : '')
+        + (rp.note ? ' ' + rp.note : ''),
+      narrative: '你已<span class="em">' + S.年龄 + '岁</span>，这一养家年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead + ' 这一旬你有 <span class="em">3 个行动点</span>，得尽量把主营生、家里细账和制度后手一起摊开；若只顾一头，另一头往往会在同一年里立刻反咬回来。'
+        + (bridge.narrative ? (' ' + bridge.narrative) : ''),
       dossier: function () {
-        return lifeDossier('家年=' + year + '｜家程=' + season.name + '·' + xunLabel + '｜米价=' + (priceHigh ? '高' : '低') + '｜本年做活=' + (S.本年家做活 || 0) + '｜粜米=' + (S.本年家粜米 || 0) + '｜问价=' + (S.本年家问价 || 0) + '｜贴家=' + (S.本年家贴家 || 0) + '｜催账=' + (S.本年家催账 || 0) + '｜备役=' + (S.本年家备役 || 0) + '｜修缮=' + (S.本年家修缮 || 0) + '｜通融=' + (S.本年家通融 || 0) + '｜捎信=' + (S.本年家捎信 || 0) + '｜供读=' + (S.本年家供读 || 0) + '｜人情欠条=' + (S.人情欠条 || 0) + (rp.dossier ? '｜' + rp.dossier : '') + '。');
+        return lifeDossier('家年=' + year + '｜家程=' + season.name + '·' + xunLabel + '｜米价=' + (priceHigh ? '高' : '低') + '｜本年做活=' + (S.本年家做活 || 0) + '｜粜米=' + (S.本年家粜米 || 0) + '｜问价=' + (S.本年家问价 || 0) + '｜贴家=' + (S.本年家贴家 || 0) + '｜催账=' + (S.本年家催账 || 0) + '｜备役=' + (S.本年家备役 || 0) + '｜修缮=' + (S.本年家修缮 || 0) + '｜通融=' + (S.本年家通融 || 0) + '｜捎信=' + (S.本年家捎信 || 0) + '｜供读=' + (S.本年家供读 || 0) + '｜人情欠条=' + (S.人情欠条 || 0)
+          + (bridge.dossier ? '｜' + bridge.dossier : '')
+          + (rp.dossier ? '｜' + rp.dossier : '')
+          + '。');
       },
       events: events,
       prompt: xun === 1 ? '这一旬先怎么定主营生？（分配 3 点）' : (xun === 2 ? '这一旬怎么把市面和家里细账拢住？（分配 3 点）' : '这一旬怎么把后账收住？（分配 3 点）'),
