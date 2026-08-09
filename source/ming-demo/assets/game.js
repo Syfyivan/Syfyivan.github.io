@@ -1765,6 +1765,24 @@
     if (!examArticleReady()) return '先把文章火候磨到可下场';
     return '';
   }
+  function examVisibleStudyMode() {
+    var mode = S.读书方式 || '未定';
+    if (mode === '塾馆') return '塾馆';
+    if (mode === '半耕半读') return '半耕半读';
+    if (mode === '社学寄读') return '社学/寄读';
+    return '未定';
+  }
+  function examVisibleSupportLedger() {
+    return '家' + (S.本年家中供读文 || 0) + '文/' + (S.本年家中供读米 || 0) + '石·自' + (S.本年举业自筹已用文 || 0) + '文';
+  }
+  function examVisibleOutlayTotal() {
+    return (S.本年束脩支出文 || 0)
+      + (S.本年纸墨支出文 || 0)
+      + (S.本年保结支出文 || 0)
+      + (S.本年盘缠支出文 || 0)
+      + (S.本年零耗支出文 || 0)
+      + (S.本年衣药支出文 || 0);
+  }
   function noteExamIntraYearSignals(log, stepTag, beforeSignals) {
     beforeSignals = beforeSignals || {};
     var support = examSupportStateDetail();
@@ -3654,9 +3672,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += '<span class="chip">路线 <b>读书应举</b></span>';
       h += '<span class="chip">举业 <b>' + S.举业年 + '/' + EXAM_YEARS + '</b>年</span>';
       h += '<span class="chip">举程 <b>' + examSeasonInfo(S.举季 || 1).name + '·' + examXunLabel(currentExamXun()) + '</b></span>';
+      h += '<span class="chip">识字底子 <b>' + examLiteracyFoundationLabel() + '</b></span>';
+      h += '<span class="chip">读法 <b>' + examVisibleStudyMode() + '</b></span>';
+      h += '<span class="chip">投塾 <b>' + examEnrollmentLabel(S.投塾进度) + '</b></span>';
       h += '<span class="chip">童试层级 <b>' + examTierLabel(S.童试层级, S.生员身份) + '</b></span>';
       h += '<span class="chip">保结 <b>' + examGuaranteeLabel(S.保结进度) + '</b></span>';
+      h += '<span class="chip">文章 <b>' + (S.文章火候 || 0) + '</b></span>';
+      h += '<span class="chip">应试 <b>' + examAttemptResultLabel(S.本年应试结果) + '</b></span>';
       h += '<span class="chip">供读 <b>' + examSupportStateDetail() + '</b></span>';
+      h += '<span class="chip">供养 <b>' + examVisibleSupportLedger() + '</b></span>';
+      h += '<span class="chip">已落支出 <b>' + examVisibleOutlayTotal() + '</b>文</span>';
       h += '<span class="chip">婚事 <b>' + examDelayStatusLabel() + '</b></span>';
       h += '<span class="chip">身耗 <b>' + examBodyStatusLabel() + '</b></span>';
     } else if (phase === 'family') {
@@ -6947,7 +6972,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         {
           t: season.id === 'autumn' ? 'rand' : 'life',
           tag: season.id === 'autumn' ? '[应试]' : (season.id === 'winter' ? '[清账]' : '[家计]'),
-          txt: season.note + (isYearEnd ? ' 这一旬还要把束脩纸墨、口粮、差役与旧债一起结成全年总账。' : ' 同一旬里，文章火候、盘缠与家中口粮常常在抢同一笔钱。')
+          txt: season.note + (isYearEnd ? ' 这一旬还要把前面逐旬已经见光的束脩纸墨、口粮、差役与旧债余账再核对一遍，不再整笔拖到年终才忽然结算。' : ' 同一旬里，文章火候、盘缠与家中口粮常常在抢同一笔钱。')
         },
         {
           t: 'body',
