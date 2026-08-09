@@ -530,6 +530,12 @@
     if ((carry.委托营生 || '') && carry.委托营生 !== '无') tags.push('委托营生=' + carry.委托营生);
     if ((carry.委托租谷 || 0) > 0) tags.push('委托租谷' + carry.委托租谷 + '石/年');
     if ((carry.委托待收租谷 || 0) > 0) tags.push('待收委托田租' + carry.委托待收租谷 + '石');
+    if ((carry.婚配路径 || '') && carry.婚配路径 !== '未定') tags.push('婚配路径=' + carry.婚配路径);
+    if ((carry.合爨状态 || '') && carry.合爨状态 !== '未合爨') tags.push('合爨状态=' + carry.合爨状态);
+    if ((carry.定额佃状态 || '') && carry.定额佃状态 !== '未立') tags.push('定额佃状态=' + carry.定额佃状态);
+    if ((carry.雇身份 || '') && carry.雇身份 !== '未定') tags.push('雇身份=' + carry.雇身份);
+    if ((carry.学徒去向 || '') && carry.学徒去向 !== '未定') tags.push('学徒去向=' + carry.学徒去向);
+    if ((carry.举业结局 || '') && carry.举业结局 !== '未定') tags.push('举业结局=' + carry.举业结局);
     return tags.length ? tags.join('｜') : '无额外承接状态位';
   }
   function lifecycleInheritanceBridge() {
@@ -629,16 +635,28 @@
       if ((carry.家传书香 || 0) > 0) hints.push('田上记账、认税则不至全靠别人念给你听');
       if ((carry.商路门路 || 0) > 0 || (carry.城里门路 || 0) > 0) hints.push('去市镇卖米换钱时不至样样都吃生');
       if ((carry.家传手艺 || 0) > 0) hints.push('农闲还能凭一点手艺补贴家计');
+      if ((carry.定额佃状态 || '') === '已立' || (carry.定额佃状态 || '') === '已立定额佃' || (carry.婚配路径 || '') === '暂不婚·改定额佃') {
+        hints.push('上一代为缓婚先立过定额佃，这一房更知道怎么把薄田先压成定额租账');
+      }
+      if ((carry.合爨状态 || '') === '随兄合户' || (carry.合爨状态 || '') === '已析爨') {
+        hints.push('上一代先合爨、后析爨那层共账缓冲没有白过，分家分账时更知道该先拆哪几口账');
+      }
     } else if (routeKey === 'wage') {
       if ((carry.家传农事 || 0) > 0) hints.push('将来真回头守薄田时，不至两眼一抹黑');
       if ((carry.家传手艺 || 0) > 0) hints.push('一上手就有熟活可跟');
       if ((carry.城里门路 || 0) > 0) hints.push('外出寻工不至全凭陌生脸');
       if ((carry.家传书香 || 0) > 0) hints.push('识字核账更不易吃闷亏');
+      if ((carry.婚配路径 || '') === '先应差·外出佣工' || (carry.雇身份 || '') === '外出佣工') {
+        hints.push('上一代那回先应差、后外出佣工攒下的旧牙口还在，出门寻工少一道完全白手起家的硬坎');
+      }
     } else if (routeKey === 'apprentice') {
       if ((carry.城里门路 || 0) > 0) hints.push('求师说合会更快坐实');
       if ((carry.商路门路 || 0) > 0) hints.push('认货记账不是全然白手');
       if ((carry.家传手艺 || 0) > 0) hints.push('上手守店比寻常学徒更快');
       if ((carry.承继定位 || '').indexOf('次子循城外求') >= 0) hints.push('长兄先在家守着户头，你这一手本就是被放出来往城里外求的，说合时少一道“为何偏要外出”的掣肘');
+      if ((carry.学徒去向 || '') === '留店伙计' || (carry.学徒去向 || '') === '店铺做工' || (carry.学徒去向 || '') === '随行商') {
+        hints.push('上一代已经把学徒去向坐实过一回，这一手更知道哪些铺里门路是真能留下来的');
+      }
     } else if (routeKey === 'merchant') {
       if ((carry.商路门路 || 0) > 0) hints.push('进号就能接上旧识和账面门道');
       if ((carry.城里门路 || 0) > 0) hints.push('在城里更容易找到落脚与牙口');
@@ -653,6 +671,7 @@
       if ((carry.供读底子 || 0) > 0) hints.push('束脩纸墨前头先有一笔不折现的供读缓冲');
       if ((carry.承继定位 || '').indexOf('次子候读') >= 0) hints.push('家里原本就把你这一手留作先读的一房，长兄那边续号回钱更像你背后的暗底');
       if ((carry.承继定位 || '').indexOf('次子续读') >= 0) hints.push('长兄先守着户里那摊日常，你这一手本就被家里留作续读，起手少一层“先回去扛家计”的拉扯');
+      if ((carry.举业结局 || '') && (carry.举业结局 || '') !== '未定') hints.push('上一代已经把举业走到“' + carry.举业结局 + '”，你更知道书路会把一家人拖到哪一步');
     }
     if ((carry.负债银 || 0) > 0) hints.push('只是这一房还背着旧债' + carry.负债银 + '两，起手无论走哪条路都得先想着别让旧账再滚大');
     var decayHint = lineageDecayHint(lineageDecayLevel(carry));
@@ -3950,17 +3969,31 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function childDeath(log) {
     var st = CHILD_STAGES[childStage];
     var via = composeLineageSource(S.承嗣来路 || '本支次子承继', '弟妹接续');
+    var carriedIdentity = currentInheritanceRole({ 承嗣来路: via, 承继身份: S.承继身份 });
     S._childDied = true;
     S._carry = {
       白银: S.白银, 存米: Math.max(0, S.存米), 铜钱: S.铜钱, 田亩: S.田亩, 负债银: Math.max(0, S.负债银 || 0), 家族: Math.max(20, S.家族 - 4),
       父辈路线: S.父辈路线 || '未定',
+      承继身份: carriedIdentity,
       承嗣来路: via,
+      承继定位: S.承继定位 || '本房次子另起一手',
       家传书香: S.家传书香 || 0,
       城里门路: S.城里门路 || 0,
       商路门路: S.商路门路 || 0,
       家传手艺: S.家传手艺 || 0,
+      家传农事: S.家传农事 || 0,
       亦贾亦儒底子: S.亦贾亦儒底子 || 0,
-      供读底子: S.供读底子 || 0
+      供读底子: S.供读底子 || 0,
+      旧门路衰减: currentLineageDecayLevel(),
+      委托营生: S.委托营生 || '无',
+      委托租谷: Math.max(0, S.委托租谷 || 0),
+      委托待收租谷: Math.max(0, S.委托待收租谷 || 0),
+      婚配路径: S.婚配路径 || '未定',
+      合爨状态: S.合爨状态 || '未合爨',
+      定额佃状态: S.定额佃状态 || '未立',
+      雇身份: S.雇身份 || '未定',
+      学徒去向: S.学徒去向 || '未定',
+      举业结局: S.举业结局 || '未定'
     };
     log.push(['幼殇于' + st.name + '（' + st.age + '岁）——依 Coale-Demeny 模型(出生预期寿命≈30岁)，约半数孩子活不到二十岁。这不是你的过错，是那个时代的真实概率。本户田产由弟妹接续。', 'bad']);
   }
@@ -18824,7 +18857,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         旧门路衰减: legacyCarry.旧门路衰减,
         委托营生: leaseEnabled ? (S.委托营生 || '无') : '无',
         委托租谷: shareLease,
-        委托待收租谷: sharePendingRent
+        委托待收租谷: sharePendingRent,
+        婚配路径: S.婚配路径 || '未定',
+        合爨状态: S.合爨状态 || '未合爨',
+        定额佃状态: S.定额佃状态 || '未立',
+        雇身份: S.雇身份 || '未定',
+        学徒去向: S.学徒去向 || '未定',
+        举业结局: S.举业结局 || '未定'
       };
       S._deathRemainderText = remainderText;
       if (S.路线.indexOf('徽商') === 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，身后连旧账、回钱与反哺名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、尚未结回的委托田租' : '') + '也一并结进遗产。';
@@ -18844,7 +18883,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         旧门路衰减: legacyCarry.旧门路衰减,
         委托营生: collateralLeaseEnabled ? (S.委托营生 || '无') : '无',
         委托租谷: collateralLeaseEnabled ? Math.max(0, S.委托租谷 || 0) : 0,
-        委托待收租谷: collateralLeaseEnabled ? pendingRentMi : 0
+        委托待收租谷: collateralLeaseEnabled ? pendingRentMi : 0,
+        婚配路径: S.婚配路径 || '未定',
+        合爨状态: S.合爨状态 || '未合爨',
+        定额佃状态: S.定额佃状态 || '未立',
+        雇身份: S.雇身份 || '未定',
+        学徒去向: S.学徒去向 || '未定',
+        举业结局: S.举业结局 || '未定'
       };
       S._deathRemainderText = '';
       if (S.路线.indexOf('徽商') === 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，临了虽未留下亲生承嗣，旧账、回钱与顾家名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、委托经营账上的待结田租' : '') + '仍要在旁支账里结清。';
