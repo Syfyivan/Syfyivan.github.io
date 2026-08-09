@@ -240,8 +240,8 @@
       S.负债银 = Math.max(0, carry.负债银 || 0);
       S.家族 = Math.max(20, Math.min(80, carry.家族 == null ? 60 : carry.家族));
       S.父辈路线 = carry.父辈路线 || '未定';
-      S.承继身份 = carry.承继身份 || (isCollateralCarry(carry) ? '旁支继子' : '次子');
-      S.承嗣来路 = carry.承嗣来路 || '本支次子承继';
+      S.承继身份 = carry.承继身份 || inheritanceRoleFromLineage(carry.承嗣来路) || (isCollateralCarry(carry) ? '旁支继子' : '次子');
+      S.承嗣来路 = carry.承嗣来路 || directHeirLineageTag(S.承继身份);
       S.承继定位 = carry.承继定位 || '本房次子另起一手';
       S.家传书香 = Math.max(0, carry.家传书香 || 0);
       S.城里门路 = Math.max(0, carry.城里门路 || 0);
@@ -456,6 +456,15 @@
   function lineageTokens(via) {
     return (via || '').split('·').map(function (part) { return (part || '').trim(); }).filter(Boolean);
   }
+  function inheritanceRoleFromLineage(via) {
+    var raw = String(via || '');
+    if (!raw) return '';
+    if (raw.indexOf('本支独子承继') >= 0) return '独子';
+    if (raw.indexOf('本支长子承继') >= 0) return '长子';
+    if (raw.indexOf('本支次子承继') >= 0) return '次子';
+    if (raw.indexOf('旁支') >= 0) return '旁支继子';
+    return '';
+  }
   function composeLineageSource(baseVia, currentTag) {
     var tokens = lineageTokens(baseVia);
     var directTags = ['本支长子承继', '本支次子承继', '本支独子承继'];
@@ -465,16 +474,21 @@
     if (currentTag && tokens.indexOf(currentTag) < 0) tokens.push(currentTag);
     return tokens.length ? tokens.join('·') : (currentTag || '本支次子承继');
   }
-  function directHeirLineageTag(sons, carry) {
-    var count = Math.max(0, Math.floor(sons || 0));
+  function directHeirLineageTag(roleOrSons, carry) {
+    if (typeof roleOrSons === 'string') {
+      if (roleOrSons === '旁支继子') return '旁支过继';
+      if (roleOrSons === '独子') return '本支独子承继';
+      if (roleOrSons === '长子') return '本支长子承继';
+      return '本支次子承继';
+    }
+    var count = Math.max(0, Math.floor(roleOrSons || 0));
     if (count <= 0) return '旁支过继';
-    if (isCollateralCarry(carry || S || null)) return '旁支续承';
     if (count === 1) return '本支独子承继';
     return '本支次子承继';
   }
   function currentInheritanceRole(carry) {
     if (!carry) return '次子';
-    return carry.承继身份 || (isCollateralCarry(carry) ? '旁支继子' : '次子');
+    return carry.承继身份 || inheritanceRoleFromLineage(carry.承嗣来路) || (isCollateralCarry(carry) ? '旁支继子' : '次子');
   }
   function inheritedRoleBirthLead(carry) {
     var role = currentInheritanceRole(carry);
@@ -1843,7 +1857,7 @@
       hardship: 'clan'
     });
     if (season.id === 'summer' && xun === 2) apply({
-      handledIds: ['e_essay', 'e_copy', 'e_mend', 'e_rest', 'e_summer_packet'],
+      handledIds: ['e_essay', 'e_copy', 'e_mend', 'e_rest', 'e_summer_packet', 'e_summer_cough'],
       doneTag: '馆课零耗已顾',
       doneLog: '〔馆课零耗〕这一旬先把潮纸、投帖脚费、塾馆茶汤和家里凉热小耗顾住了；举业路这层最容易被一句“不过几文钱”带过的小耗，没有继续滚成更大的缺口。',
       cost: 35,
@@ -1888,7 +1902,7 @@
       hardship: 'clan'
     });
     if (season.id === 'autumn' && xun === 3) apply({
-      handledIds: ['e_exam', 'e_reserve', 'e_mend', 'e_home', 'e_autumn_tail_packet'],
+      handledIds: ['e_exam', 'e_reserve', 'e_mend', 'e_home', 'e_autumn_tail_packet', 'e_autumn_register'],
       doneTag: '临场盘缠已留',
       doneLog: '〔临场盘缠〕这一旬先把下场盘缠、誊卷纸样、回乡脚费与秋尾锅火分开了；秋试下旬终于不再只是“去不去考”，而把临场前后那层真后手压进了这一旬。',
       cost: 50,
@@ -1910,7 +1924,7 @@
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 2) apply({
-      handledIds: ['e_copy', 'e_mend', 'e_rest', 'e_winter_mid_packet', 'e_fail_copy'],
+      handledIds: ['e_copy', 'e_mend', 'e_rest', 'e_winter_mid_packet', 'e_fail_copy', 'e_winter_cough'],
       doneTag: '冬中灯炭已分',
       doneLog: '〔冬中灯炭〕这一旬先把灯炭、旧馆回话脚费与来春笔墨样纸分开了；冬清账中旬不再只是翻旧账，而把“明春这条笔墨门路怎么续”提前压进了这一旬。',
       cost: 45,
@@ -4458,7 +4472,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     h += '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">🧾 五路多代账本卡</span>' +
       '<span class="cb-val">递归重开</span></div>' +
-      '<div class="cb-tip">五路都接诸子均分、供养镜像、委托田租、次子承继与旁支过继；上一代留下的田、债与门路会直接改写下一代入口，而不是回滚成白纸。</div></div>';
+      '<div class="cb-tip">五路都接诸子均分、供养镜像、委托田租，以及独子/次子/旁支等真实承继；上一代留下的田、债与门路会直接改写下一代入口，而不是回滚成白纸。</div></div>';
     return h;
   }
 
@@ -6498,10 +6512,30 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             A.push({ id: 'e_spring_packet', name: '先把春中评文回话与税则脚费分开', cost: 1, eff: '铜钱-45·家族+1', desc: '春课中旬最怕评文回话、税则小纸、递话脚费和家里锅火一起冒头。先把这层小钱拆开，馆课口风才不至刚起就被磨薄。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
           } else if (season.id === 'summer') {
             A.push({ id: 'e_summer_packet', name: '先把潮纸、投帖脚费与塾馆茶汤分开', cost: 1, eff: '铜钱-50·家族+1·体魄+1', desc: '伏夏中旬最怕潮纸、投帖脚费、塾馆茶汤和家里凉热小耗一起冒头。先把这层细耗拆开，文章和身子都不至同时被暑气磨薄。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
+            A.push({
+              id: 'e_summer_cough',
+              name: '先把伏夏凉药与草鞋脚费分开',
+              cost: 1,
+              eff: '铜钱-55·体魄+1·家族+1·将养+1',
+              desc: '伏夏中旬最怕评文、抄书刚换来一点现钱，凉药、草鞋脚费与递话门包又一起追钱。先把这层暑热小耗拆开，不让身子和回塾门的脚钱继续抢同一口现钱。',
+              can: S.铜钱 >= 55,
+              why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
+              once: true
+            });
           } else if (season.id === 'autumn') {
             A.push({ id: 'e_autumn_packet', name: '先把保结薄礼与学生回话脚费分开', cost: 1, eff: '铜钱-55·家族+1', desc: '秋试中旬最怕保结薄礼、学生家回话脚费和润笔纸墨一起追钱。先把这层后手拆开，临场前这口人情就不至先薄掉。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
           } else if (season.id === 'winter') {
             A.push({ id: 'e_winter_mid_packet', name: '先把冬中灯炭与旧馆回话脚费分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬清账中旬最怕灯炭、旧馆回话脚费和来春样纸一起追钱。先把这层续门路的钱拆开，冬里就不至一边熬身子一边把来春口风熬断。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+            A.push({
+              id: 'e_winter_cough',
+              name: '先把冬中咳药与坐馆灯油分开',
+              cost: 1,
+              eff: '铜钱-70·体魄+2·家族+1·将养+1',
+              desc: '冬中最怕寒咳药包、灯下坐馆的灯油、递话脚费和守夜锅火一起追钱。先把这层过冬小耗拆开，不让“还能续塾门”与“人先别倒下”继续抢同一口现钱。',
+              can: S.铜钱 >= 70,
+              why: S.铜钱 >= 70 ? '' : '铜钱不足70文',
+              once: true
+            });
             if (S.本年应试结果 === '落第') {
               A.push({
                 id: 'e_fail_copy',
@@ -6579,6 +6613,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             A.push({ id: 'e_summer_tail_packet', name: '先把夏尾衣药与回家带药小耗分开', cost: 1, eff: '铜钱-50·体魄+2', desc: '夏课下旬最怕补鞋药钱、伏夏尾声纸墨和回家带药小耗一起追钱。先把这层身子账拆开，伏夏尾声就不至只剩硬熬。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
           } else if (season.id === 'autumn') {
             A.push({ id: 'e_autumn_tail_packet', name: '先把临场盘缠与誊卷纸样分开', cost: 1, eff: '铜钱-60·体魄+1·家族+1', desc: '秋试下旬最怕下场盘缠、誊卷纸样、回乡脚费和秋尾锅火一起追钱。先把这层临场细账拆开，真到下场时才不至临门又先被细钱绊住。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+            A.push({
+              id: 'e_autumn_register',
+              name: '先把秋尾簿册与回帖灯油分开',
+              cost: 1,
+              eff: '铜钱-60·家族+1·供读压力-1',
+              desc: '秋尾最怕保结簿册、回帖灯油、递话脚费和来春帖样一起追钱。先把这层簿册后手拆开，不让“秋里刚下过场或刚跑完保结”这一层细账又拖进冬清账。',
+              can: S.铜钱 >= 60,
+              why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
+              once: true
+            });
           }
           A.push({
             id: 'e_tail_brother_help',
@@ -6735,6 +6779,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把潮纸、投帖脚费与塾馆茶汤拆开，但这一旬铜钱已先被别处占住，只得让伏夏中旬这层细耗继续一股脑追钱。', 'bad']);
               }
               break;
+            case 'e_summer_cough':
+              if (spendCopper(55)) {
+                noteExamOutlay(55, { buckets: { 本年衣药支出文: 55 } });
+                S.体魄 += 1;
+                S.家族 += 1;
+                S.本年将养次数 += 1;
+                if (S.本年身子亏空 > 0) S.本年身子亏空 -= 1;
+                pushExamSeasonTag(stepTag + '伏夏凉药');
+                log.push(['先把伏夏凉药与草鞋脚费分开：铜钱-55、体魄+1、家族+1。凉药、草鞋脚费和递话门包先被拆开，伏夏中旬这层“评文和誊抄刚起、身子已先吃紧”的小耗不再继续往后滚。', 'good']);
+              } else {
+                log.push(['想先把伏夏凉药与草鞋脚费拆开，但这一旬铜钱已先被别处占住，只得让暑热和灯下久坐继续一起磨身子。', 'bad']);
+              }
+              break;
             case 'e_summer_open_packet':
               if (spendCopper(45)) {
                 noteExamOutlay(45, { buckets: { 本年零耗支出文: 45 } });
@@ -6785,6 +6842,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把临场盘缠与誊卷纸样拆开，但这一旬铜钱已先被别处占住，只得让临场前这层细账继续一起追钱。', 'bad']);
               }
               break;
+            case 'e_autumn_register':
+              if (spendCopper(60)) {
+                noteExamOutlay(60, { buckets: { 本年零耗支出文: 35, 本年纸墨支出文: 25 } });
+                S.家族 += 1;
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
+                pushExamSeasonTag(stepTag + '秋尾簿册');
+                log.push(['先把秋尾簿册与回帖灯油分开：铜钱-60、家族+1、供读压力-1。保结簿册、回帖灯油、递话脚费和来春帖样先被拆开，秋尾这层“下场或保结刚过，冬里后手又来追钱”的细账没有再被顺手拖进年关。', 'good']);
+              } else {
+                log.push(['想先把秋尾簿册与回帖灯油拆开，但这一旬铜钱已先被别处占住，只得让秋尾这层簿册、灯油与递话脚费继续挤在同一口现钱上。', 'bad']);
+              }
+              break;
             case 'e_winter_open_packet':
               if (spendCopper(55)) {
                 noteExamOutlay(55, { buckets: { 本年零耗支出文: 55 } });
@@ -6811,6 +6879,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把冬中灯炭与旧馆回话脚费分开：铜钱-60、家族+1、体魄+1。冬清账中旬这层灯炭、旧馆回话脚费和来春样纸先被拆开，冬里就没再一边熬身子一边把来春口风熬断。', 'good']);
               } else {
                 log.push(['想先把冬中灯炭与旧馆回话脚费拆开，但这一旬铜钱已先被别处占住，只得让冬里这层续门路钱继续贴着锅火来。', 'bad']);
+              }
+              break;
+            case 'e_winter_cough':
+              if (spendCopper(70)) {
+                noteExamOutlay(70, { buckets: { 本年衣药支出文: 70 } });
+                S.体魄 += 2;
+                S.家族 += 1;
+                S.本年将养次数 += 1;
+                if (S.本年身子亏空 > 0) S.本年身子亏空 -= 1;
+                pushExamSeasonTag(stepTag + '冬中咳药');
+                log.push(['先把冬中咳药与坐馆灯油分开：铜钱-70、体魄+2、家族+1。寒咳药包、坐馆灯油、递话脚费和守夜锅火先被拆开，冬中这层“塾门还能续、人先别倒下”的小账不再继续混成一口硬扛。', 'good']);
+              } else {
+                log.push(['想先把冬中咳药与坐馆灯油拆开，但这一旬铜钱已先被别处占住，只得让冬里的寒咳、灯油和锅火继续一起追钱。', 'bad']);
               }
               break;
             case 'e_fail_copy':
@@ -18489,9 +18570,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       return legacy;
     }
     function nextGenLegacy() {
+      var nextRole = S.子数 <= 0 ? '旁支继子' : (S.子数 === 1 ? '独子' : '次子');
+      var nextVia = composeLineageSource(S.承嗣来路, directHeirLineageTag(nextRole));
+      if (S.子数 > 0 && isCollateralCarry(S)) nextVia = composeLineageSource(nextVia, '旁支续承');
       var legacy = {
         父辈路线: S.路线 || '未定',
-        承嗣来路: composeLineageSource(S.承嗣来路, directHeirLineageTag(S.子数, S)),
+        承嗣来路: nextVia,
         承继定位: S.承继定位 || '本房次子另起一手',
         // 这里要把“已经继承到这一代的底子”继续带到身后结算里，
         // 否则上一代留下的供读专账/亦贾亦儒分工/旧门路衰减只会活在入口文案里，
