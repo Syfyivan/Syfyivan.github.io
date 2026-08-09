@@ -218,7 +218,7 @@
       // 成家（议亲）阶段：拆成三旬推进（说合→回话→下聘），避免“成年只点一下就结算”
       议旬: 1,
       // 当户样板：先把商路的“中年当户”拆成四季三旬，让分家、催账、委托田面与应役在同一年里分段落账
-      户季: 1, 户旬: 1, 本年户核账: 0, 本年户催账: 0, 本年户备役: 0, 本年户通融: 0, 本年户委托: 0, 本年户供读: 0, 本年户季务: [],
+      户年: 1, 户季: 1, 户旬: 1, 本年户核账: 0, 本年户催账: 0, 本年户备役: 0, 本年户通融: 0, 本年户委托: 0, 本年户供读: 0, 本年户季务: [],
       委托营生: '无', 委托租谷: 0, 委托待收租谷: 0, 最近农闲营生层级: '未定', 最近农闲营生收益: 0,
       // 养老阶段：按四季推进（同一年内继续拆账），避免“老年只点一次就结算”
       老季: 1, 老旬: 1, 本年养老协商: 0, 本年养老收租: 0, 本年养老卖田: 0, 本年养老医药: 0, 本年养老守田: 0, 本年养老旧识: 0, 本年养老铺账: 0, 本年养老节礼: 0, 本年养老季务: [],
@@ -3605,6 +3605,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     S.本年户供读 = 0;
     S.本年户季务 = [];
   }
+  function householdNextPhaseAfterCurrentYear() {
+    var life = currentLifeProfile();
+    return (life.householdAge + Math.max(1, Number(S.户年 || 1)) >= life.elderAge) ? 'elder' : 'household';
+  }
+  function householdYearEndNextLabel() {
+    return householdNextPhaseAfterCurrentYear() === 'elder' ? '步入老年 →' : '又一年春分书 →';
+  }
   function isMerchantRouteState() {
     return !!S && (
       (S.路线 || '').indexOf('徽商') === 0 ||
@@ -4753,8 +4760,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       curStage = stageFamily();
     }
     else if (p === 'household') {
-      S.年龄 = currentLifeProfile().householdAge;
-      if (prevPhase !== 'household' && usesSeasonalHouseholdRhythm()) resetHouseholdYearLedger();
+      var householdLife = currentLifeProfile();
+      if (prevPhase !== 'household' && usesSeasonalHouseholdRhythm()) {
+        S.户年 = 1;
+        resetHouseholdYearLedger();
+      }
+      S.年龄 = householdLife.householdAge + Math.max(0, (S.户年 || 1) - 1);
       curStage = stageHousehold();
     }
     else if (p === 'elder') {
@@ -13698,10 +13709,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return {
       title: '当户 · ' + season.name,
       label: '当户',
-      next: isYearEnd ? 'elder' : 'household',
-      nextLabel: isYearEnd ? '步入老年 →' : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
+      next: isYearEnd ? householdNextPhaseAfterCurrentYear() : 'household',
+      nextLabel: isYearEnd ? householdYearEndNextLabel() : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
       ap: 2,
-      commitLabel: isYearEnd ? '了这一任当户 →' : '收住这一旬当户账 →',
+      commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
       note: '卖工路的当户阶段现也改成“四季三旬”。分家、薄田、旧工账、旧工头的人情、里甲差钱与年关后手，不再一口气糊成“一次 4 点”，而要在同一年里逐旬拆开。' + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是再做一件“大事”，而是把“先守田、先结工、先托人、先留差钱”里最要紧的那两手先坐实。',
       dossier: function () {
@@ -14396,8 +14407,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           S.应役 = '破家';
           log.push(['〔当役破家〕这一任当户最后还是压成了制度账：失田2亩、负债+2两。不是你“不够努力”，而是这层风险本就会往个体头上塌。', 'bad']);
         }
-        curStage.next = 'elder';
-        curStage.nextLabel = '步入老年 →';
+        if (householdNextPhaseAfterCurrentYear() === 'household') {
+          S.户年 = (S.户年 || 1) + 1;
+          resetHouseholdYearLedger();
+          curStage.next = 'household';
+          curStage.nextLabel = '又一年春分书 →';
+        } else {
+          curStage.next = 'elder';
+          curStage.nextLabel = '步入老年 →';
+        }
       }
     };
   }
@@ -14455,11 +14473,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return {
       title: '当户 · ' + season.name,
       label: '当户',
-      next: isYearEnd ? 'elder' : 'household',
-      nextLabel: isYearEnd ? '步入老年 →' : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
+      next: isYearEnd ? householdNextPhaseAfterCurrentYear() : 'household',
+      nextLabel: isYearEnd ? householdYearEndNextLabel() : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
       ap: 2,
       shock: false,
-      commitLabel: isYearEnd ? '了这一任当户 →' : '收住这一旬当户账 →',
+      commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
       note: '留乡佃田的当户阶段现也改成“四季三旬”。分家后的薄田、自耕与租谷、差票与里甲人情、代役现银与年关后手，不再一口气糊成“一次 4 点”，而要在同一年里逐旬拆开。' + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是“再做一件大事”，而是把田面、租路与差钱里最要紧的那两手先坐实。',
       dossier: function () {
@@ -14777,8 +14795,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           S.应役 = '破家';
           log.push(['〔当役破家〕这一任当户最后还是压成了制度账：失田2亩、负债+2两。不是你“不够努力”，而是这层风险本就会往个体头上塌。', 'bad']);
         }
-        curStage.next = 'elder';
-        curStage.nextLabel = '步入老年 →';
+        if (householdNextPhaseAfterCurrentYear() === 'household') {
+          S.户年 = (S.户年 || 1) + 1;
+          resetHouseholdYearLedger();
+          curStage.next = 'household';
+          curStage.nextLabel = '又一年春分书 →';
+        } else {
+          curStage.next = 'elder';
+          curStage.nextLabel = '步入老年 →';
+        }
       }
     };
   }
@@ -14843,10 +14868,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return {
       title: '当户 · ' + season.name,
       label: '当户',
-      next: isYearEnd ? 'elder' : 'household',
-      nextLabel: isYearEnd ? '步入老年 →' : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
+      next: isYearEnd ? householdNextPhaseAfterCurrentYear() : 'household',
+      nextLabel: isYearEnd ? householdYearEndNextLabel() : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
       ap: 2,
-      commitLabel: isYearEnd ? '了这一任当户 →' : '收住这一旬当户账 →',
+      commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
       note: '学徒路的当户阶段现也改成“四季三旬”。铺里旧脚钱、师门门路、分得薄田与差钱后手，不再一口气糊成“一次 4 点”，而要在同一年里逐旬拆开。' + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是“再做一件大事”，而是把铺里旧账、乡里薄田与代应门路里最要紧的那两手先坐实。',
       dossier: function () {
@@ -15733,13 +15758,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           S.应役 = '破家';
           log.push(['〔当役破家〕这一任当户最后还是压成了制度账：失田2亩、负债+2两。不是你“不够努力”，而是这层风险本就会往个体头上塌。', 'bad']);
         }
-        curStage.next = 'elder';
-        curStage.nextLabel = '步入老年 →';
+        if (householdNextPhaseAfterCurrentYear() === 'household') {
+          S.户年 = (S.户年 || 1) + 1;
+          resetHouseholdYearLedger();
+          curStage.next = 'household';
+          curStage.nextLabel = '又一年春分书 →';
+        } else {
+          curStage.next = 'elder';
+          curStage.nextLabel = '步入老年 →';
+        }
       }
     };
   }
-
-
   function stageMerchantHousehold() {
     var hp = householdRoutePack();
     var seasonIdx = Math.max(1, Math.min(HOUSEHOLD_SEASONS.length, S.户季 || 1));
@@ -15799,10 +15829,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return {
       title: '当户 · ' + season.name,
       label: '当户',
-      next: isYearEnd ? 'elder' : 'household',
-      nextLabel: isYearEnd ? '步入老年 →' : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
+      next: isYearEnd ? householdNextPhaseAfterCurrentYear() : 'household',
+      nextLabel: isYearEnd ? householdYearEndNextLabel() : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
       ap: 2,
-      commitLabel: isYearEnd ? '了这一任当户 →' : '收住这一旬当户账 →',
+      commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
       note: '这任当户不再按“一次 4 点”一口气结掉，而是拆成四季三旬。分家后的薄田、商路旧账、供读后手与应役现银，都要在同一年里分段落账。' + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是“再做一件大事”，而是把哪笔钱、哪层人情、哪口薄田先落到账上。',
       dossier: function () {
@@ -17327,8 +17357,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           S.应役 = '破家';
           log.push(['〔当役破家〕这一任当户最后还是压成了制度账：失田2亩、负债+2两。不是你“不够努力”，而是这层风险本就会往个体头上塌。', 'bad']);
         }
-        curStage.next = 'elder';
-        curStage.nextLabel = '步入老年 →';
+        if (householdNextPhaseAfterCurrentYear() === 'household') {
+          S.户年 = (S.户年 || 1) + 1;
+          resetHouseholdYearLedger();
+          curStage.next = 'household';
+          curStage.nextLabel = '又一年春分书 →';
+        } else {
+          curStage.next = 'elder';
+          curStage.nextLabel = '步入老年 →';
+        }
       }
     };
   }
@@ -17413,10 +17450,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return {
       title: '当户 · ' + season.name,
       label: '当户',
-      next: isYearEnd ? 'elder' : 'household',
-      nextLabel: isYearEnd ? '步入老年 →' : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
+      next: isYearEnd ? householdNextPhaseAfterCurrentYear() : 'household',
+      nextLabel: isYearEnd ? householdYearEndNextLabel() : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
       ap: 2,
-      commitLabel: isYearEnd ? '了这一任当户 →' : '收住这一旬当户账 →',
+      commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
       note: '举业路的当户阶段现也改成“四季三旬”。分书、税则、旧馆账、保结人情、优免路数与分得薄田，不再一口气糊成“一次 4 点”，而要在同一年里逐旬拆开。' + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是“再做一件大事”，而是把名色、馆账、薄田与差钱里最要紧的那两手先坐实。',
       dossier: function () {
@@ -18228,8 +18265,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           S.应役 = '破家';
           log.push(['〔当役破家〕这一任当户最后还是压成了制度账：失田2亩、负债+2两。不是你“不够努力”，而是这层风险本就会往个体头上塌。', 'bad']);
         }
-        curStage.next = 'elder';
-        curStage.nextLabel = '步入老年 →';
+        if (householdNextPhaseAfterCurrentYear() === 'household') {
+          S.户年 = (S.户年 || 1) + 1;
+          resetHouseholdYearLedger();
+          curStage.next = 'household';
+          curStage.nextLabel = '又一年春分书 →';
+        } else {
+          curStage.next = 'elder';
+          curStage.nextLabel = '步入老年 →';
+        }
       }
     };
   }
@@ -18264,11 +18308,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return {
       title: '当户 · ' + season.name,
       label: '当户',
-      next: isYearEnd ? 'elder' : 'household',
-      nextLabel: isYearEnd ? '步入老年 →' : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
+      next: isYearEnd ? householdNextPhaseAfterCurrentYear() : 'household',
+      nextLabel: isYearEnd ? householdYearEndNextLabel() : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
       ap: 2,
       shock: false,
-      commitLabel: isYearEnd ? '了这一任当户 →' : '收住这一旬当户账 →',
+      commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
       note: '当户阶段的默认兜底口径也按“四季三旬”推进。分家、旧账、差钱与里甲人情，不再一口气结成“一次 4 点”，而要在同一年里逐旬拆开。〔均分与破家为制度事实，具体银额为占位〕' + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是把当户一次结掉，而是先把旧账、差钱和人情里最要紧的那两手坐实。',
       dossier: function () {
