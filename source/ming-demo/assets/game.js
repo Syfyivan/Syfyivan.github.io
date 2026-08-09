@@ -423,6 +423,7 @@
     else if ((carry.家传书香 || 0) > 0) tags.push('家里还存一点书香与识字底子');
     if ((carry.亦贾亦儒底子 || 0) > 0) tags.push('这一房已隐约有了亦贾亦儒的分工念头');
     if ((carry.供读底子 || 0) > 0) tags.push('家里还留着几手供读专账的老规矩');
+    if ((carry.负债银 || 0) > 0) tags.push('这一房还背着旧债' + carry.负债银 + '两');
     return tags;
   }
   function isCollateralCarry(carry) {
@@ -489,6 +490,7 @@
     if ((carry.承继身份 || '')) tags.push('承继身份=' + carry.承继身份);
     if ((carry.承嗣来路 || '')) tags.push('承嗣来路=' + carry.承嗣来路);
     if ((carry.承继定位 || '')) tags.push('承继定位=' + carry.承继定位);
+    if ((carry.负债银 || 0) > 0) tags.push('负债银=' + carry.负债银 + '两');
     if ((carry.家传书香 || 0) > 0) tags.push('家传书香' + carry.家传书香 + '层');
     if ((carry.城里门路 || 0) > 0) tags.push('城里门路' + carry.城里门路 + '层');
     if ((carry.商路门路 || 0) > 0) tags.push('商路门路' + carry.商路门路 + '层');
@@ -516,12 +518,14 @@
       || (S.家传农事 || 0) > 0
       || (S.亦贾亦儒底子 || 0) > 0
       || (S.供读底子 || 0) > 0
+      || (S.负债银 || 0) > 0
       || currentLineageDecayLevel() > 0
       || ((S.委托营生 || '无') !== '无' && ((S.委托租谷 || 0) > 0 || (S.委托待收租谷 || 0) > 0));
     if (!inherited) return { note: '', narrative: '', dossier: '', event: null };
     var parts = ['承继身份=' + role];
     if (S.承继定位) parts.push('承继定位=' + S.承继定位);
     if (S.承嗣来路) parts.push('承嗣来路=' + S.承嗣来路);
+    if ((S.负债银 || 0) > 0) parts.push('负债银=' + S.负债银 + '两');
     if ((S.家传书香 || 0) > 0) parts.push('家传书香=' + S.家传书香 + '层');
     if ((S.城里门路 || 0) > 0) parts.push('城里门路=' + S.城里门路 + '层');
     if ((S.商路门路 || 0) > 0) parts.push('商路门路=' + S.商路门路 + '层');
@@ -548,6 +552,7 @@
     else if ((S.家传农事 || 0) > 0) explain.push('家里还留着一层守薄田的农事底子');
     if ((S.亦贾亦儒底子 || 0) > 0) explain.push('这一房仍带着一点亦贾亦儒的家内分工底子');
     if ((S.供读底子 || 0) > 0) explain.push('上一代划下的供读专账老规矩还在');
+    if ((S.负债银 || 0) > 0) explain.push('上一代没还清的旧债还有' + S.负债银 + '两，起手不能装作没发生');
     var decayHint = lineageDecayHint(decay);
     if (decayHint) explain.push(decayHint);
     if ((S.委托待收租谷 || 0) > 0) explain.push('账上另有待收委托田租' + S.委托待收租谷 + '石，不能当作已经落袋的存米');
@@ -618,6 +623,7 @@
       if ((carry.承继定位 || '').indexOf('次子候读') >= 0) hints.push('家里原本就把你这一手留作先读的一房，长兄那边续号回钱更像你背后的暗底');
       if ((carry.承继定位 || '').indexOf('次子续读') >= 0) hints.push('长兄先守着户里那摊日常，你这一手本就被家里留作续读，起手少一层“先回去扛家计”的拉扯');
     }
+    if ((carry.负债银 || 0) > 0) hints.push('只是这一房还背着旧债' + carry.负债银 + '两，起手无论走哪条路都得先想着别让旧账再滚大');
     var decayHint = lineageDecayHint(lineageDecayLevel(carry));
     if (decayHint) hints.push('只是' + decayHint.replace(/^这一房/, '') + '，未必还能照本支那样使');
     if (isSiblingCarry(carry)) hints.push('这一手是弟妹接着前一个孩子的旧账往下活，门路不会凭空洗回空白');
@@ -5192,6 +5198,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       ? (isLate ? 100 : 90)
       : (season.id === 'summer' ? (isMid ? 90 : 85) : 80);
     var seasonalCounts = '本年坐店=' + S.本年商路坐店 + '｜跑单=' + S.本年商路跑单 + '｜认货=' + S.本年商路认货 + '｜问价=' + S.本年商路问价 + '｜核账=' + S.本年商路核账 + '｜催账=' + S.本年商路催账 + '｜贴家=' + S.本年商路贴家 + '｜家书=' + S.本年商路家书 + '｜试贩=' + S.本年商路试贩 + '｜回钱银=' + S.本年商路回钱银 + '｜反哺银=' + S.本年商路反哺银 + '｜拖欠=' + S.本年商路拖欠 + '｜供读=' + S.本年商路供读 + '｜身乏=' + S.本年商路身乏 + '｜龃龉=' + S.本年商路龃龉 + '｜役扰=' + S.本年商路役扰;
+    var bridge = lifecycleInheritanceBridge();
     return {
       title: '徽商学生意 · 第' + S.商年 + '商年·' + season.name + '·' + xunLabel,
       label: '商路第' + S.商年 + '年·' + season.name + '·' + xunLabel,
@@ -5203,7 +5210,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       // 让同一旬里能同时处理“柜上/货路/家计”三头细账（仍受现钱与守恒约束）。
       ap: 3,
       commitLabel: isYearEnd ? '了这一商年 →' : '了这一旬商路 →',
-      note: '商路现改成“春开路→夏坐店→秋试手→冬清账”四季、每季三旬。关键不是多给几次发财判定，而是把认货、问价、跑单、家书、催账、贴家、差役准备、补衣药与旧债都拆回一年里的真实节奏。' + (generation > 1 ? ' ' + tradePreview.note : ''),
+      note: '商路现改成“春开路→夏坐店→秋试手→冬清账”四季、每季三旬。关键不是多给几次发财判定，而是把认货、问价、跑单、家书、催账、贴家、差役准备、补衣药与旧债都拆回一年里的真实节奏。'
+        + (generation > 1 ? ' ' + tradePreview.note : '')
+        + (bridge.note ? ' ' + bridge.note : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一商年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead
         + (isLate ? '这一旬最像收账：哪笔钱先回、哪笔钱先贴家、差役钱和药钱有没有先留，都开始逼到眼前。' : '这一旬还在铺里、货路和家里之间掂量先后，真正厚的地方是同一年里许多小账一起抢。')
         + (((S.承继定位 || '').indexOf('长兄续商') >= 0)
@@ -5212,7 +5221,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         + ' 你这一旬有 <span class="em">3 个行动点</span>。',
       dossier: function () {
         var seasonTags = (S.本年商路季务 && S.本年商路季务.length) ? S.本年商路季务.join('、') : '尚未坐实';
-        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜可划供读商账=' + supportCapacity + '两｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。');
+        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜可划供读商账=' + supportCapacity + '两｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。'
+          + (bridge.dossier ? ('｜' + bridge.dossier) : ''));
       },
       events: [
         {
