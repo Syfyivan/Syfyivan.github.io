@@ -4084,6 +4084,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function restartIdentityLabel() {
     // “死亡→传承→下一代重开”是闭环验收点：按钮文案必须与真实承继一致，避免把独子/过继误写成“次子”。
     if (phase === 'childhood') return '';
+    var carryIdentity = S._carry && S._carry.承继身份 ? String(S._carry.承继身份) : '';
+    if (carryIdentity === '旁支继子') return '旁支继子身份';
+    if (carryIdentity === '独子') return '独子身份';
+    if (carryIdentity === '次子') return '次子身份';
+    if (carryIdentity === '长子') return '长子身份';
     var sons = S.子数 || 0;
     var ord = S._heirOrdinal || (sons > 1 ? 2 : 1);
     if (sons <= 0) return '旁支继子身份';
@@ -17970,6 +17975,24 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         text: parts.join('；')
       };
     }
+    function ordinalRemainderItem(total, count, ordinal, label, unit) {
+      var whole = Math.max(0, Math.floor(total || 0));
+      var n = Math.max(1, Math.floor(count || 1));
+      var idx = Math.max(1, Math.min(n, Math.floor(ordinal || 1)));
+      var extra = whole % n;
+      if (n <= 1 || extra <= 0 || idx > extra) return '';
+      return label + '1' + unit;
+    }
+    function ordinalRemainderSummary(count, ordinal, specs) {
+      var parts = [];
+      if (Math.max(1, Math.floor(count || 1)) <= 1) return '';
+      (specs || []).forEach(function (spec) {
+        var item = ordinalRemainderItem(spec.total, count, ordinal, spec.label, spec.unit);
+        if (item) parts.push(item);
+      });
+      if (!parts.length) return '';
+      return '按第' + ordinal + '子落份，这一房另吃到余下的' + parts.join('、') + '。';
+    }
     // 寿命 roll：多数五十余，长尾少数活到60-70+
     var ageRoll = rollProb(life.deathTable);
     S._deathAge = ageRoll; S.年龄 = ageRoll;
@@ -18005,6 +18028,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         && ((S.委托租谷 || 0) > 0 || pendingRentMi > 0);
       var shareLease = leaseEnabled ? shareByOrdinal(S.委托租谷 || 0, sons, heirOrdinal) : 0;
       var sharePendingRent = leaseEnabled ? shareByOrdinal(pendingRentMi, sons, heirOrdinal) : 0;
+      var remainderText = ordinalRemainderSummary(sons, heirOrdinal, [
+        { total: estateSilver, label: '白银', unit: '两' },
+        { total: estateCopper, label: '铜钱', unit: '文' },
+        { total: estateMi, label: '存米', unit: '石' },
+        { total: estateTian, label: '田', unit: '亩' },
+        { total: estateDebt, label: '旧债', unit: '两' },
+        { total: leaseEnabled ? (S.委托租谷 || 0) : 0, label: '委托定额租谷', unit: '石' },
+        { total: leaseEnabled ? pendingRentMi : 0, label: '待收委托田租', unit: '石' }
+      ]);
       S._carry = {
         白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: shareCopper, 负债银: shareDebt, 家族: Math.min(80, S.家族), 承继身份: heirIdentity,
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
@@ -18014,11 +18046,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         委托租谷: shareLease,
         委托待收租谷: sharePendingRent
       };
+      S._deathRemainderText = remainderText;
       if (S.路线.indexOf('徽商') === 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，身后连旧账、回钱与反哺名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、尚未结回的委托田租' : '') + '也一并结进遗产。';
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了能传下去的不只是薄田' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '与委托田租' : '') + '，还有一层见过世面的门路。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨不会直接分成银两，却会作为体面与起点留在下一代门前。';
       else deathTag = '你这一辈子的每一分积累与亏空，都成了子孙的期初。';
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。丧礼依家礼办讫（棺木等丧葬支出白银1两、米1石从遗产扣除）' + (pendingRentMi > 0 ? '；另有委托经营账上待结的租谷 ' + pendingRentMi + ' 石（未取得），记作应收，随房分到下一代' : '') + '。遗产按<span class="em">诸子均分</span>传给下一代' + (estateDebt > 0 ? '，未抵清的旧债也随房分担' : '') + (lifecycleResidue.text ? '。' + lifecycleResidue.text : '') + '——' + deathTag;
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。丧礼依家礼办讫（棺木等丧葬支出白银1两、米1石从遗产扣除）' + (pendingRentMi > 0 ? '；另有委托经营账上待结的租谷 ' + pendingRentMi + ' 石（未取得），记作应收，随房分到下一代' : '') + '。遗产按<span class="em">诸子均分</span>传给下一代' + (estateDebt > 0 ? '，未抵清的旧债也随房分担' : '') + (remainderText ? '；' + remainderText.replace(/。$/, '') : '') + (lifecycleResidue.text ? '。' + lifecycleResidue.text : '') + '——' + deathTag;
     } else {
       collateralEstateNote = '结清丧葬与旧债后，这一房真正还能被过继承走的，只剩白银' + estateSilver + '两、铜钱' + estateCopper + '文、存米' + estateMi + '石、田' + estateTian + '亩' + (pendingRentMi > 0 ? ('，另有账上待结租谷' + pendingRentMi + '石（未取得）') : '') + '。';
       var collateralLeaseEnabled = estateTian > 0
@@ -18033,6 +18066,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         委托租谷: collateralLeaseEnabled ? Math.max(0, S.委托租谷 || 0) : 0,
         委托待收租谷: collateralLeaseEnabled ? pendingRentMi : 0
       };
+      S._deathRemainderText = '';
       if (S.路线.indexOf('徽商') === 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，临了虽未留下亲生承嗣，旧账、回钱与顾家名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、委托经营账上的待结田租' : '') + '仍要在旁支账里结清。';
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了虽绝嗣，城中门路与见识' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '连同委托田租的薄底子' : '') + '也只剩旁支可续。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨终究未能直接传给亲子，只在旁支门前留下些体面与余绪。';
@@ -18136,6 +18170,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       rh += '<div class="line bad">· 丧葬支出：白银-1、存米-1</div>';
       if (S.子数 > 0) rh += '<div class="line good">· 遗产品搭均分给 ' + S.子数 + ' 子；你继续跟的这一房分得白银' + (S._carry.白银) + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩' + (S._carry.委托待收租谷 > 0 ? ('，另有待收委托田租' + S._carry.委托待收租谷 + '石') : '') + (S._carry.负债银 > 0 ? ('，并分担旧债' + S._carry.负债银 + '两') : '') + '</div>';
       else rh += '<div class="line bad">· 绝嗣过继：旁支承进这一房结清后的真实余产，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩' + (S._carry.委托待收租谷 > 0 ? ('，另有待收委托田租' + S._carry.委托待收租谷 + '石') : '') + (S._carry.负债银 > 0 ? ('，并接过旧债' + S._carry.负债银 + '两') : '') + '</div>';
+      if (S._deathRemainderText) rh += '<div class="line">· 余数落房：' + S._deathRemainderText + '</div>';
       if (S._deathLifecycleResidueText) rh += '<div class="line">· 生命周期残账：' + S._deathLifecycleResidueText + '</div>';
       rh += '<div class="line">· 下一代承接：' + carryRouteAwareSummary(S._carry) + '</div>';
       rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">这一世了结。账本可继承、可回放、可重开——这正是徽州文书"归户"的玩法化。</div>';
