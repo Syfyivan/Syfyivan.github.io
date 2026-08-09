@@ -1505,6 +1505,17 @@
     if (level === 2) return '府试已过';
     return '院试待核';
   }
+  function applyCivilExamSharedBaseline() {
+    var notes = [];
+    if (generation !== 1 || !S || S._startMode !== 'establishment' || S._civilExamSharedBaselineApplied) return notes;
+    S._civilExamSharedBaselineApplied = true;
+    if (!S.识字 || (S.识字进度 || 0) < 2) {
+      S.识字 = true;
+      S.识字进度 = Math.max(2, S.识字进度 || 0);
+      notes.push('共同父快照里你本就读过“三百千”，这一回走举业不是从零开蒙起步。');
+    }
+    return notes;
+  }
   function pushExamSeasonTag(tag) {
     if (!tag) return;
     if (!S.本年举业季务) S.本年举业季务 = [];
@@ -3742,11 +3753,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     S.年龄 = 16 + (S.举业年 - 1);
     S.身份 = S.生员身份 ? '民籍·生员' : '民籍·读书子';
     S.路线 = '读书应举';
+    var baselineNotes = (S.举业年 === 1) ? applyCivilExamSharedBaseline() : [];
     var inherited = (S.举业年 === 1) ? applyRouteInheritance('civilExam') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageCivilExam();
     if (S.举业年 === 1) tracePhase('route:civilExam');
-    if (S.举业年 === 1) recordEntry('立身分路·读书应举', snapshot(), '你把家中有限的银钱、纸墨与人情先压到读书上：供读不等于录取，只意味着这一户先把资源让给你。' + (inherited.length ? ' 父辈留下的书香与旧门路，先替你省了几步白手起家的折腾：' + inherited.join('；') + '。' : ''));
+    if (S.举业年 === 1) {
+      var firstYearNotes = baselineNotes.concat(inherited);
+      recordEntry('立身分路·读书应举', snapshot(), '你把家中有限的银钱、纸墨与人情先压到读书上：供读不等于录取，只意味着这一户先把资源让给你。' + (firstYearNotes.length ? ' 起手先承下这层底子：' + firstYearNotes.join('；') + '。' : ''));
+    }
     else if ((S.举季 || 1) === 1 && (S.举段 || 1) === 1) recordEntry('第 ' + S.举业年 + ' 举业年·春课上旬开账', snapshot(), '这一举业年不再按“整年四点一次结账”推进，而是拆成春课、夏课、秋试、冬清账四季、每季三旬。馆课、评文、保结、盘缠、抄写补贴、回家缓家计、差役钱与衣药小账，都要在同一年里逐旬配平。');
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
