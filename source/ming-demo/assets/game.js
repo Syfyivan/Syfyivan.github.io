@@ -12351,6 +12351,21 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             log.push(['〔春路碎账〕这一旬连熟号回话脚费和家里盐药小耗都腾挪不开，只得先硬顶过去；外头熟号与家里锅火两头都更紧了一线（家族-1）。', 'bad']);
           }
         }
+        if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'spring' && xun === 1) {
+          if (picked.f_route_spring_child_note || picked.f_route_spring_packet || picked.f_route_letter || picked.f_child || picked.f_work) {
+            pushFamilySeasonTag(stepTag + '春头药单已理');
+            log.push(['〔春头药单〕这一旬先把孩子纸样、回乡药单、递话门包和锅火盐药理开了；春起不再只剩样纸门包，连家里读写和回乡药单这层更细的小耗也开始同旬见光。', 'good']);
+          } else if (spendCopper(30)) {
+            S.本年家衣药 += 1;
+            S.本年家供读 += 1;
+            pushFamilySeasonTag(stepTag + '春头药单');
+            log.push(['〔春头药单〕孩子纸样、回乡药单、递话门包和锅火盐药一起要钱：铜钱-30、衣药+1、供读+1。不是大账，却正把商路养家春头那层“旧账回音未稳、孩子读写和家里药单先来”的摩擦重新压回这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushFamilySeasonTag(stepTag + '春头药单硬顶');
+            log.push(['〔春头药单〕这一旬连孩子纸样、回乡药单和递话门包都腾挪不开，只得先硬顶过去；家里读写和锅火盐药这两头都更紧了一线（家族-1）。', 'bad']);
+          }
+        }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'spring' && xun === 2) {
           if (picked.f_route_spring_ritual || picked.f_route_split || picked.f_route_remit || picked.f_market || picked.f_child) {
             pushFamilySeasonTag(stepTag + '清明脚账已分');
