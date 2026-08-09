@@ -767,16 +767,35 @@
       note: notes.length ? ('试贩结果会继续吃到上一代余绪：' + notes.join('；') + '。') : '试贩结果主要看你这一年自己把认货、核账和回钱做到什么地步。'
     };
   }
+  function merchantHomeRemittanceProfile() {
+    var familyGain = 2;
+    var desc = '先把已经回手的一两银贴回家里，让锅火、口粮或差钱先过住；这只是反哺到账，不等于已经另划成供读专账。';
+    var decay = currentLineageDecayLevel();
+    if (currentLineageIsCollateral() && decay > 0) {
+      familyGain = 1;
+      desc = decay > 1
+        ? '这一房如今是旁支续起，旧门路又连薄几层；同样一两银贴回去，也多半先被拿去压锅火、口粮与差钱，不再像本支那样能稳稳留后手。'
+        : '这一房如今是旁支续起；同样一两银贴回去，仍能让家里先缓一口气，但更容易先被锅火与差钱吃住。';
+    } else if (S.累计回钱银 > 0 || S.商路门路 > 0 || S.累计反哺银 > 0) {
+      desc = '先把已经回手的一两银贴回家里，让锅火、口粮或差钱先过住；家里至少认得这条回钱路，不至还把你这一手当空话。';
+    }
+    return {
+      familyGain: familyGain,
+      trustGain: 0,
+      effect: '白银-1·反哺+1·贴家+1·家族+' + familyGain,
+      desc: desc
+    };
+  }
   function merchantSupportProfile() {
     var familyGain = 1, trustGain = 0;
-    var desc = '你在外挣来的银，不只填自家嘴，还可先寄回去顶住家里供读的那条链。';
+    var desc = '你在外挣来的银，不只贴家，还可另划一两进供读专账，专门顶住家里那条读书链。';
     var boosted = false;
     var decay = currentLineageDecayLevel();
     if (S.亦贾亦儒底子 > 0 || S.供读底子 > 0 || (S.承继定位 || '').indexOf('次子候读') >= 0) {
       boosted = true;
       familyGain = 2;
       trustGain = 1;
-      desc = '这一房本就认得“挣钱的人在外回钱、家里另划供读账”的老规矩；同样一两银回去，更容易被当成要紧的专账而不被日常花销冲散。';
+      desc = '这一房本就认得“挣钱的人在外回钱、家里另划供读账”的老规矩；同样一两银回去，更容易被当成要紧的供读专账，而不被日常花销冲散。';
     }
     if (boosted && decay > 0) {
       familyGain = Math.max(1, familyGain - Math.min(1, decay));
@@ -788,7 +807,7 @@
     return {
       familyGain: familyGain,
       trustGain: trustGain,
-      effect: '白银-1·反哺+1·家中供读稳一稳·家族+' + familyGain + (trustGain > 0 ? '·商信誉+1' : ''),
+      effect: '白银-1·反哺+1·供读专账+1·家族+' + familyGain + (trustGain > 0 ? '·商信誉+1' : ''),
       desc: desc
     };
   }
@@ -5150,6 +5169,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var isYearEnd = season.id === 'winter' && isLate;
     var nextSeason = merchantSeasonInfo(Math.min(MERCHANT_SEASONS.length, (S.商季 || 1) + 1));
     var tradePreview = merchantTradeProfile();
+    var homeRemitProfile = merchantHomeRemittanceProfile();
     var supportProfile = merchantSupportProfile();
     var supportCapacity = merchantRemittanceCapacity();
     var xunLead = xun === 1
@@ -5221,7 +5241,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         + ' 你这一旬有 <span class="em">3 个行动点</span>。',
       dossier: function () {
         var seasonTags = (S.本年商路季务 && S.本年商路季务.length) ? S.本年商路季务.join('、') : '尚未坐实';
-        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜可划供读商账=' + supportCapacity + '两｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。'
+        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜可调度回家商账=' + supportCapacity + '两（贴家/供读共用）｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。'
           + (bridge.dossier ? ('｜' + bridge.dossier) : ''));
       },
       events: [
@@ -5321,10 +5341,22 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         A.push({ id: 'm_try', name: isLate ? '赶在旬尾定试贩' : '争取带本试贩', cost: 2, eff: '白银-1锁作本钱·冬里按门路/账房/承继定位判回本/小利/亏折/未回款', desc: '拿一两本钱试着跑一单。钱先锁在货里，回没回得来，不只看运气，也看你这一年把门路和账面坐实到哪一步。', can: ((season.id === 'autumn' && xun >= 2) || (season.id === 'winter' && xun === 1)) && S.本年商路试贩 < 1 && S.带本银 <= 0 && S.白银 >= 1 && (S.识货进度 >= 1 || S.账房进度 >= 1), why: ((season.id === 'autumn' && xun >= 2) || (season.id === 'winter' && xun === 1)) ? (S.本年商路试贩 < 1 ? (S.带本银 <= 0 ? (S.白银 >= 1 ? ((S.识货进度 >= 1 || S.账房进度 >= 1) ? '' : '尚未学会最基本认货/核账') : '白银不足1两') : '已有一笔本钱锁在货里') : '本年已试贩过一回') : '通常要到秋中旬以后才谈得上试贩', once: true });
         A.push({
           id: 'm_support',
-          name: season.id === 'autumn' ? '先把回钱贴回家' : '寄银回家供读',
+          name: season.id === 'autumn' ? '先把回钱贴回家' : '先寄一两回家过锅火',
+          cost: 1,
+          eff: homeRemitProfile.effect,
+          desc: homeRemitProfile.desc + ' 但只可动用已经回到账、或账上已有明确回签/试贩可供调度的商路银。',
+          can: S.白银 >= 1 && supportCapacity >= 1,
+          why: S.白银 >= 1
+            ? (supportCapacity >= 1 ? '' : '眼下还没有可调度回家的商路回账或浮账')
+            : '白银不足1两',
+          once: true
+        });
+        A.push({
+          id: 'm_support_school',
+          name: season.id === 'autumn' ? '另划一两进供读专账' : '寄银回家供读',
           cost: 1,
           eff: supportProfile.effect,
-          desc: supportProfile.desc + ' 但只可动用已经回到账、或账上已有明确回签/试贩可供划账的商路银。',
+          desc: supportProfile.desc + ' 这笔银先按供读去向记账，不直接算成你手里还能再花的一两。',
           can: S.白银 >= 1 && supportCapacity >= 1,
           why: S.白银 >= 1
             ? (supportCapacity >= 1 ? '' : '眼下还没有可另划供读的商路回账或浮账')
@@ -5650,12 +5682,22 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               break;
             case 'm_support':
               if (spendSilver(1)) {
+                S.累计反哺银 += 1; S.本年商路反哺银 += 1; S.家族 += homeRemitProfile.familyGain;
+                S.本年商路贴家 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '贴家回钱');
+                log.push(['先寄一两回家过锅火：白银-1、累计反哺+1、贴家+1、家族+' + homeRemitProfile.familyGain + '；这笔银先让家里锅火、口粮或差钱过住，并未自动写成供读专账。', 'good']);
+              } else {
+                log.push(['本想先寄一两回家过锅火，但这一旬手头现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
+              }
+              break;
+            case 'm_support_school':
+              if (spendSilver(1)) {
                 S.累计反哺银 += 1; S.本年商路反哺银 += 1; S.商路供读银 += 1; S.供读压力 = Math.max(0, S.供读压力 - 1); S.家族 += supportProfile.familyGain;
                 if (supportProfile.trustGain > 0) S.商信誉 += supportProfile.trustGain;
                 S.本年商路供读 += 1;
                 S.本年商路贴家 += 1;
                 pushMerchantSeasonTag(season.name + xunLabel + '贴家供读');
-                log.push(['寄银回家供读：白银-1、累计反哺+1、商路供读+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '；这笔商路回账/浮账被更稳地划进家里的供读账。', 'good']);
+                log.push(['寄银回家供读：白银-1、累计反哺+1、供读专账+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '；这笔商路回账被更稳地另划进家里的供读账。', 'good']);
               } else {
                 log.push(['本想寄银回家供读，但这一旬手头现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
               }
@@ -5962,7 +6004,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
         if (S.本年商路问价 > 0) log.push(['这一商年你有 ' + S.本年商路问价 + ' 次先花脚费去问行市、抄牙价；这点小钱没有直接变利，却把最生的那层价先摸薄了一些。', 'good']);
         if (S.本年商路家书 > 0) log.push(['这一商年你有 ' + S.本年商路家书 + ' 次托人捎家书回乡；家里未必立刻见钱，却少了几回“人在哪里、银什么时候回”的空等。', 'good']);
-        if (S.本年商路贴家 > 0) log.push(['这一商年你有 ' + S.本年商路贴家 + ' 次先把现钱贴回家里；这些钱不一定留在你手里，却把家里的供读和锅火真续住了。', 'good']);
+        if (S.本年商路贴家 > 0) log.push(['这一商年你有 ' + S.本年商路贴家 + ' 次先把现钱贴回家里；这些钱先续住的是锅火、口粮、差钱或供读中的某一口，不会自动被写成同一种去向。', 'good']);
         if (S.本年商路拖欠 > 0) log.push(['这一商年你至少有 ' + S.本年商路拖欠 + ' 层拖欠、旧账或回话次序要先压住；商路里最磨人的，不只是有没有赚，而是银多久才能真回手。', 'bad']);
         if (S.本年商路役扰 > 0) log.push(['这一商年商路现钱至少有 ' + S.本年商路役扰 + ' 回被差票、备役或顶役后手打断；制度不会等你先把生意做完。', 'bad']);
         if (S.本年商路身乏 > 0) log.push(['这一商年你至少有 ' + S.本年商路身乏 + ' 层身子亏空被记进了真账；跑单、茶脚和药钱没有再被“年轻扛得住”糊过去。', 'bad']);
