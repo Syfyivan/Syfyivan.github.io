@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#7ec0ee" />
+  <meta name="description" content="如一的大学准备手账：行李清单、心愿选择和大学前随笔。" />
+  <title>如一的大学准备手账</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/gh/SolidZORO/zpix-pixel-font@master/dist/Zpix.css" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="sky" aria-hidden="true">
+    <div class="cloud cloud--1"></div><div class="cloud cloud--2"></div><div class="cloud cloud--3"></div>
+    <div class="pixel-sun"></div>
+  </div>
+
+  <main class="wrap">
+    <header class="signboard">
+      <img class="signboard__school" src="../img/village/h-school.png" alt="像素风小学校" />
+      <div class="signboard__posts"><span></span><span></span></div>
+      <div class="signboard__plank">
+        <p class="signboard__eyebrow">🌱 我的大学生活，正在加载中</p>
+        <h1>如一的大学准备手账</h1>
+        <p>我是如一。这里装着出发前要准备的小事，也装着我一路上的期待和碎碎念。</p>
+      </div>
+    </header>
+
+    <nav class="pixel-tabs" aria-label="手账栏目">
+      <button class="tab is-active" data-tab="prepare" type="button">🎒 准备清单</button>
+      <button class="tab" data-tab="diary" type="button">✍️ 我的随笔</button>
+      <button class="tab" data-tab="about" type="button">🌻 出发愿望</button>
+    </nav>
+
+    <section class="tab-page is-active" id="prepare-page">
+      <section class="panel countdown" aria-label="大学报到倒计时">
+        <div class="section-heading">
+          <div><span class="kicker">NEXT SEASON</span><h2>距离大学报到还有</h2></div>
+          <button class="tiny-btn" id="edit-profile-btn" type="button">修改日期</button>
+        </div>
+        <div class="countdown__grid" aria-live="polite">
+          <div class="cd-cell"><span id="cd-days">--</span><small>天</small></div>
+          <div class="cd-cell"><span id="cd-hours">--</span><small>时</small></div>
+          <div class="cd-cell"><span id="cd-mins">--</span><small>分</small></div>
+          <div class="cd-cell"><span id="cd-secs">--</span><small>秒</small></div>
+        </div>
+        <p class="countdown__date" id="school-date-text"></p>
+      </section>
+
+      <section class="panel progress-panel" aria-label="准备进度">
+        <div class="progress__head"><h2>我的准备进度</h2><strong><span id="done-count">0</span>/<span id="total-count">0</span></strong></div>
+        <div class="progress__bar"><div id="progress-fill"></div><i></i></div>
+        <p id="progress-tip">一件一件慢慢来，我会准备好的。</p>
+      </section>
+
+      <section class="panel checklist-panel">
+        <div class="section-heading section-heading--stack-mobile">
+          <div><span class="kicker">PACKING LIST</span><h2>要准备的东西</h2><p class="subcopy">点开每一项，可以比较我的 Plan A / B / C。</p></div>
+          <button class="primary-btn" id="add-item-btn" type="button">＋ 添加东西</button>
+        </div>
+        <div class="filter-row" role="group" aria-label="筛选清单">
+          <button class="filter is-active" data-filter="all" type="button">全部</button>
+          <button class="filter" data-filter="todo" type="button">还没买</button>
+          <button class="filter" data-filter="done" type="button">已准备</button>
+        </div>
+        <div id="list-root"></div>
+      </section>
+
+      <section class="backup-strip">
+        <span>💾 我的修改会自动保存在这台设备上</span>
+        <div><button class="text-btn" id="export-btn" type="button">备份手账</button><label class="text-btn file-btn">恢复备份<input id="import-input" type="file" accept="application/json" /></label></div>
+      </section>
+    </section>
+
+    <section class="tab-page" id="diary-page">
+      <section class="panel diary-intro">
+        <span class="kicker">BEFORE COLLEGE</span>
+        <h2>大学前的碎碎念</h2>
+        <p>想记住这个夏天，也想把那些期待、紧张和突然冒出来的小念头，好好收在这里。</p>
+        <button class="primary-btn" id="add-diary-btn" type="button">✍️ 写一篇新的</button>
+      </section>
+      <div id="diary-root" class="diary-grid"></div>
+    </section>
+
+    <section class="tab-page" id="about-page">
+      <section class="panel wish-card">
+        <div class="pixel-flower" aria-hidden="true">🌻</div>
+        <span class="kicker">MY NEW CHAPTER</span>
+        <h2>写给即将出发的我</h2>
+        <blockquote id="wish-text">希望我可以慢慢认识新的朋友，认真喜欢自己的专业，也别忘了好好吃饭、好好睡觉。第一次离家很远也没关系，我会长成更勇敢的大人。</blockquote>
+        <button class="tiny-btn" id="edit-wish-btn" type="button">修改这段话</button>
+      </section>
+      <section class="panel little-things">
+        <h2>我期待的大学小事</h2>
+        <div class="wish-grid" id="wish-grid"></div>
+        <button class="text-btn" id="add-wish-btn" type="button">＋ 再写一件期待的事</button>
+      </section>
+    </section>
+
+    <footer><span class="pixel-heart">♥</span> 如一的大学新生活 · 未完待续</footer>
+  </main>
+
+  <div class="scenery" aria-hidden="true">
+    <img class="tree tree--left" src="../img/village/tree-big.png" alt="" />
+    <img class="well" src="../img/village/well.png" alt="" />
+    <div class="fence"></div>
+    <img class="bus" src="../img/village/bus.png" alt="" />
+    <img class="duck" src="../img/village/duck.png" alt="" />
+    <img class="rabbit" src="../img/village/rabbit.png" alt="" />
+  </div>
+
+  <dialog id="item-dialog" class="pixel-dialog">
+    <form id="item-form">
+      <div class="dialog-head"><div><span class="kicker">EDIT ITEM</span><h2 id="item-dialog-title">添加准备项</h2></div><button class="close-btn" type="button" data-close="item-dialog" aria-label="关闭">×</button></div>
+      <input id="item-id" type="hidden" />
+      <div class="form-grid">
+        <label><span>分类</span><input id="item-category" required placeholder="例如：护肤日用" /></label>
+        <label><span>小图标</span><input id="item-emoji" maxlength="4" placeholder="🧴" /></label>
+        <label class="full"><span>要准备什么</span><input id="item-title" required placeholder="例如：防晒霜" /></label>
+        <label class="full"><span>我的备注</span><textarea id="item-note" rows="2" placeholder="尺寸、预算、需要注意的事……"></textarea></label>
+      </div>
+      <div class="plan-editor-head"><h3>我的候选方案</h3><button class="text-btn" id="add-plan-row" type="button">＋ 加一个 Plan</button></div>
+      <div id="plan-editor"></div>
+      <div class="dialog-actions"><button class="ghost-btn" type="button" data-close="item-dialog">取消</button><button class="primary-btn" type="submit">保存到清单</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="profile-dialog" class="pixel-dialog pixel-dialog--small">
+    <form id="profile-form">
+      <div class="dialog-head"><h2>我的报到信息</h2><button class="close-btn" type="button" data-close="profile-dialog">×</button></div>
+      <label><span>学校昵称</span><input id="school-name-input" required /></label>
+      <label><span>报到时间</span><input id="school-date-input" type="datetime-local" required /></label>
+      <div class="dialog-actions"><button class="ghost-btn" type="button" data-close="profile-dialog">取消</button><button class="primary-btn" type="submit">保存</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="diary-dialog" class="pixel-dialog">
+    <form id="diary-form">
+      <div class="dialog-head"><div><span class="kicker">NEW NOTE</span><h2 id="diary-dialog-title">写一篇新的</h2></div><button class="close-btn" type="button" data-close="diary-dialog">×</button></div>
+      <input id="diary-id" type="hidden" />
+      <div class="form-grid">
+        <label><span>今天的心情</span><select id="diary-mood"><option>🌻 期待</option><option>🌿 平静</option><option>🌧️ 有点紧张</option><option>✨ 开心</option><option>🍓 小确幸</option></select></label>
+        <label><span>日期</span><input id="diary-date" type="date" required /></label>
+        <label class="full"><span>标题</span><input id="diary-title" required placeholder="今天想记下……" /></label>
+        <label class="full"><span>正文</span><textarea id="diary-content" rows="8" required placeholder="写给未来的我看。"></textarea></label>
+      </div>
+      <div class="dialog-actions"><button class="ghost-btn" type="button" data-close="diary-dialog">取消</button><button class="primary-btn" type="submit">收进手账</button></div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./script.js"></script>
+</body>
+</html>
