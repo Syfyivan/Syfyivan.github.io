@@ -2304,6 +2304,18 @@
       failLog: '〔夏尾衣药〕这一旬连药钱和补鞋碎费都腾挪不开，只得先硬扛过去；伏夏最后这层亏空先落到了身上（体魄-1）。',
       hardship: 'body'
     });
+  if (season.id === 'summer' && xun === 3) apply({
+    handledIds: examSupportHandledIds(['e_copy', 'e_home', 'e_rest', 'e_summer_tail_reply']),
+    doneTag: '夏尾馆信已理',
+    doneLog: '〔夏尾馆信〕这一旬先把旧馆回话、秋前纸样、递话脚费和锅火后手分开了；首三学年伏夏收尾不再只剩衣药，还把“秋前续馆与续帖先来抢钱”的那层馆信细账压回了这一旬。',
+    cost: 40,
+    buckets: { 本年零耗支出文: 25, 本年纸墨支出文: 15 },
+    costTag: '夏尾馆信',
+    costLog: '〔夏尾馆信〕旧馆回话、秋前纸样、递话脚费和锅火后手一起要钱：铜钱-{cost}。不是大账，却正把举业路伏夏尾声最容易拖进秋里的续馆碎费重新压回这一旬。',
+    failTag: '夏尾馆信硬顶',
+    failLog: '〔夏尾馆信〕这一旬连旧馆回话和秋前纸样都腾挪不开，只得先硬扛过去；伏夏刚收住，秋前门路这层口风又慢了一线（家族-1）。',
+    hardship: 'clan'
+  });
     if (season.id === 'autumn' && xun === 1) apply({
       handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_autumn_open_packet']),
       doneTag: '秋前盘缠已理',
@@ -2406,6 +2418,18 @@
       failLog: '〔冬尾炭鞋〕这一旬连守岁炭药和来春草鞋后手都腾挪不开，只得继续硬扛过去；冬尾这层过冬亏空先落到了身子上（体魄-1）。',
       hardship: 'body'
     });
+  if (season.id === 'winter' && xun === 3) apply({
+    handledIds: examSupportHandledIds(['e_reserve', 'e_home', 'e_rest', 'e_exam', 'e_winter_packet', 'e_winter_tail_note']),
+    doneTag: '冬尾馆信已分',
+    doneLog: '〔冬尾馆信〕这一旬先把旧馆年下回信、来春帖样、递话门包和守岁锅火分开了；首三学年冬尾不再只剩门包和炭鞋，连“旧馆还有回音、来春续帖已先来追钱”的那层馆信细账也被压回了这一旬。',
+    cost: 45,
+    buckets: { 本年零耗支出文: 25, 本年纸墨支出文: 20 },
+    costTag: '冬尾馆信',
+    costLog: '〔冬尾馆信〕旧馆年下回信、来春帖样、递话门包和守岁锅火一起要钱：铜钱-{cost}。不是体面消费，却正把举业路冬尾最容易被“反正快过年了”带过去的续馆续帖碎费重新压回了真账。',
+    failTag: '冬尾馆信硬顶',
+    failLog: '〔冬尾馆信〕这一旬连旧馆回信和来春帖样都腾挪不开，只得先硬扛过去；冬尾这层旧馆门路与家里读写后手又一起薄了一线（家族-1）。',
+    hardship: 'clan'
+  });
   }
   function applyExamSeasonCarry(log, stepLabel, season, xun) {
     if (season.id === 'autumn' && xun === 3 && !S.本年役扰已结) {
@@ -2462,9 +2486,9 @@
       'e_summer_cough', 'e_autumn_cough', 'e_winter_cough',
       'e_spring_fan', 'e_autumn_open_cloth', 'e_winter_open_reply', 'e_winter_tail_cure',
       'e_spring_open_packet', 'e_spring_packet', 'e_spring_tail_packet',
-      'e_summer_open_packet', 'e_summer_packet', 'e_summer_tail_packet',
+      'e_summer_open_packet', 'e_summer_packet', 'e_summer_tail_packet', 'e_summer_tail_reply',
       'e_autumn_open_packet', 'e_autumn_packet', 'e_autumn_tail_packet', 'e_autumn_register',
-      'e_winter_open_packet', 'e_winter_mid_packet', 'e_winter_packet'
+      'e_winter_open_packet', 'e_winter_mid_packet', 'e_winter_packet', 'e_winter_tail_note'
     ]));
     if (heavyStudyCount >= 2 && supportCount <= 0) {
       if (consumeExamStudyBuffer(log, stepLabel)) {
@@ -8182,6 +8206,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             });
           } else if (season.id === 'summer') {
             A.push({ id: 'e_summer_tail_packet', name: '先把夏尾衣药与回家带药小耗分开', cost: 1, eff: '铜钱-50·体魄+2', desc: '夏课下旬最怕补鞋药钱、伏夏尾声纸墨和回家带药小耗一起追钱。先把这层身子账拆开，伏夏尾声就不至只剩硬熬。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
+            A.push({
+              id: 'e_summer_tail_reply',
+              name: '先把夏尾馆信与秋前纸样分开',
+              cost: 1,
+              eff: '铜钱-55·家族+1·供读压力-1',
+              desc: '夏尾最怕旧馆回话、秋前纸样、递话脚费和锅火后手一起追钱。先把这层续馆后手拆开，不让秋前门路继续贴着伏夏尾账一起发硬。',
+              can: S.铜钱 >= 55,
+              why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
+              once: true
+            });
           } else if (season.id === 'autumn') {
             A.push({ id: 'e_autumn_tail_packet', name: '先把临场盘缠与誊卷纸样分开', cost: 1, eff: '铜钱-60·体魄+1·家族+1', desc: '秋试下旬最怕下场盘缠、誊卷纸样、回乡脚费和秋尾锅火一起追钱。先把这层临场细账拆开，真到下场时才不至临门又先被细钱绊住。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
             A.push({
@@ -8239,6 +8273,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               desc: '冬尾最怕守岁炭药、来春草鞋、旧馆年下回话脚费和锅火一起追钱。先把这层过冬小耗拆开，不让今冬身子和明春脚路继续抢同一口现钱。',
               can: S.铜钱 >= 70,
               why: S.铜钱 >= 70 ? '' : '铜钱不足70文',
+              once: true
+            });
+            A.push({
+              id: 'e_winter_tail_note',
+              name: '先把年下馆信与来春帖样分开',
+              cost: 1,
+              eff: '铜钱-65·家族+1·供读压力-1',
+              desc: '冬尾最怕旧馆年下回信、来春帖样、递话门包和守岁锅火一起追钱。先把这层冬尾馆信拆开，不让旧馆回音与家里续帖样继续抢同一口过冬钱。',
+              can: S.铜钱 >= 65,
+              why: S.铜钱 >= 65 ? '' : '铜钱不足65文',
               once: true
             });
           }
@@ -8514,6 +8558,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把夏尾衣药与回家带药小耗分开：铜钱-50、体魄+2。夏课下旬这层补鞋药钱、伏夏尾声纸墨和回家带药小耗先被拆开，秋前总算没再只剩硬熬。', 'good']);
               } else {
                 log.push(['想先把夏尾衣药与回家带药小耗拆开，但这一旬铜钱已先被别处占住，只得让伏夏尾声这层亏空先压到身上。', 'bad']);
+              }
+              break;
+            case 'e_summer_tail_reply':
+              if (spendCopper(55)) {
+                noteExamOutlay(55, { buckets: { 本年零耗支出文: 35, 本年纸墨支出文: 20 } });
+                S.家族 += 1;
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
+                pushExamSeasonTag(stepTag + '夏尾馆信');
+                log.push(['先把夏尾馆信与秋前纸样分开：铜钱-55、家族+1、供读压力-1。旧馆回话、秋前纸样、递话脚费和锅火后手先被拆开，伏夏尾声这层“刚把身子稳住，秋前门路又来追钱”的细账没再继续拖进秋头。', 'good']);
+              } else {
+                log.push(['想先把夏尾馆信与秋前纸样拆开，但这一旬铜钱已先被别处占住，只得让伏夏尾声这层旧馆回话和秋前纸样继续一起追钱。', 'bad']);
               }
               break;
             case 'e_autumn_packet':
@@ -8825,6 +8880,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把冬尾炭药与草鞋脚费分开：铜钱-70、体魄+2、家族+1。守岁炭药、来春草鞋和旧馆年下回话脚费先被拆开，冬尾这层过冬亏空没再继续贴着明春门路一起追钱。', 'good']);
               } else {
                 log.push(['想先把冬尾炭药与草鞋脚费拆开，但这一旬铜钱已先被别处占住，只得让冬尾这层过冬小耗继续贴着身子和明春脚路一起追钱。', 'bad']);
+              }
+              break;
+            case 'e_winter_tail_note':
+              if (spendCopper(65)) {
+                noteExamOutlay(65, { buckets: { 本年零耗支出文: 40, 本年纸墨支出文: 25 } });
+                S.家族 += 1;
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
+                pushExamSeasonTag(stepTag + '冬尾馆信');
+                log.push(['先把年下馆信与来春帖样分开：铜钱-65、家族+1、供读压力-1。旧馆年下回信、来春帖样、递话门包和守岁锅火先被拆开，冬尾这层“旧馆还有回音，家里续帖样却先来追钱”的细账没再继续拖到明春。', 'good']);
+              } else {
+                log.push(['想先把年下馆信与来春帖样拆开，但这一旬铜钱已先被别处占住，只得让冬尾这层旧馆回信和续帖样继续贴着锅火一起追钱。', 'bad']);
               }
               break;
             case 'e_mend':
