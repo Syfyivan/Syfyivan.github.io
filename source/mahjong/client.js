@@ -30,11 +30,13 @@
 
   var STORAGE_KEY = "lanMahjongProfile";
   var BROWSER_GAME_SERVER = "browser://local";
+  var PUBLIC_GAME_SERVER = "wss://124-221-36-36.anyip.dev:8443/mahjong/ws";
   var roomInput = document.getElementById("roomInput");
   var nameInput = document.getElementById("nameInput");
   var serverInput = document.getElementById("serverInput");
   var inviteInput = document.getElementById("inviteInput");
   var soloPlayButton = document.getElementById("soloPlayButton");
+  var multiplayerPlayButton = document.getElementById("multiplayerPlayButton");
   var platformGuideBadge = document.getElementById("platformGuideBadge");
   var variantInputs = Array.from(document.querySelectorAll('input[name="variant"]'));
   var seatCountInputs = Array.from(document.querySelectorAll('input[name="seatCount"]'));
@@ -1956,6 +1958,18 @@
       serverInput.value = BROWSER_GAME_SERVER;
       state.soloAutoStart = true;
       setNotice("正在创建单机人机牌局");
+      connect();
+    });
+  }
+
+  if (multiplayerPlayButton) {
+    multiplayerPlayButton.addEventListener("click", function () {
+      unlockAudio();
+      roomInput.value = randomRoomCode();
+      inviteInput.value = "";
+      serverInput.value = PUBLIC_GAME_SERVER;
+      state.soloAutoStart = false;
+      setNotice("正在创建朋友房间");
       connect();
     });
   }

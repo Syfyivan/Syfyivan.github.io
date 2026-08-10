@@ -35,6 +35,7 @@ if (nodeRuntime) {
 const moduleDirectory = nodeRuntime ? dirname(fileURLToPath(import.meta.url)) : "";
 const staticRoot = moduleDirectory;
 const defaultPort = nodeRuntime ? Number(process.env.PORT || 8787) : 8787;
+const defaultHost = nodeRuntime ? String(process.env.HOST || "0.0.0.0") : "0.0.0.0";
 const rooms = new Map();
 
 const contentTypes = {
@@ -2281,10 +2282,11 @@ export function startServer(preferredPort = defaultPort, attempts = 0) {
     console.error(error);
     process.exitCode = 1;
   });
-  server.listen(preferredPort, "0.0.0.0", () => {
-    const urls = ["http://localhost:" + preferredPort + "/mahjong/"].concat(
-      localAddresses().map((address) => "http://" + address + ":" + preferredPort + "/mahjong/")
-    );
+  server.listen(preferredPort, defaultHost, () => {
+    const urls = ["http://localhost:" + preferredPort + "/mahjong/"];
+    if (defaultHost === "0.0.0.0" || defaultHost === "::") {
+      urls.push(...localAddresses().map((address) => "http://" + address + ":" + preferredPort + "/mahjong/"));
+    }
     console.log("麻将局已启动：");
     urls.forEach((url) => console.log("  " + url));
   });
