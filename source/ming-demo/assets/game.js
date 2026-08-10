@@ -1769,6 +1769,31 @@
     if (result === '成生员') return '生员';
     return result;
   }
+  function examYearFocusInfo(year) {
+    var y = Math.max(1, Math.min(EXAM_YEARS, Number(year || (S && S.举业年) || 1)));
+    if (y === 1) {
+      return {
+        tag: '首年识字投塾',
+        note: '首年先把“三百千”底子、塾门回话和谁真肯供读坐实。束脩、帖样与纸墨先落账，多半也只是把门缝推开，不等于已稳稳能下场。',
+        dossier: '首年重心=识字/投塾/供读开账',
+        summary: '这一年最看识字底子、塾门与供读来源能不能先坐实；花出去的钱多半只是把书路门缝推开，还谈不上“已经走稳”。'
+      };
+    }
+    if (y === 2) {
+      return {
+        tag: '次年评文保结',
+        note: '次年重心转到评文、保帖底样与保结链条。磨人的不只是文章火候，而是评文回话、履历帖样、廪保口风与脚费要在同一年里反复追钱。',
+        dossier: '次年重心=评文/保帖/保结',
+        summary: '这一年更看文章火候、保帖底样和保结链条能否接成一线；若只肯花纸墨不肯跑资格，书路仍会卡在门外。'
+      };
+    }
+    return {
+      tag: '三年应场取舍',
+      note: '第三年最像把下场、落第、延婚与身耗一并摊回旬内。再供一年不只是多花些纸墨盘缠，而是会真改写婚窗、旧债和身子底子。',
+      dossier: '三年重心=应场/落第/延婚/身耗',
+      summary: '这一年最看应场与取舍：下不下场、落第后还续不续、婚窗被拖到多窄、身子还能不能再扛，都要在旬内见光。'
+    };
+  }
   function examSupportStateDetail() {
     return (S.供读状态 || '观望供读') + '·压' + (S.供读压力 || 0);
   }
@@ -7231,6 +7256,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var season = examSeasonInfo(S.举季 || 1);
     var xun = currentExamXun();
     var xunLabel = examXunLabel(xun);
+    var yearFocus = examYearFocusInfo(S.举业年);
     var isMid = xun === 2;
     var isLate = xun >= 3;
     var isYearEnd = season.id === 'winter' && isLate;
@@ -7386,14 +7412,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         : (isLate ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + examXunLabel(xun + 1) + ' →')),
       ap: 4,
       commitLabel: isYearEnd ? '了这一举业年 →' : '了这一旬举业细账 →',
-      note: '举业路现改成“春课→夏课→秋试→冬清账”四季、每季三旬：上旬先定主读法、投塾与供读口风，中旬再磨文章、跑资格、补识字、接誊抄，下旬把应场、回家缓家计、差役钱与衣药后手一笔笔收紧。每旬现在按“四手预算”推进：一手顾课业主线，一手跑塾门/保结，一手拆家计与供读碎账，再留一手给身子、差役或回乡后手；供读口风、婚事口风与身子账的翻动，也会按旬累计，不再只留在年终一句“苦读几年”。塾门未稳时，就算先把束脩、帖样和馆课钱压进去，也只算借馆旁听，不直接当作整年塾馆已坐实；真正下场还得把“识字/题样 → 塾门/读法 → 馆课/评文 → 保结 → 应场”这条链在同一年里真走出来。若家里真要续供，也得显式粜米或另挪口粮来换纸墨盘缠，而不是把存米自动折成现银。如今下场后会在同一年里直接见“过县试 / 过府试 / 落第 / 成生员”的回话；冬里只继续收余账，不再把应试结果整笔拖到年终。跨到下一举业年时，塾门与保结也只保留一层旧门路，不会把“已坐实 / 已通保结”整笔原封带过去。'
+      note: '第' + S.举业年 + '举业年重心：' + yearFocus.tag + '。举业路现改成“春课→夏课→秋试→冬清账”四季、每季三旬：上旬先定主读法、投塾与供读口风，中旬再磨文章、跑资格、补识字、接誊抄，下旬把应场、回家缓家计、差役钱与衣药后手一笔笔收紧。每旬现在按“四手预算”推进：一手顾课业主线，一手跑塾门/保结，一手拆家计与供读碎账，再留一手给身子、差役或回乡后手；供读口风、婚事口风与身子账的翻动，也会按旬累计，不再只留在年终一句“苦读几年”。塾门未稳时，就算先把束脩、帖样和馆课钱压进去，也只算借馆旁听，不直接当作整年塾馆已坐实；真正下场还得把“识字/题样 → 塾门/读法 → 馆课/评文 → 保结 → 应场”这条链在同一年里真走出来。若家里真要续供，也得显式粜米或另挪口粮来换纸墨盘缠，而不是把存米自动折成现银。如今下场后会在同一年里直接见“过县试 / 过府试 / 落第 / 成生员”的回话；冬里只继续收余账，不再把应试结果整笔拖到年终。跨到下一举业年时，塾门与保结也只保留一层旧门路，不会把“已坐实 / 已通保结”整笔原封带过去。'
         + (examCarryHook.note ? (' ' + examCarryHook.note) : ''),
-      narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + xunLabel + '</span>。' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火、婚事口风和身子亏空都在争同一笔钱。') + ' 你这一旬有 <span class="em">4 个行动点</span>，最好别只顾课业本身。',
+      narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + xunLabel + '</span>。' + yearFocus.note + ' ' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火、婚事口风和身子亏空都在争同一笔钱。') + ' 你这一旬有 <span class="em">4 个行动点</span>，最好别只顾课业本身。',
       dossier: function () {
-          return lifeDossier('当前举程=' + season.name + '·' + xunLabel + '｜投塾=' + examEnrollmentLabel(S.投塾进度) + '｜举链=' + examChainStageLabel() + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜本次应场=' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜文章火候=' + S.文章火候 + '｜识字底子=' + examLiteracyFoundationLabel() + '｜供读状态=' + examSupportStateDetail() + '｜婚事口风=' + examDelayStatusLabel() + '｜三年婚事承压=' + examLifetimeDelayLabel() + '｜身耗=' + examBodyStatusLabel() + '｜本年应试=' + examAttemptResultLabel(S.本年应试结果) + '｜本年投塾=' + S.本年投塾次数 + '｜识字旬=' + S.本年识字旬数 + '｜馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保帖底样=' + (S.本年保帖底样次数 || 0) + '旬｜保结奔走=' + S.本年保结次数 + '｜誊抄=' + S.本年誊抄次数 + '｜归家缓家=' + S.本年归家次数 + '回/' + S.本年家中贴补米 + '石｜公账贴补=' + (S.本年公账贴补次 || 0) + '回/' + (S.本年公账贴补文 || 0) + '文（已落' + (S.本年家中供读公账文 || 0) + '）｜母纺贴补=' + (S.本年母纺贴补次 || 0) + '回/' + (S.本年母纺贴补文 || 0) + '文（已落' + (S.本年母纺供读已用文 || 0) + '）｜兄婚让读=' + (S.本年兄婚让读次 || 0) + '回/' + (S.本年兄婚让读文 || 0) + '文（已落' + (S.本年兄婚供读已用文 || 0) + '）｜婚事让开=' + (S.本年婚事让开次数 || 0) + '旬｜供读转折=' + (S.本年供读转折旬数 || 0) + '旬｜婚事转折=' + (S.本年婚事转折旬数 || 0) + '旬｜身耗转折=' + (S.本年身耗转折旬数 || 0) + '旬｜家中供读=' + S.本年家中供读次 + '回/' + S.本年家中供读文 + '文/' + S.本年家中供读米 + '石（公账已落' + (S.本年家中供读公账文 || 0) + '｜旧现钱已落' + (S.本年现钱供读已用文 || 0) + '｜粜米已落' + (S.本年粜米供读已用文 || 0) + '｜母纺已落' + (S.本年母纺供读已用文 || 0) + '｜兄让已落' + (S.本年兄婚供读已用文 || 0) + '）｜笔墨自筹=' + (S.本年举业自筹文 || 0) + '文（已落' + (S.本年举业自筹已用文 || 0) + '）' + ((S.本年举业自筹缓压 || 0) > 0 ? ('｜笔墨已缓供读' + (S.本年举业自筹缓压 || 0) + '线') : '') + ((S.本年供读缓冲已用 || 0) > 0 ? ('｜家内续读缓冲已用' + (S.本年供读缓冲已用 || 0) + '次') : '') + '｜已落举业支出=' + S.本年已落举业支出文 + '文｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜盘缠=' + S.本年盘缠支出文 + '文｜零耗=' + S.本年零耗支出文 + '文｜衣药=' + S.本年衣药支出文 + '文｜役扰=' + (S.本年役扰支出文 || 0) + '文' + ((S.本年役扰已结 || false) ? '｜役钱已见光' : '') + '｜债息=' + (S.本年债息增银 || 0) + '两' + ((S.本年债息已结 || false) ? '｜债息已滚' : '') + '｜落第=' + S.本年落第次数 + '｜延婚牵扯=' + S.本年延婚牵扯 + '｜身子亏空=' + S.本年身子亏空 + '｜累计投塾=' + (S.举业累计投塾次数 || 0) + '｜累计识字=' + (S.举业累计识字旬数 || 0) + '｜累计保帖底样=' + (S.举业累计保帖底样次数 || 0) + '｜累计保结=' + (S.举业累计保结次数 || 0) + '｜累计落第=' + (S.举业累计落第次数 || 0) + '｜累计延婚=' + (S.举业累计延婚牵扯 || 0) + '｜累计让开婚事=' + (S.举业累计婚事让开次数 || 0) + '｜累计身耗=' + (S.举业累计身子亏空 || 0) + (S.生员身份 ? '｜已是生员' : '') + '。'
+          return lifeDossier(yearFocus.dossier + '｜当前举程=' + season.name + '·' + xunLabel + '｜投塾=' + examEnrollmentLabel(S.投塾进度) + '｜举链=' + examChainStageLabel() + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜本次应场=' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜文章火候=' + S.文章火候 + '｜识字底子=' + examLiteracyFoundationLabel() + '｜供读状态=' + examSupportStateDetail() + '｜婚事口风=' + examDelayStatusLabel() + '｜三年婚事承压=' + examLifetimeDelayLabel() + '｜身耗=' + examBodyStatusLabel() + '｜本年应试=' + examAttemptResultLabel(S.本年应试结果) + '｜本年投塾=' + S.本年投塾次数 + '｜识字旬=' + S.本年识字旬数 + '｜馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保帖底样=' + (S.本年保帖底样次数 || 0) + '旬｜保结奔走=' + S.本年保结次数 + '｜誊抄=' + S.本年誊抄次数 + '｜归家缓家=' + S.本年归家次数 + '回/' + S.本年家中贴补米 + '石｜公账贴补=' + (S.本年公账贴补次 || 0) + '回/' + (S.本年公账贴补文 || 0) + '文（已落' + (S.本年家中供读公账文 || 0) + '）｜母纺贴补=' + (S.本年母纺贴补次 || 0) + '回/' + (S.本年母纺贴补文 || 0) + '文（已落' + (S.本年母纺供读已用文 || 0) + '）｜兄婚让读=' + (S.本年兄婚让读次 || 0) + '回/' + (S.本年兄婚让读文 || 0) + '文（已落' + (S.本年兄婚供读已用文 || 0) + '）｜婚事让开=' + (S.本年婚事让开次数 || 0) + '旬｜供读转折=' + (S.本年供读转折旬数 || 0) + '旬｜婚事转折=' + (S.本年婚事转折旬数 || 0) + '旬｜身耗转折=' + (S.本年身耗转折旬数 || 0) + '旬｜家中供读=' + S.本年家中供读次 + '回/' + S.本年家中供读文 + '文/' + S.本年家中供读米 + '石（公账已落' + (S.本年家中供读公账文 || 0) + '｜旧现钱已落' + (S.本年现钱供读已用文 || 0) + '｜粜米已落' + (S.本年粜米供读已用文 || 0) + '｜母纺已落' + (S.本年母纺供读已用文 || 0) + '｜兄让已落' + (S.本年兄婚供读已用文 || 0) + '）｜笔墨自筹=' + (S.本年举业自筹文 || 0) + '文（已落' + (S.本年举业自筹已用文 || 0) + '）' + ((S.本年举业自筹缓压 || 0) > 0 ? ('｜笔墨已缓供读' + (S.本年举业自筹缓压 || 0) + '线') : '') + ((S.本年供读缓冲已用 || 0) > 0 ? ('｜家内续读缓冲已用' + (S.本年供读缓冲已用 || 0) + '次') : '') + '｜已落举业支出=' + S.本年已落举业支出文 + '文｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜盘缠=' + S.本年盘缠支出文 + '文｜零耗=' + S.本年零耗支出文 + '文｜衣药=' + S.本年衣药支出文 + '文｜役扰=' + (S.本年役扰支出文 || 0) + '文' + ((S.本年役扰已结 || false) ? '｜役钱已见光' : '') + '｜债息=' + (S.本年债息增银 || 0) + '两' + ((S.本年债息已结 || false) ? '｜债息已滚' : '') + '｜落第=' + S.本年落第次数 + '｜延婚牵扯=' + S.本年延婚牵扯 + '｜身子亏空=' + S.本年身子亏空 + '｜累计投塾=' + (S.举业累计投塾次数 || 0) + '｜累计识字=' + (S.举业累计识字旬数 || 0) + '｜累计保帖底样=' + (S.举业累计保帖底样次数 || 0) + '｜累计保结=' + (S.举业累计保结次数 || 0) + '｜累计落第=' + (S.举业累计落第次数 || 0) + '｜累计延婚=' + (S.举业累计延婚牵扯 || 0) + '｜累计让开婚事=' + (S.举业累计婚事让开次数 || 0) + '｜累计身耗=' + (S.举业累计身子亏空 || 0) + (S.生员身份 ? '｜已是生员' : '') + '。'
           + (examCarryHook.dossier ? ('｜' + examCarryHook.dossier) : ''));
       },
       events: [
+        {
+          t: 'inst',
+          tag: '[年别]',
+          txt: yearFocus.note
+        },
         {
           t: 'rel',
           tag: '[供读]',
@@ -8477,6 +8508,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (S.本年投塾次数 > 0) {
           log.push(['〔投塾〕这一年为塾门、递帖与回话往返了 ' + S.本年投塾次数 + ' 旬；先把“能不能在这家塾里继续坐下去”坐实，馆课、评文和保结才不是空写。', 'good']);
         }
+        log.push(['〔年别重心〕' + yearFocus.summary, 'good']);
         if (S.本年识字旬数 > 0) {
           log.push(['〔识字〕这一年有 ' + S.本年识字旬数 + ' 旬真把认字、抄帖和灯下记号落进了账里；识字只是把路开宽一线，不直接顶替功名。', 'good']);
         }
@@ -20155,14 +20187,36 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
 
   // ── 死亡与传承 ──
   function stageDeath() {
+    function shareUnitScale(total) {
+      var raw = Math.max(0, Number(total) || 0);
+      if (raw <= 0) return 1;
+      var text = String(raw);
+      if (text.indexOf('e') >= 0 || text.indexOf('E') >= 0) {
+        text = raw.toFixed(6).replace(/0+$/, '').replace(/\.$/, '');
+      }
+      var dot = text.indexOf('.');
+      var decimals = dot >= 0 ? Math.min(2, text.length - dot - 1) : 0;
+      return Math.pow(10, decimals);
+    }
+    function normalizeShareValue(value, scale) {
+      var n = Math.max(0, Number(value) || 0);
+      if ((scale || 1) <= 1) return Math.floor(n);
+      return Math.round(n * scale) / scale;
+    }
+    function formatShareValue(value) {
+      var n = Math.max(0, Number(value) || 0);
+      if (Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
+      return n.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+    }
     var life = currentLifeProfile();
     function shareByOrdinal(total, count, ordinal) {
-      var whole = Math.max(0, Math.floor(total || 0));
+      var scale = shareUnitScale(total);
+      var whole = Math.max(0, Math.round((Number(total) || 0) * scale));
       var n = Math.max(1, Math.floor(count || 1));
       var idx = Math.max(1, Math.min(n, Math.floor(ordinal || 1)));
       var base = Math.floor(whole / n);
       var extra = whole % n;
-      return base + (idx <= extra ? 1 : 0);
+      return normalizeShareValue((base + (idx <= extra ? 1 : 0)) / scale, scale);
     }
     function attenuateLegacy(legacy, steps) {
       var n = Math.max(0, steps || 0);
@@ -20263,12 +20317,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       };
     }
     function ordinalRemainderItem(total, count, ordinal, label, unit) {
-      var whole = Math.max(0, Math.floor(total || 0));
+      var scale = shareUnitScale(total);
+      var whole = Math.max(0, Math.round((Number(total) || 0) * scale));
       var n = Math.max(1, Math.floor(count || 1));
       var idx = Math.max(1, Math.min(n, Math.floor(ordinal || 1)));
       var extra = whole % n;
       if (n <= 1 || extra <= 0 || idx > extra) return '';
-      return label + '1' + unit;
+      return label + formatShareValue(1 / scale) + unit;
     }
     function ordinalRemainderSummary(count, ordinal, specs) {
       var parts = [];
