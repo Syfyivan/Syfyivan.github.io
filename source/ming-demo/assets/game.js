@@ -10047,6 +10047,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             can: S.铜钱 >= 60,
             why: S.铜钱 >= 60 ? '' : '铜钱不足60文'
           });
+          pack.extraActions.push({
+            id: 'f_route_summer_remit_supply',
+            name: '先把夏尾回钱拆作供读与布药',
+            cost: 1,
+            eff: '白银-1·反哺+1·贴家+1·供读专账+1·供读+1·衣药+1·捎信+1·家族+3',
+            desc: '伏夏收尾最怕一笔回钱刚落手，孩子纸样、家里布药、递话脚费和锅火后手就一起追上门。你先把这层夏尾回钱拆作供读与布药，让真回钱在秋路未开前，就先改写家里读写、衣药与锅火的次序，而不再主要等到秋里再统一算账。',
+            can: S.白银 >= 1,
+            why: S.白银 >= 1 ? '' : '白银不足1两'
+          });
         }
         if (season.id === 'autumn' && xun === 1) {
           pack.extraActions.push({
@@ -11929,6 +11938,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把夏尾客签与秋前样纸分开：铜钱-60、捎信+1、通融+1、家族+1。客签回话、秋前样纸、递话门包和过路药包先被拆回了这一旬，秋路未开就不至先把夏尾锅火啃薄。', 'good']);
               } else log.push(['想先把夏尾客签与秋前样纸分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
+            case 'f_route_summer_remit_supply':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.商路供读银 += 1;
+                S.家族 += 3;
+                S.本年家贴家 += 1;
+                S.本年家供读 += 1;
+                S.本年家衣药 += 1;
+                S.本年家捎信 += 1;
+                pushFamilySeasonTag(stepTag + '夏尾回钱');
+                log.push(['先把夏尾回钱拆作供读与布药：白银-1、累计反哺+1、供读专账+1、贴家+1、供读+1、衣药+1、捎信+1、家族+3。伏夏尾声这笔真回钱没有再只等秋里统一算，而是当场把家里布药、孩子读写和锅火后手一并压回了这一旬。', 'good']);
+              } else log.push(['想先把夏尾回钱拆作供读与布药，但这一旬现银已先被别处占住，只得暂缓。', 'bad']);
+              break;
             case 'f_route_collect':
               var owed = S.未回款银;
               if (owed > 0) {
@@ -13529,7 +13551,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'summer' && xun === 3) {
-          if (picked.f_route_collect || picked.f_repay || picked.f_mend || picked.f_route_sample || picked.f_route_letter || picked.f_route_summer_reply || picked.f_route_summer_guest) {
+          if (picked.f_route_collect || picked.f_repay || picked.f_mend || picked.f_route_sample || picked.f_route_letter || picked.f_route_summer_reply || picked.f_route_summer_guest || picked.f_route_summer_remit_supply) {
             pushFamilySeasonTag(stepTag + '夏尾账脚已压');
             log.push(['〔夏尾账脚〕这一旬先把柜边样单、回客话脚费、凉药锅火与催账前的小门包分开了；伏夏末尾最容易被拖成“反正下旬再说”的那层细账，没有再悄悄滚进下一季。', 'good']);
           } else if (spendCopper(40)) {
