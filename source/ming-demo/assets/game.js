@@ -1863,9 +1863,26 @@
       + (S.本年寄读次数 || 0)
       + (S.本年评文次数 || 0);
   }
+  function examGuaranteeWindowReady() {
+    return (S.举业年 || 1) >= 2;
+  }
+  function examAttemptWindowReady() {
+    return (S.举业年 || 1) >= 3;
+  }
+  function examAttemptWindowLabel() {
+    if (S.生员身份) return '已入泮';
+    if (!examGuaranteeWindowReady()) return '首年先稳识字投塾';
+    if (!examAttemptWindowReady()) return '次年先把保结坐实';
+    return examAttemptTargetLabel(S.童试层级, S.生员身份);
+  }
   function examChainStageLabel() {
     if (S.生员身份) return '已入泮';
     if (S.本年下场) return '当年已下场';
+    if (!examGuaranteeWindowReady()) {
+      if (examArticleReady()) return '首年先稳投塾';
+      if (examStudyTrackReady()) return '首年先坐读法';
+    }
+    if (!examAttemptWindowReady() && (S.保结进度 || 0) >= 2 && examArticleReady()) return '次年只把保结坐实';
     if ((S.保结进度 || 0) >= 2 && examArticleReady() && examActiveStudyCount() >= 2) return '可议下场';
     if ((S.保结进度 || 0) >= 1 || (S.本年保结次数 || 0) > 0) return '正跑保结';
     if ((S.本年保帖底样次数 || 0) > 0 && examArticleReady()) return '帖样已理';
@@ -1874,9 +1891,18 @@
     if ((S.识字进度 || 0) >= 3) return '先稳题样';
     return '先认字再投塾';
   }
+  function examGuaranteeBlockedWhy(seasonId) {
+    if (S.生员身份) return '已是生员';
+    if ((S.保结进度 || 0) >= 2) return '本年保结已通';
+    if (!(seasonId === 'autumn' || seasonId === 'winter')) return '通常到秋冬才真跑保结';
+    if (!examGuaranteeWindowReady()) return '首年先把塾门、评文和帖样坐稳';
+    if (!examStudyTrackReady()) return '先把塾门或半读读法坐实';
+    return '';
+  }
   function examAttemptReady() {
     return !S.生员身份
       && !S.本年下场
+      && examAttemptWindowReady()
       && (S.保结进度 || 0) >= 2
       && S.供读状态 !== '已断供'
       && examActiveStudyCount() >= 2
@@ -1887,6 +1913,7 @@
     if (S.生员身份) return '已是生员';
     if (S.本年下场) return '本年已下场过';
     if (!(seasonId === 'autumn' || seasonId === 'winter')) return '通常要到秋冬才真正下场';
+    if (!examAttemptWindowReady()) return examGuaranteeWindowReady() ? '先把次年的保结坐实，第三年再真下场' : '首年先稳识字投塾，第三年再真下场';
     if (!(((S.投塾进度 || 0) >= 1) || S.读书方式 === '半耕半读' || S.读书方式 === '社学寄读')) return '先把塾门或半读读法坐稳';
     if ((S.保结进度 || 0) < 2) return '保结未通';
     if (S.供读状态 === '已断供') return '家中已断供';
@@ -3908,7 +3935,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += '<span class="chip">投塾 <b>' + examEnrollmentLabel(S.投塾进度) + '</b></span>';
       h += '<span class="chip">举链 <b>' + examChainStageLabel() + '</b></span>';
       h += '<span class="chip">童试层级 <b>' + examTierLabel(S.童试层级, S.生员身份) + '</b></span>';
-      h += '<span class="chip">本次应场 <b>' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '</b></span>';
+      h += '<span class="chip">本次应场 <b>' + examAttemptWindowLabel() + '</b></span>';
       h += '<span class="chip">保结 <b>' + examGuaranteeLabel(S.保结进度) + '</b></span>';
       h += '<span class="chip">文章 <b>' + (S.文章火候 || 0) + '</b></span>';
       h += '<span class="chip">应试 <b>' + examAttemptResultLabel(S.本年应试结果) + '</b></span>';
@@ -7677,8 +7704,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             desc: (S.保结进度 || 0) <= 0
               ? '资格不通，本年就算想下场也不成。先把帖样、履历与廪保口风递到位，别把“已递帖样”省成一句话。没先坐实读法与塾门，保结也只是空跑人情；就算坐实了，也未必这一旬立刻放话。'
               : '资格不通，本年就算想下场也不成。帖样既已递过，这一旬再把廪保、互结与报名链条真正走通，才配说“保结已通”；人情脚费先花出去，回话却还可能拖着。',
-            can: !S.生员身份 && S.保结进度 < 2 && (season.id === 'autumn' || season.id === 'winter') && examStudyTrackReady(),
-            why: !S.生员身份 ? (S.保结进度 < 2 ? ((season.id === 'autumn' || season.id === 'winter') ? (examStudyTrackReady() ? '' : '先把塾门或半读读法坐实') : '通常到秋冬才真跑保结') : '本年保结已通') : '已是生员',
+            can: !S.生员身份 && S.保结进度 < 2 && (season.id === 'autumn' || season.id === 'winter') && examStudyTrackReady() && examGuaranteeWindowReady(),
+            why: examGuaranteeBlockedWhy(season.id),
             once: true
           });
           A.push({ id: 'e_copy', name: season.id === 'winter' ? '年关抄单写契补贴' : '抄书/看账补贴', cost: 1, eff: '铜钱+' + copyCopper + '·识字转业值+1·文章火候+1', desc: '就算不中，识字、誊抄和替人看账也会慢慢沉成转业底子。', can: S.识字, why: S.识字 ? '' : '尚不识字' });
