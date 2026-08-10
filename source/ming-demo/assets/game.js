@@ -576,6 +576,20 @@
     if (role === '长子') return '你这一代是以长子承这一本账，户里日常与门路都更直接落在你肩上。';
     return '你仍是这一房的次子，长兄多半承更多家产；但父辈留下的门路与亏空，也都会改写你五条路的入口。';
   }
+  function inheritanceContinuationLead(carry) {
+    var role = currentInheritanceRole(carry);
+    if (role === '旁支继子') return '这一次由旁支继子接祧续户';
+    if (role === '独子') return '这一次由独子承家';
+    if (role === '长子') return '这一次由长子承家';
+    return '这一次由次子承余数';
+  }
+  function inheritanceContinuationClause(carry) {
+    if (!carry) return '';
+    var parts = [];
+    if ((carry.承继定位 || '')) parts.push('承继定位：' + carry.承继定位);
+    if ((carry.承嗣来路 || '')) parts.push('承嗣来路：' + carry.承嗣来路);
+    return inheritanceContinuationLead(carry) + (parts.length ? ('（' + parts.join('；') + '）') : '');
+  }
   function inheritedCarryNote(carry) {
     var tags = inheritedCarryTags(carry);
     var decayHint = lineageDecayHint(lineageDecayLevel(carry));
@@ -21388,7 +21402,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了能传下去的不只是薄田' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '与委托田租' : '') + '，还有一层见过世面的门路。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨不会直接分成银两，却会作为体面与起点留在下一代门前。';
       else deathTag = '你这一辈子的每一分积累与亏空，都成了子孙的期初。';
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。' + (merchantClosureNote ? (merchantClosureNote + ' ') : '') + '丧礼依家礼办讫（棺木等丧葬支出白银' + funeral + '两、米1石' + (merchantExtraFuneralCopper > 0 ? ('，另支运柩停厝铜钱' + merchantExtraFuneralCopper + '文') : '') + '从遗产扣除）' + (pendingRentMi > 0 ? '；另有委托经营账上待结的租谷 ' + pendingRentMi + ' 石（未取得），记作应收，随房分到下一代' : '') + '。遗产按<span class="em">诸子均分</span>传给下一代' + (estateDebt > 0 ? '，未抵清的旧债也随房分担' : '') + (remainderText ? '；' + remainderText.replace(/。$/, '') : '') + (lifecycleResidue.text ? '。' + lifecycleResidue.text : '') + '——' + deathTag;
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。' + (merchantClosureNote ? (merchantClosureNote + ' ') : '') + '丧礼依家礼办讫（棺木等丧葬支出白银' + funeral + '两、米1石' + (merchantExtraFuneralCopper > 0 ? ('，另支运柩停厝铜钱' + merchantExtraFuneralCopper + '文') : '') + '从遗产扣除）' + (pendingRentMi > 0 ? '；另有委托经营账上待结的租谷 ' + pendingRentMi + ' 石（未取得），记作应收，随房分到下一代' : '') + '。遗产按<span class="em">诸子均分</span>传给下一代' + (estateDebt > 0 ? '，未抵清的旧债也随房分担' : '') + (remainderText ? '；' + remainderText.replace(/。$/, '') : '') + '。' + inheritanceContinuationClause(S._carry) + '。' + (lifecycleResidue.text ? lifecycleResidue.text + '。' : '') + '——' + deathTag;
     } else {
       collateralEstateNote = '结清丧葬与旧债后，这一房真正还能被过继承走的，只剩白银' + estateSilver + '两、铜钱' + estateCopper + '文、存米' + estateMi + '石、田' + estateTian + '亩' + (pendingRentMi > 0 ? ('，另有账上待结租谷' + pendingRentMi + '石（未取得）') : '') + '。';
       var collateralDelegatedRoute = S.委托营生 || '无';
@@ -21417,7 +21431,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了虽绝嗣，城中门路与见识' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '连同委托田租的薄底子' : '') + '也只剩旁支可续。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨终究未能直接传给亲子，只在旁支门前留下些体面与余绪。';
       else deathTag = '这不是"游戏失败"，而是明代极高绝嗣率下的真实分支。';
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>，然膝下无育成之子。' + (merchantClosureNote ? (merchantClosureNote + ' ') : '') + '依明代常俗，触发<span class="em">过继/立嗣</span>：族中侄辈过继承祧，但承的不是一张重置模板，而是这户结清后的真实余产' + (pendingRentMi > 0 ? '、账上待结委托田租（未取得）' : '') + (estateDebt > 0 ? '与未了旧债' : '') + (merchantExtraFuneralCopper > 0 ? ('，另已扣客途运柩停厝铜钱' + merchantExtraFuneralCopper + '文') : '') + (lifecycleResidue.text ? '。' + lifecycleResidue.text : '') + '——' + deathTag;
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>，然膝下无育成之子。' + (merchantClosureNote ? (merchantClosureNote + ' ') : '') + '依明代常俗，触发<span class="em">过继/立嗣</span>：族中侄辈过继承祧，但承的不是一张重置模板，而是这户结清后的真实余产' + (pendingRentMi > 0 ? '、账上待结委托田租（未取得）' : '') + (estateDebt > 0 ? '与未了旧债' : '') + (merchantExtraFuneralCopper > 0 ? ('，另已扣客途运柩停厝铜钱' + merchantExtraFuneralCopper + '文') : '') + '。' + inheritanceContinuationClause(S._carry) + '。' + (lifecycleResidue.text ? lifecycleResidue.text + '。' : '') + '——' + deathTag;
     }
     return {
       title: '死亡与传承', label: '传承', next: null, nextLabel: '递归重开 →',
@@ -21428,11 +21442,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         (isMerchantDeathRoute ? { t: 'rel', tag: '[归处]', txt: merchantDiedOnRoad ? '这一次没能先把归乡船脚坐实，临终时人仍在外头，旧账与运柩停厝要一起结。' : '这一次总算先把归乡船脚与年下回签坐实，临了是在故里收束，不再把人和账都留在客途。' } : null),
         (lifecycleResidue.text ? { t: 'life', tag: '[旧账余绪]', txt: lifecycleResidue.text + '。' } : null),
         { t: 'rel', tag: '[传承]', txt: sons > 0
-          ? ('遗产品搭均分给 ' + sons + ' 子：你继续跟的是第' + heirOrdinal + '子这一房，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩'
+          ? ('遗产品搭均分给 ' + sons + ' 子：' + inheritanceContinuationClause(S._carry) + '，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩'
             + (S._carry.委托待收租谷 > 0 ? ('，另有待收委托田租' + S._carry.委托待收租谷 + '石') : '')
             + (S._carry.负债银 > 0 ? ('，并分担旧债' + S._carry.负债银 + '两') : '')
             + '。田不足整分时，这一房也可能暂时分不到整亩，只能带着旧门路再外求。' + inheritedCarryNote(S._carry))
-          : ('无嗣过继：旁支承进这一房结清后的真实余产，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩'
+          : ('无嗣过继：' + inheritanceContinuationClause(S._carry) + '，承进这一房结清后的真实余产，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩'
             + (S._carry.委托待收租谷 > 0 ? ('，另有待收委托田租' + S._carry.委托待收租谷 + '石') : '')
             + (S._carry.负债银 > 0 ? ('，并接过旧债' + S._carry.负债银 + '两') : '')
             + '。' + collateralEstateNote + inheritedCarryNote(S._carry)) }
