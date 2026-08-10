@@ -8186,8 +8186,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 id: 'e_fail_talk',
                 name: '落第后先回家缓口风',
                 cost: 1,
-                eff: '家族+2·供读压力-1',
-                desc: '秋里落第回话已在当旬见了。冬头若不先回家把父兄母那口气缓住，来春束脩、纸墨与婚事口风就会一起更硬。',
+                eff: '家族+2·供读压力-1·缓婚事口风',
+                desc: '秋里落第回话已在当旬见了。冬头若不先回家把父兄母那口气缓住，来春束脩、纸墨与婚事口风就会一起更硬；这一手要把“落第后的家里回话”也真实拆回本旬，而不是只在年终记一句拖婚。',
                 can: true,
                 once: true
               });
@@ -8935,10 +8935,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             case 'e_fail_talk':
               S.家族 += 2;
               S.供读压力 = Math.max(0, S.供读压力 - 1);
+              if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
+              S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
               S.本年归家次数 += 1;
               S.本年家中贴补次 += 1;
               pushExamSeasonTag(stepTag + '落第后回家缓口风');
-              log.push(['落第后先回家缓口风：家族+2、供读压力-1。秋里落第的回话没有被拖成“明年再说”，而是在冬头这一旬就先去把父兄母那口气稳住。', 'good']);
+              log.push(['落第后先回家缓口风：家族+2、供读压力-1、婚事口风缓一线。秋里落第的回话没有被拖成“明年再说”，而是在冬头这一旬就先去把父兄母那口气稳住，也把婚事回话往回拽住一截。', 'good']);
               break;
             case 'e_winter_mid_packet':
               if (spendCopper(60)) {
