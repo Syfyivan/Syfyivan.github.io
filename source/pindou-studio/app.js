@@ -56,6 +56,7 @@
     background: byId('background-mode'),
     paletteMode: byId('palette-mode'),
     connect: byId('connect-toggle'),
+    smooth: byId('smooth-toggle'),
     generate: byId('generate-button'),
     status: byId('status-message'),
     canvas: byId('preview-canvas'),
@@ -125,7 +126,7 @@
         if (state.image) generatePattern();
       });
     });
-    for (const element of [els.background, els.paletteMode, els.connect]) {
+    for (const element of [els.background, els.paletteMode, els.connect, els.smooth]) {
       element.addEventListener('change', () => {
         if (state.image) generatePattern();
       });
@@ -153,6 +154,7 @@
           pen: '画笔会使用下面选中的 MARD 色号。',
           erase: '橡皮会移除豆子；注意不要把头像之间的连接擦断。',
           'oval-eye': '点击眼睛中心，放置完整的 2×4 黑色小椭圆。',
+          'anime-eye': '点击眼睛中心，放置完整的 4×5 黑色动漫大眼，并保留一颗白色高光。',
           'closed-eye': '点击眼睛中心，放置一条完整的弯曲闭眼。',
           smile: '点击嘴部中心，放置闭嘴微笑。',
           kiss: '点击嘴部中心，放置小型亲嘴表情。',
@@ -210,6 +212,7 @@
       drawCartoonCanvas(outlineStrength);
       const inputCanvas = route === 'cartoon' ? state.cartoonCanvas : state.sourceCanvas;
       state.cells = quantizeToPattern(inputCanvas, state.grid, state.palette, els.background.value);
+      if (els.smooth.checked) smoothConcaveContours(state.cells);
       cleanTinyComponents(state.cells);
       if (els.connect.checked) connectPattern(state.cells);
       state.undoStack = [];
@@ -304,6 +307,29 @@
       if (component.length >= minSize) return;
       component.forEach(([x, y]) => { cells[y][x] = null; });
     });
+  }
+
+  function smoothConcaveContours(cells) {
+    const source = cells.map((row) => row.slice());
+    for (let y = 1; y < source.length - 1; y += 1) {
+      for (let x = 1; x < source[y].length - 1; x += 1) {
+        if (source[y][x]) continue;
+        const neighbors = [];
+        for (let dy = -1; dy <= 1; dy += 1) {
+          for (let dx = -1; dx <= 1; dx += 1) {
+            if (dx === 0 && dy === 0) continue;
+            const cell = source[y + dy][x + dx];
+            if (cell) neighbors.push(cell);
+          }
+        }
+        const orthogonal = [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([dx, dy]) => source[y + dy][x + dx]).length;
+        if (neighbors.length < 5 || orthogonal < 2) continue;
+        const counts = new Map();
+        neighbors.forEach((cell) => counts.set(cell.code, (counts.get(cell.code) || 0) + 1));
+        const code = [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+        cells[y][x] = colorByCode(code);
+      }
+    }
   }
 
   function connectPattern(cells) {
@@ -419,6 +445,15 @@
     if (state.tool === 'erase') return set(x, y, null);
     if (state.tool === 'oval-eye') {
       for (let py = y - 2; py <= y + 1; py += 1) for (let px = x; px <= x + 1; px += 1) set(px, py, 'H7');
+      return;
+    }
+    if (state.tool === 'anime-eye') {
+      for (let px = x - 1; px <= x; px += 1) set(px, y - 2, 'H7');
+      for (let py = y - 1; py <= y + 1; py += 1) {
+        for (let px = x - 2; px <= x + 1; px += 1) set(px, py, 'H7');
+      }
+      for (let px = x - 1; px <= x; px += 1) set(px, y + 2, 'H7');
+      set(x - 1, y - 1, 'H2');
       return;
     }
     if (state.tool === 'closed-eye') {

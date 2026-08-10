@@ -110,6 +110,11 @@ layout: false
             <span><strong>自动连体并加固</strong><small>把分开的主要区域连接起来，适合做挂饰</small></span>
           </label>
 
+          <label class="switch-row">
+            <input id="smooth-toggle" type="checkbox" checked>
+            <span><strong>补平轮廓凹口</strong><small>只补齐局部缺口，不粗暴削掉脸颊和下巴</small></span>
+          </label>
+
           <button class="primary-button" id="generate-button" type="button" disabled>请先上传照片</button>
           <p class="status-message" id="status-message" aria-live="polite">上传后会自动生成第一版。</p>
         </aside>
@@ -151,6 +156,7 @@ layout: false
               <button type="button" data-tool="pen" class="active">画笔</button>
               <button type="button" data-tool="erase">橡皮</button>
               <button type="button" data-tool="oval-eye">小椭圆眼</button>
+              <button type="button" data-tool="anime-eye">动漫大眼</button>
               <button type="button" data-tool="closed-eye">闭眼</button>
               <button type="button" data-tool="smile">闭嘴笑</button>
               <button type="button" data-tool="kiss">亲嘴</button>
