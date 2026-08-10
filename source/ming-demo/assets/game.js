@@ -107,7 +107,95 @@
   // 默认从 16 岁立身开始，便于“立身五路→成家→当户→养老→死亡传承→下一代重开”闭环回放。
   // 仍保留“从出生跑起”模式，用于验证幼年与“弟妹接续”分支。
   var startMode = 'establishment'; // 'establishment' | 'childhood'
+  var DEFAULT_FOUNDING_SNAPSHOT_ID = 'jiangnan_farmer_second_son';
+  var selectedFoundingSnapshotId = DEFAULT_FOUNDING_SNAPSHOT_ID;
+  var FOUNDING_SNAPSHOTS = {
+    jiangnan_farmer_second_son: {
+      id: 'jiangnan_farmer_second_son',
+      title: '江南民籍次子',
+      shortTitle: '民籍次子',
+      identity: '民籍·次子待立身',
+      publicSummary: '民籍次子、家庭公账白银6两/铜钱2000文/存米8石、薄田12亩、本人无独立现金',
+      establishmentLead: '兄将承祖业多数薄田，你这次子分不到够养一家的田。你的路，从来不可能只是“照旧过下去”。',
+      atlasTip: '父快照一：江南民籍次子。沿用现有默认样板，五路与一生闭环都已稳定接通。',
+      switchNote: '默认样板：江南民籍佃农之家次子，路与账都按当前稳定主链运行。',
+      event: { t: 'rel', tag: '[父快照]', txt: '这一户是江南民籍佃农之家：薄田、口粮和一点蒙学底子都在，但次子分不到足够立户的田。' },
+      patch: {
+        年龄: 16, 身份: '民籍·次子待立身', 体魄: 60, 家族: 60,
+        白银: 1, 铜钱: 1200, 存米: 3, 田亩: 4,
+        识字: false, 技艺: '无',
+        父快照类型: '江南民籍次子', 户籍类型: '民籍', 父快照说明: '默认样板'
+      },
+      routeHooks: {
+        farm: '留乡守田最顺手，但并不会自动变宽：你照样只分到这几亩薄田，要靠同一年里的秧、租、锅火与差票硬撑。',
+        wage: '受雇卖力最像次子的直路：现钱回得快，家里口粮与差钱也会跟着更早来追。',
+        apprentice: '若去投师，靠的是“识几字、能吃苦、肯跑腿”这点常见底子，不带额外制度红利。',
+        merchant: '若去学生意，靠的是熟人说合与肯熬，不是凭空多出本钱；门路仍要从零一点点接。',
+        civilExam: '若去读书，应的是“薄家里也想搏一层字面”这条老难路；纸墨和束脩照样要从锅火里挤出来。'
+      }
+    },
+    jiangnan_military_second_son: {
+      id: 'jiangnan_military_second_son',
+      title: '江南军户次子',
+      shortTitle: '军户次子',
+      identity: '军籍·次子待立身',
+      publicSummary: '军户次子、原籍军装盘缠需由家中真实供给、家账更紧，具体量值仍属设计占位',
+      establishmentLead: '这一户不只要过自家锅火，还得为军装、盘缠和原籍差派预留后手。你若不尽早找出路，制度那层外流会先把家账拖薄。',
+      atlasTip: '父快照二：江南军户次子。现仅接入立身入口首版框架，用来把“军户供养是真实流出”先挂到运行时；五路专档与专门回放仍待继续补齐。',
+      switchNote: '新开的第二父快照入口：先把军户供养压力接上立身页，具体量值仍按设计占位处理。',
+      event: { t: 'inst', tag: '[军户]', txt: '这一户除锅火外，还得替在卫军丁留军装与盘缠。那不是背景设定，而是会先挤掉家里现钱的一层真外流。' },
+      patch: {
+        年龄: 16, 身份: '军籍·次子待立身', 体魄: 64, 家族: 56,
+        白银: 1, 铜钱: 900, 存米: 2, 田亩: 3,
+        识字: false, 技艺: '无',
+        父快照类型: '江南军户次子', 户籍类型: '军籍', 父快照说明: '立身入口首版框架（设计占位）'
+      },
+      routeHooks: {
+        farm: '留乡守田能先稳住一口口粮，但军装与盘缠这层外流不会自己消失，守田也得先替制度留后手。',
+        wage: '先去受雇，最像把“原籍要交的真外流”立刻换成手边现钱；只是钱一回手，也更容易先被军户那层后手拿走。',
+        apprentice: '若去投师，反而能把“家中有人要供军装”这层硬拽暂时让开；只是说合时会先被问一句，这一房能不能稳住后头口粮。',
+        merchant: '若去学生意，军户这层制度外流会让“回钱能不能真落到家里”比民籍样板更紧；跑商不是更自由，只是换一种筹钱法。',
+        civilExam: '若去读书，最先碰撞的不是志气，而是军户后手与纸墨束脩谁先占那口钱；这一路会更早显出家里能不能继续供。'
+      }
+    }
+  };
   var phaseTrace = [];             // 运行时阶段轨迹：供无头验证锁定“立身→成家→当户→养老→死亡”闭环
+
+  function currentFoundingSnapshot() {
+    var key = FOUNDING_SNAPSHOTS[selectedFoundingSnapshotId] ? selectedFoundingSnapshotId : DEFAULT_FOUNDING_SNAPSHOT_ID;
+    return FOUNDING_SNAPSHOTS[key] || FOUNDING_SNAPSHOTS[DEFAULT_FOUNDING_SNAPSHOT_ID];
+  }
+
+  function foundingSnapshotSwitches() {
+    if (generation > 1 || carryOver || startMode !== 'establishment') return [];
+    return Object.keys(FOUNDING_SNAPSHOTS).map(function (key) {
+      var snap = FOUNDING_SNAPSHOTS[key];
+      return {
+        id: key,
+        name: snap.title,
+        active: key === selectedFoundingSnapshotId,
+        note: snap.switchNote || ''
+      };
+    });
+  }
+
+  function applyFoundingSnapshot(snapshotId) {
+    var snap = FOUNDING_SNAPSHOTS[snapshotId] || FOUNDING_SNAPSHOTS[DEFAULT_FOUNDING_SNAPSHOT_ID];
+    selectedFoundingSnapshotId = snap.id;
+    if (generation > 1 || carryOver) return snap;
+    Object.keys(snap.patch || {}).forEach(function (key) {
+      S[key] = snap.patch[key];
+    });
+    clampAttr('体魄');
+    clampAttr('家族');
+    return snap;
+  }
+
+  function foundingRouteHook(routeKey) {
+    if (generation > 1 || carryOver) return '';
+    var hooks = (currentFoundingSnapshot().routeHooks || {});
+    return hooks[routeKey] || '';
+  }
 
   function currentPhaseTitle() {
     if (curStage && curStage.title) return curStage.title;
@@ -669,14 +757,33 @@
     }
     return inheritedRouteAwareValue(key, emptyValue);
   }
+  function snapshotRouteAwareCarryState() {
+    return {
+      婚配路径: carriedRouteAwareValue('婚配路径', '未定'),
+      合爨状态: carriedRouteAwareValue('合爨状态', '未合爨'),
+      定额佃状态: carriedRouteAwareValue('定额佃状态', '未立'),
+      雇身份: carriedRouteAwareValue('雇身份', '未定'),
+      学徒去向: carriedRouteAwareValue('学徒去向', '未定'),
+      举业结局: carriedRouteAwareValue('举业结局', '未定')
+    };
+  }
+  function snapshotDelegatedEstateState() {
+    var route = String(S && S.委托营生 != null ? S.委托营生 : '').trim() || '无';
+    return {
+      委托营生: route,
+      委托租谷: Math.max(0, Number(S && S.委托租谷 || 0)),
+      委托待收租谷: Math.max(0, Number(S && S.委托待收租谷 || 0))
+    };
+  }
   function lifecycleInheritanceBridge() {
     var role = currentInheritanceRole(carryOver || S || null);
-    var visibleMarriagePath = carriedRouteAwareValue('婚配路径', '未定');
-    var visibleJointState = carriedRouteAwareValue('合爨状态', '未合爨');
-    var visibleFixedRent = carriedRouteAwareValue('定额佃状态', '未立');
-    var visibleWageIdentity = carriedRouteAwareValue('雇身份', '未定');
-    var visibleApprenticeDest = carriedRouteAwareValue('学徒去向', '未定');
-    var visibleExamOutcome = carriedRouteAwareValue('举业结局', '未定');
+    var routeAwareState = snapshotRouteAwareCarryState();
+    var visibleMarriagePath = routeAwareState.婚配路径;
+    var visibleJointState = routeAwareState.合爨状态;
+    var visibleFixedRent = routeAwareState.定额佃状态;
+    var visibleWageIdentity = routeAwareState.雇身份;
+    var visibleApprenticeDest = routeAwareState.学徒去向;
+    var visibleExamOutcome = routeAwareState.举业结局;
     var inherited = generation > 1
       || !!carryOver
       || (S.父辈路线 || '') !== '未定'
@@ -763,12 +870,13 @@
     var includeIdentity = opts.includeIdentity !== false;
     var includeLineage = opts.includeLineage !== false;
     var role = currentInheritanceRole(carryOver || S || null);
-    var visibleMarriagePath = carriedRouteAwareValue('婚配路径', '未定');
-    var visibleJointState = carriedRouteAwareValue('合爨状态', '未合爨');
-    var visibleFixedRent = carriedRouteAwareValue('定额佃状态', '未立');
-    var visibleWageIdentity = carriedRouteAwareValue('雇身份', '未定');
-    var visibleApprenticeDest = carriedRouteAwareValue('学徒去向', '未定');
-    var visibleExamOutcome = carriedRouteAwareValue('举业结局', '未定');
+    var routeAwareState = snapshotRouteAwareCarryState();
+    var visibleMarriagePath = routeAwareState.婚配路径;
+    var visibleJointState = routeAwareState.合爨状态;
+    var visibleFixedRent = routeAwareState.定额佃状态;
+    var visibleWageIdentity = routeAwareState.雇身份;
+    var visibleApprenticeDest = routeAwareState.学徒去向;
+    var visibleExamOutcome = routeAwareState.举业结局;
     var parts = [];
     if (includeIdentity) parts.push('承继身份=' + role);
     if ((S.父辈路线 || '') && S.父辈路线 !== '未定') parts.push('父辈路线=' + S.父辈路线);
@@ -888,7 +996,8 @@
   }
   function currentFamilySnapshotText() {
     if (generation <= 1 || !carryOver) {
-      return '共同父快照不变：民籍次子、家庭公账白银6两/铜钱2000文/存米8石、薄田12亩、本人无独立现金。此处只分“路”，不倒填未来。';
+      var founding = currentFoundingSnapshot();
+      return '当前父快照：' + founding.publicSummary + '。此处只分“路”，不倒填未来。';
     }
     return '这一代不再回滚到初代父快照，而是沿上一代真实传承快照继续：本房现有白银' + S.白银 + '两、铜钱' + S.铜钱 + '文、存米' + S.存米 + '石、田' + S.田亩 + '亩' + (S.负债银 > 0 ? ('，另背旧债' + S.负债银 + '两') : '') + '。' +
       '这一手如今以<span class="em">' + currentInheritanceRole(carryOver) + '</span>承这一本账。' +
@@ -900,6 +1009,7 @@
       var fromBirthLead = (S._startMode === 'childhood') ? '幼年既过，' : '';
       return fromBirthLead + '你已<span class="em">十六岁</span>。父兄会留在这户田上，你得决定自己怎么立身。' +
         (baseSummary.length ? ('你这些年攒下的底子：<span class="em">' + baseSummary.join('、') + '</span>。') : '你手上并无特别底子，只有一副年轻身子和一点寻常农事。') +
+        currentFoundingSnapshot().establishmentLead +
         '五条路共享同一个过去、同一份家底，但以后会走成完全不同的一生。';
     }
     return '你已<span class="em">十六岁</span>。这一代承的是上一代身后结清后留下的家底：田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两' + (S.负债银 > 0 ? ('、旧债' + S.负债银 + '两') : '') + '。' +
@@ -4284,7 +4394,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var t = ev.target;
       while (t && t !== stage) {
         if (t.nodeType === 1) {
-          if (t.classList.contains('act') || t.classList.contains('choice') ||
+          if (t.classList.contains('act') || t.classList.contains('choice') || t.classList.contains('switch-choice') ||
             (t.id && t.id.indexOf('btn-') === 0)) break;
         }
         t = t.parentNode;
@@ -4302,6 +4412,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         resolveChoice(parseInt(t.getAttribute('data-i'), 10));
         return;
       }
+      if (t.classList.contains('switch-choice')) {
+        toggleFoundingSnapshot(t.getAttribute('data-id'));
+        return;
+      }
       switch (t.id) {
         case 'btn-commit': commitXun(); break;
         case 'btn-next': nextXun(); break;
@@ -4317,6 +4431,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (phase === 'childhood') { nextChildRound(); return; }
     var st = curStage; if (!st) return;
     if (st.next === null) startNextGeneration('establishment'); else enterPhase(st.next);
+  }
+
+  function toggleFoundingSnapshot(snapshotId) {
+    if (phase !== 'establishment' || generation > 1 || carryOver) return;
+    applyFoundingSnapshot(snapshotId);
+    picks = [];
+    resolved = null;
+    lifePicks = [];
+    curStage = stageEstablishment();
+    renderStatus();
+    renderLifeStage();
+    renderLedger();
   }
 
   function renderStatus() {
@@ -4398,6 +4524,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += '<span class="chip">识字 <b>' + (S.识字 ? '已启蒙' : '未识字') + '</b></span>';
       h += '<span class="chip">技艺 <b>' + S.技艺 + '</b></span>';
     } else if (phase === 'establishment') {
+      if (generation <= 1 || !carryOver) h += '<span class="chip">父快照 <b>' + currentFoundingSnapshot().shortTitle + '</b></span>';
       h += '<span class="chip">识字 <b>' + (S.识字 ? '已启蒙' : '未识字') + '</b></span>';
       h += '<span class="chip">技艺 <b>' + S.技艺 + '</b></span>';
     } else {
@@ -5001,6 +5128,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var st = CHILD_STAGES[childStage];
     var via = composeLineageSource(S.承嗣来路 || '本支次子承继', '弟妹接续');
     var carriedIdentity = currentInheritanceRole({ 承嗣来路: via, 承继身份: S.承继身份 });
+    var routeAwareCarry = snapshotRouteAwareCarryState();
+    var delegatedEstate = snapshotDelegatedEstateState();
     S._childDied = true;
     S._carry = {
       白银: S.白银, 存米: Math.max(0, S.存米), 铜钱: S.铜钱, 田亩: S.田亩, 负债银: Math.max(0, S.负债银 || 0), 家族: Math.max(20, S.家族 - 4),
@@ -5016,15 +5145,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       亦贾亦儒底子: S.亦贾亦儒底子 || 0,
       供读底子: S.供读底子 || 0,
       旧门路衰减: currentLineageDecayLevel(),
-      委托营生: S.委托营生 || '无',
-      委托租谷: Math.max(0, S.委托租谷 || 0),
-      委托待收租谷: Math.max(0, S.委托待收租谷 || 0),
-      婚配路径: S.婚配路径 || '未定',
-      合爨状态: S.合爨状态 || '未合爨',
-      定额佃状态: S.定额佃状态 || '未立',
-      雇身份: S.雇身份 || '未定',
-      学徒去向: S.学徒去向 || '未定',
-      举业结局: S.举业结局 || '未定'
+      委托营生: delegatedEstate.委托营生,
+      委托租谷: delegatedEstate.委托租谷,
+      委托待收租谷: delegatedEstate.委托待收租谷,
+      婚配路径: routeAwareCarry.婚配路径,
+      合爨状态: routeAwareCarry.合爨状态,
+      定额佃状态: routeAwareCarry.定额佃状态,
+      雇身份: routeAwareCarry.雇身份,
+      学徒去向: routeAwareCarry.学徒去向,
+      举业结局: routeAwareCarry.举业结局
     };
     log.push(['幼殇于' + st.name + '（' + st.age + '岁）——依 Coale-Demeny 模型(出生预期寿命≈30岁)，约半数孩子活不到二十岁。这不是你的过错，是那个时代的真实概率。本户田产由弟妹接续。', 'bad']);
   }
@@ -5063,7 +5192,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   // 幼年结束 → 十六成丁，先进入立身分叉
   function enterEstablishment() {
     phase = 'establishment';
-    S.年龄 = 16; S.身份 = '民籍·' + ((generation > 1 && carryOver) ? currentInheritanceRole(carryOver) : '次子') + '待立身'; S.路线 = '未立身';
+    if (generation > 1 && carryOver) {
+      S.年龄 = 16;
+      S.身份 = '民籍·' + currentInheritanceRole(carryOver) + '待立身';
+    } else {
+      applyFoundingSnapshot(selectedFoundingSnapshotId);
+    }
+    S.路线 = '未立身';
     picks = []; resolved = null; lifePicks = []; curStage = stageEstablishment();
     tracePhase('enter:establishment');
     var 底子 = routeBaseSummary();
@@ -5072,6 +5207,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       : '从十六成丁起算，先立身分路。';
     recordEntry('十六成丁·立身开账', snapshot(), 起步口径 +
       (generation > 1 ? ('这一代沿上一代真实传承快照起步：田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两。') : '') +
+      (generation <= 1 ? ('当前父快照：' + currentFoundingSnapshot().publicSummary + '。') : '') +
       (底子.length ? '这些年攒下：' + 底子.join('、') + '。' : '这些年不曾攒下特别的底子，只识些寻常农事。'));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -5336,6 +5472,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var kind = (phase === 'childhood') ? '幼年阶段' : '人生阶段';
     h += '<div class="season-line phase">◆ ' + kind + ' · ' + st.title + ' ｜ ' + S.年龄 + ' 岁</div>';
     h += '<div class="phase-note">' + st.note + '</div>';
+    if (st.switches && st.switches.length) {
+      h += '<div class="ap-head"><h3>父快照</h3><span class="ap-dots">先定同一份过去，再在同一户里分五路</span></div>';
+      h += '<div class="choices">';
+      st.switches.forEach(function (sw) {
+        h += '<button class="switch-choice" data-id="' + sw.id + '"' + (sw.active ? ' disabled' : '') + '>';
+        h += '<span class="ch-name">' + sw.name + (sw.active ? '（当前）' : '') + '</span>';
+        if (sw.note) h += '<span class="ch-line ch-desc">' + sw.note + '</span>';
+        h += '</button>';
+      });
+      h += '</div>';
+    }
     h += '<div class="narr">' + st.narrative + '</div>';
     if (st.events && st.events.length) {
       h += '<div class="events">';
@@ -5530,6 +5677,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   }
 
   function establishmentAtlasDossier() {
+    var founding = currentFoundingSnapshot();
     var routeRows = [
       '路径一 · 留乡佃田：三农年起手，后续接养家 / 当户 / 养老。',
       '路径二 · 受雇长工 / 短工：四季三旬抢工食，后续接家计与差役。',
@@ -5543,6 +5691,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       '<span class="cb-val">总链路已挂出</span></div>' +
       '<div class="cb-tip">古代 → 明代 → 江南民籍次子立身的十二个月 → 一生 → 下一代' +
       '<br>立身 → 成家 → 当户 → 养老 → 死亡与传承 → 下一代重开</div></div>';
+    h += '<div class="crop-bar g-ok"><div class="cb-head">' +
+      '<span class="cb-title">🧬 父快照入口</span>' +
+      '<span class="cb-val">' + founding.shortTitle + '</span></div>' +
+      '<div class="cb-tip">' + founding.atlasTip + '</div></div>';
     h += '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">🧭 五条立身道路卡</span>' +
       '<span class="cb-val">五路齐开</span></div>' +
@@ -5563,14 +5715,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function stageEstablishment() {
     var 底子 = routeBaseSummary();
     var inheritanceBridge = lifecycleInheritanceBridge();
+    var founding = currentFoundingSnapshot();
     var startNote = generation > 1
       ? '这一代不再沿用初代那张“固定父快照”，而是直接吃上一代真实死亡结算留下的期初账。五条路仍共享同一个过去，但这个“过去”现在来自真实传承，不再回滚。'
-      : '你要求的是“同一父快照、16岁再分路”。这里不再默认锁死进佃田，而是在同一户、同一年、同一份家底下分叉。现在五条路都接了首版循环：佃田、受雇、学徒、商路、举业。';
+      : '你要求的是“同一父快照、16岁再分路”。这里不再默认锁死进佃田，而是在同一户、同一年、同一份家底下分叉。现在五条路都接了首版循环：佃田、受雇、学徒、商路、举业。当前父快照为“' + founding.title + '”。';
     var startEvents = generation > 1 ? [
       { t: 'rel', tag: '[承继]', txt: '这一代的起点不是白纸：父辈传下多少薄田、多少债、多少门路，都会先落在你身上。' },
       { t: 'rand', tag: '[立身]', txt: inheritedCarryTags(carryOver).length ? ('父辈留下的：' + inheritedCarryTags(carryOver).join('、') + '。这些都不会直接变成现银，却会改写你五条路的入口。') : '这一房只剩薄产，几乎没有额外门路可倚。你的五条路更接近再次白手起家。' }
     ] : [
-      { t: 'rel', tag: '[立身]', txt: '兄将承祖业多数薄田，你这次子分不到够养一家的田。你的路，从来不可能只是“照旧过下去”。' },
+      founding.event,
       { t: 'rand', tag: '[制度]', txt: '五条路并无高下：耕、雇、学、商、举都是真实入口。区别只在它们如何读取同一份时间、身体、现金与他人意愿。' }
     ];
     return {
@@ -5578,6 +5731,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       next: null, nextLabel: '走上这条路 →',
       note: startNote,
       narrative: currentEstablishmentLead(底子),
+      switches: generation > 1 ? [] : foundingSnapshotSwitches(),
       dossier: function () {
         var summary = currentFamilySnapshotText();
         if (inheritanceBridge.dossier) summary += '｜' + inheritanceBridge.dossier;
@@ -5589,7 +5743,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         {
           name: '路径一 · 留乡佃田',
           gain: '直接进入三农年佃田循环（16→18岁）',
-          note: '接下几亩水田，照约缴租、吃自己种出的米。你已经玩过这条路，但现在它是五路之一，而不是默认唯一入口。' + (generation > 1 ? ' ' + routeEntryHook('farm', carryOver) : ''),
+          note: '接下几亩水田，照约缴租、吃自己种出的米。你已经玩过这条路，但现在它是五路之一，而不是默认唯一入口。' + (generation > 1 ? ' ' + routeEntryHook('farm', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('farm')),
           run: function (log) {
             curStage.next = 'farmRoute'; curStage.nextLabel = '下田立身 →'; S.路线 = '留乡佃田';
             log.push(['你决定留在乡里，先靠佃田吃饭：这一路已接入完整三农年循环。', 'good']);
@@ -5598,7 +5752,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         {
           name: '路径二 · 受雇长工 / 短工',
           gain: '进入三工年受雇循环（16→18岁）',
-          note: '不守这几亩田，去替经营型地主和市镇东家出力挣工食。长工有管饭和年工银，短工日结快但失工频繁；现已拆成“一年四季、每季上中下三旬”的更细年内节奏。' + (generation > 1 ? ' ' + routeEntryHook('wage', carryOver) : ''),
+          note: '不守这几亩田，去替经营型地主和市镇东家出力挣工食。长工有管饭和年工银，短工日结快但失工频繁；现已拆成“一年四季、每季上中下三旬”的更细年内节奏。' + (generation > 1 ? ' ' + routeEntryHook('wage', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('wage')),
           run: function (log) {
             curStage.next = 'wage'; curStage.nextLabel = '去谋第一年工食 →'; S.路线 = '受雇长工/短工';
             log.push(['你决定先把工食挣出来：这一路已接入“三工年 × 每季三旬”的细化循环。', 'good']);
@@ -5609,7 +5763,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         {
           name: '路径三 · 入城学徒',
           gain: '进入三学年学徒循环（16→18岁）',
-          note: '先接商铺学徒主干：求师、作保、立据、守店、学货、留店/被辞/退师。条款细节仍为玩法占位，不冒充明代精确契约。' + (generation > 1 ? ' ' + routeEntryHook('apprentice', carryOver) : ''),
+          note: '先接商铺学徒主干：求师、作保、立据、守店、学货、留店/被辞/退师。条款细节仍为玩法占位，不冒充明代精确契约。' + (generation > 1 ? ' ' + routeEntryHook('apprentice', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('apprentice')),
           run: function (log) {
             curStage.next = 'apprentice'; curStage.nextLabel = '去投第一年学徒 →'; S.路线 = '入城学徒';
             log.push(['你决定先去城里投师：这一路已接入首版三学年循环。', 'good']);
@@ -5619,7 +5773,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         {
           name: '路径四 · 徽商式亦贾亦儒',
           gain: '进入三商年学生意循环（16→18岁）',
-          note: '这一路现已拆成“三商年学生意 + 成年后养家/当户/养老继续四季三旬推进”：认货、坐店、跑单、回钱、拖欠、反哺、供读、差役与身家冲突都回到同一年里逐旬落账。' + (generation > 1 ? ' ' + routeEntryHook('merchant', carryOver) : ''),
+          note: '这一路现已拆成“三商年学生意 + 成年后养家/当户/养老继续四季三旬推进”：认货、坐店、跑单、回钱、拖欠、反哺、供读、差役与身家冲突都回到同一年里逐旬落账。' + (generation > 1 ? ' ' + routeEntryHook('merchant', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('merchant')),
           run: function (log) {
             curStage.next = 'merchant'; curStage.nextLabel = '去学生意 →'; S.路线 = '徽商式亦贾亦儒';
             log.push(['你决定投族叔商号学生意：这一路已接入首版三商年循环。', 'good']);
@@ -5629,7 +5783,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         {
           name: '路径五 · 读书应举',
           gain: '进入三举业年循环（四季三旬）',
-          note: '这一路现已拆成“春课→夏课→秋试→冬清账”四季、每季三旬：把束脩纸墨、保结资格、盘缠、抄写补贴、家计与身体小账都放回一年里，不再整年一把糊过。' + (generation > 1 ? ' ' + routeEntryHook('civilExam', carryOver) : ''),
+          note: '这一路现已拆成“春课→夏课→秋试→冬清账”四季、每季三旬：把束脩纸墨、保结资格、盘缠、抄写补贴、家计与身体小账都放回一年里，不再整年一把糊过。' + (generation > 1 ? ' ' + routeEntryHook('civilExam', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('civilExam')),
           run: function (log) {
             curStage.next = 'civilExam'; curStage.nextLabel = '去走第一年举业 →'; S.路线 = '读书应举';
             log.push(['你决定先把这一户有限的资源压到读书上：这一路现已按四季三旬推进，不再是一年点一下就结账。', 'good']);
@@ -11348,7 +11502,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             id: 'f_route_autumn_clothes',
             name: '先把秋头差帖与孩子夹衣分开',
             cost: 1,
-            eff: '铜钱-65·衣药+1·备役+1·通融+1·家族+1',
+            eff: '铜钱-65·衣药+1·备役+1·通融+1·捎信+1·家族+1',
             desc: '秋凉刚起时，最怕差帖门包、孩子夹衣、回乡药包和递话脚费一起先来。你先把这层秋头夹衣拆开，秋市刚热时就不至让制度后手和家里换季小耗一并抢空现钱。',
             can: S.铜钱 >= 65,
             why: S.铜钱 >= 65 ? '' : '铜钱不足65文'
@@ -13106,8 +13260,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.本年家衣药 += 1;
                 S.本年家备役 += 1;
                 S.本年家通融 += 1;
+                S.本年家捎信 += 1;
                 pushFamilySeasonTag(stepTag + '秋头夹衣');
-                log.push(['先把秋头差帖与孩子夹衣分开：铜钱-65、衣药+1、备役+1、通融+1、家族+1。差帖门包、孩子夹衣、回乡药包和递话脚费先被拆回这一旬，秋市刚热时，制度后手和家里换季小耗不再一起抢这一口现钱。', 'good']);
+                log.push(['先把秋头差帖与孩子夹衣分开：铜钱-65、衣药+1、备役+1、通融+1、捎信+1、家族+1。差帖门包、孩子夹衣、回乡药包和递话脚费先被拆回这一旬，秋市刚热时，制度后手和家里换季小耗不再一起抢这一口现钱。', 'good']);
               } else log.push(['想先把秋头差帖与孩子夹衣分开，但这一旬铜钱不够，只得暂缓。', 'bad']);
               break;
             case 'f_route_bundle':
@@ -22312,12 +22467,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var lifecycleResidue = deathLifecycleResidueSummary(legacyCarry, pendingRentMi);
     S._deathLifecycleResidueText = lifecycleResidue.text || '';
     var heirIdentity = sons <= 0 ? '旁支继子' : (sons === 1 ? '独子' : (heirOrdinal === 2 ? '次子' : '长子'));
-    var carriedMarriagePath = carriedRouteAwareValue('婚配路径', '未定');
-    var carriedJointState = carriedRouteAwareValue('合爨状态', '未合爨');
-    var carriedFixedRent = carriedRouteAwareValue('定额佃状态', '未立');
-    var carriedWageIdentity = carriedRouteAwareValue('雇身份', '未定');
-    var carriedApprenticeDest = carriedRouteAwareValue('学徒去向', '未定');
-    var carriedExamOutcome = carriedRouteAwareValue('举业结局', '未定');
+    var routeAwareCarry = snapshotRouteAwareCarryState();
     var merchantClosureNote = '';
     if (isMerchantDeathRoute) {
       if (merchantDiedOnRoad) merchantClosureNote = '你临了仍压着几笔旧账在外，没能赶回故里；收口时又多出运柩停厝这一层客途后手。';
@@ -22357,12 +22507,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         委托营生: carryDelegatedRoute,
         委托租谷: shareLease,
         委托待收租谷: sharePendingRent,
-        婚配路径: carriedMarriagePath,
-        合爨状态: carriedJointState,
-        定额佃状态: carriedFixedRent,
-        雇身份: carriedWageIdentity,
-        学徒去向: carriedApprenticeDest,
-        举业结局: carriedExamOutcome
+        婚配路径: routeAwareCarry.婚配路径,
+        合爨状态: routeAwareCarry.合爨状态,
+        定额佃状态: routeAwareCarry.定额佃状态,
+        雇身份: routeAwareCarry.雇身份,
+        学徒去向: routeAwareCarry.学徒去向,
+        举业结局: routeAwareCarry.举业结局
       };
       S._deathRemainderText = remainderText;
       if (isMerchantDeathRoute) deathTag = '你这一生在外跑过商路，' + (merchantDiedOnRoad ? '临了客死商途' : '临了总算归乡收束') + '；身后连旧账、回钱与反哺名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、尚未结回的委托田租' : '') + '也一并结进遗产。';
@@ -22386,12 +22536,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         委托营生: collateralCarryDelegatedRoute,
         委托租谷: collateralLeaseEnabled ? Math.max(0, S.委托租谷 || 0) : 0,
         委托待收租谷: collateralPendingRentEnabled ? pendingRentMi : 0,
-        婚配路径: carriedMarriagePath,
-        合爨状态: carriedJointState,
-        定额佃状态: carriedFixedRent,
-        雇身份: carriedWageIdentity,
-        学徒去向: carriedApprenticeDest,
-        举业结局: carriedExamOutcome
+        婚配路径: routeAwareCarry.婚配路径,
+        合爨状态: routeAwareCarry.合爨状态,
+        定额佃状态: routeAwareCarry.定额佃状态,
+        雇身份: routeAwareCarry.雇身份,
+        学徒去向: routeAwareCarry.学徒去向,
+        举业结局: routeAwareCarry.举业结局
       };
       S._deathRemainderText = '';
       if (isMerchantDeathRoute) deathTag = '你这一生在外跑过商路，' + (merchantDiedOnRoad ? '临了客死商途' : '临了总算归乡收束') + '；虽未留下亲生承嗣，旧账、回钱与顾家名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、委托经营账上的待结田租' : '') + '仍要在旁支账里结清。';
@@ -22475,8 +22625,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   }
 
   // ── 启动 ────────────────────────────────────────
-  function restartAt16() { installDelegation(); generation = 1; carryOver = null; initState(null, { start: 'establishment' }); renderStatus(); renderStage(); renderLedger(); window.scrollTo({ top: 0 }); }
-  function restartFromBirth() { installDelegation(); generation = 1; carryOver = null; initState(null, { start: 'childhood' }); renderStatus(); renderStage(); renderLedger(); window.scrollTo({ top: 0 }); }
+  function restartAt16() { installDelegation(); generation = 1; carryOver = null; selectedFoundingSnapshotId = DEFAULT_FOUNDING_SNAPSHOT_ID; initState(null, { start: 'establishment' }); renderStatus(); renderStage(); renderLedger(); window.scrollTo({ top: 0 }); }
+  function restartFromBirth() { installDelegation(); generation = 1; carryOver = null; selectedFoundingSnapshotId = DEFAULT_FOUNDING_SNAPSHOT_ID; initState(null, { start: 'childhood' }); renderStatus(); renderStage(); renderLedger(); window.scrollTo({ top: 0 }); }
   document.getElementById('btn-restart').addEventListener('click', restartAt16);
   var _btnBirth = document.getElementById('btn-restart-birth');
   if (_btnBirth) _btnBirth.addEventListener('click', restartFromBirth);
@@ -22531,6 +22681,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       restartFromBirth: restartFromBirth,
       restartWithHeir: function () { startNextGeneration('establishment'); },
       restartFromCarry: restartFromCarry,
+      getFoundingSnapshotId: function () { return selectedFoundingSnapshotId; },
+      getFoundingSnapshots: function () { return JSON.parse(JSON.stringify(FOUNDING_SNAPSHOTS)); },
+      setFoundingSnapshot: function (snapshotId) {
+        if (!FOUNDING_SNAPSHOTS[snapshotId]) return false;
+        if (phase !== 'establishment' || generation > 1 || carryOver) return false;
+        toggleFoundingSnapshot(snapshotId);
+        return true;
+      },
       getState: function () { return JSON.parse(JSON.stringify(S)); },
       getPhase: function () { return phase; },
       getGeneration: function () { return generation; },
