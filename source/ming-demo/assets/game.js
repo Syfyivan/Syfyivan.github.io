@@ -2356,6 +2356,18 @@
       failLog: '〔春课开销〕这一旬连拜师帖和启蒙纸样都腾挪不开，只得先硬顶过去；塾师与父兄眼里你这层“真要开读”的口风又薄了一线（家族-1）。',
       hardship: 'clan'
     });
+    if (season.id === 'spring' && xun === 1) apply({
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_spring_open_packet', 'e_spring_open_shoe']),
+      doneTag: '春头草鞋已分',
+      doneLog: '〔春头草鞋〕这一旬先把草鞋脚费、早春盐药、塾门递话与开春锅火分开了；举业首旬不再只剩拜师帖和塾馆茶水，连“脚还没走稳、门路先要跑”的那层春头细账也被压回了同一年里。',
+      cost: 40,
+      buckets: { 本年衣药支出文: 40 },
+      costTag: '春头草鞋',
+      costLog: '〔春头草鞋〕草鞋脚费、早春盐药、塾门递话和开春锅火一起要钱：铜钱-{cost}。不是大账，却正把春课上旬最容易被一句“先开读再说”带过去的脚路与身子小耗重新压回了真账。',
+      failTag: '春头草鞋硬顶',
+      failLog: '〔春头草鞋〕这一旬连草鞋脚费和早春盐药都腾挪不开，只得先硬扛过去；春头这层脚路和身子亏空先落到了人身上（体魄-1）。',
+      hardship: 'body'
+    });
     if (season.id === 'spring' && xun === 2) apply({
       handledIds: examSupportHandledIds(['e_essay', 'e_home', 'e_rest', 'e_spring_packet']),
       doneTag: '春馆回话已理',
@@ -2400,6 +2412,18 @@
       failTag: '伏夏馆账硬顶',
       failLog: '〔伏夏馆账〕这一旬连凉茶脚费和消暑小耗都腾挪不开，只得先硬扛过去；伏夏这层继续读下去的口风又薄了一线（家族-1）。',
       hardship: 'clan'
+    });
+    if (season.id === 'summer' && xun === 1) apply({
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_summer_open_packet', 'e_summer_open_cure']),
+      doneTag: '伏夏凉药已分',
+      doneLog: '〔伏夏凉药〕这一旬先把凉药门包、草鞋汗巾、塾门回话与暑天锅火分开了；夏课上旬不再只剩束脩馆账，连“塾门还没坐稳、身子和脚路先被暑气磨着走”的那层伏夏肩账也被压回了这一旬。',
+      cost: 45,
+      buckets: { 本年衣药支出文: 45 },
+      costTag: '伏夏凉药',
+      costLog: '〔伏夏凉药〕凉药门包、草鞋汗巾、塾门回话和暑天锅火一起要钱：铜钱-{cost}。不是大账，却正把伏夏上旬最容易被一句“先把馆钱压进去”盖过去的身子与脚路小耗重新压回了真账。',
+      failTag: '伏夏凉药硬顶',
+      failLog: '〔伏夏凉药〕这一旬连凉药门包和草鞋汗巾都腾挪不开，只得先硬扛过去；伏夏刚起头这层暑热亏空先落到了身子上（体魄-1）。',
+      hardship: 'body'
     });
     if (season.id === 'summer' && xun === 2) apply({
       handledIds: examSupportHandledIds(['e_essay', 'e_copy', 'e_mend', 'e_rest', 'e_summer_packet', 'e_summer_cough']),
@@ -2604,7 +2628,7 @@
       'e_home', 'e_fail_talk',
       'e_rest', 'e_mend', 'e_delay_upper', 'e_delay_split',
       'e_summer_cough', 'e_autumn_cough', 'e_winter_cough',
-      'e_spring_fan', 'e_autumn_open_cloth', 'e_winter_open_reply', 'e_winter_tail_cure',
+      'e_spring_fan', 'e_spring_open_shoe', 'e_summer_open_cure', 'e_autumn_open_cloth', 'e_winter_open_reply', 'e_winter_tail_cure',
       'e_spring_open_packet', 'e_spring_packet', 'e_spring_tail_packet',
       'e_summer_open_packet', 'e_summer_packet', 'e_summer_tail_packet', 'e_summer_tail_reply',
       'e_autumn_open_packet', 'e_autumn_packet', 'e_autumn_tail_packet', 'e_autumn_register',
@@ -2628,7 +2652,7 @@
       'e_rest', 'e_mend',
       'e_home', 'e_fail_talk',
       'e_summer_cough', 'e_autumn_cough', 'e_winter_cough',
-      'e_spring_fan', 'e_autumn_open_cloth', 'e_winter_open_reply', 'e_winter_tail_cure',
+      'e_spring_fan', 'e_spring_open_shoe', 'e_summer_open_cure', 'e_autumn_open_cloth', 'e_winter_open_reply', 'e_winter_tail_cure',
       'e_summer_packet', 'e_summer_tail_packet',
       'e_winter_mid_packet', 'e_winter_packet'
     ]);
@@ -8077,8 +8101,28 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
           if (season.id === 'spring') {
             A.push({ id: 'e_spring_open_packet', name: '先把拜师帖与开春锅火分开', cost: 1, eff: '铜钱-40·家族+1', desc: '春课上旬最怕拜师帖、启蒙纸样、塾馆茶水和家里开春锅火一起追钱。先把这层小账拆开，第一口供读钱才不至刚压进去就被磨薄。', can: S.铜钱 >= 40, why: S.铜钱 >= 40 ? '' : '铜钱不足40文', once: true });
+            A.push({
+              id: 'e_spring_open_shoe',
+              name: '先把春头草鞋与塾门递话分开',
+              cost: 1,
+              eff: '铜钱-45·体魄+1·家族+1·将养+1',
+              desc: '春课上旬最怕塾门回话还没坐实，草鞋脚费、早春盐药、递话门包和开春锅火却先来追钱。先把这层早春脚路小耗拆开，不让春头脚路和身子一开年就先被磨薄。',
+              can: S.铜钱 >= 45,
+              why: S.铜钱 >= 45 ? '' : '铜钱不足45文',
+              once: true
+            });
           } else if (season.id === 'summer') {
             A.push({ id: 'e_summer_open_packet', name: '先把伏夏馆账与凉茶脚费分开', cost: 1, eff: '铜钱-45·家族+1·体魄+1', desc: '夏课上旬最怕束脩、凉茶脚费和家里消暑小耗一起冒头。先把这层馆账拆开，伏夏刚起头时才不至又是钱紧又是气短。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
+            A.push({
+              id: 'e_summer_open_cure',
+              name: '先把伏夏凉药与塾门回话分开',
+              cost: 1,
+              eff: '铜钱-50·体魄+1·家族+1·将养+1',
+              desc: '夏课上旬最怕塾门回话还没坐实，凉药门包、草鞋汗巾、递话脚费和暑天锅火却先来追钱。先把这层伏夏身子账拆开，不让入夏第一旬就先把脚路与暑热一起磨穿。',
+              can: S.铜钱 >= 50,
+              why: S.铜钱 >= 50 ? '' : '铜钱不足50文',
+              once: true
+            });
           } else if (season.id === 'autumn') {
             A.push({ id: 'e_autumn_open_packet', name: '先把秋前盘缠与拜帖小礼分开', cost: 1, eff: '铜钱-50·家族+1', desc: '秋试上旬最怕应试盘缠、拜帖小礼和家里秋收锅火一起追钱。先把这层临场前的后手拆开，保结与应场才不至先被现钱卡死。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
             A.push({
@@ -8674,6 +8718,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把拜师帖与开春锅火拆开，但这一旬铜钱已先被别处占住，只得继续让春头这层细账磨第一口供读钱。', 'bad']);
               }
               break;
+            case 'e_spring_open_shoe':
+              if (spendCopper(45)) {
+                noteExamOutlay(45, { buckets: { 本年衣药支出文: 45 } });
+                S.体魄 += 1;
+                S.家族 += 1;
+                S.本年将养次数 += 1;
+                if (S.本年身子亏空 > 0) S.本年身子亏空 -= 1;
+                pushExamSeasonTag(stepTag + '拆春头草鞋');
+                log.push(['先把春头草鞋与塾门递话分开：铜钱-45、体魄+1、家族+1。草鞋脚费、早春盐药、塾门递话和开春锅火先被拆开，春头这层“帖样刚递出去、脚路和身子先来追钱”的小耗没再继续一起磨薄你。', 'good']);
+              } else {
+                log.push(['想先把春头草鞋与塾门递话拆开，但这一旬铜钱已先被别处占住，只得让春头这层脚路和早春盐药继续贴着锅火一起追钱。', 'bad']);
+              }
+              break;
             case 'e_spring_packet':
               if (spendCopper(45)) {
                 noteExamOutlay(45, { buckets: { 本年零耗支出文: 45 } });
@@ -8715,6 +8772,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把伏夏馆账与凉茶脚费分开：铜钱-45、家族+1、体魄+1。夏课上旬这层束脩、凉茶脚费和家里消暑小耗先被拆开，伏夏刚起头时就没再又是钱紧又是气短。', 'good']);
               } else {
                 log.push(['想先把伏夏馆账与凉茶脚费拆开，但这一旬铜钱已先被别处占住，只得让伏夏刚起头这层馆账继续贴着身子来。', 'bad']);
+              }
+              break;
+            case 'e_summer_open_cure':
+              if (spendCopper(50)) {
+                noteExamOutlay(50, { buckets: { 本年衣药支出文: 50 } });
+                S.体魄 += 1;
+                S.家族 += 1;
+                S.本年将养次数 += 1;
+                if (S.本年身子亏空 > 0) S.本年身子亏空 -= 1;
+                pushExamSeasonTag(stepTag + '拆伏夏凉药');
+                log.push(['先把伏夏凉药与塾门回话分开：铜钱-50、体魄+1、家族+1。凉药门包、草鞋汗巾、塾门回话和暑天锅火先被拆开，伏夏上旬这层“馆账刚起、脚路和暑热先来抢钱”的小耗没再继续一起磨薄你。', 'good']);
+              } else {
+                log.push(['想先把伏夏凉药与塾门回话拆开，但这一旬铜钱已先被别处占住，只得让伏夏刚起头这层暑热、脚路和锅火继续一起追钱。', 'bad']);
               }
               break;
             case 'e_summer_tail_packet':
