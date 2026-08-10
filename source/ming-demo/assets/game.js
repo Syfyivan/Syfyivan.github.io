@@ -2215,8 +2215,10 @@
     opts = opts || {};
     if (amount <= 0) return;
     S.本年已落举业支出文 += amount;
-    if (opts.countSupport) S.本年家中供读次 += 1;
-    attributeExamFunding(amount, opts);
+    var grant = attributeExamFunding(amount, opts);
+    if (opts.countSupport && grant && (grant.family + grant.grain + grant.mother + grant.brother + grant.cash) > 0) {
+      S.本年家中供读次 += 1;
+    }
     if (opts.buckets) {
       Object.keys(opts.buckets).forEach(function (key) {
         var delta = Math.max(0, Number(opts.buckets[key]) || 0);
