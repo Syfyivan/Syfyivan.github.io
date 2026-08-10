@@ -7308,7 +7308,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var reserveCost = season.id === 'winter' ? (isLate ? 140 : 120) : (season.id === 'autumn' ? 110 : 90);
     var mendCost = season.id === 'winter' ? (isLate ? 130 : 120) : (season.id === 'summer' ? (isLate ? 110 : 90) : 70);
     var mendBody = season.id === 'winter' ? 5 : (isLate ? 4 : 3);
-    var delaySplitCost = season.id === 'winter' ? 65 : (season.id === 'autumn' ? 60 : (season.id === 'summer' ? 55 : 50));
+    var delaySplitCost = xun === 2
+      ? (season.id === 'winter' ? 60 : (season.id === 'autumn' ? 55 : (season.id === 'summer' ? 50 : 45)))
+      : (season.id === 'winter' ? 65 : (season.id === 'autumn' ? 60 : (season.id === 'summer' ? 55 : 50)));
     var guaranteePrepCost = season.id === 'summer' ? 55 : 50;
     var essayGain = season.id === 'summer' ? (isMid ? 2 : 1) : (season.id === 'autumn' && isLate ? 2 : 1);
     var tutorGain = season.id === 'spring' ? 2 : (season.id === 'summer' ? 2 : 1);
@@ -7391,21 +7393,37 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       : (xun === 2
         ? '中旬最像把资格、人情、纸墨和评文一起往前推。'
         : '下旬则把应不应场、回不回家、差役钱和衣药这些后手一并收住。');
-    var delaySplitActive = xun >= 3 && (((S.本年延婚牵扯 || 0) > 0) || ((S.本年兄婚让读次 || 0) > 0) || ((S.供读压力 || 0) >= 2));
-    var delaySplitName = season.id === 'spring'
-      ? '先把春尾婚话与香纸回帖分开'
-      : (season.id === 'summer'
-        ? '先把夏尾婚事置办与衣药纸墨分开'
-        : (season.id === 'autumn'
-          ? '先把秋尾婚话与临场盘缠分开'
-          : '先把冬尾婚期回话与来春帖样分开'));
-    var delaySplitDesc = season.id === 'spring'
-      ? '春尾最怕兄房婚话、清明香纸、回馆脚费和塾门回帖一起压着同一口现钱。先把这层婚话和书路尾账分开，婚事口风才不至跟着春尾纸墨一起往下塌。'
-      : (season.id === 'summer'
-        ? '夏尾最怕兄房置办、药钱补鞋、伏夏尾声纸墨和回话脚费一起追钱。先把这层婚事置办和身子账分开，婚事口风才不至继续贴着伏夏亏空一起发硬。'
-        : (season.id === 'autumn'
-          ? '秋尾最怕议亲回话、临场盘缠、簿册灯油和递话脚费一起追钱。先把这层婚话与应场后手分开，婚事口风才不至跟着临场细账一起继续往后拖。'
-          : '冬尾最怕婚期回话、来春帖样、年下门包和守岁锅火一起追钱。先把这层婚期回话和续帖后手分开，婚事口风才不至继续贴着年关锅火一起发硬。'));
+    var delaySplitActive = xun >= 2 && (((S.本年延婚牵扯 || 0) > 0) || ((S.本年兄婚让读次 || 0) > 0) || ((S.供读压力 || 0) >= 2));
+    var delaySplitName = xun === 2
+      ? (season.id === 'spring'
+        ? '先把春中婚话与评文回帖分开'
+        : (season.id === 'summer'
+          ? '先把夏中婚事置办与潮纸凉药分开'
+          : (season.id === 'autumn'
+            ? '先把秋中婚话与保结回帖分开'
+            : '先把冬中婚期回话与灯炭馆札分开')))
+      : (season.id === 'spring'
+        ? '先把春尾婚话与香纸回帖分开'
+        : (season.id === 'summer'
+          ? '先把夏尾婚事置办与衣药纸墨分开'
+          : (season.id === 'autumn'
+            ? '先把秋尾婚话与临场盘缠分开'
+            : '先把冬尾婚期回话与来春帖样分开')));
+    var delaySplitDesc = xun === 2
+      ? (season.id === 'spring'
+        ? '春中最怕兄房婚话、评文回话、税则小纸和递话脚费一起追钱。先把这层婚话与评文后手分开，婚事口风才不至刚起牵扯就顺着馆课一起往下塌。'
+        : (season.id === 'summer'
+          ? '夏中最怕兄房置办、潮纸茶汤、凉药草鞋和递话脚费一起追钱。先把这层婚事置办与伏夏零耗分开，婚事口风才不至在暑天中腰就先跟着身子账一起发硬。'
+          : (season.id === 'autumn'
+            ? '秋中最怕议亲回话、保结薄礼、学生家回话脚费和润笔纸墨一起追钱。先把这层婚话与资格后手分开，婚事口风才不至还没到秋尾就先跟着临场细账一起继续往后拖。'
+            : '冬中最怕婚期回话、灯炭馆札、来春样纸和递话脚费一起追钱。先把这层婚期回话和续门路钱分开，婚事口风才不至在年关中段就继续贴着锅火发硬。')))
+      : (season.id === 'spring'
+        ? '春尾最怕兄房婚话、清明香纸、回馆脚费和塾门回帖一起压着同一口现钱。先把这层婚话和书路尾账分开，婚事口风才不至跟着春尾纸墨一起往下塌。'
+        : (season.id === 'summer'
+          ? '夏尾最怕兄房置办、药钱补鞋、伏夏尾声纸墨和回话脚费一起追钱。先把这层婚事置办和身子账分开，婚事口风才不至继续贴着伏夏亏空一起发硬。'
+          : (season.id === 'autumn'
+            ? '秋尾最怕议亲回话、临场盘缠、簿册灯油和递话脚费一起追钱。先把这层婚话与应场后手分开，婚事口风才不至跟着临场细账一起继续往后拖。'
+            : '冬尾最怕婚期回话、来春帖样、年下门包和守岁锅火一起追钱。先把这层婚期回话和续帖后手分开，婚事口风才不至继续贴着年关锅火一起发硬。')));
     if (S.家传书香 > 0) copyCopper += 40;
     if (S.供读底子 > 0) copyCopper += 20;
     function examEnrollGateScore() {
@@ -7802,6 +7820,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.供读状态 !== '已断供' ? ((S.本年兄婚让读次 || 0) < 2 ? '' : '本年兄婚让读已到2回') : '家中已断供',
             once: true
           });
+          if (delaySplitActive) {
+            A.push({
+              id: 'e_delay_split',
+              name: delaySplitName,
+              cost: 1,
+              eff: '铜钱-' + delaySplitCost + '·家族+1·缓婚事口风',
+              desc: delaySplitDesc,
+              can: S.铜钱 >= delaySplitCost,
+              why: S.铜钱 >= delaySplitCost ? '' : ('铜钱不足' + delaySplitCost + '文'),
+              once: true
+            });
+          }
           A.push({ id: 'e_home', name: season.id === 'autumn' ? '回家帮父缓秋里家计' : '回家帮父与缓冲家计', cost: 1, eff: '家族+' + homeFamily + (homeRice > 0 ? ('·存米+' + homeRice) : '') + '·供读压力-1', desc: '这一旬少读一点，先让家里那口锅别翻。', can: true, once: true });
           A.push({ id: 'e_rest', name: '歇息养身', cost: 1, eff: '体魄+5', desc: '让眼睛和身子缓一口气。', can: true });
         } else {
