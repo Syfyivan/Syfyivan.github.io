@@ -2450,6 +2450,18 @@
       failLog: '〔春馆回话〕这一旬连评文回话和递话脚费都腾挪不开，只得先硬顶过去；刚起头的馆课门路又薄了一线（家族-1）。',
       hardship: 'clan'
     });
+    if (season.id === 'spring' && xun === 2) apply({
+      handledIds: examSupportHandledIds(['e_essay', 'e_home', 'e_rest', 'e_spring_packet', 'e_spring_cough']),
+      doneTag: '春中灯咳已分',
+      doneLog: '〔春中灯咳〕这一旬先把护嗓咳药、灯油、草鞋脚费和递话门包分开了；春课中旬不再只剩评文回话，连“馆课刚起，嗓子、脚路与灯下气力先来追钱”的护身肩账也被压回了这一旬。',
+      cost: 45,
+      buckets: { 本年零耗支出文: 20, 本年衣药支出文: 25 },
+      costTag: '春中灯咳',
+      costLog: '〔春中灯咳〕护嗓咳药、灯油、草鞋脚费和递话门包一起要钱：铜钱-{cost}。不是大账，却正把春课中旬最容易被“先把文章磨出来”带过去的护身与脚路小耗重新压回了真账。',
+      failTag: '春中灯咳硬顶',
+      failLog: '〔春中灯咳〕这一旬连护嗓咳药和灯油脚费都腾挪不开，只得先硬扛过去；春中这层灯下与脚路亏空先落到了身上（体魄-1）。',
+      hardship: 'body'
+    });
     if (season.id === 'spring' && xun === 3) apply({
       handledIds: examSupportHandledIds(['e_copy', 'e_home', 'e_rest', 'e_spring_tail_packet', 'e_spring_fan']),
       doneTag: '春尾香纸已分',
@@ -2698,7 +2710,7 @@
     var supportCount = countPicked(examSupportHandledIds([
       'e_home', 'e_fail_talk',
       'e_rest', 'e_mend', 'e_delay_upper', 'e_delay_split',
-      'e_summer_cough', 'e_autumn_cough', 'e_winter_cough',
+      'e_spring_cough', 'e_summer_cough', 'e_autumn_cough', 'e_winter_cough',
       'e_spring_fan', 'e_spring_open_shoe', 'e_summer_open_cure', 'e_autumn_open_cloth', 'e_winter_open_reply', 'e_winter_tail_cure',
       'e_spring_open_packet', 'e_spring_packet', 'e_spring_tail_packet',
       'e_summer_open_packet', 'e_summer_packet', 'e_summer_tail_packet', 'e_summer_tail_reply',
@@ -8495,6 +8507,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'e_copy', name: season.id === 'winter' ? '年关抄单写契补贴' : '抄书/看账补贴', cost: 1, eff: '铜钱+' + copyCopper + '·识字转业值+1·文章火候+1', desc: '就算不中，识字、誊抄和替人看账也会慢慢沉成转业底子。', can: S.识字, why: S.识字 ? '' : '尚不识字' });
           if (season.id === 'spring') {
             A.push({ id: 'e_spring_packet', name: '先把春中评文回话与税则脚费分开', cost: 1, eff: '铜钱-45·家族+1', desc: '春课中旬最怕评文回话、税则小纸、递话脚费和家里锅火一起冒头。先把这层小钱拆开，馆课口风才不至刚起就被磨薄。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
+            A.push({
+              id: 'e_spring_cough',
+              name: '先把春中护嗓灯油与草鞋递话分开',
+              cost: 1,
+              eff: '铜钱-50·体魄+1·家族+1·将养+1',
+              desc: '春课中旬最怕评文回话刚起，护嗓咳药、灯油、草鞋脚费和递话门包又一起追钱。先把这层春中护身小耗拆开，不让馆课刚坐实就先把嗓子、脚路和灯下气力一并磨薄。',
+              can: S.铜钱 >= 50,
+              why: S.铜钱 >= 50 ? '' : '铜钱不足50文',
+              once: true
+            });
           } else if (season.id === 'summer') {
             A.push({ id: 'e_summer_packet', name: '先把潮纸、投帖脚费与塾馆茶汤分开', cost: 1, eff: '铜钱-50·家族+1·体魄+1', desc: '伏夏中旬最怕潮纸、投帖脚费、塾馆茶汤和家里凉热小耗一起冒头。先把这层细耗拆开，文章和身子都不至同时被暑气磨薄。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
             A.push({
@@ -9043,6 +9065,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把春中评文回话与税则脚费分开：铜钱-45、家族+1。春课中旬这层评文回话、税则小纸与递话脚费先被拆开，馆课口风没再顺手被锅火磨薄。', 'good']);
               } else {
                 log.push(['想先把春中评文回话与税则脚费拆开，但这一旬铜钱已先被别处占住，只得继续把馆课口风和家里锅火挤在同一口现钱上。', 'bad']);
+              }
+              break;
+            case 'e_spring_cough':
+              if (spendCopper(50)) {
+                noteExamOutlay(50, { buckets: { 本年零耗支出文: 20, 本年衣药支出文: 30 } });
+                S.体魄 += 1;
+                S.家族 += 1;
+                S.本年将养次数 += 1;
+                if (S.本年身子亏空 > 0) S.本年身子亏空 -= 1;
+                pushExamSeasonTag(stepTag + '春中灯咳');
+                log.push(['先把春中护嗓灯油与草鞋递话分开：铜钱-50、体魄+1、家族+1。护嗓咳药、灯油、草鞋脚费和递话门包先被拆开，春中这层“评文刚起、嗓子与脚路先来追钱”的小耗没再继续贴着馆课一起磨人。', 'good']);
+              } else {
+                log.push(['想先把春中护嗓灯油与草鞋递话拆开，但这一旬铜钱已先被别处占住，只得让春中这层护身与脚路小耗继续贴着馆课一起追钱。', 'bad']);
               }
               break;
             case 'e_summer_packet':
@@ -21494,6 +21529,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var funeral = 1 + merchantExtraFuneralSilver; // 白银
     var funeralMi = 1;
     var recoveredReceivable = S.未回款银 > 0 ? Math.floor(S.未回款银 * merchantReceivableRatio) : 0;
+
+    // 把死亡结算里“应收结回/丧葬扣除”的确定值写回状态，供 death 阶段的自动 outcome 真正落账；
+    // 否则会出现：死亡页文案写了“客死运柩停厝铜钱180文/丧葬白银2两”，但流水账只扣了白银1两、存米1石的假闭环。
+    S._deathRecoveredSilver = recoveredReceivable;
+    S._deathFuneralSilver = funeral;
+    S._deathFuneralMi = funeralMi;
+    S._deathFuneralCopper = merchantExtraFuneralCopper;
+
     var estateSilverGross = Math.max(0, S.白银 - funeral + recoveredReceivable);
     var estateDebt = Math.max(0, S.负债银 - estateSilverGross);
     var estateSilver = Math.max(0, estateSilverGross - S.负债银);
@@ -21688,12 +21731,30 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     tracePhase('enter:' + p);
     if (p === 'death' && curStage && curStage._autoOutcome) {
       var before = snapshot();
-      // 应用丧葬扣除与守恒记账
-      S.白银 = Math.max(0, S.白银 - 1); S.存米 = Math.max(0, S.存米 - 1);
+      // 应用丧葬扣除与守恒记账（必须与 stageDeath() 中用于计算遗产/传承快照的扣除口径一致）
+      var recovered = Math.max(0, Number(S._deathRecoveredSilver || 0));
+      var funeralSilver = Math.max(0, Number(S._deathFuneralSilver || 1));
+      var funeralMi = Math.max(0, Number(S._deathFuneralMi || 1));
+      var funeralCopper = Math.max(0, Number(S._deathFuneralCopper || 0));
+      if (recovered > 0) {
+        S.白银 += recovered;
+        // 只结回一部分，其余仍算“未取得”；不把未回款银硬清零。
+        S.未回款银 = Math.max(0, (S.未回款银 || 0) - recovered);
+      }
+      S.白银 = Math.max(0, S.白银 - funeralSilver);
+      S.存米 = Math.max(0, S.存米 - funeralMi);
+      if (funeralCopper > 0) S.铜钱 = Math.max(0, S.铜钱 - funeralCopper);
       S._dead = true; // 死亡确认：此后除“丧葬/传承”外，任何再写入本世状态都视为不变量违规
-      recordEntry('丧葬支出结算', before, '棺木等：白银-1、存米-1（从遗产扣，镜像入出资子账）');
+      recordEntry(
+        '丧葬支出结算',
+        before,
+        '丧葬扣除：白银-' + funeralSilver + '、存米-' + funeralMi
+          + (funeralCopper > 0 ? ('、铜钱-' + funeralCopper) : '')
+          + (recovered > 0 ? ('；并结回应收白银+' + recovered + '（未回款只结回一部分，其余仍算未取得）') : '')
+          + '（从遗产扣，镜像入出资子账）'
+      );
       var rh = '<div class="resolve"><h4>身后结算 · 享年 ' + S.年龄 + ' 岁</h4>';
-      rh += '<div class="line bad">· 丧葬支出：白银-1、存米-1</div>';
+      rh += '<div class="line bad">· 丧葬支出：白银-' + funeralSilver + '、存米-' + funeralMi + (funeralCopper > 0 ? ('、运柩停厝铜钱' + funeralCopper + '文') : '') + '</div>';
       if (S.子数 > 0) rh += '<div class="line good">· 遗产品搭均分给 ' + S.子数 + ' 子；你继续跟的这一房分得白银' + (S._carry.白银) + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩' + (S._carry.委托待收租谷 > 0 ? ('，另有待收委托田租' + S._carry.委托待收租谷 + '石') : '') + (S._carry.负债银 > 0 ? ('，并分担旧债' + S._carry.负债银 + '两') : '') + '</div>';
       else rh += '<div class="line bad">· 绝嗣过继：旁支承进这一房结清后的真实余产，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩' + (S._carry.委托待收租谷 > 0 ? ('，另有待收委托田租' + S._carry.委托待收租谷 + '石') : '') + (S._carry.负债银 > 0 ? ('，并接过旧债' + S._carry.负债银 + '两') : '') + '</div>';
       if (S._deathRemainderText) rh += '<div class="line">· 余数落房：' + S._deathRemainderText + '</div>';
