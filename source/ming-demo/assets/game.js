@@ -3773,7 +3773,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'spring' && xun === 3) apply({
-      handledIds: ['m_letter', 'm_home', 'm_reserve', 'm_market', 'm_spring_tail_split', 'm_spring_tail_supply', 'm_spring_tail_body'],
+      handledIds: ['m_letter', 'm_home', 'm_reserve', 'm_market', 'm_spring_tail_split', 'm_spring_tail_goods', 'm_spring_tail_supply', 'm_spring_tail_body'],
       doneTag: '春尾脚费已留',
       doneLog: '〔春尾脚费〕这一旬先把回乡带话脚费、柜边包纸、归乡药包和递话门包分开了；春开路收尾不再只剩一句“过了春再说”，连身子与家里催问也被压回同一年里。',
       cost: 30,
@@ -6405,6 +6405,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
         if (season.id === 'spring' && xun === 3) {
           A.push({ id: 'm_spring_tail_split', name: '先把春尾回签与归乡脚费分开', cost: 1, eff: '铜钱-55·家书+1·家族+1·商信誉+1', desc: '春开路收尾这一旬，最怕熟号回签、归乡脚费、柜边包纸和递话门包一齐来要钱。先把这层春尾回签拆开，夏里要继续坐店、跑单与捎家书时，才不至还被春尾后手拖着走。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
+          A.push({ id: 'm_spring_tail_goods', name: '先把春尾样单与熟号门包分开', cost: 1, eff: '铜钱-60·认货+1·核账+1·商信誉+1', desc: '春开路收尾这一旬，最怕样单抄录、熟号门包、柜边包纸和归乡脚费一起追钱。先把这层春尾样单拆开，伏夏刚坐店时，认货、核账和熟面口风才不至还被春尾这口门包拖着走。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
           A.push({ id: 'm_spring_tail_supply', name: '先把春尾供读纸包与差钱口风分开', cost: 1, eff: '铜钱-60·家书+1·供读+1·备役+1·家族+1', desc: '春开路收尾这一旬，最怕家书回话、供读纸包、差钱口风和柜边包纸一起追钱。先把这层春尾供差去向拆开，夏里刚坐店时，家里那口供读和差役后手就不至继续混成一句“等你回钱”。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
           A.push({ id: 'm_spring_tail_body', name: '先把春尾药包与回签家书分开', cost: 1, eff: '铜钱-65·家书+1·歇养+1·体魄+1·家族+1', desc: '春开路收尾这一旬，最怕归乡药包、回签家书、回乡脚费和锅火后手一起追钱。先把这层春尾药信拆开，夏里刚坐店时，自己的身子和家里催问也不至继续抢同一口现钱。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
         }
@@ -6796,6 +6797,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把春尾回签与归乡脚费分开：铜钱-55、家书+1、家族+1、商信誉+1。春尾这层熟号回签、归乡脚费、柜边包纸和递话门包先被压回了这一旬，夏里不再还拖着春尾后手。', 'good']);
               } else {
                 log.push(['想先把春尾回签与归乡脚费拆开，但这旬铜钱已先被别处占住，只得让春尾回话和归乡脚费继续挤在同一口现钱上。', 'bad']);
+              }
+              break;
+            case 'm_spring_tail_goods':
+              if (spendCopper(60)) {
+                S.本年商路认货 += 1;
+                S.本年商路核账 += 1;
+                S.识货进度 += 1;
+                S.账房进度 += 1;
+                S.商信誉 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆春尾样单');
+                log.push(['先把春尾样单与熟号门包分开：铜钱-60、认货+1、核账+1、商信誉+1。春尾这层样单抄录、熟号门包、柜边包纸和归乡脚费先被拆回了这一旬，伏夏刚坐店时，认货、核账和熟面口风不再还被春尾这口门包拖着走。', 'good']);
+              } else {
+                log.push(['想先把春尾样单与熟号门包分开，但这旬铜钱已先被别处占住，只得让样单、门包和归乡脚费继续一起追这口现钱。', 'bad']);
               }
               break;
             case 'm_spring_tail_supply':
