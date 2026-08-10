@@ -893,9 +893,94 @@
       return { p: p, r: k };
     });
   }
+  function merchantYearProfile() {
+    var year = Math.max(1, Math.min(MERCHANT_YEARS, Number(S.商年) || 1));
+    if (year === 1) {
+      return {
+        label: '头年认货坐店',
+        note: '头一年先把认货、守柜、认字补账和递话脚路坐稳；就算有零星回签，更多也只是替秋后试手铺路。',
+        stageLead: '这一年更像站住脚跟：先认人、认货、认柜上规矩，知道哪笔钱只是口风、哪笔钱才真能回手。',
+        dossier: '头年重心=认货 / 坐店 / 补账',
+        endSummary: '先把认货、坐店和补账踩成真账，年底即便只回了零星现银，也知道商路不是一句“去学生意”。',
+        shopCopperAdj: 20,
+        goodsGainAdj: 1,
+        marketGoodsAdj: 1,
+        marketTrustAdj: 0,
+        runCopperAdj: -30,
+        runBodyAdj: 1,
+        bookCopperAdj: 20,
+        collectCopperAdj: -10,
+        collectTrustAdj: 0,
+        homeFamilyAdj: 0,
+        trialCapitalCostAdj: 10,
+        literacyCostAdj: -10,
+        tradeAdj: { flat: 0.04, profit: -0.08, loss: 0.01, receivable: 0.03 },
+        tradeNote: '头一年还在认货坐店，试手更容易拖成浮账，能回本已算把路走通。',
+        remitNote: '头一年就算先贴一两回家，多半也只是先把锅火、门包和催信压住，还谈不上稳稳地把整条供读链撑起来。',
+        supportFamilyAdj: 0,
+        supportTrustAdj: -1
+      };
+    }
+    if (year === 2) {
+      return {
+        label: '二年跑单试手',
+        note: '第二商年开始把跑单、问价、试本和小额回钱真正压成主轴；前一年的认货和账面底子，终于开始在脚路上见用。',
+        stageLead: '这一年不只是守柜，更要往外跑、和牙行照面，把试本口风一步步坐实，商路开始像一条能往外伸的线。',
+        dossier: '二年重心=跑单 / 问价 / 试本',
+        endSummary: '这一年真正把跑单、问价和试本连成了线，商路不再只是柜上学规矩，而是开始自己试着把货路和回签往前推。',
+        shopCopperAdj: 10,
+        goodsGainAdj: 0,
+        marketGoodsAdj: 1,
+        marketTrustAdj: 0,
+        runCopperAdj: 20,
+        runBodyAdj: 0,
+        bookCopperAdj: 10,
+        collectCopperAdj: 10,
+        collectTrustAdj: 0,
+        homeFamilyAdj: 0,
+        trialCapitalCostAdj: -5,
+        literacyCostAdj: 0,
+        tradeAdj: { flat: -0.03, profit: 0.05, loss: -0.01, receivable: -0.01 },
+        tradeNote: '第二商年已常跑脚路，货出去后更有机会回本或小利，不再像头年那样多拖成浮账。',
+        remitNote: '第二商年的回钱开始能真改写家里次序，不再只是先压一口锅火。',
+        supportFamilyAdj: 0,
+        supportTrustAdj: 0
+      };
+    }
+    return {
+      label: '三年回钱反哺',
+      note: '第三商年要把回钱、贴家、供读、差役和身家冲突一起收口；同样一两银，该先催账还是先顾家里，都要当年落账。',
+      stageLead: '这一年最厚的地方不是再多跑一程，而是把回钱、拖欠、供读、差役和身子亏空排出先后，真的替这一房收口。',
+      dossier: '三年重心=回钱 / 反哺 / 供读 / 差役',
+      endSummary: '这一年若能把回钱、贴家、供读和差役后手一起排清，整条商路才真正像“亦贾亦儒”，而不是只会跑货。',
+      shopCopperAdj: 0,
+      goodsGainAdj: 0,
+      marketGoodsAdj: 0,
+      marketTrustAdj: 1,
+      runCopperAdj: 30,
+      runBodyAdj: -1,
+      bookCopperAdj: 20,
+      collectCopperAdj: 20,
+      collectTrustAdj: 1,
+      homeFamilyAdj: 1,
+      trialCapitalCostAdj: -10,
+      literacyCostAdj: 0,
+      tradeAdj: { flat: -0.02, profit: 0.07, loss: -0.03, receivable: -0.02 },
+      tradeNote: '第三商年开始懂得把回钱、供读与催账次序一起算进去，试手时更容易把现银真正带回家门。',
+      remitNote: '第三商年的回钱一旦回手，家里往往立刻拿它去续锅火、供读和差役后手，已经不是单纯“报个平安钱”。',
+      supportFamilyAdj: 1,
+      supportTrustAdj: 1
+    };
+  }
   function merchantTradeProfile() {
+    var yearProfile = merchantYearProfile();
     var weights = { flat: 0.35, profit: 0.30, loss: 0.20, receivable: 0.15 };
     var notes = [];
+    weights.flat += yearProfile.tradeAdj.flat;
+    weights.profit += yearProfile.tradeAdj.profit;
+    weights.loss += yearProfile.tradeAdj.loss;
+    weights.receivable += yearProfile.tradeAdj.receivable;
+    notes.push(yearProfile.tradeNote);
     if (S.商路门路 > 0) {
       weights.profit += 0.05; weights.loss -= 0.03; weights.receivable -= 0.02;
       notes.push('旧商路还认得人和账，货价与回款不至全靠撞运气');
@@ -937,8 +1022,11 @@
     };
   }
   function merchantHomeRemittanceProfile() {
+    var yearProfile = merchantYearProfile();
     var familyGain = 2;
     var desc = '先把已经回手的一两银贴回家里，让锅火、口粮或差钱先过住；这只是反哺到账，不等于已经另划成供读专账。';
+    familyGain = Math.max(1, familyGain + yearProfile.homeFamilyAdj);
+    desc += yearProfile.remitNote ? (' ' + yearProfile.remitNote) : '';
     var decay = currentLineageDecayLevel();
     if (currentLineageIsCollateral() && decay > 0) {
       familyGain = 1;
@@ -946,7 +1034,7 @@
         ? '这一房如今是旁支续起，旧门路又连薄几层；同样一两银贴回去，也多半先被拿去压锅火、口粮与差钱，不再像本支那样能稳稳留后手。'
         : '这一房如今是旁支续起；同样一两银贴回去，仍能让家里先缓一口气，但更容易先被锅火与差钱吃住。';
     } else if (S.累计回钱银 > 0 || S.商路门路 > 0 || S.累计反哺银 > 0) {
-      desc = '先把已经回手的一两银贴回家里，让锅火、口粮或差钱先过住；家里至少认得这条回钱路，不至还把你这一手当空话。';
+      desc = '先把已经回手的一两银贴回家里，让锅火、口粮或差钱先过住；家里至少认得这条回钱路，不至还把你这一手当空话。' + (yearProfile.remitNote ? (' ' + yearProfile.remitNote) : '');
     }
     return {
       familyGain: familyGain,
@@ -956,6 +1044,7 @@
     };
   }
   function merchantSupportProfile() {
+    var yearProfile = merchantYearProfile();
     var familyGain = 1, trustGain = 0;
     var desc = '你在外挣来的银，不只贴家，还可另划一两进供读专账，专门顶住家里那条读书链。';
     var boosted = false;
@@ -973,6 +1062,9 @@
         ? '这一房虽也承到一点“外头回钱、家里另划供读账”的旧规矩，但旧门路已连薄几层；同样一两银回去，也只够勉强把供读账续住，不再像本支那样稳。'
         : '这一房虽也承到一点“外头回钱、家里另划供读账”的旧规矩，但如今是旁支续起，这层门路终究比本支薄一线；同样一两银回去，仍能替家里稳住一点供读压力，却不如本支那样稳。';
     }
+    familyGain = Math.max(1, familyGain + yearProfile.supportFamilyAdj);
+    trustGain = Math.max(0, trustGain + yearProfile.supportTrustAdj);
+    desc += ' ' + yearProfile.remitNote;
     return {
       familyGain: familyGain,
       trustGain: trustGain,
@@ -6066,6 +6158,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var season = merchantSeasonInfo(S.商季 || 1);
     var xun = S.商段 || 1;
     var xunLabel = merchantXunLabel(xun);
+    var yearProfile = merchantYearProfile();
     var isMid = xun === 2;
     var isLate = xun >= 3;
     var isYearEnd = season.id === 'winter' && isLate;
@@ -6082,8 +6175,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var shopCopper = season.id === 'summer' ? 150 : (season.id === 'winter' ? 130 : 110);
     if (isMid) shopCopper += 20;
     if (isLate) shopCopper -= 10;
+    shopCopper += yearProfile.shopCopperAdj;
     var shopBody = season.id === 'summer' ? (isMid ? 3 : 2) : (isLate ? 2 : 1);
     var goodsGain = season.id === 'autumn' ? (isMid ? 2 : 1) : (isLate ? 0 : 1);
+    goodsGain = Math.max(0, goodsGain + yearProfile.goodsGainAdj);
     var runSilver = (season.id === 'autumn' && xun >= 2) ? 1 : 0;
     var runCopper = season.id === 'autumn'
       ? (isLate ? 170 : (isMid ? 220 : 180))
@@ -6092,18 +6187,24 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         : (season.id === 'winter'
           ? (isLate ? 80 : 120)
           : (isLate ? 100 : 130)));
+    runCopper += yearProfile.runCopperAdj;
     if ((S.商路门路 || 0) > 0) {
       runCopper += Math.min(80, (S.商路门路 || 0) * 40);
       if (currentLineageIsCollateral()) runCopper = Math.max(80, runCopper - 40);
     }
     var runBody = season.id === 'summer' ? (isMid ? 5 : 4) : (season.id === 'autumn' ? (isLate ? 4 : 3) : (isLate ? 3 : 2));
+    runBody = Math.max(1, runBody + yearProfile.runBodyAdj);
     var runFamilyCost = currentLineageIsCollateral() ? 1 : 0;
     var bookCopper = season.id === 'winter' ? (isLate ? 240 : 200) : (isMid ? 180 : 150);
     if (S.家传书香 > 0) bookCopper += 40;
     if (S.亦贾亦儒底子 > 0) bookCopper += 20;
+    bookCopper += yearProfile.bookCopperAdj;
     var collectCopper = season.id === 'winter' ? (isLate ? 90 : 70) : (season.id === 'autumn' ? 60 : 40);
     var collectTrust = isLate ? 1 : 0;
+    collectCopper = Math.max(20, collectCopper + yearProfile.collectCopperAdj);
+    collectTrust = Math.max(0, collectTrust + yearProfile.collectTrustAdj);
     var homeFamily = season.id === 'autumn' ? (isLate ? 5 : 4) : (isLate ? 4 : 3);
+    homeFamily += yearProfile.homeFamilyAdj;
     var homeRice = (season.id === 'autumn' || (season.id === 'winter' && isLate)) ? 1 : 0;
     var mendCost = season.id === 'winter' ? (isLate ? 140 : 120) : (season.id === 'summer' ? (isMid ? 100 : 90) : 70);
     var mendBody = season.id === 'winter' ? 5 : (isLate ? 4 : 3);
@@ -6111,7 +6212,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var marketCost = season.id === 'autumn' ? (isLate ? 60 : 50) : (season.id === 'winter' ? 40 : 30);
     var marketGoods = season.id === 'autumn' ? (isLate ? 2 : 1) : 1;
     var marketTrust = (season.id === 'autumn' || season.id === 'winter') ? 1 : 0;
+    marketGoods = Math.max(1, marketGoods + yearProfile.marketGoodsAdj);
+    marketTrust = Math.max(0, marketTrust + yearProfile.marketTrustAdj);
     var trialCapitalCost = season.id === 'winter' ? 55 : (xun === 1 ? 40 : 45);
+    trialCapitalCost = Math.max(35, trialCapitalCost + yearProfile.trialCapitalCostAdj);
     var letterCost = season.id === 'winter' ? (isLate ? 60 : 50) : 30;
     var letterFamily = season.id === 'winter' ? (isLate ? 3 : 2) : 2;
     // 商路补一条“识字补课”——不强制，但给未开蒙者一个在同一年里慢慢补齐账房能力的入口，
@@ -6120,6 +6224,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var literacyCost = season.id === 'winter'
       ? (isLate ? 100 : 90)
       : (season.id === 'summer' ? (isMid ? 90 : 85) : 80);
+    literacyCost = Math.max(60, literacyCost + yearProfile.literacyCostAdj);
     var seasonalCounts = '本年坐店=' + S.本年商路坐店 + '｜跑单=' + S.本年商路跑单 + '｜认货=' + S.本年商路认货 + '｜问价=' + S.本年商路问价 + '｜核账=' + S.本年商路核账 + '｜催账=' + S.本年商路催账 + '｜贴家=' + S.本年商路贴家 + '｜家书=' + S.本年商路家书 + '｜议本=' + S.本年商路议本 + '｜试贩=' + S.本年商路试贩 + '｜回钱银=' + S.本年商路回钱银 + '｜反哺银=' + S.本年商路反哺银 + '｜拖欠=' + S.本年商路拖欠 + '｜供读=' + S.本年商路供读 + '｜身乏=' + S.本年商路身乏 + '｜龃龉=' + S.本年商路龃龉 + '｜役扰=' + S.本年商路役扰;
     var bridge = lifecycleInheritanceBridge();
     var merchantCarryHook = (S.商年 === 1 && season.id === 'spring' && xun === 1) ? routeStageInheritanceHook('merchant') : { note: '', dossier: '' };
@@ -6135,10 +6240,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       ap: 3,
       commitLabel: isYearEnd ? '了这一商年 →' : '了这一旬商路 →',
       note: '商路现改成“春开路→夏坐店→秋试手→冬清账”四季、每季三旬。关键不是多给几次发财判定，而是把认货、问价、跑单、家书、催账、贴家、差役准备、补衣药与旧债都拆回一年里的真实节奏。'
+        + ' 本商年重心是“' + yearProfile.label + '”：' + yearProfile.note
         + (generation > 1 ? ' ' + tradePreview.note : '')
         + (bridge.note ? ' ' + bridge.note : '')
         + (merchantCarryHook.note ? ' ' + merchantCarryHook.note : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一商年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead
+        + ' ' + yearProfile.stageLead
         + (isLate ? '这一旬最像收账：哪笔钱先回、哪笔钱先贴家、差役钱和药钱有没有先留，都开始逼到眼前。' : '这一旬还在铺里、货路和家里之间掂量先后，真正厚的地方是同一年里许多小账一起抢。')
         + (((S.承继定位 || '').indexOf('长兄续商') >= 0)
           ? ' 只是这一手并不是平白承了长兄的旧号，多半还得挨着旧路数、在旁边另起一支，认人认账与回钱节奏都会因此改写。'
@@ -6146,7 +6253,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         + ' 你这一旬有 <span class="em">3 个行动点</span>。',
       dossier: function () {
         var seasonTags = (S.本年商路季务 && S.本年商路季务.length) ? S.本年商路季务.join('、') : '尚未坐实';
-        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜可调度回家商账=' + supportCapacity + '两（贴家/供读共用）｜试本口风=' + (S.本年商路议本 > 0 ? '已坐实' : '未坐实') + '｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。'
+        return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜商年画像=' + yearProfile.dossier + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜可调度回家商账=' + supportCapacity + '两（贴家/供读共用）｜试本口风=' + (S.本年商路议本 > 0 ? '已坐实' : '未坐实') + '｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。'
           + (bridge.dossier ? ('｜' + bridge.dossier) : '')
           + (merchantCarryHook.dossier ? ('｜' + merchantCarryHook.dossier) : ''));
       },
@@ -7565,6 +7672,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (S.本年商路身乏 > 0) log.push(['这一商年你至少有 ' + S.本年商路身乏 + ' 层身子亏空被记进了真账；跑单、茶脚和药钱没有再被“年轻扛得住”糊过去。', 'bad']);
         if (S.本年商路龃龉 > 0) log.push(['这一商年你至少有 ' + S.本年商路龃龉 + ' 层外路与家里口角被写回当年；家族冲突不再只留到跨代时才结算。', 'bad']);
         if (S.本年商路催账 > 0 && S.未回款银 > 0) log.push(['这一商年你已追过几回账，但仍有 ' + S.未回款银 + ' 两挂在外头；这正是商路最磨人的地方。', 'bad']);
+        log.push(['〔商年脉络〕第' + S.商年 + '商年的重心是“' + yearProfile.label + '”：' + yearProfile.endSummary, 'good']);
 
         clampAttr('体魄'); clampAttr('家族');
         if (S.商年 < MERCHANT_YEARS) {
