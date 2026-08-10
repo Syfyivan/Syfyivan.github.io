@@ -512,13 +512,54 @@
     if (role === '长子') return '长子承家';
     return '本房次子另起一手';
   }
+  function normalizeCarryNumber(value) {
+    var n = Number(value);
+    if (!isFinite(n)) return 0;
+    return Math.max(0, n);
+  }
+  function normalizeCarryString(value, emptyValue) {
+    var s = String(value == null ? '' : value).trim();
+    return s || emptyValue;
+  }
+  function normalizeCarryLineageSource(via, role) {
+    var base = String(via || '').trim();
+    var directTag = directHeirLineageTag(role);
+    return composeLineageSource(base, directTag);
+  }
   function normalizeCarrySnapshot(carry) {
     if (!carry || typeof carry !== 'object') return null;
     var normalized = JSON.parse(JSON.stringify(carry));
     var role = currentInheritanceRole(normalized);
     normalized.承继身份 = role;
-    if (!normalized.承嗣来路) normalized.承嗣来路 = directHeirLineageTag(role);
-    if (!normalized.承继定位) normalized.承继定位 = defaultInheritancePosition(role);
+    normalized.承嗣来路 = normalizeCarryLineageSource(normalized.承嗣来路, role);
+    normalized.承继定位 = normalizeCarryString(normalized.承继定位, defaultInheritancePosition(role));
+    normalized.父辈路线 = normalizeCarryString(normalized.父辈路线, '未定');
+    normalized.婚配路径 = normalizeCarryString(normalized.婚配路径, '未定');
+    normalized.合爨状态 = normalizeCarryString(normalized.合爨状态, '未合爨');
+    normalized.定额佃状态 = normalizeCarryString(normalized.定额佃状态, '未立');
+    normalized.雇身份 = normalizeCarryString(normalized.雇身份, '未定');
+    normalized.学徒去向 = normalizeCarryString(normalized.学徒去向, '未定');
+    normalized.举业结局 = normalizeCarryString(normalized.举业结局, '未定');
+    normalized.委托营生 = normalizeCarryString(normalized.委托营生, '无');
+    normalized.白银 = normalizeCarryNumber(normalized.白银);
+    normalized.铜钱 = normalizeCarryNumber(normalized.铜钱);
+    normalized.存米 = normalizeCarryNumber(normalized.存米);
+    normalized.田亩 = normalizeCarryNumber(normalized.田亩);
+    normalized.负债银 = normalizeCarryNumber(normalized.负债银);
+    normalized.家族 = normalizeCarryNumber(normalized.家族);
+    normalized.家传书香 = normalizeCarryNumber(normalized.家传书香);
+    normalized.城里门路 = normalizeCarryNumber(normalized.城里门路);
+    normalized.商路门路 = normalizeCarryNumber(normalized.商路门路);
+    normalized.家传手艺 = normalizeCarryNumber(normalized.家传手艺);
+    normalized.家传农事 = normalizeCarryNumber(normalized.家传农事);
+    normalized.亦贾亦儒底子 = normalizeCarryNumber(normalized.亦贾亦儒底子);
+    normalized.供读底子 = normalizeCarryNumber(normalized.供读底子);
+    normalized.委托租谷 = normalizeCarryNumber(normalized.委托租谷);
+    normalized.委托待收租谷 = normalizeCarryNumber(normalized.委托待收租谷);
+    normalized.旧门路衰减 = Math.max(lineageDecayLevel(normalized), normalizeCarryNumber(normalized.旧门路衰减));
+    if (normalized.委托营生 === '无' && (normalized.委托租谷 > 0 || normalized.委托待收租谷 > 0)) {
+      normalized.委托营生 = '出佃收租';
+    }
     return normalized;
   }
   function inheritedRoleBirthLead(carry) {
