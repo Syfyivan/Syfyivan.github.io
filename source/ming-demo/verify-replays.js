@@ -1,0 +1,26766 @@
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+const {
+  REQUIRED_ROUTE_DOCS,
+  REQUIRED_LEDGER_DOCS,
+  REQUIRED_LEDGER_SYNC_DOCS,
+  REQUIRED_DESIGN_DOCS
+} = require('./design-doc-specs');
+
+const ROOT = __dirname;
+const GAME_PATH = path.join(ROOT, 'assets', 'game.js');
+const SUMMARY_PATH = path.join(ROOT, 'replay-summary.json');
+const DESIGN_DOC_ROOT = path.resolve(ROOT, '..');
+
+function createElement(id) {
+  return {
+    id,
+    innerHTML: '',
+    disabled: false,
+    _handlers: {},
+    addEventListener(type, handler) {
+      this._handlers[type] = handler;
+    },
+    click() {
+      if (this._handlers.click) this._handlers.click({ target: this });
+    }
+  };
+}
+
+function createHarness() {
+  const elements = new Map();
+  const ensure = (id) => {
+    if (!elements.has(id)) elements.set(id, createElement(id));
+    return elements.get(id);
+  };
+  ['btn-restart', 'btn-restart-birth', 'status', 'stage', 'ledger'].forEach(ensure);
+
+  // 每个 harness 都拿一份独立的 Math，避免前一个沙箱里对随机序列的消耗
+  // 影响后一个测试。默认随机也固定为可复现的 LCG，未显式设种子的回归也应稳定。
+  const sandboxMath = Object.create(Math);
+  let fallbackSeed = 0x13579bdf;
+  sandboxMath.random = function random() {
+    fallbackSeed = (fallbackSeed * 1664525 + 1013904223) >>> 0;
+    return fallbackSeed / 4294967296;
+  };
+
+  const document = {
+    getElementById(id) {
+      return ensure(id);
+    }
+  };
+
+  const window = {
+    document,
+    scrollTo() {},
+    console,
+    Math: sandboxMath,
+    JSON
+  };
+
+  const sandbox = {
+    window,
+    document,
+    console,
+    Math: sandboxMath,
+    JSON,
+    Date,
+    Array,
+    Object,
+    Number,
+    String,
+    Boolean,
+    RegExp,
+    parseInt,
+    parseFloat,
+    isNaN,
+    setTimeout,
+    clearTimeout
+  };
+  window.window = window;
+
+  vm.createContext(sandbox);
+  vm.runInContext(fs.readFileSync(GAME_PATH, 'utf8'), sandbox, { filename: GAME_PATH });
+  if (!window.__MING_TEST_API) throw new Error('未暴露 __MING_TEST_API');
+  return { api: window.__MING_TEST_API, elements, window };
+}
+
+function clone(v) {
+  return JSON.parse(JSON.stringify(v));
+}
+
+function examXun(state) {
+  return (state && (state.举旬 || state.举段 || 1)) || 1;
+}
+
+function normalizeHtml(html) {
+  return String(html || '').replace(/\s+/g, ' ').trim();
+}
+
+function extractStageButtonLabel(stageHtml, buttonId) {
+  const match = String(stageHtml || '').match(new RegExp(`<button id="${buttonId}">([^<]+)</button>`));
+  return match ? match[1] : '';
+}
+
+function inferredCarryIdentity(carry) {
+  const explicit = String(carry && carry.承继身份 ? carry.承继身份 : '').trim();
+  if (explicit) return explicit;
+  const via = String(carry && carry.承嗣来路 ? carry.承嗣来路 : '').trim();
+  if (via.includes('旁支')) return '旁支继子';
+  if (via.includes('本支独子承继')) return '独子';
+  if (via.includes('本支长子承继')) return '长子';
+  if (via.includes('本支次子承继')) return '次子';
+  return '';
+}
+
+function expectedHeirButtonLabel(carry) {
+  const identity = inferredCarryIdentity(carry);
+  return identity ? `以${identity}身份 · 递归重开新一生 →` : '';
+}
+
+function readTextIfExists(filePath) {
+  if (!fs.existsSync(filePath)) return null;
+  return fs.readFileSync(filePath, 'utf8');
+}
+
+function availableMap(api) {
+  const map = new Map();
+  api.getAvailableActions().forEach((a) => map.set(a.id, a));
+  return map;
+}
+
+function pickByPlan(api, plan) {
+  const chosen = [];
+  for (const id of plan) {
+    const action = availableMap(api).get(id);
+    if (!action || action.can === false) continue;
+    api.pickAction(id);
+    chosen.push(id);
+  }
+  return chosen;
+}
+
+function householdSafeSeq(riskRoll = 0.01, shockRoll = 0.9) {
+  return Array.from({ length: 80 }, (_, index) => (index % 2 === 0 ? riskRoll : shockRoll));
+}
+
+function merchantStableSeq(tradeRoll = 0.72, corveeRoll = 0.9, shockRoll = 0.9) {
+  return [tradeRoll, corveeRoll, shockRoll];
+}
+
+function withTrailingShock(randSeq, shockRoll = 0.9) {
+  return (Array.isArray(randSeq) ? randSeq.slice() : []).concat([shockRoll]);
+}
+
+function chooseRoute(api, routeName) {
+  api.enterPhase('establishment');
+  if (!api.chooseByName(routeName)) {
+    throw new Error(`未找到路线：${routeName}`);
+  }
+  api.next();
+  return api.getPhase();
+}
+
+function playToDeath(api, routeName, seed) {
+  api.setRandomSeed(seed);
+  chooseRoute(api, routeName);
+
+  return playCurrentLifeToDeath(api);
+}
+
+function playCurrentLifeToDeath(api) {
+  let guard = 0;
+  // 单代一生加厚后（含“养家”四季三旬循环），深回放需要更大的步数预算。
+  while (api.getPhase() !== 'death' && guard < 420) {
+    const phase = api.getPhase();
+    if (['apprentice', 'merchant', 'civilExam', 'wage', 'farm', 'marriage', 'family', 'household', 'elder'].includes(phase)) {
+      pickByPlan(api, phasePlan(api));
+      api.commit();
+      api.next();
+    } else {
+      api.next();
+    }
+    guard += 1;
+  }
+  if (api.getPhase() !== 'death') {
+    throw new Error(`深回放未到死亡阶段：${api.getPhase()}`);
+  }
+  return clone(api.getState()._carry);
+}
+
+function phasePlan(api) {
+  const phase = api.getPhase();
+  const state = api.getState();
+  if (phase === 'family') {
+    // “养家”阶段继续加厚后，回放按“三手并行”推进：
+    // 一手主营生，一手家内/市面/门路，一手制度或身体后手。
+    const route = state.路线 || '';
+    const xun = state.家旬 || 1;
+    const actionMap = availableMap(api);
+    const plan = [];
+    const add = (id) => {
+      const action = actionMap.get(id);
+      if (!action || action.can === false || plan.includes(id)) return false;
+      plan.push(id);
+      return true;
+    };
+    const addFirst = (ids) => {
+      for (const id of ids) {
+        if (add(id)) return true;
+      }
+      return false;
+    };
+    if (xun === 1) {
+      add('f_work');
+      if (route.includes('路径三') || route.includes('入城学徒')) {
+        add('f_route_shop_note');
+        if ((state.家季 || 1) === 1) add('f_route_shop_spring_head_reply');
+        else if ((state.家季 || 1) === 2) add('f_route_shop_summer_head_reply');
+      }
+      else if (route.includes('路径二') || route.includes('受雇')) {
+        if ((state.家季 || 1) === 2) addFirst(['f_route_wage_summer_note', 'f_route_wage_note']);
+        else if ((state.家季 || 1) === 3) addFirst(['f_route_wage_autumn_note', 'f_route_wage_note']);
+        else if ((state.家季 || 1) === 4) addFirst(['f_route_wage_winter_book', 'f_route_wage_note']);
+        else {
+          addFirst(['f_route_wage_note']);
+          addFirst(['f_route_wage_spring_head_reply']);
+        }
+      }
+      else if (route.includes('路径四') || route.includes('徽商')) {
+        if ((state.家季 || 1) === 4) addFirst(['f_route_winter_medicine', 'f_route_winter_book', 'f_route_guest_gift']);
+        else if ((state.家季 || 1) === 3) addFirst(['f_route_autumn_quote', 'f_route_autumn_receipt', 'f_route_letter']);
+        else if ((state.家季 || 1) === 2) addFirst(['f_route_wharf', 'f_route_summer_register', 'f_route_summer_cool', 'f_route_summer_ledger']);
+        else addFirst(['f_route_spring_price', 'f_route_spring_packet', 'f_route_letter']);
+      }
+      else if (route.includes('读书应举') || state.举业结局 !== '未定' || state.生员身份) {
+        if ((state.家季 || 1) === 1) addFirst(['f_route_school_spring_contract', 'f_route_school_note']);
+        else if ((state.家季 || 1) === 3) addFirst(['f_route_school_autumn_packet', 'f_route_school_note']);
+        else if ((state.家季 || 1) === 2) addFirst(['f_route_school_summer_soup', 'f_route_school_note']);
+        else addFirst(['f_route_school_note']);
+        addFirst((state.家季 || 1) === 2
+          ? ['f_route_school_summer_soup', 'f_repair', 'f_child']
+          : ((state.家季 || 1) === 3
+            ? ['f_route_school_autumn_cloth', 'f_route_school_note', 'f_child']
+            : ['f_route_school_note', 'f_repair', 'f_child']));
+      }
+      add('f_repair');
+      add('f_child');
+      return plan;
+    }
+    if (xun === 2) {
+      if (route.includes('路径四') || route.includes('徽商')) {
+        add('f_market');
+        if ((state.家季 || 1) === 4) addFirst(['f_route_winter_coal', 'f_route_winter_split', 'f_route_bundle', 'f_route_autumn_split', 'f_route_split', 'f_route_remit']);
+        else if ((state.家季 || 1) === 1) addFirst(['f_route_spring_mid_reply', 'f_route_spring_ritual', 'f_route_bundle', 'f_route_autumn_split', 'f_route_split', 'f_route_remit']);
+        else if ((state.家季 || 1) === 3) addFirst(['f_route_autumn_mid_clothes', 'f_route_autumn_split', 'f_route_autumn_mid_reply', 'f_route_remit']);
+        else addFirst(['f_route_bundle', 'f_route_autumn_split', 'f_route_split', 'f_route_remit']);
+        add('f_child');
+        add('f_sell');
+        return plan;
+      }
+      if (route.includes('路径三') || route.includes('入城学徒')) {
+        add('f_market');
+        addFirst(['f_route_shop_bundle', 'f_route_shop_split', 'f_route_shop']);
+        add('f_child');
+        add('f_sell');
+        return plan;
+      }
+      if (route.includes('路径二') || route.includes('受雇')) {
+        add('f_work');
+        if ((state.家季 || 1) === 1) addFirst(['f_route_wage_spring_bundle', 'f_route_wage_spring_reply', 'f_route_wage_split', 'f_route_send']);
+        else if ((state.家季 || 1) === 2) addFirst(['f_route_wage_summer_bundle', 'f_route_wage_split', 'f_route_send']);
+        else if ((state.家季 || 1) === 3) addFirst(['f_route_wage_autumn_split', 'f_route_wage_autumn_receipt', 'f_route_wage_split', 'f_route_send']);
+        else if ((state.家季 || 1) === 4) {
+          addFirst(['f_route_wage_winter_reply', 'f_route_wage_winter_gift']);
+          addFirst(['f_route_wage_split', 'f_route_send']);
+        } else addFirst(['f_route_wage_split', 'f_route_send']);
+        add('f_child');
+        add('f_market');
+        return plan;
+      }
+      if (route.includes('读书应举') || state.举业结局 !== '未定' || state.生员身份) {
+        if ((state.家季 || 1) === 3) addFirst(['f_route_school_autumn_mid_fee', 'f_route_write']);
+        else if ((state.家季 || 1) === 4) addFirst(['f_route_school_winter_mid_reply', 'f_route_write']);
+        else addFirst(['f_route_write']);
+        add('f_child');
+        add('f_market');
+        add('f_sell');
+        return plan;
+      }
+      add('f_market');
+      add('f_sell');
+      add('f_child');
+      return plan;
+    }
+    if (route.includes('路径二') || route.includes('受雇')) {
+    if ((state.家季 || 1) === 4) addFirst(['f_route_wage_winter_tail', 'f_route_wage_winter_post', 'f_route_wage_collect', 'f_route_wage_duty']);
+    else addFirst(['f_route_wage_collect', 'f_route_wage_duty']);
+      add('f_duty');
+      addFirst(['f_mend', 'f_repay']);
+      return plan;
+    }
+    if (route.includes('路径三') || route.includes('入城学徒')) {
+      addFirst(['f_route_shop_collect', 'f_route_master', 'f_route_shop_book']);
+      add('f_duty');
+      addFirst(['f_mend', 'f_repay']);
+      return plan;
+    }
+    if (route.includes('路径四') || route.includes('徽商')) {
+      if ((state.家季 || 1) === 1) addFirst(['f_route_spring_bundle', 'f_route_collect', 'f_route_school', 'f_route_winter_book']);
+      else if ((state.家季 || 1) === 2) addFirst(['f_route_summer_guest', 'f_route_collect', 'f_route_summer_reply', 'f_route_school']);
+      else if ((state.家季 || 1) === 3) addFirst(['f_route_autumn_gate', 'f_route_receipt', 'f_route_autumn_tail', 'f_route_school']);
+      else if ((state.家季 || 1) === 4) addFirst(['f_route_winter_wharf', 'f_route_collect', 'f_route_school', 'f_route_winter_book']);
+      else addFirst(['f_route_collect', 'f_route_school', 'f_route_winter_book']);
+      add('f_duty');
+      addFirst(['f_mend', 'f_repay']);
+      return plan;
+    }
+    if (route.includes('读书应举') || state.举业结局 !== '未定' || state.生员身份) {
+      if ((state.家季 || 1) === 2) addFirst(['f_route_school_summer_reply', 'f_route_tutor_collect', 'f_route_surety']);
+      else if ((state.家季 || 1) === 1) addFirst(['f_route_school_spring_reply', 'f_route_tutor_collect', 'f_route_surety']);
+      else if ((state.家季 || 1) === 3) addFirst(['f_route_school_autumn_tail', 'f_route_tutor_collect', 'f_route_surety']);
+      else if ((state.家季 || 1) === 4) addFirst(['f_route_school_winter_post', 'f_route_tutor_collect', 'f_route_surety']);
+      addFirst(['f_route_tutor_collect', 'f_route_surety']);
+      add('f_duty');
+      addFirst(['f_mend', 'f_repay']);
+      return plan;
+    }
+    add('f_duty');
+    add('f_mend');
+    add('f_repay');
+    return plan;
+  }
+  if (phase === 'apprentice') {
+    if (state.学季 === 1 && state.学旬 === 1) return ['a_seek', 'a_bond'];
+    if (state.学季 === 1 && state.学旬 === 2) return ['a_sign'];
+    if (state.学季 === 1 && state.学旬 === 3) return ['a_drudge', 'a_learn'];
+    if (state.学季 === 2 && state.学旬 === 1) return ['a_drudge', 'a_learn'];
+    if (state.学季 === 2 && state.学旬 === 2) return ['a_send', 'a_home'];
+    if (state.学季 === 2 && state.学旬 === 3) return ['a_book', 'a_rest'];
+    if (state.学季 === 3 && state.学旬 === 1) return ['a_run', 'a_send'];
+    if (state.学季 === 3 && state.学旬 === 2) return ['a_duty', 'a_mend'];
+    if (state.学年 === 3 && state.学季 === 3 && state.学旬 === 3) return ['a_keep', 'a_trade'];
+    return ['a_book', 'a_rest'];
+  }
+  if (phase === 'merchant') {
+    const actionMap = availableMap(api);
+    const plan = [];
+    let budget = 3;
+    const add = (id) => {
+      const action = actionMap.get(id);
+      if (!action || action.can === false || plan.includes(id)) return false;
+      const cost = Number(action.cost || 1);
+      if (budget < cost) return false;
+      plan.push(id);
+      budget -= cost;
+      return true;
+    };
+    const addFirst = (ids) => {
+      for (const id of ids) {
+        if (add(id)) return true;
+      }
+      return false;
+    };
+    const lowBody = (state.体魄 || 0) <= 55;
+
+    if (state.商季 === 1 && state.商段 === 1) {
+      addFirst(['m_spring_head_duty', 'm_spring_school_split', 'm_spring_head_packet']);
+      addFirst(['m_shop', 'm_goods', 'm_market']);
+      addFirst(['m_goods', 'm_spring_head_packet', 'm_letter']);
+      return plan.length ? plan : ['m_shop', 'm_goods'];
+    }
+    if (state.商季 === 1 && state.商段 === 2) {
+      addFirst(['m_spring_mid_school', 'm_packet', lowBody ? 'm_spring_mid_body' : 'm_spring_home_split']);
+      addFirst(['m_book', 'm_market', 'm_run']);
+      addFirst([lowBody ? 'm_spring_mid_body' : 'm_spring_home_split', 'm_packet', 'm_letter']);
+      return plan.length ? plan : ['m_run', 'm_book'];
+    }
+    if (state.商季 === 1 && state.商段 === 3) {
+      addFirst(['m_spring_tail_supply', lowBody ? 'm_spring_tail_body' : 'm_spring_tail_split']);
+      addFirst(['m_home', 'm_letter', 'm_market']);
+      addFirst([lowBody ? 'm_spring_tail_body' : 'm_reserve', 'm_spring_tail_split', 'm_reserve']);
+      return plan.length ? plan : ['m_home', 'm_reserve'];
+    }
+    if (state.商季 === 2 && state.商段 === 1) {
+      addFirst(['m_summer_head_supply_duty', 'm_summer_head_home_split', 'm_summer_head_packet']);
+      addFirst(['m_shop', 'm_wharf', 'm_run']);
+      addFirst(['m_summer_head_packet', 'm_wharf', 'm_shop']);
+      return plan.length ? plan : ['m_shop', 'm_run'];
+    }
+    if (state.商季 === 2 && state.商段 === 2) {
+      addFirst(['m_summer_mid_reply_school', lowBody ? 'm_summer_mid_drag' : 'm_summer_bundle']);
+      addFirst(['m_book', 'm_shop', 'm_mend']);
+      addFirst([lowBody ? 'm_summer_conflict' : 'm_summer_mid_drag', 'm_summer_mid_reply_school', 'm_mend']);
+      return plan.length ? plan : ['m_book', 'm_mend'];
+    }
+    if (state.商季 === 2 && state.商段 === 3) {
+      addFirst(['m_summer_tail_school', 'm_summer_tail_duty', 'm_counter']);
+      addFirst(['m_counter', 'm_shop', 'm_rest']);
+      addFirst([lowBody ? 'm_rest' : 'm_summer_tail_duty', 'm_summer_tail_school', 'm_shop']);
+      return plan.length ? plan : ['m_shop', 'm_rest'];
+    }
+    if (state.商季 === 3 && state.商段 === 1) {
+      addFirst(['m_autumn_head_duty', 'm_autumn_supply_split', lowBody ? 'm_autumn_head_drag' : 'm_autumn_receipt']);
+      addFirst(['m_trial_capital', 'm_run', 'm_goods']);
+      addFirst(['m_goods', 'm_collect', lowBody ? 'm_autumn_head_drag' : 'm_autumn_supply_split']);
+      return plan.length ? plan : ['m_goods', 'm_run', 'm_trial_capital'];
+    }
+    if (state.商季 === 3 && state.商段 === 2) {
+      addFirst(['m_try', 'm_trial_capital']);
+      addFirst(['m_autumn_mid_remit_drag', 'm_autumn_mid_school', lowBody ? 'm_autumn_mid_body' : 'm_autumn_mid_bundle']);
+      addFirst(['m_book', 'm_collect', lowBody ? 'm_autumn_mid_body' : 'm_autumn_mid_drag']);
+      return plan.length ? plan : ['m_try'];
+    }
+    if (state.商季 === 3 && state.商段 === 3) {
+      addFirst(['m_autumn_tail_remit_duty', 'm_support_school', 'm_support', 'm_supply_split']);
+      addFirst(['m_autumn_tail_duty', lowBody ? 'm_autumn_tail_body' : 'm_autumn_tail_split']);
+      addFirst(['m_collect', 'm_home', 'm_letter']);
+      return plan.length ? plan : ['m_autumn_tail_remit_duty', 'm_home'];
+    }
+    if (state.商季 === 4 && state.商段 === 1) {
+      addFirst(['m_winter_head_remit_duty', 'm_winter_head_school', 'm_winter_head_packet']);
+      addFirst(['m_collect', 'm_book', 'm_corvee_split']);
+      addFirst([lowBody ? 'm_winter_head_body' : 'm_winter_head_school', 'm_corvee_split', 'm_mend']);
+      return plan.length ? plan : ['m_collect', 'm_book'];
+    }
+    if (state.商季 === 4 && state.商段 === 2) {
+      addFirst(['m_winter_mid_remit_school', 'm_winter_mid_supply_duty', 'm_debt_split']);
+      addFirst(['m_collect', 'm_clear_packet', 'm_book']);
+      addFirst([lowBody ? 'm_winter_mid_body' : 'm_debt_split', 'm_winter_family_split', 'm_mend']);
+      return plan.length ? plan : ['m_collect', 'm_mend'];
+    }
+    addFirst(['m_winter_tail_remit_drag', 'm_winter_tail_supply_duty', 'm_winter_tail_home_body', 'm_winter_tail_school']);
+    addFirst(['m_collect', 'm_winter_tail', 'm_mend']);
+    addFirst([lowBody ? 'm_winter_tail_home_body' : 'm_winter_drag_split', 'm_reserve', 'm_letter']);
+    return plan.length ? plan : ['m_reserve', 'm_mend'];
+  }
+  if (phase === 'civilExam') {
+    if (state.举季 === 1 && examXun(state) === 1) return state.投塾进度 >= 2 ? ['e_tutor', 'e_mother_help'] : ['e_enroll', 'e_tutor', 'e_mother_help'];
+    if (state.举季 === 1 && examXun(state) === 2) return ['e_essay', 'e_home', 'e_spring_packet'];
+    if (state.举季 === 1 && examXun(state) === 3) return ['e_copy', 'e_home'];
+    if (state.举季 === 2 && examXun(state) === 1) return state.投塾进度 >= 2 ? ['e_tutor'] : ['e_enroll', 'e_tutor'];
+    if (state.举季 === 2 && examXun(state) === 2) return ['e_essay', 'e_copy', 'e_summer_packet'];
+    if (state.举季 === 2 && examXun(state) === 3) return ['e_copy', 'e_mend'];
+    if (state.举季 === 3 && examXun(state) === 1) return state.投塾进度 >= 2 ? ['e_tutor'] : ['e_enroll', 'e_tutor'];
+    if (state.举季 === 3 && examXun(state) === 2) return state.保结进度 >= 2 ? ['e_essay', 'e_copy', 'e_autumn_packet'] : ['e_guarantee', 'e_copy', 'e_autumn_packet'];
+    if (state.举季 === 3 && examXun(state) === 3) return state.生员身份 ? ['e_copy', 'e_home'] : (state.保结进度 >= 2 ? ['e_exam', 'e_autumn_tail_packet'] : ['e_essay', 'e_copy', 'e_autumn_tail_packet']);
+    if (state.举季 === 4 && examXun(state) === 1) return state.本年应试结果 === '落第'
+      ? ['e_fail_talk', 'e_winter_open_packet', 'e_rest']
+      : ['e_home', 'e_winter_open_packet', 'e_rest'];
+    if (state.举季 === 4 && examXun(state) === 2) return (!state.生员身份 && state.保结进度 < 2)
+      ? ['e_guarantee', 'e_copy', 'e_winter_mid_packet']
+      : (state.本年应试结果 === '落第'
+        ? ['e_fail_copy', 'e_mend', 'e_winter_mid_packet']
+        : ['e_copy', 'e_mend', 'e_winter_mid_packet']);
+    return (!state.生员身份 && !state.本年下场 && state.保结进度 >= 2)
+      ? ['e_exam', 'e_reserve', 'e_winter_packet']
+      : ['e_reserve', 'e_home', 'e_winter_packet'];
+  }
+  if (phase === 'wage') {
+    if (state.工季 === 1 && state.工段 === 1) return ['w_long'];
+    if (state.工季 === 1 && state.工段 === 2) return ['w_duty', 'w_send'];
+    if (state.工季 === 2 && state.工段 === 1) return ['w_short', 'w_skill'];
+    if (state.工季 === 2 && state.工段 === 2) return ['w_market', 'w_send'];
+    if (state.工季 === 3 && state.工段 === 1) return ['w_short', 'w_home'];
+    if (state.工季 === 3 && state.工段 === 2) return ['w_short', 'w_send'];
+    if (state.工季 === 4 && state.工段 === 1) return ['w_book', 'w_short'];
+    return ['w_mend', 'w_short'];
+  }
+  if (phase === 'farm') {
+    return ['plant', 'water', 'weed', 'harvest', 'exchange', 'rest'];
+  }
+  if (phase === 'marriage') {
+    return ['m_save', 'm_gift', 'm_gift1', 'm_match', 'm_show', 'm_borrow', 'm_wait'];
+  }
+  if (phase === 'household') {
+    if ((state.路线 || '').indexOf('入城学徒') === 0) {
+      if (state.户季 === 1 && state.户旬 === 1) return ['h_shop_packet', 'h_shop_book'];
+      if (state.户季 === 1 && state.户旬 === 2) return ['h_lease_city', 'h_proxy'];
+      if (state.户季 === 1 && state.户旬 === 3) return ['h_shop_collect', 'h_spring_bundle'];
+      if (state.户季 === 2 && state.户旬 === 1) return ['h_summer_packet', 'h_shop_book'];
+      if (state.户季 === 2 && state.户旬 === 2) return ['h_summer_reply', 'h_shop_book'];
+      if (state.户季 === 2 && state.户旬 === 3) return ['h_summer_tail', 'h_shop_collect'];
+      if (state.户季 === 3 && state.户旬 === 1) return ['h_autumn_reply', 'h_shop_collect'];
+      if (state.户季 === 3 && state.户旬 === 2) return ['h_autumn_bundle', 'h_pay'];
+      if (state.户季 === 3 && state.户旬 === 3) return ['h_autumn_tail', 'h_proxy'];
+      if (state.户季 === 4 && state.户旬 === 1) return ['h_winter_packet', 'h_shop_book'];
+      if (state.户季 === 4 && state.户旬 === 2) return ['h_winter_reply', 'h_winter_route'];
+      if (state.户季 === 4 && state.户旬 === 3) return ['h_year_reply', 'h_year_gift'];
+      return ['h_shop_book', 'h_lease_city', 'h_proxy', 'h_shop_collect', 'h_literate', 'h_clan', 'h_side', 'h_rest', 'h_pay'];
+    }
+    if ((state.路线 || '').indexOf('徽商') === 0) {
+      if (state.户季 === 1 && state.户旬 === 1) return ['h_literate', 'h_spring_packet'];
+      if (state.户季 === 1 && state.户旬 === 2) return ['h_trust_field', 'h_spring_deed'];
+      if (state.户季 === 1 && state.户旬 === 3) return ['h_collect', 'h_spring_split'];
+      if (state.户季 === 2 && state.户旬 === 1) return ['h_summer_cool', 'h_summer_head_reply'];
+      if (state.户季 === 2 && state.户旬 === 2) return ['h_summer_market', 'h_summer_mid_reply'];
+      if (state.户季 === 2 && state.户旬 === 3) return ['h_summer_tail', 'h_side'];
+      if (state.户季 === 3 && state.户旬 === 1) return ['h_wharf', 'h_autumn_receipt'];
+      if (state.户季 === 3 && state.户旬 === 2) return ['h_autumn_split', 'h_clan'];
+      if (state.户季 === 3 && state.户旬 === 3) return ['h_pay'];
+      if (state.户季 === 4 && state.户旬 === 1) return ['h_winter_gift', 'h_wharf'];
+      if (state.户季 === 4 && state.户旬 === 2) return ['h_winter_clear', 'h_winter_route_split'];
+      if (state.户季 === 4 && state.户旬 === 3) return ['h_winter_coal', 'h_winter_tail'];
+      return ['h_collect', 'h_trust_field', 'h_school_fund', 'h_pay', 'h_clan', 'h_side', 'h_rest'];
+    }
+    if ((state.路线 || '').indexOf('读书应举') === 0) {
+      if (state.户季 === 2 && state.户旬 === 1) return ['h_summer_soup', 'h_summer_packet'];
+      return ['h_exempt', 'h_copy_mid', 'h_literate', 'h_clan', 'h_side', 'h_rest'];
+    }
+    return ['h_pay', 'h_literate', 'h_clan', 'h_side', 'h_rest'];
+  }
+  if (phase === 'elder') {
+    if ((state.路线 || '').indexOf('入城学徒') === 0) {
+      if (state.老季 === 1 && state.老旬 === 1) return ['e_negotiate'];
+      if (state.老季 === 1 && state.老旬 === 2) return ['e_city', 'e_shop_spring_reply_old'];
+      if (state.老季 === 1 && state.老旬 === 3) return ['e_shop_spring_packet_old', 'e_rest'];
+      if (state.老季 === 2 && state.老旬 === 1) return ['e_shop_summer_note_old', 'e_rest'];
+      if (state.老季 === 2 && state.老旬 === 2) return ['e_shop_bundle_old', 'e_rest'];
+      if (state.老季 === 2 && state.老旬 === 3) return ['e_shop_summer_tail_old', 'e_rest'];
+      if (state.老季 === 3 && state.老旬 === 1) return ['e_rent', 'e_shop_autumn_note_old'];
+      if (state.老季 === 3 && state.老旬 === 2) return ['e_shop_collect_old', 'e_shop_autumn_mid_old'];
+      if (state.老季 === 3 && state.老旬 === 3) return ['e_shop_autumn_tail_old', 'e_rest'];
+      if (state.老季 === 4 && state.老旬 === 1) return ['e_shop_gift_old', 'e_sell', 'e_rest'];
+      if (state.老季 === 4 && state.老旬 === 2) return ['e_shop_winter_reply_old', 'e_rest'];
+      if (state.老季 === 4 && state.老旬 === 3) return ['e_shop_winter_tail_old', 'e_shop_route_old', 'e_rest'];
+      return ['e_negotiate', 'e_city', 'e_shop_collect_old', 'e_rent', 'e_shop_gift_old', 'e_shop_winter_reply_old', 'e_shop_route_old', 'e_rest'];
+    }
+    if ((state.路线 || '').indexOf('徽商') === 0) {
+      if (state.老季 === 1 && state.老旬 === 1) return ['e_negotiate'];
+      if (state.老季 === 1 && state.老旬 === 2) return ['e_route_price_old', 'e_route_spring_reply_old'];
+      if (state.老季 === 1 && state.老旬 === 3) return ['e_route_spring_packet_old', 'e_rest'];
+      if (state.老季 === 2 && state.老旬 === 1) return ['e_route_summer_note_old', 'e_rest'];
+      if (state.老季 === 2 && state.老旬 === 2) return ['e_route_bundle_old', 'e_rest'];
+      if (state.老季 === 2 && state.老旬 === 3) return ['e_route_summer_packet_old', 'e_rest'];
+      if (state.老季 === 3 && state.老旬 === 1) return ['e_route_receipt_old', 'e_route_autumn_note_old'];
+      if (state.老季 === 3 && state.老旬 === 2) return ['e_collect_old', 'e_rent'];
+      if (state.老季 === 3 && state.老旬 === 3) return ['e_route_autumn_tail_old', 'e_rest'];
+      if (state.老季 === 4 && state.老旬 === 1) return ['e_sell', 'e_route_winter_medicine_old'];
+      if (state.老季 === 4 && state.老旬 === 2) return ['e_route_guest_old', 'e_route_winter_reply_old', 'e_rest'];
+      if (state.老季 === 4 && state.老旬 === 3) return ['e_route_wharf_old', 'e_route_winter_tail_old', 'e_rest'];
+      return ['e_negotiate', 'e_collect_old', 'e_rent', 'e_rest'];
+    }
+    if ((state.路线 || '').indexOf('读书应举') === 0) {
+      if (state.老季 === 1 && state.老旬 === 1) return ['e_negotiate', 'e_tutor_spring_head_old'];
+      if (state.老季 === 1 && state.老旬 === 2) return ['e_tutor_note_old', 'e_tutor_spring_reply_old'];
+      if (state.老季 === 1 && state.老旬 === 3) return ['e_tutor_spring_packet_old', 'e_rest'];
+      if (state.老季 === 2 && state.老旬 === 1) return ['e_tutor_summer_soup_old', 'e_rest'];
+      if (state.老季 === 2 && state.老旬 === 2) return ['e_tutor_bundle_old', 'e_rest'];
+      if (state.老季 === 2 && state.老旬 === 3) return ['e_tutor_summer_tail_old', 'e_rest'];
+      if (state.老季 === 3 && state.老旬 === 1) return ['e_tutor_receipt_old', 'e_tutor_autumn_reply_old'];
+      if (state.老季 === 3 && state.老旬 === 2) return ['e_tutor_collect_old', 'e_tutor_autumn_mid_old'];
+      if (state.老季 === 3 && state.老旬 === 3) return ['e_tutor_autumn_tail_reply_old', 'e_tutor_autumn_bundle_old'];
+      if (state.老季 === 4 && state.老旬 === 1) return ['e_sell', 'e_tutor_gift_old', 'e_tutor_winter_reply_old'];
+      if (state.老季 === 4 && state.老旬 === 2) return ['e_tutor_winter_mid_old', 'e_tutor_post_old', 'e_rest'];
+      if (state.老季 === 4 && state.老旬 === 3) return ['e_tutor_winter_bundle_old', 'e_tutor_winter_tail_note_old', 'e_rest'];
+      return ['e_negotiate', 'e_write_old', 'e_rent', 'e_rest'];
+    }
+    if ((state.路线 || '').indexOf('受雇') === 0) {
+      if (state.老季 === 1 && state.老旬 === 1) return ['e_negotiate'];
+      if (state.老季 === 1 && state.老旬 === 2) return ['e_wage_note_old', 'e_rest'];
+      if (state.老季 === 1 && state.老旬 === 3) return ['e_wage_spring_packet_old', 'e_rest'];
+      if (state.老季 === 2 && state.老旬 === 1) return ['e_wage_summer_soup_old', 'e_rest'];
+      if (state.老季 === 2 && state.老旬 === 2) return ['e_wage_bundle_old', 'e_rest'];
+      if (state.老季 === 2 && state.老旬 === 3) return ['e_wage_summer_tail_old', 'e_rest'];
+      if (state.老季 === 3 && state.老旬 === 1) return ['e_wage_receipt_old', 'e_wage_autumn_head_old'];
+      if (state.老季 === 3 && state.老旬 === 2) return ['e_wage_collect_old', 'e_rent'];
+      if (state.老季 === 3 && state.老旬 === 3) return ['e_wage_autumn_tail_old', 'e_rest'];
+      if (state.老季 === 4 && state.老旬 === 1) return ['e_wage_winter_head_old', 'e_wage_gift_old', 'e_sell'];
+      if (state.老季 === 4 && state.老旬 === 2) return ['e_wage_winter_reply_old', 'e_rest'];
+      if (state.老季 === 4 && state.老旬 === 3) return ['e_wage_winter_tail_old', 'e_wage_route_old', 'e_rest'];
+      return ['e_negotiate', 'e_rent', 'e_rest', 'e_sell'];
+    }
+    return ['e_negotiate', 'e_rent', 'e_rest', 'e_sell'];
+  }
+  return [];
+}
+
+function driveToDeath(routeName, seed) {
+  const { api, window } = createHarness();
+  const carry = playToDeath(api, routeName, seed);
+  return {
+    route: routeName,
+    seed,
+    phase: api.getPhase(),
+    carry,
+    stage: api.getStageTitle(),
+    deathStage: normalizeHtml(api.getStageHTML()),
+    phaseTrace: clone(api.getPhaseTrace ? api.getPhaseTrace() : []),
+    inv: clone(window.__INV || [])
+  };
+}
+
+function routePhaseKey(routeName) {
+  if (routeName === '路径一 · 留乡佃田') return 'farm';
+  if (routeName === '路径二 · 受雇长工 / 短工') return 'wage';
+  if (routeName === '路径三 · 入城学徒') return 'apprentice';
+  if (routeName === '路径四 · 徽商式亦贾亦儒') return 'merchant';
+  if (routeName === '路径五 · 读书应举') return 'civilExam';
+  return null;
+}
+
+function tracePhaseNames(trace) {
+  return (trace || []).map((item) => item.phase);
+}
+
+function includesOrderedPhases(trace, phases) {
+  const names = tracePhaseNames(trace);
+  let cursor = -1;
+  for (const phase of phases) {
+    const nextIndex = names.findIndex((name, index) => index > cursor && name === phase);
+    if (nextIndex < 0) return false;
+    cursor = nextIndex;
+  }
+  return true;
+}
+
+function phaseTraceAgeNeverDrops(trace) {
+  let prevAge = -Infinity;
+  for (const step of (trace || [])) {
+    const age = Number(step && step.age);
+    if (!Number.isFinite(age)) return false;
+    if (age < prevAge) return false;
+    prevAge = age;
+  }
+  return true;
+}
+
+function deathStageCoversCarry(carry, deathStage) {
+  if (!carry) return false;
+  if (!deathStage.includes('下一代承接：')) return false;
+  const expectedButton = expectedHeirButtonLabel(carry);
+  if (expectedButton && extractStageButtonLabel(deathStage, 'btn-pnext') !== expectedButton) return false;
+  if ((carry.父辈路线 || '') && carry.父辈路线 !== '未定' && !deathStage.includes(`父辈路线=${carry.父辈路线}`)) return false;
+  if ((carry.承继身份 || '') && !deathStage.includes(`承继身份=${carry.承继身份}`)) return false;
+  if ((carry.承嗣来路 || '') && !deathStage.includes(`承嗣来路=${carry.承嗣来路}`)) return false;
+  if ((carry.承继定位 || '') && !deathStage.includes(`承继定位=${carry.承继定位}`)) return false;
+  if ((carry.委托营生 || '') && carry.委托营生 !== '无' && !deathStage.includes(`委托营生=${carry.委托营生}`)) return false;
+  if ((carry.委托租谷 || 0) > 0 && !deathStage.includes(`委托租谷${carry.委托租谷}石/年`)) return false;
+  if ((carry.委托待收租谷 || 0) > 0 && !deathStage.includes(`待收委托田租${carry.委托待收租谷}石`)) return false;
+  if ((carry.负债银 || 0) > 0 && !deathStage.includes('旧债')) return false;
+  if ((carry.负债银 || 0) > 0 && !deathStage.includes(`负债银=${carry.负债银}两`) && !deathStage.includes(`旧债${carry.负债银}两`)) return false;
+  if ((carry.家传书香 || 0) > 0 && !deathStage.includes('家传书香')) return false;
+  if ((carry.城里门路 || 0) > 0 && !deathStage.includes('城里门路')) return false;
+  if ((carry.商路门路 || 0) > 0 && !deathStage.includes('商路门路')) return false;
+  if ((carry.家传手艺 || 0) > 0 && !deathStage.includes('家传手艺')) return false;
+  if ((carry.家传农事 || 0) > 0 && !deathStage.includes('家传农事')) return false;
+  if ((carry.亦贾亦儒底子 || 0) > 0 && !deathStage.includes('亦贾亦儒底子')) return false;
+  if ((carry.供读底子 || 0) > 0 && !deathStage.includes('供读底子')) return false;
+  if ((carry.旧门路衰减 || 0) > 0 && !deathStage.includes(`旧门路衰减${carry.旧门路衰减}层`)) return false;
+  if ((carry.婚配路径 || '') && carry.婚配路径 !== '未定' && !deathStage.includes(`婚配路径=${carry.婚配路径}`)) return false;
+  if ((carry.合爨状态 || '') && carry.合爨状态 !== '未合爨' && !deathStage.includes(`合爨状态=${carry.合爨状态}`)) return false;
+  if ((carry.定额佃状态 || '') && carry.定额佃状态 !== '未立' && !deathStage.includes(`定额佃状态=${carry.定额佃状态}`)) return false;
+  if ((carry.雇身份 || '') && carry.雇身份 !== '未定' && !deathStage.includes(`雇身份=${carry.雇身份}`)) return false;
+  if ((carry.学徒去向 || '') && carry.学徒去向 !== '未定' && !deathStage.includes(`学徒去向=${carry.学徒去向}`)) return false;
+  if ((carry.举业结局 || '') && carry.举业结局 !== '未定' && !deathStage.includes(`举业结局=${carry.举业结局}`)) return false;
+  return true;
+}
+
+function stageMentionsDebt(stageHtml, amount) {
+  return stageHtml.includes(`旧债${amount}两`) || stageHtml.includes(`旧债还有${amount}两`);
+}
+
+function stageMentionsDelegatedRent(stageHtml, amount) {
+  const text = String(stageHtml || '');
+  return text.includes(`待收委托田租=${amount}石`)
+    || text.includes(`待收委托田租${amount}石`)
+    || text.includes(`待收租谷=${amount}石`)
+    || text.includes(`待收租谷${amount}石`);
+}
+
+function expectedHintFragments(carry) {
+  const fragments = [];
+  if ((carry.父辈路线 || '') && carry.父辈路线 !== '未定') fragments.push(carry.父辈路线);
+  if ((carry.承嗣来路 || '').includes('旁支')) fragments.push('旁支');
+  if ((carry.承嗣来路 || '').includes('弟妹接续')) fragments.push('弟妹接着前一个孩子的旧账');
+  if ((carry.负债银 || 0) > 0) fragments.push(`旧债${carry.负债银}两`);
+  if ((carry.家传农事 || 0) > 0) fragments.push('农事');
+  if ((carry.家传书香 || 0) > 0) fragments.push('书香');
+  if ((carry.城里门路 || 0) > 0) fragments.push('城里');
+  if ((carry.商路门路 || 0) > 0) fragments.push('商路');
+  if ((carry.家传手艺 || 0) > 0) fragments.push('手艺');
+  if ((carry.亦贾亦儒底子 || 0) > 0) fragments.push('亦贾亦儒');
+  if ((carry.供读底子 || 0) > 0) fragments.push('供读');
+  if ((carry.婚配路径 || '') === '暂不婚·改定额佃' || (carry.定额佃状态 || '') === '已立定额佃') fragments.push('定额佃');
+  if ((carry.合爨状态 || '') === '随兄合户' || (carry.合爨状态 || '') === '已析爨') fragments.push('合爨');
+  if ((carry.婚配路径 || '') === '先应差·外出佣工' || (carry.雇身份 || '') === '外出佣工') fragments.push('旧牙口');
+  if ((carry.学徒去向 || '') === '留店伙计') fragments.push('留店');
+  if ((carry.举业结局 || '') && (carry.举业结局 || '') !== '未定') fragments.push(carry.举业结局);
+  return fragments;
+}
+
+function inheritedIdentityPreserved(carry, state) {
+  if (!carry || !state) return false;
+  const exactKeys = ['父辈路线', '承继身份', '承嗣来路', '承继定位'];
+  for (const key of exactKeys) {
+    const expected = carry[key];
+    if (expected != null && expected !== '' && state[key] !== expected) return false;
+  }
+  if ((carry.委托营生 || '') && carry.委托营生 !== '无' && state.委托营生 !== carry.委托营生) return false;
+  if ((carry.委托租谷 || 0) > 0 && state.委托租谷 !== carry.委托租谷) return false;
+  if ((carry.委托待收租谷 || 0) > 0 && state.委托待收租谷 !== carry.委托待收租谷) return false;
+  return true;
+}
+
+function lifecycleIdentitySlice(state) {
+  return {
+    父辈路线: state ? state.父辈路线 : undefined,
+    承继身份: state ? state.承继身份 : undefined,
+    承嗣来路: state ? state.承嗣来路 : undefined,
+    承继定位: state ? state.承继定位 : undefined
+  };
+}
+
+function delegatedEstateSlice(state) {
+  return {
+    委托营生: state ? state.委托营生 : undefined,
+    委托租谷: state ? state.委托租谷 : undefined,
+    委托待收租谷: state ? state.委托待收租谷 : undefined
+  };
+}
+
+function delegatedEstateStable(carry, state) {
+  if (!carry || !state) return false;
+  const expectedDelegation = String(carry.委托营生 || '无');
+  const actualDelegation = String(state.委托营生 || '无');
+  if (actualDelegation !== expectedDelegation) return false;
+  if (Number(state.委托租谷 || 0) !== Number(carry.委托租谷 || 0)) return false;
+  if (Number(state.委托待收租谷 || 0) !== Number(carry.委托待收租谷 || 0)) return false;
+  return true;
+}
+
+function lifecycleStageIdentityStable(carry, stageSnapshot) {
+  if (!carry || !stageSnapshot || !stageSnapshot.state) return false;
+  return inheritedIdentityPreserved(carry, stageSnapshot.state);
+}
+
+function lifecycleStateCarryApplied(carry, state) {
+  if (!carry || !state) return false;
+  if (!inheritedIdentityPreserved(carry, state)) return false;
+  const exactNumericKeys = [
+    '家传书香',
+    '城里门路',
+    '商路门路',
+    '家传手艺',
+    '家传农事',
+    '亦贾亦儒底子',
+    '供读底子',
+    '旧门路衰减'
+  ];
+  for (const key of exactNumericKeys) {
+    if (Number(state[key] || 0) !== Number(carry[key] || 0)) return false;
+  }
+  return String(state.委托营生 || '无') === String(carry.委托营生 || '无');
+}
+
+function establishmentCarryApplied(carry, state) {
+  if (!inheritedIdentityPreserved(carry, state)) return false;
+  const exactNumericKeys = [
+    '白银',
+    '铜钱',
+    '存米',
+    '田亩',
+    '负债银',
+    '家传书香',
+    '城里门路',
+    '商路门路',
+    '家传手艺',
+    '家传农事',
+    '亦贾亦儒底子',
+    '供读底子',
+    '旧门路衰减',
+    '委托租谷',
+    '委托待收租谷'
+  ];
+  for (const key of exactNumericKeys) {
+    const expected = Number(carry[key] || 0);
+    const actual = Number(state[key] || 0);
+    if (actual !== expected) return false;
+  }
+  const expectedDelegation = String(carry.委托营生 || '无');
+  const actualDelegation = String(state.委托营生 || '无');
+  return actualDelegation === expectedDelegation;
+}
+
+function runtimeCarryApplied(routeName, carry, state) {
+  if (!inheritedIdentityPreserved(carry, state)) return false;
+  if (routeName === '路径一 · 留乡佃田') {
+    if ((carry.家传书香 || 0) > 0 && !state.识字) return false;
+    if ((carry.家传农事 || 0) > 0 && state.农事历练 < 1) return false;
+    return state.负债银 === carry.负债银 && state.田亩 === carry.田亩;
+  }
+  if (routeName === '路径二 · 受雇长工 / 短工') {
+    if ((carry.家传手艺 || 0) > 0 && state.雇技进度 < 1) return false;
+    if ((carry.家传农事 || 0) > 0 && state.农事历练 < 1) return false;
+    if ((carry.家传书香 || 0) > 0 && !state.识字) return false;
+    return state.负债银 === carry.负债银;
+  }
+  if (routeName === '路径三 · 入城学徒') {
+    if ((carry.城里门路 || 0) > 0 && state.学徒合同 !== '说合中') return false;
+    if ((carry.商路门路 || 0) > 0 && state.学徒授艺度 < 1) return false;
+    return state.负债银 === carry.负债银;
+  }
+  if (routeName === '路径四 · 徽商式亦贾亦儒') {
+    if ((carry.商路门路 || 0) > 0 && state.商信誉 < Math.max(1, carry.商路门路)) return false;
+    if ((carry.商路门路 || 0) > 0 && state.账房进度 < 1) return false;
+    if ((carry.城里门路 || 0) > 0 && state.识货进度 < 1) return false;
+    return state.负债银 === carry.负债银;
+  }
+  if (routeName === '路径五 · 读书应举') {
+    if ((carry.家传书香 || 0) > 0 && !state.识字) return false;
+    if (((carry.家传书香 || 0) > 1 || (carry.商路门路 || 0) > 0) && state.保结进度 < 1) return false;
+    return state.负债银 === carry.负债银;
+  }
+  return true;
+}
+
+function runCrossGenReplay() {
+  const routes = [
+    '路径一 · 留乡佃田',
+    '路径二 · 受雇长工 / 短工',
+    '路径三 · 入城学徒',
+    '路径四 · 徽商式亦贾亦儒',
+    '路径五 · 读书应举'
+  ];
+  const expectedPhase = {
+    '路径一 · 留乡佃田': 'farm',
+    '路径二 · 受雇长工 / 短工': 'wage',
+    '路径三 · 入城学徒': 'apprentice',
+    '路径四 · 徽商式亦贾亦儒': 'merchant',
+    '路径五 · 读书应举': 'civilExam'
+  };
+
+  return routes.map((route, index) => {
+    const { api, window } = createHarness();
+    const seed = 300 + index;
+    const carry = playToDeath(api, route, seed);
+    const deathStage = normalizeHtml(api.getStageHTML());
+    const deathButtonLabel = extractStageButtonLabel(deathStage, 'btn-pnext');
+    api.restartWithHeir();
+
+    const generation = api.getGeneration();
+    const phase = api.getPhase();
+    const carryOver = clone(api.getCarryOver());
+    const establishmentState = clone(api.getState());
+    const stageHtml = api.getStageHTML().replace(/\s+/g, ' ').trim();
+    const choices = api.getChoices();
+    const notesJoined = choices.map((c) => c.note || '').join(' ');
+    const hints = expectedHintFragments(carry);
+    const hintsOk = hints.every((fragment) => stageHtml.includes(fragment) || notesJoined.includes(fragment));
+
+    api.chooseByName(route);
+    api.next();
+    const routedPhase = api.getPhase();
+    const routedState = clone(api.getState());
+    const replayedCarry = playCurrentLifeToDeath(api);
+    const replayedDeathStage = normalizeHtml(api.getStageHTML());
+    const replayedDeathButtonLabel = extractStageButtonLabel(replayedDeathStage, 'btn-pnext');
+    const replayedPhaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+    api.restartWithHeir();
+    const replayedGeneration = api.getGeneration();
+    const replayedHeirState = clone(api.getState());
+    const replayedHeirStage = api.getStageHTML().replace(/\s+/g, ' ').trim();
+    const replayedHeirChoices = api.getChoices();
+    const replayedHeirNotes = replayedHeirChoices.map((c) => c.note || '').join(' ');
+    const replayedHints = expectedHintFragments(replayedCarry);
+    const replayedHintsOk = replayedHints.every((fragment) => replayedHeirStage.includes(fragment) || replayedHeirNotes.includes(fragment));
+
+    return {
+      route,
+      seed,
+      generation,
+      carry,
+      carryOver,
+      deathButtonLabel,
+      establishmentStageOk: stageHtml.includes('这一代承的是上一代身后结清后留下的家底')
+        && stageHtml.includes(`田${carry.田亩}亩`)
+        && stageHtml.includes(`存米${carry.存米}石`)
+        && stageHtml.includes(`白银${carry.白银}两`)
+        && establishmentCarryApplied(carry, establishmentState),
+      hintsChecked: hints,
+      routedPhase,
+      replayedCarry,
+      replayedDeathButtonLabel,
+      replayedPhaseTrace: replayedPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: generation === 2
+        && phase === 'establishment'
+        && JSON.stringify(carryOver) === JSON.stringify(carry)
+        && establishmentCarryApplied(carry, establishmentState)
+        && deathStageCoversCarry(carry, deathStage)
+        && choices.length === 5
+        && hintsOk
+        && routedPhase === expectedPhase[route]
+        && runtimeCarryApplied(route, carry, routedState)
+        && includesOrderedPhases(replayedPhaseTrace, ['establishment', expectedPhase[route], 'marriage', 'family', 'household', 'elder', 'death'])
+        && phaseTraceAgeNeverDrops(replayedPhaseTrace)
+        && replayedCarry.父辈路线 === routedState.路线
+        && deathStageCoversCarry(replayedCarry, replayedDeathStage)
+        && replayedDeathButtonLabel === expectedHeirButtonLabel(replayedCarry)
+        && replayedGeneration === 3
+        && establishmentCarryApplied(replayedCarry, replayedHeirState)
+        && replayedHintsOk
+        && (window.__INV || []).length === 0
+    };
+  });
+}
+
+function runFieldInheritanceRegression() {
+  const { api, window, elements } = createHarness();
+  api.patchState({
+    路线: '留乡佃田',
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 1,
+    铜钱: 260,
+    存米: 3,
+    田亩: 4,
+    负债银: 0,
+    家族: 68,
+    识字: true,
+    农事历练: 5
+  });
+  api.enterPhase('household');
+  // 当户现也拆成“四季三旬”：这里要完整跑完一年（12 次 commit），再进入养老。
+  // 第一个上旬先把薄田自耕账坐实，其余旬节以核账/通气/将养为主。
+  pickByPlan(api, ['h_hold_field', 'h_literate', 'h_clan', 'h_rest']);
+  api.commit();
+  api.next();
+
+  for (let i = 0; i < 10; i += 1) {
+    pickByPlan(api, ['h_literate', 'h_clan', 'h_rest', 'h_side', 'h_hire', 'h_pay']);
+    api.commit();
+    api.next();
+  }
+  // 最后一旬：先收住这一年当户账
+  pickByPlan(api, ['h_pay', 'h_literate', 'h_clan', 'h_rest', 'h_side']);
+  api.commit();
+  const postHousehold = clone(api.getState());
+  api.next();
+  // 当户现会跨年跑到 elderAge；这里把剩余当户年用保守策略走完，再进入养老。
+  let householdAdvanceSafety = 0;
+  let householdStage = normalizeHtml(elements.get('stage').innerHTML);
+  while (householdStage.includes('当户') && householdAdvanceSafety < 180) {
+    pickByPlan(api, ['h_literate', 'h_clan', 'h_rest', 'h_side', 'h_hire', 'h_pay', 'h_hold_field']);
+    api.commit();
+    api.next();
+    householdStage = normalizeHtml(elements.get('stage').innerHTML);
+    householdAdvanceSafety += 1;
+  }
+  // 养老现已拆成“四季三旬”：春安顿→夏将养→秋结租→冬收束，各季上中下三旬后进入死亡与传承。
+  pickByPlan(api, ['e_negotiate']); // 春安顿·上旬
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_rest']); // 春安顿·中旬
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_rest']); // 春安顿·下旬 → 夏将养·上旬
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_field_keep', 'e_rest']); // 夏将养·上旬
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_rest']); // 夏将养·中旬
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_rest']); // 夏将养·下旬 → 秋结租·上旬
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_rent', 'e_rest']); // 秋结租·上旬
+  api.commit();
+  const postElder = clone(api.getState());
+  api.next();
+
+  pickByPlan(api, ['e_rest']); // 秋结租·中旬
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_rest']); // 秋结租·下旬 → 冬收束·上旬
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_rest']); // 冬收束·上旬
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_rest']); // 冬收束·中旬
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_rest']); // 冬收束·下旬 → 死亡与传承
+  api.commit();
+  api.next();
+  const carry = clone(api.getState()._carry);
+
+  return {
+    postHousehold: {
+      委托营生: postHousehold.委托营生,
+      委托租谷: postHousehold.委托租谷,
+      农事历练: postHousehold.农事历练,
+      存米: postHousehold.存米
+    },
+    postElder: {
+      存米: postElder.存米,
+      体魄: postElder.体魄
+    },
+    carry: {
+      田亩: carry.田亩,
+      家传农事: carry.家传农事,
+      承嗣来路: carry.承嗣来路
+    },
+    ok: postHousehold.委托营生 === '分得薄田自耕'
+      && postHousehold.委托租谷 === 0
+      && postHousehold.农事历练 >= 5
+      // 当户→养老现在会完整跑过春安顿、夏将养，再叠加秋前外部冲击；
+      // 这里不再要求“秋头账上一定仍有存米”，只要求薄田承接后老年身体未断、且农事底子真实进到下一代。
+      && postElder.体魄 > 0
+      && carry.田亩 >= 1
+      && carry.家传农事 >= 1
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runWageFieldRegression() {
+  const { api, window } = createHarness();
+  api.patchState({
+    路线: '受雇长工/短工',
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 1,
+    铜钱: 180,
+    存米: 2,
+    田亩: 4,
+    负债银: 1,
+    家族: 58,
+    农事历练: 1,
+    雇工历练: 4
+  });
+  api.enterPhase('household');
+  pickByPlan(api, ['h_hold_field', 'h_side', 'h_rest', 'h_clan']);
+  api.commit();
+  const postHousehold = clone(api.getState());
+  api.next();
+  api.enterPhase('death');
+  const carry = clone(api.getState()._carry);
+
+  return {
+    postHousehold: {
+      委托营生: postHousehold.委托营生,
+      农事历练: postHousehold.农事历练,
+      存米: postHousehold.存米
+    },
+    carry: {
+      田亩: carry.田亩,
+      家传农事: carry.家传农事,
+      承嗣来路: carry.承嗣来路
+    },
+    ok: postHousehold.委托营生 === '分得薄田自耕'
+      && postHousehold.农事历练 >= 2
+      && carry.田亩 >= 1
+      && carry.家传农事 >= 1
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runEntryReplay() {
+  const routes = [
+    '路径一 · 留乡佃田',
+    '路径二 · 受雇长工 / 短工',
+    '路径三 · 入城学徒',
+    '路径四 · 徽商式亦贾亦儒',
+    '路径五 · 读书应举'
+  ];
+  return routes.map((route) => {
+    const { api, window } = createHarness();
+    const phase = chooseRoute(api, route);
+    return { route, phase, ok: phase !== 'establishment' && (window.__INV || []).length === 0 };
+  });
+}
+
+function driveBirthToEstablishment(api, plan) {
+  plan = plan || {};
+  api.restartFromBirth();
+  if (plan.seed != null) api.setRandomSeed(plan.seed);
+  if (Array.isArray(plan.randSeq)) api.setRandomSequence(plan.randSeq);
+
+  let guard = 0;
+  while (api.getPhase() === 'childhood' && guard < 96) {
+    // 幼年回放不追求“最优”，只要可重复、可结算、可进入立身五路即可。
+    // 选一个可用动作（若不选也能 commit，但这里模拟玩家至少点一下）。
+    const actions = api.getAvailableActions();
+    const pick = actions.find((a) => a.can && a.cost > 0) || actions.find((a) => a.can);
+    if (pick) api.pickAction(pick.id);
+    api.commit();
+    api.next();
+    guard += 1;
+  }
+  if (api.getPhase() !== 'establishment') {
+    throw new Error('从出生跑起未进入立身阶段');
+  }
+  return guard;
+}
+
+function runBirthReplay() {
+  const { api, elements, window } = createHarness();
+  // 幼年每一段段末会消耗两次随机：一次家计年景（丰/平/歉），一次早夭（die/live）。
+  // 这里强制走“live”，避免随机导致回放不稳定。
+  driveBirthToEstablishment(api, {
+    randSeq: [
+      0.5, 0.9, // baby
+      0.5, 0.9, // tot
+      0.5, 0.9, // kid
+      0.5, 0.9  // teen
+    ]
+  });
+  const stageHtml = elements.get('stage').innerHTML.replace(/\s+/g, ' ').trim();
+
+  api.chooseByName('路径一 · 留乡佃田');
+  api.next();
+
+  return {
+    phaseAfterRoute: api.getPhase(),
+    stageHtml,
+    ok: stageHtml.includes('幼年既过')
+      && stageHtml.includes('十六岁')
+      && api.getPhase() === 'farm'
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runSiblingContinuationReplay() {
+  const { api, elements, window } = createHarness();
+  // 强制在“襁褓”段末触发早夭，让弟妹接续旧账（这是从出生跑起的闭环关键分支）。
+  // baby 段末：先结家计一次（consume rand #1），再 rollChildMortality（consume rand #2）。
+  api.restartFromBirth();
+  api.setRandomSequence([0.5, 0.01]);
+
+  let guard = 0;
+  while (api.getPhase() === 'childhood' && api.getGeneration() === 1 && guard < 12) {
+    const actions = api.getAvailableActions();
+    const pick = actions.find((a) => a.can && a.cost > 0) || actions.find((a) => a.can);
+    if (pick) api.pickAction(pick.id);
+    api.commit();
+    api.next();
+    guard += 1;
+  }
+
+  const stageHtml = elements.get('stage').innerHTML.replace(/\s+/g, ' ').trim();
+  const carryOver = api.getCarryOver();
+  const state = api.getState();
+
+  return {
+    generation: api.getGeneration(),
+    phase: api.getPhase(),
+    carryOver,
+    inheritedLineage: state.承嗣来路,
+    stageHtml,
+    ok: api.getGeneration() === 2
+      && api.getPhase() === 'childhood'
+      && !!carryOver
+      && (carryOver.承嗣来路 || '').includes('弟妹接续')
+      && (state.承嗣来路 || '').includes('弟妹接续')
+      && (stageHtml.includes('弟妹接续') || stageHtml.includes('接续'))
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runSiblingContinuationCarryRegression() {
+  const { api, window } = createHarness();
+  api.restartFromBirth();
+  api.patchState({
+    承继身份: '旁支继子',
+    承嗣来路: '旁支过继',
+    承继定位: '旁支接祧续户',
+    家传农事: 1,
+    供读底子: 1,
+    旧门路衰减: 2,
+    委托营生: '出佃收租',
+    委托租谷: 1,
+    委托待收租谷: 1,
+    婚配路径: '暂不婚·改定额佃',
+    合爨状态: '已析爨',
+    定额佃状态: '已立定额佃'
+  });
+  api.setRandomSequence([0.5, 0.01]);
+  let guard = 0;
+  while (api.getPhase() === 'childhood' && api.getGeneration() === 1 && guard < 12) {
+    const actions = api.getAvailableActions();
+    const pick = actions.find((a) => a.can && a.cost > 0) || actions.find((a) => a.can);
+    if (pick) api.pickAction(pick.id);
+    api.commit();
+    api.next();
+    guard += 1;
+  }
+  const carryOver = clone(api.getCarryOver());
+  const state = clone(api.getState());
+  return {
+    carryOver: {
+      承继身份: carryOver && carryOver.承继身份,
+      承继定位: carryOver && carryOver.承继定位,
+      家传农事: carryOver && carryOver.家传农事,
+      供读底子: carryOver && carryOver.供读底子,
+      旧门路衰减: carryOver && carryOver.旧门路衰减,
+      委托待收租谷: carryOver && carryOver.委托待收租谷,
+      婚配路径: carryOver && carryOver.婚配路径,
+      合爨状态: carryOver && carryOver.合爨状态,
+      定额佃状态: carryOver && carryOver.定额佃状态
+    },
+    state: {
+      承继身份: state.承继身份,
+      承继定位: state.承继定位,
+      供读底子: state.供读底子,
+      委托待收租谷: state.委托待收租谷
+    },
+    ok: api.getGeneration() === 2
+      && api.getPhase() === 'childhood'
+      && !!carryOver
+      && carryOver.承继身份 === '旁支继子'
+      && carryOver.承继定位 === '旁支接祧续户'
+      && carryOver.家传农事 === 1
+      && carryOver.供读底子 === 1
+      && carryOver.旧门路衰减 === 2
+      && carryOver.委托待收租谷 === 1
+      && carryOver.婚配路径 === '暂不婚·改定额佃'
+      && carryOver.合爨状态 === '已析爨'
+      && carryOver.定额佃状态 === '已立定额佃'
+      && state.承继身份 === carryOver.承继身份
+      && state.承继定位 === carryOver.承继定位
+      && state.供读底子 === carryOver.供读底子
+      && state.委托待收租谷 === carryOver.委托待收租谷
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runLegacyRegression() {
+  const { api, elements, window } = createHarness();
+  const carry = {
+    白银: 0,
+    存米: 2,
+    田亩: 0,
+    铜钱: 600,
+    负债银: 2,
+    家族: 74,
+    父辈路线: '旁支续承前一手走商路',
+    承嗣来路: '旁支续承',
+    家传书香: 1,
+    城里门路: 1,
+    商路门路: 2,
+    家传手艺: 0,
+    亦贾亦儒底子: 1
+  };
+  api.restartFromCarry(carry, 2);
+  api.enterPhase('establishment');
+  const note = elements.get('stage').innerHTML.replace(/\s+/g, ' ').trim();
+  api.chooseByName('路径四 · 徽商式亦贾亦儒');
+  api.next();
+  return {
+    phase: api.getPhase(),
+    route: api.getState().路线,
+    family: api.getState().家族,
+    debt: api.getState().负债银,
+    routeSource: api.getState().承嗣来路,
+    note,
+    ok: note.includes('旁支')
+      && note.includes('旧债')
+      // 留乡佃田入口也必须吃到 route-aware 承接提示（不只出外四路）
+      && note.includes('田上记账')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runDebtRegression() {
+  const { api, window } = createHarness();
+  const carry = {
+    白银: 0,
+    存米: 2,
+    田亩: 1,
+    铜钱: 480,
+    负债银: 3,
+    家族: 52,
+    父辈路线: '受雇长工/短工',
+    承嗣来路: '本支次子承继',
+    家传书香: 0,
+    城里门路: 0,
+    商路门路: 0,
+    家传手艺: 1,
+    亦贾亦儒底子: 0
+  };
+  api.restartFromCarry(carry, 2);
+  const inheritedState = clone(api.getState());
+
+  api.patchState({
+    路线: '受雇长工/短工',
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 1,
+    铜钱: 300,
+    存米: 2,
+    田亩: 1,
+    负债银: 5,
+    家族: 54
+  });
+  api.enterPhase('death');
+  const deathCarry = clone(api.getState()._carry);
+  api.restartWithHeir();
+  const heirState = clone(api.getState());
+
+  return {
+    inheritedState: {
+      负债银: inheritedState.负债银,
+      承嗣来路: inheritedState.承嗣来路
+    },
+    deathCarry: {
+      白银: deathCarry.白银,
+      田亩: deathCarry.田亩,
+      负债银: deathCarry.负债银,
+      承嗣来路: deathCarry.承嗣来路
+    },
+    heirState: {
+      白银: heirState.白银,
+      田亩: heirState.田亩,
+      负债银: heirState.负债银,
+      承嗣来路: heirState.承嗣来路
+    },
+    ok: inheritedState.负债银 === 3 && deathCarry.负债银 > 0 && heirState.负债银 === deathCarry.负债银 && (window.__INV || []).length === 0
+  };
+}
+
+function runChildlessCollateralEstateRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '徽商式亦贾亦儒',
+    妻室: true,
+    子数: 0,
+    女数: 2,
+    白银: 5,
+    铜钱: 1234,
+    存米: 6,
+    田亩: 5,
+    负债银: 2,
+    家族: 66,
+    商历练: 2,
+    累计反哺银: 2,
+    商路供读银: 1,
+    商信誉: 2,
+    账房进度: 1
+  });
+  api.enterPhase('death');
+  const carry = clone(api.getState()._carry);
+  const deathStage = elements.get('stage').innerHTML.replace(/\s+/g, ' ').trim();
+  api.restartWithHeir();
+  const heirState = clone(api.getState());
+  const heirStage = elements.get('stage').innerHTML.replace(/\s+/g, ' ').trim();
+
+  return {
+    carry,
+    heirState: {
+      白银: heirState.白银,
+      铜钱: heirState.铜钱,
+      存米: heirState.存米,
+      田亩: heirState.田亩,
+      负债银: heirState.负债银,
+      承嗣来路: heirState.承嗣来路,
+      商路门路: heirState.商路门路,
+      供读底子: heirState.供读底子
+    },
+    ok: carry.白银 === 2
+      && carry.铜钱 === 1234
+      && carry.存米 === 5
+      && carry.田亩 === 5
+      && carry.负债银 === 0
+      && carry.承嗣来路.includes('旁支过继')
+      && carry.商路门路 >= 1
+      && heirState.白银 === carry.白银
+      && heirState.铜钱 === carry.铜钱
+      && heirState.存米 === carry.存米
+      && heirState.田亩 === carry.田亩
+      && heirState.负债银 === carry.负债银
+      && heirState.商路门路 === carry.商路门路
+      && heirState.供读底子 === carry.供读底子
+      && heirStage.includes(`田${carry.田亩}亩`)
+      && heirStage.includes(`存米${carry.存米}石`)
+      && heirStage.includes(`白银${carry.白银}两`)
+      && deathStage.includes(`铜钱${carry.铜钱}文`)
+      && deathStage.includes(`田${carry.田亩}亩`)
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runInheritedLegacyCarryForwardRegression() {
+  const { api, elements, window } = createHarness();
+  const carry = {
+    白银: 1,
+    存米: 3,
+    田亩: 2,
+    铜钱: 860,
+    负债银: 1,
+    家族: 72,
+    父辈路线: '路径四 · 徽商式亦贾亦儒',
+    承继身份: '次子',
+    承嗣来路: '本支次子承继',
+    承继定位: '长兄续商·次子候读',
+    家传书香: 1,
+    城里门路: 0,
+    商路门路: 1,
+    家传手艺: 0,
+    家传农事: 0,
+    亦贾亦儒底子: 1,
+    供读底子: 1,
+    旧门路衰减: 1
+  };
+
+  api.restartFromCarry(carry, 2);
+  api.setRandomSeed(512);
+  api.chooseByName('路径四 · 徽商式亦贾亦儒');
+  api.next();
+  const merchantState = clone(api.getState());
+  const deathCarry = playCurrentLifeToDeath(api);
+  const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  api.restartWithHeir();
+  const heirState = clone(api.getState());
+  const establishmentStage = normalizeHtml(elements.get('stage').innerHTML);
+  api.chooseByName('路径五 · 读书应举');
+  api.next();
+  const examStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    merchantState: {
+      承继定位: merchantState.承继定位,
+      亦贾亦儒底子: merchantState.亦贾亦儒底子,
+      供读底子: merchantState.供读底子,
+      旧门路衰减: merchantState.旧门路衰减
+    },
+    deathCarry: {
+      承继定位: deathCarry.承继定位,
+      亦贾亦儒底子: deathCarry.亦贾亦儒底子,
+      供读底子: deathCarry.供读底子,
+      旧门路衰减: deathCarry.旧门路衰减
+    },
+    heirState: {
+      承继定位: heirState.承继定位,
+      亦贾亦儒底子: heirState.亦贾亦儒底子,
+      供读底子: heirState.供读底子,
+      旧门路衰减: heirState.旧门路衰减
+    },
+    deathStage,
+    establishmentStage,
+    examStage,
+    ok: merchantState.承继定位 === '长兄续商·次子候读'
+      && merchantState.亦贾亦儒底子 === 1
+      && merchantState.供读底子 === 1
+      && merchantState.旧门路衰减 === 1
+      && deathCarry.承继定位 === '长兄续商·次子候读'
+      && deathCarry.亦贾亦儒底子 >= 1
+      && deathCarry.供读底子 >= 1
+      && deathCarry.旧门路衰减 === 1
+      && deathStage.includes('供读底子')
+      && deathStage.includes('亦贾亦儒底子')
+      && heirState.承继定位 === deathCarry.承继定位
+      && heirState.亦贾亦儒底子 === deathCarry.亦贾亦儒底子
+      && heirState.供读底子 === deathCarry.供读底子
+      && heirState.旧门路衰减 === deathCarry.旧门路衰减
+      && establishmentStage.includes('供读专账')
+      && examStage.includes('供读')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runCollateralDecayCarryForwardRegression() {
+  const { api, elements, window } = createHarness();
+  const carry = {
+    白银: 1,
+    存米: 2,
+    田亩: 1,
+    铜钱: 480,
+    负债银: 1,
+    家族: 60,
+    父辈路线: '路径四 · 徽商式亦贾亦儒',
+    承继身份: '旁支继子',
+    承嗣来路: '旁支续承',
+    承继定位: '旁支接祧续户',
+    家传书香: 1,
+    城里门路: 0,
+    商路门路: 2,
+    家传手艺: 0,
+    家传农事: 0,
+    亦贾亦儒底子: 1,
+    供读底子: 1,
+    旧门路衰减: 1
+  };
+
+  api.restartFromCarry(carry, 3);
+  api.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    妻室: true,
+    子数: 0,
+    女数: 1,
+    白银: 1,
+    铜钱: 480,
+    存米: 2,
+    田亩: 1,
+    负债银: 1,
+    家族: 60,
+    商历练: 2,
+    累计回钱银: 1,
+    累计反哺银: 1,
+    商路供读银: 0,
+    商信誉: 2,
+    账房进度: 1
+  });
+  api.enterPhase('death');
+  const deathCarry = clone(api.getState()._carry);
+  const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+  api.restartWithHeir();
+  const heirState = clone(api.getState());
+  const heirStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    deathCarry: {
+      承继身份: deathCarry.承继身份,
+      承嗣来路: deathCarry.承嗣来路,
+      旧门路衰减: deathCarry.旧门路衰减,
+      商路门路: deathCarry.商路门路,
+      供读底子: deathCarry.供读底子
+    },
+    heirState: {
+      承继身份: heirState.承继身份,
+      承嗣来路: heirState.承嗣来路,
+      旧门路衰减: heirState.旧门路衰减
+    },
+    deathStage,
+    heirStage,
+    ok: deathCarry.承继身份 === '旁支继子'
+      && deathCarry.承嗣来路.includes('旁支续承')
+      && deathCarry.承嗣来路.includes('旁支过继')
+      && deathCarry.旧门路衰减 === 2
+      && deathCarry.商路门路 >= 1
+      && heirState.承继身份 === deathCarry.承继身份
+      && heirState.承嗣来路 === deathCarry.承嗣来路
+      && heirState.旧门路衰减 === 2
+      && deathStage.includes('旧门路衰减2层')
+      && heirStage.includes('连薄2层')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runSiblingLineageRegression() {
+  const { api, window } = createHarness();
+  const carry = {
+    白银: 1,
+    存米: 2,
+    田亩: 1,
+    铜钱: 360,
+    负债银: 0,
+    家族: 56,
+    父辈路线: '入城学徒',
+    承嗣来路: '旁支过继·弟妹接续',
+    家传书香: 1,
+    城里门路: 1,
+    商路门路: 0,
+    家传手艺: 1,
+    亦贾亦儒底子: 0,
+    供读底子: 0
+  };
+  api.restartFromCarry(carry, 2);
+  const inheritedState = clone(api.getState());
+  api.patchState({
+    路线: '入城学徒',
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 2,
+    铜钱: 420,
+    存米: 3,
+    田亩: 1,
+    负债银: 1,
+    家族: 60,
+    学徒去向: '留店伙计',
+    识字: true,
+    学徒信任: 2,
+    学徒授艺度: 2
+  });
+  api.enterPhase('death');
+  const deathCarry = clone(api.getState()._carry);
+  api.restartWithHeir();
+  const heirState = clone(api.getState());
+  return {
+    inheritedState: {
+      承嗣来路: inheritedState.承嗣来路,
+      城里门路: inheritedState.城里门路
+    },
+    deathCarry: {
+      承嗣来路: deathCarry.承嗣来路,
+      城里门路: deathCarry.城里门路
+    },
+    heirState: {
+      承嗣来路: heirState.承嗣来路,
+      城里门路: heirState.城里门路
+    },
+    ok: inheritedState.承嗣来路.includes('弟妹接续')
+      && deathCarry.承嗣来路.includes('旁支过继')
+      && deathCarry.承嗣来路.includes('弟妹接续')
+      && deathCarry.承嗣来路.includes('旁支续承')
+      && heirState.承嗣来路 === deathCarry.承嗣来路
+      && heirState.城里门路 >= 1
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runSponsoredExamRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '徽商式亦贾亦儒',
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 4,
+    铜钱: 500,
+    存米: 3,
+    田亩: 1,
+    负债银: 0,
+    家族: 70,
+    商历练: 2,
+    累计反哺银: 2,
+    商路供读银: 2,
+    账房进度: 2,
+    商信誉: 2
+  });
+  api.enterPhase('death');
+  const carry = clone(api.getState()._carry);
+  api.restartWithHeir();
+  api.enterPhase('establishment');
+  const note = elements.get('stage').innerHTML.replace(/\s+/g, ' ').trim();
+  api.chooseByName('路径五 · 读书应举');
+  api.next();
+  const preExam = clone(api.getState());
+  pickByPlan(api, ['e_enroll', 'e_tutor', 'e_spring_open_packet']);
+  api.commit();
+  const postExam = clone(api.getState());
+
+  const { api: baselineApi, window: baselineWindow } = createHarness();
+  const baselineCarry = clone(carry);
+  baselineCarry.供读底子 = 0;
+  baselineApi.restartFromCarry(baselineCarry, 2);
+  baselineApi.enterPhase('establishment');
+  baselineApi.chooseByName('路径五 · 读书应举');
+  baselineApi.next();
+  pickByPlan(baselineApi, ['e_tutor']);
+  baselineApi.commit();
+  const baselinePost = clone(baselineApi.getState());
+
+  return {
+    carry: {
+      商路门路: carry.商路门路,
+      亦贾亦儒底子: carry.亦贾亦儒底子,
+      供读底子: carry.供读底子
+    },
+    preExam: {
+      供读底子: preExam.供读底子,
+      供读压力: preExam.供读压力,
+      保结进度: preExam.保结进度
+    },
+    postExam: {
+      供读压力: postExam.供读压力,
+      读书成本档: postExam.读书成本档,
+      铜钱: postExam.铜钱
+    },
+    baselinePostExam: {
+      供读压力: baselinePost.供读压力,
+      读书成本档: baselinePost.读书成本档,
+      铜钱: baselinePost.铜钱
+    },
+    note,
+    ok: carry.供读底子 >= 1
+      && preExam.供读底子 >= 1
+      && note.includes('供读专账')
+      && postExam.供读压力 <= baselinePost.供读压力
+      && (window.__INV || []).length === 0
+      && (baselineWindow.__INV || []).length === 0
+  };
+}
+
+function runMerchantSchoolFundHeirRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+  api.patchState({
+    路线: '徽商式亦贾亦儒',
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 3,
+    铜钱: 360,
+    存米: 3,
+    田亩: 4,
+    负债银: 0,
+    家族: 68,
+    识字: true,
+    商历练: 2,
+    商信誉: 2,
+    账房进度: 1,
+    累计反哺银: 2,
+    商身份: '在号',
+    商路供读银: 0,
+    带本银: 0,
+    未回款银: 2,
+    委托营生: '无',
+    委托租谷: 0,
+    委托待收租谷: 0
+  });
+  api.enterPhase('household');
+  pickByPlan(api, ['h_trust_field', 'h_school_fund']);
+  api.commit();
+  const postHousehold = clone(api.getState());
+
+  api.enterPhase('death');
+  const deathCarry = clone(api.getState()._carry);
+  const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  api.restartWithHeir();
+  const heirState = clone(api.getState());
+  const establishmentHtml = normalizeHtml(elements.get('stage').innerHTML);
+  api.chooseByName('路径五 · 读书应举');
+  api.next();
+  const preExam = clone(api.getState());
+  const examStage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_enroll', 'e_tutor', 'e_spring_open_packet']);
+  api.commit();
+  const postExam = clone(api.getState());
+
+  const { api: baselineApi, window: baselineWindow } = createHarness();
+  const baselineCarry = clone(deathCarry);
+  baselineCarry.供读底子 = 0;
+  baselineApi.restartFromCarry(baselineCarry, 2);
+  baselineApi.chooseByName('路径五 · 读书应举');
+  baselineApi.next();
+  pickByPlan(baselineApi, ['e_tutor']);
+  baselineApi.commit();
+  const baselinePostExam = clone(baselineApi.getState());
+
+  return {
+    postHousehold: {
+      白银: postHousehold.白银,
+      商路供读银: postHousehold.商路供读银,
+      委托营生: postHousehold.委托营生,
+      委托待收租谷: postHousehold.委托待收租谷
+    },
+    deathCarry: {
+      白银: deathCarry.白银,
+      存米: deathCarry.存米,
+      商路门路: deathCarry.商路门路,
+      亦贾亦儒底子: deathCarry.亦贾亦儒底子,
+      供读底子: deathCarry.供读底子,
+      承继定位: deathCarry.承继定位
+    },
+    heirState: {
+      供读底子: heirState.供读底子,
+      承继定位: heirState.承继定位
+    },
+    preExam: {
+      供读底子: preExam.供读底子,
+      供读压力: preExam.供读压力
+    },
+    postExam: {
+      供读压力: postExam.供读压力,
+      铜钱: postExam.铜钱
+    },
+    baselinePostExam: {
+      供读压力: baselinePostExam.供读压力,
+      铜钱: baselinePostExam.铜钱
+    },
+    deathStage,
+    establishmentHtml,
+    examStage,
+    ok: postHousehold.商路供读银 === 1
+      && postHousehold.委托营生 === '兄代管薄田'
+      && postHousehold.委托待收租谷 === 1
+      && deathCarry.供读底子 === 1
+      && deathCarry.商路门路 >= 1
+      && deathCarry.亦贾亦儒底子 >= 1
+      && deathCarry.承继定位 === '长兄续商·次子候读'
+      && heirState.供读底子 === deathCarry.供读底子
+      && heirState.承继定位 === deathCarry.承继定位
+      && preExam.供读底子 === deathCarry.供读底子
+      && postExam.供读压力 <= baselinePostExam.供读压力
+      && postExam.铜钱 <= baselinePostExam.铜钱
+      && deathStage.includes('供读专账')
+      && (deathStage.includes('待收租谷一起结清') || deathStage.includes('待收委托田租'))
+      && establishmentHtml.includes('供读专账')
+      && examStage.includes('供读')
+      && true
+  };
+}
+
+function runMerchantTradeCarryRegression() {
+  const inheritedCarry = {
+    白银: 2,
+    存米: 3,
+    田亩: 1,
+    铜钱: 200,
+    负债银: 0,
+    家族: 66,
+    父辈路线: '徽商式亦贾亦儒',
+    承嗣来路: '本支次子承继',
+    承继定位: '长兄续商·次子候读',
+    家传书香: 1,
+    城里门路: 1,
+    商路门路: 2,
+    家传手艺: 0,
+    家传农事: 0,
+    亦贾亦儒底子: 1,
+    供读底子: 1
+  };
+  const baselineCarry = Object.assign({}, inheritedCarry, {
+    承继定位: '本房次子另起一手',
+    城里门路: 0,
+    商路门路: 0,
+    亦贾亦儒底子: 0,
+    供读底子: 0
+  });
+
+  function play(carry) {
+    const { api, elements, window } = createHarness();
+    api.restartFromCarry(carry, 2);
+    api.enterPhase('establishment');
+    const establishmentNote = normalizeHtml(elements.get('stage').innerHTML);
+    api.chooseByName('路径四 · 徽商式亦贾亦儒');
+    api.next();
+    const merchantNote = normalizeHtml(elements.get('stage').innerHTML);
+    api.setRandomSequence(new Array(40).fill(0.9));
+    [
+      ['m_shop', 'm_goods'],
+      ['m_run', 'm_book'],
+      ['m_home', 'm_reserve'],
+      ['m_shop', 'm_run'],
+      ['m_book', 'm_rest'],
+      ['m_shop', 'm_mend'],
+      ['m_goods', 'm_run', 'm_trial_capital'],
+      ['m_try'],
+      ['m_support', 'm_home'],
+      ['m_collect', 'm_book'],
+      ['m_collect', 'm_mend'],
+      ['m_reserve', 'm_mend']
+    ].forEach((plan, index, arr) => {
+      pickByPlan(api, plan);
+      api.commit();
+      if (index < arr.length - 1) api.next();
+    });
+    const state = clone(api.getState());
+    return {
+      establishmentNote,
+      merchantNote,
+      state,
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  const inherited = play(inheritedCarry);
+  const baseline = play(baselineCarry);
+
+  return {
+    inheritedState: {
+      白银: inherited.state.白银,
+      家族: inherited.state.家族,
+      商信誉: inherited.state.商信誉,
+      商路供读银: inherited.state.商路供读银,
+      商路亏折: inherited.state.商路亏折,
+      未回款银: inherited.state.未回款银
+    },
+    baselineState: {
+      白银: baseline.state.白银,
+      家族: baseline.state.家族,
+      商信誉: baseline.state.商信誉,
+      商路供读银: baseline.state.商路供读银,
+      商路亏折: baseline.state.商路亏折,
+      未回款银: baseline.state.未回款银
+    },
+    establishmentNote: inherited.establishmentNote,
+    merchantNote: inherited.merchantNote,
+    ok: inherited.establishmentNote.includes('长兄续商·次子候读')
+      && inherited.merchantNote.includes('另起一支')
+      && inherited.merchantNote.includes('试贩结果会继续吃到上一代余绪')
+      && inherited.state.家族 > baseline.state.家族
+      && inherited.state.商信誉 > baseline.state.商信誉
+      && inherited.state.商路供读银 >= baseline.state.商路供读银
+      && (inherited.state.白银 + inherited.state.商路供读银 + inherited.state.未回款银) >= (baseline.state.白银 + baseline.state.商路供读银 + baseline.state.未回款银)
+      && (inherited.state.未回款银 + inherited.state.商路亏折) <= (baseline.state.未回款银 + baseline.state.商路亏折)
+      && inherited.inv.length === 0
+      && baseline.inv.length === 0
+  };
+}
+
+function runMerchantSameYearSettlementRegression() {
+  const baseState = {
+    路线: '徽商式亦贾亦儒',
+    年龄: 18,
+    商年: 1,
+    商季: 3,
+    商段: 2,
+    白银: 2,
+    铜钱: 400,
+    存米: 3,
+    家族: 64,
+    识字: true,
+    识货进度: 1,
+    账房进度: 1,
+    商信誉: 0,
+    累计回钱银: 0,
+    商路供读银: 0,
+    累计反哺银: 0,
+    带本银: 0,
+    未回款银: 0,
+    商路亏折: 0,
+    本年商路坐店: 0,
+    本年商路跑单: 0,
+    本年商路认货: 0,
+    本年商路核账: 0,
+    本年商路贴家: 0,
+    本年商路归乡: 0,
+    本年商路议本: 1,
+    本年商路试贩: 0,
+    本年商路备役: 0,
+    本年商路歇养: 0,
+    本年商路季务: []
+  };
+
+  function play(winterUpperPlan) {
+    const { api, elements, window } = createHarness();
+    api.patchState(baseState);
+    api.enterPhase('merchant');
+    api.setRandomSequence(new Array(20).fill(0.9));
+    pickByPlan(api, ['m_try']);
+    api.commit();
+    const afterTry = clone(api.getState());
+    api.next();
+    pickByPlan(api, winterUpperPlan);
+    api.commit();
+    const autumnLowerStage = normalizeHtml(elements.get('stage').innerHTML);
+    api.next();
+    pickByPlan(api, ['m_collect']);
+    api.commit();
+    api.next();
+    pickByPlan(api, ['m_book']);
+    api.commit();
+    api.next();
+    pickByPlan(api, ['m_reserve']);
+    api.commit();
+    return {
+      afterTry,
+      autumnLowerStage,
+      stageHtml: normalizeHtml(elements.get('stage').innerHTML),
+      state: clone(api.getState()),
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  const supported = play(['m_support_school']);
+  const baseline = play(['m_book']);
+
+  return {
+    supported: {
+      afterTry白银: supported.afterTry.白银,
+      白银: supported.state.白银,
+      商路供读银: supported.state.商路供读银,
+      商路亏折: supported.state.商路亏折,
+      未回款银: supported.state.未回款银
+    },
+    baseline: {
+      afterTry白银: baseline.afterTry.白银,
+      白银: baseline.state.白银,
+      商路供读银: baseline.state.商路供读银,
+      商路亏折: baseline.state.商路亏折,
+      未回款银: baseline.state.未回款银
+    },
+    supportedStage: supported.stageHtml,
+    baselineStage: baseline.stageHtml,
+    ok: supported.afterTry.白银 === 1
+      && baseline.afterTry.白银 === 1
+      && supported.state.商路供读银 === 1
+      && baseline.state.商路供读银 === 0
+      && (supported.state.白银 + supported.state.商路供读银) === (baseline.state.白银 + baseline.state.商路供读银)
+      && supported.state.商路亏折 === baseline.state.商路亏折
+      && supported.state.未回款银 === baseline.state.未回款银
+      && supported.autumnLowerStage.includes('秋试手')
+      && baseline.autumnLowerStage.includes('秋试手')
+      && supported.stageHtml.includes('冬清账')
+      && baseline.stageHtml.includes('冬清账')
+      && supported.stageHtml.includes('试贩结账')
+      && baseline.stageHtml.includes('试贩结账')
+      && (supported.inv || []).length === 0
+      && (baseline.inv || []).length === 0
+  };
+}
+
+function runMerchantTrialCapitalGateRegression() {
+  const blocked = createHarness();
+  blocked.api.patchState({
+    路线: '徽商式亦贾亦儒',
+    年龄: 18,
+    商年: 1,
+    商季: 3,
+    商段: 2,
+    白银: 2,
+    铜钱: 220,
+    存米: 3,
+    家族: 64,
+    识字: true,
+    识货进度: 1,
+    账房进度: 1,
+    商信誉: 0,
+    本年商路试贩: 0,
+    本年商路议本: 0,
+    本年商路季务: []
+  });
+  blocked.api.enterPhase('merchant');
+  const blockedTry = availableMap(blocked.api).get('m_try');
+  const blockedStage = normalizeHtml(blocked.elements.get('stage').innerHTML);
+
+  const opened = createHarness();
+  opened.api.patchState({
+    路线: '徽商式亦贾亦儒',
+    年龄: 18,
+    商年: 1,
+    商季: 3,
+    商段: 1,
+    白银: 2,
+    铜钱: 220,
+    存米: 3,
+    家族: 64,
+    识字: true,
+    识货进度: 1,
+    账房进度: 1,
+    商信誉: 0,
+    本年商路试贩: 0,
+    本年商路议本: 0,
+    本年商路季务: []
+  });
+  opened.api.enterPhase('merchant');
+  opened.api.setRandomSequence([0.9, 0.9]);
+  pickByPlan(opened.api, ['m_trial_capital']);
+  opened.api.commit();
+  opened.api.next();
+  pickByPlan(opened.api, ['m_try']);
+  opened.api.commit();
+  const openedState = clone(opened.api.getState());
+
+  return {
+    blocked: {
+      can: blockedTry ? blockedTry.can : null,
+      why: blockedTry ? blockedTry.why : '',
+      stage: blockedStage
+    },
+    opened: {
+      白银: openedState.白银,
+      铜钱: openedState.铜钱,
+      带本银: openedState.带本银,
+      本年商路试贩: openedState.本年商路试贩,
+      本年商路议本: openedState.本年商路议本
+    },
+    ok: !!blockedTry
+      && blockedTry.can === false
+      && blockedTry.why.includes('试本口风')
+      && openedState.本年商路议本 === 1
+      && openedState.本年商路试贩 === 1
+      && openedState.带本银 === 1
+      && openedState.白银 === 1
+      && openedState.铜钱 === 180
+      && (opened.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantFrictionHandledChoiceRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(6262);
+    chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+    api.patchState(Object.assign({
+      识字: true,
+      商年: 1,
+      商季: season,
+      商段: xun,
+      铜钱: 200,
+      白银: 3,
+      存米: 3,
+      家族: 64,
+      体魄: 56,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 2,
+      商历练: 2,
+      未回款银: 1,
+      累计回钱银: 1,
+      累计反哺银: 0,
+      带本银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路拖欠: 0,
+      本年商路供读: 0,
+      本年商路身乏: 0,
+      本年商路龃龉: 0,
+      本年商路役扰: 0,
+      本年商路季务: []
+    }, extraPatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(new Array(20).fill(0.99));
+    return { api, elements, window };
+  }
+
+  const spring = setupAt(1, 2, { 铜钱: 140, 累计回钱银: 0, 未回款银: 0 });
+  const springAction = availableMap(spring.api).get('m_spring_mid_school');
+  pickByPlan(spring.api, ['m_spring_mid_school']);
+  spring.api.commit();
+  const springResolve = normalizeHtml(spring.elements.get('stage').innerHTML);
+  const springState = clone(spring.api.getState());
+
+  const autumnHead = setupAt(3, 1, { 铜钱: 180, 未回款银: 1 });
+  pickByPlan(autumnHead.api, ['m_autumn_head_drag']);
+  autumnHead.api.commit();
+  const autumnHeadResolve = normalizeHtml(autumnHead.elements.get('stage').innerHTML);
+  const autumnHeadState = clone(autumnHead.api.getState());
+
+  const autumnLower = setupAt(3, 3, { 铜钱: 180, 未回款银: 1, 累计回钱银: 0 });
+  pickByPlan(autumnLower.api, ['m_supply_split']);
+  autumnLower.api.commit();
+  const autumnLowerResolve = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  const autumnLowerState = clone(autumnLower.api.getState());
+
+  const autumnSupport = setupAt(3, 3, { 铜钱: 120, 白银: 3, 未回款银: 0, 累计回钱银: 1 });
+  pickByPlan(autumnSupport.api, ['m_support_school']);
+  autumnSupport.api.commit();
+  const autumnSupportResolve = normalizeHtml(autumnSupport.elements.get('stage').innerHTML);
+  const autumnSupportState = clone(autumnSupport.api.getState());
+
+  return {
+    spring: {
+      eff: springAction ? springAction.eff : '',
+      铜钱: springState.铜钱,
+      家族: springState.家族,
+      本年商路供读: springState.本年商路供读,
+      本年商路备役: springState.本年商路备役,
+      本年商路季务: springState.本年商路季务,
+      resolve: springResolve
+    },
+    autumnHead: {
+      铜钱: autumnHeadState.铜钱,
+      体魄: autumnHeadState.体魄,
+      家族: autumnHeadState.家族,
+      本年商路拖欠: autumnHeadState.本年商路拖欠,
+      本年商路歇养: autumnHeadState.本年商路歇养,
+      本年商路季务: autumnHeadState.本年商路季务,
+      resolve: autumnHeadResolve
+    },
+    autumnLower: {
+      铜钱: autumnLowerState.铜钱,
+      家族: autumnLowerState.家族,
+      本年商路供读: autumnLowerState.本年商路供读,
+      本年商路季务: autumnLowerState.本年商路季务,
+      resolve: autumnLowerResolve
+    },
+    autumnSupport: {
+      铜钱: autumnSupportState.铜钱,
+      白银: autumnSupportState.白银,
+      家族: autumnSupportState.家族,
+      本年商路供读: autumnSupportState.本年商路供读,
+      本年商路贴家: autumnSupportState.本年商路贴家,
+      本年商路季务: autumnSupportState.本年商路季务,
+      resolve: autumnSupportResolve
+    },
+    ok: !!springAction
+      && springAction.eff.includes('铜钱-60')
+      && springResolve.includes('〔开路回话〕这一旬先把样价抄单、回话脚费、柜边包纸与春中药包拆开了')
+      && springState.铜钱 === 80
+      && springState.家族 === 65
+      && springState.本年商路供读 === 1
+      && springState.本年商路备役 === 1
+      && Array.isArray(springState.本年商路季务)
+      && springState.本年商路季务.some((tag) => String(tag).includes('开路回话已压'))
+      && autumnHeadResolve.includes('〔秋市碎费〕这一旬先把样货、牙行照面和秋路脚费拆开了')
+      && autumnHeadState.铜钱 === 105
+      && autumnHeadState.家族 === 65
+      && autumnHeadState.本年商路拖欠 === 1
+      && autumnHeadState.本年商路歇养 === 1
+      && Array.isArray(autumnHeadState.本年商路季务)
+      && autumnHeadState.本年商路季务.some((tag) => String(tag).includes('秋市碎费已拆'))
+      && autumnLowerResolve.includes('〔回钱碎耗〕这一旬先把回乡带话、样货耗损、药包和催回钱前的脚费拆开了')
+      && autumnLowerState.铜钱 === 115
+      && autumnLowerState.家族 === 65
+      && autumnLowerState.本年商路供读 === 1
+      && Array.isArray(autumnLowerState.本年商路季务)
+      && autumnLowerState.本年商路季务.some((tag) => String(tag).includes('回钱碎耗已拆'))
+      && autumnSupportResolve.includes('〔回钱碎耗〕这一旬先把回乡带话、样货耗损、药包和催回钱前的脚费拆开了')
+      && autumnSupportResolve.includes('寄银回家供读')
+      && autumnSupportState.铜钱 === 120
+      && autumnSupportState.白银 === 2
+      && autumnSupportState.家族 === 65
+      && autumnSupportState.本年商路供读 === 1
+      && autumnSupportState.本年商路贴家 === 1
+      && Array.isArray(autumnSupportState.本年商路季务)
+      && autumnSupportState.本年商路季务.some((tag) => String(tag).includes('回钱碎耗已拆'))
+      && (spring.window.__INV || []).length === 0
+      && (autumnHead.window.__INV || []).length === 0
+      && (autumnLower.window.__INV || []).length === 0
+      && (autumnSupport.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantSeasonCarryRegression() {
+  function setup(basePatch, randomSeq) {
+    const { api, elements, window } = createHarness();
+    api.patchState(Object.assign({
+      路线: '徽商式亦贾亦儒',
+      年龄: 18,
+      识字: true,
+      商年: 1,
+      商季: 3,
+      商段: 3,
+      铜钱: 320,
+      白银: 2,
+      存米: 2,
+      家族: 64,
+      体魄: 58,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 1,
+      商历练: 1,
+      负债银: 0,
+      未回款银: 0,
+      累计回钱银: 0,
+      累计反哺银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路议本: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路拖欠: 0,
+      本年商路供读: 0,
+      本年商路回钱银: 0,
+      本年商路反哺银: 0,
+      本年商路身乏: 0,
+      本年商路龃龉: 0,
+      本年商路役扰: 0,
+      本年商路役扰支出文: 0,
+      本年商路债息增银: 0,
+      本年商路已结口粮石: 0,
+      本年商路役扰已结: false,
+      本年商路债息已结: false,
+      本年商路季务: []
+    }, basePatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(randomSeq || new Array(20).fill(0.2));
+    return { api, elements, window };
+  }
+
+  const autumnFood = setup({ 商季: 3, 商段: 3, 存米: 2, 本年商路跑单: 0 }, new Array(20).fill(0.2));
+  pickByPlan(autumnFood.api, ['m_supply_split']);
+  autumnFood.api.commit();
+  const autumnFoodResolve = normalizeHtml(autumnFood.elements.get('stage').innerHTML);
+  const autumnFoodState = clone(autumnFood.api.getState());
+
+  const winterDebt = setup({ 商季: 4, 商段: 2, 铜钱: 220, 负债银: 2 }, new Array(20).fill(0.2));
+  pickByPlan(winterDebt.api, ['m_debt_split']);
+  winterDebt.api.commit();
+  const winterDebtResolve = normalizeHtml(winterDebt.elements.get('stage').innerHTML);
+  const winterDebtState = clone(winterDebt.api.getState());
+
+  return {
+    autumnFood: {
+      存米: autumnFoodState.存米,
+      本年商路已结口粮石: autumnFoodState.本年商路已结口粮石,
+      resolve: autumnFoodResolve
+    },
+    winterDebt: {
+      负债银: winterDebtState.负债银,
+      本年商路债息增银: winterDebtState.本年商路债息增银,
+      本年商路债息已结: winterDebtState.本年商路债息已结,
+      resolve: winterDebtResolve
+    },
+    ok: autumnFoodResolve.includes('〔秋尾口粮〕')
+      && autumnFoodState.存米 === 1
+      && autumnFoodState.本年商路已结口粮石 === 1
+      && winterDebtResolve.includes('〔冬中债息〕冬清账中旬把旧债利上先滚了一回')
+      && winterDebtState.负债银 === 3
+      && winterDebtState.本年商路债息增银 === 1
+      && winterDebtState.本年商路债息已结 === true
+      && (autumnFood.window.__INV || []).length === 0
+      && (winterDebt.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantRemittanceLedgerRegression() {
+  function setup(basePatch, randomSeq) {
+    const { api, elements, window } = createHarness();
+    api.patchState(Object.assign({
+      路线: '徽商式亦贾亦儒',
+      年龄: 18,
+      识字: true,
+      白银: 2,
+      铜钱: 720,
+      存米: 3,
+      家族: 64,
+      体魄: 58,
+      商年: 1,
+      商季: 3,
+      商段: 2,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 1,
+      商历练: 1,
+      累计回钱银: 0,
+      累计反哺银: 0,
+      商路供读银: 0,
+      带本银: 0,
+      未回款银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路拖欠: 0,
+      本年商路供读: 0,
+      本年商路回钱银: 0,
+      本年商路反哺银: 0,
+      本年商路身乏: 0,
+      本年商路龃龉: 0,
+      本年商路役扰: 0,
+      本年商路季务: []
+    }, basePatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(randomSeq || new Array(20).fill(0.2));
+    return { api, elements, window };
+  }
+
+  const cashIn = setup({ 商季: 3, 商段: 2, 白银: 2, 铜钱: 720, 累计回钱银: 0, 累计反哺银: 0 }, new Array(20).fill(0.2));
+  const cashInStage = normalizeHtml(cashIn.elements.get('stage').innerHTML);
+  pickByPlan(cashIn.api, ['m_run']);
+  cashIn.api.commit();
+  const cashInResolve = normalizeHtml(cashIn.elements.get('stage').innerHTML);
+  const cashInState = clone(cashIn.api.getState());
+
+  const remit = setup({ 商季: 3, 商段: 3, 白银: 2, 铜钱: 720, 累计回钱银: 1, 累计反哺银: 0 }, new Array(20).fill(0.2));
+  const remitStage = normalizeHtml(remit.elements.get('stage').innerHTML);
+  pickByPlan(remit.api, ['m_support']);
+  remit.api.commit();
+  const remitResolve = normalizeHtml(remit.elements.get('stage').innerHTML);
+  const remitState = clone(remit.api.getState());
+
+  const schoolFund = setup({ 商季: 3, 商段: 3, 白银: 2, 铜钱: 720, 累计回钱银: 1, 累计反哺银: 0 }, new Array(20).fill(0.2));
+  const schoolFundStage = normalizeHtml(schoolFund.elements.get('stage').innerHTML);
+  pickByPlan(schoolFund.api, ['m_support_school']);
+  schoolFund.api.commit();
+  const schoolFundResolve = normalizeHtml(schoolFund.elements.get('stage').innerHTML);
+  const schoolFundState = clone(schoolFund.api.getState());
+
+  const blocked = setup({ 商季: 3, 商段: 3, 白银: 2, 铜钱: 720, 累计回钱银: 0, 累计反哺银: 0 }, new Array(20).fill(0.2));
+  const blockedStage = normalizeHtml(blocked.elements.get('stage').innerHTML);
+  const blockedSupport = availableMap(blocked.api).get('m_support');
+  pickByPlan(blocked.api, ['m_support']);
+  blocked.api.commit();
+  const blockedResolve = normalizeHtml(blocked.elements.get('stage').innerHTML);
+  const blockedState = clone(blocked.api.getState());
+
+  const tradeSettle = setup({
+    商季: 4,
+    商段: 3,
+    白银: 0,
+    铜钱: 720,
+    带本银: 1,
+    本年商路试贩: 1,
+    累计回钱银: 0,
+    累计反哺银: 0
+  }, new Array(20).fill(0.5));
+  const tradeStage = normalizeHtml(tradeSettle.elements.get('stage').innerHTML);
+  pickByPlan(tradeSettle.api, ['m_rest']);
+  tradeSettle.api.commit();
+  const tradeResolve = normalizeHtml(tradeSettle.elements.get('stage').innerHTML);
+  const tradeState = clone(tradeSettle.api.getState());
+
+  return {
+    cashIn: {
+      stage: cashInStage,
+      resolve: cashInResolve,
+      state: {
+        白银: cashInState.白银,
+        累计回钱银: cashInState.累计回钱银,
+        累计反哺银: cashInState.累计反哺银,
+        本年商路回钱银: cashInState.本年商路回钱银,
+        本年商路跑单: cashInState.本年商路跑单
+      },
+      ok: cashInStage.includes('跟号外出探价走货')
+        && cashInResolve.includes('跟号外出跑单')
+        && cashInState.白银 === 3
+        && cashInState.累计回钱银 === 1
+        && cashInState.累计反哺银 === 0
+        && cashInState.本年商路回钱银 === 1
+        && cashInState.本年商路跑单 === 1
+        && (cashIn.window.__INV || []).length === 0
+    },
+    remit: {
+      stage: remitStage,
+      resolve: remitResolve,
+      state: {
+        白银: remitState.白银,
+        累计回钱银: remitState.累计回钱银,
+        累计反哺银: remitState.累计反哺银,
+        商路供读银: remitState.商路供读银,
+        本年商路反哺银: remitState.本年商路反哺银,
+        本年商路贴家: remitState.本年商路贴家
+      },
+      ok: remitStage.includes('先把回钱贴回家')
+        && remitResolve.includes('先寄一两回家过锅火')
+        && remitState.白银 === 1
+        && remitState.累计回钱银 === 1
+        && remitState.累计反哺银 === 1
+        && remitState.商路供读银 === 0
+        && remitState.本年商路反哺银 === 1
+        && remitState.本年商路贴家 === 1
+        && (remit.window.__INV || []).length === 0
+    },
+    schoolFund: {
+      stage: schoolFundStage,
+      resolve: schoolFundResolve,
+      state: {
+        白银: schoolFundState.白银,
+        累计回钱银: schoolFundState.累计回钱银,
+        累计反哺银: schoolFundState.累计反哺银,
+        商路供读银: schoolFundState.商路供读银,
+        本年商路反哺银: schoolFundState.本年商路反哺银,
+        本年商路贴家: schoolFundState.本年商路贴家,
+        本年商路供读: schoolFundState.本年商路供读
+      },
+      ok: schoolFundStage.includes('另划一两进供读专账')
+        && schoolFundResolve.includes('寄银回家供读')
+        && schoolFundState.白银 === 1
+        && schoolFundState.累计回钱银 === 1
+        && schoolFundState.累计反哺银 === 1
+        && schoolFundState.商路供读银 === 1
+        && schoolFundState.本年商路反哺银 === 1
+        && schoolFundState.本年商路贴家 === 1
+        && schoolFundState.本年商路供读 === 1
+        && (schoolFund.window.__INV || []).length === 0
+    },
+    blocked: {
+      stage: blockedStage,
+      resolve: blockedResolve,
+      why: blockedSupport ? blockedSupport.why : '',
+      state: {
+        白银: blockedState.白银,
+        累计回钱银: blockedState.累计回钱银,
+        累计反哺银: blockedState.累计反哺银,
+        商路供读银: blockedState.商路供读银,
+        本年商路贴家: blockedState.本年商路贴家
+      },
+      ok: blockedStage.includes('先把回钱贴回家')
+        && !!blockedSupport
+        && blockedSupport.can === false
+        && blockedSupport.why.includes('可调度回家的商路回账或浮账')
+        && !blockedResolve.includes('先寄一两回家过锅火')
+        && blockedState.白银 === 2
+        && blockedState.累计回钱银 === 0
+        && blockedState.累计反哺银 === 0
+        && blockedState.商路供读银 === 0
+        && blockedState.本年商路贴家 === 0
+        && (blocked.window.__INV || []).length === 0
+    },
+    tradeSettle: {
+      stage: tradeStage,
+      resolve: tradeResolve,
+      state: {
+        白银: tradeState.白银,
+        累计回钱银: tradeState.累计回钱银,
+        累计反哺银: tradeState.累计反哺银,
+        本年商路回钱银: tradeState.本年商路回钱银,
+        带本银: tradeState.带本银
+      },
+      ok: tradeStage.includes('先把年下回签与来春样纸分开')
+        && tradeResolve.includes('〔试贩结账〕小利：回本并净得白银+1。')
+        && tradeState.白银 === 2
+        && tradeState.累计回钱银 === 2
+        && tradeState.累计反哺银 === 0
+        && tradeState.本年商路回钱银 === 2
+        && tradeState.带本银 === 0
+        && (tradeSettle.window.__INV || []).length === 0
+    },
+    ok: cashInState.累计回钱银 === 1
+      && cashInState.累计反哺银 === 0
+      && cashInState.本年商路回钱银 === 1
+      && remitState.累计回钱银 === 1
+      && remitState.累计反哺银 === 1
+      && remitState.商路供读银 === 0
+      && remitState.本年商路贴家 === 1
+      && schoolFundState.累计回钱银 === 1
+      && schoolFundState.累计反哺银 === 1
+      && schoolFundState.商路供读银 === 1
+      && schoolFundState.本年商路反哺银 === 1
+      && schoolFundState.本年商路贴家 === 1
+      && schoolFundState.本年商路供读 === 1
+      && !!blockedSupport
+      && blockedSupport.can === false
+      && blockedSupport.why.includes('可调度回家的商路回账或浮账')
+      && blockedState.白银 === 2
+      && blockedState.累计回钱银 === 0
+      && blockedState.累计反哺银 === 0
+      && blockedState.商路供读银 === 0
+      && blockedState.本年商路贴家 === 0
+      && tradeState.累计回钱银 === 2
+      && tradeState.累计反哺银 === 0
+      && tradeState.本年商路回钱银 === 2
+      && tradeState.带本银 === 0
+      && (cashIn.window.__INV || []).length === 0
+      && (remit.window.__INV || []).length === 0
+      && (schoolFund.window.__INV || []).length === 0
+      && (blocked.window.__INV || []).length === 0
+      && (tradeSettle.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantRemittanceCapacityCapRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '徽商式亦贾亦儒',
+    年龄: 18,
+    识字: true,
+    白银: 2,
+    铜钱: 420,
+    存米: 3,
+    家族: 63,
+    体魄: 58,
+    商年: 1,
+    商季: 3,
+    商段: 3,
+    识货进度: 1,
+    账房进度: 1,
+    商信誉: 1,
+    商历练: 1,
+    累计回钱银: 0,
+    累计反哺银: 0,
+    商路供读银: 0,
+    带本银: 0,
+    未回款银: 1,
+    本年商路坐店: 0,
+    本年商路跑单: 0,
+    本年商路认货: 0,
+    本年商路问价: 0,
+    本年商路核账: 0,
+    本年商路催账: 0,
+    本年商路贴家: 0,
+    本年商路归乡: 0,
+    本年商路家书: 0,
+    本年商路试贩: 0,
+    本年商路备役: 0,
+    本年商路歇养: 0,
+    本年商路拖欠: 0,
+    本年商路供读: 0,
+    本年商路回钱银: 0,
+    本年商路反哺银: 0,
+    本年商路身乏: 0,
+    本年商路龃龉: 0,
+    本年商路役扰: 0,
+    本年商路季务: []
+  });
+  api.enterPhase('merchant');
+  const firstStage = normalizeHtml(elements.get('stage').innerHTML);
+  const firstSupport = availableMap(api).get('m_support_school');
+  pickByPlan(api, ['m_support_school']);
+  api.commit();
+  const afterCommit = clone(api.getState());
+  api.next();
+  const secondStage = normalizeHtml(elements.get('stage').innerHTML);
+  const secondSupport = availableMap(api).get('m_support_school');
+  const secondHome = availableMap(api).get('m_support');
+
+  return {
+    first: {
+      stage: firstStage,
+      action: firstSupport ? { can: firstSupport.can !== false, why: firstSupport.why || '', eff: firstSupport.eff } : null
+    },
+    afterCommit: {
+      白银: afterCommit.白银,
+      累计反哺银: afterCommit.累计反哺银,
+      商路供读银: afterCommit.商路供读银,
+      未回款银: afterCommit.未回款银
+    },
+    second: {
+      stage: secondStage,
+      supportSchool: secondSupport ? { can: secondSupport.can !== false, why: secondSupport.why || '' } : null,
+      supportHome: secondHome ? { can: secondHome.can !== false, why: secondHome.why || '' } : null
+    },
+    ok: !!firstSupport
+      && firstSupport.can
+      && firstStage.includes('可调度回家商账=1两')
+      && afterCommit.白银 === 1
+      && afterCommit.累计反哺银 === 1
+      && afterCommit.商路供读银 === 1
+      && afterCommit.未回款银 === 1
+      && secondStage.includes('可调度回家商账=0两')
+      && !!secondSupport
+      && secondSupport.can === false
+      && secondSupport.why.includes('可另划供读的商路回账或浮账')
+      && !!secondHome
+      && secondHome.can === false
+      && secondHome.why.includes('可调度回家的商路回账或浮账')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runMerchantCollateralSupportRegression() {
+  const baseCarry = {
+    白银: 2,
+    存米: 3,
+    田亩: 1,
+    铜钱: 200,
+    负债银: 0,
+    家族: 66,
+    父辈路线: '徽商式亦贾亦儒',
+    承继定位: '长兄续商·次子候读',
+    家传书香: 1,
+    城里门路: 1,
+    商路门路: 1,
+    家传手艺: 0,
+    家传农事: 0,
+    亦贾亦儒底子: 1,
+    供读底子: 1
+  };
+
+  function play(lineage) {
+    const { api, elements, window } = createHarness();
+    api.restartFromCarry(Object.assign({}, baseCarry, { 承嗣来路: lineage }), 2);
+    // 本回归只关心“旁支衰减”对“供读专账”动作的差异，不应被外部冲击随机性污染；
+    // 因此固定随机种子，保证两次对照（本支 vs 旁支）在同一随机序列下结算。
+    api.setRandomSeed(1104);
+    api.enterPhase('establishment');
+    api.chooseByName('路径四 · 徽商式亦贾亦儒');
+    api.next();
+    const entryStage = normalizeHtml(elements.get('stage').innerHTML);
+    const entryAction = availableMap(api).get('m_support_school');
+    api.patchState({
+      年龄: 18,
+      商年: 1,
+      商季: 3,
+      商段: 3,
+      识字: true,
+      识货进度: 1,
+      账房进度: 1,
+      商历练: 1,
+      白银: 2,
+      铜钱: 260,
+      存米: 3,
+      家族: api.getState().家族,
+      商信誉: api.getState().商信誉 || 0,
+      累计回钱银: 1,
+      累计反哺银: 0,
+      商路供读银: 0,
+      带本银: 0,
+      未回款银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路拖欠: 0,
+      本年商路供读: 0,
+      本年商路回钱银: 0,
+      本年商路反哺银: 0,
+      本年商路身乏: 0,
+      本年商路龃龉: 0,
+      本年商路役扰: 0,
+      本年商路季务: []
+    });
+    api.enterPhase('merchant');
+    const unlockedStage = normalizeHtml(elements.get('stage').innerHTML);
+    const supportAction = availableMap(api).get('m_support_school');
+    pickByPlan(api, ['m_support_school']);
+    api.commit();
+    return {
+      entryStage,
+      entryAction: entryAction ? { eff: entryAction.eff, desc: entryAction.desc, can: entryAction.can !== false, why: entryAction.why || '' } : null,
+      supportAction: supportAction ? { eff: supportAction.eff, desc: supportAction.desc, can: supportAction.can !== false, why: supportAction.why || '' } : null,
+      unlockedStage,
+      stageHtml: normalizeHtml(elements.get('stage').innerHTML),
+      state: clone(api.getState()),
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  const direct = play('本支次子承继');
+  const collateral = play('旁支过继');
+
+  return {
+    direct: {
+      entryAction: direct.entryAction,
+      supportAction: direct.supportAction,
+      entryStage: direct.entryStage,
+      unlockedStage: direct.unlockedStage,
+      state: {
+        家族: direct.state.家族,
+        商信誉: direct.state.商信誉,
+        商路供读银: direct.state.商路供读银,
+        白银: direct.state.白银
+      }
+    },
+    collateral: {
+      entryAction: collateral.entryAction,
+      supportAction: collateral.supportAction,
+      entryStage: collateral.entryStage,
+      unlockedStage: collateral.unlockedStage,
+      state: {
+        家族: collateral.state.家族,
+        商信誉: collateral.state.商信誉,
+        商路供读银: collateral.state.商路供读银,
+        白银: collateral.state.白银
+      }
+    },
+    ok: !!direct.entryAction
+      && !!collateral.entryAction
+      && !!direct.supportAction
+      && !!collateral.supportAction
+      && direct.entryStage.includes('长兄续商·次子候读')
+      && collateral.entryStage.includes('长兄续商·次子候读')
+      && direct.entryAction.can === false
+      && collateral.entryAction.can === false
+      && direct.entryAction.why.includes('可另划供读的商路回账或浮账')
+      && collateral.entryAction.why.includes('可另划供读的商路回账或浮账')
+      && direct.supportAction.can
+      && collateral.supportAction.can
+      && direct.unlockedStage.includes('秋试手')
+      && collateral.unlockedStage.includes('秋试手')
+      && direct.supportAction.eff.includes('家族+2')
+      && direct.supportAction.eff.includes('商信誉+1')
+      && collateral.supportAction.eff.includes('家族+1')
+      && !collateral.supportAction.eff.includes('商信誉+1')
+      && direct.state.家族 === collateral.state.家族 + 1
+      && direct.state.商信誉 === collateral.state.商信誉 + 1
+      && direct.state.商路供读银 === 1
+      && collateral.state.商路供读银 === 1
+      && direct.state.白银 === collateral.state.白银
+      && direct.inv.length === 0
+      && collateral.inv.length === 0
+  };
+}
+
+function runLineageDecayRegression() {
+  const merchantBaseCarry = {
+    白银: 2,
+    存米: 3,
+    田亩: 1,
+    铜钱: 200,
+    负债银: 0,
+    家族: 66,
+    父辈路线: '徽商式亦贾亦儒',
+    承嗣来路: '旁支过继',
+    承继定位: '长兄续商·次子候读',
+    家传书香: 1,
+    城里门路: 1,
+    商路门路: 1,
+    家传手艺: 0,
+    家传农事: 0,
+    亦贾亦儒底子: 1,
+    供读底子: 1
+  };
+  function playMerchantSupport(carry) {
+    const { api, elements, window } = createHarness();
+    api.restartFromCarry(carry, 2);
+    api.setRandomSeed(1104);
+    api.enterPhase('establishment');
+    api.chooseByName('路径四 · 徽商式亦贾亦儒');
+    api.next();
+    const entryAction = availableMap(api).get('m_support_school');
+    const stageHtml = normalizeHtml(elements.get('stage').innerHTML);
+    api.patchState({
+      年龄: 18,
+      商年: 1,
+      商季: 3,
+      商段: 3,
+      识字: true,
+      识货进度: 1,
+      账房进度: 1,
+      商历练: 1,
+      白银: 2,
+      铜钱: 260,
+      存米: 3,
+      家族: api.getState().家族,
+      商信誉: api.getState().商信誉 || 0,
+      累计回钱银: 1,
+      累计反哺银: 0,
+      商路供读银: 0,
+      带本银: 0,
+      未回款银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路拖欠: 0,
+      本年商路供读: 0,
+      本年商路回钱银: 0,
+      本年商路反哺银: 0,
+      本年商路身乏: 0,
+      本年商路龃龉: 0,
+      本年商路役扰: 0,
+      本年商路季务: []
+    });
+    api.enterPhase('merchant');
+    const supportAction = availableMap(api).get('m_support_school');
+    pickByPlan(api, ['m_support_school']);
+    api.commit();
+    return {
+      entryAction: entryAction ? { eff: entryAction.eff, desc: entryAction.desc, can: entryAction.can !== false, why: entryAction.why || '' } : null,
+      supportAction: supportAction ? { eff: supportAction.eff, desc: supportAction.desc, can: supportAction.can !== false, why: supportAction.why || '' } : null,
+      stageHtml,
+      state: clone(api.getState()),
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  const lightMerchant = playMerchantSupport(Object.assign({}, merchantBaseCarry, { 旧门路衰减: 1 }));
+  const heavyMerchant = playMerchantSupport(Object.assign({}, merchantBaseCarry, { 旧门路衰减: 2 }));
+
+  const wageBaseCarry = {
+    白银: 0,
+    存米: 2,
+    田亩: 1,
+    铜钱: 0,
+    负债银: 0,
+    家族: 60,
+    父辈路线: '受雇长工/短工',
+    承嗣来路: '旁支过继',
+    承继定位: '本房次子另起一手',
+    家传书香: 0,
+    城里门路: 2,
+    商路门路: 0,
+    家传手艺: 0,
+    家传农事: 0,
+    亦贾亦儒底子: 0,
+    供读底子: 0
+  };
+  const lightWage = playWageCarryCase(Object.assign({}, wageBaseCarry, { 旧门路衰减: 1 }), ['w_out']);
+  const heavyWage = playWageCarryCase(Object.assign({}, wageBaseCarry, { 旧门路衰减: 2 }), ['w_out']);
+
+  return {
+    merchantSupport: {
+      light: {
+        supportAction: lightMerchant.supportAction,
+        stageHtml: lightMerchant.stageHtml,
+        state: {
+          家族: lightMerchant.state.家族,
+          商信誉: lightMerchant.state.商信誉,
+          商路供读银: lightMerchant.state.商路供读银
+        }
+      },
+      heavy: {
+        supportAction: heavyMerchant.supportAction,
+        stageHtml: heavyMerchant.stageHtml,
+        state: {
+          家族: heavyMerchant.state.家族,
+          商信誉: heavyMerchant.state.商信誉,
+          商路供读银: heavyMerchant.state.商路供读银
+        }
+      }
+    },
+    wageOutwork: {
+      light: {
+        action: lightWage.actionEffects.w_out,
+        state: {
+          白银: lightWage.state.白银,
+          铜钱: lightWage.state.铜钱,
+          家族: lightWage.state.家族
+        }
+      },
+      heavy: {
+        action: heavyWage.actionEffects.w_out,
+        state: {
+          白银: heavyWage.state.白银,
+          铜钱: heavyWage.state.铜钱,
+          家族: heavyWage.state.家族
+        }
+      }
+    },
+    ok: !!lightMerchant.entryAction
+      && !!heavyMerchant.entryAction
+      && !!lightMerchant.supportAction
+      && !!heavyMerchant.supportAction
+      && !!lightWage.actionEffects.w_out
+      && !!heavyWage.actionEffects.w_out
+      && lightMerchant.stageHtml.includes('薄一线')
+      && heavyMerchant.stageHtml.includes('连薄几层')
+      && lightMerchant.entryAction.can === false
+      && heavyMerchant.entryAction.can === false
+      && lightMerchant.entryAction.why.includes('可另划供读的商路回账或浮账')
+      && heavyMerchant.entryAction.why.includes('可另划供读的商路回账或浮账')
+      && lightMerchant.state.商路供读银 === 1
+      && heavyMerchant.state.商路供读银 === 1
+      && lightWage.actionEffects.w_out.eff.includes('家族-1')
+      && heavyWage.actionEffects.w_out.eff.includes('家族-2')
+      && lightWage.state.铜钱 > heavyWage.state.铜钱
+      && lightWage.state.家族 > heavyWage.state.家族
+      && lightMerchant.inv.length === 0
+      && heavyMerchant.inv.length === 0
+      && lightWage.inv.length === 0
+      && heavyWage.inv.length === 0
+  };
+}
+
+function runMerchantRoleCarryRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '徽商式亦贾亦儒',
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 4,
+    铜钱: 600,
+    存米: 4,
+    田亩: 2,
+    负债银: 0,
+    家族: 72,
+    商历练: 2,
+    累计反哺银: 3,
+    商路供读银: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商身份: '外出跑单'
+  });
+  api.enterPhase('death');
+  const carry = clone(api.getState()._carry);
+  api.restartWithHeir();
+  api.enterPhase('establishment');
+  const establishmentNote = normalizeHtml(elements.get('stage').innerHTML);
+
+  const { api: examApi, window: examWindow } = createHarness();
+  examApi.restartFromCarry(carry, 2);
+  examApi.enterPhase('establishment');
+  examApi.chooseByName('路径五 · 读书应举');
+  examApi.next();
+  const examState = clone(examApi.getState());
+
+  const { api: baselineApi, window: baselineWindow } = createHarness();
+  const baselineCarry = clone(carry);
+  baselineCarry.承继定位 = '本房次子另起一手';
+  baselineApi.restartFromCarry(baselineCarry, 2);
+  baselineApi.enterPhase('establishment');
+  baselineApi.chooseByName('路径五 · 读书应举');
+  baselineApi.next();
+  const baselineExamState = clone(baselineApi.getState());
+
+  return {
+    carry: {
+      承继定位: carry.承继定位,
+      商路门路: carry.商路门路,
+      亦贾亦儒底子: carry.亦贾亦儒底子,
+      供读底子: carry.供读底子
+    },
+    examState: {
+      家族: examState.家族,
+      供读压力: examState.供读压力,
+      承继定位: examState.承继定位,
+      保结进度: examState.保结进度
+    },
+    baselineExamState: {
+      家族: baselineExamState.家族,
+      供读压力: baselineExamState.供读压力,
+      承继定位: baselineExamState.承继定位,
+      保结进度: baselineExamState.保结进度
+    },
+    establishmentNote,
+    ok: carry.承继定位 === '长兄续商·次子候读'
+      && establishmentNote.includes('家业内部分工是“长兄续商·次子候读”')
+      && establishmentNote.includes('长兄那一房先续着旧号')
+      && establishmentNote.includes('家里原本就把你这一手留作先读的一房')
+      && examState.承继定位 === carry.承继定位
+      && baselineExamState.承继定位 === '本房次子另起一手'
+      && examState.家族 === baselineExamState.家族 + 1
+      && examState.保结进度 === baselineExamState.保结进度
+      && (window.__INV || []).length === 0
+      && (examWindow.__INV || []).length === 0
+      && (baselineWindow.__INV || []).length === 0
+  };
+}
+
+function runApprenticeRoleCarryRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '入城学徒',
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 2,
+    铜钱: 360,
+    存米: 3,
+    田亩: 1,
+    负债银: 0,
+    家族: 68,
+    学徒去向: '未定',
+    学徒历练: 2,
+    学徒授艺度: 1,
+    学徒信任: 1,
+    识字: true
+  });
+  api.enterPhase('death');
+  const carry = clone(api.getState()._carry);
+  api.restartWithHeir();
+  api.enterPhase('establishment');
+  const establishmentNote = normalizeHtml(elements.get('stage').innerHTML);
+
+  const { api: apprenticeApi, window: apprenticeWindow } = createHarness();
+  apprenticeApi.restartFromCarry(carry, 2);
+  apprenticeApi.enterPhase('establishment');
+  apprenticeApi.chooseByName('路径三 · 入城学徒');
+  apprenticeApi.next();
+  const apprenticeState = clone(apprenticeApi.getState());
+
+  const { api: baselineApi, window: baselineWindow } = createHarness();
+  const baselineCarry = clone(carry);
+  baselineCarry.承继定位 = '本房次子另起一手';
+  baselineApi.restartFromCarry(baselineCarry, 2);
+  baselineApi.enterPhase('establishment');
+  baselineApi.chooseByName('路径三 · 入城学徒');
+  baselineApi.next();
+  const baselineState = clone(baselineApi.getState());
+
+  return {
+    carry: {
+      承继定位: carry.承继定位,
+      城里门路: carry.城里门路,
+      商路门路: carry.商路门路
+    },
+    apprenticeState: {
+      学徒合同: apprenticeState.学徒合同,
+      学徒信任: apprenticeState.学徒信任,
+      家族: apprenticeState.家族,
+      承继定位: apprenticeState.承继定位
+    },
+    baselineApprenticeState: {
+      学徒合同: baselineState.学徒合同,
+      学徒信任: baselineState.学徒信任,
+      家族: baselineState.家族,
+      承继定位: baselineState.承继定位
+    },
+    establishmentNote,
+    ok: carry.承继定位 === '长兄守户·次子循城外求'
+      && establishmentNote.includes('长兄守户·次子循城外求')
+      && establishmentNote.includes('长兄先在家守着户头')
+      && apprenticeState.承继定位 === carry.承继定位
+      && baselineState.承继定位 === '本房次子另起一手'
+      && apprenticeState.学徒合同 === '说合中'
+      && baselineState.学徒合同 === '未议'
+      && apprenticeState.家族 === baselineState.家族 + 1
+      && apprenticeState.学徒信任 >= baselineState.学徒信任 + 1
+      && (window.__INV || []).length === 0
+      && (apprenticeWindow.__INV || []).length === 0
+      && (baselineWindow.__INV || []).length === 0
+  };
+}
+
+function runExamRoleCarryRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '读书应举',
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 2,
+    铜钱: 240,
+    存米: 2,
+    田亩: 1,
+    负债银: 0,
+    家族: 67,
+    识字: true,
+    举业结局: '屡试未第',
+    识字转业值: 1,
+    生员身份: false
+  });
+  api.enterPhase('death');
+  const carry = clone(api.getState()._carry);
+  api.restartWithHeir();
+  api.enterPhase('establishment');
+  const establishmentNote = normalizeHtml(elements.get('stage').innerHTML);
+
+  const { api: examApi, window: examWindow } = createHarness();
+  examApi.restartFromCarry(carry, 2);
+  examApi.enterPhase('establishment');
+  examApi.chooseByName('路径五 · 读书应举');
+  examApi.next();
+  const examState = clone(examApi.getState());
+
+  const { api: baselineApi, window: baselineWindow } = createHarness();
+  const baselineCarry = clone(carry);
+  baselineCarry.承继定位 = '本房次子另起一手';
+  baselineApi.restartFromCarry(baselineCarry, 2);
+  baselineApi.enterPhase('establishment');
+  baselineApi.chooseByName('路径五 · 读书应举');
+  baselineApi.next();
+  const baselineExamState = clone(baselineApi.getState());
+
+  return {
+    carry: {
+      承继定位: carry.承继定位,
+      家传书香: carry.家传书香,
+      供读底子: carry.供读底子
+    },
+    examState: {
+      家族: examState.家族,
+      供读压力: examState.供读压力,
+      承继定位: examState.承继定位
+    },
+    baselineExamState: {
+      家族: baselineExamState.家族,
+      供读压力: baselineExamState.供读压力,
+      承继定位: baselineExamState.承继定位
+    },
+    establishmentNote,
+    ok: carry.承继定位 === '长兄守户·次子续读'
+      && establishmentNote.includes('长兄守户·次子续读')
+      && establishmentNote.includes('长兄先守着户里那摊日常')
+      && examState.承继定位 === carry.承继定位
+      && baselineExamState.承继定位 === '本房次子另起一手'
+      && examState.家族 === baselineExamState.家族 + 1
+      && examState.供读压力 === baselineExamState.供读压力
+      && (window.__INV || []).length === 0
+      && (examWindow.__INV || []).length === 0
+      && (baselineWindow.__INV || []).length === 0
+  };
+}
+
+function runExamContinuationPositionBufferRegression() {
+  function play(carry) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(3142);
+    api.restartFromCarry(carry, 2);
+    api.enterPhase('establishment');
+    const establishmentHtml = normalizeHtml(elements.get('stage').innerHTML);
+    if (!api.chooseByName('路径五 · 读书应举')) throw new Error('未找到举业入口');
+    api.next();
+    const entryStage = normalizeHtml(elements.get('stage').innerHTML);
+    const entryState = clone(api.getState());
+    api.patchState({
+      识字: true,
+      铜钱: 220,
+      存米: 2,
+      家族: 64,
+      供读状态: '家中供读',
+      供读压力: 1,
+      投塾进度: 0,
+      读书方式: '未定',
+      本年供读缓冲已用: 0,
+      本年公账贴补次: 0,
+      本年母纺贴补次: 0,
+      本年兄婚让读次: 0,
+      本年延婚牵扯: 0,
+      本年馆课次数: 0,
+      本年举业季务: [],
+      举季: 1,
+      举旬: 1,
+      举段: 1,
+      文章火候: 0,
+      保结进度: Math.max(0, entryState.保结进度 || 0)
+    });
+    api.enterPhase('civilExam');
+    const studyStage = normalizeHtml(elements.get('stage').innerHTML);
+    pickByPlan(api, ['e_enroll', 'e_literacy']);
+    api.commit();
+    const resolveHtml = normalizeHtml(elements.get('stage').innerHTML);
+    const postState = clone(api.getState());
+    return {
+      establishmentHtml,
+      entryStage,
+      entryState,
+      studyStage,
+      resolveHtml,
+      postState,
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  const positionedCarry = {
+    白银: 2,
+    铜钱: 260,
+    存米: 2,
+    田亩: 1,
+    负债银: 0,
+    家族: 66,
+    父辈路线: '读书应举',
+    承继身份: '次子',
+    承嗣来路: '本支次子承继',
+    承继定位: '长兄守户·次子续读',
+    家传书香: 1,
+    城里门路: 0,
+    商路门路: 0,
+    家传手艺: 0,
+    家传农事: 0,
+    亦贾亦儒底子: 0,
+    供读底子: 0,
+    旧门路衰减: 0,
+    委托营生: '兄代管薄田',
+    委托租谷: 1,
+    委托待收租谷: 1,
+    举业结局: '屡试未第'
+  };
+  const baselineCarry = Object.assign({}, positionedCarry, { 承继定位: '本房次子另起一手' });
+
+  const positioned = play(positionedCarry);
+  const baseline = play(baselineCarry);
+
+  return {
+    positioned: {
+      entryState: {
+        承继定位: positioned.entryState.承继定位,
+        供读压力: positioned.entryState.供读压力
+      },
+      postState: {
+        供读压力: positioned.postState.供读压力,
+        本年供读缓冲已用: positioned.postState.本年供读缓冲已用,
+        本年延婚牵扯: positioned.postState.本年延婚牵扯
+      },
+      resolveHtml: positioned.resolveHtml
+    },
+    baseline: {
+      entryState: {
+        承继定位: baseline.entryState.承继定位,
+        供读压力: baseline.entryState.供读压力
+      },
+      postState: {
+        供读压力: baseline.postState.供读压力,
+        本年供读缓冲已用: baseline.postState.本年供读缓冲已用,
+        本年延婚牵扯: baseline.postState.本年延婚牵扯
+      },
+      resolveHtml: baseline.resolveHtml
+    },
+    ok: positioned.establishmentHtml.includes('长兄守户·次子续读')
+      && positioned.establishmentHtml.includes('长兄先守着户里那摊日常')
+      && positioned.entryStage.includes('起手少一层“先回去扛家计”的拉扯')
+      && positioned.entryState.承继定位 === '长兄守户·次子续读'
+      && baseline.entryState.承继定位 === '本房次子另起一手'
+      && positioned.studyStage.includes('先递塾帖试坐馆')
+      && positioned.postState.本年供读缓冲已用 === 1
+      && baseline.postState.本年供读缓冲已用 === 0
+      && positioned.postState.供读压力 < baseline.postState.供读压力
+      && positioned.resolveHtml.includes('家内续读缓冲')
+      && positioned.resolveHtml.includes('这一房原本就把你这一手留作续读')
+      && !baseline.resolveHtml.includes('家内续读缓冲')
+      && positioned.postState.本年延婚牵扯 < baseline.postState.本年延婚牵扯
+      && positioned.inv.length === 0
+      && baseline.inv.length === 0
+  };
+}
+
+function inspectMarriageProfile(patch) {
+  const { api, elements, window } = createHarness();
+  api.patchState(Object.assign({
+    路线: '留乡佃田',
+    年龄: 22,
+    妻室: false,
+    子数: 0,
+    女数: 0,
+    白银: 2,
+    铜钱: 200,
+    存米: 3,
+    田亩: 1,
+    负债银: 0,
+    家族: 60,
+    学徒去向: '未定',
+    学徒历练: 0,
+    学徒授艺度: 0,
+    商历练: 0,
+    累计反哺银: 0,
+    未回款银: 0,
+    商身份: '未定',
+    账房进度: 0,
+    商信誉: 0,
+    举业结局: '未定',
+    生员身份: false,
+    识字: false,
+    技艺: '无'
+  }, patch || {}));
+  api.enterPhase('marriage');
+  return {
+    state: clone(api.getState()),
+    life: clone(api.getLifeProfile()),
+    fertility: clone(api.getChildbearingProfile()),
+    stageHtml: normalizeHtml(elements.get('stage').innerHTML),
+    inv: clone(window.__INV || [])
+  };
+}
+
+function runLifecycleProfileRegression() {
+  const farm = inspectMarriageProfile({
+    路线: '留乡佃田',
+    年龄: 22,
+    识字: true,
+    存米: 4,
+    田亩: 4
+  });
+  const apprenticeSettled = inspectMarriageProfile({
+    路线: '入城学徒',
+    年龄: 24,
+    学徒去向: '留店伙计',
+    学徒历练: 3,
+    学徒授艺度: 2,
+    识字: true
+  });
+  const merchant = inspectMarriageProfile({
+    路线: '徽商式亦贾亦儒',
+    年龄: 22,
+    商历练: 2,
+    累计反哺银: 2,
+    商身份: '随号学生意',
+    账房进度: 1,
+    商信誉: 2
+  });
+  const examStudent = inspectMarriageProfile({
+    路线: '读书应举',
+    年龄: 29,
+    举业结局: '未定',
+    识字: true
+  });
+  const examShengyuan = inspectMarriageProfile({
+    路线: '读书应举',
+    年龄: 28,
+    举业结局: '勉强入泮',
+    生员身份: true,
+    识字: true
+  });
+
+  return {
+    farm: {
+      marriageAge: farm.life.marriageAge,
+      fertilityTag: farm.life.fertilityTag,
+      fertilityLabel: farm.fertility.label,
+      ok: farm.life.marriageAge === 22
+        && farm.life.fertilityTag === 'normal'
+        && farm.fertility.label === '常窗'
+        && farm.stageHtml.includes('常窗')
+        && farm.inv.length === 0
+    },
+    apprenticeSettled: {
+      marriageAge: apprenticeSettled.life.marriageAge,
+      fertilityTag: apprenticeSettled.life.fertilityTag,
+      fertilityLabel: apprenticeSettled.fertility.label,
+      ok: apprenticeSettled.life.marriageAge === 28
+        && apprenticeSettled.life.fertilityTag === 'late'
+        && apprenticeSettled.fertility.label === '晚婚'
+        && apprenticeSettled.stageHtml.includes('晚婚')
+        && apprenticeSettled.stageHtml.includes('留店')
+        && apprenticeSettled.inv.length === 0
+    },
+    merchant: {
+      marriageAge: merchant.life.marriageAge,
+      fertilityTag: merchant.life.fertilityTag,
+      fertilityLabel: merchant.fertility.label,
+      ok: merchant.life.marriageAge === 22
+        && merchant.life.fertilityTag === 'split'
+        && merchant.fertility.label === '分居'
+        && merchant.stageHtml.includes('分居')
+        && merchant.stageHtml.includes('回钱')
+        && merchant.inv.length === 0
+    },
+    examStudent: {
+      marriageAge: examStudent.life.marriageAge,
+      fertilityTag: examStudent.life.fertilityTag,
+      fertilityLabel: examStudent.fertility.label,
+      ok: examStudent.life.marriageAge === 29
+        && examStudent.life.fertilityTag === 'lateStrict'
+        && examStudent.fertility.label === '窄窗'
+        && examStudent.stageHtml.includes('窄窗')
+        && examStudent.stageHtml.includes('名分')
+        && examStudent.inv.length === 0
+    },
+    examShengyuan: {
+      marriageAge: examShengyuan.life.marriageAge,
+      fertilityTag: examShengyuan.life.fertilityTag,
+      fertilityLabel: examShengyuan.fertility.label,
+      ok: examShengyuan.life.marriageAge === 28
+        && examShengyuan.life.fertilityTag === 'lateStrict'
+        && examShengyuan.fertility.label === '窄窗'
+        && examShengyuan.stageHtml.includes('窄窗')
+        && examShengyuan.stageHtml.includes('生员')
+        && examShengyuan.inv.length === 0
+    }
+  };
+}
+
+function runEstablishmentAtlasRegression() {
+  const { api, elements, window } = createHarness();
+  api.enterPhase('establishment');
+  const stageHtml = normalizeHtml(elements.get('stage').innerHTML);
+  return {
+    stageHtml,
+    ok: stageHtml.includes('古代 → 明代 → 江南民籍次子立身的十二个月 → 一生 → 下一代')
+      && stageHtml.includes('立身 → 成家 → 当户 → 养老 → 死亡与传承 → 下一代重开')
+      && stageHtml.includes('五条立身道路卡')
+      && stageHtml.includes('生命周期延伸卡')
+      && stageHtml.includes('五路多代账本卡')
+      && stageHtml.includes('路径一 · 留乡佃田')
+      && stageHtml.includes('路径五 · 读书应举')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runHouseholdFallbackSeasonalRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '',
+    年龄: 38,
+    户季: 1,
+    户旬: 1,
+    白银: 2,
+    铜钱: 400,
+    存米: 3,
+    田亩: 4,
+    家族: 58,
+    应役: '未役',
+    识字: false,
+    技艺: '无'
+  });
+  api.enterPhase('household');
+  const stageHtml = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_clan', 'h_side']);
+  api.commit();
+  const settleState = clone(api.getState());
+  api.next();
+  const nextPhase = api.getPhase();
+  const nextState = clone(api.getState());
+  const nextHtml = normalizeHtml(elements.get('stage').innerHTML);
+  return {
+    stageHtml,
+    settleState: {
+      本年户通融: settleState.本年户通融,
+      本年户季务: settleState.本年户季务
+    },
+    nextPhase,
+    nextState: {
+      户季: nextState.户季,
+      户旬: nextState.户旬
+    },
+    nextHtml,
+    ok: stageHtml.includes('当户 · 春分书')
+      && stageHtml.includes('分配 2 点')
+      && !stageHtml.includes('4 个行动点')
+      && settleState.本年户通融 >= 1
+      && nextPhase === 'household'
+      && nextState.户季 === 1
+      && nextState.户旬 === 2
+      && nextHtml.includes('当户 · 春分书')
+      && nextHtml.includes('春分书·中旬')
+      && nextHtml.includes('分配 2 点')
+      && !nextHtml.includes('4 个行动点')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function playMarriageDeferralCase(picks, patch, randSeq) {
+  const { api, elements, window } = createHarness();
+  api.patchState(Object.assign({
+    路线: '入城学徒',
+    年龄: 28,
+    妻室: false,
+    子数: 0,
+    女数: 0,
+    白银: 1,
+    铜钱: 200,
+    存米: 3,
+    田亩: 1,
+    负债银: 0,
+    家族: 62,
+    学徒去向: '留店伙计',
+    学徒历练: 3,
+    学徒授艺度: 2,
+    识字: true,
+    技艺: '无'
+  }, patch || {}));
+  api.enterPhase('marriage');
+  // 议亲现已拆成三旬（说合→回话→下聘）；这些回归只关心“下聘当旬”的承接与顺延，
+  // 因此直接跳到下聘下旬，避免额外用例因为前两旬的节奏变化而失真。
+  api.patchState({ 议旬: 3 });
+  api.enterPhase('marriage');
+  const beforeLife = clone(api.getLifeProfile());
+  const beforeFertility = clone(api.getChildbearingProfile());
+  api.setRandomSequence(withTrailingShock(randSeq, 0.9));
+  pickByPlan(api, picks);
+  api.commit();
+  const postCommitState = clone(api.getState());
+  // commit 后会渲染“结算面板”，用于断言“女方另议/退回聘银/被推迟事项”等承接是否真实发生
+  const postCommitHtml = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+  const afterPhase = api.getPhase();
+  const afterState = clone(api.getState());
+  const afterLife = clone(api.getLifeProfile());
+  const afterFertility = clone(api.getChildbearingProfile());
+  // next() 后会进入下一阶段（或回到 marriage 重议），用于断言“顺延婚龄/婚育窗口”真实生效
+  const stageHtml = normalizeHtml(elements.get('stage').innerHTML);
+  return {
+    beforeLife,
+    beforeFertility,
+    postCommitState,
+    postCommitHtml,
+    afterPhase,
+    afterState,
+    afterLife,
+    afterFertility,
+    stageHtml,
+    inv: clone(window.__INV || [])
+  };
+}
+
+function playMarriageOutcomeCase(patch, picks, randSeq) {
+  const { api, elements, window } = createHarness();
+  api.patchState(Object.assign({
+    路线: '入城学徒',
+    年龄: 28,
+    妻室: false,
+    子数: 0,
+    女数: 0,
+    白银: 2,
+    铜钱: 240,
+    存米: 3,
+    田亩: 1,
+    负债银: 0,
+    家族: 64,
+    学徒去向: '留店伙计',
+    学徒历练: 3,
+    学徒授艺度: 2,
+    学徒信任: 1,
+    识字: true,
+    技艺: '无',
+    商历练: 0,
+    累计反哺银: 0,
+    商信誉: 0,
+    账房进度: 0,
+    商路供读银: 0,
+    未回款银: 0,
+    识字转业值: 0,
+    生员身份: false,
+    举业结局: '未定'
+  }, patch || {}));
+  api.enterPhase('marriage');
+  // 议亲现已拆成三旬；此处同样直接在“下聘下旬”一次性 roll，用于对照婚龄/婚育窗口与子女数量。
+  api.patchState({ 议旬: 3 });
+  api.enterPhase('marriage');
+  const beforeLife = clone(api.getLifeProfile());
+  const beforeFertility = clone(api.getChildbearingProfile());
+  const stageHtml = normalizeHtml(elements.get('stage').innerHTML);
+  api.setRandomSequence(withTrailingShock(randSeq, 0.9));
+  pickByPlan(api, picks);
+  api.commit();
+  const postState = clone(api.getState());
+  return {
+    beforeLife,
+    beforeFertility,
+    stageHtml,
+    postState,
+    inv: clone(window.__INV || [])
+  };
+}
+
+function runMarriageDeferralRegression() {
+  const passiveDelay = playMarriageDeferralCase(['m_wait'], { 白银: 0 }, null);
+  const failedProposal = playMarriageDeferralCase(['m_gift1'], { 白银: 1 }, [0.99]);
+
+  return {
+    passiveDelay: {
+      beforeMarriageAge: passiveDelay.beforeLife.marriageAge,
+      beforeFertilityLabel: passiveDelay.beforeFertility.label,
+      afterPhase: passiveDelay.afterPhase,
+      afterMarriageAge: passiveDelay.afterLife.marriageAge,
+      afterFertilityLabel: passiveDelay.afterFertility.label,
+      ok: passiveDelay.beforeLife.marriageAge === 28
+        && passiveDelay.beforeFertility.label === '晚婚'
+        && passiveDelay.afterPhase === 'marriage'
+        && passiveDelay.postCommitState._marriageAgeAdj === 2
+        && passiveDelay.afterState.年龄 === 30
+        && passiveDelay.afterLife.marriageAge === 30
+        && passiveDelay.afterFertility.label === '窄窗'
+        && passiveDelay.stageHtml.includes('窄窗')
+        && passiveDelay.inv.length === 0
+    },
+    failedProposal: {
+      beforeMarriageAge: failedProposal.beforeLife.marriageAge,
+      beforeFertilityLabel: failedProposal.beforeFertility.label,
+      afterPhase: failedProposal.afterPhase,
+      afterMarriageAge: failedProposal.afterLife.marriageAge,
+      afterFertilityLabel: failedProposal.afterFertility.label,
+      白银: failedProposal.afterState.白银,
+      ok: failedProposal.beforeLife.marriageAge === 28
+        && failedProposal.beforeFertility.label === '晚婚'
+        && failedProposal.afterPhase === 'marriage'
+        && failedProposal.postCommitState._marriageAgeAdj === 2
+        && failedProposal.afterState.年龄 === 30
+        && failedProposal.afterLife.marriageAge === 30
+        && failedProposal.afterFertility.label === '窄窗'
+        && failedProposal.afterState.白银 === 0
+        && failedProposal.postCommitHtml.includes('女方另议')
+        && failedProposal.stageHtml.includes('窄窗')
+        && failedProposal.inv.length === 0
+    }
+  };
+}
+
+function runMarriageBrokenEngagementRegression() {
+  // 覆盖“下了重聘但女方另议告吹”的承接：应退回部分重聘银、记为被推迟事项，并真实顺延婚龄/婚育窗口，回到 marriage 重议。
+  // 这一条若未锁住，最容易出现“文案说退回/推迟，运行时却没退银/没顺延/直接滑进 household”的假闭环。
+  const brokenHeavyGift = playMarriageDeferralCase(
+    ['m_gift', 'm_match', 'm_show'], // 2+1+1 = 4 点，确保走到“下重聘”分支
+    { 白银: 3, 家族: 62 },
+    [0.99] // 强制 fail，进入“女方另议”
+  );
+
+  return {
+    brokenHeavyGift: {
+      afterPhase: brokenHeavyGift.afterPhase,
+      afterAge: brokenHeavyGift.afterState.年龄,
+      afterMarriageAge: brokenHeavyGift.afterLife.marriageAge,
+      afterFertilityLabel: brokenHeavyGift.afterFertility.label,
+      白银: brokenHeavyGift.afterState.白银,
+      ok: brokenHeavyGift.afterPhase === 'marriage'
+        && brokenHeavyGift.postCommitState._marriageAgeAdj === 2
+        && brokenHeavyGift.afterState.年龄 === 30
+        && brokenHeavyGift.afterLife.marriageAge === 30
+        && brokenHeavyGift.afterFertility.label === '窄窗'
+        // 重聘告吹应退回部分重聘银 +1：起始 3 两，重聘-3，退回+1 => 1
+        && brokenHeavyGift.afterState.白银 === 1
+        && brokenHeavyGift.postCommitHtml.includes('女方另议')
+        && brokenHeavyGift.postCommitHtml.includes('退回部分重聘白银+1')
+        && brokenHeavyGift.stageHtml.includes('窄窗')
+        && brokenHeavyGift.inv.length === 0
+    }
+  };
+}
+
+function runMarriageFertilityRegression() {
+  const picks = ['m_gift1', 'm_match', 'm_show'];
+  const lateBaseline = playMarriageOutcomeCase({}, picks, [0.10, 0.80, 0.70]);
+  const lateStrictDelayed = playMarriageOutcomeCase({ _marriageAgeAdj: 2 }, picks, [0.10, 0.80, 0.70]);
+  const merchantBaseline = playMarriageOutcomeCase({
+    路线: '徽商式亦贾亦儒',
+    年龄: 22,
+    白银: 2,
+    家族: 66,
+    商历练: 2,
+    累计反哺银: 2,
+    商信誉: 1,
+    账房进度: 1,
+    学徒去向: '未定',
+    学徒历练: 0,
+    学徒授艺度: 0,
+    学徒信任: 0
+  }, picks, [0.10, 0.80, 0.70]);
+  const merchantDelayed = playMarriageOutcomeCase({
+    路线: '徽商式亦贾亦儒',
+    年龄: 22,
+    白银: 2,
+    家族: 66,
+    商历练: 2,
+    累计反哺银: 2,
+    商信誉: 1,
+    账房进度: 1,
+    _marriageAgeAdj: 4,
+    学徒去向: '未定',
+    学徒历练: 0,
+    学徒授艺度: 0,
+    学徒信任: 0
+  }, picks, [0.10, 0.80, 0.70]);
+
+  return {
+    delayedApprentice: {
+      beforeMarriageAge: lateBaseline.beforeLife.marriageAge,
+      beforeFertilityLabel: lateBaseline.beforeFertility.label,
+      delayedMarriageAge: lateStrictDelayed.beforeLife.marriageAge,
+      delayedFertilityLabel: lateStrictDelayed.beforeFertility.label,
+      baselineChildren: {
+        子数: lateBaseline.postState.子数,
+        女数: lateBaseline.postState.女数
+      },
+      delayedChildren: {
+        子数: lateStrictDelayed.postState.子数,
+        女数: lateStrictDelayed.postState.女数
+      },
+      ok: lateBaseline.postState.妻室 === true
+        && lateStrictDelayed.postState.妻室 === true
+        && lateBaseline.beforeLife.marriageAge === 28
+        && lateBaseline.beforeFertility.label === '晚婚'
+        && lateStrictDelayed.beforeLife.marriageAge === 30
+        && lateStrictDelayed.beforeFertility.label === '窄窗'
+        && lateBaseline.postState.子数 === 2
+        && lateStrictDelayed.postState.子数 === 1
+        && lateBaseline.postState.女数 === 1
+        && lateStrictDelayed.postState.女数 === 1
+        && lateStrictDelayed.stageHtml.includes('窄窗')
+        && lateBaseline.inv.length === 0
+        && lateStrictDelayed.inv.length === 0
+    },
+    merchantSplitWindow: {
+      baselineMarriageAge: merchantBaseline.beforeLife.marriageAge,
+      delayedMarriageAge: merchantDelayed.beforeLife.marriageAge,
+      baselineFertilityLabel: merchantBaseline.beforeFertility.label,
+      delayedFertilityLabel: merchantDelayed.beforeFertility.label,
+      baselineChildren: {
+        子数: merchantBaseline.postState.子数,
+        女数: merchantBaseline.postState.女数
+      },
+      delayedChildren: {
+        子数: merchantDelayed.postState.子数,
+        女数: merchantDelayed.postState.女数
+      },
+      ok: merchantBaseline.postState.妻室 === true
+        && merchantDelayed.postState.妻室 === true
+        && merchantBaseline.beforeLife.marriageAge === 22
+        && merchantDelayed.beforeLife.marriageAge === 26
+        && merchantBaseline.beforeFertility.label === '分居'
+        && merchantDelayed.beforeFertility.label === '分居'
+        && merchantBaseline.postState.子数 === merchantDelayed.postState.子数
+        && merchantBaseline.postState.女数 === merchantDelayed.postState.女数
+        && merchantBaseline.postState.子数 === 2
+        && merchantDelayed.postState.子数 === 2
+        && merchantBaseline.stageHtml.includes('分居')
+        && merchantDelayed.stageHtml.includes('分居')
+        && merchantBaseline.inv.length === 0
+        && merchantDelayed.inv.length === 0
+    }
+  };
+}
+
+function runMarriageBranchCarryRegression() {
+  const fixedRent = playMarriageDeferralCase(['m_fixedrent'], {
+    路线: '留乡佃田',
+    年龄: 22,
+    白银: 2,
+    铜钱: 180,
+    存米: 4,
+    田亩: 4,
+    识字: true,
+    农事历练: 1,
+    学徒去向: '未定',
+    学徒历练: 0,
+    学徒授艺度: 0,
+    商历练: 0,
+    累计反哺银: 0,
+    商信誉: 0,
+    账房进度: 0,
+    举业结局: '未定',
+    生员身份: false
+  }, null);
+
+  const wageOut = playMarriageDeferralCase(['m_wage_out'], {
+    路线: '受雇长工/短工',
+    年龄: 22,
+    白银: 2,
+    铜钱: 200,
+    存米: 3,
+    田亩: 1,
+    家族: 60,
+    识字: false,
+    技艺: '无',
+    雇工历练: 2,
+    雇身份: '长工',
+    学徒去向: '未定',
+    学徒历练: 0,
+    学徒授艺度: 0,
+    商历练: 0,
+    累计反哺银: 0,
+    商信誉: 0,
+    账房进度: 0,
+    举业结局: '未定',
+    生员身份: false
+  }, null);
+
+  const { api: fixedApi, elements: fixedElements, window: fixedWindow } = createHarness();
+  fixedApi.patchState({
+    路线: '留乡佃田',
+    年龄: 38,
+    妻室: false,
+    子数: 0,
+    女数: 0,
+    白银: 1,
+    铜钱: 180,
+    存米: 4,
+    田亩: 4,
+    负债银: 0,
+    家族: 61,
+    识字: true,
+    农事历练: 2,
+    婚配路径: '暂不婚·改定额佃',
+    定额佃状态: '已立定额佃',
+    合爨状态: '未合爨'
+  });
+  fixedApi.enterPhase('household');
+  const fixedHouseholdHtml = normalizeHtml(fixedElements.get('stage').innerHTML);
+
+  const { api: jointApi, elements: jointElements, window: jointWindow } = createHarness();
+  jointApi.patchState({
+    路线: '留乡佃田',
+    年龄: 22,
+    妻室: false,
+    子数: 0,
+    女数: 0,
+    白银: 1,
+    铜钱: 120,
+    存米: 3,
+    田亩: 4,
+    负债银: 0,
+    家族: 60,
+    识字: false,
+    农事历练: 0
+  });
+  jointApi.enterPhase('marriage');
+  pickByPlan(jointApi, ['m_joint']);
+  jointApi.commit();
+  const postMarriageState = clone(jointApi.getState());
+  jointApi.next();
+  const jointHouseholdHtml = normalizeHtml(jointElements.get('stage').innerHTML);
+  const jointAction = availableMap(jointApi).get('h_split_joint');
+  jointApi.setRandomSequence(householdSafeSeq(0.01, 0.9));
+  pickByPlan(jointApi, ['h_split_joint']);
+  jointApi.commit();
+  const postHouseholdState = clone(jointApi.getState());
+
+  const { api: wageApi, elements: wageElements, window: wageWindow } = createHarness();
+  wageApi.patchState({
+    路线: '受雇长工/短工',
+    年龄: 38,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 100,
+    存米: 3,
+    田亩: 4,
+    负债银: 0,
+    家族: 61,
+    识字: false,
+    雇工历练: 3,
+    雇身份: '外出佣工',
+    婚配路径: '先应差·外出佣工',
+    城里门路: 1,
+    委托营生: '无',
+    委托租谷: 0,
+    委托待收租谷: 0
+  });
+  wageApi.enterPhase('household');
+  const wageHouseholdHtml = normalizeHtml(wageElements.get('stage').innerHTML);
+  const wageProxyAction = availableMap(wageApi).get('h_proxy_wage');
+  wageApi.setRandomSequence(householdSafeSeq(0.01, 0.9));
+  pickByPlan(wageApi, ['h_proxy_wage']);
+  wageApi.commit();
+  const wagePostHouseholdState = clone(wageApi.getState());
+
+  return {
+    fixedRent: {
+      afterPhase: fixedRent.afterPhase,
+      afterMarriageAge: fixedRent.afterLife.marriageAge,
+      afterState: {
+        白银: fixedRent.afterState.白银,
+        农事历练: fixedRent.afterState.农事历练,
+        婚配路径: fixedRent.afterState.婚配路径,
+        定额佃状态: fixedRent.afterState.定额佃状态
+      },
+      householdHtml: fixedHouseholdHtml,
+      ok: fixedRent.afterPhase === 'marriage'
+        && fixedRent.afterLife.marriageAge === 24
+        && fixedRent.afterState.白银 === 1
+        && fixedRent.afterState.农事历练 === 2
+        && fixedRent.afterState.婚配路径 === '暂不婚·改定额佃'
+        && fixedRent.afterState.定额佃状态 === '已立定额佃'
+        && fixedRent.stageHtml.includes('定额佃')
+        && fixedHouseholdHtml.includes('定额佃')
+        && fixedRent.inv.length === 0
+        && (fixedWindow.__INV || []).length === 0
+    },
+    wageOutwork: {
+      afterPhase: wageOut.afterPhase,
+      afterMarriageAge: wageOut.afterLife.marriageAge,
+      afterState: {
+        白银: wageOut.afterState.白银,
+        铜钱: wageOut.afterState.铜钱,
+        雇身份: wageOut.afterState.雇身份,
+        婚配路径: wageOut.afterState.婚配路径,
+        城里门路: wageOut.afterState.城里门路
+      },
+      householdAction: wageProxyAction ? { eff: wageProxyAction.eff, can: wageProxyAction.can !== false } : null,
+      postHouseholdState: {
+        白银: wagePostHouseholdState.白银,
+        铜钱: wagePostHouseholdState.铜钱,
+        婚配路径: wagePostHouseholdState.婚配路径,
+        城里门路: wagePostHouseholdState.城里门路
+      },
+      householdHtml: wageHouseholdHtml,
+      ok: wageOut.afterPhase === 'marriage'
+        && wageOut.afterLife.marriageAge === 24
+        && wageOut.afterState.白银 === 1
+        && wageOut.afterState.铜钱 === 420
+        && wageOut.afterState.雇身份 === '外出佣工'
+        && wageOut.afterState.婚配路径 === '先应差·外出佣工'
+        && wageOut.afterState.城里门路 >= 1
+        && wageOut.stageHtml.includes('外出工账')
+        && !!wageProxyAction
+        && wageProxyAction.eff.includes('差役后手更实')
+        && wageHouseholdHtml.includes('旧工头')
+        && wagePostHouseholdState.白银 === 0
+        && wagePostHouseholdState.婚配路径 === '先应差·外出佣工'
+        && wagePostHouseholdState.城里门路 >= 1
+        && wageOut.inv.length === 0
+        && (wageWindow.__INV || []).length === 0
+    },
+    jointHousehold: {
+      afterPhase: jointApi.getPhase(),
+      postMarriageState: {
+        婚配路径: postMarriageState.婚配路径,
+        合爨状态: postMarriageState.合爨状态,
+        家族: postMarriageState.家族,
+        存米: postMarriageState.存米
+      },
+      splitAction: jointAction ? { eff: jointAction.eff, can: jointAction.can !== false } : null,
+      postHouseholdState: {
+        合爨状态: postHouseholdState.合爨状态,
+        铜钱: postHouseholdState.铜钱,
+        家族: postHouseholdState.家族,
+        婚配路径: postHouseholdState.婚配路径
+      },
+      householdHtml: jointHouseholdHtml,
+      ok: jointApi.getPhase() === 'household'
+        && postMarriageState.婚配路径 === '合爨随兄'
+        && postMarriageState.合爨状态 === '随兄合户'
+        && postMarriageState.家族 === 63
+        && !!jointAction
+        && jointAction.eff.includes('立独户账')
+        && jointHouseholdHtml.includes('合爨')
+        && postHouseholdState.合爨状态 === '已析爨'
+        && postHouseholdState.婚配路径 === '合爨随兄'
+        && postHouseholdState.家族 > postMarriageState.家族
+        && (jointWindow.__INV || []).length === 0
+    },
+    ok: fixedRent.afterPhase === 'marriage'
+      && fixedRent.afterState.定额佃状态 === '已立定额佃'
+      && fixedHouseholdHtml.includes('定额佃')
+      && wageOut.afterState.婚配路径 === '先应差·外出佣工'
+      && wagePostHouseholdState.城里门路 >= 1
+      && jointApi.getPhase() === 'household'
+      && postMarriageState.合爨状态 === '随兄合户'
+      && postHouseholdState.合爨状态 === '已析爨'
+      && (fixedWindow.__INV || []).length === 0
+      && (wageWindow.__INV || []).length === 0
+      && (jointWindow.__INV || []).length === 0
+  };
+}
+
+function runMarriageBranchDeepLifecycleRegression() {
+  function driveFixedRentCase() {
+    const { api, elements, window } = createHarness();
+    api.patchState({
+      路线: '留乡佃田',
+      年龄: 22,
+      妻室: false,
+      子数: 0,
+      女数: 0,
+      白银: 2,
+      铜钱: 240,
+      存米: 4,
+      田亩: 4,
+      负债银: 0,
+      家族: 62,
+      识字: true,
+      农事历练: 1
+    });
+    api.enterPhase('marriage');
+    pickByPlan(api, ['m_fixedrent']);
+    api.commit();
+    const marriageState = clone(api.getState());
+    const marriageHtml = normalizeHtml(elements.get('stage').innerHTML);
+    api.patchState({
+      年龄: 38,
+      妻室: true,
+      子数: 1,
+      女数: 1,
+      铜钱: 360,
+      存米: 4,
+      田亩: 4,
+      家族: 64
+    });
+    api.enterPhase('household');
+    const householdHtml = normalizeHtml(elements.get('stage').innerHTML);
+    api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+    pickByPlan(api, ['h_lease_home']);
+    api.commit();
+    const postHousehold = clone(api.getState());
+    api.patchState({ 年龄: 58 });
+    api.enterPhase('elder');
+    const elderHtml = normalizeHtml(elements.get('stage').innerHTML);
+    api.enterPhase('death');
+    const deathHtml = normalizeHtml(elements.get('stage').innerHTML);
+    const carry = clone(api.getState()._carry);
+    api.restartWithHeir();
+    const heirState = clone(api.getState());
+    const establishmentHtml = normalizeHtml(elements.get('stage').innerHTML);
+    return {
+      marriageState,
+      marriageHtml,
+      householdHtml,
+      postHousehold,
+      elderHtml,
+      deathHtml,
+      carry,
+      heirState,
+      establishmentHtml,
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  function driveJointCase() {
+    const { api, elements, window } = createHarness();
+    api.patchState({
+      路线: '留乡佃田',
+      年龄: 22,
+      妻室: false,
+      子数: 0,
+      女数: 0,
+      白银: 1,
+      铜钱: 240,
+      存米: 4,
+      田亩: 4,
+      负债银: 0,
+      家族: 61,
+      识字: false,
+      农事历练: 1
+    });
+    api.enterPhase('marriage');
+    pickByPlan(api, ['m_joint']);
+    api.commit();
+    const marriageState = clone(api.getState());
+    api.next();
+    const householdHtml = normalizeHtml(elements.get('stage').innerHTML);
+    api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+    pickByPlan(api, ['h_split_joint', 'h_lease_home']);
+    api.commit();
+    api.patchState({
+      年龄: 58,
+      妻室: true,
+      子数: 1,
+      女数: 1
+    });
+    const postHousehold = clone(api.getState());
+    api.enterPhase('elder');
+    const elderHtml = normalizeHtml(elements.get('stage').innerHTML);
+    api.enterPhase('death');
+    const deathHtml = normalizeHtml(elements.get('stage').innerHTML);
+    const carry = clone(api.getState()._carry);
+    api.restartWithHeir();
+    const heirState = clone(api.getState());
+    const establishmentHtml = normalizeHtml(elements.get('stage').innerHTML);
+    return {
+      marriageState,
+      householdHtml,
+      postHousehold,
+      elderHtml,
+      deathHtml,
+      carry,
+      heirState,
+      establishmentHtml,
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  function driveWageOutCase() {
+    const { api, elements, window } = createHarness();
+    api.patchState({
+      路线: '受雇长工/短工',
+      年龄: 22,
+      妻室: false,
+      子数: 0,
+      女数: 0,
+      白银: 2,
+      铜钱: 240,
+      存米: 3,
+      田亩: 2,
+      负债银: 0,
+      家族: 60,
+      识字: false,
+      技艺: '无',
+      雇工历练: 2,
+      雇身份: '长工'
+    });
+    api.enterPhase('marriage');
+    pickByPlan(api, ['m_wage_out']);
+    api.commit();
+    const marriageState = clone(api.getState());
+    const marriageHtml = normalizeHtml(elements.get('stage').innerHTML);
+    api.patchState({
+      年龄: 38,
+      妻室: true,
+      子数: 1,
+      女数: 1,
+      白银: 1,
+      铜钱: 360,
+      存米: 3,
+      田亩: 4,
+      家族: 62
+    });
+    api.enterPhase('household');
+    const householdHtml = normalizeHtml(elements.get('stage').innerHTML);
+    api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+    pickByPlan(api, ['h_proxy_wage', 'h_lease_home']);
+    api.commit();
+    const postHousehold = clone(api.getState());
+    api.patchState({ 年龄: 58 });
+    api.enterPhase('elder');
+    const elderHtml = normalizeHtml(elements.get('stage').innerHTML);
+    api.enterPhase('death');
+    const deathHtml = normalizeHtml(elements.get('stage').innerHTML);
+    const carry = clone(api.getState()._carry);
+    api.restartWithHeir();
+    const heirState = clone(api.getState());
+    const establishmentHtml = normalizeHtml(elements.get('stage').innerHTML);
+    return {
+      marriageState,
+      marriageHtml,
+      householdHtml,
+      postHousehold,
+      elderHtml,
+      deathHtml,
+      carry,
+      heirState,
+      establishmentHtml,
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  const fixedRent = driveFixedRentCase();
+  const joint = driveJointCase();
+  const wageOut = driveWageOutCase();
+
+  return {
+    fixedRent: {
+      marriageState: {
+        婚配路径: fixedRent.marriageState.婚配路径,
+        定额佃状态: fixedRent.marriageState.定额佃状态
+      },
+      postHousehold: {
+        委托营生: fixedRent.postHousehold.委托营生,
+        委托租谷: fixedRent.postHousehold.委托租谷,
+        委托待收租谷: fixedRent.postHousehold.委托待收租谷
+      },
+      carry: {
+        家传农事: fixedRent.carry.家传农事,
+        委托待收租谷: fixedRent.carry.委托待收租谷,
+        婚配路径: fixedRent.carry.婚配路径,
+        定额佃状态: fixedRent.carry.定额佃状态
+      },
+      ok: fixedRent.marriageState.婚配路径 === '暂不婚·改定额佃'
+        && fixedRent.marriageState.定额佃状态 === '已立定额佃'
+        && fixedRent.postHousehold.委托营生 === '出佃收租'
+        && fixedRent.postHousehold.委托待收租谷 === 1
+        && fixedRent.carry.委托待收租谷 === 1
+        && fixedRent.carry.婚配路径 === '暂不婚·改定额佃'
+        && fixedRent.carry.定额佃状态 === '已立定额佃'
+        && fixedRent.heirState.委托待收租谷 === fixedRent.carry.委托待收租谷
+        && fixedRent.deathHtml.includes('婚配路径=暂不婚·改定额佃')
+        && fixedRent.establishmentHtml.includes('定额佃')
+        && fixedRent.inv.length === 0
+    },
+    jointHousehold: {
+      marriageState: {
+        婚配路径: joint.marriageState.婚配路径,
+        合爨状态: joint.marriageState.合爨状态
+      },
+      postHousehold: {
+        合爨状态: joint.postHousehold.合爨状态,
+        委托营生: joint.postHousehold.委托营生
+      },
+      carry: {
+        婚配路径: joint.carry.婚配路径,
+        合爨状态: joint.carry.合爨状态
+      },
+      ok: joint.marriageState.婚配路径 === '合爨随兄'
+        && joint.marriageState.合爨状态 === '随兄合户'
+        && joint.postHousehold.合爨状态 === '已析爨'
+        && joint.postHousehold.委托营生 === '出佃收租'
+        && joint.carry.婚配路径 === '合爨随兄'
+        && joint.carry.合爨状态 === '已析爨'
+        && joint.deathHtml.includes('合爨状态=已析爨')
+        && joint.establishmentHtml.includes('合爨')
+        && joint.inv.length === 0
+    },
+    wageOutwork: {
+      marriageState: {
+        婚配路径: wageOut.marriageState.婚配路径,
+        雇身份: wageOut.marriageState.雇身份,
+        城里门路: wageOut.marriageState.城里门路
+      },
+      postHousehold: {
+        婚配路径: wageOut.postHousehold.婚配路径,
+        城里门路: wageOut.postHousehold.城里门路,
+        委托待收租谷: wageOut.postHousehold.委托待收租谷
+      },
+      carry: {
+        城里门路: wageOut.carry.城里门路,
+        委托待收租谷: wageOut.carry.委托待收租谷,
+        婚配路径: wageOut.carry.婚配路径,
+        雇身份: wageOut.carry.雇身份
+      },
+      ok: wageOut.marriageState.婚配路径 === '先应差·外出佣工'
+        && wageOut.marriageState.雇身份 === '外出佣工'
+        && wageOut.marriageState.城里门路 >= 1
+        && wageOut.postHousehold.婚配路径 === '先应差·外出佣工'
+        && wageOut.postHousehold.城里门路 >= 1
+        && wageOut.postHousehold.委托待收租谷 === 1
+        && wageOut.carry.城里门路 >= 1
+        && wageOut.carry.委托待收租谷 === 1
+        && wageOut.carry.婚配路径 === '先应差·外出佣工'
+        && wageOut.carry.雇身份 === '外出佣工'
+        && wageOut.heirState.城里门路 === wageOut.carry.城里门路
+        && wageOut.heirState.委托待收租谷 === wageOut.carry.委托待收租谷
+        && wageOut.deathHtml.includes('雇身份=外出佣工')
+        && wageOut.establishmentHtml.includes('旧牙口')
+        && wageOut.inv.length === 0
+    },
+    ok: fixedRent.deathHtml.includes('定额佃旧约')
+      && joint.deathHtml.includes('共账缓冲')
+      && wageOut.deathHtml.includes('旧牙口')
+      && fixedRent.heirState.委托待收租谷 === fixedRent.carry.委托待收租谷
+      && wageOut.heirState.城里门路 === wageOut.carry.城里门路
+      && joint.inv.length === 0
+      && fixedRent.inv.length === 0
+      && wageOut.inv.length === 0
+  };
+}
+
+function runWageLegacyGenerationRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '受雇长工/短工',
+    年龄: 52,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 1,
+    铜钱: 260,
+    存米: 3,
+    田亩: 4,
+    负债银: 0,
+    家族: 61,
+    识字: false,
+    雇工历练: 4,
+    雇身份: '外出佣工',
+    婚配路径: '先应差·外出佣工',
+    城里门路: 0,
+    委托营生: '出佃收租',
+    委托租谷: 1,
+    委托待收租谷: 1
+  });
+  api.enterPhase('death');
+  const carry = clone(api.getState()._carry);
+  api.restartWithHeir();
+  const heirState = clone(api.getState());
+  const establishmentHtml = normalizeHtml(elements.get('stage').innerHTML);
+  api.chooseByName('路径二 · 受雇长工 / 短工');
+  api.next();
+  const wageAction = availableMap(api).get('w_out');
+  return {
+    carry: {
+      城里门路: carry.城里门路,
+      婚配路径: carry.婚配路径,
+      雇身份: carry.雇身份,
+      承嗣来路: carry.承嗣来路
+    },
+    heirState: {
+      城里门路: heirState.城里门路,
+      承嗣来路: heirState.承嗣来路
+    },
+    establishmentHtml,
+    wageAction: wageAction ? { eff: wageAction.eff, can: wageAction.can !== false } : null,
+    ok: carry.城里门路 >= 2
+      && carry.婚配路径 === '先应差·外出佣工'
+      && carry.雇身份 === '外出佣工'
+      && heirState.城里门路 === carry.城里门路
+      && !!wageAction
+      && wageAction.eff.includes('铜钱+460')
+      && wageAction.eff.includes('家族不减')
+      && heirState.承嗣来路 === carry.承嗣来路
+      && establishmentHtml.includes('旧牙口')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function playWageCarryCase(carry, picks, patch) {
+  const { api, window } = createHarness();
+  api.restartFromCarry(carry, 2);
+  api.chooseByName('路径二 · 受雇长工 / 短工');
+  api.next();
+  api.setRandomSeed(4242);
+  if (patch) api.patchState(patch);
+  const actionMap = availableMap(api);
+  const actionEffects = {};
+  picks.forEach((id) => {
+    const action = actionMap.get(id);
+    actionEffects[id] = action ? { eff: action.eff, can: action.can !== false } : null;
+  });
+  pickByPlan(api, picks);
+  api.commit();
+  return {
+    actionEffects,
+    state: clone(api.getState()),
+    inv: clone(window.__INV || [])
+  };
+}
+
+function runWageCarryRegression() {
+  const baseCarry = {
+    白银: 0,
+    存米: 2,
+    田亩: 1,
+    铜钱: 0,
+    负债银: 0,
+    家族: 60,
+    父辈路线: '受雇长工/短工',
+    承嗣来路: '本支次子承继',
+    承继定位: '本房次子另起一手',
+    家传书香: 0,
+    城里门路: 0,
+    商路门路: 0,
+    家传手艺: 0,
+    家传农事: 0,
+    亦贾亦儒底子: 0,
+    供读底子: 0
+  };
+  const cityInherited = playWageCarryCase(Object.assign({}, baseCarry, { 城里门路: 2 }), ['w_out']);
+  const cityBaseline = playWageCarryCase(Object.assign({}, baseCarry), ['w_out']);
+  const craftInherited = playWageCarryCase(Object.assign({}, baseCarry, { 家传手艺: 1 }), ['w_skill']);
+  const craftBaseline = playWageCarryCase(Object.assign({}, baseCarry), ['w_skill']);
+  const bookBaseCarry = Object.assign({}, baseCarry, { 铜钱: 400, 存米: 4 });
+  const bookInherited = playWageCarryCase(Object.assign({}, bookBaseCarry, { 家传书香: 1 }), ['w_book']);
+  const bookBaseline = playWageCarryCase(Object.assign({}, bookBaseCarry), ['w_book'], { 识字: true, 识字进度: 2 });
+
+  return {
+    cityWork: {
+      inheritedAction: cityInherited.actionEffects.w_out,
+      baselineAction: cityBaseline.actionEffects.w_out,
+      inheritedState: {
+        白银: cityInherited.state.白银,
+        铜钱: cityInherited.state.铜钱,
+        家族: cityInherited.state.家族
+      },
+      baselineState: {
+        白银: cityBaseline.state.白银,
+        铜钱: cityBaseline.state.铜钱,
+        家族: cityBaseline.state.家族
+      },
+      ok: !!cityInherited.actionEffects.w_out
+        && cityInherited.actionEffects.w_out.eff.includes('家族不减')
+        && cityBaseline.actionEffects.w_out.eff.includes('家族-1')
+        && cityInherited.state.铜钱 > cityBaseline.state.铜钱
+        && cityInherited.state.家族 > cityBaseline.state.家族
+        && cityInherited.inv.length === 0
+        && cityBaseline.inv.length === 0
+    },
+    craftLearning: {
+      inheritedAction: craftInherited.actionEffects.w_skill,
+      baselineAction: craftBaseline.actionEffects.w_skill,
+      inheritedState: {
+        技艺: craftInherited.state.技艺,
+        铜钱: craftInherited.state.铜钱,
+        雇技进度: craftInherited.state.雇技进度
+      },
+      baselineState: {
+        技艺: craftBaseline.state.技艺,
+        铜钱: craftBaseline.state.铜钱,
+        雇技进度: craftBaseline.state.雇技进度
+      },
+      ok: !!craftInherited.actionEffects.w_skill
+        && craftInherited.actionEffects.w_skill.eff.includes('手艺进度+2')
+        && craftInherited.actionEffects.w_skill.eff.includes('铜钱+80')
+        && craftBaseline.actionEffects.w_skill.eff.includes('手艺进度+1')
+        && craftInherited.state.技艺 === '木活'
+        && craftInherited.state.雇技进度 > craftBaseline.state.雇技进度
+        && craftBaseline.state.技艺 === '无'
+        && craftBaseline.state.雇技进度 === 1
+        && craftInherited.inv.length === 0
+        && craftBaseline.inv.length === 0
+    },
+    bookkeeping: {
+      inheritedAction: bookInherited.actionEffects.w_book,
+      baselineAction: bookBaseline.actionEffects.w_book,
+      inheritedState: {
+        识字: bookInherited.state.识字,
+        铜钱: bookInherited.state.铜钱,
+        家族: bookInherited.state.家族
+      },
+      baselineState: {
+        识字: bookBaseline.state.识字,
+        铜钱: bookBaseline.state.铜钱,
+        家族: bookBaseline.state.家族
+      },
+      ok: !!bookInherited.actionEffects.w_book
+        && !!bookBaseline.actionEffects.w_book
+        && bookInherited.actionEffects.w_book.eff.includes('铜钱+260')
+        && bookInherited.actionEffects.w_book.eff.includes('家族+2')
+        && bookBaseline.actionEffects.w_book.eff.includes('铜钱+180')
+        && bookBaseline.actionEffects.w_book.eff.includes('家族+1')
+        && bookInherited.state.识字 === true
+        && bookInherited.state.铜钱 === bookBaseline.state.铜钱 + 80
+        && bookInherited.state.家族 > bookBaseline.state.家族
+        && bookInherited.inv.length === 0
+        && bookBaseline.inv.length === 0
+    }
+  };
+}
+
+function runWageSeasonalRhythmRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(5151);
+  chooseRoute(api, '路径二 · 受雇长工 / 短工');
+  api.patchState({ 识字: true, 铜钱: 360, 家族: 60 });
+  api.enterPhase('wage');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_long']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_market', 'w_send']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_book', 'w_duty']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_short', 'w_skill']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_market', 'w_send']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_short', 'w_mend']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_short', 'w_home']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_market', 'w_send']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_short', 'w_duty']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_book', 'w_short']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_market', 'w_send']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_short', 'w_mend']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  api.next();
+
+  const nextYearStage = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      spring: api.getPhase() === 'wage' ? '已推进' : '已推进',
+      stageSpringUpper,
+      stageSpringMid,
+      stageSpringLower,
+      stageSummerUpper,
+      stageSummerMid,
+      stageSummerLower,
+      stageAutumnUpper,
+      stageAutumnMid,
+      stageAutumnLower,
+      stageWinterUpper,
+      stageWinterMid,
+      stageWinterLower,
+      nextYearStage
+    },
+    postSpringUpper: {
+      工季: postSpringUpper.工季,
+      工段: postSpringUpper.工段,
+      本年雇约: postSpringUpper.本年雇约
+    },
+    postSpringMid: {
+      工季: postSpringMid.工季,
+      工段: postSpringMid.工段,
+      本年贴家次数: postSpringMid.本年贴家次数,
+      本年工食钱: postSpringMid.本年工食钱
+    },
+    postSpringLower: {
+      工季: postSpringLower.工季,
+      工段: postSpringLower.工段,
+      本年看账次数: postSpringLower.本年看账次数,
+      本年贴家次数: postSpringLower.本年贴家次数,
+      本年备役次数: postSpringLower.本年备役次数
+    },
+    postSummerUpper: {
+      工季: postSummerUpper.工季,
+      工段: postSummerUpper.工段,
+      本年学艺次数: postSummerUpper.本年学艺次数,
+      本年短工次数: postSummerUpper.本年短工次数
+    },
+    postSummerMid: {
+      工季: postSummerMid.工季,
+      工段: postSummerMid.工段,
+      本年贴家次数: postSummerMid.本年贴家次数,
+      本年工食钱: postSummerMid.本年工食钱
+    },
+    postSummerLower: {
+      工季: postSummerLower.工季,
+      工段: postSummerLower.工段,
+      本年短工次数: postSummerLower.本年短工次数,
+      体魄: postSummerLower.体魄
+    },
+    postAutumnUpper: {
+      工季: postAutumnUpper.工季,
+      工段: postAutumnUpper.工段,
+      本年帮家次数: postAutumnUpper.本年帮家次数,
+      存米: postAutumnUpper.存米
+    },
+    postAutumnMid: {
+      工季: postAutumnMid.工季,
+      工段: postAutumnMid.工段,
+      本年贴家次数: postAutumnMid.本年贴家次数,
+      铜钱: postAutumnMid.铜钱
+    },
+    postAutumnLower: {
+      工季: postAutumnLower.工季,
+      工段: postAutumnLower.工段,
+      本年短工次数: postAutumnLower.本年短工次数,
+      本年备役次数: postAutumnLower.本年备役次数,
+      铜钱: postAutumnLower.铜钱
+    },
+    postWinterUpper: {
+      工季: postWinterUpper.工季,
+      工段: postWinterUpper.工段,
+      本年看账次数: postWinterUpper.本年看账次数,
+      本年工食钱: postWinterUpper.本年工食钱
+    },
+    postWinterMid: {
+      工季: postWinterMid.工季,
+      工段: postWinterMid.工段,
+      本年贴家次数: postWinterMid.本年贴家次数,
+      铜钱: postWinterMid.铜钱
+    },
+    postWinterLower: {
+      工年: postWinterLower.工年,
+      工季: postWinterLower.工季,
+      工段: postWinterLower.工段,
+      白银: postWinterLower.白银,
+      本年工食银: postWinterLower.本年工食银,
+      本年工食钱: postWinterLower.本年工食钱,
+      本年短工次数: postWinterLower.本年短工次数,
+      本年贴家次数: postWinterLower.本年贴家次数,
+      本年备役次数: postWinterLower.本年备役次数,
+      本年季务: postWinterLower.本年季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('春忙')
+      && stageSpringUpper.includes('上旬')
+      && stageSpringMid.includes('春忙')
+      && stageSpringMid.includes('中旬')
+      && stageSpringLower.includes('春忙')
+      && stageSpringLower.includes('下旬')
+      && stageSummerUpper.includes('夏忙')
+      && stageSummerUpper.includes('上旬')
+      && stageSummerMid.includes('夏忙')
+      && stageSummerMid.includes('中旬')
+      && stageSummerLower.includes('夏忙')
+      && stageSummerLower.includes('下旬')
+      && stageAutumnUpper.includes('秋收')
+      && stageAutumnUpper.includes('上旬')
+      && stageAutumnMid.includes('秋收')
+      && stageAutumnMid.includes('中旬')
+      && stageAutumnLower.includes('秋收')
+      && stageAutumnLower.includes('下旬')
+      && stageWinterUpper.includes('冬闲')
+      && stageWinterUpper.includes('上旬')
+      && stageWinterMid.includes('冬闲')
+      && stageWinterMid.includes('中旬')
+      && stageWinterLower.includes('冬闲')
+      && stageWinterLower.includes('下旬')
+      && postSpringUpper.本年雇约 === '年长工'
+      && postSpringMid.本年贴家次数 >= 1
+      && postSpringLower.本年看账次数 >= 1
+      && postSpringLower.本年备役次数 >= 1
+      && postSummerUpper.本年学艺次数 >= 1
+      && postSummerUpper.本年短工次数 >= 1
+      && postSummerMid.本年贴家次数 >= 2
+      && postSummerLower.本年短工次数 >= 2
+      && postAutumnUpper.本年帮家次数 >= 1
+      && postAutumnUpper.存米 >= 1
+      && postAutumnMid.本年贴家次数 >= 3
+      && postAutumnLower.本年短工次数 >= 3
+      && postAutumnLower.本年备役次数 >= 2
+      && postWinterUpper.本年看账次数 >= 2
+      && postWinterMid.本年贴家次数 >= 4
+      && postWinterLower.本年工食银 >= 2
+      && postWinterLower.本年工食钱 >= 800
+      && postWinterLower.本年贴家次数 >= 4
+      && postWinterLower.本年备役次数 >= 2
+      && Array.isArray(postWinterLower.本年季务)
+      && postWinterLower.本年季务.length >= 12
+      && nextYearStage.includes('第2工年')
+      && nextYearStage.includes('春忙')
+      && nextYearStage.includes('上旬')
+      && api.getState().工年 === 2
+      && api.getState().工季 === 1
+      && api.getState().工段 === 1
+      && api.getState().本年工食银 === 0
+      && includesOrderedPhases(phaseTrace, ['wage'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runWageSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(2626);
+  chooseRoute(api, '路径二 · 受雇长工 / 短工');
+  api.patchState({ 识字: true, 铜钱: 420, 白银: 1, 存米: 2, 家族: 64 });
+  api.enterPhase('wage');
+  api.setRandomSequence(new Array(40).fill(0.2));
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_long']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['w_market', 'w_send']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['w_book', 'w_duty']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['w_short', 'w_skill']);
+  api.commit();
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_market', 'w_send']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['w_book', 'w_mend']);
+  api.commit();
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_short', 'w_home']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['w_market', 'w_send']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['w_duty', 'w_mend']);
+  api.commit();
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['w_book', 'w_short']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageWinterUpper,
+      resolveWinterUpper
+    },
+    postSpringUpper: {
+      本年雇约: postSpringUpper.本年雇约,
+      本年季务: postSpringUpper.本年季务
+    },
+    postSummerMid: {
+      本年贴家次数: postSummerMid.本年贴家次数,
+      本年季务: postSummerMid.本年季务
+    },
+    postAutumnUpper: {
+      本年帮家次数: postAutumnUpper.本年帮家次数,
+      本年季务: postAutumnUpper.本年季务
+    },
+    postWinterUpper: {
+      本年看账次数: postWinterUpper.本年看账次数,
+      本年季务: postWinterUpper.本年季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('春忙')
+      && stageSpringUpper.includes('上旬')
+      && resolveSpringUpper.includes('〔春工脚费〕')
+      && resolveSpringUpper.includes('草鞋')
+      && postSpringUpper.本年雇约 === '年长工'
+      && Array.isArray(postSpringUpper.本年季务)
+      && postSpringUpper.本年季务.some((tag) => String(tag).includes('春头脚费已理'))
+      && stageSummerMid.includes('夏忙')
+      && stageSummerMid.includes('中旬')
+      && resolveSummerMid.includes('〔伏夏零耗〕')
+      && resolveSummerMid.includes('凉汤')
+      && postSummerMid.本年贴家次数 >= 1
+      && Array.isArray(postSummerMid.本年季务)
+      && postSummerMid.本年季务.some((tag) => String(tag).includes('伏夏零耗已顾'))
+      && stageAutumnUpper.includes('秋收')
+      && stageAutumnUpper.includes('上旬')
+      && resolveAutumnUpper.includes('〔旺工脚费〕')
+      && resolveAutumnUpper.includes('旺工茶水')
+      && postAutumnUpper.本年帮家次数 >= 1
+      && Array.isArray(postAutumnUpper.本年季务)
+      && postAutumnUpper.本年季务.some((tag) => String(tag).includes('旺工脚费已理'))
+      && stageWinterUpper.includes('冬闲')
+      && stageWinterUpper.includes('上旬')
+      && resolveWinterUpper.includes('〔工棚年礼〕')
+      && resolveWinterUpper.includes('明春头程')
+      && postWinterUpper.本年看账次数 >= 2
+      && Array.isArray(postWinterUpper.本年季务)
+      && postWinterUpper.本年季务.some((tag) => String(tag).includes('工棚年礼已分'))
+      && includesOrderedPhases(phaseTrace, ['wage'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runApprenticeSeasonalRhythmRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(2727);
+  chooseRoute(api, '路径三 · 入城学徒');
+  api.patchState({ 识字: true, 铜钱: 320, 白银: 1, 存米: 2, 家族: 64 });
+  api.enterPhase('apprentice');
+  api.setRandomSequence(new Array(40).fill(0.2));
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_seek']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_bond']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_sign']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_drudge', 'a_learn']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_book', 'a_run']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_learn', 'a_mend']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_market', 'a_run']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_send', 'a_home']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_drudge', 'a_market']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_book', 'a_send']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_reserve', 'a_mend']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_drudge', 'a_run']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  api.next();
+
+  const nextYearStage = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      stageSpringLower,
+      stageSummerUpper,
+      stageSummerMid,
+      stageSummerLower,
+      stageAutumnUpper,
+      stageAutumnMid,
+      stageAutumnLower,
+      stageWinterUpper,
+      stageWinterMid,
+      stageWinterLower,
+      nextYearStage
+    },
+    postSpringUpper: {
+      学季: postSpringUpper.学季,
+      学旬: postSpringUpper.学旬,
+      学徒合同: postSpringUpper.学徒合同,
+      本年学徒说合: postSpringUpper.本年学徒说合
+    },
+    postSpringLower: {
+      学季: postSpringLower.学季,
+      学旬: postSpringLower.学旬,
+      学徒合同: postSpringLower.学徒合同,
+      学徒保证金银: postSpringLower.学徒保证金银
+    },
+    postSummerUpper: {
+      学季: postSummerUpper.学季,
+      学旬: postSummerUpper.学旬,
+      本年学徒守店: postSummerUpper.本年学徒守店,
+      本年学徒学账: postSummerUpper.本年学徒学账
+    },
+    postSummerMid: {
+      学季: postSummerMid.学季,
+      学旬: postSummerMid.学旬,
+      本年学徒学账: postSummerMid.本年学徒学账,
+      本年学徒奔走: postSummerMid.本年学徒奔走,
+      铜钱: postSummerMid.铜钱
+    },
+    postSummerLower: {
+      学季: postSummerLower.学季,
+      学旬: postSummerLower.学旬,
+      本年学徒衣药: postSummerLower.本年学徒衣药,
+      体魄: postSummerLower.体魄
+    },
+    postAutumnUpper: {
+      学季: postAutumnUpper.学季,
+      学旬: postAutumnUpper.学旬,
+      本年学徒问价: postAutumnUpper.本年学徒问价,
+      本年学徒奔走: postAutumnUpper.本年学徒奔走
+    },
+    postAutumnMid: {
+      学季: postAutumnMid.学季,
+      学旬: postAutumnMid.学旬,
+      本年学徒贴家: postAutumnMid.本年学徒贴家,
+      本年学徒帮家: postAutumnMid.本年学徒帮家,
+      存米: postAutumnMid.存米
+    },
+    postWinterMid: {
+      学季: postWinterMid.学季,
+      学旬: postWinterMid.学旬,
+      本年学徒备役: postWinterMid.本年学徒备役,
+      本年学徒衣药: postWinterMid.本年学徒衣药
+    },
+    postWinterLower: {
+      学年: postWinterLower.学年,
+      学季: postWinterLower.学季,
+      学旬: postWinterLower.学旬,
+      学徒阶段: postWinterLower.学徒阶段,
+      本年学徒守店: postWinterLower.本年学徒守店,
+      本年学徒学账: postWinterLower.本年学徒学账,
+      本年学徒奔走: postWinterLower.本年学徒奔走,
+      本年学徒问价: postWinterLower.本年学徒问价,
+      本年学徒贴家: postWinterLower.本年学徒贴家,
+      本年学徒备役: postWinterLower.本年学徒备役,
+      本年学徒旬记: postWinterLower.本年学徒旬记
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('投师季')
+      && stageSpringUpper.includes('上旬')
+      && stageSpringMid.includes('投师季')
+      && stageSpringMid.includes('中旬')
+      && stageSpringLower.includes('投师季')
+      && stageSpringLower.includes('下旬')
+      && stageSummerUpper.includes('坐店季')
+      && stageSummerUpper.includes('上旬')
+      && stageSummerMid.includes('坐店季')
+      && stageSummerMid.includes('中旬')
+      && stageSummerLower.includes('坐店季')
+      && stageSummerLower.includes('下旬')
+      && stageAutumnUpper.includes('行市季')
+      && stageAutumnUpper.includes('上旬')
+      && stageAutumnMid.includes('行市季')
+      && stageAutumnMid.includes('中旬')
+      && stageAutumnLower.includes('行市季')
+      && stageAutumnLower.includes('下旬')
+      && stageWinterUpper.includes('年关季')
+      && stageWinterUpper.includes('上旬')
+      && stageWinterMid.includes('年关季')
+      && stageWinterMid.includes('中旬')
+      && stageWinterLower.includes('年关季')
+      && stageWinterLower.includes('下旬')
+      && postSpringUpper.本年学徒说合 >= 1
+      && postSpringLower.学徒合同 === '已立据'
+      && postSpringLower.学徒保证金银 === 1
+      && postSummerUpper.本年学徒守店 >= 1
+      && postSummerUpper.本年学徒学账 >= 1
+      && postSummerMid.本年学徒学账 >= 2
+      && postSummerMid.本年学徒奔走 >= 1
+      && postSummerLower.本年学徒衣药 >= 1
+      && postAutumnUpper.本年学徒问价 >= 1
+      && postAutumnUpper.本年学徒奔走 >= 2
+      && postAutumnMid.本年学徒贴家 >= 1
+      && postAutumnMid.本年学徒帮家 >= 1
+      && postWinterMid.本年学徒备役 >= 1
+      && postWinterMid.本年学徒衣药 >= 2
+      && postWinterLower.学徒阶段 === '学徒'
+      && postWinterLower.本年学徒守店 >= 3
+      && postWinterLower.本年学徒学账 >= 3
+      && postWinterLower.本年学徒奔走 >= 3
+      && postWinterLower.本年学徒问价 >= 2
+      && postWinterLower.本年学徒贴家 >= 2
+      && postWinterLower.本年学徒备役 >= 1
+      && Array.isArray(postWinterLower.本年学徒旬记)
+      && postWinterLower.本年学徒旬记.length >= 11
+      && nextYearStage.includes('第2学年')
+      && nextYearStage.includes('投师季')
+      && nextYearStage.includes('上旬')
+      && api.getState().学年 === 2
+      && api.getState().学季 === 1
+      && api.getState().学旬 === 1
+      && api.getState().本年学徒问价 === 0
+      && api.getState().本年学徒贴家 === 0
+      && api.getState().本年学徒备役 === 0
+      && includesOrderedPhases(phaseTrace, ['apprentice'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runApprenticeSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(2727);
+  chooseRoute(api, '路径三 · 入城学徒');
+  api.patchState({ 识字: true, 铜钱: 360, 白银: 1, 存米: 2, 家族: 64 });
+  api.enterPhase('apprentice');
+  api.setRandomSequence(new Array(40).fill(0.2));
+
+  pickByPlan(api, ['a_seek']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['a_bond']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['a_sign']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['a_drudge', 'a_learn']);
+  api.commit();
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_book', 'a_run']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['a_learn', 'a_mend']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['a_market', 'a_run']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['a_send', 'a_home']);
+  api.commit();
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_drudge', 'a_market']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['a_book', 'a_send']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSummerMid,
+      resolveSummerMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper
+    },
+    postSummerMid: {
+      本年学徒衣药: postSummerMid.本年学徒衣药,
+      本年学徒旬记: postSummerMid.本年学徒旬记
+    },
+    postAutumnLower: {
+      家族: postAutumnLower.家族,
+      本年学徒旬记: postAutumnLower.本年学徒旬记
+    },
+    postWinterUpper: {
+      本年学徒贴家: postWinterUpper.本年学徒贴家,
+      本年学徒旬记: postWinterUpper.本年学徒旬记
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSummerMid.includes('坐店季')
+      && stageSummerMid.includes('中旬')
+      && resolveSummerMid.includes('〔伏夏零耗〕')
+      && resolveSummerMid.includes('先把铺里茶汤')
+      && postSummerMid.本年学徒衣药 >= 0
+      && Array.isArray(postSummerMid.本年学徒旬记)
+      && postSummerMid.本年学徒旬记.some((tag) => String(tag).includes('伏夏零耗已顾'))
+      && stageAutumnLower.includes('行市季')
+      && stageAutumnLower.includes('下旬')
+      && resolveAutumnLower.includes('〔秋脚路〕')
+      && resolveAutumnLower.includes('先把回铺脚路')
+      && postAutumnLower.家族 >= 71
+      && Array.isArray(postAutumnLower.本年学徒旬记)
+      && postAutumnLower.本年学徒旬记.some((tag) => String(tag).includes('秋脚路已压'))
+      && stageWinterUpper.includes('年关季')
+      && stageWinterUpper.includes('上旬')
+      && resolveWinterUpper.includes('〔年关铺耗〕')
+      && resolveWinterUpper.includes('旧掌柜的薄礼')
+      && postWinterUpper.本年学徒贴家 >= 2
+      && Array.isArray(postWinterUpper.本年学徒旬记)
+      && postWinterUpper.本年学徒旬记.some((tag) => String(tag).includes('年关铺耗已分'))
+      && includesOrderedPhases(phaseTrace, ['apprentice'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runApprenticeSeasonalExtensionRegression() {
+  const { api: springApi, elements: springElements, window: springWindow } = createHarness();
+  springApi.patchState({
+    路线: '路径三 · 入城学徒',
+    识字: true,
+    年龄: 16,
+    铜钱: 120,
+    白银: 1,
+    存米: 2,
+    家族: 64,
+    体魄: 56,
+    学年: 1,
+    学徒合同: '已立据',
+    学徒阶段: '学徒',
+    学徒信任: 1,
+    学徒授艺度: 1,
+    本年学徒说合: 1,
+    本年学徒守店: 0,
+    本年学徒学账: 0,
+    本年学徒帮家: 0,
+    本年学徒奔走: 0,
+    本年学徒问价: 0,
+    本年学徒贴家: 0,
+    本年学徒衣药: 0,
+    本年学徒歇养: 0,
+    本年学徒备役: 0,
+    本年学徒旬记: []
+  });
+  springApi.enterPhase('apprentice');
+  springApi.patchState({ 学季: 1, 学旬: 2 });
+  springApi.enterPhase('apprentice');
+  springApi.setRandomSequence(new Array(10).fill(0.95));
+
+  const stageSpringMid = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['a_spring_split']);
+  springApi.commit();
+  const postSpringMid = clone(springApi.getState());
+  const resolveSpringMid = normalizeHtml(springElements.get('stage').innerHTML);
+  const springPhaseTrace = clone(springApi.getPhaseTrace ? springApi.getPhaseTrace() : []);
+
+  const { api: autumnApi, elements: autumnElements, window: autumnWindow } = createHarness();
+  autumnApi.patchState({
+    路线: '路径三 · 入城学徒',
+    识字: true,
+    年龄: 16,
+    铜钱: 220,
+    白银: 1,
+    存米: 2,
+    家族: 64,
+    体魄: 52,
+    学年: 1,
+    学徒合同: '已立据',
+    学徒阶段: '学徒',
+    学徒信任: 3,
+    学徒授艺度: 3,
+    学徒历练: 4,
+    本年学徒说合: 1,
+    本年学徒守店: 1,
+    本年学徒学账: 2,
+    本年学徒帮家: 0,
+    本年学徒奔走: 2,
+    本年学徒问价: 1,
+    本年学徒贴家: 0,
+    本年学徒衣药: 1,
+    本年学徒歇养: 0,
+    本年学徒备役: 0,
+    本年学徒旬记: []
+  });
+  autumnApi.enterPhase('apprentice');
+  autumnApi.patchState({ 学季: 3, 学旬: 2 });
+  autumnApi.enterPhase('apprentice');
+  autumnApi.setRandomSequence(new Array(10).fill(0.95));
+
+  const stageAutumnMid = normalizeHtml(autumnElements.get('stage').innerHTML);
+  pickByPlan(autumnApi, ['a_autumn_split']);
+  autumnApi.commit();
+  const postAutumnMid = clone(autumnApi.getState());
+  const resolveAutumnMid = normalizeHtml(autumnElements.get('stage').innerHTML);
+  const autumnPhaseTrace = clone(autumnApi.getPhaseTrace ? autumnApi.getPhaseTrace() : []);
+
+  const { api: winterApi, elements: winterElements, window: winterWindow } = createHarness();
+  winterApi.patchState({
+    路线: '路径三 · 入城学徒',
+    识字: true,
+    年龄: 16,
+    铜钱: 180,
+    白银: 1,
+    存米: 2,
+    家族: 66,
+    体魄: 44,
+    学年: 1,
+    学徒合同: '已立据',
+    学徒阶段: '学徒',
+    学徒信任: 4,
+    学徒授艺度: 3,
+    学徒历练: 5,
+    本年学徒说合: 1,
+    本年学徒守店: 2,
+    本年学徒学账: 3,
+    本年学徒帮家: 0,
+    本年学徒奔走: 3,
+    本年学徒问价: 2,
+    本年学徒贴家: 1,
+    本年学徒衣药: 2,
+    本年学徒歇养: 0,
+    本年学徒备役: 1,
+    本年学徒旬记: []
+  });
+  winterApi.enterPhase('apprentice');
+  winterApi.patchState({ 学季: 4, 学旬: 3 });
+  winterApi.enterPhase('apprentice');
+  winterApi.setRandomSequence(new Array(10).fill(0.95));
+
+  const stageWinterLower = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['a_winter_post']);
+  winterApi.commit();
+  const postWinterLower = clone(winterApi.getState());
+  const resolveWinterLower = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterPhaseTrace = clone(winterApi.getPhaseTrace ? winterApi.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringMid,
+      resolveSpringMid,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageWinterLower,
+      resolveWinterLower
+    },
+    postSpringMid: {
+      本年学徒衣药: postSpringMid.本年学徒衣药,
+      学徒信任: postSpringMid.学徒信任,
+      本年学徒旬记: postSpringMid.本年学徒旬记
+    },
+    postAutumnMid: {
+      本年学徒贴家: postAutumnMid.本年学徒贴家,
+      本年学徒备役: postAutumnMid.本年学徒备役,
+      家族: postAutumnMid.家族,
+      本年学徒旬记: postAutumnMid.本年学徒旬记
+    },
+    postWinterLower: {
+      本年学徒备役: postWinterLower.本年学徒备役,
+      学徒信任: postWinterLower.学徒信任,
+      家族: postWinterLower.家族,
+      本年学徒旬记: postWinterLower.本年学徒旬记
+    },
+    phaseTrace: {
+      spring: springPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      autumn: autumnPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      winter: winterPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → ')
+    },
+    ok: stageSpringMid.includes('投师季')
+      && stageSpringMid.includes('中旬')
+      && resolveSpringMid.includes('〔春铺零用〕')
+      && resolveSpringMid.includes('先把布鞋灯油与灶下零用分开')
+      && postSpringMid.本年学徒衣药 >= 1
+      && postSpringMid.学徒信任 >= 2
+      && Array.isArray(postSpringMid.本年学徒旬记)
+      && postSpringMid.本年学徒旬记.some((tag) => String(tag).includes('春铺零用'))
+      && stageAutumnMid.includes('行市季')
+      && stageAutumnMid.includes('中旬')
+      && resolveAutumnMid.includes('〔秋脚锅火〕')
+      && resolveAutumnMid.includes('先把秋脚钱、锅火、差钱和家里灯火拆开了')
+      && postAutumnMid.本年学徒贴家 >= 1
+      && postAutumnMid.本年学徒备役 >= 1
+      && postAutumnMid.家族 >= 65
+      && Array.isArray(postAutumnMid.本年学徒旬记)
+      && postAutumnMid.本年学徒旬记.some((tag) => String(tag).includes('秋脚锅火已分'))
+      && stageWinterLower.includes('年关季')
+      && stageWinterLower.includes('下旬')
+      && resolveWinterLower.includes('〔来春铺路〕')
+      && resolveWinterLower.includes('先留来春回铺脚费与递话薄礼')
+      && postWinterLower.本年学徒备役 >= 2
+      && postWinterLower.学徒信任 >= 5
+      && postWinterLower.家族 >= 65
+      && Array.isArray(postWinterLower.本年学徒旬记)
+      && postWinterLower.本年学徒旬记.some((tag) => String(tag).includes('来春铺路已稳'))
+      && includesOrderedPhases(springPhaseTrace, ['apprentice'])
+      && includesOrderedPhases(autumnPhaseTrace, ['apprentice'])
+      && includesOrderedPhases(winterPhaseTrace, ['apprentice'])
+      && (springWindow.__INV || []).length === 0
+      && (autumnWindow.__INV || []).length === 0
+      && (winterWindow.__INV || []).length === 0
+  };
+}
+
+
+function runMerchantSeasonalRhythmRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(1911);
+  chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+  api.patchState({ 识字: true, 铜钱: 420, 白银: 3, 存米: 3, 家族: 64 });
+  api.enterPhase('merchant');
+  api.setRandomSequence(new Array(40).fill(0.95));
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_shop', 'm_goods']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_run', 'm_book']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_letter', 'm_reserve']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_shop', 'm_run']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_book', 'm_mend']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_shop', 'm_market']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_market', 'm_run', 'm_trial_capital']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_try']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_support', 'm_home']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_collect', 'm_book']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_collect', 'm_mend']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_reserve', 'm_mend']);
+  api.commit();
+  const resolveWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postWinterLower = clone(api.getState());
+  api.next();
+
+  const nextYearStage = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      stageSpringLower,
+      stageSummerUpper,
+      stageSummerMid,
+      stageSummerLower,
+      stageAutumnUpper,
+      stageAutumnMid,
+      stageAutumnLower,
+      stageWinterUpper,
+      stageWinterMid,
+      stageWinterLower,
+      resolveWinterLower,
+      nextYearStage
+    },
+    postSpringUpper: {
+      商季: postSpringUpper.商季,
+      商段: postSpringUpper.商段,
+      本年商路坐店: postSpringUpper.本年商路坐店,
+      本年商路认货: postSpringUpper.本年商路认货
+    },
+    postSpringMid: {
+      商季: postSpringMid.商季,
+      商段: postSpringMid.商段,
+      本年商路跑单: postSpringMid.本年商路跑单,
+      本年商路核账: postSpringMid.本年商路核账
+    },
+    postSpringLower: {
+      商季: postSpringLower.商季,
+      商段: postSpringLower.商段,
+      本年商路家书: postSpringLower.本年商路家书,
+      本年商路备役: postSpringLower.本年商路备役
+    },
+    postSummerMid: {
+      商季: postSummerMid.商季,
+      商段: postSummerMid.商段,
+      本年商路核账: postSummerMid.本年商路核账,
+      本年商路歇养: postSummerMid.本年商路歇养,
+      本年商路季务: postSummerMid.本年商路季务
+    },
+    postSummerLower: {
+      商季: postSummerLower.商季,
+      商段: postSummerLower.商段,
+      本年商路坐店: postSummerLower.本年商路坐店,
+      本年商路问价: postSummerLower.本年商路问价
+    },
+    postAutumnUpper: {
+      商季: postAutumnUpper.商季,
+      商段: postAutumnUpper.商段,
+      本年商路问价: postAutumnUpper.本年商路问价,
+      本年商路跑单: postAutumnUpper.本年商路跑单,
+      本年商路季务: postAutumnUpper.本年商路季务
+    },
+    postAutumnMid: {
+      商季: postAutumnMid.商季,
+      商段: postAutumnMid.商段,
+      本年商路试贩: postAutumnMid.本年商路试贩,
+      带本银: postAutumnMid.带本银
+    },
+    postAutumnLower: {
+      商季: postAutumnLower.商季,
+      商段: postAutumnLower.商段,
+      本年商路贴家: postAutumnLower.本年商路贴家,
+      本年商路归乡: postAutumnLower.本年商路归乡,
+      本年商路季务: postAutumnLower.本年商路季务
+    },
+    postWinterUpper: {
+      商季: postWinterUpper.商季,
+      商段: postWinterUpper.商段,
+      本年商路催账: postWinterUpper.本年商路催账,
+      本年商路核账: postWinterUpper.本年商路核账,
+      本年商路季务: postWinterUpper.本年商路季务
+    },
+    postWinterMid: {
+      商季: postWinterMid.商季,
+      商段: postWinterMid.商段,
+      本年商路催账: postWinterMid.本年商路催账,
+      本年商路歇养: postWinterMid.本年商路歇养
+    },
+    postWinterLower: {
+      商年: postWinterLower.商年,
+      商季: postWinterLower.商季,
+      商段: postWinterLower.商段,
+      本年商路备役: postWinterLower.本年商路备役,
+      本年商路试贩: postWinterLower.本年商路试贩,
+      本年商路贴家: postWinterLower.本年商路贴家,
+      本年商路催账: postWinterLower.本年商路催账,
+      本年商路回钱银: postWinterLower.本年商路回钱银,
+      本年商路反哺银: postWinterLower.本年商路反哺银,
+      本年商路季务: postWinterLower.本年商路季务,
+      带本银: postWinterLower.带本银
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('春开路')
+      && stageSpringUpper.includes('上旬')
+      && stageSpringMid.includes('春开路')
+      && stageSpringMid.includes('中旬')
+      && stageSpringLower.includes('春开路')
+      && stageSpringLower.includes('下旬')
+      && stageSummerUpper.includes('夏坐店')
+      && stageSummerUpper.includes('上旬')
+      && stageSummerMid.includes('中旬')
+      && stageSummerLower.includes('夏坐店')
+      && stageSummerLower.includes('下旬')
+      && stageAutumnUpper.includes('秋试手')
+      && stageAutumnUpper.includes('上旬')
+      && stageAutumnMid.includes('中旬')
+      && stageAutumnLower.includes('秋试手')
+      && stageAutumnLower.includes('下旬')
+      && stageWinterUpper.includes('冬清账')
+      && stageWinterUpper.includes('上旬')
+      && stageWinterMid.includes('中旬')
+      && stageWinterLower.includes('冬清账')
+      && stageWinterLower.includes('下旬')
+      && postSpringUpper.本年商路坐店 >= 1
+      && postSpringUpper.本年商路认货 >= 1
+      && postSpringMid.本年商路跑单 >= 1
+      && postSpringMid.本年商路核账 >= 1
+      && postSpringLower.本年商路家书 >= 1
+      && postSpringLower.本年商路备役 >= 1
+      && Array.isArray(postSpringLower.本年商路季务)
+      && postSpringLower.本年商路季务.some((tag) => String(tag).includes('开路碎费已理'))
+      && postSummerMid.本年商路核账 >= 2
+      && postSummerMid.本年商路歇养 >= 1
+      && Array.isArray(postSummerMid.本年商路季务)
+      && postSummerMid.本年商路季务.some((tag) => String(tag).includes('伏夏零耗已顾'))
+      && postSummerLower.本年商路坐店 >= 3
+      && postSummerLower.本年商路问价 >= 1
+      && postAutumnUpper.本年商路问价 >= 2
+      && postAutumnUpper.本年商路跑单 >= 3
+      && Array.isArray(postAutumnUpper.本年商路季务)
+      && postAutumnUpper.本年商路季务.some((tag) => String(tag).includes('秋市碎费已拆'))
+      && postAutumnMid.本年商路试贩 >= 1
+      && postAutumnMid.带本银 === 1
+      && postAutumnLower.本年商路贴家 >= 1
+      && postAutumnLower.本年商路归乡 >= 1
+      && Array.isArray(postAutumnLower.本年商路季务)
+      && postAutumnLower.本年商路季务.some((tag) => String(tag).includes('回钱碎耗已拆'))
+      && postWinterUpper.本年商路催账 >= 1
+      && Array.isArray(postWinterUpper.本年商路季务)
+      && postWinterUpper.本年商路季务.some((tag) => String(tag).includes('年关路费已分'))
+      && postWinterMid.本年商路催账 >= 2
+      && postWinterLower.本年商路备役 >= 1
+      && postWinterLower.本年商路试贩 >= 1
+      && postWinterLower.本年商路贴家 >= 1
+      && postWinterLower.本年商路催账 >= 2
+      && postWinterLower.本年商路回钱银 === 0
+      && postWinterLower.本年商路反哺银 >= 1
+      && Array.isArray(postWinterLower.本年商路季务)
+      && postWinterLower.本年商路季务.length >= 11
+      && resolveWinterLower.includes('〔反哺账〕这一商年你有')
+      && resolveWinterLower.includes('〔坐店账〕')
+      && resolveWinterLower.includes('〔跑单账〕')
+      && resolveWinterLower.includes('〔认货账〕')
+      && resolveWinterLower.includes('〔拖欠〕')
+      && nextYearStage.includes('第2商年')
+      && nextYearStage.includes('春开路')
+      && nextYearStage.includes('上旬')
+      && api.getState().商年 === 2
+      && api.getState().商季 === 1
+      && api.getState().商段 === 1
+      && api.getState().本年商路试贩 === 0
+      && api.getState().本年商路贴家 === 0
+      && api.getState().本年商路催账 === 0
+      && api.getState().本年商路问价 === 0
+      && api.getState().本年商路家书 === 0
+      && api.getState().本年商路回钱银 === 0
+      && api.getState().本年商路反哺银 === 0
+      && includesOrderedPhases(phaseTrace, ['merchant'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runMerchantSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(3030);
+  chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+  api.patchState({ 识字: true, 铜钱: 460, 白银: 3, 存米: 3, 家族: 64 });
+  api.enterPhase('merchant');
+  api.setRandomSequence(new Array(40).fill(0.2));
+
+  pickByPlan(api, ['m_shop', 'm_goods']);
+  api.commit();
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_book', 'm_market']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  const resolveSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['m_letter', 'm_reserve']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['m_shop', 'm_run']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['m_book', 'm_mend']);
+  api.commit();
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_shop', 'm_letter']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['m_market', 'm_run']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['m_try']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['m_support', 'm_home']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['m_collect', 'm_book']);
+  api.commit();
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['m_collect', 'm_letter']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringMid,
+      resolveSpringMid,
+      stageSummerLower,
+      resolveSummerLower,
+      stageWinterMid,
+      resolveWinterMid
+    },
+    postSpringMid: {
+      本年商路核账: postSpringMid.本年商路核账,
+      本年商路问价: postSpringMid.本年商路问价,
+      本年商路季务: postSpringMid.本年商路季务
+    },
+    postSummerLower: {
+      本年商路坐店: postSummerLower.本年商路坐店,
+      本年商路家书: postSummerLower.本年商路家书,
+      本年商路季务: postSummerLower.本年商路季务
+    },
+    postWinterMid: {
+      本年商路催账: postWinterMid.本年商路催账,
+      本年商路家书: postWinterMid.本年商路家书,
+      本年商路季务: postWinterMid.本年商路季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringMid.includes('春开路')
+      && stageSpringMid.includes('中旬')
+      && resolveSpringMid.includes('〔开路回话〕')
+      && resolveSpringMid.includes('样价抄单')
+      && Array.isArray(postSpringMid.本年商路季务)
+      && postSpringMid.本年商路核账 >= 1
+      && postSpringMid.本年商路问价 >= 1
+      && postSpringMid.本年商路季务.some((tag) => String(tag).includes('开路回话已压'))
+      && stageSummerLower.includes('夏坐店')
+      && stageSummerLower.includes('下旬')
+      && resolveSummerLower.includes('〔伏夏柜耗〕')
+      && resolveSummerLower.includes('柜边包纸')
+      && Array.isArray(postSummerLower.本年商路季务)
+      && postSummerLower.本年商路坐店 >= 3
+      && postSummerLower.本年商路家书 >= 2
+      && postSummerLower.本年商路季务.some((tag) => String(tag).includes('伏夏柜耗已分'))
+      && stageWinterMid.includes('冬清账')
+      && stageWinterMid.includes('中旬')
+      && resolveWinterMid.includes('〔清账回话〕')
+      && resolveWinterMid.includes('来春样纸定钱')
+      && Array.isArray(postWinterMid.本年商路季务)
+      && postWinterMid.本年商路催账 >= 2
+      && postWinterMid.本年商路家书 >= 3
+      && postWinterMid.本年商路季务.some((tag) => String(tag).includes('清账回话已压'))
+      && includesOrderedPhases(phaseTrace, ['merchant'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runMerchantRouteChoiceDensityRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(4040);
+    chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+    api.patchState(Object.assign({
+      识字: true,
+      商年: 1,
+      商季: season,
+      商段: xun,
+      铜钱: 560,
+      白银: 3,
+      存米: 3,
+      家族: 64,
+      体魄: 58,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 2,
+      商历练: 2,
+      未回款银: 1,
+      带本银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路季务: []
+    }, extraPatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(new Array(20).fill(0.99));
+    return { api, elements, window };
+  }
+
+  const spring = setupAt(1, 2, { 铜钱: 620 });
+  const springStage = normalizeHtml(spring.elements.get('stage').innerHTML);
+  pickByPlan(spring.api, ['m_packet', 'm_spring_home_split', 'm_spring_mid_school']);
+  spring.api.commit();
+  const springResolve = normalizeHtml(spring.elements.get('stage').innerHTML);
+  const springState = clone(spring.api.getState());
+
+  const summer = setupAt(2, 3, { 铜钱: 620 });
+  const summerStage = normalizeHtml(summer.elements.get('stage').innerHTML);
+  pickByPlan(summer.api, ['m_counter', 'm_summer_tail_duty', 'm_summer_tail_school']);
+  summer.api.commit();
+  const summerResolve = normalizeHtml(summer.elements.get('stage').innerHTML);
+  const summerState = clone(summer.api.getState());
+
+  const summerMid = setupAt(2, 2, { 铜钱: 620, 体魄: 56 });
+  const summerMidStage = normalizeHtml(summerMid.elements.get('stage').innerHTML);
+  pickByPlan(summerMid.api, ['m_summer_bundle', 'm_summer_conflict', 'm_summer_mid_reply_school']);
+  summerMid.api.commit();
+  const summerMidResolve = normalizeHtml(summerMid.elements.get('stage').innerHTML);
+  const summerMidState = clone(summerMid.api.getState());
+
+  const autumn = setupAt(3, 1, { 铜钱: 640, 未回款银: 1 });
+  const autumnStage = normalizeHtml(autumn.elements.get('stage').innerHTML);
+  pickByPlan(autumn.api, ['m_autumn_receipt', 'm_autumn_supply_split', 'm_autumn_head_drag']);
+  autumn.api.commit();
+  const autumnResolve = normalizeHtml(autumn.elements.get('stage').innerHTML);
+  const autumnState = clone(autumn.api.getState());
+
+  const autumnMid = setupAt(3, 2, { 铜钱: 700, 未回款银: 2, 体魄: 56 });
+  const autumnMidStage = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  pickByPlan(autumnMid.api, ['m_autumn_mid_bundle', 'm_autumn_mid_school', 'm_autumn_mid_remit_drag']);
+  autumnMid.api.commit();
+  const autumnMidResolve = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  const autumnMidState = clone(autumnMid.api.getState());
+
+  const winter = setupAt(4, 2, { 铜钱: 620, 未回款银: 1 });
+  const winterStage = normalizeHtml(winter.elements.get('stage').innerHTML);
+  pickByPlan(winter.api, ['m_clear_packet', 'm_collect']);
+  winter.api.commit();
+  const winterResolve = normalizeHtml(winter.elements.get('stage').innerHTML);
+  const winterState = clone(winter.api.getState());
+
+  const winterLower = setupAt(4, 3, { 铜钱: 700, 未回款银: 1 });
+  const winterLowerStage = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  pickByPlan(winterLower.api, ['m_winter_tail', 'm_winter_drag_split', 'm_winter_body_split']);
+  winterLower.api.commit();
+  const winterLowerResolve = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  const winterLowerState = clone(winterLower.api.getState());
+  const phaseTrace = clone(winterLower.api.getPhaseTrace ? winterLower.api.getPhaseTrace() : []);
+
+  return {
+    spring: {
+      stage: springStage,
+      resolve: springResolve,
+      state: {
+        本年商路问价: springState.本年商路问价,
+        本年商路家书: springState.本年商路家书,
+        本年商路供读: springState.本年商路供读,
+        本年商路备役: springState.本年商路备役,
+        家族: springState.家族,
+        商信誉: springState.商信誉,
+        本年商路季务: springState.本年商路季务
+      },
+      ok: springStage.includes('先把样价抄单与回话脚费分开')
+        && springStage.includes('先把春中回话与家里锅火分开')
+        && springStage.includes('先把春中孩子纸样与差钱口风分开')
+        && springResolve.includes('先把样价抄单与回话脚费分开')
+        && springResolve.includes('先把春中回话与家里锅火分开')
+        && springResolve.includes('先把春中孩子纸样与差钱口风分开')
+        && springState.本年商路问价 >= 1
+        && springState.本年商路家书 >= 3
+        && springState.本年商路供读 >= 1
+        && springState.本年商路备役 >= 1
+        && springState.家族 >= 66
+        && springState.商信誉 >= 4
+        && Array.isArray(springState.本年商路季务)
+        && springState.本年商路季务.some((tag) => String(tag).includes('拆样价回话'))
+        && springState.本年商路季务.some((tag) => String(tag).includes('拆春中锅火'))
+        && springState.本年商路季务.some((tag) => String(tag).includes('拆春中纸差'))
+        && (spring.window.__INV || []).length === 0
+    },
+    summer: {
+      stage: summerStage,
+      resolve: summerResolve,
+      state: {
+        本年商路家书: summerState.本年商路家书,
+        本年商路供读: summerState.本年商路供读,
+        本年商路歇养: summerState.本年商路歇养,
+        本年商路备役: summerState.本年商路备役,
+        家族: summerState.家族,
+        体魄: summerState.体魄,
+        本年商路季务: summerState.本年商路季务
+      },
+      ok: summerStage.includes('先把柜边包纸与回客话门包分开')
+        && summerStage.includes('先把伏夏差票与回客话门包分开')
+        && summerStage.includes('先把伏夏尾供读纸样与凉药门包分开')
+        && summerResolve.includes('先把柜边包纸与回客话门包分开')
+        && summerResolve.includes('先把伏夏差票与回客话门包分开')
+        && summerResolve.includes('先把伏夏尾供读纸样与凉药门包分开')
+        && summerState.本年商路家书 >= 2
+        && summerState.本年商路供读 >= 1
+        && summerState.本年商路歇养 >= 1
+        && summerState.本年商路备役 >= 1
+        && summerState.家族 >= 65
+        && summerState.体魄 >= 53
+        && Array.isArray(summerState.本年商路季务)
+        && summerState.本年商路季务.some((tag) => String(tag).includes('拆柜边门包'))
+        && summerState.本年商路季务.some((tag) => String(tag).includes('拆伏夏差票'))
+        && summerState.本年商路季务.some((tag) => String(tag).includes('拆夏尾供身账'))
+        && (summer.window.__INV || []).length === 0
+    },
+    summerMid: {
+      stage: summerMidStage,
+      resolve: summerMidResolve,
+      state: {
+        本年商路家书: summerMidState.本年商路家书,
+        本年商路供读: summerMidState.本年商路供读,
+        本年商路备役: summerMidState.本年商路备役,
+        本年商路歇养: summerMidState.本年商路歇养,
+        家族: summerMidState.家族,
+        体魄: summerMidState.体魄,
+        本年商路季务: summerMidState.本年商路季务
+      },
+      ok: summerMidStage.includes('先把伏夏茶汤与汗药草鞋分开')
+        && summerMidStage.includes('先把伏夏凉药与家里催信分开')
+        && summerMidStage.includes('先把伏夏回帖与纸样差帖分开')
+        && summerMidResolve.includes('先把伏夏茶汤与汗药草鞋分开')
+        && summerMidResolve.includes('先把伏夏凉药与家里催信分开')
+        && summerMidResolve.includes('先把伏夏回帖与纸样差帖分开')
+        && summerMidResolve.includes('〔伏夏零耗〕')
+        && summerMidState.本年商路家书 >= 2
+        && summerMidState.本年商路供读 >= 1
+        && summerMidState.本年商路备役 >= 1
+        && summerMidState.本年商路歇养 >= 2
+        && summerMidState.家族 >= 65
+        && summerMidState.体魄 >= 53
+        && Array.isArray(summerMidState.本年商路季务)
+        && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏茶药'))
+        && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏身家冲突'))
+        && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏回帖纸差'))
+        && summerMidState.本年商路季务.some((tag) => String(tag).includes('伏夏零耗已顾'))
+        && (summerMid.window.__INV || []).length === 0
+    },
+    autumn: {
+      stage: autumnStage,
+      resolve: autumnResolve,
+      state: {
+        本年商路催账: autumnState.本年商路催账,
+        本年商路家书: autumnState.本年商路家书,
+        本年商路供读: autumnState.本年商路供读,
+        本年商路拖欠: autumnState.本年商路拖欠,
+        本年商路歇养: autumnState.本年商路歇养,
+        家族: autumnState.家族,
+        体魄: autumnState.体魄,
+        本年商路季务: autumnState.本年商路季务
+      },
+      ok: autumnStage.includes('先把秋头回签与牙帖脚费分开')
+        && autumnStage.includes('先把秋头锅火与供读纸包分开')
+        && autumnStage.includes('先把秋头拖欠口风与回乡药包分开')
+        && autumnResolve.includes('先把秋头回签与牙帖脚费分开')
+        && autumnResolve.includes('先把秋头锅火与供读纸包分开')
+        && autumnResolve.includes('先把秋头拖欠口风与回乡药包分开')
+        && autumnState.本年商路催账 >= 2
+        && autumnState.本年商路家书 >= 3
+        && autumnState.本年商路供读 >= 1
+        && autumnState.本年商路拖欠 >= 1
+        && autumnState.本年商路歇养 >= 1
+        && autumnState.家族 >= 66
+        && autumnState.体魄 >= 53
+        && Array.isArray(autumnState.本年商路季务)
+        && autumnState.本年商路季务.some((tag) => String(tag).includes('拆秋头回签'))
+        && autumnState.本年商路季务.some((tag) => String(tag).includes('拆秋头供读'))
+        && autumnState.本年商路季务.some((tag) => String(tag).includes('拆秋头拖药'))
+        && (autumn.window.__INV || []).length === 0
+    },
+    autumnMid: {
+      stage: autumnMidStage,
+      resolve: autumnMidResolve,
+      state: {
+        本年商路核账: autumnMidState.本年商路核账,
+        本年商路问价: autumnMidState.本年商路问价,
+        本年商路催账: autumnMidState.本年商路催账,
+        本年商路家书: autumnMidState.本年商路家书,
+        本年商路拖欠: autumnMidState.本年商路拖欠,
+        本年商路供读: autumnMidState.本年商路供读,
+        本年商路备役: autumnMidState.本年商路备役,
+        本年商路贴家: autumnMidState.本年商路贴家,
+        累计反哺银: autumnMidState.累计反哺银,
+        商路供读银: autumnMidState.商路供读银,
+        家族: autumnMidState.家族,
+        本年商路季务: autumnMidState.本年商路季务
+      },
+      ok: autumnMidStage.includes('先把秋中门包与牙帖茶钱分开')
+        && autumnMidStage.includes('先把秋中回签与供读差票分开')
+        && autumnMidStage.includes('先把秋中回钱拆作供读与拖欠')
+        && autumnMidResolve.includes('先把秋中门包与牙帖茶钱分开')
+        && autumnMidResolve.includes('先把秋中回签与供读差票分开')
+        && autumnMidResolve.includes('先把秋中回钱拆作供读与拖欠')
+        && autumnMidState.本年商路核账 >= 1
+        && autumnMidState.本年商路问价 >= 1
+        && autumnMidState.本年商路催账 >= 1
+        && autumnMidState.本年商路家书 >= 2
+        && autumnMidState.本年商路拖欠 >= 1
+        && autumnMidState.本年商路供读 >= 1
+        && autumnMidState.本年商路备役 >= 1
+        && autumnMidState.本年商路贴家 >= 1
+        && autumnMidState.累计反哺银 >= 1
+        && autumnMidState.商路供读银 >= 1
+        && autumnMidState.家族 >= 66
+        && Array.isArray(autumnMidState.本年商路季务)
+        && autumnMidState.本年商路季务.some((tag) => String(tag).includes('拆秋中门包'))
+        && autumnMidState.本年商路季务.some((tag) => String(tag).includes('拆秋中供差'))
+        && autumnMidState.本年商路季务.some((tag) => String(tag).includes('拆秋中回钱'))
+        && (autumnMid.window.__INV || []).length === 0
+    },
+    winter: {
+      stage: winterStage,
+      resolve: winterResolve,
+      state: {
+        本年商路核账: winterState.本年商路核账,
+        本年商路家书: winterState.本年商路家书,
+        商信誉: winterState.商信誉,
+        本年商路季务: winterState.本年商路季务
+      },
+      ok: winterStage.includes('先把清账门包与来春样纸定钱分开')
+        && winterResolve.includes('先把清账门包与来春样纸定钱分开')
+        && winterState.本年商路核账 >= 1
+        && winterState.本年商路家书 >= 1
+        && winterState.商信誉 >= 3
+        && Array.isArray(winterState.本年商路季务)
+        && winterState.本年商路季务.some((tag) => String(tag).includes('拆清账门包'))
+        && (winter.window.__INV || []).length === 0
+    },
+    winterLower: {
+      stage: winterLowerStage,
+      resolve: winterLowerResolve,
+      state: {
+        本年商路核账: winterLowerState.本年商路核账,
+        本年商路家书: winterLowerState.本年商路家书,
+        本年商路催账: winterLowerState.本年商路催账,
+        本年商路备役: winterLowerState.本年商路备役,
+        本年商路拖欠: winterLowerState.本年商路拖欠,
+        本年商路歇养: winterLowerState.本年商路歇养,
+        体魄: winterLowerState.体魄,
+        家族: winterLowerState.家族,
+        本年商路季务: winterLowerState.本年商路季务
+      },
+      ok: winterLowerStage.includes('先把年下回签与来春样纸分开')
+        && winterLowerStage.includes('先把年下拖欠与差票回话分开')
+        && winterLowerStage.includes('先把年下药包与拖欠回签分开')
+        && winterLowerResolve.includes('先把年下回签与来春样纸分开')
+        && winterLowerResolve.includes('先把年下拖欠与差票回话分开')
+        && winterLowerResolve.includes('先把年下药包与拖欠回签分开')
+        && winterLowerState.本年商路核账 >= 1
+        && winterLowerState.本年商路家书 >= 2
+        && winterLowerState.本年商路催账 >= 1
+        && winterLowerState.本年商路备役 >= 1
+        && winterLowerState.本年商路拖欠 >= 1
+        && winterLowerState.本年商路歇养 >= 1
+        && winterLowerState.家族 >= 62
+        && Array.isArray(winterLowerState.本年商路季务)
+        && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾回签'))
+        && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾拖欠'))
+        && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾药拖'))
+        && (winterLower.window.__INV || []).length === 0
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: springStage.includes('先把样价抄单与回话脚费分开')
+      && springStage.includes('先把春中回话与家里锅火分开')
+      && summerStage.includes('先把柜边包纸与回客话门包分开')
+      && summerStage.includes('先把伏夏差票与回客话门包分开')
+      && summerMidStage.includes('先把伏夏茶汤与汗药草鞋分开')
+      && autumnStage.includes('先把秋头回签与牙帖脚费分开')
+      && autumnStage.includes('先把秋头锅火与供读纸包分开')
+      && autumnMidStage.includes('先把秋中回签与供读差票分开')
+      && autumnMidStage.includes('先把秋中回钱拆作供读与拖欠')
+      && autumnMidStage.includes('先把秋中门包与牙帖茶钱分开')
+      && winterStage.includes('先把清账门包与来春样纸定钱分开')
+      && winterLowerStage.includes('先把年下回签与来春样纸分开')
+      && winterLowerStage.includes('先把年下拖欠与差票回话分开')
+      && winterLowerStage.includes('先把年下药包与拖欠回签分开')
+      && springResolve.includes('先把样价抄单与回话脚费分开')
+      && springResolve.includes('先把春中回话与家里锅火分开')
+      && summerResolve.includes('先把柜边包纸与回客话门包分开')
+      && summerResolve.includes('先把伏夏差票与回客话门包分开')
+      && summerMidResolve.includes('先把伏夏茶汤与汗药草鞋分开')
+      && summerMidResolve.includes('先把伏夏凉药与家里催信分开')
+      && summerMidResolve.includes('先把伏夏回帖与纸样差帖分开')
+      && autumnResolve.includes('先把秋头回签与牙帖脚费分开')
+      && autumnResolve.includes('先把秋头锅火与供读纸包分开')
+      && autumnMidResolve.includes('先把秋中门包与牙帖茶钱分开')
+      && autumnMidResolve.includes('先把秋中回签与供读差票分开')
+      && autumnMidResolve.includes('先把秋中回钱拆作供读与拖欠')
+      && winterResolve.includes('先把清账门包与来春样纸定钱分开')
+      && winterLowerResolve.includes('先把年下回签与来春样纸分开')
+      && winterLowerResolve.includes('先把年下拖欠与差票回话分开')
+      && winterLowerResolve.includes('先把年下药包与拖欠回签分开')
+      && springState.本年商路季务.some((tag) => String(tag).includes('拆样价回话'))
+      && springState.本年商路季务.some((tag) => String(tag).includes('拆春中锅火'))
+      && summerState.本年商路季务.some((tag) => String(tag).includes('拆柜边门包'))
+      && summerState.本年商路季务.some((tag) => String(tag).includes('拆伏夏差票'))
+      && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏茶药'))
+      && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏身家冲突'))
+      && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏回帖纸差'))
+      && autumnState.本年商路季务.some((tag) => String(tag).includes('拆秋头回签'))
+      && autumnState.本年商路季务.some((tag) => String(tag).includes('拆秋头供读'))
+      && autumnMidState.本年商路季务.some((tag) => String(tag).includes('拆秋中回钱'))
+      && autumnMidState.本年商路季务.some((tag) => String(tag).includes('拆秋中供差'))
+      && autumnMidState.本年商路季务.some((tag) => String(tag).includes('拆秋中门包'))
+      && winterState.本年商路季务.some((tag) => String(tag).includes('拆清账门包'))
+      && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾回签'))
+      && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾拖欠'))
+      && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾药拖'))
+      && includesOrderedPhases(phaseTrace, ['merchant'])
+      && (spring.window.__INV || []).length === 0
+      && (summer.window.__INV || []).length === 0
+      && (summerMid.window.__INV || []).length === 0
+      && (autumn.window.__INV || []).length === 0
+      && (winter.window.__INV || []).length === 0
+      && (winterLower.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantAutumnDutyChoiceRegression() {
+  function setupAt(extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(4242);
+    chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+    api.patchState(Object.assign({
+      识字: true,
+      商年: 1,
+      商季: 3,
+      商段: 1,
+      铜钱: 700,
+      白银: 3,
+      存米: 3,
+      家族: 64,
+      体魄: 58,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 2,
+      商历练: 2,
+      未回款银: 1,
+      带本银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路供读: 0,
+      本年商路备役: 0,
+      本年商路季务: []
+    }, extraPatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(new Array(20).fill(0.4));
+    return { api, elements, window };
+  }
+
+  const autumn = setupAt();
+  const stage = normalizeHtml(autumn.elements.get('stage').innerHTML);
+  pickByPlan(autumn.api, ['m_autumn_receipt', 'm_autumn_supply_split', 'm_autumn_head_duty']);
+  autumn.api.commit();
+  const resolve = normalizeHtml(autumn.elements.get('stage').innerHTML);
+  const state = clone(autumn.api.getState());
+
+  return {
+    stage,
+    resolve,
+    state: {
+      本年商路催账: state.本年商路催账,
+      本年商路家书: state.本年商路家书,
+      本年商路供读: state.本年商路供读,
+      本年商路备役: state.本年商路备役,
+      家族: state.家族,
+      本年商路季务: state.本年商路季务
+    },
+    ok: stage.includes('先把秋头差帖与回钱脚单分开')
+      && resolve.includes('先把秋头差帖与回钱脚单分开')
+      && state.本年商路催账 >= 2
+      && state.本年商路家书 >= 3
+      && state.本年商路供读 >= 1
+      && state.本年商路备役 >= 1
+      && state.家族 >= 66
+      && Array.isArray(state.本年商路季务)
+      && state.本年商路季务.some((tag) => String(tag).includes('拆秋头差帖'))
+      && (autumn.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantSpringHeadBodyChoiceRegression() {
+  function setupAt(extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(4343);
+    chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+    api.patchState(Object.assign({
+      识字: true,
+      商年: 1,
+      商季: 1,
+      商段: 1,
+      铜钱: 720,
+      白银: 3,
+      存米: 3,
+      家族: 64,
+      体魄: 58,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 2,
+      商历练: 2,
+      未回款银: 0,
+      带本银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路供读: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路季务: []
+    }, extraPatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(new Array(20).fill(0.4));
+    return { api, elements, window };
+  }
+
+  const spring = setupAt();
+  const stage = normalizeHtml(spring.elements.get('stage').innerHTML);
+  pickByPlan(spring.api, ['m_spring_head_packet', 'm_spring_school_split', 'm_spring_head_body']);
+  spring.api.commit();
+  const resolve = normalizeHtml(spring.elements.get('stage').innerHTML);
+  const state = clone(spring.api.getState());
+
+  return {
+    stage,
+    resolve,
+    state: {
+      本年商路认货: state.本年商路认货,
+      本年商路家书: state.本年商路家书,
+      本年商路供读: state.本年商路供读,
+      本年商路歇养: state.本年商路歇养,
+      家族: state.家族,
+      体魄: state.体魄,
+      本年商路季务: state.本年商路季务
+    },
+    ok: stage.includes('先把春头药包与锅火家书分开')
+      && resolve.includes('先把春头药包与锅火家书分开')
+      && resolve.includes('〔开路碎费〕')
+      && state.本年商路认货 >= 1
+      && state.本年商路家书 >= 2
+      && state.本年商路供读 >= 1
+      && state.本年商路歇养 >= 1
+      && state.家族 >= 66
+      && state.体魄 >= 59
+      && Array.isArray(state.本年商路季务)
+      && state.本年商路季务.some((tag) => String(tag).includes('拆春头药锅'))
+      && state.本年商路季务.some((tag) => String(tag).includes('开路碎费已理'))
+      && (spring.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantRouteShoulderChoiceRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(4141);
+    chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+    api.patchState(Object.assign({
+      识字: true,
+      商年: 1,
+      商季: season,
+      商段: xun,
+      铜钱: 620,
+      白银: 3,
+      存米: 3,
+      家族: 64,
+      体魄: 58,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 2,
+      商历练: 2,
+      未回款银: 1,
+      带本银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路季务: []
+    }, extraPatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(new Array(20).fill(0.2));
+    return { api, elements, window };
+  }
+
+  const springUpper = setupAt(1, 1, { 铜钱: 560, 未回款银: 0 });
+  const springUpperStage = normalizeHtml(springUpper.elements.get('stage').innerHTML);
+  pickByPlan(springUpper.api, ['m_spring_head_packet', 'm_spring_school_split', 'm_spring_head_duty']);
+  springUpper.api.commit();
+  const springUpperResolve = normalizeHtml(springUpper.elements.get('stage').innerHTML);
+  const springUpperState = clone(springUpper.api.getState());
+
+  const springLower = setupAt(1, 3, { 铜钱: 700, 未回款银: 0, 体魄: 56 });
+  const springLowerStage = normalizeHtml(springLower.elements.get('stage').innerHTML);
+  pickByPlan(springLower.api, ['m_spring_tail_split', 'm_spring_tail_supply', 'm_spring_tail_body']);
+  springLower.api.commit();
+  const springLowerResolve = normalizeHtml(springLower.elements.get('stage').innerHTML);
+  const springLowerState = clone(springLower.api.getState());
+
+  const summerUpper = setupAt(2, 1, { 铜钱: 700, 体魄: 56, 未回款银: 0 });
+  const summerUpperStage = normalizeHtml(summerUpper.elements.get('stage').innerHTML);
+  pickByPlan(summerUpper.api, ['m_summer_head_packet', 'm_summer_head_home_split', 'm_summer_head_supply_duty']);
+  summerUpper.api.commit();
+  const summerUpperResolve = normalizeHtml(summerUpper.elements.get('stage').innerHTML);
+  const summerUpperState = clone(summerUpper.api.getState());
+
+  const autumnMid = setupAt(3, 2, { 铜钱: 640, 未回款银: 1 });
+  const autumnMidStage = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  pickByPlan(autumnMid.api, ['m_autumn_mid_school', 'm_autumn_mid_remit_drag', 'm_book']);
+  autumnMid.api.commit();
+  const autumnMidResolve = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  const autumnMidState = clone(autumnMid.api.getState());
+
+  const autumnLower = setupAt(3, 3, { 铜钱: 760, 未回款银: 1 });
+  const autumnLowerStage = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  pickByPlan(autumnLower.api, ['m_autumn_tail_split', 'm_autumn_tail_duty', 'm_supply_split']);
+  autumnLower.api.commit();
+  const autumnLowerResolve = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  const autumnLowerState = clone(autumnLower.api.getState());
+
+  const winterUpper = setupAt(4, 1, { 铜钱: 700, 未回款银: 1 });
+  const winterUpperStage = normalizeHtml(winterUpper.elements.get('stage').innerHTML);
+  pickByPlan(winterUpper.api, ['m_winter_head_packet', 'm_winter_head_school']);
+  winterUpper.api.commit();
+  const winterUpperResolve = normalizeHtml(winterUpper.elements.get('stage').innerHTML);
+  const winterUpperState = clone(winterUpper.api.getState());
+
+  const winterMid = setupAt(4, 2, { 铜钱: 780, 未回款银: 1, 体魄: 55 });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['m_winter_mid_supply_duty', 'm_winter_mid_body']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+  const phaseTrace = clone(winterUpper.api.getPhaseTrace ? winterUpper.api.getPhaseTrace() : []);
+
+  return {
+    springUpper: {
+      stage: springUpperStage,
+      resolve: springUpperResolve,
+      state: {
+        本年商路家书: springUpperState.本年商路家书,
+        本年商路供读: springUpperState.本年商路供读,
+        本年商路备役: springUpperState.本年商路备役,
+        家族: springUpperState.家族,
+        商信誉: springUpperState.商信誉,
+        本年商路季务: springUpperState.本年商路季务
+      },
+      ok: springUpperStage.includes('先把春头柜签与样纸门包分开')
+        && springUpperStage.includes('先把春头家书与供读纸样分开')
+        && springUpperStage.includes('先把春头差钱口风与柜签门包分开')
+        && springUpperResolve.includes('先把春头柜签与样纸门包分开')
+        && springUpperResolve.includes('先把春头家书与供读纸样分开')
+        && springUpperResolve.includes('先把春头差钱口风与柜签门包分开')
+        && springUpperResolve.includes('〔开路碎费〕')
+        && springUpperState.本年商路家书 >= 2
+        && springUpperState.本年商路供读 >= 1
+        && springUpperState.本年商路备役 >= 1
+        && springUpperState.家族 >= 65
+        && springUpperState.商信誉 >= 4
+        && Array.isArray(springUpperState.本年商路季务)
+        && springUpperState.本年商路季务.some((tag) => String(tag).includes('拆春头柜签'))
+        && springUpperState.本年商路季务.some((tag) => String(tag).includes('拆春头供读'))
+        && springUpperState.本年商路季务.some((tag) => String(tag).includes('拆春头差钱'))
+        && springUpperState.本年商路季务.some((tag) => String(tag).includes('开路碎费已理'))
+        && (springUpper.window.__INV || []).length === 0
+    },
+    springLower: {
+      stage: springLowerStage,
+      resolve: springLowerResolve,
+      state: {
+        本年商路家书: springLowerState.本年商路家书,
+        本年商路供读: springLowerState.本年商路供读,
+        本年商路备役: springLowerState.本年商路备役,
+        本年商路歇养: springLowerState.本年商路歇养,
+        家族: springLowerState.家族,
+        体魄: springLowerState.体魄,
+        本年商路季务: springLowerState.本年商路季务
+      },
+      ok: springLowerStage.includes('先把春尾回签与归乡脚费分开')
+        && springLowerStage.includes('先把春尾供读纸包与差钱口风分开')
+        && springLowerStage.includes('先把春尾药包与回签家书分开')
+        && springLowerResolve.includes('先把春尾回签与归乡脚费分开')
+        && springLowerResolve.includes('先把春尾供读纸包与差钱口风分开')
+        && springLowerResolve.includes('先把春尾药包与回签家书分开')
+        && springLowerResolve.includes('〔春尾脚费〕')
+        && springLowerState.本年商路家书 >= 2
+        && springLowerState.本年商路供读 >= 1
+        && springLowerState.本年商路备役 >= 1
+        && springLowerState.本年商路歇养 >= 1
+        && springLowerState.家族 >= 67
+        && springLowerState.体魄 >= 53
+        && Array.isArray(springLowerState.本年商路季务)
+        && springLowerState.本年商路季务.some((tag) => String(tag).includes('拆春尾回签'))
+        && springLowerState.本年商路季务.some((tag) => String(tag).includes('拆春尾供差'))
+        && springLowerState.本年商路季务.some((tag) => String(tag).includes('拆春尾药信'))
+        && springLowerState.本年商路季务.some((tag) => String(tag).includes('春尾脚费已留'))
+        && (springLower.window.__INV || []).length === 0
+    },
+    summerUpper: {
+      stage: summerUpperStage,
+      resolve: summerUpperResolve,
+      state: {
+        本年商路家书: summerUpperState.本年商路家书,
+        本年商路供读: summerUpperState.本年商路供读,
+        本年商路歇养: summerUpperState.本年商路歇养,
+        家族: summerUpperState.家族,
+        商信誉: summerUpperState.商信誉,
+        体魄: summerUpperState.体魄,
+        本年商路季务: summerUpperState.本年商路季务
+      },
+      ok: summerUpperStage.includes('先把伏夏行栈茶脚与家书药包分开')
+        && summerUpperStage.includes('先把伏夏凉汤与家里纸样分开')
+        && summerUpperStage.includes('先把伏夏差帖与供读纸样分开')
+        && summerUpperResolve.includes('先把伏夏行栈茶脚与家书药包分开')
+        && summerUpperResolve.includes('先把伏夏凉汤与家里纸样分开')
+        && summerUpperResolve.includes('先把伏夏差帖与供读纸样分开')
+        && summerUpperResolve.includes('〔伏夏茶脚〕')
+        && summerUpperState.本年商路家书 >= 3
+        && summerUpperState.本年商路供读 >= 2
+        && summerUpperState.本年商路备役 >= 1
+        && summerUpperState.本年商路歇养 >= 2
+        && summerUpperState.家族 >= 66
+        && summerUpperState.商信誉 >= 3
+        && summerUpperState.体魄 >= 55
+        && Array.isArray(summerUpperState.本年商路季务)
+        && summerUpperState.本年商路季务.some((tag) => String(tag).includes('拆伏夏行栈茶脚'))
+        && summerUpperState.本年商路季务.some((tag) => String(tag).includes('拆伏夏纸样'))
+        && summerUpperState.本年商路季务.some((tag) => String(tag).includes('拆伏夏供差'))
+        && summerUpperState.本年商路季务.some((tag) => String(tag).includes('伏夏茶脚已留'))
+        && (summerUpper.window.__INV || []).length === 0
+    },
+    autumnMid: {
+      stage: autumnMidStage,
+      resolve: autumnMidResolve,
+      state: {
+        本年商路核账: autumnMidState.本年商路核账,
+        本年商路催账: autumnMidState.本年商路催账,
+        本年商路拖欠: autumnMidState.本年商路拖欠,
+        本年商路供读: autumnMidState.本年商路供读,
+        本年商路贴家: autumnMidState.本年商路贴家,
+        累计反哺银: autumnMidState.累计反哺银,
+        商路供读银: autumnMidState.商路供读银,
+        家族: autumnMidState.家族,
+        商信誉: autumnMidState.商信誉,
+        本年商路季务: autumnMidState.本年商路季务
+      },
+      ok: autumnMidStage.includes('先把秋中回签与供读差票分开')
+        && autumnMidStage.includes('先把秋中回钱拆作供读与拖欠')
+        && autumnMidResolve.includes('先把秋中回签与供读差票分开')
+        && autumnMidResolve.includes('先把秋中回钱拆作供读与拖欠')
+        && autumnMidResolve.includes('〔试贩门包〕')
+        && autumnMidState.本年商路核账 >= 1
+        && autumnMidState.本年商路催账 >= 1
+        && autumnMidState.本年商路拖欠 >= 1
+        && autumnMidState.本年商路供读 >= 2
+        && autumnMidState.本年商路贴家 >= 1
+        && autumnMidState.累计反哺银 >= 1
+        && autumnMidState.商路供读银 >= 1
+        && autumnMidState.本年商路备役 >= 1
+        && autumnMidState.家族 >= 65
+        && autumnMidState.商信誉 >= 3
+        && Array.isArray(autumnMidState.本年商路季务)
+        && autumnMidState.本年商路季务.some((tag) => String(tag).includes('拆秋中供差'))
+        && autumnMidState.本年商路季务.some((tag) => String(tag).includes('拆秋中回钱'))
+        && autumnMidState.本年商路季务.some((tag) => String(tag).includes('试贩门包已分'))
+        && (autumnMid.window.__INV || []).length === 0
+    },
+    autumnLower: {
+      stage: autumnLowerStage,
+      resolve: autumnLowerResolve,
+      state: {
+        本年商路催账: autumnLowerState.本年商路催账,
+        本年商路家书: autumnLowerState.本年商路家书,
+        本年商路供读: autumnLowerState.本年商路供读,
+        本年商路备役: autumnLowerState.本年商路备役,
+        家族: autumnLowerState.家族,
+        商信誉: autumnLowerState.商信誉,
+        本年商路季务: autumnLowerState.本年商路季务
+      },
+      ok: autumnLowerStage.includes('先把秋尾回话与样货耗损分开')
+        && autumnLowerStage.includes('先把秋尾差票与回钱脚费分开')
+        && autumnLowerStage.includes('先把回钱拆作锅火与供读纸包')
+        && autumnLowerResolve.includes('先把秋尾回话与样货耗损分开')
+        && autumnLowerResolve.includes('先把秋尾差票与回钱脚费分开')
+        && autumnLowerResolve.includes('先把回钱拆作锅火与供读纸包')
+        && autumnLowerResolve.includes('〔回钱碎耗〕')
+        && autumnLowerState.本年商路催账 >= 2
+        && autumnLowerState.本年商路家书 >= 2
+        && autumnLowerState.本年商路供读 >= 1
+        && autumnLowerState.本年商路备役 >= 1
+        && autumnLowerState.家族 >= 66
+        && autumnLowerState.商信誉 >= 3
+        && Array.isArray(autumnLowerState.本年商路季务)
+        && autumnLowerState.本年商路季务.some((tag) => String(tag).includes('拆秋尾回话'))
+        && autumnLowerState.本年商路季务.some((tag) => String(tag).includes('拆秋尾差票'))
+        && autumnLowerState.本年商路季务.some((tag) => String(tag).includes('拆回钱供读'))
+        && autumnLowerState.本年商路季务.some((tag) => String(tag).includes('回钱碎耗已拆'))
+        && (autumnLower.window.__INV || []).length === 0
+    },
+    winterUpper: {
+      stage: winterUpperStage,
+      resolve: winterUpperResolve,
+      state: {
+        本年商路核账: winterUpperState.本年商路核账,
+        本年商路催账: winterUpperState.本年商路催账,
+        本年商路备役: winterUpperState.本年商路备役,
+        本年商路供读: winterUpperState.本年商路供读,
+        本年商路家书: winterUpperState.本年商路家书,
+        家族: winterUpperState.家族,
+        本年商路季务: winterUpperState.本年商路季务
+      },
+      ok: winterUpperStage.includes('先把冬头客脚与明春水脚分开')
+        && winterUpperStage.includes('先把冬头回签与供读差票分开')
+        && winterUpperResolve.includes('先把冬头客脚与明春水脚分开')
+        && winterUpperResolve.includes('先把冬头回签与供读差票分开')
+        && winterUpperResolve.includes('〔年关路费〕')
+        && winterUpperState.本年商路核账 >= 1
+        && winterUpperState.本年商路催账 >= 1
+        && winterUpperState.本年商路备役 >= 1
+        && winterUpperState.本年商路供读 >= 1
+        && winterUpperState.本年商路家书 >= 2
+        && winterUpperState.家族 >= 65
+        && Array.isArray(winterUpperState.本年商路季务)
+        && winterUpperState.本年商路季务.some((tag) => String(tag).includes('拆冬头客脚'))
+        && winterUpperState.本年商路季务.some((tag) => String(tag).includes('拆冬头供差'))
+        && winterUpperState.本年商路季务.some((tag) => String(tag).includes('年关路费已分'))
+        && includesOrderedPhases(phaseTrace, ['merchant'])
+        && (winterUpper.window.__INV || []).length === 0
+    },
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        本年商路催账: winterMidState.本年商路催账,
+        本年商路家书: winterMidState.本年商路家书,
+        本年商路供读: winterMidState.本年商路供读,
+        本年商路备役: winterMidState.本年商路备役,
+        本年商路歇养: winterMidState.本年商路歇养,
+        家族: winterMidState.家族,
+        体魄: winterMidState.体魄,
+        本年商路季务: winterMidState.本年商路季务
+      },
+      ok: winterMidStage.includes('先把冬中拖欠与供读差票分开')
+        && winterMidStage.includes('先把冬中药包与拖欠回话分开')
+        && winterMidResolve.includes('先把冬中拖欠与供读差票分开')
+        && winterMidResolve.includes('先把冬中药包与拖欠回话分开')
+        && winterMidResolve.includes('〔清账回话〕')
+        && winterMidState.本年商路催账 >= 2
+        && winterMidState.本年商路家书 >= 2
+        && winterMidState.本年商路供读 >= 1
+        && winterMidState.本年商路备役 >= 1
+        && winterMidState.本年商路歇养 >= 2
+        && winterMidState.家族 >= 65
+        && winterMidState.体魄 >= 53
+        && Array.isArray(winterMidState.本年商路季务)
+        && winterMidState.本年商路季务.some((tag) => String(tag).includes('拆冬中供差'))
+        && winterMidState.本年商路季务.some((tag) => String(tag).includes('拆冬中药拖'))
+        && winterMidState.本年商路季务.some((tag) => String(tag).includes('清账回话已压'))
+        && (winterMid.window.__INV || []).length === 0
+    },
+      ok: springUpperStage.includes('先把春头柜签与样纸门包分开')
+      && springUpperStage.includes('先把春头家书与供读纸样分开')
+      && springUpperStage.includes('先把春头差钱口风与柜签门包分开')
+      && springLowerStage.includes('先把春尾回签与归乡脚费分开')
+      && springLowerStage.includes('先把春尾供读纸包与差钱口风分开')
+      && summerUpperStage.includes('先把伏夏行栈茶脚与家书药包分开')
+      && summerUpperStage.includes('先把伏夏凉汤与家里纸样分开')
+      && summerUpperStage.includes('先把伏夏差帖与供读纸样分开')
+      && autumnMidStage.includes('先把秋中回钱拆作供读与拖欠')
+      && autumnMidStage.includes('先把秋中回签与供读差票分开')
+      && autumnLowerStage.includes('先把秋尾回话与样货耗损分开')
+      && winterUpperStage.includes('先把冬头客脚与明春水脚分开')
+      && winterUpperStage.includes('先把冬头回签与供读差票分开')
+      && winterMidStage.includes('先把冬中拖欠与供读差票分开')
+      && springUpperResolve.includes('〔开路碎费〕')
+      && springLowerResolve.includes('〔春尾脚费〕')
+      && summerUpperResolve.includes('〔伏夏茶脚〕')
+      && autumnMidResolve.includes('〔试贩门包〕')
+      && autumnLowerResolve.includes('〔回钱碎耗〕')
+      && winterUpperResolve.includes('〔年关路费〕')
+      && winterMidResolve.includes('〔清账回话〕')
+      && springUpperState.本年商路季务.some((tag) => String(tag).includes('拆春头柜签'))
+      && springUpperState.本年商路季务.some((tag) => String(tag).includes('拆春头供读'))
+      && springUpperState.本年商路季务.some((tag) => String(tag).includes('拆春头差钱'))
+      && springLowerState.本年商路季务.some((tag) => String(tag).includes('拆春尾回签'))
+      && springLowerState.本年商路季务.some((tag) => String(tag).includes('拆春尾供差'))
+      && summerUpperState.本年商路季务.some((tag) => String(tag).includes('拆伏夏行栈茶脚'))
+      && summerUpperState.本年商路季务.some((tag) => String(tag).includes('拆伏夏纸样'))
+      && summerUpperState.本年商路季务.some((tag) => String(tag).includes('拆伏夏供差'))
+      && autumnMidState.本年商路季务.some((tag) => String(tag).includes('拆秋中回钱'))
+      && autumnMidState.本年商路季务.some((tag) => String(tag).includes('拆秋中供差'))
+      && autumnLowerState.本年商路季务.some((tag) => String(tag).includes('拆秋尾回话'))
+      && winterUpperState.本年商路季务.some((tag) => String(tag).includes('拆冬头客脚'))
+      && winterUpperState.本年商路季务.some((tag) => String(tag).includes('拆冬头供差'))
+      && winterMidState.本年商路季务.some((tag) => String(tag).includes('拆冬中供差'))
+      && winterMidState.本年商路季务.some((tag) => String(tag).includes('拆冬中药拖'))
+      && (springUpper.window.__INV || []).length === 0
+      && (springLower.window.__INV || []).length === 0
+      && (summerUpper.window.__INV || []).length === 0
+      && (autumnMid.window.__INV || []).length === 0
+      && (autumnLower.window.__INV || []).length === 0
+      && (winterUpper.window.__INV || []).length === 0
+      && (winterMid.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantAutumnTailConflictRegression() {
+  function setupAt(extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(4747);
+    chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+    api.patchState(Object.assign({
+      识字: true,
+      商年: 1,
+      商季: 3,
+      商段: 3,
+      铜钱: 920,
+      白银: 3,
+      存米: 3,
+      家族: 64,
+      体魄: 55,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 2,
+      商历练: 2,
+      未回款银: 1,
+      带本银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路拖欠: 0,
+      本年商路供读: 0,
+      本年商路季务: []
+    }, extraPatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(new Array(20).fill(0.2));
+    return { api, elements, window };
+  }
+
+  const autumnTail = setupAt();
+  const stage = normalizeHtml(autumnTail.elements.get('stage').innerHTML);
+  pickByPlan(autumnTail.api, ['m_autumn_tail_drag_school', 'm_autumn_tail_remit_duty', 'm_autumn_tail_duty']);
+  autumnTail.api.commit();
+  const resolve = normalizeHtml(autumnTail.elements.get('stage').innerHTML);
+  const state = clone(autumnTail.api.getState());
+
+  return {
+    stage,
+    resolve,
+    state: {
+      本年商路催账: state.本年商路催账,
+      本年商路家书: state.本年商路家书,
+      本年商路拖欠: state.本年商路拖欠,
+      本年商路供读: state.本年商路供读,
+      本年商路备役: state.本年商路备役,
+      本年商路歇养: state.本年商路歇养,
+      本年商路反哺银: state.本年商路反哺银,
+      商路供读银: state.商路供读银,
+      家族: state.家族,
+      体魄: state.体魄,
+      本年商路季务: state.本年商路季务
+    },
+    ok: stage.includes('先把秋尾拖欠与供读药包分开')
+      && resolve.includes('先把秋尾拖欠与供读药包分开')
+      && resolve.includes('先把秋尾回钱拆作供读与差票')
+      && resolve.includes('先把秋尾差票与回钱脚费分开')
+      && resolve.includes('〔回钱碎耗〕')
+      && state.本年商路催账 >= 2
+      && state.本年商路家书 >= 3
+      && state.本年商路拖欠 >= 1
+      && state.本年商路供读 >= 2
+      && state.本年商路备役 >= 2
+      && state.本年商路歇养 >= 1
+      && state.本年商路反哺银 >= 1
+      && state.商路供读银 >= 1
+      && state.家族 >= 67
+      && state.体魄 >= 52
+      && Array.isArray(state.本年商路季务)
+      && state.本年商路季务.some((tag) => String(tag).includes('拆秋尾拖供药'))
+      && state.本年商路季务.some((tag) => String(tag).includes('拆秋尾回钱'))
+      && state.本年商路季务.some((tag) => String(tag).includes('拆秋尾差票'))
+      && state.本年商路季务.some((tag) => String(tag).includes('回钱碎耗已拆'))
+      && (autumnTail.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantSummerWinterDragChoiceRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(4242);
+    chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+    api.patchState(Object.assign({
+      识字: true,
+      商年: 1,
+      商季: season,
+      商段: xun,
+      铜钱: 860,
+      白银: 3,
+      存米: 3,
+      家族: 64,
+      体魄: 56,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 2,
+      商历练: 2,
+      未回款银: 1,
+      带本银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路拖欠: 0,
+      本年商路供读: 0,
+      本年商路季务: []
+    }, extraPatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(new Array(20).fill(0.2));
+    return { api, elements, window };
+  }
+
+  const summerHead = setupAt(2, 1, { 铜钱: 860, 未回款银: 1, 体魄: 56 });
+  const summerHeadStage = normalizeHtml(summerHead.elements.get('stage').innerHTML);
+  pickByPlan(summerHead.api, ['m_summer_head_drag', 'm_summer_head_supply_duty', 'm_wharf']);
+  summerHead.api.commit();
+  const summerHeadResolve = normalizeHtml(summerHead.elements.get('stage').innerHTML);
+  const summerHeadState = clone(summerHead.api.getState());
+
+  const summerTail = setupAt(2, 3, { 铜钱: 900, 未回款银: 1, 体魄: 56 });
+  const summerTailStage = normalizeHtml(summerTail.elements.get('stage').innerHTML);
+  pickByPlan(summerTail.api, ['m_summer_tail_drag', 'm_counter', 'm_summer_tail_school']);
+  summerTail.api.commit();
+  const summerTailResolve = normalizeHtml(summerTail.elements.get('stage').innerHTML);
+  const summerTailState = clone(summerTail.api.getState());
+
+  const summerMid = setupAt(2, 2, { 铜钱: 920, 未回款银: 1, 体魄: 56 });
+  const summerMidStage = normalizeHtml(summerMid.elements.get('stage').innerHTML);
+  pickByPlan(summerMid.api, ['m_summer_mid_drag', 'm_summer_mid_reply_school', 'm_summer_conflict']);
+  summerMid.api.commit();
+  const summerMidResolve = normalizeHtml(summerMid.elements.get('stage').innerHTML);
+  const summerMidState = clone(summerMid.api.getState());
+
+  const winterHead = setupAt(4, 1, { 铜钱: 900, 未回款银: 2, 体魄: 56 });
+  const winterHeadStage = normalizeHtml(winterHead.elements.get('stage').innerHTML);
+  pickByPlan(winterHead.api, ['m_winter_head_drag', 'm_winter_head_packet', 'm_winter_head_school']);
+  winterHead.api.commit();
+  const winterHeadResolve = normalizeHtml(winterHead.elements.get('stage').innerHTML);
+  const winterHeadState = clone(winterHead.api.getState());
+  const phaseTrace = clone(winterHead.api.getPhaseTrace ? winterHead.api.getPhaseTrace() : []);
+
+  return {
+    summerHead: {
+      stage: summerHeadStage,
+      resolve: summerHeadResolve,
+      state: {
+        本年商路跑单: summerHeadState.本年商路跑单,
+        本年商路家书: summerHeadState.本年商路家书,
+        本年商路拖欠: summerHeadState.本年商路拖欠,
+        本年商路供读: summerHeadState.本年商路供读,
+        本年商路备役: summerHeadState.本年商路备役,
+        本年商路歇养: summerHeadState.本年商路歇养,
+        家族: summerHeadState.家族,
+        体魄: summerHeadState.体魄,
+        本年商路季务: summerHeadState.本年商路季务
+      },
+      ok: summerHeadStage.includes('先把伏夏起脚与回签拖欠分开')
+        && summerHeadResolve.includes('先把伏夏起脚与回签拖欠分开')
+        && summerHeadResolve.includes('〔伏夏茶脚〕')
+        && summerHeadState.本年商路跑单 >= 1
+        && summerHeadState.本年商路家书 >= 3
+        && summerHeadState.本年商路拖欠 >= 1
+        && summerHeadState.本年商路供读 >= 1
+        && summerHeadState.本年商路备役 >= 1
+        && summerHeadState.本年商路歇养 >= 2
+        && summerHeadState.家族 >= 66
+        && summerHeadState.体魄 >= 54
+        && Array.isArray(summerHeadState.本年商路季务)
+        && summerHeadState.本年商路季务.some((tag) => String(tag).includes('拆伏夏起脚拖账'))
+        && summerHeadState.本年商路季务.some((tag) => String(tag).includes('拆伏夏供差'))
+        && summerHeadState.本年商路季务.some((tag) => String(tag).includes('伏夏茶脚已留'))
+        && (summerHead.window.__INV || []).length === 0
+    },
+    summerTail: {
+      stage: summerTailStage,
+      resolve: summerTailResolve,
+      state: {
+        本年商路催账: summerTailState.本年商路催账,
+        本年商路家书: summerTailState.本年商路家书,
+        本年商路拖欠: summerTailState.本年商路拖欠,
+        本年商路供读: summerTailState.本年商路供读,
+        本年商路歇养: summerTailState.本年商路歇养,
+        家族: summerTailState.家族,
+        体魄: summerTailState.体魄,
+        本年商路季务: summerTailState.本年商路季务
+      },
+      ok: summerTailStage.includes('先把夏尾拖欠与回客脚费分开')
+        && summerTailResolve.includes('先把夏尾拖欠与回客脚费分开')
+        && summerTailResolve.includes('〔伏夏柜耗〕')
+        && summerTailState.本年商路催账 >= 1
+        && summerTailState.本年商路家书 >= 3
+        && summerTailState.本年商路拖欠 >= 1
+        && summerTailState.本年商路供读 >= 1
+        && summerTailState.本年商路歇养 >= 2
+        && summerTailState.家族 >= 66
+        && summerTailState.体魄 >= 55
+        && Array.isArray(summerTailState.本年商路季务)
+        && summerTailState.本年商路季务.some((tag) => String(tag).includes('拆夏尾拖账'))
+        && summerTailState.本年商路季务.some((tag) => String(tag).includes('拆夏尾供身账'))
+        && summerTailState.本年商路季务.some((tag) => String(tag).includes('伏夏柜耗已分'))
+        && (summerTail.window.__INV || []).length === 0
+    },
+    summerMid: {
+      stage: summerMidStage,
+      resolve: summerMidResolve,
+      state: {
+        本年商路催账: summerMidState.本年商路催账,
+        本年商路家书: summerMidState.本年商路家书,
+        本年商路拖欠: summerMidState.本年商路拖欠,
+        本年商路供读: summerMidState.本年商路供读,
+        本年商路备役: summerMidState.本年商路备役,
+        本年商路歇养: summerMidState.本年商路歇养,
+        家族: summerMidState.家族,
+        体魄: summerMidState.体魄,
+        本年商路季务: summerMidState.本年商路季务
+      },
+      ok: summerMidStage.includes('先把伏夏拖欠与凉药门包分开')
+        && summerMidResolve.includes('先把伏夏拖欠与凉药门包分开')
+        && summerMidResolve.includes('〔伏夏零耗〕')
+        && summerMidState.本年商路催账 >= 1
+        && summerMidState.本年商路家书 >= 3
+        && summerMidState.本年商路拖欠 >= 1
+        && summerMidState.本年商路供读 >= 1
+        && summerMidState.本年商路备役 >= 1
+        && summerMidState.本年商路歇养 >= 3
+        && summerMidState.家族 >= 67
+        && summerMidState.体魄 >= 55
+        && Array.isArray(summerMidState.本年商路季务)
+        && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏拖账'))
+        && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏回帖纸差'))
+        && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏身家冲突'))
+        && summerMidState.本年商路季务.some((tag) => String(tag).includes('伏夏零耗已顾'))
+        && (summerMid.window.__INV || []).length === 0
+    },
+    winterHead: {
+      stage: winterHeadStage,
+      resolve: winterHeadResolve,
+      state: {
+        本年商路核账: winterHeadState.本年商路核账,
+        本年商路催账: winterHeadState.本年商路催账,
+        本年商路拖欠: winterHeadState.本年商路拖欠,
+        本年商路备役: winterHeadState.本年商路备役,
+        本年商路供读: winterHeadState.本年商路供读,
+        本年商路家书: winterHeadState.本年商路家书,
+        家族: winterHeadState.家族,
+        本年商路季务: winterHeadState.本年商路季务
+      },
+      ok: winterHeadStage.includes('先把冬头拖欠与锅火差票分开')
+        && winterHeadResolve.includes('先把冬头拖欠与锅火差票分开')
+        && winterHeadResolve.includes('〔年关路费〕')
+        && winterHeadState.本年商路核账 >= 1
+        && winterHeadState.本年商路催账 >= 2
+        && winterHeadState.本年商路拖欠 >= 1
+        && winterHeadState.本年商路备役 >= 2
+        && winterHeadState.本年商路供读 >= 1
+        && winterHeadState.本年商路家书 >= 2
+        && winterHeadState.家族 >= 66
+        && Array.isArray(winterHeadState.本年商路季务)
+        && winterHeadState.本年商路季务.some((tag) => String(tag).includes('拆冬头拖欠'))
+        && winterHeadState.本年商路季务.some((tag) => String(tag).includes('拆冬头客脚'))
+        && winterHeadState.本年商路季务.some((tag) => String(tag).includes('拆冬头供差'))
+        && winterHeadState.本年商路季务.some((tag) => String(tag).includes('年关路费已分'))
+        && includesOrderedPhases(phaseTrace, ['merchant'])
+        && (winterHead.window.__INV || []).length === 0
+    },
+    ok: summerHeadStage.includes('先把伏夏起脚与回签拖欠分开')
+      && summerMidStage.includes('先把伏夏拖欠与凉药门包分开')
+      && summerTailStage.includes('先把夏尾拖欠与回客脚费分开')
+      && winterHeadStage.includes('先把冬头拖欠与锅火差票分开')
+      && summerHeadResolve.includes('〔伏夏茶脚〕')
+      && summerMidResolve.includes('〔伏夏零耗〕')
+      && summerTailResolve.includes('〔伏夏柜耗〕')
+      && winterHeadResolve.includes('〔年关路费〕')
+      && summerHeadState.本年商路季务.some((tag) => String(tag).includes('拆伏夏起脚拖账'))
+      && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏拖账'))
+      && summerTailState.本年商路季务.some((tag) => String(tag).includes('拆夏尾拖账'))
+      && winterHeadState.本年商路季务.some((tag) => String(tag).includes('拆冬头拖欠'))
+      && (summerHead.window.__INV || []).length === 0
+      && (summerMid.window.__INV || []).length === 0
+      && (summerTail.window.__INV || []).length === 0
+      && (winterHead.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantConflictChoiceRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(5151);
+    chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+    api.patchState(Object.assign({
+      识字: true,
+      商年: 1,
+      商季: season,
+      商段: xun,
+      铜钱: 760,
+      白银: 3,
+      存米: 3,
+      家族: 64,
+      体魄: 56,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 2,
+      商历练: 2,
+      未回款银: 1,
+      带本银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路拖欠: 0,
+      本年商路供读: 0,
+      本年商路身乏: 0,
+      本年商路龃龉: 0,
+      本年商路役扰: 0,
+      本年商路季务: []
+    }, extraPatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(new Array(20).fill(0.2));
+    return { api, elements, window };
+  }
+
+  const autumnLower = setupAt(3, 3, { 铜钱: 780, 未回款银: 1 });
+  const autumnLowerStage = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  pickByPlan(autumnLower.api, ['m_supply_split', 'm_support_school', 'm_autumn_tail_body']);
+  autumnLower.api.commit();
+  const autumnLowerResolve = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  const autumnLowerState = clone(autumnLower.api.getState());
+
+  const winterUpper = setupAt(4, 1, { 铜钱: 760, 未回款银: 1 });
+  const winterUpperStage = normalizeHtml(winterUpper.elements.get('stage').innerHTML);
+  pickByPlan(winterUpper.api, ['m_winter_head_school', 'm_corvee_split', 'm_winter_head_body']);
+  winterUpper.api.commit();
+  const winterUpperResolve = normalizeHtml(winterUpper.elements.get('stage').innerHTML);
+  const winterUpperState = clone(winterUpper.api.getState());
+
+  const summerMid = setupAt(2, 2, { 铜钱: 780, 体魄: 54, 未回款银: 1 });
+  const summerMidStage = normalizeHtml(summerMid.elements.get('stage').innerHTML);
+  pickByPlan(summerMid.api, ['m_summer_conflict', 'm_summer_bundle', 'm_summer_mid_reply_school']);
+  summerMid.api.commit();
+  const summerMidResolve = normalizeHtml(summerMid.elements.get('stage').innerHTML);
+  const summerMidState = clone(summerMid.api.getState());
+
+  const winterMid = setupAt(4, 2, { 铜钱: 780, 未回款银: 2 });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['m_winter_family_split', 'm_debt_split', 'm_winter_mid_body']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+
+  const winterLower = setupAt(4, 3, { 铜钱: 820, 未回款银: 2, 体魄: 54 });
+  const winterLowerStage = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  pickByPlan(winterLower.api, ['m_winter_tail_supply_duty', 'm_winter_tail_home_body', 'm_winter_tail']);
+  winterLower.api.commit();
+  const winterLowerResolve = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  const winterLowerState = clone(winterLower.api.getState());
+  const phaseTrace = clone(winterMid.api.getPhaseTrace ? winterMid.api.getPhaseTrace() : []);
+
+  return {
+    autumnLower: {
+      stage: autumnLowerStage,
+      resolve: autumnLowerResolve,
+      state: {
+        本年商路供读: autumnLowerState.本年商路供读,
+        本年商路贴家: autumnLowerState.本年商路贴家,
+        本年商路歇养: autumnLowerState.本年商路歇养,
+        体魄: autumnLowerState.体魄,
+        家族: autumnLowerState.家族,
+        本年商路季务: autumnLowerState.本年商路季务
+      },
+      ok: autumnLowerStage.includes('先把回钱拆作锅火与供读纸包')
+        && autumnLowerStage.includes('先把秋尾药包与回钱家书分开')
+        && autumnLowerResolve.includes('先把回钱拆作锅火与供读纸包')
+        && autumnLowerResolve.includes('先把秋尾药包与回钱家书分开')
+        && autumnLowerResolve.includes('寄银回家供读')
+        && autumnLowerState.本年商路供读 >= 2
+        && autumnLowerState.本年商路贴家 >= 1
+        && autumnLowerState.本年商路歇养 >= 1
+        && autumnLowerState.体魄 >= 53
+        && autumnLowerState.家族 >= 66
+        && Array.isArray(autumnLowerState.本年商路季务)
+        && autumnLowerState.本年商路季务.some((tag) => String(tag).includes('拆回钱供读'))
+        && autumnLowerState.本年商路季务.some((tag) => String(tag).includes('拆秋尾药信'))
+        && (autumnLower.window.__INV || []).length === 0
+    },
+    winterUpper: {
+      stage: winterUpperStage,
+      resolve: winterUpperResolve,
+      state: {
+        本年商路备役: winterUpperState.本年商路备役,
+        本年商路役扰: winterUpperState.本年商路役扰,
+        本年商路供读: winterUpperState.本年商路供读,
+        本年商路家书: winterUpperState.本年商路家书,
+        本年商路歇养: winterUpperState.本年商路歇养,
+        体魄: winterUpperState.体魄,
+        家族: winterUpperState.家族,
+        本年商路季务: winterUpperState.本年商路季务
+      },
+      ok: winterUpperStage.includes('先把冬头回签与供读差票分开')
+        && winterUpperStage.includes('先把差票回话与客脚年礼分开')
+        && winterUpperStage.includes('先把冬头药包与回签家书分开')
+        && winterUpperResolve.includes('先把冬头回签与供读差票分开')
+        && winterUpperResolve.includes('先把差票回话与客脚年礼分开')
+        && winterUpperResolve.includes('先把冬头药包与回签家书分开')
+        && winterUpperResolve.includes('〔年关路费〕')
+        && winterUpperState.本年商路备役 >= 2
+        && winterUpperState.本年商路役扰 >= 1
+        && winterUpperState.本年商路供读 >= 1
+        && winterUpperState.本年商路家书 >= 3
+        && winterUpperState.本年商路歇养 >= 1
+        && winterUpperState.体魄 >= 53
+        && winterUpperState.家族 >= 66
+        && Array.isArray(winterUpperState.本年商路季务)
+        && winterUpperState.本年商路季务.some((tag) => String(tag).includes('拆冬头供差'))
+        && winterUpperState.本年商路季务.some((tag) => String(tag).includes('拆差票年礼'))
+        && winterUpperState.本年商路季务.some((tag) => String(tag).includes('拆冬头药信'))
+        && (winterUpper.window.__INV || []).length === 0
+    },
+    summerMid: {
+      stage: summerMidStage,
+      resolve: summerMidResolve,
+      state: {
+        本年商路家书: summerMidState.本年商路家书,
+        本年商路供读: summerMidState.本年商路供读,
+        本年商路备役: summerMidState.本年商路备役,
+        本年商路歇养: summerMidState.本年商路歇养,
+        家族: summerMidState.家族,
+        体魄: summerMidState.体魄,
+        本年商路季务: summerMidState.本年商路季务
+      },
+      ok: summerMidStage.includes('先把伏夏凉药与家里催信分开')
+        && summerMidStage.includes('先把伏夏回帖与纸样差帖分开')
+        && summerMidResolve.includes('先把伏夏凉药与家里催信分开')
+        && summerMidResolve.includes('先把伏夏回帖与纸样差帖分开')
+        && summerMidResolve.includes('〔伏夏零耗〕')
+        && summerMidState.本年商路家书 >= 3
+        && summerMidState.本年商路供读 >= 1
+        && summerMidState.本年商路备役 >= 1
+        && summerMidState.本年商路歇养 >= 2
+        && summerMidState.家族 >= 65
+        && summerMidState.体魄 >= 53
+        && Array.isArray(summerMidState.本年商路季务)
+        && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏身家冲突'))
+        && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏回帖纸差'))
+        && summerMidState.本年商路季务.some((tag) => String(tag).includes('伏夏零耗已顾'))
+        && (summerMid.window.__INV || []).length === 0
+    },
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        本年商路催账: winterMidState.本年商路催账,
+        本年商路备役: winterMidState.本年商路备役,
+        本年商路供读: winterMidState.本年商路供读,
+        本年商路家书: winterMidState.本年商路家书,
+        本年商路歇养: winterMidState.本年商路歇养,
+        体魄: winterMidState.体魄,
+        商信誉: winterMidState.商信誉,
+        家族: winterMidState.家族,
+        本年商路季务: winterMidState.本年商路季务
+      },
+      ok: winterMidStage.includes('先把拖欠回话与差票家书分开')
+        && winterMidStage.includes('先把拖欠回话与供读次序分开')
+        && winterMidStage.includes('先把冬中药包与拖欠回话分开')
+        && winterMidResolve.includes('先把拖欠回话与差票家书分开')
+        && winterMidResolve.includes('先把拖欠回话与供读次序分开')
+        && winterMidResolve.includes('先把冬中药包与拖欠回话分开')
+        && winterMidResolve.includes('〔清账回话〕')
+        && winterMidState.本年商路催账 >= 2
+        && winterMidState.本年商路备役 >= 1
+        && winterMidState.本年商路供读 >= 1
+        && winterMidState.本年商路家书 >= 2
+        && winterMidState.本年商路歇养 >= 1
+        && winterMidState.体魄 >= 53
+        && winterMidState.商信誉 >= 4
+        && winterMidState.家族 >= 65
+        && Array.isArray(winterMidState.本年商路季务)
+        && winterMidState.本年商路季务.some((tag) => String(tag).includes('拆拖欠供读'))
+        && winterMidState.本年商路季务.some((tag) => String(tag).includes('拆拖欠差话'))
+        && winterMidState.本年商路季务.some((tag) => String(tag).includes('拆冬中药拖'))
+        && includesOrderedPhases(phaseTrace, ['merchant'])
+        && (winterMid.window.__INV || []).length === 0
+    },
+    winterLower: {
+      stage: winterLowerStage,
+      resolve: winterLowerResolve,
+      state: {
+        本年商路催账: winterLowerState.本年商路催账,
+        本年商路家书: winterLowerState.本年商路家书,
+        本年商路供读: winterLowerState.本年商路供读,
+        本年商路备役: winterLowerState.本年商路备役,
+        本年商路歇养: winterLowerState.本年商路歇养,
+        体魄: winterLowerState.体魄,
+        家族: winterLowerState.家族,
+        商信誉: winterLowerState.商信誉,
+        本年商路季务: winterLowerState.本年商路季务
+      },
+      ok: winterLowerStage.includes('先把冬尾供读差票与药包分开')
+        && winterLowerStage.includes('先把冬尾药包与供读家书分开')
+        && winterLowerStage.includes('先把年下回签与来春样纸分开')
+        && winterLowerResolve.includes('先把冬尾供读差票与药包分开')
+        && winterLowerResolve.includes('先把冬尾药包与供读家书分开')
+        && winterLowerResolve.includes('先把年下回签与来春样纸分开')
+        && winterLowerResolve.includes('〔年下客礼〕')
+        && winterLowerState.本年商路催账 >= 1
+        && winterLowerState.本年商路家书 >= 2
+        && winterLowerState.本年商路供读 >= 1
+        && winterLowerState.本年商路备役 >= 1
+        && winterLowerState.本年商路歇养 >= 2
+        && winterLowerState.体魄 >= 52
+        && winterLowerState.家族 >= 65
+        && winterLowerState.商信誉 >= 3
+        && Array.isArray(winterLowerState.本年商路季务)
+        && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾供差药'))
+        && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾供身'))
+        && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾回签'))
+        && (winterLower.window.__INV || []).length === 0
+    },
+    ok: autumnLowerStage.includes('先把回钱拆作锅火与供读纸包')
+      && autumnLowerStage.includes('先把秋尾药包与回钱家书分开')
+      && summerMidStage.includes('先把伏夏凉药与家里催信分开')
+      && winterUpperStage.includes('先把冬头回签与供读差票分开')
+      && winterUpperStage.includes('先把差票回话与客脚年礼分开')
+      && winterUpperStage.includes('先把冬头药包与回签家书分开')
+      && winterMidStage.includes('先把拖欠回话与差票家书分开')
+      && winterMidStage.includes('先把拖欠回话与供读次序分开')
+      && winterMidStage.includes('先把冬中药包与拖欠回话分开')
+      && winterLowerStage.includes('先把冬尾供读差票与药包分开')
+      && winterLowerStage.includes('先把冬尾药包与供读家书分开')
+      && winterLowerStage.includes('先把年下回签与来春样纸分开')
+      && summerMidResolve.includes('〔伏夏零耗〕')
+      && winterUpperResolve.includes('〔年关路费〕')
+      && winterMidResolve.includes('〔清账回话〕')
+      && winterLowerResolve.includes('〔年下客礼〕')
+      && autumnLowerState.本年商路季务.some((tag) => String(tag).includes('拆回钱供读'))
+      && autumnLowerState.本年商路季务.some((tag) => String(tag).includes('拆秋尾药信'))
+      && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏身家冲突'))
+      && summerMidState.本年商路季务.some((tag) => String(tag).includes('拆伏夏回帖纸差'))
+      && winterUpperState.本年商路季务.some((tag) => String(tag).includes('拆冬头供差'))
+      && winterUpperState.本年商路季务.some((tag) => String(tag).includes('拆差票年礼'))
+      && winterUpperState.本年商路季务.some((tag) => String(tag).includes('拆冬头药信'))
+      && winterMidState.本年商路季务.some((tag) => String(tag).includes('拆拖欠供读'))
+      && winterMidState.本年商路季务.some((tag) => String(tag).includes('拆拖欠差话'))
+      && winterMidState.本年商路季务.some((tag) => String(tag).includes('拆冬中药拖'))
+      && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾供差药'))
+      && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾供身'))
+      && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾回签'))
+      && (autumnLower.window.__INV || []).length === 0
+      && (summerMid.window.__INV || []).length === 0
+      && (winterUpper.window.__INV || []).length === 0
+      && (winterMid.window.__INV || []).length === 0
+      && (winterLower.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantMidBodyChoiceRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(5252);
+    chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+    api.patchState(Object.assign({
+      识字: true,
+      商年: 1,
+      商季: season,
+      商段: xun,
+      铜钱: 820,
+      白银: 3,
+      存米: 3,
+      家族: 64,
+      体魄: 56,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 2,
+      商历练: 2,
+      未回款银: 1,
+      带本银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路拖欠: 0,
+      本年商路供读: 0,
+      本年商路身乏: 0,
+      本年商路龃龉: 0,
+      本年商路役扰: 0,
+      本年商路季务: []
+    }, extraPatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(new Array(20).fill(0.2));
+    return { api, elements, window };
+  }
+
+  const springMid = setupAt(1, 2, { 铜钱: 760, 未回款银: 0, 体魄: 55 });
+  const springMidStage = normalizeHtml(springMid.elements.get('stage').innerHTML);
+  pickByPlan(springMid.api, ['m_packet', 'm_spring_mid_school', 'm_spring_mid_body']);
+  springMid.api.commit();
+  const springMidResolve = normalizeHtml(springMid.elements.get('stage').innerHTML);
+  const springMidState = clone(springMid.api.getState());
+
+  const autumnMid = setupAt(3, 2, { 铜钱: 860, 未回款银: 2, 体魄: 54 });
+  const autumnMidStage = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  pickByPlan(autumnMid.api, ['m_autumn_mid_bundle', 'm_autumn_mid_school', 'm_autumn_mid_body']);
+  autumnMid.api.commit();
+  const autumnMidResolve = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  const autumnMidState = clone(autumnMid.api.getState());
+  const phaseTrace = clone(autumnMid.api.getPhaseTrace ? autumnMid.api.getPhaseTrace() : []);
+
+  return {
+    springMid: {
+      stage: springMidStage,
+      resolve: springMidResolve,
+      state: {
+        本年商路问价: springMidState.本年商路问价,
+        本年商路家书: springMidState.本年商路家书,
+        本年商路供读: springMidState.本年商路供读,
+        本年商路备役: springMidState.本年商路备役,
+        本年商路歇养: springMidState.本年商路歇养,
+        体魄: springMidState.体魄,
+        家族: springMidState.家族,
+        本年商路季务: springMidState.本年商路季务
+      },
+      ok: springMidStage.includes('先把春中药包与样价脚费分开')
+        && springMidResolve.includes('先把春中药包与样价脚费分开')
+        && springMidResolve.includes('〔开路回话〕')
+        && springMidState.本年商路问价 >= 1
+        && springMidState.本年商路家书 >= 2
+        && springMidState.本年商路供读 >= 1
+        && springMidState.本年商路备役 >= 1
+        && springMidState.本年商路歇养 >= 1
+        && springMidState.家族 >= 66
+        && Array.isArray(springMidState.本年商路季务)
+        && springMidState.本年商路季务.some((tag) => String(tag).includes('拆春中药脚'))
+        && springMidState.本年商路季务.some((tag) => String(tag).includes('开路回话已压'))
+        && (springMid.window.__INV || []).length === 0
+    },
+    autumnMid: {
+      stage: autumnMidStage,
+      resolve: autumnMidResolve,
+      state: {
+        本年商路核账: autumnMidState.本年商路核账,
+        本年商路问价: autumnMidState.本年商路问价,
+        本年商路家书: autumnMidState.本年商路家书,
+        本年商路供读: autumnMidState.本年商路供读,
+        本年商路备役: autumnMidState.本年商路备役,
+        本年商路拖欠: autumnMidState.本年商路拖欠,
+        本年商路歇养: autumnMidState.本年商路歇养,
+        体魄: autumnMidState.体魄,
+        家族: autumnMidState.家族,
+        本年商路季务: autumnMidState.本年商路季务
+      },
+      ok: autumnMidStage.includes('先把秋中药包与试手脚费分开')
+        && autumnMidResolve.includes('先把秋中药包与试手脚费分开')
+        && autumnMidResolve.includes('〔试贩门包〕')
+        && autumnMidState.本年商路核账 >= 1
+        && autumnMidState.本年商路问价 >= 1
+        && autumnMidState.本年商路家书 >= 2
+        && autumnMidState.本年商路供读 >= 1
+        && autumnMidState.本年商路备役 >= 1
+        && autumnMidState.本年商路拖欠 >= 1
+        && autumnMidState.本年商路歇养 >= 1
+        && autumnMidState.家族 >= 66
+        && Array.isArray(autumnMidState.本年商路季务)
+        && autumnMidState.本年商路季务.some((tag) => String(tag).includes('拆秋中药脚'))
+        && autumnMidState.本年商路季务.some((tag) => String(tag).includes('试贩门包已分'))
+        && includesOrderedPhases(phaseTrace, ['merchant'])
+        && (autumnMid.window.__INV || []).length === 0
+    },
+    ok: springMidStage.includes('先把春中药包与样价脚费分开')
+      && autumnMidStage.includes('先把秋中药包与试手脚费分开')
+      && springMidResolve.includes('〔开路回话〕')
+      && autumnMidResolve.includes('〔试贩门包〕')
+      && springMidState.本年商路季务.some((tag) => String(tag).includes('拆春中药脚'))
+      && autumnMidState.本年商路季务.some((tag) => String(tag).includes('拆秋中药脚'))
+      && (springMid.window.__INV || []).length === 0
+      && (autumnMid.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantWinterRemittanceChoiceRegression() {
+  function setupAt(xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(5353);
+    chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+    api.patchState(Object.assign({
+      识字: true,
+      商年: 1,
+      商季: 4,
+      商段: xun,
+      铜钱: 820,
+      白银: 4,
+      存米: 3,
+      家族: 64,
+      体魄: 56,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 2,
+      商历练: 2,
+      累计回钱银: 2,
+      累计反哺银: 0,
+      商路供读银: 0,
+      未回款银: 1,
+      带本银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路拖欠: 0,
+      本年商路供读: 0,
+      本年商路反哺银: 0,
+      本年商路季务: []
+    }, extraPatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(new Array(20).fill(0.2));
+    return { api, elements, window };
+  }
+
+  const winterUpper = setupAt(1, { 白银: 4, 累计回钱银: 2, 未回款银: 1 });
+  const winterUpperStage = normalizeHtml(winterUpper.elements.get('stage').innerHTML);
+  pickByPlan(winterUpper.api, ['m_winter_head_remit_duty', 'm_winter_head_packet', 'm_collect']);
+  winterUpper.api.commit();
+  const winterUpperResolve = normalizeHtml(winterUpper.elements.get('stage').innerHTML);
+  const winterUpperState = clone(winterUpper.api.getState());
+
+  const winterMid = setupAt(2, { 白银: 4, 累计回钱银: 2, 未回款银: 1, 体魄: 55 });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['m_winter_mid_remit_school', 'm_clear_packet', 'm_collect']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+
+  const winterLower = setupAt(3, { 白银: 4, 累计回钱银: 2, 未回款银: 2 });
+  const winterLowerStage = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  pickByPlan(winterLower.api, ['m_winter_tail_remit_drag', 'm_winter_tail', 'm_collect']);
+  winterLower.api.commit();
+  const winterLowerResolve = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  const winterLowerState = clone(winterLower.api.getState());
+  const phaseTrace = clone(winterLower.api.getPhaseTrace ? winterLower.api.getPhaseTrace() : []);
+
+  return {
+    winterUpper: {
+      stage: winterUpperStage,
+      resolve: winterUpperResolve,
+      state: {
+        累计反哺银: winterUpperState.累计反哺银,
+        本年商路贴家: winterUpperState.本年商路贴家,
+        本年商路备役: winterUpperState.本年商路备役,
+        本年商路家书: winterUpperState.本年商路家书,
+        家族: winterUpperState.家族,
+        本年商路季务: winterUpperState.本年商路季务
+      },
+      ok: winterUpperStage.includes('先把冬头回钱拆作锅火与差票')
+        && winterUpperResolve.includes('先把冬头回钱拆作锅火与差票')
+        && winterUpperResolve.includes('〔年关路费〕')
+        && winterUpperState.累计反哺银 >= 1
+        && winterUpperState.本年商路贴家 >= 1
+        && winterUpperState.本年商路备役 >= 1
+        && winterUpperState.本年商路家书 >= 2
+        && winterUpperState.家族 >= 66
+        && Array.isArray(winterUpperState.本年商路季务)
+        && winterUpperState.本年商路季务.some((tag) => String(tag).includes('拆冬头回钱'))
+        && winterUpperState.本年商路季务.some((tag) => String(tag).includes('年关路费已分'))
+        && (winterUpper.window.__INV || []).length === 0
+    },
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        累计反哺银: winterMidState.累计反哺银,
+        商路供读银: winterMidState.商路供读银,
+        本年商路供读: winterMidState.本年商路供读,
+        本年商路家书: winterMidState.本年商路家书,
+        本年商路歇养: winterMidState.本年商路歇养,
+        体魄: winterMidState.体魄,
+        家族: winterMidState.家族,
+        本年商路季务: winterMidState.本年商路季务
+      },
+      ok: winterMidStage.includes('先把冬中回钱拆作供读与药包')
+        && winterMidResolve.includes('先把冬中回钱拆作供读与药包')
+        && winterMidResolve.includes('〔清账回话〕')
+        && winterMidState.累计反哺银 >= 1
+        && winterMidState.商路供读银 >= 1
+        && winterMidState.本年商路供读 >= 1
+        && winterMidState.本年商路家书 >= 2
+        && winterMidState.本年商路歇养 >= 1
+        && winterMidState.体魄 >= 52
+        && winterMidState.家族 >= 65
+        && Array.isArray(winterMidState.本年商路季务)
+        && winterMidState.本年商路季务.some((tag) => String(tag).includes('拆冬中回钱'))
+        && winterMidState.本年商路季务.some((tag) => String(tag).includes('清账回话已压'))
+        && (winterMid.window.__INV || []).length === 0
+    },
+    winterLower: {
+      stage: winterLowerStage,
+      resolve: winterLowerResolve,
+      state: {
+        累计反哺银: winterLowerState.累计反哺银,
+        本年商路贴家: winterLowerState.本年商路贴家,
+        本年商路催账: winterLowerState.本年商路催账,
+        本年商路拖欠: winterLowerState.本年商路拖欠,
+        本年商路家书: winterLowerState.本年商路家书,
+        家族: winterLowerState.家族,
+        本年商路季务: winterLowerState.本年商路季务
+      },
+      ok: winterLowerStage.includes('先把年下回钱拆作拖欠与锅火')
+        && winterLowerResolve.includes('先把年下回钱拆作拖欠与锅火')
+        && winterLowerResolve.includes('〔年下客礼〕')
+        && winterLowerState.累计反哺银 >= 1
+        && winterLowerState.本年商路贴家 >= 1
+        && winterLowerState.本年商路催账 >= 2
+        && winterLowerState.本年商路拖欠 >= 2
+        && winterLowerState.本年商路家书 >= 2
+        && winterLowerState.家族 >= 66
+        && Array.isArray(winterLowerState.本年商路季务)
+        && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾回钱'))
+        && winterLowerState.本年商路季务.some((tag) => String(tag).includes('年下客礼已分'))
+        && includesOrderedPhases(phaseTrace, ['merchant'])
+        && (winterLower.window.__INV || []).length === 0
+    },
+    ok: winterUpperStage.includes('先把冬头回钱拆作锅火与差票')
+      && winterMidStage.includes('先把冬中回钱拆作供读与药包')
+      && winterLowerStage.includes('先把年下回钱拆作拖欠与锅火')
+      && winterUpperResolve.includes('〔年关路费〕')
+      && winterMidResolve.includes('〔清账回话〕')
+      && winterLowerResolve.includes('〔年下客礼〕')
+      && winterUpperState.本年商路季务.some((tag) => String(tag).includes('拆冬头回钱'))
+      && winterMidState.本年商路季务.some((tag) => String(tag).includes('拆冬中回钱'))
+      && winterLowerState.本年商路季务.some((tag) => String(tag).includes('拆冬尾回钱'))
+      && (winterUpper.window.__INV || []).length === 0
+      && (winterMid.window.__INV || []).length === 0
+      && (winterLower.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantAutumnRemittanceChoiceRegression() {
+  function setupAt(extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(4361);
+    chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+    api.patchState(Object.assign({
+      识字: true,
+      商年: 1,
+      商季: 3,
+      商段: 3,
+      铜钱: 720,
+      白银: 4,
+      存米: 3,
+      家族: 64,
+      体魄: 57,
+      识货进度: 1,
+      账房进度: 1,
+      商信誉: 2,
+      商历练: 2,
+      累计回钱银: 2,
+      累计反哺银: 0,
+      商路供读银: 0,
+      未回款银: 1,
+      带本银: 0,
+      本年商路坐店: 0,
+      本年商路跑单: 0,
+      本年商路认货: 0,
+      本年商路问价: 0,
+      本年商路核账: 0,
+      本年商路催账: 0,
+      本年商路贴家: 0,
+      本年商路归乡: 0,
+      本年商路家书: 0,
+      本年商路试贩: 0,
+      本年商路备役: 0,
+      本年商路歇养: 0,
+      本年商路拖欠: 0,
+      本年商路供读: 0,
+      本年商路反哺银: 0,
+      本年商路季务: []
+    }, extraPatch || {}));
+    api.enterPhase('merchant');
+    api.setRandomSequence(new Array(20).fill(0.2));
+    return { api, elements, window };
+  }
+
+  const autumnLower = setupAt();
+  const stage = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  pickByPlan(autumnLower.api, ['m_autumn_tail_remit_duty', 'm_autumn_tail_duty', 'm_collect']);
+  autumnLower.api.commit();
+  const resolve = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  const state = clone(autumnLower.api.getState());
+
+  return {
+    stage,
+    resolve,
+    state: {
+      累计反哺银: state.累计反哺银,
+      商路供读银: state.商路供读银,
+      本年商路供读: state.本年商路供读,
+      本年商路贴家: state.本年商路贴家,
+      本年商路备役: state.本年商路备役,
+      本年商路家书: state.本年商路家书,
+      家族: state.家族,
+      本年商路季务: state.本年商路季务
+    },
+    ok: stage.includes('先把秋尾回钱拆作供读与差票')
+      && resolve.includes('先把秋尾回钱拆作供读与差票')
+      && resolve.includes('〔回钱碎耗〕')
+      && state.累计反哺银 >= 1
+      && state.商路供读银 >= 1
+      && state.本年商路供读 >= 1
+      && state.本年商路贴家 >= 1
+      && state.本年商路备役 >= 2
+      && state.本年商路家书 >= 2
+      && state.家族 >= 66
+      && Array.isArray(state.本年商路季务)
+      && state.本年商路季务.some((tag) => String(tag).includes('拆秋尾回钱'))
+      && state.本年商路季务.some((tag) => String(tag).includes('回钱碎耗已拆'))
+      && (autumnLower.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantLifecycleDeepReplayRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(5454);
+  chooseRoute(api, '路径四 · 徽商式亦贾亦儒');
+  api.patchState({
+    识字: true,
+    铜钱: 760,
+    白银: 4,
+    存米: 4,
+    家族: 66,
+    体魄: 58,
+    识货进度: 1,
+    账房进度: 1,
+    商信誉: 2,
+    商历练: 1,
+    未回款银: 0,
+    累计回钱银: 0,
+    累计反哺银: 0,
+    商路供读银: 0
+  });
+  api.enterPhase('merchant');
+  api.setRandomSequence(new Array(240).fill(0.2));
+
+  const seen = {
+    springDuty: false,
+    springSupply: false,
+    summerSupply: false,
+    autumnDuty: false,
+    autumnTrial: false,
+    autumnSupply: false,
+    winterHeadRemit: false,
+    winterMidRemit: false,
+    winterTailRemit: false,
+    winterTailBody: false
+  };
+  const merchantSteps = [];
+  let guard = 0;
+  while (api.getPhase() === 'merchant' && guard < 40) {
+    const stage = normalizeHtml(elements.get('stage').innerHTML);
+    const picked = pickByPlan(api, phasePlan(api));
+    api.commit();
+    const resolve = normalizeHtml(elements.get('stage').innerHTML);
+    merchantSteps.push({
+      season: api.getState().商季,
+      xun: api.getState().商段,
+      picked,
+      resolve
+    });
+    seen.springDuty = seen.springDuty || stage.includes('先把春头差钱口风与柜签门包分开') || resolve.includes('先把春头差钱口风与柜签门包分开');
+    seen.springSupply = seen.springSupply || stage.includes('先把春尾供读纸包与差钱口风分开') || resolve.includes('先把春尾供读纸包与差钱口风分开');
+    seen.summerSupply = seen.summerSupply || stage.includes('先把伏夏差帖与供读纸样分开') || resolve.includes('先把伏夏差帖与供读纸样分开');
+    seen.autumnDuty = seen.autumnDuty || stage.includes('先把秋头差帖与回钱脚单分开') || resolve.includes('先把秋头差帖与回钱脚单分开');
+    seen.autumnTrial = seen.autumnTrial || stage.includes('先把试本口风与牙行照面坐实') || stage.includes('先把试本口风与牙帖回话坐实') || resolve.includes('先把试本口风与牙行照面坐实') || resolve.includes('先把试本口风与牙帖回话坐实') || resolve.includes('争取带本试贩');
+    seen.autumnSupply = seen.autumnSupply || stage.includes('先把回钱拆作锅火与供读纸包') || resolve.includes('先把回钱拆作锅火与供读纸包') || resolve.includes('寄银回家供读');
+    seen.winterHeadRemit = seen.winterHeadRemit || stage.includes('先把冬头回钱拆作锅火与差票') || resolve.includes('先把冬头回钱拆作锅火与差票');
+    seen.winterMidRemit = seen.winterMidRemit || stage.includes('先把冬中回钱拆作供读与药包') || resolve.includes('先把冬中回钱拆作供读与药包');
+    seen.winterTailRemit = seen.winterTailRemit || stage.includes('先把年下回钱拆作拖欠与锅火') || resolve.includes('先把年下回钱拆作拖欠与锅火');
+    seen.winterTailBody = seen.winterTailBody || stage.includes('先把冬尾药包与供读家书分开') || resolve.includes('先把冬尾药包与供读家书分开');
+    api.next();
+    guard += 1;
+  }
+
+  const postMerchant = clone(api.getState());
+  const postMerchantPhase = api.getPhase();
+  const carry = playCurrentLifeToDeath(api);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+  const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    seen,
+    merchantSteps: merchantSteps.length,
+    postMerchant: {
+      phase: postMerchantPhase,
+      age: postMerchant.年龄,
+      累计回钱银: postMerchant.累计回钱银,
+      累计反哺银: postMerchant.累计反哺银,
+      商路供读银: postMerchant.商路供读银,
+      商历练: postMerchant.商历练,
+      识货进度: postMerchant.识货进度,
+      账房进度: postMerchant.账房进度,
+      商信誉: postMerchant.商信誉,
+      家族: postMerchant.家族
+    },
+    carry,
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: merchantSteps.length === 36
+      && postMerchantPhase === 'marriage'
+      && postMerchant.年龄 === 22
+      && postMerchant.累计回钱银 >= 1
+      && postMerchant.累计反哺银 >= 1
+      && postMerchant.商路供读银 >= 1
+      && postMerchant.商历练 >= 6
+      && postMerchant.识货进度 >= 4
+      && postMerchant.账房进度 >= 4
+      && postMerchant.商信誉 >= 4
+      && postMerchant.家族 >= 55
+      && seen.springDuty
+      && seen.springSupply
+      && seen.summerSupply
+      && seen.autumnDuty
+      && seen.autumnTrial
+      && seen.autumnSupply
+      && seen.winterHeadRemit
+      && seen.winterMidRemit
+      && seen.winterTailRemit
+      && seen.winterTailBody
+      && includesOrderedPhases(phaseTrace, ['merchant', 'marriage', 'family', 'household', 'elder', 'death'])
+      && deathStage.includes('死亡')
+      && carry.父辈路线 === '徽商式亦贾亦儒'
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runFamilyAdultRhythmRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 25,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 3,
+    铜钱: 820,
+    存米: 5,
+    家族: 64,
+    负债银: 1,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 2,
+    累计反哺银: 1,
+    商路供读银: 0
+  });
+  api.enterPhase('family');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_letter', 'f_repair']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_market', 'f_route_remit', 'f_child']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_school', 'f_duty', 'f_mend']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_wharf', 'f_repair']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_sell', 'f_market', 'f_route_bundle']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_collect', 'f_repay', 'f_mend']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_child', 'f_route_autumn_quote']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_social', 'f_route_autumn_split', 'f_market']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_duty', 'f_mend', 'f_route_school']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_rest', 'f_route_winter_book']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_sell', 'f_market', 'f_child']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_duty', 'f_mend', 'f_route_school']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  api.next();
+
+  const nextYearStage = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      stageSpringLower,
+      stageSummerUpper,
+      stageSummerMid,
+      stageSummerLower,
+      stageAutumnUpper,
+      stageAutumnMid,
+      stageAutumnLower,
+      stageWinterUpper,
+      stageWinterMid,
+      stageWinterLower,
+      nextYearStage
+    },
+    postSpringUpper: {
+      家季: postSpringUpper.家季,
+      家旬: postSpringUpper.家旬,
+      本年家做活: postSpringUpper.本年家做活,
+      本年家照家: postSpringUpper.本年家照家,
+      本年家捎信: postSpringUpper.本年家捎信
+    },
+    postSpringMid: {
+      家季: postSpringMid.家季,
+      家旬: postSpringMid.家旬,
+      本年家问价: postSpringMid.本年家问价,
+      本年家贴家: postSpringMid.本年家贴家,
+      累计反哺银: postSpringMid.累计反哺银
+    },
+    postSpringLower: {
+      家季: postSpringLower.家季,
+      家旬: postSpringLower.家旬,
+      本年家备役: postSpringLower.本年家备役,
+      本年家衣药: postSpringLower.本年家衣药
+    },
+    postSummerUpper: {
+      家季: postSummerUpper.家季,
+      家旬: postSummerUpper.家旬,
+      本年家修缮: postSummerUpper.本年家修缮
+    },
+    postSummerMid: {
+      家季: postSummerMid.家季,
+      家旬: postSummerMid.家旬,
+      本年家问价: postSummerMid.本年家问价,
+      本年家粜米: postSummerMid.本年家粜米
+    },
+    postSummerLower: {
+      家季: postSummerLower.家季,
+      家旬: postSummerLower.家旬,
+      本年家催账: postSummerLower.本年家催账,
+      未回款银: postSummerLower.未回款银,
+      负债银: postSummerLower.负债银
+    },
+    postAutumnUpper: {
+      家季: postAutumnUpper.家季,
+      家旬: postAutumnUpper.家旬,
+      本年家照家: postAutumnUpper.本年家照家
+    },
+    postAutumnMid: {
+      家季: postAutumnMid.家季,
+      家旬: postAutumnMid.家旬,
+      本年家通融: postAutumnMid.本年家通融,
+      本年家贴家: postAutumnMid.本年家贴家
+    },
+    postAutumnLower: {
+      家季: postAutumnLower.家季,
+      家旬: postAutumnLower.家旬,
+      本年家备役: postAutumnLower.本年家备役,
+      本年家衣药: postAutumnLower.本年家衣药,
+      本年家贴家: postAutumnLower.本年家贴家
+    },
+    postWinterMid: {
+      家季: postWinterMid.家季,
+      家旬: postWinterMid.家旬,
+      本年家问价: postWinterMid.本年家问价,
+      本年家粜米: postWinterMid.本年家粜米,
+      本年家将养: postWinterMid.本年家将养,
+      本年家季务: postWinterMid.本年家季务
+    },
+    postWinterLower: {
+      家年: postWinterLower.家年,
+      家季: postWinterLower.家季,
+      家旬: postWinterLower.家旬,
+      本年家问价: postWinterLower.本年家问价,
+      本年家粜米: postWinterLower.本年家粜米,
+      本年家贴家: postWinterLower.本年家贴家,
+      本年家催账: postWinterLower.本年家催账,
+      本年家备役: postWinterLower.本年家备役,
+      本年家季务: postWinterLower.本年家季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('春起')
+      && stageSpringUpper.includes('上旬')
+      && stageSpringUpper.includes('3 个行动点')
+      && stageSpringMid.includes('春起')
+      && stageSpringMid.includes('中旬')
+      && stageSpringLower.includes('春起')
+      && stageSpringLower.includes('下旬')
+      && stageSummerUpper.includes('夏长')
+      && stageSummerUpper.includes('上旬')
+      && stageSummerMid.includes('夏长')
+      && stageSummerMid.includes('中旬')
+      && stageSummerLower.includes('夏长')
+      && stageSummerLower.includes('下旬')
+      && stageAutumnUpper.includes('秋收')
+      && stageAutumnUpper.includes('上旬')
+      && stageAutumnMid.includes('秋收')
+      && stageAutumnMid.includes('中旬')
+      && stageAutumnLower.includes('秋收')
+      && stageAutumnLower.includes('下旬')
+      && stageWinterUpper.includes('冬藏')
+      && stageWinterUpper.includes('上旬')
+      && stageWinterMid.includes('冬藏')
+      && stageWinterMid.includes('中旬')
+      && stageWinterLower.includes('冬藏')
+      && stageWinterLower.includes('下旬')
+      && postSpringUpper.本年家做活 >= 1
+      && postSpringUpper.本年家捎信 >= 1
+      && postSpringMid.本年家问价 >= 1
+      && postSpringMid.本年家贴家 >= 1
+      && postSpringMid.累计反哺银 >= 2
+      && postSpringLower.本年家备役 >= 1
+      && postSpringLower.本年家衣药 >= 1
+      && postSummerUpper.本年家修缮 >= 1
+      && postSummerMid.本年家问价 >= 2
+      && postSummerMid.本年家捎信 >= 1
+      && postSummerMid.本年家通融 >= 1
+      && postSummerMid.本年家供读 >= 1
+      && postSummerMid.本年家粜米 >= 1
+      && postSummerLower.本年家催账 >= 1
+      && postSummerLower.未回款银 === 0
+      && postSummerLower.负债银 === 0
+      && postAutumnUpper.本年家照家 >= 1
+      && postAutumnMid.本年家通融 >= 1
+      && postAutumnMid.本年家贴家 >= 2
+      && postAutumnLower.本年家备役 >= 2
+      && postAutumnLower.本年家衣药 >= 2
+      && postAutumnLower.本年家贴家 >= 2
+      && postWinterMid.本年家问价 >= 3
+      && postWinterMid.本年家粜米 >= 2
+      && postWinterMid.本年家将养 >= 1
+      && Array.isArray(postWinterMid.本年家季务)
+      && postWinterMid.本年家季务.length >= 14
+      && nextYearStage.includes('第2年')
+      && nextYearStage.includes('春起')
+      && nextYearStage.includes('上旬')
+      && postWinterLower.家年 === 2
+      && postWinterLower.家季 === 1
+      && postWinterLower.家旬 === 1
+      && postWinterLower.本年家问价 === 0
+      && postWinterLower.本年家粜米 === 0
+      && postWinterLower.本年家贴家 === 0
+      && postWinterLower.本年家催账 === 0
+      && postWinterLower.本年家备役 === 0
+      && Array.isArray(postWinterLower.本年家季务)
+      && postWinterLower.本年家季务.length === 0
+      && includesOrderedPhases(phaseTrace, ['family'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runFarmFamilySeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 26,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 2,
+    铜钱: 2500,
+    存米: 6,
+    家族: 65,
+    负债银: 1,
+    农事历练: 3,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    婚配路径: '定额佃缓婚'
+  });
+  api.enterPhase('family');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_farm_note', 'f_repair']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_market', 'f_route_farm_split', 'f_child']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_farm_store', 'f_duty', 'f_mend']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const resolveSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_farm_note', 'f_repair']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_farm_split', 'f_cool', 'f_child']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_farm_store', 'f_duty', 'f_rest']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_farm_note', 'f_child']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_market', 'f_route_farm_split', 'f_social']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_farm_store', 'f_duty', 'f_mend']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_farm_note', 'f_repair']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_farm_split', 'f_rest', 'f_child']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_farm_store', 'f_duty', 'f_mend']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  api.next();
+
+  const nextYearStage = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      stageSpringLower,
+      resolveSpringLower,
+      stageSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      stageAutumnUpper,
+      stageAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper,
+      stageWinterMid,
+      stageWinterLower,
+      nextYearStage
+    },
+    postSpringUpper: {
+      本年家修缮: postSpringUpper.本年家修缮,
+      本年家通融: postSpringUpper.本年家通融,
+      本年家问价: postSpringUpper.本年家问价
+    },
+    postSpringMid: {
+      本年家贴家: postSpringMid.本年家贴家,
+      本年家照家: postSpringMid.本年家照家,
+      本年家问价: postSpringMid.本年家问价
+    },
+    postSpringLower: {
+      本年家备役: postSpringLower.本年家备役,
+      本年家通融: postSpringLower.本年家通融,
+      本年家衣药: postSpringLower.本年家衣药,
+      本年家季务: postSpringLower.本年家季务
+    },
+    postSummerMid: {
+      本年家贴家: postSummerMid.本年家贴家,
+      本年家衣药: postSummerMid.本年家衣药,
+      本年家照家: postSummerMid.本年家照家
+    },
+    postSummerLower: {
+      本年家备役: postSummerLower.本年家备役,
+      本年家通融: postSummerLower.本年家通融
+    },
+    postAutumnUpper: {
+      本年家问价: postAutumnUpper.本年家问价,
+      本年家照家: postAutumnUpper.本年家照家
+    },
+    postAutumnMid: {
+      存米: postAutumnMid.存米,
+      本年家贴家: postAutumnMid.本年家贴家,
+      本年家备役: postAutumnMid.本年家备役
+    },
+    postWinterUpper: {
+      本年家修缮: postWinterUpper.本年家修缮,
+      本年家通融: postWinterUpper.本年家通融,
+      本年家季务: postWinterUpper.本年家季务
+    },
+    postWinterMid: {
+      铜钱: postWinterMid.铜钱,
+      本年家贴家: postWinterMid.本年家贴家,
+      本年家季务: postWinterMid.本年家季务
+    },
+    postWinterLower: {
+      家年: postWinterLower.家年,
+      家季: postWinterLower.家季,
+      家旬: postWinterLower.家旬,
+      本年家季务: postWinterLower.本年家季务,
+      本年家贴家: postWinterLower.本年家贴家,
+      本年家备役: postWinterLower.本年家备役
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('先问佃例与水口')
+      && stageSpringMid.includes('把春钱拆作籽种与锅火')
+      && stageSpringLower.includes('先记换工与佃账')
+      && stageSummerUpper.includes('先托邻保水口')
+      && stageSummerMid.includes('把伏夏钱拆作凉药与草绳')
+      && resolveSummerMid.includes('〔田头小耗〕')
+      && stageAutumnUpper.includes('先问今年租话与米路')
+      && stageAutumnMid.includes('把秋粮拆作纳租与锅火')
+      && stageAutumnLower.includes('先把租谷与差票分开收住')
+      && resolveAutumnLower.includes('〔租谷差票〕')
+      && stageWinterUpper.includes('年关先点谷种与仓脚')
+      && resolveWinterUpper.includes('〔谷种仓脚〕')
+      && stageWinterMid.includes('把冬钱拆作灯油与明春谷种')
+      && stageWinterLower.includes('先把修渠钱与年礼分开')
+      && postSpringUpper.本年家修缮 >= 1
+      && postSpringUpper.本年家通融 >= 1
+      && postSpringUpper.本年家问价 >= 1
+      && postSpringMid.本年家贴家 >= 1
+      && postSpringMid.本年家照家 >= 2
+      && postSpringMid.本年家问价 >= 2
+      && postSpringLower.本年家备役 >= 2
+      && postSpringLower.本年家通融 >= 2
+      && postSpringLower.本年家衣药 >= 1
+      && Array.isArray(postSpringLower.本年家季务)
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('春尾香纸已分'))
+      && resolveSpringLower.includes('〔春尾香纸〕')
+      && postSummerMid.本年家贴家 >= 2
+      && postSummerMid.本年家衣药 >= 2
+      && postSummerMid.本年家照家 >= 3
+      && postSummerLower.本年家备役 >= 3
+      && postSummerLower.本年家通融 >= 4
+      && postAutumnUpper.本年家问价 >= 3
+      && postAutumnUpper.本年家照家 >= 4
+      && postAutumnMid.存米 >= 4
+      && postAutumnMid.本年家贴家 >= 3
+      && postAutumnMid.本年家备役 >= 4
+      && Array.isArray(postWinterUpper.本年家季务)
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('春问佃例'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('春拆籽种'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('春记换工'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('保水口'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('夏拆凉药'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('夏留秋租'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋问租话'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋拆租谷'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋收租票'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('点谷种仓脚'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('田头小耗已顾'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('租谷差票已分'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('谷种仓脚已分'))
+      && postWinterMid.铜钱 >= 500
+      && postWinterMid.本年家贴家 >= 4
+      && Array.isArray(postWinterMid.本年家季务)
+      && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬拆种谷'))
+      && nextYearStage.includes('第2年')
+      && nextYearStage.includes('春起')
+      && nextYearStage.includes('上旬')
+      && postWinterLower.家年 === 2
+      && postWinterLower.家季 === 1
+      && postWinterLower.家旬 === 1
+      && Array.isArray(postWinterLower.本年家季务)
+      && postWinterLower.本年家季务.length === 0
+      && postWinterLower.本年家贴家 === 0
+      && postWinterLower.本年家备役 === 0
+      && includesOrderedPhases(phaseTrace, ['family'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runFarmFamilyChoiceDensityRegression() {
+  const spring = createHarness();
+  spring.api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 26,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 2,
+    铜钱: 2500,
+    存米: 6,
+    家族: 65,
+    负债银: 1,
+    农事历练: 3,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    婚配路径: '定额佃缓婚'
+  });
+  spring.api.enterPhase('family');
+  pickByPlan(spring.api, ['f_work', 'f_route_farm_note', 'f_repair']);
+  spring.api.commit();
+  spring.api.next();
+  pickByPlan(spring.api, ['f_market', 'f_route_farm_split', 'f_child']);
+  spring.api.commit();
+  spring.api.next();
+  const springStage = normalizeHtml(spring.elements.get('stage').innerHTML);
+  const springActions = Array.from(availableMap(spring.api).keys());
+  const springBefore = clone(spring.api.getState());
+  pickByPlan(spring.api, ['f_route_farm_store']);
+  spring.api.commit();
+  const springPost = clone(spring.api.getState());
+  const springResolve = normalizeHtml(spring.elements.get('stage').innerHTML);
+
+  const summer = createHarness();
+  summer.api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 26,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 2,
+    铜钱: 2500,
+    存米: 6,
+    家族: 65,
+    负债银: 1,
+    农事历练: 3,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    婚配路径: '定额佃缓婚'
+  });
+  summer.api.enterPhase('family');
+  pickByPlan(summer.api, ['f_work', 'f_route_farm_note', 'f_repair']);
+  summer.api.commit();
+  summer.api.next();
+  pickByPlan(summer.api, ['f_market', 'f_route_farm_split', 'f_child']);
+  summer.api.commit();
+  summer.api.next();
+  pickByPlan(summer.api, ['f_route_farm_store', 'f_duty', 'f_mend']);
+  summer.api.commit();
+  summer.api.next();
+  pickByPlan(summer.api, ['f_work', 'f_route_farm_note', 'f_repair']);
+  summer.api.commit();
+  summer.api.next();
+  const summerStage = normalizeHtml(summer.elements.get('stage').innerHTML);
+  const summerActions = Array.from(availableMap(summer.api).keys());
+  const summerBefore = clone(summer.api.getState());
+  pickByPlan(summer.api, ['f_route_farm_split']);
+  summer.api.commit();
+  const summerPost = clone(summer.api.getState());
+  const summerResolve = normalizeHtml(summer.elements.get('stage').innerHTML);
+
+  const autumn = createHarness();
+  autumn.api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 26,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 2,
+    铜钱: 2500,
+    存米: 6,
+    家族: 65,
+    负债银: 1,
+    农事历练: 3,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    婚配路径: '定额佃缓婚'
+  });
+  autumn.api.enterPhase('family');
+  pickByPlan(autumn.api, ['f_work', 'f_route_farm_note', 'f_repair']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['f_market', 'f_route_farm_split', 'f_child']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['f_route_farm_store', 'f_duty', 'f_mend']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['f_work', 'f_route_farm_note', 'f_repair']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['f_route_farm_split', 'f_cool', 'f_child']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['f_route_farm_store', 'f_duty', 'f_rest']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['f_work', 'f_route_farm_note', 'f_child']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['f_market', 'f_route_farm_split', 'f_social']);
+  autumn.api.commit();
+  autumn.api.next();
+  const autumnStage = normalizeHtml(autumn.elements.get('stage').innerHTML);
+  const autumnActions = Array.from(availableMap(autumn.api).keys());
+  const autumnBefore = clone(autumn.api.getState());
+  pickByPlan(autumn.api, ['f_route_farm_store']);
+  autumn.api.commit();
+  const autumnPost = clone(autumn.api.getState());
+  const autumnResolve = normalizeHtml(autumn.elements.get('stage').innerHTML);
+
+  const winter = createHarness();
+  winter.api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 26,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 2,
+    铜钱: 2500,
+    存米: 6,
+    家族: 65,
+    负债银: 1,
+    农事历练: 3,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    婚配路径: '定额佃缓婚'
+  });
+  winter.api.enterPhase('family');
+  pickByPlan(winter.api, ['f_work', 'f_route_farm_note', 'f_repair']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['f_market', 'f_route_farm_split', 'f_child']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['f_route_farm_store', 'f_duty', 'f_mend']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['f_work', 'f_route_farm_note', 'f_repair']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['f_route_farm_split', 'f_cool', 'f_child']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['f_route_farm_store', 'f_duty', 'f_rest']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['f_work', 'f_route_farm_note', 'f_child']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['f_market', 'f_route_farm_split', 'f_social']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['f_route_farm_store', 'f_duty', 'f_mend']);
+  winter.api.commit();
+  winter.api.next();
+  const winterStage = normalizeHtml(winter.elements.get('stage').innerHTML);
+  const winterActions = Array.from(availableMap(winter.api).keys());
+  const winterBefore = clone(winter.api.getState());
+  pickByPlan(winter.api, ['f_route_farm_note']);
+  winter.api.commit();
+  const winterPost = clone(winter.api.getState());
+  const winterResolve = normalizeHtml(winter.elements.get('stage').innerHTML);
+
+  return {
+    spring: {
+      stage: springStage,
+      actions: springActions,
+      beforeState: {
+        铜钱: springBefore.铜钱,
+        本年家通融: springBefore.本年家通融,
+        本年家备役: springBefore.本年家备役
+      },
+      postState: {
+        铜钱: springPost.铜钱,
+        本年家通融: springPost.本年家通融,
+        本年家备役: springPost.本年家备役,
+        本年家季务: springPost.本年家季务
+      },
+      resolve: springResolve
+    },
+    summer: {
+      stage: summerStage,
+      actions: summerActions,
+      beforeState: {
+        铜钱: summerBefore.铜钱,
+        本年家贴家: summerBefore.本年家贴家,
+        本年家衣药: summerBefore.本年家衣药
+      },
+      postState: {
+        铜钱: summerPost.铜钱,
+        本年家贴家: summerPost.本年家贴家,
+        本年家衣药: summerPost.本年家衣药,
+        本年家季务: summerPost.本年家季务
+      },
+      resolve: summerResolve
+    },
+    autumn: {
+      stage: autumnStage,
+      actions: autumnActions,
+      beforeState: {
+        铜钱: autumnBefore.铜钱,
+        本年家通融: autumnBefore.本年家通融,
+        本年家备役: autumnBefore.本年家备役
+      },
+      postState: {
+        铜钱: autumnPost.铜钱,
+        本年家通融: autumnPost.本年家通融,
+        本年家备役: autumnPost.本年家备役,
+        本年家季务: autumnPost.本年家季务
+      },
+      resolve: autumnResolve
+    },
+    winter: {
+      stage: winterStage,
+      actions: winterActions,
+      beforeState: {
+        铜钱: winterBefore.铜钱,
+        本年家通融: winterBefore.本年家通融
+      },
+      postState: {
+        铜钱: winterPost.铜钱,
+        本年家通融: winterPost.本年家通融,
+        本年家季务: winterPost.本年家季务
+      },
+      resolve: winterResolve
+    },
+    ok: springStage.includes('春起')
+      && springStage.includes('下旬')
+      && springStage.includes('先记换工与佃账')
+      && springActions.includes('f_route_farm_store')
+      && springPost.铜钱 <= springBefore.铜钱 - 40
+      && springPost.本年家通融 >= springBefore.本年家通融 + 1
+      && springPost.本年家备役 >= springBefore.本年家备役 + 1
+      && Array.isArray(springPost.本年家季务)
+      && springPost.本年家季务.some((tag) => String(tag).includes('春记换工'))
+      && springPost.本年家季务.some((tag) => String(tag).includes('春尾香纸已分'))
+      && springResolve.includes('〔春尾香纸〕')
+      && summerStage.includes('夏长')
+      && summerStage.includes('中旬')
+      && summerStage.includes('把伏夏钱拆作凉药与草绳')
+      && summerActions.includes('f_route_farm_split')
+      && summerPost.铜钱 <= summerBefore.铜钱 - 80
+      && summerPost.本年家贴家 === summerBefore.本年家贴家 + 1
+      && summerPost.本年家衣药 >= summerBefore.本年家衣药 + 1
+      && Array.isArray(summerPost.本年家季务)
+      && summerPost.本年家季务.some((tag) => String(tag).includes('夏拆凉药'))
+      && summerPost.本年家季务.some((tag) => String(tag).includes('田头小耗已顾'))
+      && summerResolve.includes('〔田头小耗〕')
+      && autumnStage.includes('秋收')
+      && autumnStage.includes('下旬')
+      && autumnStage.includes('先把租谷与差票分开收住')
+      && autumnActions.includes('f_route_farm_store')
+      && autumnPost.铜钱 <= autumnBefore.铜钱 - 60
+      && autumnPost.本年家通融 >= autumnBefore.本年家通融 + 1
+      && autumnPost.本年家备役 >= autumnBefore.本年家备役 + 1
+      && Array.isArray(autumnPost.本年家季务)
+      && autumnPost.本年家季务.some((tag) => String(tag).includes('秋收租票'))
+      && autumnPost.本年家季务.some((tag) => String(tag).includes('租谷差票已分'))
+      && autumnResolve.includes('〔租谷差票〕')
+      && winterStage.includes('冬藏')
+      && winterStage.includes('上旬')
+      && winterStage.includes('年关先点谷种与仓脚')
+      && winterActions.includes('f_route_farm_note')
+      && winterPost.铜钱 <= winterBefore.铜钱 - 35
+      && winterPost.本年家通融 >= winterBefore.本年家通融 + 1
+      && Array.isArray(winterPost.本年家季务)
+      && winterPost.本年家季务.some((tag) => String(tag).includes('点谷种仓脚'))
+      && winterPost.本年家季务.some((tag) => String(tag).includes('谷种仓脚已分'))
+      && winterResolve.includes('〔谷种仓脚〕')
+      && (spring.window.__INV || []).length === 0
+      && (summer.window.__INV || []).length === 0
+      && (autumn.window.__INV || []).length === 0
+      && (winter.window.__INV || []).length === 0
+  };
+}
+
+function runFarmHouseholdSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+  api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 4,
+    铜钱: 1800,
+    存米: 5,
+    田亩: 4,
+    家族: 67,
+    负债银: 0,
+    农事历练: 4,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    婚配路径: '定额佃缓婚',
+    委托营生: '无',
+    委托租谷: 0,
+    委托待收租谷: 0,
+    合爨状态: '已析爨',
+    应役: '未役'
+  });
+  api.enterPhase('household');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_literate', 'h_clan']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_hold_field', 'h_side']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_hire', 'h_rest']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_clan', 'h_side']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_literate', 'h_hire']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_rest', 'h_side']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_clan', 'h_hire']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_literate', 'h_side']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_pay']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_pay']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_clan', 'h_rest']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_literate', 'h_rest']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  const resolveWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const nextYearStage = normalizeHtml(elements.get('stage').innerHTML);
+  const nextYearState = clone(api.getState());
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSpringMid,
+      stageSpringLower,
+      stageSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnMid,
+      stageAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper,
+      stageWinterMid,
+      stageWinterLower,
+      resolveWinterLower,
+      nextYearStage
+    },
+    postSpringUpper: {
+      本年户核账: postSpringUpper.本年户核账,
+      本年户通融: postSpringUpper.本年户通融,
+      本年户季务: postSpringUpper.本年户季务
+    },
+    postSpringMid: {
+      委托营生: postSpringMid.委托营生,
+      存米: postSpringMid.存米,
+      本年户委托: postSpringMid.本年户委托,
+      本年户季务: postSpringMid.本年户季务
+    },
+    postSummerMid: {
+      本年户核账: postSummerMid.本年户核账,
+      本年户备役: postSummerMid.本年户备役,
+      本年户季务: postSummerMid.本年户季务
+    },
+    postAutumnUpper: {
+      本年户通融: postAutumnUpper.本年户通融,
+      本年户备役: postAutumnUpper.本年户备役,
+      本年户季务: postAutumnUpper.本年户季务
+    },
+    postWinterUpper: {
+      应役: postWinterUpper.应役,
+      本年户备役: postWinterUpper.本年户备役,
+      本年户季务: postWinterUpper.本年户季务
+    },
+    postWinterLower: {
+      应役: postWinterLower.应役,
+      存米: postWinterLower.存米,
+      本年户核账: postWinterLower.本年户核账,
+      本年户通融: postWinterLower.本年户通融,
+      本年户季务: postWinterLower.本年户季务
+    },
+    nextYearState: {
+      年龄: nextYearState.年龄,
+      户年: nextYearState.户年,
+      户季: nextYearState.户季,
+      户旬: nextYearState.户旬,
+      本年户核账: nextYearState.本年户核账,
+      本年户通融: nextYearState.本年户通融,
+      本年户备役: nextYearState.本年户备役,
+      本年户委托: nextYearState.本年户委托,
+      本年户季务: nextYearState.本年户季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('春分书')
+      && stageSummerUpper.includes('夏催账')
+      && stageAutumnUpper.includes('秋定租')
+      && stageWinterUpper.includes('冬应役')
+      && nextYearStage.includes('当户 · 春分书')
+      && nextYearStage.includes('39 岁')
+      && postSpringUpper.本年户核账 >= 1
+      && postSpringUpper.本年户通融 >= 1
+      && postSpringMid.委托营生 === '分得薄田自耕'
+      && postSpringMid.存米 >= 7
+      && postSpringMid.本年户委托 >= 1
+      && postSummerMid.本年户核账 >= 2
+      && postSummerMid.本年户备役 >= 2
+      && postAutumnUpper.本年户通融 >= 2
+      && postAutumnUpper.本年户备役 >= 3
+      && postWinterUpper.应役 === '纳银代役'
+      && postWinterUpper.本年户备役 >= 5
+      && postWinterLower.应役 === '纳银代役'
+      && postWinterLower.存米 >= 10
+      && resolveWinterLower.includes('〔守田承接〕')
+      && resolveWinterLower.includes('〔当役了讫〕')
+      && nextYearState.户年 === 2
+      && nextYearState.户季 === 1
+      && nextYearState.户旬 === 1
+      && nextYearState.本年户核账 === 0
+      && nextYearState.本年户通融 === 0
+      && nextYearState.本年户备役 === 0
+      && nextYearState.本年户委托 === 0
+      && Array.isArray(nextYearState.本年户季务)
+      && nextYearState.本年户季务.length === 0
+      && includesOrderedPhases(phaseTrace, ['household'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runFarmHouseholdChoiceDensityRegression() {
+  const spring = createHarness();
+  spring.api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+  spring.api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 4,
+    铜钱: 1800,
+    存米: 5,
+    田亩: 4,
+    家族: 67,
+    负债银: 0,
+    农事历练: 4,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    婚配路径: '定额佃缓婚',
+    委托营生: '无',
+    委托租谷: 0,
+    委托待收租谷: 0,
+    合爨状态: '已析爨',
+    应役: '未役'
+  });
+  spring.api.enterPhase('household');
+  pickByPlan(spring.api, ['h_literate', 'h_clan']);
+  spring.api.commit();
+  spring.api.next();
+  const springStage = normalizeHtml(spring.elements.get('stage').innerHTML);
+  const springActions = Array.from(availableMap(spring.api).keys());
+  pickByPlan(spring.api, ['h_hold_field', 'h_spring_mid_incense']);
+  spring.api.commit();
+  const springPost = clone(spring.api.getState());
+  const springResolve = normalizeHtml(spring.elements.get('stage').innerHTML);
+
+  const winter = createHarness();
+  winter.api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+  winter.api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 2,
+    铜钱: 1200,
+    存米: 9,
+    田亩: 4,
+    家族: 72,
+    负债银: 0,
+    农事历练: 4,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    婚配路径: '定额佃缓婚',
+    合爨状态: '已析爨',
+    委托营生: '无',
+    委托租谷: 0,
+    委托待收租谷: 0,
+    应役: '未役'
+  });
+  winter.api.enterPhase('household');
+  pickByPlan(winter.api, ['h_literate', 'h_clan']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['h_hold_field', 'h_spring_mid_incense']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['h_hire', 'h_rest']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['h_hire', 'h_side']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['h_hire', 'h_side']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['h_rest', 'h_side']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['h_side', 'h_rest']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['h_side', 'h_rest']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['h_side']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['h_pay']);
+  winter.api.commit();
+  winter.api.next();
+  const winterStage = normalizeHtml(winter.elements.get('stage').innerHTML);
+  const winterActions = Array.from(availableMap(winter.api).keys());
+  pickByPlan(winter.api, ['h_winter_mid_seed', 'h_rest']);
+  winter.api.commit();
+  const winterPost = clone(winter.api.getState());
+  const winterResolve = normalizeHtml(winter.elements.get('stage').innerHTML);
+
+  return {
+    spring: {
+      stage: springStage,
+      actions: springActions,
+      postState: {
+        铜钱: springPost.铜钱,
+        存米: springPost.存米,
+        家族: springPost.家族,
+        本年户核账: springPost.本年户核账,
+        本年户通融: springPost.本年户通融,
+        本年户委托: springPost.本年户委托,
+        本年户季务: springPost.本年户季务
+      },
+      resolve: springResolve
+    },
+    winter: {
+      stage: winterStage,
+      actions: winterActions,
+      postState: {
+        铜钱: winterPost.铜钱,
+        家族: winterPost.家族,
+        本年户核账: winterPost.本年户核账,
+        本年户备役: winterPost.本年户备役,
+        本年户季务: winterPost.本年户季务
+      },
+      resolve: winterResolve
+    },
+    ok: springStage.includes('春分书')
+      && springStage.includes('中旬')
+      && springStage.includes('先把春中水口脚费与清明香纸分开')
+      && springActions.includes('h_spring_mid_incense')
+      && springPost.存米 >= 8
+      && springPost.本年户核账 >= 2
+      && springPost.本年户通融 >= 2
+      && Array.isArray(springPost.本年户季务)
+      && springPost.本年户季务.some((tag) => String(tag).includes('春中水口香纸'))
+      && springPost.本年户季务.some((tag) => String(tag).includes('春中香纸已分'))
+      && springResolve.includes('〔春中香纸〕')
+      && winterStage.includes('冬应役')
+      && winterStage.includes('中旬')
+      && winterStage.includes('先把冬中佃账回签与灯炭谷种分开')
+      && winterActions.includes('h_winter_mid_seed')
+      && winterPost.本年户核账 >= 2
+      && winterPost.本年户备役 >= 5
+      && Array.isArray(winterPost.本年户季务)
+      && winterPost.本年户季务.some((tag) => String(tag).includes('冬中佃账回签'))
+      && winterPost.本年户季务.some((tag) => String(tag).includes('冬中佃签已理'))
+      && winterResolve.includes('〔冬中佃签〕')
+      && (spring.window.__INV || []).length === 0
+      && (winter.window.__INV || []).length === 0
+  };
+}
+
+function runFarmElderSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSequence(new Array(24).fill(0.01));
+  api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 52,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    体魄: 58,
+    白银: 3,
+    铜钱: 1400,
+    存米: 4,
+    田亩: 4,
+    口食田: 1,
+    家族: 68,
+    负债银: 0,
+    农事历练: 4,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    合爨状态: '已析爨',
+    委托营生: '分得薄田自耕',
+    委托租谷: 0,
+    委托待收租谷: 0
+  });
+  api.enterPhase('elder');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_negotiate']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_field_keep', 'e_rest']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_rest']);
+  api.commit();
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_med']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_field_summer_old', 'e_rest']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_rest']);
+  api.commit();
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_rent', 'e_rest']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_rest']);
+  api.commit();
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_field_autumn_tail_old', 'e_rest']);
+  api.commit();
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_sell', 'e_rest']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_field_winter_mid_old', 'e_rest']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_rest']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  api.next();
+
+  const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      stageSpringLower,
+      stageSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      stageAutumnUpper,
+      stageAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      stageWinterMid,
+      resolveWinterMid,
+      stageWinterLower,
+      deathStage
+    },
+    postSpringUpper: {
+      存米: postSpringUpper.存米,
+      家族: postSpringUpper.家族,
+      本年养老协商: postSpringUpper.本年养老协商,
+      本年养老季务: postSpringUpper.本年养老季务
+    },
+    postSpringMid: {
+      存米: postSpringMid.存米,
+      体魄: postSpringMid.体魄,
+      本年养老守田: postSpringMid.本年养老守田,
+      本年养老季务: postSpringMid.本年养老季务
+    },
+    postSummerUpper: {
+      铜钱: postSummerUpper.铜钱,
+      体魄: postSummerUpper.体魄,
+      本年养老医药: postSummerUpper.本年养老医药,
+      本年养老季务: postSummerUpper.本年养老季务
+    },
+    postSummerMid: {
+      铜钱: postSummerMid.铜钱,
+      体魄: postSummerMid.体魄,
+      家族: postSummerMid.家族,
+      本年养老季务: postSummerMid.本年养老季务
+    },
+    postAutumnUpper: {
+      存米: postAutumnUpper.存米,
+      本年养老收租: postAutumnUpper.本年养老收租,
+      本年养老季务: postAutumnUpper.本年养老季务
+    },
+    postWinterUpper: {
+      田亩: postWinterUpper.田亩,
+      白银: postWinterUpper.白银,
+      存米: postWinterUpper.存米,
+      本年养老卖田: postWinterUpper.本年养老卖田,
+      本年养老季务: postWinterUpper.本年养老季务
+    },
+    postWinterMid: {
+      铜钱: postWinterMid.铜钱,
+      体魄: postWinterMid.体魄,
+      家族: postWinterMid.家族,
+      本年养老季务: postWinterMid.本年养老季务
+    },
+    postWinterLower: {
+      家族: postWinterLower.家族,
+      本年养老季务: postWinterLower.本年养老季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('春安顿')
+      && stageSpringUpper.includes('与诸子协商轮养')
+      && stageSpringMid.includes('守薄田慢慢收')
+      && stageSummerUpper.includes('延医问药·调养')
+      && stageSummerMid.includes('先把伏夏看田饭钱与凉药草帽分开')
+      && resolveSummerMid.includes('〔伏夏田汤〕')
+      && stageAutumnUpper.includes('秋结租')
+      && stageAutumnUpper.includes('收口食田薄租')
+      && stageAutumnLower.includes('先把秋尾看田饭钱与催租脚费分开')
+      && resolveAutumnLower.includes('〔秋尾田脚〕')
+      && stageWinterUpper.includes('冬收束')
+      && stageWinterUpper.includes('变卖田产养老')
+      && stageWinterMid.includes('先把冬中灯炭与来春谷秧分开')
+      && resolveWinterMid.includes('〔冬中灯炭〕')
+      && deathStage.includes('死亡与传承')
+      && postSpringUpper.本年养老协商 >= 1
+      && postSpringUpper.存米 >= 5
+      && postSpringUpper.家族 >= 76
+      && postSpringMid.本年养老守田 >= 1
+      && postSpringMid.体魄 >= 61
+      && postSummerUpper.本年养老医药 >= 1
+      && postSummerUpper.体魄 >= 72
+      && postSummerMid.铜钱 <= postSummerUpper.铜钱 - 55
+      && postSummerMid.体魄 >= postSummerUpper.体魄 + 5
+      && postSummerMid.家族 >= postSummerUpper.家族 + 3
+      && Array.isArray(postSummerMid.本年养老季务)
+      && postSummerMid.本年养老季务.some((tag) => String(tag).includes('伏夏田汤'))
+      && postAutumnUpper.本年养老收租 >= 1
+      && postWinterUpper.本年养老卖田 >= 1
+      && postWinterUpper.田亩 === 3
+      && postWinterUpper.白银 >= 5
+      && postWinterMid.铜钱 <= postWinterUpper.铜钱 - 50
+      && postWinterMid.体魄 >= postWinterUpper.体魄 + 4
+      && postWinterMid.家族 >= postWinterUpper.家族 + 3
+      && Array.isArray(postWinterMid.本年养老季务)
+      && postWinterMid.本年养老季务.some((tag) => String(tag).includes('冬中灯炭'))
+      && Array.isArray(postWinterLower.本年养老季务)
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('议轮养'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('守薄田'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('延医问药'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('伏夏田汤已顾'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('结租谷'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('秋尾田脚已理'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('卖田'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('春安顿已理'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('秋后脚路已顾'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('冬中灯炭已理'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('年下后手已留'))
+      && includesOrderedPhases(phaseTrace, ['elder', 'death'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runFarmElderChoiceDensityRegression() {
+  const spring = createHarness();
+  spring.api.setRandomSequence(new Array(24).fill(0.01));
+  spring.api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 52,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    体魄: 58,
+    白银: 3,
+    铜钱: 1400,
+    存米: 4,
+    田亩: 4,
+    口食田: 1,
+    家族: 68,
+    负债银: 0,
+    农事历练: 4,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    合爨状态: '已析爨',
+    委托营生: '分得薄田自耕',
+    委托租谷: 0,
+    委托待收租谷: 0
+  });
+  spring.api.enterPhase('elder');
+  pickByPlan(spring.api, ['e_negotiate']);
+  spring.api.commit();
+  spring.api.next();
+  const springStage = normalizeHtml(spring.elements.get('stage').innerHTML);
+  const springActions = Array.from(availableMap(spring.api).keys());
+  pickByPlan(spring.api, ['e_field_keep', 'e_rest']);
+  spring.api.commit();
+  const springPost = clone(spring.api.getState());
+  const springResolve = normalizeHtml(spring.elements.get('stage').innerHTML);
+
+  const summer = createHarness();
+  summer.api.setRandomSequence(new Array(24).fill(0.01));
+  summer.api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 52,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    体魄: 58,
+    白银: 3,
+    铜钱: 1400,
+    存米: 4,
+    田亩: 4,
+    口食田: 1,
+    家族: 68,
+    负债银: 0,
+    农事历练: 4,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    合爨状态: '已析爨',
+    委托营生: '分得薄田自耕',
+    委托租谷: 0,
+    委托待收租谷: 0
+  });
+  summer.api.enterPhase('elder');
+  pickByPlan(summer.api, ['e_negotiate']);
+  summer.api.commit();
+  summer.api.next();
+  pickByPlan(summer.api, ['e_field_keep', 'e_rest']);
+  summer.api.commit();
+  summer.api.next();
+  pickByPlan(summer.api, ['e_rest']);
+  summer.api.commit();
+  summer.api.next();
+  pickByPlan(summer.api, ['e_med']);
+  summer.api.commit();
+  summer.api.next();
+  const summerStage = normalizeHtml(summer.elements.get('stage').innerHTML);
+  const summerActions = Array.from(availableMap(summer.api).keys());
+  const summerBefore = clone(summer.api.getState());
+  pickByPlan(summer.api, ['e_field_summer_old']);
+  summer.api.commit();
+  const summerPost = clone(summer.api.getState());
+  const summerResolve = normalizeHtml(summer.elements.get('stage').innerHTML);
+
+  const autumn = createHarness();
+  autumn.api.setRandomSequence(new Array(24).fill(0.01));
+  autumn.api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 52,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    体魄: 58,
+    白银: 3,
+    铜钱: 1400,
+    存米: 4,
+    田亩: 4,
+    口食田: 1,
+    家族: 68,
+    负债银: 0,
+    农事历练: 4,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    合爨状态: '已析爨',
+    委托营生: '分得薄田自耕',
+    委托租谷: 0,
+    委托待收租谷: 0
+  });
+  autumn.api.enterPhase('elder');
+  pickByPlan(autumn.api, ['e_negotiate']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['e_field_keep', 'e_rest']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['e_rest']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['e_med']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['e_rest']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['e_rest']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['e_rent', 'e_rest']);
+  autumn.api.commit();
+  autumn.api.next();
+  pickByPlan(autumn.api, ['e_rest']);
+  autumn.api.commit();
+  autumn.api.next();
+  const autumnStage = normalizeHtml(autumn.elements.get('stage').innerHTML);
+  const autumnActions = Array.from(availableMap(autumn.api).keys());
+  const autumnBefore = clone(autumn.api.getState());
+  pickByPlan(autumn.api, ['e_field_autumn_tail_old']);
+  autumn.api.commit();
+  const autumnPost = clone(autumn.api.getState());
+  const autumnResolve = normalizeHtml(autumn.elements.get('stage').innerHTML);
+
+  const winter = createHarness();
+  winter.api.setRandomSequence(new Array(24).fill(0.01));
+  winter.api.patchState({
+    路线: '留乡佃田',
+    识字: true,
+    年龄: 52,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    体魄: 58,
+    白银: 3,
+    铜钱: 1400,
+    存米: 4,
+    田亩: 4,
+    口食田: 1,
+    家族: 68,
+    负债银: 0,
+    农事历练: 4,
+    家传农事: 1,
+    定额佃状态: '已立定额佃',
+    合爨状态: '已析爨',
+    委托营生: '分得薄田自耕',
+    委托租谷: 0,
+    委托待收租谷: 0
+  });
+  winter.api.enterPhase('elder');
+  pickByPlan(winter.api, ['e_negotiate']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['e_field_keep', 'e_rest']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['e_rest']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['e_med']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['e_rest']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['e_rest']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['e_rent', 'e_rest']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['e_rest']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['e_rest']);
+  winter.api.commit();
+  winter.api.next();
+  pickByPlan(winter.api, ['e_sell', 'e_rest']);
+  winter.api.commit();
+  winter.api.next();
+  const winterStage = normalizeHtml(winter.elements.get('stage').innerHTML);
+  const winterActions = Array.from(availableMap(winter.api).keys());
+  const winterBefore = clone(winter.api.getState());
+  pickByPlan(winter.api, ['e_field_winter_mid_old']);
+  winter.api.commit();
+  const winterPost = clone(winter.api.getState());
+  const winterResolve = normalizeHtml(winter.elements.get('stage').innerHTML);
+
+  return {
+    spring: {
+      stage: springStage,
+      actions: springActions,
+      postState: {
+        存米: springPost.存米,
+        体魄: springPost.体魄,
+        本年养老守田: springPost.本年养老守田,
+        本年养老季务: springPost.本年养老季务
+      },
+      resolve: springResolve
+    },
+    summer: {
+      stage: summerStage,
+      actions: summerActions,
+      beforeState: {
+        铜钱: summerBefore.铜钱,
+        体魄: summerBefore.体魄,
+        家族: summerBefore.家族
+      },
+      postState: {
+        铜钱: summerPost.铜钱,
+        体魄: summerPost.体魄,
+        家族: summerPost.家族,
+        本年养老季务: summerPost.本年养老季务
+      },
+      resolve: summerResolve
+    },
+    autumn: {
+      stage: autumnStage,
+      actions: autumnActions,
+      beforeState: {
+        铜钱: autumnBefore.铜钱,
+        体魄: autumnBefore.体魄,
+        家族: autumnBefore.家族
+      },
+      postState: {
+        铜钱: autumnPost.铜钱,
+        体魄: autumnPost.体魄,
+        家族: autumnPost.家族,
+        本年养老季务: autumnPost.本年养老季务
+      },
+      resolve: autumnResolve
+    },
+    winter: {
+      stage: winterStage,
+      actions: winterActions,
+      beforeState: {
+        铜钱: winterBefore.铜钱,
+        体魄: winterBefore.体魄,
+        家族: winterBefore.家族
+      },
+      postState: {
+        铜钱: winterPost.铜钱,
+        体魄: winterPost.体魄,
+        家族: winterPost.家族,
+        本年养老季务: winterPost.本年养老季务
+      },
+      resolve: winterResolve
+    },
+    ok: springStage.includes('春安顿')
+      && springStage.includes('中旬')
+      && springActions.includes('e_field_keep')
+      && springPost.本年养老守田 >= 1
+      && springPost.存米 >= 4
+      && springPost.体魄 >= 61
+      && Array.isArray(springPost.本年养老季务)
+      && springPost.本年养老季务.some((tag) => String(tag).includes('守薄田'))
+      && springPost.本年养老季务.some((tag) => String(tag).includes('春安顿已理'))
+      && springResolve.includes('〔春安顿碎账〕')
+      && summerStage.includes('夏将养')
+      && summerStage.includes('中旬')
+      && summerActions.includes('e_field_summer_old')
+      && summerPost.铜钱 <= summerBefore.铜钱 - 55
+      && summerPost.体魄 >= summerBefore.体魄 + 1
+      && summerPost.家族 >= summerBefore.家族 + 1
+      && Array.isArray(summerPost.本年养老季务)
+      && summerPost.本年养老季务.some((tag) => String(tag).includes('伏夏田汤'))
+      && summerResolve.includes('〔伏夏田汤〕')
+      && autumnStage.includes('秋结租')
+      && autumnStage.includes('下旬')
+      && autumnActions.includes('e_field_autumn_tail_old')
+      && autumnPost.铜钱 <= autumnBefore.铜钱 - 45
+      && autumnPost.体魄 >= autumnBefore.体魄
+      && autumnPost.家族 >= autumnBefore.家族 + 1
+      && Array.isArray(autumnPost.本年养老季务)
+      && autumnPost.本年养老季务.some((tag) => String(tag).includes('秋尾田脚'))
+      && autumnResolve.includes('〔秋尾田脚〕')
+      && winterStage.includes('冬收束')
+      && winterStage.includes('中旬')
+      && winterActions.includes('e_field_winter_mid_old')
+      && winterPost.铜钱 <= winterBefore.铜钱 - 50
+      && winterPost.体魄 >= winterBefore.体魄 + 1
+      && winterPost.家族 >= winterBefore.家族 + 1
+      && Array.isArray(winterPost.本年养老季务)
+      && winterPost.本年养老季务.some((tag) => String(tag).includes('冬中灯炭'))
+      && winterResolve.includes('〔冬中灯炭〕')
+      && (spring.window.__INV || []).length === 0
+      && (summer.window.__INV || []).length === 0
+      && (autumn.window.__INV || []).length === 0
+      && (winter.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantFamilyRouteAwareRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 26,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 3,
+    铜钱: 620,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 2,
+    累计反哺银: 1,
+    商路供读银: 0
+  });
+  api.enterPhase('family');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_letter', 'f_repair']);
+  api.commit();
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_market', 'f_route_split', 'f_child']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_spring_bundle', 'f_route_school', 'f_duty']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      stageSpringLower
+    },
+    postSpringMid: {
+      本年家贴家: postSpringMid.本年家贴家,
+      本年家备役: postSpringMid.本年家备役,
+      累计反哺银: postSpringMid.累计反哺银,
+      铜钱: postSpringMid.铜钱,
+      白银: postSpringMid.白银
+    },
+    postSpringLower: {
+      本年家贴家: postSpringLower.本年家贴家,
+      本年家衣药: postSpringLower.本年家衣药,
+      本年家供读: postSpringLower.本年家供读,
+      商路供读银: postSpringLower.商路供读银,
+      本年家备役: postSpringLower.本年家备役,
+      白银: postSpringLower.白银,
+      本年家季务: postSpringLower.本年家季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringMid.includes('先分脚费留家兼备差')
+      && stageSpringLower.includes('先把春钱拆作盐药与锅火')
+      && stageSpringLower.includes('另划一手供读专账')
+      && postSpringMid.本年家贴家 >= 1
+      && postSpringMid.本年家备役 >= 1
+      && postSpringMid.累计反哺银 >= 2
+      && postSpringLower.本年家贴家 >= 2
+      && postSpringLower.本年家衣药 >= 1
+      && postSpringLower.本年家供读 >= 1
+      && postSpringLower.商路供读银 >= 1
+      && postSpringLower.本年家备役 >= 2
+      && Array.isArray(postSpringLower.本年家季务)
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('分脚'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('春拆家用'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('供读专账'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('春路收束已压'))
+      && includesOrderedPhases(phaseTrace, ['family'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runMerchantFamilySpringWinterDensityRegression() {
+  const { api: springApi, elements: springElements, window: springWindow } = createHarness();
+  springApi.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 2,
+    铜钱: 1280,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 2,
+    累计反哺银: 1,
+    商路供读银: 0
+  });
+  springApi.enterPhase('family');
+  springApi.patchState({
+    家年: 1,
+    家季: 1,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  springApi.enterPhase('family');
+
+  const stageSpringUpper = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_work', 'f_route_spring_price', 'f_route_spring_packet']);
+  springApi.commit();
+  const resolveSpringUpper = normalizeHtml(springElements.get('stage').innerHTML);
+  const postSpringUpper = clone(springApi.getState());
+  springApi.next();
+
+  const stageSpringMid = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_route_spring_ritual', 'f_route_spring_mid_reply', 'f_route_split', 'f_child']);
+  springApi.commit();
+  const postSpringMid = clone(springApi.getState());
+  const resolveSpringMid = normalizeHtml(springElements.get('stage').innerHTML);
+  springApi.next();
+
+  const stageSpringLower = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_route_spring_reply', 'f_route_collect', 'f_route_school']);
+  springApi.commit();
+  const postSpringLower = clone(springApi.getState());
+  const resolveSpringLower = normalizeHtml(springElements.get('stage').innerHTML);
+  const springPhaseTrace = clone(springApi.getPhaseTrace ? springApi.getPhaseTrace() : []);
+
+  const { api: winterApi, elements: winterElements, window: winterWindow } = createHarness();
+  winterApi.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 2,
+    铜钱: 1380,
+    存米: 4,
+    家族: 64,
+    负债银: 1,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 1,
+    累计反哺银: 1,
+    商路供读银: 0
+  });
+  winterApi.enterPhase('family');
+  winterApi.patchState({
+    家年: 1,
+    家季: 4,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  winterApi.enterPhase('family');
+
+  const stageWinterUpper = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_winter_medicine', 'f_route_winter_book', 'f_route_guest_gift']);
+  winterApi.commit();
+  const postWinterUpper = clone(winterApi.getState());
+  const resolveWinterUpper = normalizeHtml(winterElements.get('stage').innerHTML);
+  winterApi.next();
+
+  const stageWinterMid = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_winter_coal', 'f_route_winter_split', 'f_route_winter_clear']);
+  winterApi.commit();
+  const postWinterMid = clone(winterApi.getState());
+  const resolveWinterMid = normalizeHtml(winterElements.get('stage').innerHTML);
+  winterApi.next();
+
+  const stageWinterLower = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_winter_reply', 'f_route_winter_receipt', 'f_route_winter_stamp', 'f_route_winter_copy']);
+  winterApi.commit();
+  const postWinterLower = clone(winterApi.getState());
+  const resolveWinterLower = normalizeHtml(winterElements.get('stage').innerHTML);
+  winterApi.next();
+  const nextYearStage = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterPhaseTrace = clone(winterApi.getPhaseTrace ? winterApi.getPhaseTrace() : []);
+
+  return {
+    spring: {
+      stageLabels: {
+        stageSpringUpper,
+        resolveSpringUpper,
+        stageSpringMid,
+        resolveSpringMid,
+        stageSpringLower,
+        resolveSpringLower
+      },
+      postSpringUpper: {
+        本年家做活: postSpringUpper.本年家做活,
+        本年家问价: postSpringUpper.本年家问价,
+        本年家捎信: postSpringUpper.本年家捎信,
+        本年家通融: postSpringUpper.本年家通融,
+        本年家季务: postSpringUpper.本年家季务
+      },
+      postSpringMid: {
+        本年家贴家: postSpringMid.本年家贴家,
+        本年家备役: postSpringMid.本年家备役,
+        本年家捎信: postSpringMid.本年家捎信,
+        本年家通融: postSpringMid.本年家通融,
+        本年家供读: postSpringMid.本年家供读,
+        家族: postSpringMid.家族,
+        本年家季务: postSpringMid.本年家季务
+      },
+      postSpringLower: {
+        本年家贴家: postSpringLower.本年家贴家,
+        本年家催账: postSpringLower.本年家催账,
+        本年家供读: postSpringLower.本年家供读,
+        商路供读银: postSpringLower.商路供读银,
+        白银: postSpringLower.白银,
+        未回款银: postSpringLower.未回款银,
+        本年家季务: postSpringLower.本年家季务
+      },
+      phaseTrace: springPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageSpringUpper.includes('春起')
+        && stageSpringUpper.includes('先托熟号回问米价与旧账')
+        && stageSpringUpper.includes('先把样纸门包与回话脚费分开')
+        && resolveSpringUpper.includes('〔春头药单〕')
+        && resolveSpringUpper.includes('〔春路碎账〕')
+        && stageSpringMid.includes('先把清明香纸与回话脚费分开')
+        && stageSpringMid.includes('先把春中回签与孩子纸样分开')
+        && stageSpringMid.includes('先分脚费留家兼备差')
+        && resolveSpringMid.includes('〔清明脚账〕')
+        && resolveSpringMid.includes('〔春中回签〕')
+        && stageSpringLower.includes('先把春尾回话脚费与催账门包分开')
+        && resolveSpringLower.includes('〔春尾回话〕')
+        && resolveSpringLower.includes('〔春路收束〕')
+        && postSpringUpper.本年家做活 >= 1
+        && postSpringUpper.本年家问价 >= 2
+        && postSpringUpper.本年家捎信 >= 1
+        && postSpringUpper.本年家通融 >= 1
+        && Array.isArray(postSpringUpper.本年家季务)
+        && postSpringUpper.本年家季务.some((tag) => String(tag).includes('春路碎账已理'))
+        && postSpringUpper.本年家季务.some((tag) => String(tag).includes('春头药单已理'))
+        && postSpringMid.本年家贴家 >= 2
+        && postSpringMid.本年家备役 >= 1
+        && postSpringMid.本年家捎信 >= 3
+        && postSpringMid.本年家通融 >= 1
+        && postSpringMid.本年家供读 >= 1
+        && postSpringMid.家族 >= 69
+        && Array.isArray(postSpringMid.本年家季务)
+        && postSpringMid.本年家季务.some((tag) => String(tag).includes('春礼脚费'))
+        && postSpringMid.本年家季务.some((tag) => String(tag).includes('春中回签'))
+        && postSpringMid.本年家季务.some((tag) => String(tag).includes('春中回签已理'))
+        && postSpringLower.本年家贴家 >= 3
+        && postSpringLower.本年家催账 >= 1
+        && postSpringLower.本年家供读 >= 1
+        && postSpringLower.商路供读银 >= 1
+        && postSpringLower.白银 >= 2
+        && postSpringLower.未回款银 === 0
+        && Array.isArray(postSpringLower.本年家季务)
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('春尾回话'))
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('春尾回话已理'))
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('春路收束已压'))
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('供读专账'))
+        && includesOrderedPhases(springPhaseTrace, ['family'])
+        && (springWindow.__INV || []).length === 0
+    },
+    winter: {
+      stageLabels: {
+        stageWinterUpper,
+        resolveWinterUpper,
+        stageWinterMid,
+        resolveWinterMid,
+        stageWinterLower,
+        resolveWinterLower,
+        nextYearStage
+      },
+      postWinterUpper: {
+        本年家捎信: postWinterUpper.本年家捎信,
+        本年家备役: postWinterUpper.本年家备役,
+        本年家通融: postWinterUpper.本年家通融,
+        本年家季务: postWinterUpper.本年家季务
+      },
+      postWinterMid: {
+        本年家贴家: postWinterMid.本年家贴家,
+        本年家衣药: postWinterMid.本年家衣药,
+        本年家备役: postWinterMid.本年家备役,
+        本年家捎信: postWinterMid.本年家捎信,
+        本年家通融: postWinterMid.本年家通融,
+        本年家季务: postWinterMid.本年家季务
+      },
+      postWinterLower: {
+        家年: postWinterLower.家年,
+        家季: postWinterLower.家季,
+        家旬: postWinterLower.家旬,
+        本年家衣药: postWinterLower.本年家衣药,
+        本年家捎信: postWinterLower.本年家捎信,
+        本年家通融: postWinterLower.本年家通融,
+        本年家供读: postWinterLower.本年家供读,
+        本年家季务: postWinterLower.本年家季务
+      },
+      phaseTrace: winterPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageWinterUpper.includes('冬藏')
+        && stageWinterUpper.includes('年关对账并先留明春本钱')
+        && stageWinterUpper.includes('先把冬头炭药与差票门包分开')
+        && stageWinterUpper.includes('先备熟号薄礼与回话脚费')
+        && resolveWinterUpper.includes('〔年关碎账〕')
+        && stageWinterMid.includes('先留炭钱与来春样纸定钱')
+        && stageWinterMid.includes('先把清账回话与柜边门包分开')
+        && resolveWinterMid.includes('〔炭脚样纸〕')
+        && resolveWinterMid.includes('〔清账回话〕')
+        && stageWinterLower.includes('先把柜边回签与递话门包分开')
+        && stageWinterLower.includes('先把年下回话、炭药与客账次序分开')
+        && stageWinterLower.includes('先把年下回签与来春样纸分开')
+        && stageWinterLower.includes('先把明春牙帖脚费与熟号回签分开')
+        && stageWinterLower.includes('先把冬尾帖样与孩子帖样分开')
+        && resolveWinterLower.includes('〔冬尾柜签〕')
+        && resolveWinterLower.includes('〔冬尾回话〕')
+        && resolveWinterLower.includes('〔冬尾回签〕')
+        && resolveWinterLower.includes('〔冬尾帖样〕')
+        && resolveWinterLower.includes('〔冬路后手〕')
+        && resolveWinterLower.includes('〔冬尾牙帖〕')
+        && postWinterUpper.本年家捎信 >= 2
+        && postWinterUpper.本年家备役 >= 1
+        && postWinterUpper.本年家通融 >= 1
+        && Array.isArray(postWinterUpper.本年家季务)
+        && postWinterUpper.本年家季务.some((tag) => String(tag).includes('年关对账'))
+        && postWinterUpper.本年家季务.some((tag) => String(tag).includes('冬头炭药'))
+        && postWinterUpper.本年家季务.some((tag) => String(tag).includes('熟号薄礼'))
+        && postWinterUpper.本年家季务.some((tag) => String(tag).includes('熟号薄礼已分'))
+        && postWinterMid.本年家贴家 >= 1
+        && postWinterMid.本年家衣药 >= 1
+        && postWinterMid.本年家备役 >= 2
+        && postWinterMid.本年家捎信 >= 1
+        && postWinterMid.本年家通融 >= 1
+        && Array.isArray(postWinterMid.本年家季务)
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('炭钱样纸'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('清账回话'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('清账回话已理'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬拆'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('炭脚样纸已分'))
+        && postWinterLower.家年 === 2
+        && postWinterLower.家季 === 1
+        && postWinterLower.家旬 === 1
+        && postWinterLower.本年家衣药 === 0
+        && postWinterLower.本年家捎信 === 0
+        && postWinterLower.本年家通融 === 0
+        && postWinterLower.本年家供读 === 0
+        && Array.isArray(postWinterLower.本年家季务)
+        && postWinterLower.本年家季务.length === 0
+        && includesOrderedPhases(winterPhaseTrace, ['family'])
+        && (winterWindow.__INV || []).length === 0
+    },
+    ok: (springWindow.__INV || []).length === 0
+      && (winterWindow.__INV || []).length === 0
+      && stageSpringLower.includes('先把春尾回话脚费与催账门包分开')
+      && resolveSpringLower.includes('〔春尾回话〕')
+        && stageWinterLower.includes('先把柜边回签与递话门包分开')
+        && stageWinterLower.includes('先把年下回话、炭药与客账次序分开')
+        && stageWinterLower.includes('先把年下回签与来春样纸分开')
+        && stageWinterLower.includes('先把明春牙帖脚费与熟号回签分开')
+      && stageWinterLower.includes('先把冬尾帖样与孩子帖样分开')
+      && resolveWinterLower.includes('〔冬尾柜签〕')
+      && resolveWinterLower.includes('〔冬尾回话〕')
+      && resolveWinterLower.includes('〔冬尾回签〕')
+      && resolveWinterLower.includes('〔冬尾帖样〕')
+      && resolveWinterLower.includes('〔冬尾牙帖〕')
+      && postSpringLower.本年家供读 >= 1
+      && postWinterLower.家年 === 2
+  };
+}
+
+function runMerchantFamilySeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 26,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 3,
+    铜钱: 1380,
+    存米: 5,
+    家族: 64,
+    负债银: 0,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 2,
+    累计反哺银: 1,
+    商路供读银: 0
+  });
+  api.enterPhase('family');
+  api.patchState({
+    家年: 1,
+    家季: 2,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  api.enterPhase('family');
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_wharf', 'f_route_summer_register', 'f_route_summer_cool']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_bundle', 'f_route_sample', 'f_route_summer_packet']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_collect', 'f_route_summer_reply', 'f_route_summer_guest']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_autumn_quote', 'f_route_autumn_clothes', 'f_route_autumn_receipt']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_autumn_split', 'f_route_autumn_mid_reply', 'f_route_autumn_mid_clothes']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  const resolveAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_receipt', 'f_route_autumn_tail', 'f_route_autumn_gate']);
+  api.commit();
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_winter_medicine', 'f_route_winter_book', 'f_route_guest_gift']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_winter_coal', 'f_route_winter_split', 'f_child']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_winter_packet', 'f_route_winter_receipt', 'f_route_school', 'f_route_winter_copy']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  const resolveWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const nextYearStage = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSummerUpper,
+      resolveSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      resolveSummerLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper,
+      stageWinterMid,
+      resolveWinterMid,
+      stageWinterLower,
+      resolveWinterLower,
+      nextYearStage
+    },
+    postSummerUpper: {
+      本年家问价: postSummerUpper.本年家问价,
+      本年家通融: postSummerUpper.本年家通融,
+      本年家衣药: postSummerUpper.本年家衣药,
+      本年家捎信: postSummerUpper.本年家捎信
+    },
+    postSummerMid: {
+      本年家贴家: postSummerMid.本年家贴家,
+      本年家衣药: postSummerMid.本年家衣药,
+      本年家问价: postSummerMid.本年家问价,
+      本年家捎信: postSummerMid.本年家捎信,
+      本年家通融: postSummerMid.本年家通融,
+      本年家供读: postSummerMid.本年家供读
+    },
+    postSummerLower: {
+      本年家催账: postSummerLower.本年家催账,
+      未回款银: postSummerLower.未回款银,
+      负债银: postSummerLower.负债银,
+      本年家捎信: postSummerLower.本年家捎信,
+      本年家通融: postSummerLower.本年家通融,
+      本年家衣药: postSummerLower.本年家衣药
+    },
+    postAutumnUpper: {
+      本年家问价: postAutumnUpper.本年家问价,
+      本年家衣药: postAutumnUpper.本年家衣药,
+      本年家捎信: postAutumnUpper.本年家捎信,
+      本年家备役: postAutumnUpper.本年家备役,
+      本年家通融: postAutumnUpper.本年家通融,
+      本年家季务: postAutumnUpper.本年家季务
+    },
+    postAutumnMid: {
+      本年家贴家: postAutumnMid.本年家贴家,
+      本年家备役: postAutumnMid.本年家备役,
+      累计反哺银: postAutumnMid.累计反哺银,
+      本年家衣药: postAutumnMid.本年家衣药,
+      本年家通融: postAutumnMid.本年家通融,
+      本年家捎信: postAutumnMid.本年家捎信,
+      家族: postAutumnMid.家族,
+      本年家季务: postAutumnMid.本年家季务
+    },
+    postWinterUpper: {
+      本年家捎信: postWinterUpper.本年家捎信,
+      本年家备役: postWinterUpper.本年家备役,
+      本年家季务: postWinterUpper.本年家季务
+    },
+    postWinterMid: {
+      本年家贴家: postWinterMid.本年家贴家,
+      本年家备役: postWinterMid.本年家备役,
+      本年家捎信: postWinterMid.本年家捎信,
+      本年家问价: postWinterMid.本年家问价,
+      本年家季务: postWinterMid.本年家季务
+    },
+    postWinterLower: {
+      本年家季务: postWinterLower.本年家季务,
+      本年家供读: postWinterLower.本年家供读,
+      本年家捎信: postWinterLower.本年家捎信,
+      本年家通融: postWinterLower.本年家通融,
+      家年: postWinterLower.家年,
+      家季: postWinterLower.家季,
+      家旬: postWinterLower.家旬
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSummerUpper.includes('夏长')
+      && stageSummerUpper.includes('先问水脚与行栈路数')
+        && stageSummerUpper.includes('先把自己汗药与孩子热包分开')
+      && stageSummerUpper.includes('先把伏夏差帖与柜边回帖分开')
+      && stageSummerUpper.includes('先把行栈茶钱与家里凉药分开')
+      && stageSummerUpper.includes('先把伏夏回签与行栈账单分开')
+      && resolveSummerUpper.includes('〔伏夏路药〕')
+      && resolveSummerUpper.includes('〔伏夏帖册〕')
+      && stageSummerMid.includes('托熟号捎布药回家')
+      && stageSummerMid.includes('先把样纸门包与回程脚费分开')
+      && stageSummerMid.includes('先把柜边回帖与孩子纸样分开')
+      && resolveSummerMid.includes('〔伏夏纸样〕')
+      && stageSummerLower.includes('催回在路旧账')
+      && stageSummerLower.includes('先把夏尾回话脚费与柜边包纸分开')
+      && stageSummerLower.includes('先把夏尾客签与秋前样纸分开')
+      && resolveSummerLower.includes('〔夏尾账脚〕')
+      && stageAutumnUpper.includes('秋收')
+      && stageAutumnUpper.includes('抄牙价认秋市')
+      && stageAutumnUpper.includes('先把秋头差帖与孩子夹衣分开')
+      && stageAutumnUpper.includes('先把秋头回签与牙帖脚费分开')
+      && resolveAutumnUpper.includes('〔秋路样单〕')
+      && resolveAutumnUpper.includes('〔秋头夹衣〕')
+      && stageAutumnMid.includes('秋货回钱先拆锅火与牙税')
+      && stageAutumnMid.includes('先把秋中回签与锅火脚费分开')
+      && stageAutumnMid.includes('先把秋中回签与孩子夹衣分开')
+      && resolveAutumnMid.includes('〔秋路锅火〕')
+      && resolveAutumnMid.includes('〔秋中夹衣〕')
+      && stageAutumnLower.includes('先抄回钱脚单与拖欠次序')
+      && stageAutumnLower.includes('先把秋尾回话脚费与供读纸包分开')
+      && stageAutumnLower.includes('先把秋尾回话与差票门包分开')
+      && resolveAutumnLower.includes('〔秋尾回话〕')
+      && stageWinterUpper.includes('冬藏')
+      && stageWinterUpper.includes('年关对账并先留明春本钱')
+      && stageWinterUpper.includes('先把冬头炭药与差票门包分开')
+      && stageWinterUpper.includes('先备熟号薄礼与回话脚费')
+      && stageWinterMid.includes('先留炭钱与来春样纸定钱')
+      && stageWinterMid.includes('把年关回钱拆作锅火与脚费')
+      && stageWinterLower.includes('托熟号订明春水脚')
+      && stageWinterLower.includes('先把柜边回签与递话门包分开')
+      && stageWinterLower.includes('先把年下回签与来春样纸分开')
+      && stageWinterLower.includes('先把明春牙帖脚费与熟号回签分开')
+      && stageWinterLower.includes('先把冬尾帖样与孩子帖样分开')
+      && resolveSummerMid.includes('〔伏夏小耗〕')
+      && resolveAutumnMid.includes('〔秋后杂支〕')
+      && resolveWinterUpper.includes('〔年关碎账〕')
+      && resolveWinterLower.includes('〔冬尾柜签〕')
+      && resolveWinterLower.includes('〔冬尾回签〕')
+      && postSummerUpper.本年家问价 >= 1
+      && postSummerUpper.本年家通融 >= 3
+      && postSummerUpper.本年家衣药 >= 1
+      && postSummerUpper.本年家捎信 >= 2
+      && postSummerMid.本年家贴家 >= 1
+      && postSummerMid.本年家衣药 >= 1
+      && postSummerMid.本年家问价 >= 2
+      && postSummerLower.本年家催账 >= 1
+      && postSummerLower.未回款银 === 0
+      && postSummerLower.负债银 === 0
+      && postSummerLower.本年家捎信 >= 2
+      && postSummerLower.本年家通融 >= 2
+      && postSummerLower.本年家衣药 >= 2
+      && postAutumnUpper.本年家问价 >= 2
+      && postAutumnUpper.本年家衣药 >= 3
+      && postAutumnUpper.本年家捎信 >= 2
+      && postAutumnUpper.本年家备役 >= 1
+      && postAutumnUpper.本年家通融 >= 3
+      && Array.isArray(postAutumnUpper.本年家季务)
+      && postAutumnUpper.本年家季务.some((tag) => String(tag).includes('秋头夹衣'))
+      && postAutumnUpper.本年家季务.some((tag) => String(tag).includes('秋头夹衣已理'))
+      && postAutumnMid.本年家贴家 >= 2
+      && postAutumnMid.本年家备役 >= 1
+      && postAutumnMid.累计反哺银 >= 2
+      && postAutumnMid.本年家衣药 >= 4
+      && postAutumnMid.本年家通融 >= 2
+      && postAutumnMid.本年家捎信 >= 2
+      && postAutumnMid.家族 >= 67
+      && Array.isArray(postAutumnMid.本年家季务)
+      && postAutumnMid.本年家季务.some((tag) => String(tag).includes('秋中回签'))
+      && postAutumnMid.本年家季务.some((tag) => String(tag).includes('秋中夹衣'))
+      && postAutumnMid.本年家季务.some((tag) => String(tag).includes('秋中夹衣已理'))
+      && postWinterUpper.本年家捎信 >= 1
+      && postWinterUpper.本年家备役 >= 2
+      && postWinterMid.本年家贴家 >= 3
+      && postWinterMid.本年家备役 >= 3
+      && postWinterMid.本年家捎信 >= 2
+      && postWinterMid.本年家问价 >= 4
+      && Array.isArray(postWinterUpper.本年家季务)
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('问水脚'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('伏夏脚药'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('捎布药'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('样纸门包'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('伏夏纸样'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('夏尾回话'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('夏尾客签'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('夏尾账脚已压'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋头回签'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋头夹衣'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋头夹衣已理'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋路样单已理'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋中回签'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋中夹衣'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋中夹衣已理'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋路锅火已分'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('抄秋价'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋拆'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('抄回钱脚单'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋尾门包'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('年关对账'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('冬头炭药'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('熟号薄礼'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('伏夏帖册'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('伏夏小耗已顾'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('伏夏纸样已分'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('伏夏路药已分'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('伏夏帖册已理'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('行中小耗已顾'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋后细账已拆'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋路催单已压'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('年关碎账已分'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('熟号薄礼已分'))
+      && Array.isArray(postWinterMid.本年家季务)
+      && postWinterMid.本年家季务.some((tag) => String(tag).includes('炭钱样纸'))
+      && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬拆'))
+      && postWinterMid.本年家季务.some((tag) => String(tag).includes('炭脚样纸已分'))
+      && resolveWinterMid.includes('〔炭脚样纸〕')
+      && stageWinterLower.includes('托熟号订明春水脚')
+      && stageWinterLower.includes('先把柜边回签与递话门包分开')
+      && stageWinterLower.includes('先把年下回签与来春样纸分开')
+      && stageWinterLower.includes('先把明春牙帖脚费与熟号回签分开')
+      && resolveWinterLower.includes('另划一手供读专账')
+      && resolveWinterLower.includes('〔冬尾柜签〕')
+      && resolveWinterLower.includes('〔冬尾回签〕')
+      && resolveWinterLower.includes('〔冬尾帖样〕')
+      && resolveWinterLower.includes('〔冬路后手〕')
+      && resolveWinterLower.includes('〔冬尾牙帖〕')
+      && nextYearStage.includes('第2年')
+      && nextYearStage.includes('春起')
+      && nextYearStage.includes('上旬')
+      && postWinterLower.家年 === 2
+      && postWinterLower.家季 === 1
+      && postWinterLower.家旬 === 1
+      && includesOrderedPhases(phaseTrace, ['family'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runMerchantFamilyRouteSpecificFrictionRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.patchState(Object.assign({
+      路线: '路径四 · 徽商式亦贾亦儒',
+      识字: true,
+      年龄: 27,
+      妻室: true,
+      子数: 1,
+      女数: 1,
+      白银: 2,
+      铜钱: 700,
+      存米: 4,
+      家族: 63,
+      体魄: 62,
+      负债银: 0,
+      识货进度: 2,
+      账房进度: 2,
+      商信誉: 2,
+      商历练: 3,
+      未回款银: 2,
+      累计反哺银: 1,
+      商路供读银: 0
+    }, extraPatch || {}));
+    api.enterPhase('family');
+    api.patchState({
+      家年: 1,
+      家季: season,
+      家旬: xun,
+      本年家做活: 0,
+      本年家粜米: 0,
+      本年家问价: 0,
+      本年家备役: 0,
+      本年家衣药: 0,
+      本年家照家: 0,
+      本年家借粮: 0,
+      本年家还债: 0,
+      本年家贴家: 0,
+      本年家催账: 0,
+      本年家将养: 0,
+      本年家修缮: 0,
+      本年家通融: 0,
+      本年家捎信: 0,
+      本年家供读: 0,
+      本年家季务: []
+    });
+    api.enterPhase('family');
+    return { api, elements, window };
+  }
+
+  const spring = setupAt(1, 2, { 铜钱: 600, 白银: 2 });
+  const springStage = normalizeHtml(spring.elements.get('stage').innerHTML);
+  pickByPlan(spring.api, ['f_route_spring_ritual', 'f_route_spring_mid_reply', 'f_route_remit']);
+  spring.api.commit();
+  const springResolve = normalizeHtml(spring.elements.get('stage').innerHTML);
+  const springState = clone(spring.api.getState());
+
+  const summer = setupAt(2, 2, { 铜钱: 700, 白银: 2 });
+  const summerStage = normalizeHtml(summer.elements.get('stage').innerHTML);
+  pickByPlan(summer.api, ['f_route_bundle', 'f_route_sample', 'f_route_summer_packet']);
+  summer.api.commit();
+  const summerResolve = normalizeHtml(summer.elements.get('stage').innerHTML);
+  const summerState = clone(summer.api.getState());
+
+  const autumnTail = setupAt(3, 3, { 铜钱: 700, 白银: 2 });
+  const autumnTailStage = normalizeHtml(autumnTail.elements.get('stage').innerHTML);
+  pickByPlan(autumnTail.api, ['f_route_receipt', 'f_route_autumn_tail', 'f_route_autumn_gate']);
+  autumnTail.api.commit();
+  const autumnTailResolve = normalizeHtml(autumnTail.elements.get('stage').innerHTML);
+  const autumnTailState = clone(autumnTail.api.getState());
+
+  const winterHead = setupAt(4, 1, { 铜钱: 560, 白银: 2 });
+  const winterHeadStage = normalizeHtml(winterHead.elements.get('stage').innerHTML);
+  pickByPlan(winterHead.api, ['f_route_winter_medicine', 'f_route_guest_gift']);
+  winterHead.api.commit();
+  const winterHeadResolve = normalizeHtml(winterHead.elements.get('stage').innerHTML);
+  const winterHeadState = clone(winterHead.api.getState());
+
+  const winterMid = setupAt(4, 2, { 铜钱: 620, 白银: 2 });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['f_route_winter_coal', 'f_route_winter_clear']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+
+  return {
+    spring: {
+      stage: springStage,
+      resolve: springResolve,
+      state: {
+        铜钱: springState.铜钱,
+        白银: springState.白银,
+        本年家季务: springState.本年家季务
+      },
+      ok: springStage.includes('先把清明香纸与回话脚费分开')
+        && springStage.includes('先把春中回签与孩子纸样分开')
+        && springResolve.includes('〔春起碎账〕')
+        && Array.isArray(springState.本年家季务)
+        && springState.本年家季务.some((tag) => String(tag).includes('春起细账已理'))
+        && springState.铜钱 === 475
+        && springState.白银 === 1
+        && (spring.window.__INV || []).length === 0
+    },
+    summer: {
+      stage: summerStage,
+      resolve: summerResolve,
+      state: {
+        铜钱: summerState.铜钱,
+        体魄: summerState.体魄,
+        本年家季务: summerState.本年家季务
+      },
+      ok: summerStage.includes('托熟号捎布药回家')
+        && summerStage.includes('先把样纸门包与回程脚费分开')
+        && summerStage.includes('先把柜边回帖与孩子纸样分开')
+        && summerResolve.includes('〔伏夏小耗〕')
+        && Array.isArray(summerState.本年家季务)
+        && summerState.本年家季务.some((tag) => String(tag).includes('伏夏小耗已顾'))
+        && summerState.铜钱 === 445
+        && summerState.体魄 === 60
+        && (summer.window.__INV || []).length === 0
+    },
+    autumnTail: {
+      stage: autumnTailStage,
+      resolve: autumnTailResolve,
+      state: {
+        铜钱: autumnTailState.铜钱,
+        本年家季务: autumnTailState.本年家季务
+      },
+      ok: autumnTailStage.includes('先抄回钱脚单与拖欠次序')
+        && autumnTailStage.includes('先把秋尾回话脚费与供读纸包分开')
+        && autumnTailStage.includes('先把秋尾回话与差票门包分开')
+        && autumnTailResolve.includes('〔秋后催缴〕')
+        && Array.isArray(autumnTailState.本年家季务)
+        && autumnTailState.本年家季务.some((tag) => String(tag).includes('秋后催缴已压'))
+        && autumnTailState.铜钱 === 535
+        && (autumnTail.window.__INV || []).length === 0
+    },
+    winterHead: {
+      stage: winterHeadStage,
+      resolve: winterHeadResolve,
+      state: {
+        铜钱: winterHeadState.铜钱,
+        本年家季务: winterHeadState.本年家季务
+      },
+      ok: winterHeadStage.includes('先把冬头炭药与差票门包分开')
+        && winterHeadStage.includes('先备熟号薄礼与回话脚费')
+        && winterHeadResolve.includes('〔年关碎账〕')
+        && Array.isArray(winterHeadState.本年家季务)
+        && winterHeadState.本年家季务.some((tag) => String(tag).includes('年关碎账已分'))
+        && winterHeadState.铜钱 === 425
+        && (winterHead.window.__INV || []).length === 0
+    },
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        铜钱: winterMidState.铜钱,
+        本年家季务: winterMidState.本年家季务
+      },
+      ok: winterMidStage.includes('先留炭钱与来春样纸定钱')
+        && winterMidStage.includes('先把清账回话与柜边门包分开')
+        && winterMidResolve.includes('〔腊月小耗〕')
+        && Array.isArray(winterMidState.本年家季务)
+        && winterMidState.本年家季务.some((tag) => String(tag).includes('腊月碎账已分'))
+        && winterMidState.铜钱 === 470
+        && (winterMid.window.__INV || []).length === 0
+    }
+  };
+}
+
+function runMerchantFamilyChoiceDensityRegression() {
+  const { api: springApi, elements: springElements, window: springWindow } = createHarness();
+  springApi.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 2,
+    铜钱: 960,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 2,
+    累计反哺银: 1,
+    商路供读银: 0
+  });
+  springApi.enterPhase('family');
+  springApi.patchState({
+    家年: 1,
+    家季: 1,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  springApi.enterPhase('family');
+
+  const springStage = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_route_spring_price', 'f_route_spring_packet', 'f_route_spring_child_note']);
+  springApi.commit();
+  const springResolve = normalizeHtml(springElements.get('stage').innerHTML);
+  const springState = clone(springApi.getState());
+
+  const { api: summerApi, elements: summerElements, window: summerWindow } = createHarness();
+  summerApi.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 2,
+    铜钱: 980,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 2,
+    累计反哺银: 1,
+    商路供读银: 0
+  });
+  summerApi.enterPhase('family');
+  summerApi.patchState({
+    家年: 1,
+    家季: 2,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  summerApi.enterPhase('family');
+
+  const summerStage = normalizeHtml(summerElements.get('stage').innerHTML);
+  pickByPlan(summerApi, ['f_route_summer_home_note', 'f_route_summer_heat', 'f_route_summer_register']);
+  summerApi.commit();
+  const summerResolve = normalizeHtml(summerElements.get('stage').innerHTML);
+  const summerState = clone(summerApi.getState());
+
+  const { api: autumnApi, elements: autumnElements, window: autumnWindow } = createHarness();
+  autumnApi.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 2,
+    铜钱: 1080,
+    存米: 4,
+    家族: 64,
+    负债银: 1,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 2,
+    累计反哺银: 1,
+    商路供读银: 0
+  });
+  autumnApi.enterPhase('family');
+  autumnApi.patchState({
+    家年: 1,
+    家季: 3,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  autumnApi.enterPhase('family');
+
+  const autumnStage = normalizeHtml(autumnElements.get('stage').innerHTML);
+  pickByPlan(autumnApi, ['f_route_autumn_packet', 'f_route_autumn_clothes', 'f_route_autumn_receipt']);
+  autumnApi.commit();
+  const autumnResolve = normalizeHtml(autumnElements.get('stage').innerHTML);
+  const autumnState = clone(autumnApi.getState());
+
+  const { api: winterApi, elements: winterElements, window: winterWindow } = createHarness();
+  winterApi.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 2,
+    铜钱: 1100,
+    存米: 4,
+    家族: 64,
+    负债银: 1,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 1,
+    累计反哺银: 1,
+    商路供读银: 0
+  });
+  winterApi.enterPhase('family');
+  winterApi.patchState({
+    家年: 1,
+    家季: 4,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  winterApi.enterPhase('family');
+
+  const winterStage = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_winter_book', 'f_route_winter_medicine', 'f_route_guest_gift']);
+  winterApi.commit();
+  const winterResolve = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterState = clone(winterApi.getState());
+
+  return {
+    spring: {
+      stage: springStage,
+      resolve: springResolve,
+      state: {
+        家族: springState.家族,
+        本年家问价: springState.本年家问价,
+        本年家衣药: springState.本年家衣药,
+        本年家捎信: springState.本年家捎信,
+        本年家通融: springState.本年家通融,
+        本年家供读: springState.本年家供读,
+        本年家季务: springState.本年家季务
+      },
+      ok: springStage.includes('先托熟号回问米价与旧账')
+        && springStage.includes('先把样纸门包与回话脚费分开')
+        && springStage.includes('先把春头孩子纸样与回乡药单分开')
+        && springResolve.includes('先把春头孩子纸样与回乡药单分开')
+        && springResolve.includes('〔春头药单〕')
+        && springState.家族 >= 65
+        && springState.本年家问价 >= 2
+        && springState.本年家衣药 >= 1
+        && springState.本年家捎信 >= 3
+        && springState.本年家通融 >= 1
+        && springState.本年家供读 >= 1
+        && Array.isArray(springState.本年家季务)
+        && springState.本年家季务.some((tag) => String(tag).includes('春问价旧账'))
+        && springState.本年家季务.some((tag) => String(tag).includes('春纸门包'))
+        && springState.本年家季务.some((tag) => String(tag).includes('春头纸样'))
+        && springState.本年家季务.some((tag) => String(tag).includes('春头药单已理'))
+        && springState.本年家季务.some((tag) => String(tag).includes('春路碎账已理'))
+        && (springWindow.__INV || []).length === 0
+    },
+    summer: {
+      stage: summerStage,
+      resolve: summerResolve,
+      state: {
+        家族: summerState.家族,
+        本年家备役: summerState.本年家备役,
+        本年家衣药: summerState.本年家衣药,
+        本年家将养: summerState.本年家将养,
+        本年家捎信: summerState.本年家捎信,
+        本年家通融: summerState.本年家通融,
+        本年家供读: summerState.本年家供读,
+        本年家季务: summerState.本年家季务
+      },
+      ok: summerStage.includes('先问水脚与行栈路数')
+        && summerStage.includes('先把家书药单与柜边回帖分开')
+        && summerStage.includes('先把自己汗药与孩子热包分开')
+        && summerStage.includes('先把伏夏差帖与柜边回帖分开')
+        && summerResolve.includes('先把家书药单与柜边回帖分开')
+        && summerResolve.includes('先把自己汗药与孩子热包分开')
+        && summerResolve.includes('先把伏夏差帖与柜边回帖分开')
+        && summerResolve.includes('〔伏夏帖册〕')
+        && summerResolve.includes('〔伏夏路药〕')
+        && summerState.家族 >= 66
+        && summerState.本年家备役 >= 1
+        && summerState.本年家衣药 >= 2
+        && summerState.本年家将养 >= 1
+        && summerState.本年家捎信 >= 3
+        && summerState.本年家通融 >= 1
+        && summerState.本年家供读 >= 1
+        && Array.isArray(summerState.本年家季务)
+        && summerState.本年家季务.some((tag) => String(tag).includes('伏夏家书药单'))
+        && summerState.本年家季务.some((tag) => String(tag).includes('伏夏汗药热包'))
+        && summerState.本年家季务.some((tag) => String(tag).includes('伏夏路药已分'))
+        && summerState.本年家季务.some((tag) => String(tag).includes('伏夏帖册拆开'))
+        && summerState.本年家季务.some((tag) => String(tag).includes('伏夏帖册已理'))
+        && (summerWindow.__INV || []).length === 0
+    },
+    autumn: {
+      stage: autumnStage,
+      resolve: autumnResolve,
+      state: {
+        家族: autumnState.家族,
+        本年家问价: autumnState.本年家问价,
+        本年家衣药: autumnState.本年家衣药,
+        本年家备役: autumnState.本年家备役,
+        本年家捎信: autumnState.本年家捎信,
+        本年家通融: autumnState.本年家通融,
+        本年家季务: autumnState.本年家季务
+      },
+      ok: autumnStage.includes('先把秋样脚单与回乡药包分开')
+        && autumnStage.includes('先把秋头差帖与孩子夹衣分开')
+        && autumnStage.includes('先把秋头回签与牙帖脚费分开')
+        && autumnResolve.includes('先把秋头差帖与孩子夹衣分开')
+        && autumnState.家族 >= 66
+        && autumnState.本年家问价 >= 1
+        && autumnState.本年家衣药 >= 2
+        && autumnState.本年家备役 >= 1
+        && autumnState.本年家捎信 >= 2
+        && autumnState.本年家通融 >= 2
+        && Array.isArray(autumnState.本年家季务)
+        && autumnState.本年家季务.some((tag) => String(tag).includes('秋头脚药'))
+        && autumnState.本年家季务.some((tag) => String(tag).includes('秋头夹衣'))
+        && autumnState.本年家季务.some((tag) => String(tag).includes('秋头回签'))
+        && (autumnWindow.__INV || []).length === 0
+    },
+    winter: {
+      stage: winterStage,
+      resolve: winterResolve,
+      state: {
+        本年家备役: winterState.本年家备役,
+        本年家衣药: winterState.本年家衣药,
+        本年家捎信: winterState.本年家捎信,
+        本年家通融: winterState.本年家通融,
+        本年家季务: winterState.本年家季务
+      },
+      ok: winterStage.includes('年关对账并先留明春本钱')
+        && winterStage.includes('先把冬头炭药与差票门包分开')
+        && winterStage.includes('先备熟号薄礼与回话脚费')
+        && winterResolve.includes('先把冬头炭药与差票门包分开')
+        && winterState.本年家备役 >= 1
+        && winterState.本年家衣药 >= 1
+        && winterState.本年家捎信 >= 2
+        && winterState.本年家通融 >= 2
+        && Array.isArray(winterState.本年家季务)
+        && winterState.本年家季务.some((tag) => String(tag).includes('年关对账'))
+        && winterState.本年家季务.some((tag) => String(tag).includes('冬头炭药'))
+        && winterState.本年家季务.some((tag) => String(tag).includes('熟号薄礼'))
+        && (winterWindow.__INV || []).length === 0
+    }
+  };
+}
+
+function runMerchantHouseholdSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+  api.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 4,
+    铜钱: 1050,
+    存米: 4,
+    田亩: 4,
+    家族: 67,
+    负债银: 0,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 2,
+    累计反哺银: 1,
+    商路供读银: 0,
+    委托营生: '无',
+    委托租谷: 0,
+    委托待收租谷: 0
+  });
+  api.enterPhase('household');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_literate', 'h_spring_packet']);
+  api.commit();
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_trust_field', 'h_spring_deed']);
+  api.commit();
+  const resolveSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_collect', 'h_spring_split']);
+  api.commit();
+  const resolveSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postSpringLower = clone(api.getState());
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_summer_cool', 'h_summer_head_reply']);
+  api.commit();
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_summer_market', 'h_summer_mid_reply']);
+  api.commit();
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerMid = clone(api.getState());
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_summer_tail', 'h_side']);
+  api.commit();
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerLower = clone(api.getState());
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_wharf', 'h_autumn_receipt']);
+  api.commit();
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postAutumnUpper = clone(api.getState());
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_autumn_mid_reply', 'h_autumn_mid_cloth']);
+  api.commit();
+  const resolveAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postAutumnMid = clone(api.getState());
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_pay']);
+  api.commit();
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postAutumnLower = clone(api.getState());
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_winter_gift', 'h_wharf']);
+  api.commit();
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postWinterUpper = clone(api.getState());
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_winter_clear', 'h_winter_route_split', 'h_winter_register']);
+  api.commit();
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postWinterMid = clone(api.getState());
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_winter_coal', 'h_winter_post', 'h_winter_tail']);
+  api.commit();
+  const resolveWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postWinterLower = clone(api.getState());
+  api.next();
+
+  const nextYearStage = normalizeHtml(elements.get('stage').innerHTML);
+  const nextYearState = clone(api.getState());
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSpringMid,
+      resolveSpringMid,
+      stageSpringLower,
+      resolveSpringLower,
+      stageSummerUpper,
+      resolveSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      resolveSummerLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper,
+      stageWinterMid,
+      resolveWinterMid,
+      stageWinterLower,
+      resolveWinterLower,
+      nextYearStage
+    },
+    postSpringUpper: {
+      本年户核账: postSpringUpper.本年户核账,
+      本年户通融: postSpringUpper.本年户通融,
+      家族: postSpringUpper.家族,
+      本年户季务: postSpringUpper.本年户季务
+    },
+    postSpringMid: {
+      委托营生: postSpringMid.委托营生,
+      委托待收租谷: postSpringMid.委托待收租谷,
+      本年户核账: postSpringMid.本年户核账,
+      本年户通融: postSpringMid.本年户通融,
+      本年户季务: postSpringMid.本年户季务
+    },
+    postSpringLower: {
+      本年户催账: postSpringLower.本年户催账,
+      商路供读银: postSpringLower.商路供读银,
+      本年户备役: postSpringLower.本年户备役,
+      白银: postSpringLower.白银,
+      未回款银: postSpringLower.未回款银
+    },
+    postSummerUpper: {
+      本年户核账: postSummerUpper.本年户核账,
+      本年户通融: postSummerUpper.本年户通融,
+      铜钱: postSummerUpper.铜钱,
+      体魄: postSummerUpper.体魄,
+      家族: postSummerUpper.家族,
+      本年户季务: postSummerUpper.本年户季务
+    },
+    postSummerMid: {
+      本年户供读: postSummerMid.本年户供读,
+      本年户通融: postSummerMid.本年户通融,
+      本年户备役: postSummerMid.本年户备役,
+      本年户季务: postSummerMid.本年户季务
+    },
+    postAutumnUpper: {
+      本年户核账: postAutumnUpper.本年户核账,
+      本年户通融: postAutumnUpper.本年户通融,
+      家族: postAutumnUpper.家族,
+      本年户季务: postAutumnUpper.本年户季务
+    },
+    postSummerLower: {
+      本年户通融: postSummerLower.本年户通融,
+      本年户季务: postSummerLower.本年户季务
+    },
+    postAutumnMid: {
+      本年户核账: postAutumnMid.本年户核账,
+      本年户备役: postAutumnMid.本年户备役,
+      本年户通融: postAutumnMid.本年户通融,
+      家族: postAutumnMid.家族,
+      体魄: postAutumnMid.体魄,
+      白银: postAutumnMid.白银,
+      本年户季务: postAutumnMid.本年户季务
+    },
+    postAutumnLower: {
+      应役: postAutumnLower.应役,
+      本年户备役: postAutumnLower.本年户备役,
+      本年户季务: postAutumnLower.本年户季务
+    },
+    postWinterUpper: {
+      本年户通融: postWinterUpper.本年户通融,
+      本年户备役: postWinterUpper.本年户备役,
+      本年户季务: postWinterUpper.本年户季务
+    },
+    postWinterMid: {
+      本年户核账: postWinterMid.本年户核账,
+      本年户通融: postWinterMid.本年户通融,
+      家族: postWinterMid.家族,
+      本年户季务: postWinterMid.本年户季务
+    },
+    postWinterLower: {
+      应役: postWinterLower.应役,
+      本年户备役: postWinterLower.本年户备役,
+      本年户供读: postWinterLower.本年户供读,
+      本年户季务: postWinterLower.本年户季务,
+      委托待收租谷: postWinterLower.委托待收租谷
+    },
+    nextYearState: {
+      年龄: nextYearState.年龄,
+      户年: nextYearState.户年,
+      户季: nextYearState.户季,
+      户旬: nextYearState.户旬,
+      本年户核账: nextYearState.本年户核账,
+      本年户催账: nextYearState.本年户催账,
+      本年户备役: nextYearState.本年户备役,
+      本年户通融: nextYearState.本年户通融,
+      本年户供读: nextYearState.本年户供读,
+      本年户季务: nextYearState.本年户季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageWinterLower.includes('冬应役')
+      && resolveWinterLower.includes('〔冬尾样纸〕')
+      && resolveWinterLower.includes('〔年下回签〕')
+      && postSpringMid.委托营生 === '兄代管薄田'
+      && postSpringMid.委托待收租谷 >= 1
+      && postWinterLower.应役 !== '未役'
+      && postWinterLower.委托待收租谷 >= 1
+      && nextYearStage.includes('当户 · 春分书')
+      && nextYearStage.includes('39 岁')
+      && nextYearState.户年 === 2
+      && nextYearState.户季 === 1
+      && nextYearState.户旬 === 1
+      && nextYearState.本年户核账 === 0
+      && nextYearState.本年户催账 === 0
+      && nextYearState.本年户备役 === 0
+      && nextYearState.本年户通融 === 0
+      && Array.isArray(nextYearState.本年户季务)
+      && nextYearState.本年户季务.length === 0
+      && includesOrderedPhases(phaseTrace, ['household'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runMerchantHouseholdChoiceDensityRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+    api.patchState(Object.assign({
+      路线: '路径四 · 徽商式亦贾亦儒',
+      识字: true,
+      年龄: 38,
+      妻室: true,
+      子数: 2,
+      女数: 1,
+      白银: 3,
+      铜钱: 620,
+      存米: 4,
+      田亩: 4,
+      家族: 67,
+      体魄: 58,
+      负债银: 0,
+      识货进度: 2,
+      账房进度: 2,
+      商信誉: 2,
+      商历练: 3,
+      未回款银: 2,
+      累计反哺银: 1,
+      商路供读银: 0,
+      委托营生: '兄代管薄田',
+      委托租谷: 1,
+      委托待收租谷: 1,
+      分家: true,
+      应役: '未役',
+      本年户核账: 0,
+      本年户催账: 0,
+      本年户备役: 0,
+      本年户通融: 0,
+      本年户委托: 1,
+      本年户供读: 0,
+      本年户季务: []
+    }, extraPatch || {}));
+    api.enterPhase('household');
+    api.patchState({
+      户季: season,
+      户旬: xun,
+      本年户核账: 0,
+      本年户催账: 0,
+      本年户备役: 0,
+      本年户通融: 0,
+      本年户委托: 1,
+      本年户供读: 0,
+      本年户季务: []
+    });
+    api.enterPhase('household');
+    api.patchState({ 户季: season, 户旬: xun });
+    api.enterPhase('household');
+    return { api, elements, window };
+  }
+
+  const springLower = setupAt(1, 3, { 铜钱: 620 });
+  const springLowerStage = normalizeHtml(springLower.elements.get('stage').innerHTML);
+  pickByPlan(springLower.api, ['h_spring_tail_incense', 'h_spring_split']);
+  springLower.api.commit();
+  const springLowerResolve = normalizeHtml(springLower.elements.get('stage').innerHTML);
+  const springLowerState = clone(springLower.api.getState());
+
+  const summer = setupAt(2, 2);
+  const summerStage = normalizeHtml(summer.elements.get('stage').innerHTML);
+  pickByPlan(summer.api, ['h_summer_market', 'h_summer_mid_reply']);
+  summer.api.commit();
+  const summerResolve = normalizeHtml(summer.elements.get('stage').innerHTML);
+  const summerState = clone(summer.api.getState());
+
+  const summerTail = setupAt(2, 3);
+  const summerTailStage = normalizeHtml(summerTail.elements.get('stage').innerHTML);
+  pickByPlan(summerTail.api, ['h_summer_tail', 'h_summer_guest_sign']);
+  summerTail.api.commit();
+  const summerTailResolve = normalizeHtml(summerTail.elements.get('stage').innerHTML);
+  const summerTailState = clone(summerTail.api.getState());
+
+  const autumn = setupAt(3, 1);
+  const autumnStage = normalizeHtml(autumn.elements.get('stage').innerHTML);
+  pickByPlan(autumn.api, ['h_autumn_receipt', 'h_autumn_head_cloth_merchant']);
+  autumn.api.commit();
+  const autumnResolve = normalizeHtml(autumn.elements.get('stage').innerHTML);
+  const autumnState = clone(autumn.api.getState());
+
+  const autumnMid = setupAt(3, 2, { 铜钱: 620 });
+  const autumnMidStage = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  pickByPlan(autumnMid.api, ['h_autumn_mid_reply', 'h_autumn_mid_cloth']);
+  autumnMid.api.commit();
+  const autumnMidResolve = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  const autumnMidState = clone(autumnMid.api.getState());
+
+  const winter = setupAt(4, 1, { 铜钱: 560 });
+  const winterStage = normalizeHtml(winter.elements.get('stage').innerHTML);
+  pickByPlan(winter.api, ['h_winter_gift', 'h_winter_medicine']);
+  winter.api.commit();
+  const winterResolve = normalizeHtml(winter.elements.get('stage').innerHTML);
+  const winterState = clone(winter.api.getState());
+
+  const winterMid = setupAt(4, 2, { 铜钱: 620 });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['h_winter_register', 'h_winter_clear']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+
+  const autumnTail = setupAt(3, 3, { 铜钱: 560 });
+  const autumnTailStage = normalizeHtml(autumnTail.elements.get('stage').innerHTML);
+  pickByPlan(autumnTail.api, ['h_autumn_register', 'h_autumn_reply']);
+  autumnTail.api.commit();
+  const autumnTailResolve = normalizeHtml(autumnTail.elements.get('stage').innerHTML);
+  const autumnTailState = clone(autumnTail.api.getState());
+
+  const winterTail = setupAt(4, 3, { 铜钱: 560 });
+  const winterTailStage = normalizeHtml(winterTail.elements.get('stage').innerHTML);
+  pickByPlan(winterTail.api, ['h_winter_post', 'h_winter_register_tail']);
+  winterTail.api.commit();
+  const winterTailResolve = normalizeHtml(winterTail.elements.get('stage').innerHTML);
+  const winterTailState = clone(winterTail.api.getState());
+
+  const summerHead = setupAt(2, 1, { 铜钱: 620 });
+  const summerHeadStage = normalizeHtml(summerHead.elements.get('stage').innerHTML);
+  pickByPlan(summerHead.api, ['h_summer_head_reply', 'h_summer_head_register']);
+  summerHead.api.commit();
+  const summerHeadResolve = normalizeHtml(summerHead.elements.get('stage').innerHTML);
+  const summerHeadState = clone(summerHead.api.getState());
+
+  return {
+    springLower: {
+      stage: springLowerStage,
+      resolve: springLowerResolve,
+      state: {
+        本年户核账: springLowerState.本年户核账,
+        本年户通融: springLowerState.本年户通融,
+        本年户备役: springLowerState.本年户备役,
+        家族: springLowerState.家族,
+        本年户季务: springLowerState.本年户季务
+      },
+      ok: springLowerStage.includes('先把春尾香纸与熟号门包分开')
+        && springLowerStage.includes('把春路回钱拆作锅火与差钱')
+        && springLowerResolve.includes('先把春尾香纸、熟号门包、递话脚费和孩子纸包分开')
+        && springLowerResolve.includes('〔春路锅火〕')
+        && springLowerResolve.includes('〔春尾香脚〕')
+        && springLowerState.本年户核账 >= 1
+        && springLowerState.本年户通融 >= 1
+        && springLowerState.本年户备役 >= 1
+        && springLowerState.家族 >= 70
+        && Array.isArray(springLowerState.本年户季务)
+        && springLowerState.本年户季务.some((tag) => String(tag).includes('春尾香脚拆开'))
+        && springLowerState.本年户季务.some((tag) => String(tag).includes('春尾香脚已分'))
+        && springLowerState.本年户季务.some((tag) => String(tag).includes('春路拆账'))
+        && springLowerState.本年户季务.some((tag) => String(tag).includes('春路锅火已拆'))
+        && (springLower.window.__INV || []).length === 0
+    },
+    summerHead: {
+      stage: summerHeadStage,
+      resolve: summerHeadResolve,
+      state: {
+        本年户核账: summerHeadState.本年户核账,
+        本年户通融: summerHeadState.本年户通融,
+        本年户备役: summerHeadState.本年户备役,
+        家族: summerHeadState.家族,
+        本年户季务: summerHeadState.本年户季务
+      },
+      ok: summerHeadStage.includes('先把伏夏回签与孩子纸样分开')
+        && summerHeadStage.includes('先把伏夏柜帖与差票门包分开')
+        && summerHeadResolve.includes('先把熟号回签、孩子纸样、递话门包和锅火凉药分开')
+        && summerHeadResolve.includes('〔伏夏回签〕')
+        && summerHeadResolve.includes('先把伏夏柜帖、差票门包、里书帖样和递话脚费分开')
+        && summerHeadResolve.includes('〔伏夏帖册〕')
+        && summerHeadResolve.includes('〔伏夏路药〕')
+        && summerHeadState.本年户核账 >= 1
+        && summerHeadState.本年户通融 >= 2
+        && summerHeadState.本年户备役 >= 1
+        && summerHeadState.家族 >= 69
+        && Array.isArray(summerHeadState.本年户季务)
+        && summerHeadState.本年户季务.some((tag) => String(tag).includes('伏夏回签拆开'))
+        && summerHeadState.本年户季务.some((tag) => String(tag).includes('伏夏回签已理'))
+        && summerHeadState.本年户季务.some((tag) => String(tag).includes('伏夏帖册拆开'))
+        && summerHeadState.本年户季务.some((tag) => String(tag).includes('伏夏帖册已理'))
+        && summerHeadState.本年户季务.some((tag) => String(tag).includes('伏夏路药'))
+        && (summerHead.window.__INV || []).length === 0
+    },
+    summer: {
+      stage: summerStage,
+      resolve: summerResolve,
+      state: {
+        本年户核账: summerState.本年户核账,
+        本年户通融: summerState.本年户通融,
+        本年户供读: summerState.本年户供读,
+        家族: summerState.家族,
+        本年户季务: summerState.本年户季务
+      },
+      ok: summerStage.includes('先把伏夏柜边回帖与孩子纸样分开')
+        && summerResolve.includes('先把伏夏柜边回帖、孩子纸样、递话脚费和锅火凉药分开')
+        && summerResolve.includes('〔伏夏供读回帖〕')
+        && summerResolve.includes('〔伏夏样纸〕')
+        && summerState.本年户核账 >= 1
+        && summerState.本年户通融 >= 2
+        && summerState.本年户供读 >= 1
+        && summerState.家族 >= 69
+        && Array.isArray(summerState.本年户季务)
+        && summerState.本年户季务.some((tag) => String(tag).includes('伏夏回帖拆开'))
+        && summerState.本年户季务.some((tag) => String(tag).includes('伏夏供读回帖已理'))
+        && summerState.本年户季务.some((tag) => String(tag).includes('伏夏样纸已理'))
+        && (summer.window.__INV || []).length === 0
+    },
+    summerTail: {
+      stage: summerTailStage,
+      resolve: summerTailResolve,
+      state: {
+        本年户核账: summerTailState.本年户核账,
+        本年户通融: summerTailState.本年户通融,
+        本年户备役: summerTailState.本年户备役,
+        家族: summerTailState.家族,
+        本年户季务: summerTailState.本年户季务
+      },
+      ok: summerTailStage.includes('先把夏尾客签与秋前样纸分开')
+        && summerTailResolve.includes('先把夏尾客签回话、秋前样纸、递话门包与过路药包分开')
+        && summerTailResolve.includes('〔夏尾客签〕')
+        && summerTailState.本年户核账 >= 1
+        && summerTailState.本年户通融 >= 1
+        && summerTailState.本年户备役 >= 1
+        && summerTailState.家族 >= 68
+        && Array.isArray(summerTailState.本年户季务)
+        && summerTailState.本年户季务.some((tag) => String(tag).includes('夏尾客签拆开'))
+        && summerTailState.本年户季务.some((tag) => String(tag).includes('夏尾客签已理'))
+        && (summerTail.window.__INV || []).length === 0
+    },
+    autumn: {
+      stage: autumnStage,
+      resolve: autumnResolve,
+      state: {
+        本年户核账: autumnState.本年户核账,
+        本年户通融: autumnState.本年户通融,
+        家族: autumnState.家族,
+        体魄: autumnState.体魄,
+        本年户季务: autumnState.本年户季务
+      },
+      ok: autumnStage.includes('先把秋头回签与牙帖脚费分开')
+        && autumnStage.includes('先把秋头回签与孩子夹衣分开')
+        && autumnResolve.includes('先把秋路样纸、回钱脚单和牙行茶钱分开')
+        && autumnResolve.includes('先把秋头回签、孩子夹衣、回钱脚单和锅火小耗分开')
+        && autumnResolve.includes('〔秋路账脚〕')
+        && autumnResolve.includes('〔秋头回签〕')
+        && autumnResolve.includes('〔秋头夹衣〕')
+        && autumnState.本年户核账 >= 1
+        && autumnState.本年户通融 >= 2
+        && autumnState.家族 >= 69
+        && autumnState.体魄 >= 60
+        && Array.isArray(autumnState.本年户季务)
+        && autumnState.本年户季务.some((tag) => String(tag).includes('秋头夹衣拆开'))
+        && autumnState.本年户季务.some((tag) => String(tag).includes('秋头回签已理'))
+        && autumnState.本年户季务.some((tag) => String(tag).includes('秋头夹衣已理'))
+        && (autumn.window.__INV || []).length === 0
+    },
+    autumnMid: {
+      stage: autumnMidStage,
+      resolve: autumnMidResolve,
+      state: {
+        本年户核账: autumnMidState.本年户核账,
+        本年户备役: autumnMidState.本年户备役,
+        本年户通融: autumnMidState.本年户通融,
+        家族: autumnMidState.家族,
+        体魄: autumnMidState.体魄,
+        本年户季务: autumnMidState.本年户季务
+      },
+      ok: autumnMidStage.includes('先把秋中回签与租路饭钱分开')
+        && autumnMidStage.includes('先把秋中回签与孩子夹衣分开')
+        && autumnMidResolve.includes('先把熟号回签、租路饭钱、递话脚费和锅火后手分开')
+        && autumnMidResolve.includes('先把秋中回签、孩子夹衣、租路饭钱和锅火后手分开')
+        && autumnMidResolve.includes('〔秋中回签〕')
+        && autumnMidResolve.includes('〔秋中夹衣〕')
+        && autumnMidResolve.includes('〔秋路锅火〕')
+        && autumnMidState.本年户核账 >= 1
+        && autumnMidState.本年户通融 >= 2
+        && autumnMidState.家族 >= 69
+        && autumnMidState.体魄 >= 60
+        && Array.isArray(autumnMidState.本年户季务)
+        && autumnMidState.本年户季务.some((tag) => String(tag).includes('秋中回签拆开'))
+        && autumnMidState.本年户季务.some((tag) => String(tag).includes('秋中夹衣拆开'))
+        && autumnMidState.本年户季务.some((tag) => String(tag).includes('秋中回签已理'))
+        && autumnMidState.本年户季务.some((tag) => String(tag).includes('秋中夹衣已理'))
+        && autumnMidState.本年户季务.some((tag) => String(tag).includes('秋路锅火已拆'))
+        && (autumnMid.window.__INV || []).length === 0
+    },
+    winter: {
+      stage: winterStage,
+      resolve: winterResolve,
+      state: {
+        本年户备役: winterState.本年户备役,
+        体魄: winterState.体魄,
+        家族: winterState.家族,
+        本年户季务: winterState.本年户季务
+      },
+      ok: winterStage.includes('先把冬头炭药与差票门包分开')
+        && winterResolve.includes('先把炭米、年下药包、差票门包与熟号递话脚费分开')
+        && winterResolve.includes('〔冬头炭药〕')
+        && winterState.本年户备役 >= 2
+        && winterState.体魄 >= 60
+        && winterState.家族 >= 69
+        && Array.isArray(winterState.本年户季务)
+        && winterState.本年户季务.some((tag) => String(tag).includes('冬头炭药拆开'))
+        && winterState.本年户季务.some((tag) => String(tag).includes('冬头炭药已分'))
+        && (winter.window.__INV || []).length === 0
+    },
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        本年户核账: winterMidState.本年户核账,
+        本年户备役: winterMidState.本年户备役,
+        家族: winterMidState.家族,
+        本年户季务: winterMidState.本年户季务
+      },
+      ok: winterMidStage.includes('先把里书抄册与来春牙帖分开')
+        && winterMidResolve.includes('先把里书抄册、来春牙帖脚费、熟号递话小礼和脚夫回签分开')
+        && winterMidResolve.includes('〔冬中帖册〕')
+        && winterMidState.本年户核账 >= 2
+        && winterMidState.本年户备役 >= 1
+        && winterMidState.家族 >= 69
+        && Array.isArray(winterMidState.本年户季务)
+        && winterMidState.本年户季务.some((tag) => String(tag).includes('冬中帖册拆开'))
+        && winterMidState.本年户季务.some((tag) => String(tag).includes('冬中帖册已理'))
+        && (winterMid.window.__INV || []).length === 0
+    },
+    autumnTail: {
+      stage: autumnTailStage,
+      resolve: autumnTailResolve,
+      state: {
+        本年户核账: autumnTailState.本年户核账,
+        本年户备役: autumnTailState.本年户备役,
+        本年户通融: autumnTailState.本年户通融,
+        家族: autumnTailState.家族,
+        本年户季务: autumnTailState.本年户季务
+      },
+      ok: autumnTailStage.includes('先把秋尾回话与差票门包分开')
+        && autumnTailStage.includes('先把秋尾回批与抄簿次序分开')
+        && autumnTailResolve.includes('先把秋尾回话、差票门包、递话脚费和锅火后手分开')
+        && autumnTailResolve.includes('先把租帖回批、回签抄簿、递话脚费和供读纸包次序理开了')
+        && autumnTailResolve.includes('〔秋尾门包〕')
+        && autumnTailResolve.includes('〔秋尾抄簿〕')
+        && autumnTailState.本年户核账 >= 1
+        && autumnTailState.本年户备役 >= 2
+        && autumnTailState.本年户通融 >= 1
+        && autumnTailState.家族 >= 69
+        && Array.isArray(autumnTailState.本年户季务)
+        && autumnTailState.本年户季务.some((tag) => String(tag).includes('秋尾回话门包'))
+        && autumnTailState.本年户季务.some((tag) => String(tag).includes('秋尾抄簿拆开'))
+        && autumnTailState.本年户季务.some((tag) => String(tag).includes('秋尾抄簿已理'))
+        && autumnTailState.本年户季务.some((tag) => String(tag).includes('秋尾门包已分'))
+        && (autumnTail.window.__INV || []).length === 0
+    },
+    winterTail: {
+      stage: winterTailStage,
+      resolve: winterTailResolve,
+      state: {
+        年龄: winterTailState.年龄,
+        户年: winterTailState.户年,
+        户季: winterTailState.户季,
+        户旬: winterTailState.户旬,
+        家族: winterTailState.家族,
+        本年户季务: winterTailState.本年户季务
+      },
+      ok: winterTailStage.includes('先把明春牙帖与里书回签分开')
+        && winterTailStage.includes('先把冬尾抄簿与柜边回帖分开')
+        && winterTailResolve.includes('先把来春牙帖脚费、里书回签、熟号递话和锅火次序理开了')
+        && winterTailResolve.includes('〔冬尾样纸〕')
+        && winterTailResolve.includes('〔冬尾牙帖〕')
+        && winterTailResolve.includes('〔冬尾抄簿〕')
+        && winterTailResolve.includes('〔炭脚路引〕')
+        && winterTailResolve.includes('〔年下回签〕')
+        && winterTailState.户年 === 2
+        && winterTailState.户季 === 1
+        && winterTailState.户旬 === 1
+        && winterTailState.家族 >= 69
+        && Array.isArray(winterTailState.本年户季务)
+        && winterTailState.本年户季务.length === 0
+        && (winterTail.window.__INV || []).length === 0
+    },
+    ok: springLowerStage.includes('先把春尾香纸与熟号门包分开')
+      && summerStage.includes('先把伏夏柜边回帖与孩子纸样分开')
+      && summerTailStage.includes('先把夏尾客签与秋前样纸分开')
+      && autumnStage.includes('先把秋头回签与牙帖脚费分开')
+      && autumnMidStage.includes('先把秋中回签与租路饭钱分开')
+      && winterStage.includes('先把冬头炭药与差票门包分开')
+      && winterMidStage.includes('先把里书抄册与来春牙帖分开')
+      && autumnTailStage.includes('先把秋尾回话与差票门包分开')
+      && autumnTailStage.includes('先把秋尾回批与抄簿次序分开')
+      && winterTailStage.includes('先把明春牙帖与里书回签分开')
+      && winterTailStage.includes('先把冬尾抄簿与柜边回帖分开')
+      && springLowerResolve.includes('〔春尾香脚〕')
+      && summerResolve.includes('〔伏夏样纸〕')
+      && summerTailResolve.includes('〔夏尾客签〕')
+      && autumnResolve.includes('〔秋头回签〕')
+      && autumnMidResolve.includes('〔秋中回签〕')
+      && winterResolve.includes('〔冬头炭药〕')
+      && winterMidResolve.includes('〔冬中帖册〕')
+      && autumnTailResolve.includes('〔秋尾门包〕')
+      && autumnTailResolve.includes('〔秋尾抄簿〕')
+      && winterTailResolve.includes('〔冬尾样纸〕')
+      && winterTailResolve.includes('〔冬尾牙帖〕')
+      && winterTailResolve.includes('〔冬尾抄簿〕')
+      && springLowerState.本年户季务.some((tag) => String(tag).includes('春尾香脚拆开'))
+      && summerState.本年户季务.some((tag) => String(tag).includes('伏夏回帖拆开'))
+      && summerState.本年户季务.some((tag) => String(tag).includes('伏夏供读回帖已理'))
+      && summerTailState.本年户季务.some((tag) => String(tag).includes('夏尾客签拆开'))
+      && autumnState.本年户季务.some((tag) => String(tag).includes('秋头回签已理'))
+      && autumnState.本年户季务.some((tag) => String(tag).includes('秋头夹衣拆开'))
+      && autumnMidState.本年户季务.some((tag) => String(tag).includes('秋中回签拆开'))
+      && winterState.本年户季务.some((tag) => String(tag).includes('冬头炭药拆开'))
+      && winterMidState.本年户季务.some((tag) => String(tag).includes('冬中帖册拆开'))
+      && autumnTailState.本年户季务.some((tag) => String(tag).includes('秋尾回话门包'))
+      && autumnTailState.本年户季务.some((tag) => String(tag).includes('秋尾抄簿拆开'))
+      && autumnTailState.本年户季务.some((tag) => String(tag).includes('秋尾抄簿已理'))
+      && winterTailState.户年 === 2
+      && winterTailState.户季 === 1
+      && winterTailState.户旬 === 1
+      && winterTailState.本年户季务.length === 0
+      && (springLower.window.__INV || []).length === 0
+      && (summer.window.__INV || []).length === 0
+      && (summerTail.window.__INV || []).length === 0
+      && (autumn.window.__INV || []).length === 0
+      && (autumnMid.window.__INV || []).length === 0
+      && (winter.window.__INV || []).length === 0
+      && (winterMid.window.__INV || []).length === 0
+      && (autumnTail.window.__INV || []).length === 0
+      && (winterTail.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantHouseholdSpringChoiceRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSequence(householdSafeSeq(0.1, 0.9));
+  api.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 3,
+    铜钱: 520,
+    存米: 4,
+    田亩: 4,
+    家族: 67,
+    负债银: 0,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 2,
+    累计反哺银: 1,
+    商路供读银: 0,
+    委托营生: '兄代管薄田',
+    委托租谷: 1,
+    委托待收租谷: 1,
+    本年户核账: 0,
+    本年户催账: 0,
+    本年户备役: 0,
+    本年户通融: 0,
+    本年户委托: 1,
+    本年户供读: 0,
+    本年户季务: []
+  });
+  api.enterPhase('household');
+  api.patchState({ 户季: 1, 户旬: 2 });
+  api.enterPhase('household');
+  const stage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_spring_reply', 'h_spring_incense']);
+  api.commit();
+  const resolve = normalizeHtml(elements.get('stage').innerHTML);
+  const state = clone(api.getState());
+
+  return {
+    stage,
+    resolve,
+    state: {
+      铜钱: state.铜钱,
+      家族: state.家族,
+      本年户核账: state.本年户核账,
+      本年户通融: state.本年户通融,
+      本年户季务: state.本年户季务
+    },
+    ok: stage.includes('先把春中回签与样纸门包分开')
+      && stage.includes('先把清明香纸与代管回签分开')
+      && resolve.includes('先把熟号回签、样纸门包、递话脚费和锅火小耗分开')
+      && resolve.includes('先把清明香纸、代管回签、递话脚费和锅火小耗分开')
+      && resolve.includes('〔春中回签〕')
+      && resolve.includes('〔春中香脚〕')
+      && state.本年户核账 >= 2
+      && state.本年户通融 >= 2
+      && state.家族 >= 69
+      && state.铜钱 <= 400
+      && Array.isArray(state.本年户季务)
+      && state.本年户季务.some((tag) => String(tag).includes('春中回签拆开'))
+      && state.本年户季务.some((tag) => String(tag).includes('春中香脚拆开'))
+      && state.本年户季务.some((tag) => String(tag).includes('分书脚费已理'))
+      && state.本年户季务.some((tag) => String(tag).includes('春中回签已理'))
+      && state.本年户季务.some((tag) => String(tag).includes('春中香脚已分'))
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runMerchantHouseholdShoulderChoiceRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSequence(householdSafeSeq(0.1, 0.9));
+    api.patchState(Object.assign({
+      路线: '路径四 · 徽商式亦贾亦儒',
+      识字: true,
+      年龄: 38,
+      妻室: true,
+      子数: 2,
+      女数: 1,
+      白银: 3,
+      铜钱: 620,
+      存米: 4,
+      田亩: 4,
+      家族: 67,
+      体魄: 58,
+      负债银: 0,
+      识货进度: 2,
+      账房进度: 2,
+      商信誉: 2,
+      商历练: 3,
+      未回款银: 2,
+      累计反哺银: 1,
+      商路供读银: 0,
+      委托营生: '兄代管薄田',
+      委托租谷: 1,
+      委托待收租谷: 1,
+      本年户核账: 0,
+      本年户催账: 0,
+      本年户备役: 0,
+      本年户通融: 0,
+      本年户委托: 1,
+      本年户供读: 0,
+      本年户季务: []
+    }, extraPatch || {}));
+    api.enterPhase('household');
+    api.patchState({
+      户季: season,
+      户旬: xun,
+      本年户核账: 0,
+      本年户催账: 0,
+      本年户备役: 0,
+      本年户通融: 0,
+      本年户委托: 1,
+      本年户供读: 0,
+      本年户季务: []
+    });
+    api.enterPhase('household');
+    return { api, elements, window };
+  }
+
+  const springUpper = setupAt(1, 1, { 铜钱: 560 });
+  const springUpperStage = normalizeHtml(springUpper.elements.get('stage').innerHTML);
+  pickByPlan(springUpper.api, ['h_spring_packet', 'h_spring_head_reply']);
+  springUpper.api.commit();
+  const springUpperResolve = normalizeHtml(springUpper.elements.get('stage').innerHTML);
+  const springUpperState = clone(springUpper.api.getState());
+
+  const summerUpper = setupAt(2, 1, { 铜钱: 620 });
+  const summerUpperStage = normalizeHtml(summerUpper.elements.get('stage').innerHTML);
+  pickByPlan(summerUpper.api, ['h_summer_cool', 'h_summer_home_packet']);
+  summerUpper.api.commit();
+  const summerUpperResolve = normalizeHtml(summerUpper.elements.get('stage').innerHTML);
+  const summerUpperState = clone(summerUpper.api.getState());
+
+  const winterMid = setupAt(4, 2, { 铜钱: 620 });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['h_winter_clear', 'h_winter_school_packet']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+
+  return {
+    springUpper: {
+      stage: springUpperStage,
+      resolve: springUpperResolve,
+      state: {
+        铜钱: springUpperState.铜钱,
+        家族: springUpperState.家族,
+        本年户核账: springUpperState.本年户核账,
+        本年户通融: springUpperState.本年户通融,
+        本年户季务: springUpperState.本年户季务
+      },
+      ok: springUpperStage.includes('先把春头代管脚单与熟号回话分开')
+        && springUpperResolve.includes('先把春头代管脚单、熟号回话、界纸门包和锅火小耗分开')
+        && springUpperResolve.includes('〔分书抄样〕')
+        && springUpperState.本年户核账 >= 2
+        && springUpperState.本年户通融 >= 2
+        && springUpperState.家族 >= 69
+        && springUpperState.铜钱 <= 465
+        && Array.isArray(springUpperState.本年户季务)
+        && springUpperState.本年户季务.some((tag) => String(tag).includes('春头回话拆开'))
+        && springUpperState.本年户季务.some((tag) => String(tag).includes('分书抄样已理'))
+        && (springUpper.window.__INV || []).length === 0
+    },
+    summerUpper: {
+      stage: summerUpperStage,
+      resolve: summerUpperResolve,
+      state: {
+        铜钱: summerUpperState.铜钱,
+        家族: summerUpperState.家族,
+        本年户核账: summerUpperState.本年户核账,
+        本年户通融: summerUpperState.本年户通融,
+        本年户季务: summerUpperState.本年户季务
+      },
+      ok: summerUpperStage.includes('先把伏夏家书脚费与布药纸包分开')
+        && summerUpperResolve.includes('先把伏夏家书脚费、布药纸包、递话门包和锅火凉热小耗分开')
+        && summerUpperResolve.includes('〔伏夏路药〕')
+        && summerUpperState.本年户核账 >= 1
+        && summerUpperState.本年户通融 >= 2
+        && summerUpperState.家族 >= 69
+        && summerUpperState.铜钱 <= 495
+        && Array.isArray(summerUpperState.本年户季务)
+        && summerUpperState.本年户季务.some((tag) => String(tag).includes('伏夏家书拆开'))
+        && summerUpperState.本年户季务.some((tag) => String(tag).includes('伏夏路药已分'))
+        && (summerUpper.window.__INV || []).length === 0
+    },
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        铜钱: winterMidState.铜钱,
+        家族: winterMidState.家族,
+        本年户核账: winterMidState.本年户核账,
+        本年户通融: winterMidState.本年户通融,
+        本年户季务: winterMidState.本年户季务
+      },
+      ok: winterMidStage.includes('先把冬中纸样炭笔与柜边回帖分开')
+        && winterMidResolve.includes('先把冬中纸样炭笔、柜边回帖、递话脚费和守岁锅火分开')
+        && winterMidResolve.includes('〔冬中回话〕')
+        && winterMidResolve.includes('〔冬中帖册〕')
+        && winterMidState.本年户核账 >= 2
+        && winterMidState.本年户通融 >= 2
+        && winterMidState.家族 >= 69
+        && winterMidState.铜钱 <= 500
+        && Array.isArray(winterMidState.本年户季务)
+        && winterMidState.本年户季务.some((tag) => String(tag).includes('冬中纸样拆开'))
+        && winterMidState.本年户季务.some((tag) => String(tag).includes('冬中回话已理'))
+        && winterMidState.本年户季务.some((tag) => String(tag).includes('冬中帖册已理'))
+        && (winterMid.window.__INV || []).length === 0
+    },
+    ok: springUpperStage.includes('先把春头代管脚单与熟号回话分开')
+      && springUpperResolve.includes('先把春头代管脚单、熟号回话、界纸门包和锅火小耗分开')
+      && summerUpperStage.includes('先把伏夏家书脚费与布药纸包分开')
+      && summerUpperResolve.includes('先把伏夏家书脚费、布药纸包、递话门包和锅火凉热小耗分开')
+      && winterMidStage.includes('先把冬中纸样炭笔与柜边回帖分开')
+      && winterMidResolve.includes('先把冬中纸样炭笔、柜边回帖、递话脚费和守岁锅火分开')
+      && springUpperState.本年户季务.some((tag) => String(tag).includes('春头回话拆开'))
+      && summerUpperState.本年户季务.some((tag) => String(tag).includes('伏夏家书拆开'))
+      && winterMidState.本年户季务.some((tag) => String(tag).includes('冬中纸样拆开'))
+      && (springUpper.window.__INV || []).length === 0
+      && (summerUpper.window.__INV || []).length === 0
+      && (winterMid.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantHouseholdEarlyFrictionFallbackRegression() {
+  const { api: summerApi, elements: summerElements, window: summerWindow } = createHarness();
+  summerApi.setRandomSequence(householdSafeSeq(0.01, 0.9));
+  summerApi.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 3,
+    铜钱: 260,
+    存米: 4,
+    田亩: 4,
+    家族: 66,
+    负债银: 0,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 2,
+    累计反哺银: 1,
+    商路供读银: 0,
+    委托营生: '兄代管薄田',
+    委托租谷: 1,
+    委托待收租谷: 1
+  });
+  summerApi.enterPhase('household');
+  summerApi.patchState({
+    户季: 2,
+    户旬: 1,
+    本年户核账: 0,
+    本年户催账: 0,
+    本年户备役: 0,
+    本年户通融: 0,
+    本年户委托: 1,
+    本年户供读: 0,
+    本年户季务: []
+  });
+  summerApi.enterPhase('household');
+  const stageSummerUpper = normalizeHtml(summerElements.get('stage').innerHTML);
+  summerApi.commit();
+  const resolveSummerUpper = normalizeHtml(summerElements.get('stage').innerHTML);
+  const postSummerUpper = clone(summerApi.getState());
+
+  const { api: autumnApi, elements: autumnElements, window: autumnWindow } = createHarness();
+  autumnApi.setRandomSequence(householdSafeSeq(0.01, 0.9));
+  autumnApi.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 3,
+    铜钱: 260,
+    存米: 4,
+    田亩: 4,
+    家族: 66,
+    负债银: 0,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 2,
+    商历练: 3,
+    未回款银: 2,
+    累计反哺银: 1,
+    商路供读银: 0,
+    委托营生: '兄代管薄田',
+    委托租谷: 1,
+    委托待收租谷: 1
+  });
+  autumnApi.enterPhase('household');
+  autumnApi.patchState({
+    户季: 3,
+    户旬: 1,
+    本年户核账: 0,
+    本年户催账: 0,
+    本年户备役: 0,
+    本年户通融: 0,
+    本年户委托: 1,
+    本年户供读: 0,
+    本年户季务: []
+  });
+  autumnApi.enterPhase('household');
+  const stageAutumnUpper = normalizeHtml(autumnElements.get('stage').innerHTML);
+  autumnApi.commit();
+  const resolveAutumnUpper = normalizeHtml(autumnElements.get('stage').innerHTML);
+  const postAutumnUpper = clone(autumnApi.getState());
+
+  return {
+    summerUpper: {
+      stage: stageSummerUpper,
+      resolve: resolveSummerUpper,
+      铜钱: postSummerUpper.铜钱,
+      家族: postSummerUpper.家族,
+      本年户季务: postSummerUpper.本年户季务,
+      ok: stageSummerUpper.includes('夏催账')
+        && resolveSummerUpper.includes('〔伏夏路药〕')
+        && resolveSummerUpper.includes('〔伏夏回签〕')
+        && resolveSummerUpper.includes('〔伏夏帖册〕')
+        && postSummerUpper.铜钱 === 160
+        && Array.isArray(postSummerUpper.本年户季务)
+        && postSummerUpper.本年户季务.some((tag) => String(tag).includes('伏夏路药'))
+        && postSummerUpper.本年户季务.some((tag) => String(tag).includes('伏夏回签'))
+        && postSummerUpper.本年户季务.some((tag) => String(tag).includes('伏夏帖册'))
+        && (summerWindow.__INV || []).length === 0
+    },
+    autumnUpper: {
+      stage: stageAutumnUpper,
+      resolve: resolveAutumnUpper,
+      铜钱: postAutumnUpper.铜钱,
+      家族: postAutumnUpper.家族,
+      本年户季务: postAutumnUpper.本年户季务,
+      ok: stageAutumnUpper.includes('秋定租')
+        && resolveAutumnUpper.includes('〔秋路牙税〕')
+        && resolveAutumnUpper.includes('〔秋路账脚〕')
+        && resolveAutumnUpper.includes('〔秋头回签〕')
+        && resolveAutumnUpper.includes('〔秋头夹衣〕')
+        && postAutumnUpper.铜钱 === 105
+        && Array.isArray(postAutumnUpper.本年户季务)
+        && postAutumnUpper.本年户季务.some((tag) => String(tag).includes('秋路账脚'))
+        && postAutumnUpper.本年户季务.some((tag) => String(tag).includes('秋头夹衣'))
+        && (autumnWindow.__INV || []).length === 0
+    },
+    ok: stageSummerUpper.includes('夏催账')
+      && resolveSummerUpper.includes('〔伏夏路药〕')
+      && resolveSummerUpper.includes('〔伏夏回签〕')
+      && resolveSummerUpper.includes('〔伏夏帖册〕')
+      && postSummerUpper.铜钱 === 160
+      && Array.isArray(postSummerUpper.本年户季务)
+      && postSummerUpper.本年户季务.some((tag) => String(tag).includes('伏夏路药'))
+      && postSummerUpper.本年户季务.some((tag) => String(tag).includes('伏夏回签'))
+      && postSummerUpper.本年户季务.some((tag) => String(tag).includes('伏夏帖册'))
+      && stageAutumnUpper.includes('秋定租')
+      && resolveAutumnUpper.includes('〔秋路牙税〕')
+      && resolveAutumnUpper.includes('〔秋路账脚〕')
+      && resolveAutumnUpper.includes('〔秋头回签〕')
+      && resolveAutumnUpper.includes('〔秋头夹衣〕')
+      && postAutumnUpper.铜钱 === 105
+      && Array.isArray(postAutumnUpper.本年户季务)
+      && postAutumnUpper.本年户季务.some((tag) => String(tag).includes('秋路账脚'))
+      && postAutumnUpper.本年户季务.some((tag) => String(tag).includes('秋头夹衣'))
+      && (summerWindow.__INV || []).length === 0
+      && (autumnWindow.__INV || []).length === 0
+  };
+}
+
+function runWageHouseholdSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+  api.patchState({
+    路线: '受雇长工/短工',
+    识字: true,
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 3,
+    铜钱: 960,
+    存米: 3,
+    田亩: 4,
+    家族: 66,
+    负债银: 0,
+    农事历练: 1,
+    家传农事: 1,
+    雇工历练: 3,
+    城里门路: 1,
+    婚配路径: '先应差·外出佣工',
+    委托营生: '无',
+    委托租谷: 0,
+    委托待收租谷: 0,
+    合爨状态: '已析爨',
+    应役: '未役'
+  });
+  api.enterPhase('household');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_clan', 'h_wage_spring_setup']);
+  api.commit();
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_hold_field', 'h_wage_spring_packet']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_wage_collect', 'h_wage_spring_bundle']);
+  api.commit();
+  const resolveSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postSpringLower = clone(api.getState());
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_wage_summer_note', 'h_side']);
+  api.commit();
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_wage_summer_split', 'h_wage_summer_reply']);
+  api.commit();
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerMid = clone(api.getState());
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_wage_summer_tail', 'h_rest']);
+  api.commit();
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerLower = clone(api.getState());
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_wage_autumn_note', 'h_wage_autumn_packet']);
+  api.commit();
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postAutumnUpper = clone(api.getState());
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_wage_autumn_receipt', 'h_wage_autumn_split']);
+  api.commit();
+  const resolveAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postAutumnMid = clone(api.getState());
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_wage_autumn_tail', 'h_rest']);
+  api.commit();
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postAutumnLower = clone(api.getState());
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_wage_winter_gift', 'h_pay']);
+  api.commit();
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postWinterUpper = clone(api.getState());
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_wage_winter_clear', 'h_wage_winter_register', 'h_wage_winter_route']);
+  api.commit();
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postWinterMid = clone(api.getState());
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_wage_winter_tail', 'h_rest']);
+  api.commit();
+  const resolveWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postWinterLower = clone(api.getState());
+  api.next();
+
+  const nextYearStage = normalizeHtml(elements.get('stage').innerHTML);
+  const nextYearState = clone(api.getState());
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+  const springMidTagText = Array.isArray(postSpringMid.本年户季务)
+    ? postSpringMid.本年户季务.map((tag) => String(tag)).join(' / ')
+    : '';
+  const winterTagText = Array.isArray(postWinterLower.本年户季务)
+    ? postWinterLower.本年户季务.map((tag) => String(tag)).join(' / ')
+    : '';
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSpringMid,
+      stageSpringLower,
+      resolveSpringLower,
+      stageSummerUpper,
+      resolveSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      resolveSummerLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper,
+      stageWinterMid,
+      resolveWinterMid,
+      stageWinterLower,
+      resolveWinterLower,
+      nextYearStage
+    },
+    postSpringUpper: {
+      本年户核账: postSpringUpper.本年户核账,
+      本年户通融: postSpringUpper.本年户通融,
+      家族: postSpringUpper.家族,
+      本年户季务: postSpringUpper.本年户季务
+    },
+    postSpringMid: {
+      委托营生: postSpringMid.委托营生,
+      农事历练: postSpringMid.农事历练,
+      本年户备役: postSpringMid.本年户备役,
+      铜钱: postSpringMid.铜钱,
+      本年户季务: postSpringMid.本年户季务
+    },
+    postSpringLower: {
+      本年户催账: postSpringLower.本年户催账,
+      铜钱: postSpringLower.铜钱,
+      最近农闲营生层级: postSpringLower.最近农闲营生层级,
+      本年户备役: postSpringLower.本年户备役,
+      本年户季务: postSpringLower.本年户季务
+    },
+    postSummerUpper: {
+      本年户通融: postSummerUpper.本年户通融,
+      家族: postSummerUpper.家族,
+      本年户季务: postSummerUpper.本年户季务
+    },
+    postSummerMid: {
+      本年户核账: postSummerMid.本年户核账,
+      本年户通融: postSummerMid.本年户通融,
+      家族: postSummerMid.家族,
+      本年户季务: postSummerMid.本年户季务
+    },
+    postSummerLower: {
+      本年户备役: postSummerLower.本年户备役,
+      本年户通融: postSummerLower.本年户通融,
+      家族: postSummerLower.家族,
+      本年户季务: postSummerLower.本年户季务
+    },
+    postAutumnUpper: {
+      本年户核账: postAutumnUpper.本年户核账,
+      本年户通融: postAutumnUpper.本年户通融,
+      家族: postAutumnUpper.家族,
+      本年户季务: postAutumnUpper.本年户季务
+    },
+    postAutumnMid: {
+      应役: postAutumnMid.应役,
+      本年户备役: postAutumnMid.本年户备役,
+      本年户核账: postAutumnMid.本年户核账,
+      本年户通融: postAutumnMid.本年户通融,
+      家族: postAutumnMid.家族,
+      白银: postAutumnMid.白银,
+      本年户季务: postAutumnMid.本年户季务
+    },
+    postAutumnLower: {
+      本年户备役: postAutumnLower.本年户备役,
+      本年户季务: postAutumnLower.本年户季务
+    },
+    postWinterUpper: {
+      应役: postWinterUpper.应役,
+      本年户备役: postWinterUpper.本年户备役,
+      本年户通融: postWinterUpper.本年户通融,
+      本年户季务: postWinterUpper.本年户季务
+    },
+    postWinterMid: {
+      本年户备役: postWinterMid.本年户备役,
+      本年户核账: postWinterMid.本年户核账,
+      本年户通融: postWinterMid.本年户通融,
+      家族: postWinterMid.家族,
+      本年户季务: postWinterMid.本年户季务
+    },
+    postWinterLower: {
+      应役: postWinterLower.应役,
+      本年户核账: postWinterLower.本年户核账,
+      本年户备役: postWinterLower.本年户备役,
+      本年户通融: postWinterLower.本年户通融,
+      本年户季务: postWinterLower.本年户季务,
+      委托营生: postWinterLower.委托营生,
+      存米: postWinterLower.存米
+    },
+    nextYearState: {
+      年龄: nextYearState.年龄,
+      户年: nextYearState.户年,
+      户季: nextYearState.户季,
+      户旬: nextYearState.户旬,
+      本年户核账: nextYearState.本年户核账,
+      本年户催账: nextYearState.本年户催账,
+      本年户备役: nextYearState.本年户备役,
+      本年户通融: nextYearState.本年户通融,
+      本年户季务: nextYearState.本年户季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageWinterLower.includes('冬应役')
+      && resolveWinterLower.includes('〔冬尾草鞋〕')
+      && postSpringMid.委托营生 === '分得薄田自耕'
+      && postWinterLower.应役 !== '未役'
+      && postWinterLower.委托营生 === '分得薄田自耕'
+      && nextYearStage.includes('当户 · 春分书')
+      && nextYearStage.includes('39 岁')
+      && nextYearState.户年 === 2
+      && nextYearState.户季 === 1
+      && nextYearState.户旬 === 1
+      && nextYearState.本年户核账 === 0
+      && nextYearState.本年户催账 === 0
+      && nextYearState.本年户备役 === 0
+      && nextYearState.本年户通融 === 0
+      && Array.isArray(nextYearState.本年户季务)
+      && nextYearState.本年户季务.length === 0
+      && includesOrderedPhases(phaseTrace, ['household'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runWageHouseholdChoiceDensityRegression() {
+  const result = runWageHouseholdSeasonalDensityRegression();
+  return {
+    springUpper: {
+      stage: result.stageLabels.stageSpringUpper,
+      state: {
+        本年户核账: result.postSpringUpper.本年户核账,
+        本年户通融: result.postSpringUpper.本年户通融,
+        家族: result.postSpringUpper.家族,
+        本年户季务: result.postSpringUpper.本年户季务
+      },
+      ok: result.stageLabels.stageSpringUpper.includes('先把析灶锅火与分书脚费分开')
+        && result.postSpringUpper.本年户核账 >= 1
+        && result.postSpringUpper.本年户通融 >= 2
+        && result.postSpringUpper.家族 >= 69
+        && Array.isArray(result.postSpringUpper.本年户季务)
+        && result.postSpringUpper.本年户季务.some((tag) => String(tag).includes('析灶脚费拆开'))
+        && result.postSpringUpper.本年户季务.some((tag) => String(tag).includes('析灶锅火已安'))
+        && result.ok
+    },
+    autumnUpper: {
+      stage: result.stageLabels.stageAutumnUpper,
+      resolve: result.stageLabels.resolveAutumnUpper,
+      state: {
+        本年户核账: result.postAutumnUpper.本年户核账,
+        本年户通融: result.postAutumnUpper.本年户通融,
+        本年户季务: result.postAutumnUpper.本年户季务
+      },
+      ok: result.stageLabels.stageAutumnUpper.includes('先把秋头回签与草鞋脚费分开')
+        && result.stageLabels.resolveAutumnUpper.includes('〔秋头工签〕')
+        && result.postAutumnUpper.本年户核账 >= 3
+        && result.postAutumnUpper.本年户通融 >= 4
+        && Array.isArray(result.postAutumnUpper.本年户季务)
+        && result.postAutumnUpper.本年户季务.some((tag) => String(tag).includes('秋头工签拆开'))
+        && result.postAutumnUpper.本年户季务.some((tag) => String(tag).includes('秋头工签已理'))
+        && result.ok
+    },
+    spring: {
+      stage: result.stageLabels.stageSpringLower,
+      resolve: result.stageLabels.resolveSpringLower,
+      state: {
+        本年户催账: result.postSpringLower.本年户催账,
+        本年户备役: result.postSpringLower.本年户备役,
+        本年户季务: result.postSpringLower.本年户季务
+      },
+      ok: result.stageLabels.stageSpringLower.includes('把春尾欠工拆作锅火与草鞋')
+        && result.stageLabels.resolveSpringLower.includes('〔春尾锅火〕')
+        && result.postSpringLower.本年户催账 >= 1
+        && Array.isArray(result.postSpringLower.本年户季务)
+        && result.postSpringLower.本年户季务.some((tag) => String(tag).includes('春尾欠工拆开'))
+        && result.postSpringLower.本年户季务.some((tag) => String(tag).includes('春尾锅火已分'))
+        && result.ok
+    },
+    summer: {
+      stage: result.stageLabels.stageSummerLower,
+      resolve: result.stageLabels.resolveSummerLower,
+      state: {
+        本年户通融: result.postSummerLower.本年户通融,
+        家族: result.postSummerLower.家族,
+        本年户季务: result.postSummerLower.本年户季务
+      },
+      ok: result.stageLabels.stageSummerLower.includes('先把夏尾欠工回话与秋前草料分开')
+        && result.stageLabels.resolveSummerLower.includes('〔夏尾欠工〕')
+        && result.postSummerLower.本年户通融 >= 4
+        && result.postSummerLower.家族 >= 74
+        && Array.isArray(result.postSummerLower.本年户季务)
+        && result.postSummerLower.本年户季务.some((tag) => String(tag).includes('夏尾欠工拆开'))
+        && result.postSummerLower.本年户季务.some((tag) => String(tag).includes('夏尾欠工已理'))
+        && result.ok
+    },
+    summerMid: {
+      stage: result.stageLabels.stageSummerMid,
+      resolve: result.stageLabels.resolveSummerMid,
+      state: {
+        本年户核账: result.postSummerMid.本年户核账,
+        本年户通融: result.postSummerMid.本年户通融,
+        本年户季务: result.postSummerMid.本年户季务
+      },
+      ok: result.stageLabels.stageSummerMid.includes('先把伏夏回签与田头草绳分开')
+        && result.stageLabels.resolveSummerMid.includes('〔伏夏回签〕')
+        && result.postSummerMid.本年户核账 >= 2
+        && result.postSummerMid.本年户通融 >= 3
+        && Array.isArray(result.postSummerMid.本年户季务)
+        && result.postSummerMid.本年户季务.some((tag) => String(tag).includes('伏夏回签拆开'))
+        && result.postSummerMid.本年户季务.some((tag) => String(tag).includes('伏夏回签已理'))
+        && result.ok
+    },
+    autumn: {
+      stage: result.stageLabels.stageAutumnLower,
+      resolve: result.stageLabels.resolveAutumnLower,
+      state: {
+        本年户备役: result.postAutumnLower.本年户备役,
+        本年户通融: result.postAutumnUpper.本年户通融,
+        本年户季务: result.postAutumnLower.本年户季务
+      },
+      ok: result.stageLabels.stageAutumnLower.includes('先把秋尾回话与催差脚费分开')
+        && result.stageLabels.resolveAutumnLower.includes('〔秋尾差脚〕')
+        && result.postAutumnLower.本年户备役 >= 2
+        && result.postAutumnUpper.本年户通融 >= 4
+        && Array.isArray(result.postAutumnLower.本年户季务)
+        && result.postAutumnLower.本年户季务.some((tag) => String(tag).includes('秋尾差脚'))
+        && result.postAutumnLower.本年户季务.some((tag) => String(tag).includes('秋尾差脚已留'))
+        && result.ok
+    },
+    autumnMid: {
+      stage: result.stageLabels.stageAutumnMid,
+      resolve: result.stageLabels.resolveAutumnMid,
+      state: {
+        本年户核账: result.postAutumnMid.本年户核账,
+        本年户通融: result.postAutumnMid.本年户通融,
+        本年户季务: result.postAutumnMid.本年户季务
+      },
+      ok: result.stageLabels.stageAutumnMid.includes('先把秋中回签与租路饭钱分开')
+        && result.stageLabels.resolveAutumnMid.includes('〔秋中回签〕')
+        && result.postAutumnMid.本年户核账 >= 4
+        && result.postAutumnMid.本年户通融 >= 5
+        && Array.isArray(result.postAutumnMid.本年户季务)
+        && result.postAutumnMid.本年户季务.some((tag) => String(tag).includes('秋中回签拆开'))
+        && result.postAutumnMid.本年户季务.some((tag) => String(tag).includes('秋中回签已理'))
+        && result.ok
+    },
+    winterMid: {
+      stage: result.stageLabels.stageWinterMid,
+      resolve: result.stageLabels.resolveWinterMid,
+      state: {
+        本年户核账: result.postWinterMid.本年户核账,
+        本年户通融: result.postWinterMid.本年户通融,
+        家族: result.postWinterMid.家族,
+        本年户季务: result.postWinterMid.本年户季务
+      },
+      ok: result.stageLabels.stageWinterMid.includes('先把冬中抄簿与孩子炭笔分开')
+        && result.stageLabels.resolveWinterMid.includes('〔冬中抄簿〕')
+        && result.postWinterMid.本年户核账 >= 4
+        && result.postWinterMid.本年户通融 >= 7
+        && result.postWinterMid.家族 >= 80
+        && Array.isArray(result.postWinterMid.本年户季务)
+        && result.postWinterMid.本年户季务.some((tag) => String(tag).includes('冬中抄簿拆开'))
+        && result.postWinterMid.本年户季务.some((tag) => String(tag).includes('冬中抄簿已理'))
+        && result.ok
+    },
+    winter: {
+      stage: result.stageLabels.stageWinterLower,
+      resolve: result.stageLabels.resolveWinterLower,
+      state: {
+        应役: result.postWinterLower.应役,
+        委托营生: result.postWinterLower.委托营生,
+        年龄: result.nextYearState.年龄,
+        户年: result.nextYearState.户年,
+        户季: result.nextYearState.户季,
+        户旬: result.nextYearState.户旬,
+        本年户季务: result.nextYearState.本年户季务
+      },
+      ok: result.stageLabels.stageWinterLower.includes('先把年下回签与来春草鞋分开')
+        && result.stageLabels.resolveWinterLower.includes('〔冬尾草鞋〕')
+        && result.stageLabels.resolveWinterLower.includes('〔守田承接〕')
+        && result.postWinterLower.应役 !== '未役'
+        && result.postWinterLower.委托营生 === '分得薄田自耕'
+        && result.nextYearState.户年 === 2
+        && result.nextYearState.户季 === 1
+        && result.nextYearState.户旬 === 1
+        && Array.isArray(result.nextYearState.本年户季务)
+        && result.nextYearState.本年户季务.length === 0
+        && result.ok
+    },
+    phaseTrace: result.phaseTrace,
+    ok: result.ok
+      && result.stageLabels.stageSpringUpper.includes('先把析灶锅火与分书脚费分开')
+      && result.stageLabels.stageSpringLower.includes('把春尾欠工拆作锅火与草鞋')
+      && result.stageLabels.resolveSpringLower.includes('〔春尾锅火〕')
+      && result.stageLabels.stageAutumnUpper.includes('先把秋头回签与草鞋脚费分开')
+      && result.stageLabels.resolveAutumnUpper.includes('〔秋头工签〕')
+      && result.stageLabels.stageSummerMid.includes('先把伏夏回签与田头草绳分开')
+      && result.stageLabels.resolveSummerMid.includes('〔伏夏回签〕')
+      && result.stageLabels.stageSummerLower.includes('先把夏尾欠工回话与秋前草料分开')
+      && result.stageLabels.stageAutumnMid.includes('先把秋中回签与租路饭钱分开')
+      && result.stageLabels.resolveAutumnMid.includes('〔秋中回签〕')
+      && result.stageLabels.stageAutumnLower.includes('先把秋尾回话与催差脚费分开')
+      && result.stageLabels.stageWinterMid.includes('先把冬中抄簿与孩子炭笔分开')
+      && result.stageLabels.resolveWinterMid.includes('〔冬中抄簿〕')
+      && result.stageLabels.stageWinterLower.includes('先把年下回签与来春草鞋分开')
+      && Array.isArray(result.postSpringLower.本年户季务)
+      && result.postSpringLower.本年户季务.some((tag) => String(tag).includes('春尾欠工拆开'))
+      && result.postSpringLower.本年户季务.some((tag) => String(tag).includes('春尾锅火已分'))
+      && result.postAutumnUpper.本年户季务.some((tag) => String(tag).includes('秋头工签拆开'))
+      && result.postAutumnUpper.本年户季务.some((tag) => String(tag).includes('秋头工签已理'))
+      && result.postSummerMid.本年户季务.some((tag) => String(tag).includes('伏夏回签拆开'))
+      && result.postAutumnMid.本年户季务.some((tag) => String(tag).includes('秋中回签拆开'))
+      && result.postSummerLower.本年户季务.some((tag) => String(tag).includes('夏尾欠工拆开'))
+      && result.postAutumnLower.本年户季务.some((tag) => String(tag).includes('秋尾差脚'))
+      && result.postWinterMid.本年户季务.some((tag) => String(tag).includes('冬中抄簿拆开'))
+      && result.postWinterMid.本年户季务.some((tag) => String(tag).includes('冬中抄簿已理'))
+      && result.stageLabels.resolveWinterLower.includes('〔守田承接〕')
+      && result.postWinterLower.委托营生 === '分得薄田自耕'
+      && result.nextYearState.户年 === 2
+      && result.nextYearState.户季 === 1
+      && result.nextYearState.户旬 === 1
+      && Array.isArray(result.nextYearState.本年户季务)
+      && result.nextYearState.本年户季务.length === 0
+  };
+}
+
+function runApprenticeHouseholdSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+  api.patchState({
+    路线: '入城学徒',
+    识字: true,
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 3,
+    铜钱: 980,
+    存米: 3,
+    田亩: 4,
+    家族: 66,
+    负债银: 0,
+    学徒去向: '留店伙计',
+    学徒历练: 3,
+    学徒授艺度: 2,
+    委托营生: '无',
+    委托租谷: 0,
+    委托待收租谷: 0,
+    应役: '未役'
+  });
+  api.enterPhase('household');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_shop_packet', 'h_shop_book']);
+  api.commit();
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_lease_city', 'h_proxy']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_shop_collect', 'h_spring_bundle']);
+  api.commit();
+  const resolveSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postSpringLower = clone(api.getState());
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_summer_packet', 'h_side']);
+  api.commit();
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_shop_book', 'h_side']);
+  api.commit();
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerMid = clone(api.getState());
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_summer_tail', 'h_side']);
+  api.commit();
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerLower = clone(api.getState());
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_side', 'h_rest']);
+  api.commit();
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_autumn_mid_shop', 'h_autumn_bundle']);
+  api.commit();
+  const resolveAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postAutumnMid = clone(api.getState());
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_autumn_tail_shop', 'h_autumn_tail']);
+  api.commit();
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postAutumnLower = clone(api.getState());
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_shop_book', 'h_rest']);
+  api.commit();
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_winter_route', 'h_side']);
+  api.commit();
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postWinterMid = clone(api.getState());
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['h_year_gift', 'h_rest']);
+  api.commit();
+  const resolveWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postWinterLower = clone(api.getState());
+  api.next();
+
+  const nextYearStage = normalizeHtml(elements.get('stage').innerHTML);
+  const nextYearState = clone(api.getState());
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+  const springMidTagText = Array.isArray(postSpringMid.本年户季务)
+    ? postSpringMid.本年户季务.map((tag) => String(tag)).join(' / ')
+    : '';
+  const autumnMidTagText = Array.isArray(postAutumnMid.本年户季务)
+    ? postAutumnMid.本年户季务.map((tag) => String(tag)).join(' / ')
+    : '';
+  const autumnLowerTagText = Array.isArray(postAutumnLower.本年户季务)
+    ? postAutumnLower.本年户季务.map((tag) => String(tag)).join(' / ')
+    : '';
+  const winterTagText = Array.isArray(postWinterLower.本年户季务)
+    ? postWinterLower.本年户季务.map((tag) => String(tag)).join(' / ')
+    : '';
+  const apprenticeHouseholdOk = [
+    stageSpringUpper.includes('春分书'),
+    stageSpringUpper.includes('先把分书抄样与柜边包纸分开'),
+    stageSpringUpper.includes('抄清分书与铺账'),
+    stageSpringMid.includes('先把春中回铺回话与灯油盐药分开'),
+    stageSpringMid.includes('先把春中代管回签与清明香纸分开'),
+    stageSpringMid.includes('把分得薄田出佃收租'),
+    stageSpringMid.includes('凭师门旧识先探代役门路'),
+    stageSpringLower.includes('先回铺里结一回旧脚钱'),
+    stageSpringLower.includes('把春脚钱拆作锅火与回铺脚路'),
+    stageSummerUpper.includes('夏催账'),
+    stageSummerUpper.includes('先把伏夏茶汤与回铺脚费分开'),
+    stageSummerMid.includes('先把伏夏回签与柜边包纸分开'),
+    stageSummerLower.includes('先把夏尾回铺回签与秋前脚单分开'),
+    stageAutumnUpper.includes('秋定租'),
+    stageAutumnMid.includes('先把秋中铺账脚费与租路饭钱分开'),
+    stageAutumnMid.includes('把秋脚钱拆作锅火与差钱'),
+    stageAutumnLower.includes('先把秋尾锅火与回铺脚费分开'),
+    stageAutumnLower.includes('先把秋尾回话、锅火与催佃脚费分开'),
+    stageWinterUpper.includes('冬应役'),
+    stageWinterMid.includes('先留来春回铺脚费与递话薄礼'),
+    stageWinterLower.includes('冬应役'),
+    stageWinterLower.includes('把年下炭药拆作守岁零用与回铺礼'),
+    resolveSpringUpper.includes('〔分书抄样〕'),
+    resolveSpringLower.includes('〔春脚拆家用〕'),
+    resolveSummerUpper.includes('〔伏夏茶汤〕'),
+    resolveSummerMid.includes('〔铺里零耗〕'),
+    resolveSummerLower.includes('〔夏尾铺签〕'),
+    resolveAutumnUpper.includes('〔秋租脚路〕'),
+    resolveAutumnMid.includes('〔秋中铺账〕'),
+    resolveAutumnMid.includes('〔秋脚拆账〕'),
+    resolveAutumnLower.includes('〔秋尾铺脚〕'),
+    resolveAutumnLower.includes('〔秋尾回话〕'),
+    resolveWinterUpper.includes('〔年关节礼〕'),
+    resolveWinterMid.includes('〔来春铺路〕'),
+    resolveWinterLower.includes('〔年下客礼〕'),
+    nextYearStage.includes('当户 · 春分书'),
+    nextYearStage.includes('39 岁'),
+    postSpringUpper.本年户核账 >= 2,
+    postSpringUpper.本年户通融 >= 2,
+    postSpringMid.委托营生 === '出佃收租',
+    postSpringMid.本年户备役 >= 1,
+    postSpringMid.白银 <= 2,
+    springMidTagText.includes('城里出佃'),
+    springMidTagText.includes('师门代办'),
+    postSpringLower.本年户催账 >= 1,
+    postSpringLower.铜钱 > 0,
+    postSpringLower.家族 >= 68,
+    postSummerUpper.本年户备役 >= 1,
+    postSummerMid.本年户核账 >= 1,
+    postSummerMid.本年户通融 >= 2,
+    postSummerLower.本年户催账 >= 2,
+    postSummerLower.本年户通融 >= 3,
+    Array.isArray(postSummerLower.本年户季务),
+    postSummerLower.本年户季务.some((tag) => String(tag).includes('夏尾铺签')),
+    postAutumnMid.本年户催账 >= 3,
+    postAutumnMid.本年户备役 >= 3,
+    postAutumnMid.本年户通融 >= 4,
+    postAutumnMid.白银 >= 0,
+    autumnMidTagText.includes('秋中铺账'),
+    autumnMidTagText.includes('秋脚拆账'),
+    postAutumnLower.本年户催账 >= 4,
+    postAutumnLower.本年户通融 >= 5,
+    autumnLowerTagText.includes('秋尾铺脚'),
+    autumnLowerTagText.includes('秋尾回话'),
+    postWinterLower.应役 !== '未役',
+    resolveWinterLower.includes('〔年下客礼〕'),
+    resolveWinterLower.includes('〔来春铺路〕'),
+    resolveWinterLower.includes('出佃收租'),
+    postWinterLower.委托营生 === '出佃收租',
+    postWinterLower.委托待收租谷 >= 1,
+    nextYearState.户年 === 2,
+    nextYearState.户季 === 1,
+    nextYearState.户旬 === 1,
+    nextYearState.本年户核账 === 0,
+    nextYearState.本年户催账 === 0,
+    nextYearState.本年户备役 === 0,
+    nextYearState.本年户通融 === 0,
+    Array.isArray(nextYearState.本年户季务),
+    nextYearState.本年户季务.length === 0,
+    includesOrderedPhases(phaseTrace, ['household']),
+    (window.__INV || []).length === 0
+  ].every(Boolean);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSpringMid,
+      stageSpringLower,
+      resolveSpringLower,
+      stageSummerUpper,
+      resolveSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      resolveSummerLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper,
+      stageWinterMid,
+      resolveWinterMid,
+      stageWinterLower,
+      resolveWinterLower,
+      nextYearStage
+    },
+    postSpringUpper: {
+      本年户核账: postSpringUpper.本年户核账,
+      本年户通融: postSpringUpper.本年户通融,
+      本年户季务: postSpringUpper.本年户季务
+    },
+    postSpringMid: {
+      委托营生: postSpringMid.委托营生,
+      本年户备役: postSpringMid.本年户备役,
+      白银: postSpringMid.白银,
+      本年户季务: postSpringMid.本年户季务
+    },
+    postSpringLower: {
+      本年户催账: postSpringLower.本年户催账,
+      铜钱: postSpringLower.铜钱,
+      家族: postSpringLower.家族
+    },
+    postSummerUpper: {
+      本年户备役: postSummerUpper.本年户备役,
+      本年户季务: postSummerUpper.本年户季务
+    },
+    postSummerMid: {
+      本年户核账: postSummerMid.本年户核账,
+      本年户通融: postSummerMid.本年户通融,
+      本年户季务: postSummerMid.本年户季务
+    },
+    postSummerLower: {
+      本年户催账: postSummerLower.本年户催账,
+      本年户通融: postSummerLower.本年户通融,
+      本年户季务: postSummerLower.本年户季务
+    },
+    postAutumnMid: {
+      应役: postAutumnMid.应役,
+      本年户催账: postAutumnMid.本年户催账,
+      本年户备役: postAutumnMid.本年户备役,
+      本年户通融: postAutumnMid.本年户通融,
+      白银: postAutumnMid.白银,
+      本年户季务: postAutumnMid.本年户季务
+    },
+    postAutumnLower: {
+      本年户催账: postAutumnLower.本年户催账,
+      本年户通融: postAutumnLower.本年户通融,
+      本年户季务: postAutumnLower.本年户季务
+    },
+    postWinterMid: {
+      本年户备役: postWinterMid.本年户备役,
+      本年户通融: postWinterMid.本年户通融,
+      本年户季务: postWinterMid.本年户季务
+    },
+    postWinterLower: {
+      应役: postWinterLower.应役,
+      本年户季务: postWinterLower.本年户季务,
+      委托营生: postWinterLower.委托营生,
+      委托待收租谷: postWinterLower.委托待收租谷
+    },
+    nextYearState: {
+      年龄: nextYearState.年龄,
+      户年: nextYearState.户年,
+      户季: nextYearState.户季,
+      户旬: nextYearState.户旬,
+      本年户核账: nextYearState.本年户核账,
+      本年户催账: nextYearState.本年户催账,
+      本年户备役: nextYearState.本年户备役,
+      本年户通融: nextYearState.本年户通融,
+      本年户季务: nextYearState.本年户季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageWinterLower.includes('冬应役')
+      && resolveWinterLower.includes('〔年下客礼〕')
+      && postSpringMid.委托营生 === '出佃收租'
+      && postWinterLower.应役 !== '未役'
+      && postWinterLower.委托营生 === '出佃收租'
+      && postWinterLower.委托待收租谷 >= 1
+      && nextYearStage.includes('当户 · 春分书')
+      && nextYearStage.includes('39 岁')
+      && nextYearState.户年 === 2
+      && nextYearState.户季 === 1
+      && nextYearState.户旬 === 1
+      && nextYearState.本年户核账 === 0
+      && nextYearState.本年户催账 === 0
+      && nextYearState.本年户备役 === 0
+      && nextYearState.本年户通融 === 0
+      && Array.isArray(nextYearState.本年户季务)
+      && nextYearState.本年户季务.length === 0
+      && includesOrderedPhases(phaseTrace, ['household'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runApprenticeHouseholdChoiceDensityRegression() {
+  const result = runApprenticeHouseholdSeasonalDensityRegression();
+  return {
+    springUpper: {
+      stage: result.stageLabels.stageSpringUpper,
+      resolve: result.stageLabels.resolveSpringUpper,
+      state: {
+        本年户核账: result.postSpringUpper.本年户核账,
+        本年户通融: result.postSpringUpper.本年户通融,
+        本年户季务: result.postSpringUpper.本年户季务
+      },
+      ok: result.stageLabels.stageSpringUpper.includes('先把分书抄样与柜边包纸分开')
+        && result.stageLabels.resolveSpringUpper.includes('〔分书抄样〕')
+        && result.postSpringUpper.本年户核账 >= 2
+        && result.postSpringUpper.本年户通融 >= 2
+        && Array.isArray(result.postSpringUpper.本年户季务)
+        && result.postSpringUpper.本年户季务.some((tag) => String(tag).includes('分书抄样'))
+        && result.postSpringUpper.本年户季务.some((tag) => String(tag).includes('春分书·上旬分书抄样已理'))
+        && result.ok
+    },
+    springMid: {
+      stage: result.stageLabels.stageSpringMid,
+      state: {
+        委托营生: result.postSpringMid.委托营生,
+        本年户备役: result.postSpringMid.本年户备役,
+        本年户季务: result.postSpringMid.本年户季务
+      },
+      ok: result.stageLabels.stageSpringMid.includes('先把春中回铺回话与灯油盐药分开')
+        && result.stageLabels.stageSpringMid.includes('先把春中代管回签与清明香纸分开')
+        && result.postSpringMid.委托营生 === '出佃收租'
+        && result.postSpringMid.本年户备役 >= 1
+        && Array.isArray(result.postSpringMid.本年户季务)
+        && result.postSpringMid.本年户季务.some((tag) => String(tag).includes('春分书·中旬春中铺话已理'))
+        && result.postSpringMid.本年户季务.some((tag) => String(tag).includes('春分书·中旬春中香脚已分'))
+        && result.ok
+    },
+    summer: {
+      stage: result.stageLabels.stageSummerLower,
+      resolve: result.stageLabels.resolveSummerLower,
+      state: {
+        本年户催账: result.postSummerLower.本年户催账,
+        本年户季务: result.postSummerLower.本年户季务
+      },
+      ok: result.stageLabels.stageSummerLower.includes('先把夏尾回铺回签与秋前脚单分开')
+        && result.stageLabels.resolveSummerLower.includes('〔夏尾铺签〕')
+        && result.postSummerLower.本年户催账 >= 2
+        && Array.isArray(result.postSummerLower.本年户季务)
+        && result.postSummerLower.本年户季务.some((tag) => String(tag).includes('夏尾铺签'))
+        && result.postSummerLower.本年户季务.some((tag) => String(tag).includes('夏催账·下旬夏尾铺签已理'))
+        && result.ok
+    },
+    autumn: {
+      stage: result.stageLabels.stageAutumnMid,
+      resolve: result.stageLabels.resolveAutumnMid,
+      state: {
+        本年户催账: result.postAutumnMid.本年户催账,
+        本年户季务: result.postAutumnMid.本年户季务
+      },
+      ok: result.stageLabels.stageAutumnMid.includes('先把秋中铺账脚费与租路饭钱分开')
+        && result.stageLabels.resolveAutumnMid.includes('〔秋中铺账〕')
+        && result.stageLabels.resolveAutumnMid.includes('〔秋脚拆账〕')
+        && result.postAutumnMid.本年户催账 >= 3
+        && Array.isArray(result.postAutumnMid.本年户季务)
+        && result.postAutumnMid.本年户季务.some((tag) => String(tag).includes('秋中铺账'))
+        && result.postAutumnMid.本年户季务.some((tag) => String(tag).includes('秋定租·中旬秋脚拆账已坐'))
+        && result.ok
+    },
+    winter: {
+      stage: result.stageLabels.stageWinterLower,
+      resolve: result.stageLabels.resolveWinterLower,
+      state: {
+        应役: result.postWinterLower.应役,
+        委托待收租谷: result.postWinterLower.委托待收租谷,
+        本年户季务: result.postWinterLower.本年户季务
+      },
+      ok: result.stageLabels.stageWinterLower.includes('把年下炭药拆作守岁零用与回铺礼')
+        && result.stageLabels.resolveWinterLower.includes('〔年下客礼〕')
+        && result.stageLabels.resolveWinterLower.includes('来春铺路')
+        && result.postWinterLower.应役 !== '未役'
+        && result.postWinterLower.委托待收租谷 >= 1
+        && Array.isArray(result.postWinterLower.本年户季务)
+        && result.postWinterLower.本年户季务.length === 0
+        && result.ok
+    },
+    ok: result.ok
+  };
+}
+
+function runExamHouseholdChoiceDensityRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+    api.patchState(Object.assign({
+      路线: '路径五 · 读书应举',
+      识字: true,
+      年龄: 38,
+      妻室: true,
+      子数: 2,
+      女数: 1,
+      体魄: 58,
+      白银: 4,
+      铜钱: 980,
+      存米: 3,
+      田亩: 4,
+      家族: 68,
+      负债银: 0,
+      童试层级: 3,
+      生员身份: true,
+      生员层级: '生员',
+      优免启用: true,
+      识字转业值: 3,
+      举业结局: '塾馆教读',
+      委托营生: '书户分得薄田出佃',
+      委托租谷: 1,
+      委托待收租谷: 1,
+      应役: '未役',
+      本年户核账: 0,
+      本年户催账: 0,
+      本年户备役: 0,
+      本年户通融: 0,
+      本年户委托: 1,
+      本年户供读: 0,
+      本年户季务: []
+    }, extraPatch || {}));
+    api.enterPhase('household');
+    api.patchState({
+      户季: season,
+      户旬: xun,
+      本年户核账: 0,
+      本年户催账: 0,
+      本年户备役: 0,
+      本年户通融: 0,
+      本年户委托: 1,
+      本年户供读: 0,
+      本年户季务: []
+    });
+    api.enterPhase('household');
+    api.patchState({ 户季: season, 户旬: xun });
+    api.enterPhase('household');
+    return { api, elements, window };
+  }
+
+  const springUpper = setupAt(1, 1, { 铜钱: 980 });
+  const springUpperStage = normalizeHtml(springUpper.elements.get('stage').innerHTML);
+  pickByPlan(springUpper.api, ['h_spring_packet', 'h_spring_school_packet']);
+  springUpper.api.commit();
+  const springUpperResolve = normalizeHtml(springUpper.elements.get('stage').innerHTML);
+  const springUpperState = clone(springUpper.api.getState());
+
+  const springMid = setupAt(1, 2, { 铜钱: 980 });
+  const springMidStage = normalizeHtml(springMid.elements.get('stage').innerHTML);
+  pickByPlan(springMid.api, ['h_spring_mid_packet', 'h_literate']);
+  springMid.api.commit();
+  const springMidResolve = normalizeHtml(springMid.elements.get('stage').innerHTML);
+  const springMidState = clone(springMid.api.getState());
+
+  const summerUpper = setupAt(2, 1, { 铜钱: 980, 体魄: 58 });
+  const summerUpperStage = normalizeHtml(summerUpper.elements.get('stage').innerHTML);
+  pickByPlan(summerUpper.api, ['h_summer_soup', 'h_summer_packet']);
+  summerUpper.api.commit();
+  const summerUpperResolve = normalizeHtml(summerUpper.elements.get('stage').innerHTML);
+  const summerUpperState = clone(summerUpper.api.getState());
+
+  const summerMid = setupAt(2, 2, { 铜钱: 980 });
+  const summerMidStage = normalizeHtml(summerMid.elements.get('stage').innerHTML);
+  pickByPlan(summerMid.api, ['h_summer_surety', 'h_side']);
+  summerMid.api.commit();
+  const summerMidResolve = normalizeHtml(summerMid.elements.get('stage').innerHTML);
+  const summerMidState = clone(summerMid.api.getState());
+
+  const summerLower = setupAt(2, 3, { 铜钱: 980 });
+  const summerLowerStage = normalizeHtml(summerLower.elements.get('stage').innerHTML);
+  pickByPlan(summerLower.api, ['h_summer_tail_packet', 'h_literate']);
+  summerLower.api.commit();
+  const summerLowerResolve = normalizeHtml(summerLower.elements.get('stage').innerHTML);
+  const summerLowerState = clone(summerLower.api.getState());
+
+  const autumnLower = setupAt(3, 3, { 铜钱: 980 });
+  const autumnLowerStage = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  pickByPlan(autumnLower.api, ['h_exam_split', 'h_autumn_tail_packet']);
+  autumnLower.api.commit();
+  const autumnLowerResolve = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  const autumnLowerState = clone(autumnLower.api.getState());
+
+  const autumnMid = setupAt(3, 2, { 铜钱: 980 });
+  const autumnMidStage = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  pickByPlan(autumnMid.api, ['h_autumn_mid_packet', 'h_exam_split']);
+  autumnMid.api.commit();
+  const autumnMidResolve = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  const autumnMidState = clone(autumnMid.api.getState());
+
+  const winterUpper = setupAt(4, 1, { 铜钱: 980 });
+  const winterUpperStage = normalizeHtml(winterUpper.elements.get('stage').innerHTML);
+  pickByPlan(winterUpper.api, ['h_winter_packet', 'h_winter_school_packet']);
+  winterUpper.api.commit();
+  const winterUpperResolve = normalizeHtml(winterUpper.elements.get('stage').innerHTML);
+  const winterUpperState = clone(winterUpper.api.getState());
+
+  const winterMid = setupAt(4, 2, { 铜钱: 980 });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['h_winter_mid_packet', 'h_winter_mid_copy']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+
+  const winterLower = setupAt(4, 3, { 铜钱: 980 });
+  const winterLowerStage = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  pickByPlan(winterLower.api, ['h_winter_receipt', 'h_winter_tail', 'h_exam_split']);
+  winterLower.api.commit();
+  const winterLowerResolve = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  const winterLowerState = clone(winterLower.api.getState());
+
+  return {
+    springUpper: {
+      stage: springUpperStage,
+      resolve: springUpperResolve,
+      state: {
+        铜钱: springUpperState.铜钱,
+        家族: springUpperState.家族,
+        本年户供读: springUpperState.本年户供读,
+        本年户催账: springUpperState.本年户催账,
+        本年户通融: springUpperState.本年户通融,
+        本年户季务: springUpperState.本年户季务
+      },
+      ok: springUpperStage.includes('先把春头帖样与旧馆脚费分开')
+        && springUpperStage.includes('先把孩子春课纸包与保结帖脚分开')
+        && springUpperResolve.includes('先把阄书抄样、拜帖脚费、旧馆回话与给保结递话的小门包分开')
+        && springUpperResolve.includes('先把孩子春课纸包、炭笔碎钱、保结帖脚与旧馆递话门包分开')
+        && springUpperResolve.includes('〔春头课纸〕')
+        && springUpperState.本年户供读 >= 1
+        && springUpperState.本年户催账 >= 1
+        && springUpperState.本年户通融 >= 2
+        && springUpperState.家族 >= 70
+        && Array.isArray(springUpperState.本年户季务)
+        && springUpperState.本年户季务.some((tag) => String(tag).includes('春头帖样'))
+        && springUpperState.本年户季务.some((tag) => String(tag).includes('春头课纸'))
+        && springUpperState.本年户季务.some((tag) => String(tag).includes('春头课纸已分'))
+        && springUpperState.本年户季务.some((tag) => String(tag).includes('分书碎费已理'))
+        && (springUpper.window.__INV || []).length === 0
+    },
+    springMid: {
+      stage: springMidStage,
+      resolve: springMidResolve,
+      state: {
+        委托营生: springMidState.委托营生,
+        委托待收租谷: springMidState.委托待收租谷,
+        本年户核账: springMidState.本年户核账,
+        本年户通融: springMidState.本年户通融,
+        家族: springMidState.家族,
+        本年户季务: springMidState.本年户季务
+      },
+      ok: springMidStage.includes('先把春中税则与清明香纸分开')
+        && springMidStage.includes('识字·先抄分书与税则')
+        && springMidResolve.includes('先把税则抄手、清明香纸、租账脚费与给保结递话的小门包分开')
+        && springMidResolve.includes('先把分书、税则、租谷和差钱抄清')
+        && springMidResolve.includes('〔春中香脚〕')
+        && springMidState.委托营生 === '书户分得薄田出佃'
+        && springMidState.本年户核账 >= 2
+        && springMidState.本年户通融 >= 1
+        && springMidState.家族 >= 69
+        && Array.isArray(springMidState.本年户季务)
+        && springMidState.本年户季务.some((tag) => String(tag).includes('春中税香'))
+        && springMidState.本年户季务.some((tag) => String(tag).includes('春中香脚已分'))
+        && springMidState.本年户季务.some((tag) => String(tag).includes('税则回话已理'))
+        && (springMid.window.__INV || []).length === 0
+    },
+    summerUpper: {
+      stage: summerUpperStage,
+      resolve: summerUpperResolve,
+      state: {
+        铜钱: summerUpperState.铜钱,
+        体魄: summerUpperState.体魄,
+        家族: summerUpperState.家族,
+        本年户催账: summerUpperState.本年户催账,
+        本年户通融: summerUpperState.本年户通融,
+        本年户季务: summerUpperState.本年户季务
+      },
+      ok: summerUpperStage.includes('先把伏夏潮纸与学生家回话分开')
+        && summerUpperStage.includes('先把伏夏馆汤与凉药门包分开')
+        && summerUpperResolve.includes('先把馆里茶汤、凉药、递话门包与家里伏热小耗分开')
+        && summerUpperState.本年户催账 >= 2
+        && summerUpperState.本年户通融 >= 2
+        && summerUpperState.体魄 >= 60
+        && summerUpperState.家族 >= 70
+        && Array.isArray(summerUpperState.本年户季务)
+        && summerUpperState.本年户季务.some((tag) => String(tag).includes('夏馆纸香'))
+        && summerUpperState.本年户季务.some((tag) => String(tag).includes('伏夏馆汤'))
+        && (summerUpper.window.__INV || []).length === 0
+    },
+    summerMid: {
+      stage: summerMidStage,
+      resolve: summerMidResolve,
+      state: {
+        铜钱: summerMidState.铜钱,
+        家族: summerMidState.家族,
+        本年户催账: summerMidState.本年户催账,
+        本年户通融: summerMidState.本年户通融,
+        本年户备役: summerMidState.本年户备役,
+        本年户季务: summerMidState.本年户季务
+      },
+      ok: summerMidStage.includes('先把保结薄礼与租帖脚费分开')
+        && summerMidResolve.includes('先把保结薄礼、学生家回签、租帖脚费与锅火凉药分开')
+        && summerMidResolve.includes('〔伏夏小耗〕')
+        && summerMidState.本年户催账 >= 1
+        && summerMidState.本年户通融 >= 1
+        && summerMidState.本年户备役 >= 1
+        && summerMidState.家族 >= 70
+        && Array.isArray(summerMidState.本年户季务)
+        && summerMidState.本年户季务.some((tag) => String(tag).includes('伏夏保结'))
+        && summerMidState.本年户季务.some((tag) => String(tag).includes('伏夏小耗已顾'))
+        && (summerMid.window.__INV || []).length === 0
+    },
+    summerLower: {
+      stage: summerLowerStage,
+      resolve: summerLowerResolve,
+      state: {
+        铜钱: summerLowerState.铜钱,
+        家族: summerLowerState.家族,
+        本年户核账: summerLowerState.本年户核账,
+        本年户催账: summerLowerState.本年户催账,
+        本年户通融: summerLowerState.本年户通融,
+        本年户季务: summerLowerState.本年户季务
+      },
+      ok: summerLowerStage.includes('先把夏尾馆信与秋前纸样分开')
+        && summerLowerStage.includes('识字·抄清馆账与租谷')
+        && summerLowerResolve.includes('先把旧馆回信、秋前纸样、学生家递话脚费与锅火凉药分开')
+        && summerLowerResolve.includes('〔夏尾馆信〕')
+        && summerLowerState.本年户核账 >= 1
+        && summerLowerState.本年户催账 >= 1
+        && summerLowerState.本年户通融 >= 1
+        && summerLowerState.家族 >= 69
+        && Array.isArray(summerLowerState.本年户季务)
+        && summerLowerState.本年户季务.some((tag) => String(tag).includes('夏尾馆信'))
+        && summerLowerState.本年户季务.some((tag) => String(tag).includes('夏尾馆信已理'))
+        && summerLowerState.本年户季务.some((tag) => String(tag).includes('夏催账核账'))
+        && (summerLower.window.__INV || []).length === 0
+    },
+    autumnLower: {
+      stage: autumnLowerStage,
+      resolve: autumnLowerResolve,
+      state: {
+        铜钱: autumnLowerState.铜钱,
+        家族: autumnLowerState.家族,
+        本年户催账: autumnLowerState.本年户催账,
+        本年户通融: autumnLowerState.本年户通融,
+        本年户备役: autumnLowerState.本年户备役,
+        本年户季务: autumnLowerState.本年户季务
+      },
+      ok: autumnLowerStage.includes('先把秋尾回签与炭脚回礼分开')
+        && autumnLowerStage.includes('把秋馆钱拆作锅火与脚费')
+        && autumnLowerResolve.includes('先把秋尾回签、炭脚锅火、学生回礼与来春帖路后手分开')
+        && autumnLowerResolve.includes('〔秋尾帖脚〕')
+        && autumnLowerState.本年户催账 >= 1
+        && autumnLowerState.本年户通融 >= 1
+        && autumnLowerState.本年户备役 >= 1
+        && autumnLowerState.家族 >= 70
+        && Array.isArray(autumnLowerState.本年户季务)
+        && autumnLowerState.本年户季务.some((tag) => String(tag).includes('秋尾帖脚'))
+        && autumnLowerState.本年户季务.some((tag) => String(tag).includes('秋尾帖脚已理'))
+        && (autumnLower.window.__INV || []).length === 0
+    },
+    autumnMid: {
+      stage: autumnMidStage,
+      resolve: autumnMidResolve,
+      state: {
+        铜钱: autumnMidState.铜钱,
+        家族: autumnMidState.家族,
+        本年户催账: autumnMidState.本年户催账,
+        本年户通融: autumnMidState.本年户通融,
+        本年户备役: autumnMidState.本年户备役,
+        本年户季务: autumnMidState.本年户季务
+      },
+      ok: autumnMidStage.includes('先把秋中馆账脚费与租路饭钱分开')
+        && autumnMidStage.includes('把秋后润笔拆作锅火与差钱')
+        && autumnMidResolve.includes('先把旧馆润笔、租路饭钱、回话脚费与锅火差钱分开')
+        && autumnMidResolve.includes('〔秋后细账〕')
+        && autumnMidState.本年户催账 >= 1
+        && autumnMidState.本年户通融 >= 1
+        && autumnMidState.本年户备役 >= 2
+        && autumnMidState.家族 >= 70
+        && Array.isArray(autumnMidState.本年户季务)
+        && autumnMidState.本年户季务.some((tag) => String(tag).includes('秋中馆脚'))
+        && autumnMidState.本年户季务.some((tag) => String(tag).includes('秋后细账已拆'))
+        && (autumnMid.window.__INV || []).length === 0
+    },
+    winterUpper: {
+      stage: winterUpperStage,
+      resolve: winterUpperResolve,
+      state: {
+        铜钱: winterUpperState.铜钱,
+        家族: winterUpperState.家族,
+        本年户催账: winterUpperState.本年户催账,
+        本年户通融: winterUpperState.本年户通融,
+        本年户供读: winterUpperState.本年户供读,
+        本年户季务: winterUpperState.本年户季务
+      },
+      ok: winterUpperStage.includes('先把旧馆回话与灯油炭火分开')
+        && winterUpperStage.includes('先把冬头灯课纸包与旧馆门包分开')
+        && winterUpperResolve.includes('先把旧馆回话、灯油炭火、递帖脚费与来春开馆口风分开')
+        && winterUpperResolve.includes('先把孩子灯课纸包、炭笔小钱、旧馆门包与锅火后手分开')
+        && winterUpperResolve.includes('〔冬头课纸〕')
+        && winterUpperState.本年户催账 >= 2
+        && winterUpperState.本年户通融 >= 2
+        && winterUpperState.本年户供读 >= 1
+        && winterUpperState.家族 >= 70
+        && Array.isArray(winterUpperState.本年户季务)
+        && winterUpperState.本年户季务.some((tag) => String(tag).includes('冬馆灯炭'))
+        && winterUpperState.本年户季务.some((tag) => String(tag).includes('冬头课纸'))
+        && winterUpperState.本年户季务.some((tag) => String(tag).includes('冬头课纸已分'))
+        && (winterUpper.window.__INV || []).length === 0
+    },
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        铜钱: winterMidState.铜钱,
+        家族: winterMidState.家族,
+        本年户催账: winterMidState.本年户催账,
+        本年户通融: winterMidState.本年户通融,
+        本年户备役: winterMidState.本年户备役,
+        本年户供读: winterMidState.本年户供读,
+        本年户季务: winterMidState.本年户季务
+      },
+      ok: winterMidStage.includes('先把冬中帖路与旧馆门包分开')
+        && winterMidStage.includes('先把冬中馆札与孩子炭笔分开')
+        && winterMidResolve.includes('先把旧馆回话、递帖门包、来春纸样与乡里递话脚费分开')
+        && winterMidResolve.includes('先把旧馆回札、孩子来春炭笔、递话脚费与锅火后手分开')
+        && winterMidResolve.includes('〔冬馆回话〕')
+        && winterMidState.本年户催账 >= 2
+        && winterMidState.本年户通融 >= 1
+        && winterMidState.本年户备役 >= 1
+        && winterMidState.本年户供读 >= 1
+        && winterMidState.家族 >= 70
+        && Array.isArray(winterMidState.本年户季务)
+        && winterMidState.本年户季务.some((tag) => String(tag).includes('冬中帖路'))
+        && winterMidState.本年户季务.some((tag) => String(tag).includes('冬中馆札'))
+        && winterMidState.本年户季务.some((tag) => String(tag).includes('冬馆回话已理'))
+        && (winterMid.window.__INV || []).length === 0
+    },
+    winterLower: {
+      stage: winterLowerStage,
+      resolve: winterLowerResolve,
+      state: {
+        铜钱: winterLowerState.铜钱,
+        家族: winterLowerState.家族,
+        本年户催账: winterLowerState.本年户催账,
+        本年户通融: winterLowerState.本年户通融,
+        本年户备役: winterLowerState.本年户备役,
+        本年户季务: winterLowerState.本年户季务
+      },
+      ok: winterLowerStage.includes('先留来春帖费与开馆脚路')
+        && winterLowerStage.includes('先把年下馆信与孩子帖样分开')
+        && winterLowerStage.includes('把余钱先分作来春纸墨与锅火')
+        && winterLowerResolve.includes('先把来春帖费、开馆脚路、学生家回话与锅火分开')
+        && winterLowerResolve.includes('先把旧馆回信、孩子来春帖样、递话门包与锅火后手分开')
+        && winterLowerResolve.includes('〔冬尾笔炭〕')
+        && winterLowerResolve.includes('〔冬尾帖样〕')
+        && winterLowerResolve.includes('又一年春分书')
+        && winterLowerState.家族 >= 79
+        && Array.isArray(winterLowerState.本年户季务)
+        && winterLowerState.本年户季务.length === 0
+        && (winterLower.window.__INV || []).length === 0
+    },
+    ok: springUpperStage.includes('先把孩子春课纸包与保结帖脚分开')
+      && springMidStage.includes('先把春中税则与清明香纸分开')
+      && summerUpperStage.includes('先把伏夏馆汤与凉药门包分开')
+      && summerMidStage.includes('先把保结薄礼与租帖脚费分开')
+      && summerLowerStage.includes('先把夏尾馆信与秋前纸样分开')
+      && autumnMidStage.includes('先把秋中馆账脚费与租路饭钱分开')
+      && autumnLowerStage.includes('先把秋尾回签与炭脚回礼分开')
+      && winterUpperStage.includes('先把冬头灯课纸包与旧馆门包分开')
+      && winterMidStage.includes('先把冬中帖路与旧馆门包分开')
+      && winterMidStage.includes('先把冬中馆札与孩子炭笔分开')
+      && winterLowerStage.includes('先留来春帖费与开馆脚路')
+      && winterLowerStage.includes('先把年下馆信与孩子帖样分开')
+      && springUpperResolve.includes('〔春头课纸〕')
+      && springMidResolve.includes('〔春中香脚〕')
+      && summerUpperResolve.includes('先把馆里茶汤、凉药、递话门包与家里伏热小耗分开')
+      && summerMidResolve.includes('〔伏夏小耗〕')
+      && summerLowerResolve.includes('〔夏尾馆信〕')
+      && autumnMidResolve.includes('〔秋后细账〕')
+      && winterUpperResolve.includes('〔冬头课纸〕')
+      && autumnLowerResolve.includes('〔秋尾帖脚〕')
+      && winterMidResolve.includes('〔冬馆回话〕')
+      && winterLowerResolve.includes('〔冬尾笔炭〕')
+      && winterLowerResolve.includes('〔冬尾帖样〕')
+      && winterLowerResolve.includes('又一年春分书')
+      && Array.isArray(springUpperState.本年户季务)
+      && springUpperState.本年户季务.some((tag) => String(tag).includes('春头课纸'))
+      && Array.isArray(springMidState.本年户季务)
+      && springMidState.本年户季务.some((tag) => String(tag).includes('春中税香'))
+      && (springUpper.window.__INV || []).length === 0
+      && Array.isArray(summerUpperState.本年户季务)
+      && summerUpperState.本年户季务.some((tag) => String(tag).includes('伏夏馆汤'))
+      && Array.isArray(summerLowerState.本年户季务)
+      && summerLowerState.本年户季务.some((tag) => String(tag).includes('夏尾馆信'))
+      && Array.isArray(autumnMidState.本年户季务)
+      && autumnMidState.本年户季务.some((tag) => String(tag).includes('秋中馆脚'))
+      && Array.isArray(autumnLowerState.本年户季务)
+      && autumnLowerState.本年户季务.some((tag) => String(tag).includes('秋尾帖脚'))
+      && Array.isArray(winterUpperState.本年户季务)
+      && winterUpperState.本年户季务.some((tag) => String(tag).includes('冬头课纸'))
+      && Array.isArray(winterMidState.本年户季务)
+      && winterMidState.本年户季务.some((tag) => String(tag).includes('冬中馆札'))
+      && Array.isArray(winterLowerState.本年户季务)
+      && winterLowerState.本年户季务.length === 0
+      && (springMid.window.__INV || []).length === 0
+      && (summerUpper.window.__INV || []).length === 0
+      && (summerMid.window.__INV || []).length === 0
+      && (summerLower.window.__INV || []).length === 0
+      && (autumnMid.window.__INV || []).length === 0
+      && (autumnLower.window.__INV || []).length === 0
+      && (winterUpper.window.__INV || []).length === 0
+      && (winterMid.window.__INV || []).length === 0
+      && (winterLower.window.__INV || []).length === 0
+  };
+}
+
+function runExamHouseholdSeasonalDensityRegression() {
+  const result = runExamHouseholdChoiceDensityRegression();
+  const winter = {
+    stage: result.winterLower.stage,
+    resolve: result.winterLower.resolve,
+    state: result.winterLower.state,
+    ok: result.winterLower.stage.includes('先留来春帖费与开馆脚路')
+      && result.winterLower.stage.includes('先把年下馆信与孩子帖样分开')
+      && result.winterLower.resolve.includes('〔冬尾笔炭〕')
+      && result.winterLower.resolve.includes('〔冬尾帖样〕')
+      && result.winterLower.resolve.includes('又一年春分书')
+      && result.winterLower.state.家族 >= 79
+      && Array.isArray(result.winterLower.state.本年户季务)
+      && result.winterLower.state.本年户季务.length === 0
+  };
+  return {
+    spring: result.springUpper,
+    summer: result.summerUpper,
+    autumn: result.autumnMid,
+    winter,
+    ok: result.springUpper.ok
+      && result.springMid.ok
+      && result.summerUpper.ok
+      && result.summerLower.ok
+      && result.autumnMid.ok
+      && result.autumnLower.ok
+      && result.winterUpper.ok
+      && result.winterMid.ok
+      && winter.ok
+      && result.ok
+  };
+}
+
+function runMerchantElderSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  // 养老阶段会在“协商/结租/卖田”等节点消耗 RNG。给足序列，避免落入未设种子的 LCG 分支导致波动。
+  api.setRandomSequence(new Array(40).fill(0.01));
+  api.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 52,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    体魄: 58,
+    白银: 3,
+    铜钱: 1200,
+    存米: 4,
+    田亩: 4,
+    口食田: 1,
+    家族: 67,
+    负债银: 0,
+    商历练: 4,
+    商身份: '坐店行商',
+    累计反哺银: 3,
+    未回款银: 4,
+    商路供读银: 2,
+    委托营生: '出佃收租',
+    委托租谷: 1,
+    委托待收租谷: 1
+  });
+  api.enterPhase('elder');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_negotiate']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_route_price_old', 'e_route_spring_reply_old']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  const resolveSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_route_spring_packet_old', 'e_rest']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const resolveSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_route_summer_note_old', 'e_rest']);
+  api.commit();
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_route_bundle_old', 'e_rest']);
+  api.commit();
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerMid = clone(api.getState());
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_route_summer_packet_old', 'e_rest']);
+  api.commit();
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerLower = clone(api.getState());
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_route_receipt_old', 'e_route_autumn_note_old']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_collect_old', 'e_rent']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  const resolveAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_route_autumn_tail_old', 'e_rest']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_sell', 'e_route_winter_medicine_old']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_route_guest_old', 'e_route_winter_reply_old', 'e_route_winter_school_old']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_route_wharf_old', 'e_route_winter_tail_old', 'e_route_return_old']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  const resolveWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSpringMid,
+      resolveSpringMid,
+      stageSpringLower,
+      resolveSpringLower,
+      stageSummerUpper,
+      resolveSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      resolveSummerLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper,
+      stageWinterMid,
+      resolveWinterMid,
+      stageWinterLower,
+      resolveWinterLower,
+      deathStage
+    },
+    postSpringUpper: {
+      存米: postSpringUpper.存米,
+      家族: postSpringUpper.家族,
+      本年养老协商: postSpringUpper.本年养老协商,
+      本年养老季务: postSpringUpper.本年养老季务
+    },
+    postSpringMid: {
+      体魄: postSpringMid.体魄,
+      家族: postSpringMid.家族,
+      本年养老季务: postSpringMid.本年养老季务
+    },
+    postSpringLower: {
+      体魄: postSpringLower.体魄,
+      家族: postSpringLower.家族,
+      本年养老季务: postSpringLower.本年养老季务
+    },
+    postSummerMid: {
+      体魄: postSummerMid.体魄,
+      家族: postSummerMid.家族,
+      本年养老季务: postSummerMid.本年养老季务
+    },
+    postSummerUpper: {
+      体魄: postSummerUpper.体魄,
+      家族: postSummerUpper.家族,
+      本年养老季务: postSummerUpper.本年养老季务
+    },
+    postSummerLower: {
+      体魄: postSummerLower.体魄,
+      本年养老季务: postSummerLower.本年养老季务
+    },
+    postAutumnUpper: {
+      体魄: postAutumnUpper.体魄,
+      家族: postAutumnUpper.家族,
+      本年养老季务: postAutumnUpper.本年养老季务
+    },
+    postAutumnMid: {
+      白银: postAutumnMid.白银,
+      存米: postAutumnMid.存米,
+      未回款银: postAutumnMid.未回款银,
+      本年养老收租: postAutumnMid.本年养老收租,
+      本年养老旧识: postAutumnMid.本年养老旧识,
+      本年养老季务: postAutumnMid.本年养老季务
+    },
+    postAutumnLower: {
+      体魄: postAutumnLower.体魄,
+      家族: postAutumnLower.家族,
+      本年养老季务: postAutumnLower.本年养老季务
+    },
+    postWinterUpper: {
+      白银: postWinterUpper.白银,
+      田亩: postWinterUpper.田亩,
+      体魄: postWinterUpper.体魄,
+      本年养老卖田: postWinterUpper.本年养老卖田,
+      本年养老季务: postWinterUpper.本年养老季务
+    },
+    postWinterMid: {
+      体魄: postWinterMid.体魄,
+      家族: postWinterMid.家族,
+      本年养老季务: postWinterMid.本年养老季务
+    },
+    postWinterLower: {
+      体魄: postWinterLower.体魄,
+      家族: postWinterLower.家族,
+      本年养老季务: postWinterLower.本年养老季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('春安顿')
+      && stageSpringUpper.includes('与诸子协商轮养')
+      && stageSpringUpper.includes('先把春头样纸与递话脚费分开')
+      && resolveSpringUpper.includes('〔春头样纸〕')
+      && stageSpringMid.includes('春安顿')
+      && stageSpringMid.includes('先问春价与旧账次序')
+      && stageSpringMid.includes('先把春中回签与样纸门包分开')
+      && resolveSpringMid.includes('〔春路回话〕')
+      && resolveSpringMid.includes('〔春中回签〕')
+      && stageSpringLower.includes('把春尾香纸拆作回话与盐药')
+      && resolveSpringLower.includes('〔春尾香脚〕')
+      && stageSummerUpper.includes('夏将养')
+      && stageSummerUpper.includes('先把伏夏回签与凉药脚费分开')
+      && resolveSummerUpper.includes('〔伏夏回签〕')
+      && stageSummerMid.includes('夏将养')
+      && stageSummerMid.includes('托熟号捎布药回家')
+      && resolveSummerMid.includes('〔伏夏布药〕')
+      && stageSummerLower.includes('夏将养')
+      && stageSummerLower.includes('先把夏尾客签与秋前样纸分开')
+      && resolveSummerLower.includes('〔夏尾客签〕')
+      && stageAutumnUpper.includes('秋结租')
+      && stageAutumnUpper.includes('先抄旧账脚单与租路次序')
+      && stageAutumnUpper.includes('先把秋头回签与米脚锅火分开')
+      && resolveAutumnUpper.includes('〔秋头回签〕')
+      && stageAutumnMid.includes('秋结租')
+      && stageAutumnMid.includes('催回商路旧账')
+      && resolveAutumnMid.includes('〔秋后账路〕')
+      && stageAutumnLower.includes('先把秋尾回话与锅火脚费分开')
+      && stageAutumnLower.includes('先把秋尾回话与孙辈纸包分开')
+      && resolveAutumnLower.includes('〔秋尾账脚〕')
+      && stageWinterUpper.includes('冬收束')
+      && stageWinterUpper.includes('变卖田产养老')
+      && stageWinterUpper.includes('先把冬头炭药与熟号回签分开')
+      && resolveWinterUpper.includes('〔年关账火〕')
+      && resolveWinterUpper.includes('先把冬头炭药与熟号回签分开')
+      && stageWinterMid.includes('先备熟号薄礼与回话脚费')
+      && stageWinterMid.includes('先把冬中回话脚费与样纸定钱分开')
+      && stageWinterMid.includes('先把冬中供读底银与灯炭炭笔分开')
+      && resolveWinterMid.includes('〔熟号薄礼〕')
+      && stageWinterLower.includes('托熟号问明春水脚')
+      && stageWinterLower.includes('先把年下回签与来春样纸分开')
+      && stageWinterLower.includes('先把归乡船脚与年下回签分开')
+      && stageWinterLower.includes('冬收束')
+      && resolveWinterLower.includes('〔明春水脚〕')
+      && resolveWinterLower.includes('这一养老年里，春头样纸、伏夏水脚、秋中回签、冬中回话与冬尾年下回签都已逐旬见光')
+      && !resolveWinterLower.includes('真正落到账里的细务仍偏少')
+      && deathStage.includes('死亡与传承')
+      && postSpringUpper.本年养老协商 >= 1
+      && postSpringUpper.存米 >= 4
+      && postSpringUpper.家族 >= 75
+      && Array.isArray(postSpringUpper.本年养老季务)
+      && postSpringUpper.本年养老季务.some((tag) => String(tag).includes('春头样纸已理'))
+      && postSpringMid.体魄 >= 59
+      && Array.isArray(postSpringMid.本年养老季务)
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('议轮养'))
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('问春价'))
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('春中回签'))
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('春路回话已理'))
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('春中回签已理'))
+      && postSpringLower.体魄 >= 63
+      && postSpringLower.家族 >= 77
+      && Array.isArray(postSpringLower.本年养老季务)
+      && postSpringLower.本年养老季务.some((tag) => String(tag).includes('春尾香脚'))
+      && postSpringLower.本年养老季务.some((tag) => String(tag).includes('春尾香脚已分'))
+      && postSummerUpper.体魄 >= 63
+      && postSummerUpper.家族 >= 78
+      && Array.isArray(postSummerUpper.本年养老季务)
+      && postSummerUpper.本年养老季务.some((tag) => String(tag).includes('伏夏回签拆开'))
+      && postSummerUpper.本年养老季务.some((tag) => String(tag).includes('伏夏回签已理'))
+      && postSummerMid.体魄 >= 63
+      && postSummerMid.家族 >= 80
+      && Array.isArray(postSummerMid.本年养老季务)
+      && postSummerMid.本年养老季务.some((tag) => String(tag).includes('捎布药'))
+      && postSummerMid.本年养老季务.some((tag) => String(tag).includes('伏夏布药已顾'))
+      && postSummerLower.体魄 >= 71
+      && Array.isArray(postSummerLower.本年养老季务)
+      && postSummerLower.本年养老季务.some((tag) => String(tag).includes('静养'))
+      && postSummerLower.本年养老季务.some((tag) => String(tag).includes('夏尾客签拆开'))
+      && postSummerLower.本年养老季务.some((tag) => String(tag).includes('夏尾客签已理'))
+      && postAutumnUpper.体魄 >= 72
+      && postAutumnUpper.家族 >= 84
+      && Array.isArray(postAutumnUpper.本年养老季务)
+      && postAutumnUpper.本年养老季务.some((tag) => String(tag).includes('抄脚单'))
+      && postAutumnUpper.本年养老季务.some((tag) => String(tag).includes('秋头回签'))
+      && postAutumnUpper.本年养老季务.some((tag) => String(tag).includes('秋头回签已理'))
+      && postAutumnMid.白银 >= 4
+      // 养老期口粮可能被逐旬消耗；此处不再以“存米阈值”判定成功，只看“结租谷/催旧账”等制度节点是否落地。
+      && postAutumnMid.存米 >= 0
+      && postAutumnMid.未回款银 === 0
+      && postAutumnMid.本年养老收租 >= 1
+      && postAutumnMid.本年养老旧识 >= 1
+      && Array.isArray(postAutumnMid.本年养老季务)
+      && postAutumnMid.本年养老季务.some((tag) => String(tag).includes('结租谷'))
+      && postAutumnMid.本年养老季务.some((tag) => String(tag).includes('催旧账'))
+      && postAutumnMid.本年养老季务.some((tag) => String(tag).includes('秋后账路已顾'))
+      && postAutumnLower.体魄 >= 72
+      && postAutumnLower.家族 >= 87
+      && Array.isArray(postAutumnLower.本年养老季务)
+      && postAutumnLower.本年养老季务.some((tag) => String(tag).includes('秋尾账脚'))
+      && postAutumnLower.本年养老季务.some((tag) => String(tag).includes('秋尾账脚已理'))
+      && postWinterUpper.白银 >= 6
+      && postWinterUpper.田亩 === 3
+      && postWinterUpper.本年养老卖田 >= 1
+      && Array.isArray(postWinterUpper.本年养老季务)
+      && postWinterUpper.本年养老季务.some((tag) => String(tag).includes('卖田'))
+      && postWinterUpper.本年养老季务.some((tag) => String(tag).includes('冬头炭药拆开'))
+      && postWinterUpper.本年养老季务.some((tag) => String(tag).includes('年关账火已分'))
+      && postWinterMid.体魄 >= 75
+      && postWinterMid.家族 >= 89
+      && Array.isArray(postWinterMid.本年养老季务)
+      && postWinterMid.本年养老季务.some((tag) => String(tag).includes('备熟号薄礼'))
+      && postWinterMid.本年养老季务.some((tag) => String(tag).includes('熟号薄礼已留'))
+      && postWinterMid.本年养老季务.some((tag) => String(tag).includes('冬中回话'))
+      && postWinterMid.本年养老季务.some((tag) => String(tag).includes('冬中供读'))
+      && postWinterLower.体魄 >= 80
+      && postWinterLower.家族 >= 90
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('问水脚'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('明春水脚已问'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('年下回签'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('归乡船脚'))
+      && postWinterLower.本年养老季务.length >= 10
+      && includesOrderedPhases(phaseTrace, ['elder', 'death'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runMerchantElderChoiceDensityRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSequence(new Array(40).fill(0.01));
+    api.patchState(Object.assign({
+      路线: '路径四 · 徽商式亦贾亦儒',
+      识字: true,
+      年龄: 52,
+      妻室: true,
+      子数: 2,
+      女数: 1,
+      体魄: 58,
+      白银: 3,
+      铜钱: 920,
+      存米: 4,
+      田亩: 4,
+      口食田: 1,
+      家族: 67,
+      负债银: 0,
+      商历练: 4,
+      商身份: '坐店行商',
+      累计反哺银: 3,
+      未回款银: 4,
+      商路供读银: 2,
+      委托营生: '出佃收租',
+      委托租谷: 1,
+      委托待收租谷: 1,
+      本年养老协商: 0,
+      本年养老收租: 0,
+      本年养老卖田: 0,
+      本年养老医药: 0,
+      本年养老守田: 0,
+      本年养老旧识: 0,
+      本年养老铺账: 0,
+      本年养老节礼: 0,
+      本年养老季务: []
+    }, extraPatch || {}));
+    api.enterPhase('elder');
+    api.patchState({
+      老季: season,
+      老旬: xun,
+      本年养老协商: 0,
+      本年养老收租: 0,
+      本年养老卖田: 0,
+      本年养老医药: 0,
+      本年养老守田: 0,
+      本年养老旧识: 0,
+      本年养老铺账: 0,
+      本年养老节礼: 0,
+      本年养老季务: []
+    });
+    api.enterPhase('elder');
+    return { api, elements, window };
+  }
+
+  const springHead = setupAt(1, 1, { 铜钱: 860 });
+  const springHeadStage = normalizeHtml(springHead.elements.get('stage').innerHTML);
+  pickByPlan(springHead.api, ['e_route_spring_head_old', 'e_rest']);
+  springHead.api.commit();
+  const springHeadResolve = normalizeHtml(springHead.elements.get('stage').innerHTML);
+  const springHeadState = clone(springHead.api.getState());
+
+  const spring = setupAt(1, 2, { 铜钱: 860 });
+  const springStage = normalizeHtml(spring.elements.get('stage').innerHTML);
+  pickByPlan(spring.api, ['e_route_price_old', 'e_route_spring_reply_old']);
+  spring.api.commit();
+  const springResolve = normalizeHtml(spring.elements.get('stage').innerHTML);
+  const springState = clone(spring.api.getState());
+
+  const summer = setupAt(2, 1);
+  const summerStage = normalizeHtml(summer.elements.get('stage').innerHTML);
+  pickByPlan(summer.api, ['e_route_summer_note_old', 'e_rest']);
+  summer.api.commit();
+  const summerResolve = normalizeHtml(summer.elements.get('stage').innerHTML);
+  const summerState = clone(summer.api.getState());
+
+  const summerMid = setupAt(2, 2, { 铜钱: 860 });
+  const summerMidStage = normalizeHtml(summerMid.elements.get('stage').innerHTML);
+  pickByPlan(summerMid.api, ['e_route_summer_wharf_old', 'e_rest']);
+  summerMid.api.commit();
+  const summerMidResolve = normalizeHtml(summerMid.elements.get('stage').innerHTML);
+  const summerMidState = clone(summerMid.api.getState());
+
+  const summerMidSchool = setupAt(2, 2, { 铜钱: 900, 商路供读银: 2 });
+  const summerMidSchoolStage = normalizeHtml(summerMidSchool.elements.get('stage').innerHTML);
+  pickByPlan(summerMidSchool.api, ['e_route_bundle_old', 'e_route_summer_school_old']);
+  summerMidSchool.api.commit();
+  const summerMidSchoolResolve = normalizeHtml(summerMidSchool.elements.get('stage').innerHTML);
+  const summerMidSchoolState = clone(summerMidSchool.api.getState());
+
+  const summerTail = setupAt(2, 3, { 铜钱: 860 });
+  const summerTailStage = normalizeHtml(summerTail.elements.get('stage').innerHTML);
+  pickByPlan(summerTail.api, ['e_route_summer_packet_old', 'e_rest']);
+  summerTail.api.commit();
+  const summerTailResolve = normalizeHtml(summerTail.elements.get('stage').innerHTML);
+  const summerTailState = clone(summerTail.api.getState());
+
+  const autumn = setupAt(3, 1, { 铜钱: 860, 存米: 3, 未回款银: 5 });
+  const autumnStage = normalizeHtml(autumn.elements.get('stage').innerHTML);
+  pickByPlan(autumn.api, ['e_route_receipt_old', 'e_route_autumn_note_old']);
+  autumn.api.commit();
+  const autumnResolve = normalizeHtml(autumn.elements.get('stage').innerHTML);
+  const autumnState = clone(autumn.api.getState());
+
+  const autumnHeadSchool = setupAt(3, 1, { 铜钱: 900, 存米: 3, 未回款银: 5, 商路供读银: 2 });
+  const autumnHeadSchoolStage = normalizeHtml(autumnHeadSchool.elements.get('stage').innerHTML);
+  pickByPlan(autumnHeadSchool.api, ['e_route_autumn_note_old', 'e_route_autumn_head_school_old']);
+  autumnHeadSchool.api.commit();
+  const autumnHeadSchoolResolve = normalizeHtml(autumnHeadSchool.elements.get('stage').innerHTML);
+  const autumnHeadSchoolState = clone(autumnHeadSchool.api.getState());
+
+  const autumnMid = setupAt(3, 2, { 铜钱: 860, 存米: 3, 未回款银: 5 });
+  const autumnMidStage = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  pickByPlan(autumnMid.api, ['e_collect_old', 'e_route_autumn_mid_old']);
+  autumnMid.api.commit();
+  const autumnMidResolve = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  const autumnMidState = clone(autumnMid.api.getState());
+
+  const autumnMidSchool = setupAt(3, 2, { 铜钱: 900, 存米: 3, 未回款银: 5, 商路供读银: 2 });
+  const autumnMidSchoolStage = normalizeHtml(autumnMidSchool.elements.get('stage').innerHTML);
+  pickByPlan(autumnMidSchool.api, ['e_collect_old', 'e_route_autumn_school_old']);
+  autumnMidSchool.api.commit();
+  const autumnMidSchoolResolve = normalizeHtml(autumnMidSchool.elements.get('stage').innerHTML);
+  const autumnMidSchoolState = clone(autumnMidSchool.api.getState());
+
+  const autumnTailSchool = setupAt(3, 3, { 铜钱: 900, 商路供读银: 2 });
+  const autumnTailSchoolStage = normalizeHtml(autumnTailSchool.elements.get('stage').innerHTML);
+  pickByPlan(autumnTailSchool.api, ['e_route_autumn_tail_old', 'e_route_autumn_tail_school_old']);
+  autumnTailSchool.api.commit();
+  const autumnTailSchoolResolve = normalizeHtml(autumnTailSchool.elements.get('stage').innerHTML);
+  const autumnTailSchoolState = clone(autumnTailSchool.api.getState());
+
+  const winter = setupAt(4, 1, { 铜钱: 760 });
+  const winterStage = normalizeHtml(winter.elements.get('stage').innerHTML);
+  pickByPlan(winter.api, ['e_sell', 'e_route_winter_medicine_old']);
+  winter.api.commit();
+  const winterResolve = normalizeHtml(winter.elements.get('stage').innerHTML);
+  const winterState = clone(winter.api.getState());
+
+  const winterMid = setupAt(4, 2, { 铜钱: 860 });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['e_route_guest_old', 'e_route_winter_reply_old', 'e_route_winter_school_old']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+
+  const winterTail = setupAt(4, 3, { 铜钱: 860 });
+  const winterTailStage = normalizeHtml(winterTail.elements.get('stage').innerHTML);
+  pickByPlan(winterTail.api, ['e_route_wharf_old', 'e_route_winter_tail_old', 'e_route_return_old']);
+  winterTail.api.commit();
+  const winterTailResolve = normalizeHtml(winterTail.elements.get('stage').innerHTML);
+  const winterTailState = clone(winterTail.api.getState());
+
+  return {
+    springHead: {
+      stage: springHeadStage,
+      resolve: springHeadResolve,
+      state: {
+        体魄: springHeadState.体魄,
+        家族: springHeadState.家族,
+        本年养老季务: springHeadState.本年养老季务
+      },
+      ok: springHeadStage.includes('先把春头样纸与递话脚费分开')
+        && springHeadResolve.includes('先把春头样纸与递话脚费分开')
+        && springHeadResolve.includes('〔春头样纸〕')
+        && springHeadState.体魄 >= 63
+        && springHeadState.家族 >= 70
+        && Array.isArray(springHeadState.本年养老季务)
+        && springHeadState.本年养老季务.some((tag) => String(tag).includes('春头样纸'))
+        && springHeadState.本年养老季务.some((tag) => String(tag).includes('春头样纸已理'))
+        && (springHead.window.__INV || []).length === 0
+    },
+    spring: {
+      stage: springStage,
+      resolve: springResolve,
+      state: {
+        体魄: springState.体魄,
+        家族: springState.家族,
+        本年养老季务: springState.本年养老季务
+      },
+      ok: springStage.includes('先问春价与旧账次序')
+        && springStage.includes('先把春中回签与样纸门包分开')
+        && springResolve.includes('先把春中回签与样纸门包分开')
+        && springResolve.includes('〔春路回话〕')
+        && springResolve.includes('〔春中回签〕')
+        && springState.体魄 >= 59
+        && springState.家族 >= 69
+        && Array.isArray(springState.本年养老季务)
+        && springState.本年养老季务.some((tag) => String(tag).includes('问春价'))
+        && springState.本年养老季务.some((tag) => String(tag).includes('春中回签'))
+        && springState.本年养老季务.some((tag) => String(tag).includes('春路回话已理'))
+        && springState.本年养老季务.some((tag) => String(tag).includes('春中回签已理'))
+        && (spring.window.__INV || []).length === 0
+    },
+    summer: {
+      stage: summerStage,
+      resolve: summerResolve,
+      state: {
+        体魄: summerState.体魄,
+        家族: summerState.家族,
+        本年养老季务: summerState.本年养老季务
+      },
+      ok: summerStage.includes('先把伏夏回签与凉药脚费分开')
+        && summerResolve.includes('先把伏夏回签与凉药脚费分开')
+        && summerResolve.includes('〔伏夏回签〕')
+        && summerState.体魄 >= 63
+        && summerState.家族 >= 70
+        && Array.isArray(summerState.本年养老季务)
+        && summerState.本年养老季务.some((tag) => String(tag).includes('伏夏回签拆开'))
+        && summerState.本年养老季务.some((tag) => String(tag).includes('伏夏回签已理'))
+        && (summer.window.__INV || []).length === 0
+    },
+    summerMid: {
+      stage: summerMidStage,
+      resolve: summerMidResolve,
+      state: {
+        体魄: summerMidState.体魄,
+        家族: summerMidState.家族,
+        本年养老季务: summerMidState.本年养老季务
+      },
+      ok: summerMidStage.includes('先把伏夏水脚与凉药门包分开')
+        && summerMidResolve.includes('先把伏夏水脚与凉药门包分开')
+        && summerMidResolve.includes('〔伏夏布药〕')
+        && summerMidState.体魄 >= 63
+        && summerMidState.家族 >= 70
+        && Array.isArray(summerMidState.本年养老季务)
+        && summerMidState.本年养老季务.some((tag) => String(tag).includes('伏夏水脚'))
+        && summerMidState.本年养老季务.some((tag) => String(tag).includes('伏夏布药已顾'))
+        && (summerMid.window.__INV || []).length === 0
+    },
+    summerMidSchool: {
+      stage: summerMidSchoolStage,
+      resolve: summerMidSchoolResolve,
+      state: {
+        体魄: summerMidSchoolState.体魄,
+        家族: summerMidSchoolState.家族,
+        商路供读银: summerMidSchoolState.商路供读银,
+        本年养老季务: summerMidSchoolState.本年养老季务
+      },
+      ok: summerMidSchoolStage.includes('先把伏夏炭笔纸样与捎布脚费分开')
+        && summerMidSchoolResolve.includes('先把伏夏炭笔纸样与捎布脚费分开')
+        && summerMidSchoolResolve.includes('〔伏夏布药〕')
+        && summerMidSchoolState.商路供读银 === 2
+        && summerMidSchoolState.体魄 >= 60
+        && summerMidSchoolState.家族 >= 70
+        && Array.isArray(summerMidSchoolState.本年养老季务)
+        && summerMidSchoolState.本年养老季务.some((tag) => String(tag).includes('捎布药'))
+        && summerMidSchoolState.本年养老季务.some((tag) => String(tag).includes('伏夏供读'))
+        && summerMidSchoolState.本年养老季务.some((tag) => String(tag).includes('伏夏布药已顾'))
+        && (summerMidSchool.window.__INV || []).length === 0
+    },
+    summerTail: {
+      stage: summerTailStage,
+      resolve: summerTailResolve,
+      state: {
+        体魄: summerTailState.体魄,
+        家族: summerTailState.家族,
+        本年养老季务: summerTailState.本年养老季务
+      },
+      ok: summerTailStage.includes('先把夏尾客签与秋前样纸分开')
+        && summerTailResolve.includes('先把夏尾客签与秋前样纸分开')
+        && summerTailResolve.includes('〔夏尾客签〕')
+        && summerTailState.体魄 >= 62
+        && summerTailState.家族 >= 70
+        && Array.isArray(summerTailState.本年养老季务)
+        && summerTailState.本年养老季务.some((tag) => String(tag).includes('夏尾客签拆开'))
+        && summerTailState.本年养老季务.some((tag) => String(tag).includes('夏尾客签已理'))
+        && (summerTail.window.__INV || []).length === 0
+    },
+    autumn: {
+      stage: autumnStage,
+      resolve: autumnResolve,
+      state: {
+        体魄: autumnState.体魄,
+        家族: autumnState.家族,
+        本年养老季务: autumnState.本年养老季务
+      },
+      ok: autumnStage.includes('先把秋头回签与米脚锅火分开')
+        && autumnResolve.includes('先把秋头回签与米脚锅火分开')
+        && autumnResolve.includes('〔秋头回签〕')
+        && autumnState.体魄 >= 59
+        && autumnState.家族 >= 69
+        && Array.isArray(autumnState.本年养老季务)
+        && autumnState.本年养老季务.some((tag) => String(tag).includes('抄脚单'))
+        && autumnState.本年养老季务.some((tag) => String(tag).includes('秋头回签'))
+        && autumnState.本年养老季务.some((tag) => String(tag).includes('秋头回签已理'))
+        && (autumn.window.__INV || []).length === 0
+    },
+    autumnHeadSchool: {
+      stage: autumnHeadSchoolStage,
+      resolve: autumnHeadSchoolResolve,
+      state: {
+        商路供读银: autumnHeadSchoolState.商路供读银,
+        体魄: autumnHeadSchoolState.体魄,
+        家族: autumnHeadSchoolState.家族,
+        本年养老季务: autumnHeadSchoolState.本年养老季务
+      },
+      ok: autumnHeadSchoolStage.includes('先把秋头回签与米脚锅火分开')
+        && autumnHeadSchoolStage.includes('先把秋头回签与孙辈夹衣分开')
+        && autumnHeadSchoolResolve.includes('先把秋头回签与米脚锅火分开')
+        && autumnHeadSchoolResolve.includes('先把秋头回签与孙辈夹衣分开')
+        && autumnHeadSchoolResolve.includes('〔秋头回签〕')
+        && autumnHeadSchoolState.商路供读银 === 2
+        && autumnHeadSchoolState.体魄 >= 60
+        && autumnHeadSchoolState.家族 >= 69
+        && Array.isArray(autumnHeadSchoolState.本年养老季务)
+        && autumnHeadSchoolState.本年养老季务.some((tag) => String(tag).includes('秋头回签'))
+        && autumnHeadSchoolState.本年养老季务.some((tag) => String(tag).includes('秋头护读'))
+        && autumnHeadSchoolState.本年养老季务.some((tag) => String(tag).includes('秋头回签已理'))
+        && (autumnHeadSchool.window.__INV || []).length === 0
+    },
+    autumnMid: {
+      stage: autumnMidStage,
+      resolve: autumnMidResolve,
+      state: {
+        白银: autumnMidState.白银,
+        未回款银: autumnMidState.未回款银,
+        体魄: autumnMidState.体魄,
+        家族: autumnMidState.家族,
+        本年养老季务: autumnMidState.本年养老季务
+      },
+      ok: autumnMidStage.includes('先把秋中回签与租路饭钱分开')
+        && autumnMidResolve.includes('先把秋中回签与租路饭钱分开')
+        && autumnMidResolve.includes('〔秋后账路〕')
+        && autumnMidResolve.includes('〔秋中回签〕')
+        && autumnMidState.白银 >= 4
+        && autumnMidState.未回款银 === 0
+        && autumnMidState.体魄 >= 59
+        && autumnMidState.家族 >= 68
+        && Array.isArray(autumnMidState.本年养老季务)
+        && autumnMidState.本年养老季务.some((tag) => String(tag).includes('催旧账'))
+        && autumnMidState.本年养老季务.some((tag) => String(tag).includes('秋后账路已顾'))
+        && autumnMidState.本年养老季务.some((tag) => String(tag).includes('秋中回签'))
+        && autumnMidState.本年养老季务.some((tag) => String(tag).includes('秋中回签已理'))
+        && (autumnMid.window.__INV || []).length === 0
+    },
+    autumnMidSchool: {
+      stage: autumnMidSchoolStage,
+      resolve: autumnMidSchoolResolve,
+      state: {
+        白银: autumnMidSchoolState.白银,
+        未回款银: autumnMidSchoolState.未回款银,
+        体魄: autumnMidSchoolState.体魄,
+        家族: autumnMidSchoolState.家族,
+        商路供读银: autumnMidSchoolState.商路供读银,
+        本年养老季务: autumnMidSchoolState.本年养老季务
+      },
+      ok: autumnMidSchoolStage.includes('先把秋中回签与孙辈纸包分开')
+        && autumnMidSchoolResolve.includes('先把秋中回签与孙辈纸包分开')
+        && autumnMidSchoolResolve.includes('〔秋后账路〕')
+        && autumnMidSchoolResolve.includes('〔秋中回签〕')
+        && autumnMidSchoolState.白银 >= 3
+        && autumnMidSchoolState.未回款银 === 0
+        && autumnMidSchoolState.商路供读银 === 2
+        && autumnMidSchoolState.体魄 >= 59
+        && autumnMidSchoolState.家族 >= 68
+        && Array.isArray(autumnMidSchoolState.本年养老季务)
+        && autumnMidSchoolState.本年养老季务.some((tag) => String(tag).includes('催旧账'))
+        && autumnMidSchoolState.本年养老季务.some((tag) => String(tag).includes('秋后账路已顾'))
+        && autumnMidSchoolState.本年养老季务.some((tag) => String(tag).includes('秋中供读'))
+        && autumnMidSchoolState.本年养老季务.some((tag) => String(tag).includes('秋中回签已理'))
+        && (autumnMidSchool.window.__INV || []).length === 0
+    },
+    autumnTailSchool: {
+      stage: autumnTailSchoolStage,
+      resolve: autumnTailSchoolResolve,
+      state: {
+        体魄: autumnTailSchoolState.体魄,
+        家族: autumnTailSchoolState.家族,
+        商路供读银: autumnTailSchoolState.商路供读银,
+        本年养老季务: autumnTailSchoolState.本年养老季务
+      },
+      ok: autumnTailSchoolStage.includes('先把秋尾回话与锅火脚费分开')
+        && autumnTailSchoolStage.includes('先把秋尾回话与孙辈纸包分开')
+        && autumnTailSchoolResolve.includes('先把秋尾回话与锅火脚费分开')
+        && autumnTailSchoolResolve.includes('先把秋尾回话与孙辈纸包分开')
+        && autumnTailSchoolResolve.includes('〔秋尾账脚〕')
+        && autumnTailSchoolState.商路供读银 === 2
+        && autumnTailSchoolState.体魄 >= 59
+        && autumnTailSchoolState.家族 >= 69
+        && Array.isArray(autumnTailSchoolState.本年养老季务)
+        && autumnTailSchoolState.本年养老季务.some((tag) => String(tag).includes('秋尾账脚'))
+        && autumnTailSchoolState.本年养老季务.some((tag) => String(tag).includes('秋尾供读'))
+        && autumnTailSchoolState.本年养老季务.some((tag) => String(tag).includes('秋尾账脚已理'))
+        && (autumnTailSchool.window.__INV || []).length === 0
+    },
+    winter: {
+      stage: winterStage,
+      resolve: winterResolve,
+      state: {
+        白银: winterState.白银,
+        田亩: winterState.田亩,
+        体魄: winterState.体魄,
+        家族: winterState.家族,
+        本年养老季务: winterState.本年养老季务
+      },
+      ok: winterStage.includes('先把冬头炭药与熟号回签分开')
+        && winterResolve.includes('先把冬头炭药与熟号回签分开')
+        && winterResolve.includes('〔年关账火〕')
+        && winterState.白银 >= 5
+        && winterState.田亩 === 3
+        && winterState.体魄 >= 58
+        && winterState.家族 >= 68
+        && Array.isArray(winterState.本年养老季务)
+        && winterState.本年养老季务.some((tag) => String(tag).includes('卖田'))
+        && winterState.本年养老季务.some((tag) => String(tag).includes('冬头炭药拆开'))
+        && winterState.本年养老季务.some((tag) => String(tag).includes('年关账火已分'))
+        && (winter.window.__INV || []).length === 0
+    },
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        体魄: winterMidState.体魄,
+        家族: winterMidState.家族,
+        本年养老季务: winterMidState.本年养老季务
+      },
+      ok: winterMidStage.includes('先备熟号薄礼与回话脚费')
+        && winterMidStage.includes('先把冬中回话脚费与样纸定钱分开')
+        && winterMidStage.includes('先把冬中供读底银与灯炭炭笔分开')
+        && winterMidResolve.includes('先把冬中回话脚费与样纸定钱分开')
+        && winterMidResolve.includes('〔熟号薄礼〕')
+        && winterMidState.体魄 >= 61
+        && winterMidState.家族 >= 70
+        && Array.isArray(winterMidState.本年养老季务)
+        && winterMidState.本年养老季务.some((tag) => String(tag).includes('备熟号薄礼'))
+        && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中回话'))
+        && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中供读'))
+        && winterMidState.本年养老季务.some((tag) => String(tag).includes('熟号薄礼已留'))
+        && (winterMid.window.__INV || []).length === 0
+    },
+    winterTail: {
+      stage: winterTailStage,
+      resolve: winterTailResolve,
+      state: {
+        体魄: winterTailState.体魄,
+        家族: winterTailState.家族,
+        本年养老季务: winterTailState.本年养老季务
+      },
+      ok: winterTailStage.includes('托熟号问明春水脚')
+        && winterTailStage.includes('先把年下回签与来春样纸分开')
+        && winterTailStage.includes('先把归乡船脚与年下回签分开')
+        && winterTailResolve.includes('先把年下回签与来春样纸分开')
+        && winterTailResolve.includes('〔明春水脚〕')
+        && winterTailState.体魄 >= 59
+        && winterTailState.家族 >= 71
+        && Array.isArray(winterTailState.本年养老季务)
+        && winterTailState.本年养老季务.some((tag) => String(tag).includes('问水脚'))
+        && winterTailState.本年养老季务.some((tag) => String(tag).includes('年下回签'))
+        && winterTailState.本年养老季务.some((tag) => String(tag).includes('归乡船脚'))
+        && winterTailState.本年养老季务.some((tag) => String(tag).includes('明春水脚已问'))
+        && (winterTail.window.__INV || []).length === 0
+    },
+    ok: springHeadStage.includes('先把春头样纸与递话脚费分开')
+      && springStage.includes('先把春中回签与样纸门包分开')
+      && summerStage.includes('先把伏夏回签与凉药脚费分开')
+      && summerMidStage.includes('先把伏夏水脚与凉药门包分开')
+      && summerMidSchoolStage.includes('先把伏夏炭笔纸样与捎布脚费分开')
+      && summerTailStage.includes('先把夏尾客签与秋前样纸分开')
+      && autumnStage.includes('先把秋头回签与米脚锅火分开')
+      && autumnHeadSchoolStage.includes('先把秋头回签与孙辈夹衣分开')
+      && autumnMidStage.includes('先把秋中回签与租路饭钱分开')
+      && autumnMidSchoolStage.includes('先把秋中回签与孙辈纸包分开')
+      && autumnTailSchoolStage.includes('先把秋尾回话与孙辈纸包分开')
+      && winterStage.includes('先把冬头炭药与熟号回签分开')
+      && winterMidStage.includes('先把冬中回话脚费与样纸定钱分开')
+      && winterMidStage.includes('先把冬中供读底银与灯炭炭笔分开')
+      && winterTailStage.includes('先把年下回签与来春样纸分开')
+      && winterTailStage.includes('先把归乡船脚与年下回签分开')
+      && springHeadResolve.includes('〔春头样纸〕')
+      && springResolve.includes('〔春中回签〕')
+      && summerResolve.includes('〔伏夏回签〕')
+      && summerMidResolve.includes('〔伏夏布药〕')
+      && summerMidSchoolResolve.includes('〔伏夏布药〕')
+      && summerTailResolve.includes('〔夏尾客签〕')
+      && autumnResolve.includes('〔秋头回签〕')
+      && autumnMidResolve.includes('〔秋中回签〕')
+      && autumnMidSchoolResolve.includes('〔秋中回签〕')
+      && autumnTailSchoolResolve.includes('〔秋尾账脚〕')
+      && winterResolve.includes('〔年关账火〕')
+      && winterMidResolve.includes('〔熟号薄礼〕')
+      && winterTailResolve.includes('〔明春水脚〕')
+      && springHeadState.本年养老季务.some((tag) => String(tag).includes('春头样纸'))
+      && springState.本年养老季务.some((tag) => String(tag).includes('春中回签'))
+      && summerState.本年养老季务.some((tag) => String(tag).includes('伏夏回签拆开'))
+      && summerMidState.本年养老季务.some((tag) => String(tag).includes('伏夏水脚'))
+      && summerMidSchoolState.本年养老季务.some((tag) => String(tag).includes('伏夏供读'))
+      && summerTailState.本年养老季务.some((tag) => String(tag).includes('夏尾客签拆开'))
+      && autumnState.本年养老季务.some((tag) => String(tag).includes('秋头回签'))
+      && autumnMidState.本年养老季务.some((tag) => String(tag).includes('秋中回签'))
+      && autumnMidSchoolState.本年养老季务.some((tag) => String(tag).includes('秋中供读'))
+      && autumnTailSchoolState.本年养老季务.some((tag) => String(tag).includes('秋尾供读'))
+      && winterState.本年养老季务.some((tag) => String(tag).includes('冬头炭药拆开'))
+      && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中回话'))
+      && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中供读'))
+      && winterTailState.本年养老季务.some((tag) => String(tag).includes('年下回签'))
+      && winterTailState.本年养老季务.some((tag) => String(tag).includes('归乡船脚'))
+      && (springHead.window.__INV || []).length === 0
+      && (spring.window.__INV || []).length === 0
+      && (summer.window.__INV || []).length === 0
+      && (summerMid.window.__INV || []).length === 0
+      && (summerMidSchool.window.__INV || []).length === 0
+      && (summerTail.window.__INV || []).length === 0
+      && (autumn.window.__INV || []).length === 0
+      && (autumnMid.window.__INV || []).length === 0
+      && (autumnMidSchool.window.__INV || []).length === 0
+      && (autumnTailSchool.window.__INV || []).length === 0
+      && (winter.window.__INV || []).length === 0
+      && (winterMid.window.__INV || []).length === 0
+      && (winterTail.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantElderSchoolFundRegression() {
+  function setupAt(xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSequence(new Array(40).fill(0.01));
+    api.patchState(Object.assign({
+      路线: '路径四 · 徽商式亦贾亦儒',
+      识字: true,
+      年龄: 52,
+      妻室: true,
+      子数: 2,
+      女数: 1,
+      体魄: 58,
+      白银: 3,
+      铜钱: 920,
+      存米: 4,
+      田亩: 4,
+      口食田: 1,
+      家族: 67,
+      负债银: 0,
+      商历练: 4,
+      商身份: '坐店行商',
+      累计反哺银: 3,
+      未回款银: 4,
+      商路供读银: 2,
+      委托营生: '出佃收租',
+      委托租谷: 1,
+      委托待收租谷: 1,
+      本年养老协商: 0,
+      本年养老收租: 0,
+      本年养老卖田: 0,
+      本年养老医药: 0,
+      本年养老守田: 0,
+      本年养老旧识: 0,
+      本年养老铺账: 0,
+      本年养老节礼: 0,
+      本年养老季务: []
+    }, extraPatch || {}));
+    api.enterPhase('elder');
+    api.patchState({
+      老季: 4,
+      老旬: xun,
+      本年养老协商: 0,
+      本年养老收租: 0,
+      本年养老卖田: 0,
+      本年养老医药: 0,
+      本年养老守田: 0,
+      本年养老旧识: 0,
+      本年养老铺账: 0,
+      本年养老节礼: 0,
+      本年养老季务: []
+    });
+    api.enterPhase('elder');
+    return { api, elements, window };
+  }
+
+  const winterMid = setupAt(2, { 铜钱: 900 });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['e_route_winter_school_old', 'e_route_winter_reply_old', 'e_rest']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+
+  const winterTail = setupAt(3, { 铜钱: 900 });
+  const winterTailStage = normalizeHtml(winterTail.elements.get('stage').innerHTML);
+  pickByPlan(winterTail.api, ['e_route_winter_school_tail_old', 'e_route_winter_tail_old', 'e_rest']);
+  winterTail.api.commit();
+  const winterTailResolve = normalizeHtml(winterTail.elements.get('stage').innerHTML);
+  const winterTailState = clone(winterTail.api.getState());
+
+  return {
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        商路供读银: winterMidState.商路供读银,
+        体魄: winterMidState.体魄,
+        家族: winterMidState.家族,
+        本年养老季务: winterMidState.本年养老季务
+      },
+      ok: winterMidStage.includes('先把冬中供读底银与灯炭炭笔分开')
+        && winterMidStage.includes('先把冬中回话脚费与样纸定钱分开')
+        && winterMidResolve.includes('先把冬中供读底银与灯炭炭笔分开')
+        && winterMidResolve.includes('商路留下的供读底银也没被锅火顺手吞掉')
+        && winterMidResolve.includes('〔冬中供读〕')
+        && winterMidResolve.includes('〔冬中回话〕')
+        && winterMidState.商路供读银 === 2
+        && winterMidState.体魄 >= 64
+        && winterMidState.家族 >= 71
+        && Array.isArray(winterMidState.本年养老季务)
+        && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中供读'))
+        && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中回话'))
+        && (winterMid.window.__INV || []).length === 0
+    },
+    winterTail: {
+      stage: winterTailStage,
+      resolve: winterTailResolve,
+      state: {
+        商路供读银: winterTailState.商路供读银,
+        体魄: winterTailState.体魄,
+        家族: winterTailState.家族,
+        本年养老季务: winterTailState.本年养老季务
+      },
+      ok: winterTailStage.includes('先把冬尾供读帖样与年下锅火分开')
+        && winterTailStage.includes('先把年下回签与来春样纸分开')
+        && winterTailResolve.includes('先把冬尾供读帖样与年下锅火分开')
+        && winterTailResolve.includes('家里读写后手也没再去硬抢明春商路门路')
+        && winterTailResolve.includes('〔冬尾供读〕')
+        && winterTailResolve.includes('〔冬尾铺签〕')
+        && winterTailState.商路供读银 === 2
+        && winterTailState.体魄 >= 63
+        && winterTailState.家族 >= 71
+        && Array.isArray(winterTailState.本年养老季务)
+        && winterTailState.本年养老季务.some((tag) => String(tag).includes('冬尾供读'))
+        && winterTailState.本年养老季务.some((tag) => String(tag).includes('年下回签'))
+        && (winterTail.window.__INV || []).length === 0
+    },
+    ok: winterMidStage.includes('先把冬中供读底银与灯炭炭笔分开')
+      && winterTailStage.includes('先把冬尾供读帖样与年下锅火分开')
+      && winterMidResolve.includes('〔冬中供读〕')
+      && winterTailResolve.includes('〔冬尾供读〕')
+      && winterMidState.商路供读银 === 2
+      && winterTailState.商路供读银 === 2
+      && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中供读'))
+      && winterTailState.本年养老季务.some((tag) => String(tag).includes('冬尾供读'))
+      && (winterMid.window.__INV || []).length === 0
+      && (winterTail.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantDeathClosureRegression() {
+  function setup(extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSequence(new Array(40).fill(0.01));
+    api.patchState(Object.assign({
+      路线: '路径四 · 徽商式亦贾亦儒',
+      识字: true,
+      年龄: 58,
+      妻室: true,
+      子数: 2,
+      女数: 1,
+      体魄: 54,
+      白银: 4,
+      铜钱: 320,
+      存米: 4,
+      田亩: 4,
+      口食田: 1,
+      家族: 68,
+      负债银: 0,
+      商历练: 4,
+      商身份: '坐店行商',
+      累计回钱银: 4,
+      累计反哺银: 2,
+      未回款银: 4,
+      商路供读银: 1,
+      委托营生: '出佃收租',
+      委托租谷: 1,
+      委托待收租谷: 1,
+      本年养老协商: 0,
+      本年养老收租: 0,
+      本年养老卖田: 0,
+      本年养老医药: 0,
+      本年养老守田: 0,
+      本年养老旧识: 0,
+      本年养老铺账: 0,
+      本年养老节礼: 0,
+      本年养老归乡: 0,
+      本年养老季务: []
+    }, extraPatch || {}));
+    api.enterPhase('elder');
+    api.patchState({
+      老季: 4,
+      老旬: 3,
+      本年养老协商: 0,
+      本年养老收租: 0,
+      本年养老卖田: 0,
+      本年养老医药: 0,
+      本年养老守田: 0,
+      本年养老旧识: 0,
+      本年养老铺账: 0,
+      本年养老节礼: 0,
+      本年养老归乡: 0,
+      本年养老季务: []
+    });
+    api.enterPhase('elder');
+    return { api, elements, window };
+  }
+
+  function play(picks) {
+    const harness = setup();
+    const stage = normalizeHtml(harness.elements.get('stage').innerHTML);
+    const returnChoice = availableMap(harness.api).get('e_route_return_old');
+    pickByPlan(harness.api, picks);
+    harness.api.commit();
+    const resolve = normalizeHtml(harness.elements.get('stage').innerHTML);
+    harness.api.next();
+    const deathStage = normalizeHtml(harness.elements.get('stage').innerHTML);
+    const state = clone(harness.api.getState());
+    return { stage, returnChoice, resolve, deathStage, state, window: harness.window };
+  }
+
+  const home = play(['e_route_return_old']);
+  const away = play(['e_rest']);
+
+  return {
+    home: {
+      stage: home.stage,
+      resolve: home.resolve,
+      deathStage: home.deathStage,
+      state: {
+        本年养老归乡: home.state.本年养老归乡,
+        本年养老季务: home.state.本年养老季务,
+        商路收口: home.state._merchantDeathClosure,
+        传承白银: home.state._carry && home.state._carry.白银,
+        传承铜钱: home.state._carry && home.state._carry.铜钱
+      },
+      ok: !!home.returnChoice
+        && home.stage.includes('先把归乡船脚与年下回签分开')
+        && home.resolve.includes('〔归乡船脚〕')
+        && home.state.本年养老归乡 === 1
+        && Array.isArray(home.state.本年养老季务)
+        && home.state.本年养老季务.some((tag) => String(tag).includes('归乡船脚'))
+        && home.state._merchantDeathClosure === '归乡终老'
+        && home.deathStage.includes('你晚景总算先把归乡船脚与年下回签拆清')
+        && home.deathStage.includes('这一次总算先把归乡船脚与年下回签坐实')
+        && (home.window.__INV || []).length === 0
+    },
+    away: {
+      stage: away.stage,
+      resolve: away.resolve,
+      deathStage: away.deathStage,
+      state: {
+        本年养老归乡: away.state.本年养老归乡,
+        本年养老季务: away.state.本年养老季务,
+        商路收口: away.state._merchantDeathClosure,
+        传承白银: away.state._carry && away.state._carry.白银,
+        传承铜钱: away.state._carry && away.state._carry.铜钱
+      },
+      ok: !!away.returnChoice
+        && away.stage.includes('先把归乡船脚与年下回签分开')
+        && away.state.本年养老归乡 === 0
+        && away.state._merchantDeathClosure === '客死商途'
+        && away.deathStage.includes('你临了仍压着几笔旧账在外')
+        && away.deathStage.includes('运柩停厝铜钱180文')
+        && away.deathStage.includes('临了客死商途')
+        && (away.window.__INV || []).length === 0
+    },
+    ok: !!home.returnChoice
+      && !!away.returnChoice
+      && home.state._merchantDeathClosure === '归乡终老'
+      && away.state._merchantDeathClosure === '客死商途'
+      && (home.state._carry && away.state._carry && home.state._carry.白银 > away.state._carry.白银)
+      && (home.state._carry && away.state._carry && home.state._carry.铜钱 > away.state._carry.铜钱)
+      && (home.window.__INV || []).length === 0
+      && (away.window.__INV || []).length === 0
+  };
+}
+
+function runApprenticeElderSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSequence(new Array(40).fill(0.01));
+  api.patchState({
+    路线: '路径三 · 入城学徒',
+    识字: true,
+    年龄: 52,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    体魄: 56,
+    白银: 2,
+    铜钱: 980,
+    存米: 3,
+    田亩: 4,
+    口食田: 1,
+    家族: 66,
+    负债银: 0,
+    学徒去向: '留店伙计',
+    学徒历练: 3,
+    学徒授艺度: 2,
+    委托营生: '出佃收租',
+    委托租谷: 1,
+    委托待收租谷: 1
+  });
+  api.enterPhase('elder');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_negotiate']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_city', 'e_shop_spring_reply_old']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  const resolveSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_shop_spring_packet_old', 'e_rest']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const resolveSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_shop_summer_note_old', 'e_rest']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_shop_bundle_old', 'e_rest']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_shop_summer_tail_old', 'e_rest']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_rent', 'e_shop_autumn_note_old']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_shop_collect_old', 'e_shop_autumn_mid_old']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  const resolveAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_shop_autumn_tail_old', 'e_rest']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_shop_gift_old', 'e_sell', 'e_rest']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_shop_winter_reply_old', 'e_rest']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_shop_winter_tail_old', 'e_shop_route_old', 'e_rest']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  const resolveWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      resolveSpringMid,
+      stageSpringLower,
+      resolveSpringLower,
+      stageSummerUpper,
+      resolveSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      resolveSummerLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper,
+      stageWinterMid,
+      resolveWinterMid,
+      stageWinterLower,
+      resolveWinterLower,
+      deathStage
+    },
+    checkpoints: {
+      springUpper: {
+        本年养老协商: postSpringUpper.本年养老协商,
+        存米: postSpringUpper.存米,
+        家族: postSpringUpper.家族,
+        本年养老季务: postSpringUpper.本年养老季务
+      },
+      springMid: {
+        铜钱: postSpringMid.铜钱,
+        本年养老旧识: postSpringMid.本年养老旧识,
+        本年养老季务: postSpringMid.本年养老季务
+      },
+      springLower: {
+        体魄: postSpringLower.体魄,
+        本年养老季务: postSpringLower.本年养老季务
+      },
+      summerUpper: {
+        体魄: postSummerUpper.体魄,
+        家族: postSummerUpper.家族,
+        本年养老季务: postSummerUpper.本年养老季务
+      },
+      summerMid: {
+        体魄: postSummerMid.体魄,
+        家族: postSummerMid.家族,
+        本年养老季务: postSummerMid.本年养老季务
+      },
+      summerLower: {
+        体魄: postSummerLower.体魄,
+        家族: postSummerLower.家族,
+        本年养老季务: postSummerLower.本年养老季务
+      },
+      autumnUpper: {
+        存米: postAutumnUpper.存米,
+        本年养老收租: postAutumnUpper.本年养老收租,
+        本年养老季务: postAutumnUpper.本年养老季务
+      },
+      autumnMid: {
+        铜钱: postAutumnMid.铜钱,
+        本年养老铺账: postAutumnMid.本年养老铺账,
+        本年养老季务: postAutumnMid.本年养老季务
+      },
+      autumnLower: {
+        体魄: postAutumnLower.体魄,
+        本年养老季务: postAutumnLower.本年养老季务
+      },
+      winterUpper: {
+        白银: postWinterUpper.白银,
+        田亩: postWinterUpper.田亩,
+        本年养老卖田: postWinterUpper.本年养老卖田,
+        本年养老节礼: postWinterUpper.本年养老节礼,
+        本年养老季务: postWinterUpper.本年养老季务
+      },
+      winterMid: {
+        体魄: postWinterMid.体魄,
+        家族: postWinterMid.家族,
+        本年养老季务: postWinterMid.本年养老季务
+      },
+      winterLower: {
+        体魄: postWinterLower.体魄,
+        家族: postWinterLower.家族,
+        本年养老季务: postWinterLower.本年养老季务
+      }
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('与诸子协商轮养')
+      && stageSpringMid.includes('先把春中回铺回话与灯油盐药分开')
+      && resolveSpringMid.includes('〔旧铺回话〕')
+      && Array.isArray(postSpringMid.本年养老季务)
+      && postSpringMid.本年养老旧识 >= 1
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('托旧识'))
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('春中铺话'))
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('旧铺回话已理'))
+      && stageSpringLower.includes('先把春尾香纸抄手与回铺脚费分开')
+      && resolveSpringLower.includes('〔春尾铺脚〕')
+      && postSpringLower.本年养老季务.some((tag) => String(tag).includes('春尾铺脚'))
+      && postSpringLower.本年养老季务.some((tag) => String(tag).includes('春尾铺脚已分'))
+      && stageSummerUpper.includes('先把伏夏回铺回签与茶汤药脚分开')
+      && resolveSummerUpper.includes('〔伏夏铺签〕')
+      && postSummerUpper.本年养老季务.some((tag) => String(tag).includes('伏夏铺签'))
+      && postSummerUpper.本年养老季务.some((tag) => String(tag).includes('伏夏铺签已理'))
+      && stageSummerMid.includes('托旧同门捎布药针线')
+      && resolveSummerMid.includes('〔伏夏铺药〕')
+      && postSummerMid.本年养老季务.some((tag) => String(tag).includes('拆伏夏铺药'))
+      && postSummerMid.本年养老季务.some((tag) => String(tag).includes('伏夏铺药已顾'))
+      && stageSummerLower.includes('先把夏尾回铺回签与秋前脚单分开')
+      && resolveSummerLower.includes('〔夏尾铺签〕')
+      && postSummerLower.本年养老季务.some((tag) => String(tag).includes('夏尾铺签'))
+      && postSummerLower.本年养老季务.some((tag) => String(tag).includes('夏尾铺签已理'))
+      && stageAutumnUpper.includes('先把秋头回铺脚单与租路次序分开')
+      && resolveAutumnUpper.includes('〔秋头铺单〕')
+      && postAutumnUpper.本年养老收租 >= 1
+      && postAutumnUpper.本年养老季务.some((tag) => String(tag).includes('结租谷'))
+      && postAutumnUpper.本年养老季务.some((tag) => String(tag).includes('秋头铺单'))
+      && postAutumnUpper.本年养老季务.some((tag) => String(tag).includes('秋头铺单已理'))
+      && stageAutumnMid.includes('先把秋中铺账脚费与租路饭钱分开')
+      && resolveAutumnMid.includes('〔秋中铺账〕')
+      && postAutumnMid.本年养老铺账 >= 1
+      && postAutumnMid.本年养老季务.some((tag) => String(tag).includes('结铺账'))
+      && postAutumnMid.本年养老季务.some((tag) => String(tag).includes('秋中铺账'))
+      && postAutumnMid.本年养老季务.some((tag) => String(tag).includes('秋中铺账已顾'))
+      && stageAutumnLower.includes('先把秋尾锅火与回铺脚费分开')
+      && resolveAutumnLower.includes('〔秋尾铺脚〕')
+      && postAutumnLower.本年养老季务.some((tag) => String(tag).includes('秋尾铺脚'))
+      && postAutumnLower.本年养老季务.some((tag) => String(tag).includes('秋尾铺脚已理'))
+      && stageWinterUpper.includes('给旧掌柜留薄礼续门路')
+      && resolveWinterUpper.includes('〔年关门路〕')
+      && postWinterUpper.本年养老卖田 >= 1
+      && postWinterUpper.本年养老节礼 >= 1
+      && postWinterUpper.田亩 === 3
+      && postWinterUpper.本年养老季务.some((tag) => String(tag).includes('卖田'))
+      && postWinterUpper.本年养老季务.some((tag) => String(tag).includes('续旧门路'))
+      && postWinterUpper.本年养老季务.some((tag) => String(tag).includes('年关门路已续'))
+      && stageWinterMid.includes('先把冬中回铺回签与灯炭针线分开')
+      && resolveWinterMid.includes('〔冬中铺签〕')
+      && postWinterMid.本年养老季务.some((tag) => String(tag).includes('冬中铺签'))
+      && postWinterMid.本年养老季务.some((tag) => String(tag).includes('冬中铺签已理'))
+      && stageWinterLower.includes('先把年下回铺回签与灯炭针线分开')
+      && stageWinterLower.includes('先问来春回铺脚路与递话口风')
+      && resolveWinterLower.includes('〔冬尾铺签〕')
+      && resolveWinterLower.includes('〔来春铺路〕')
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('冬尾铺签'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('冬尾铺签已理'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('问来春铺路'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('来春铺路已理'))
+      && deathStage.includes('死亡与传承')
+      && includesOrderedPhases(phaseTrace, ['elder', 'death'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runApprenticeElderChoiceDensityRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSequence(new Array(40).fill(0.01));
+    api.patchState(Object.assign({
+      路线: '路径三 · 入城学徒',
+      识字: true,
+      年龄: 52,
+      妻室: true,
+      子数: 2,
+      女数: 1,
+      体魄: 56,
+      白银: 2,
+      铜钱: 920,
+      存米: 3,
+      田亩: 4,
+      口食田: 1,
+      家族: 66,
+      负债银: 0,
+      学徒去向: '留店伙计',
+      学徒历练: 3,
+      学徒授艺度: 2,
+      委托营生: '出佃收租',
+      委托租谷: 1,
+      委托待收租谷: 1,
+      本年养老协商: 0,
+      本年养老收租: 0,
+      本年养老卖田: 0,
+      本年养老医药: 0,
+      本年养老守田: 0,
+      本年养老旧识: 0,
+      本年养老铺账: 0,
+      本年养老节礼: 0,
+      本年养老季务: []
+    }, extraPatch || {}));
+    api.enterPhase('elder');
+    api.patchState({
+      老季: season,
+      老旬: xun,
+      本年养老协商: 0,
+      本年养老收租: 0,
+      本年养老卖田: 0,
+      本年养老医药: 0,
+      本年养老守田: 0,
+      本年养老旧识: 0,
+      本年养老铺账: 0,
+      本年养老节礼: 0,
+      本年养老季务: []
+    });
+    api.enterPhase('elder');
+    return { api, elements, window };
+  }
+
+  const springMid = setupAt(1, 2, { 铜钱: 900 });
+  const springMidStage = normalizeHtml(springMid.elements.get('stage').innerHTML);
+  pickByPlan(springMid.api, ['e_city', 'e_shop_spring_reply_old']);
+  springMid.api.commit();
+  const springMidResolve = normalizeHtml(springMid.elements.get('stage').innerHTML);
+  const springMidState = clone(springMid.api.getState());
+
+  const summerUpper = setupAt(2, 1, { 铜钱: 900 });
+  const summerUpperStage = normalizeHtml(summerUpper.elements.get('stage').innerHTML);
+  pickByPlan(summerUpper.api, ['e_shop_summer_note_old', 'e_rest']);
+  summerUpper.api.commit();
+  const summerUpperResolve = normalizeHtml(summerUpper.elements.get('stage').innerHTML);
+  const summerUpperState = clone(summerUpper.api.getState());
+
+  const summerLower = setupAt(2, 3, { 铜钱: 900 });
+  const summerLowerStage = normalizeHtml(summerLower.elements.get('stage').innerHTML);
+  pickByPlan(summerLower.api, ['e_shop_summer_tail_old', 'e_rest']);
+  summerLower.api.commit();
+  const summerLowerResolve = normalizeHtml(summerLower.elements.get('stage').innerHTML);
+  const summerLowerState = clone(summerLower.api.getState());
+
+  const autumnUpper = setupAt(3, 1, { 铜钱: 900 });
+  const autumnUpperStage = normalizeHtml(autumnUpper.elements.get('stage').innerHTML);
+  pickByPlan(autumnUpper.api, ['e_rent', 'e_shop_autumn_note_old']);
+  autumnUpper.api.commit();
+  const autumnUpperResolve = normalizeHtml(autumnUpper.elements.get('stage').innerHTML);
+  const autumnUpperState = clone(autumnUpper.api.getState());
+
+  const autumnMid = setupAt(3, 2, { 铜钱: 900 });
+  const autumnMidStage = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  pickByPlan(autumnMid.api, ['e_shop_collect_old', 'e_shop_autumn_mid_old']);
+  autumnMid.api.commit();
+  const autumnMidResolve = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  const autumnMidState = clone(autumnMid.api.getState());
+
+  const autumnLower = setupAt(3, 3, { 铜钱: 900 });
+  const autumnLowerStage = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  pickByPlan(autumnLower.api, ['e_shop_autumn_tail_old', 'e_rest']);
+  autumnLower.api.commit();
+  const autumnLowerResolve = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  const autumnLowerState = clone(autumnLower.api.getState());
+
+  const winterMid = setupAt(4, 2, { 铜钱: 860 });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['e_shop_winter_reply_old', 'e_rest']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+
+  const winterLower = setupAt(4, 3, { 铜钱: 860 });
+  const winterLowerStage = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  pickByPlan(winterLower.api, ['e_shop_winter_tail_old', 'e_shop_route_old', 'e_rest']);
+  winterLower.api.commit();
+  const winterLowerResolve = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  const winterLowerState = clone(winterLower.api.getState());
+
+  return {
+    springMid: {
+      stage: springMidStage,
+      resolve: springMidResolve,
+      state: {
+        本年养老旧识: springMidState.本年养老旧识,
+        本年养老季务: springMidState.本年养老季务
+      }
+    },
+    summerUpper: {
+      stage: summerUpperStage,
+      resolve: summerUpperResolve,
+      state: {
+        体魄: summerUpperState.体魄,
+        本年养老季务: summerUpperState.本年养老季务
+      }
+    },
+    summerLower: {
+      stage: summerLowerStage,
+      resolve: summerLowerResolve,
+      state: {
+        家族: summerLowerState.家族,
+        本年养老季务: summerLowerState.本年养老季务
+      }
+    },
+    autumnUpper: {
+      stage: autumnUpperStage,
+      resolve: autumnUpperResolve,
+      state: {
+        本年养老收租: autumnUpperState.本年养老收租,
+        本年养老季务: autumnUpperState.本年养老季务
+      }
+    },
+    autumnMid: {
+      stage: autumnMidStage,
+      resolve: autumnMidResolve,
+      state: {
+        本年养老铺账: autumnMidState.本年养老铺账,
+        本年养老季务: autumnMidState.本年养老季务
+      }
+    },
+    autumnLower: {
+      stage: autumnLowerStage,
+      resolve: autumnLowerResolve,
+      state: {
+        本年养老季务: autumnLowerState.本年养老季务
+      }
+    },
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        体魄: winterMidState.体魄,
+        家族: winterMidState.家族,
+        本年养老季务: winterMidState.本年养老季务
+      }
+    },
+    winterLower: {
+      stage: winterLowerStage,
+      resolve: winterLowerResolve,
+      state: {
+        体魄: winterLowerState.体魄,
+        家族: winterLowerState.家族,
+        本年养老季务: winterLowerState.本年养老季务
+      }
+    },
+    ok: springMidStage.includes('先把春中回铺回话与灯油盐药分开')
+      && springMidResolve.includes('〔旧铺回话〕')
+      && springMidState.本年养老旧识 >= 1
+      && Array.isArray(springMidState.本年养老季务)
+      && springMidState.本年养老季务.some((tag) => String(tag).includes('春中铺话'))
+      && springMidState.本年养老季务.some((tag) => String(tag).includes('旧铺回话已理'))
+      && summerUpperStage.includes('先把伏夏回铺回签与茶汤药脚分开')
+      && summerUpperResolve.includes('〔伏夏铺签〕')
+      && Array.isArray(summerUpperState.本年养老季务)
+      && summerUpperState.本年养老季务.some((tag) => String(tag).includes('伏夏铺签'))
+      && summerUpperState.本年养老季务.some((tag) => String(tag).includes('伏夏铺签已理'))
+      && summerLowerStage.includes('先把夏尾回铺回签与秋前脚单分开')
+      && summerLowerResolve.includes('〔夏尾铺签〕')
+      && Array.isArray(summerLowerState.本年养老季务)
+      && summerLowerState.本年养老季务.some((tag) => String(tag).includes('夏尾铺签'))
+      && summerLowerState.本年养老季务.some((tag) => String(tag).includes('夏尾铺签已理'))
+      && autumnUpperStage.includes('先把秋头回铺脚单与租路次序分开')
+      && autumnUpperResolve.includes('〔秋头铺单〕')
+      && autumnUpperState.本年养老收租 >= 1
+      && Array.isArray(autumnUpperState.本年养老季务)
+      && autumnUpperState.本年养老季务.some((tag) => String(tag).includes('秋头铺单'))
+      && autumnMidStage.includes('先把秋中铺账脚费与租路饭钱分开')
+      && autumnMidResolve.includes('〔秋中铺账〕')
+      && autumnMidState.本年养老铺账 >= 1
+      && Array.isArray(autumnMidState.本年养老季务)
+      && autumnMidState.本年养老季务.some((tag) => String(tag).includes('秋中铺账'))
+      && autumnLowerStage.includes('先把秋尾锅火与回铺脚费分开')
+      && autumnLowerResolve.includes('〔秋尾铺脚〕')
+      && Array.isArray(autumnLowerState.本年养老季务)
+      && autumnLowerState.本年养老季务.some((tag) => String(tag).includes('秋尾铺脚'))
+      && winterMidStage.includes('先把冬中回铺回签与灯炭针线分开')
+      && winterMidResolve.includes('〔冬中铺签〕')
+      && Array.isArray(winterMidState.本年养老季务)
+      && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中铺签'))
+      && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中铺签已理'))
+      && winterLowerStage.includes('先把年下回铺回签与灯炭针线分开')
+      && winterLowerStage.includes('先问来春回铺脚路与递话口风')
+      && winterLowerResolve.includes('〔冬尾铺签〕')
+      && winterLowerResolve.includes('〔来春铺路〕')
+      && Array.isArray(winterLowerState.本年养老季务)
+      && winterLowerState.本年养老季务.some((tag) => String(tag).includes('冬尾铺签'))
+      && winterLowerState.本年养老季务.some((tag) => String(tag).includes('冬尾铺签已理'))
+      && winterLowerState.本年养老季务.some((tag) => String(tag).includes('问来春铺路'))
+      && winterLowerState.本年养老季务.some((tag) => String(tag).includes('来春铺路已理'))
+      && (springMid.window.__INV || []).length === 0
+      && (summerUpper.window.__INV || []).length === 0
+      && (summerLower.window.__INV || []).length === 0
+      && (autumnUpper.window.__INV || []).length === 0
+      && (autumnMid.window.__INV || []).length === 0
+      && (autumnLower.window.__INV || []).length === 0
+      && (winterMid.window.__INV || []).length === 0
+      && (winterLower.window.__INV || []).length === 0
+  };
+}
+
+function runWageElderSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSequence(new Array(40).fill(0.01));
+  api.patchState({
+    路线: '路径二 · 受雇长工/短工',
+    年龄: 52,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    体魄: 57,
+    白银: 1,
+    铜钱: 1080,
+    存米: 3,
+    田亩: 4,
+    口食田: 1,
+    家族: 64,
+    负债银: 0,
+    雇工历练: 4,
+    雇技进度: 2,
+    婚配路径: '先应差·外出佣工',
+    雇身份: '外出佣工',
+    城里门路: 2,
+    委托营生: '出佃收租',
+    委托租谷: 1,
+    委托待收租谷: 1
+  });
+  api.enterPhase('elder');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_negotiate']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_wage_note_old', 'e_rest']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  const resolveSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_wage_spring_packet_old', 'e_rest']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const resolveSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_wage_summer_soup_old', 'e_rest']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_wage_bundle_old', 'e_rest']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_wage_summer_tail_old', 'e_rest']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_wage_receipt_old', 'e_wage_autumn_head_old']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_wage_collect_old', 'e_rent']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  const resolveAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_wage_autumn_tail_old', 'e_rest']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_wage_winter_head_old', 'e_wage_gift_old', 'e_sell']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_wage_winter_reply_old', 'e_rest']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_wage_winter_tail_old', 'e_wage_route_old', 'e_rest']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  const resolveWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      resolveSpringMid,
+      stageSpringLower,
+      resolveSpringLower,
+      stageSummerUpper,
+      resolveSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      resolveSummerLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper,
+      stageWinterMid,
+      resolveWinterMid,
+      stageWinterLower,
+      resolveWinterLower,
+      deathStage
+    },
+    postSpringUpper: {
+      铜钱: postSpringUpper.铜钱,
+      体魄: postSpringUpper.体魄,
+      存米: postSpringUpper.存米,
+      家族: postSpringUpper.家族,
+      本年养老协商: postSpringUpper.本年养老协商,
+      本年养老季务: postSpringUpper.本年养老季务
+    },
+    postSpringMid: {
+      铜钱: postSpringMid.铜钱,
+      家族: postSpringMid.家族,
+      本年养老季务: postSpringMid.本年养老季务
+    },
+    postSpringLower: {
+      铜钱: postSpringLower.铜钱,
+      体魄: postSpringLower.体魄,
+      家族: postSpringLower.家族,
+      本年养老季务: postSpringLower.本年养老季务
+    },
+    postSummerUpper: {
+      铜钱: postSummerUpper.铜钱,
+      体魄: postSummerUpper.体魄,
+      家族: postSummerUpper.家族,
+      本年养老季务: postSummerUpper.本年养老季务
+    },
+    postSummerMid: {
+      体魄: postSummerMid.体魄,
+      家族: postSummerMid.家族,
+      本年养老季务: postSummerMid.本年养老季务
+    },
+    postSummerLower: {
+      铜钱: postSummerLower.铜钱,
+      体魄: postSummerLower.体魄,
+      家族: postSummerLower.家族,
+      本年养老季务: postSummerLower.本年养老季务
+    },
+    postAutumnUpper: {
+      铜钱: postAutumnUpper.铜钱,
+      体魄: postAutumnUpper.体魄,
+      家族: postAutumnUpper.家族,
+      本年养老季务: postAutumnUpper.本年养老季务
+    },
+    postAutumnMid: {
+      铜钱: postAutumnMid.铜钱,
+      存米: postAutumnMid.存米,
+      本年养老收租: postAutumnMid.本年养老收租,
+      本年养老铺账: postAutumnMid.本年养老铺账,
+      本年养老季务: postAutumnMid.本年养老季务
+    },
+    postAutumnLower: {
+      铜钱: postAutumnLower.铜钱,
+      体魄: postAutumnLower.体魄,
+      家族: postAutumnLower.家族,
+      本年养老季务: postAutumnLower.本年养老季务
+    },
+    postWinterUpper: {
+      白银: postWinterUpper.白银,
+      田亩: postWinterUpper.田亩,
+      体魄: postWinterUpper.体魄,
+      本年养老卖田: postWinterUpper.本年养老卖田,
+      本年养老节礼: postWinterUpper.本年养老节礼,
+      本年养老季务: postWinterUpper.本年养老季务
+    },
+    postWinterMid: {
+      铜钱: postWinterMid.铜钱,
+      体魄: postWinterMid.体魄,
+      家族: postWinterMid.家族,
+      本年养老季务: postWinterMid.本年养老季务
+    },
+    postWinterLower: {
+      体魄: postWinterLower.体魄,
+      家族: postWinterLower.家族,
+      本年养老季务: postWinterLower.本年养老季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('春安顿')
+      && stageSpringUpper.includes('与诸子协商轮养')
+      && stageSpringMid.includes('春安顿')
+      && stageSpringMid.includes('先问旧工头与春里回话')
+      && resolveSpringMid.includes('〔旧工回话〕')
+      && stageSpringLower.includes('把春尾草鞋香纸拆作回话与盐药')
+      && resolveSpringLower.includes('〔春尾工包〕')
+      && stageSummerUpper.includes('夏将养')
+      && stageSummerUpper.includes('先把伏夏工汤与草鞋药脚分开')
+      && resolveSummerUpper.includes('〔伏夏工汤〕')
+      && stageSummerMid.includes('夏将养')
+      && stageSummerMid.includes('托旧工头捎凉药与布鞋')
+      && resolveSummerMid.includes('〔伏夏药脚〕')
+      && stageSummerLower.includes('先把夏尾回工信与秋前草料分开')
+      && resolveSummerLower.includes('〔夏尾工信〕')
+      && stageAutumnUpper.includes('秋结租')
+      && stageAutumnUpper.includes('先抄秋工欠单与租路次序')
+      && stageAutumnUpper.includes('先把秋头工签与夹衣药包分开')
+      && resolveAutumnUpper.includes('〔秋工欠单〕')
+      && resolveAutumnUpper.includes('〔秋头夹衣〕')
+      && stageAutumnMid.includes('秋结租')
+      && stageAutumnMid.includes('结回旧工棚欠工与回乡脚钱')
+      && stageAutumnMid.includes('先把秋中工签与锅火饭脚分开')
+      && resolveAutumnMid.includes('〔工账租路〕')
+      && stageAutumnLower.includes('先把秋尾锅火与回乡草鞋脚分开')
+      && resolveAutumnLower.includes('〔秋尾工脚〕')
+      && stageWinterUpper.includes('冬收束')
+      && stageWinterUpper.includes('先把冬头炭药与旧工回签分开')
+      && stageWinterUpper.includes('先备旧工头薄礼与回话脚费')
+      && resolveWinterUpper.includes('〔年关工礼〕')
+      && stageWinterMid.includes('先把冬中回话脚费与灯炭小钱分开')
+      && resolveWinterMid.includes('〔冬中回话〕')
+      && stageWinterLower.includes('先把年下回签与来春草鞋分开')
+      && stageWinterLower.includes('先问明春工棚与头程脚路')
+      && stageWinterLower.includes('冬收束')
+      && resolveWinterLower.includes('〔冬尾草鞋〕')
+      && resolveWinterLower.includes('〔明春工路〕')
+      && deathStage.includes('死亡与传承')
+      && postSpringUpper.本年养老协商 >= 1
+      && postSpringUpper.存米 >= 4
+      && postSpringUpper.家族 >= 72
+      && postSpringMid.铜钱 >= 1040
+      && postSpringMid.家族 >= 67
+      && Array.isArray(postSpringMid.本年养老季务)
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('议轮养'))
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('问旧工头'))
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('旧工回话已理'))
+      && postSpringLower.体魄 >= 64
+      && postSpringLower.家族 >= 78
+      && Array.isArray(postSpringLower.本年养老季务)
+      && postSpringLower.本年养老季务.some((tag) => String(tag).includes('春尾工包'))
+      && postSpringLower.本年养老季务.some((tag) => String(tag).includes('春尾工包已分'))
+      && postSummerUpper.体魄 >= 69
+      && postSummerUpper.家族 >= 80
+      && Array.isArray(postSummerUpper.本年养老季务)
+      && postSummerUpper.本年养老季务.some((tag) => String(tag).includes('伏夏工汤'))
+      && postSummerUpper.本年养老季务.some((tag) => String(tag).includes('伏夏工汤已理'))
+      && postSummerMid.体魄 >= 63
+      && postSummerMid.家族 >= 70
+      && Array.isArray(postSummerMid.本年养老季务)
+      && postSummerMid.本年养老季务.some((tag) => String(tag).includes('拆伏夏药脚'))
+      && postSummerMid.本年养老季务.some((tag) => String(tag).includes('伏夏药脚已顾'))
+      && postSummerLower.体魄 >= 78
+      && postSummerLower.家族 >= 86
+      && Array.isArray(postSummerLower.本年养老季务)
+      && postSummerLower.本年养老季务.some((tag) => String(tag).includes('夏尾工信'))
+      && postSummerLower.本年养老季务.some((tag) => String(tag).includes('夏尾工信已理'))
+      && postAutumnUpper.体魄 >= 79
+      && postAutumnUpper.家族 >= 89
+      && Array.isArray(postAutumnUpper.本年养老季务)
+      && postAutumnUpper.本年养老季务.some((tag) => String(tag).includes('抄秋工欠单'))
+      && postAutumnUpper.本年养老季务.some((tag) => String(tag).includes('秋工欠单已理'))
+      && postAutumnUpper.本年养老季务.some((tag) => String(tag).includes('秋头夹衣'))
+      && postAutumnUpper.本年养老季务.some((tag) => String(tag).includes('秋头夹衣已理'))
+      && postAutumnMid.铜钱 >= 900
+      && postAutumnMid.存米 >= 0
+      && postAutumnMid.本年养老收租 >= 1
+      && postAutumnMid.本年养老铺账 >= 1
+      && Array.isArray(postAutumnMid.本年养老季务)
+      && postAutumnMid.本年养老季务.some((tag) => String(tag).includes('结租谷'))
+      && postAutumnMid.本年养老季务.some((tag) => String(tag).includes('结工账'))
+      && postAutumnMid.本年养老季务.some((tag) => String(tag).includes('工账租路已顾'))
+      && postAutumnLower.体魄 >= 84
+      && postAutumnLower.家族 >= 93
+      && Array.isArray(postAutumnLower.本年养老季务)
+      && postAutumnLower.本年养老季务.some((tag) => String(tag).includes('秋尾工脚'))
+      && postAutumnLower.本年养老季务.some((tag) => String(tag).includes('秋尾工脚已理'))
+      && postWinterUpper.白银 >= 3
+      && postWinterUpper.田亩 === 3
+      && postWinterUpper.本年养老卖田 >= 1
+      && postWinterUpper.本年养老节礼 >= 1
+      && Array.isArray(postWinterUpper.本年养老季务)
+      && postWinterUpper.本年养老季务.some((tag) => String(tag).includes('卖田'))
+      && postWinterUpper.本年养老季务.some((tag) => String(tag).includes('冬头炭药拆开'))
+      && postWinterUpper.本年养老季务.some((tag) => String(tag).includes('备工头薄礼'))
+      && postWinterUpper.本年养老季务.some((tag) => String(tag).includes('年关工礼已留'))
+      && postWinterMid.体魄 >= 91
+      && postWinterMid.家族 >= 99
+      && Array.isArray(postWinterMid.本年养老季务)
+      && postWinterMid.本年养老季务.some((tag) => String(tag).includes('冬中回话'))
+      && postWinterMid.本年养老季务.some((tag) => String(tag).includes('冬中回话已理'))
+      && postWinterLower.体魄 >= 73
+      && postWinterLower.家族 >= 79
+      && Array.isArray(postWinterLower.本年养老季务)
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('冬尾草鞋'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('冬尾草鞋已理'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('问明春工棚'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('明春工路已问'))
+      && includesOrderedPhases(phaseTrace, ['elder', 'death'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runWageElderCarryNoteRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '路径二 · 受雇长工/短工',
+    年龄: 53,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    体魄: 56,
+    白银: 1,
+    铜钱: 860,
+    存米: 3,
+    田亩: 4,
+    口食田: 1,
+    家族: 62,
+    负债银: 1,
+    雇工历练: 3,
+    雇技进度: 2,
+    婚配路径: '先应差·外出佣工',
+    雇身份: '外出佣工',
+    城里门路: 2,
+    定额佃状态: '已立定额佃',
+    合爨状态: '已析爨',
+    委托营生: '出佃收租',
+    委托租谷: 1,
+    委托待收租谷: 1
+  });
+  api.enterPhase('elder');
+
+  const elderStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    elderStage,
+    checks: {
+      rentCarryNoteVisible: elderStage.includes('先押租、后议亲'),
+      householdCarryNoteVisible: elderStage.includes('先前合爨再析爨'),
+      marriageCarryNoteVisible: elderStage.includes('先应差再外出佣工'),
+      wageLateLifeNoteVisible: elderStage.includes('卖工一路到了晚年')
+        && elderStage.includes('春里回话')
+        && elderStage.includes('冬尾草鞋与来春工路'),
+      routeAwareDossierVisible: elderStage.includes('婚配路径=先应差·外出佣工')
+        && elderStage.includes('定额佃=已立定额佃')
+        && elderStage.includes('合爨=已析爨'),
+      noInvariantViolations: (window.__INV || []).length === 0
+    }
+  };
+}
+
+function runWageElderChoiceDensityRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSequence(new Array(40).fill(0.01));
+    api.patchState(Object.assign({
+      路线: '路径二 · 受雇长工/短工',
+      年龄: 52,
+      妻室: true,
+      子数: 2,
+      女数: 1,
+      体魄: 57,
+      白银: 2,
+      铜钱: 980,
+      存米: 3,
+      田亩: 4,
+      口食田: 1,
+      家族: 66,
+      负债银: 0,
+      雇工历练: 4,
+      雇技进度: 2,
+      婚配路径: '先应差·外出佣工',
+      雇身份: '外出佣工',
+      城里门路: 2,
+      委托营生: '出佃收租',
+      委托租谷: 1,
+      委托待收租谷: 1,
+      本年养老协商: 0,
+      本年养老收租: 0,
+      本年养老卖田: 0,
+      本年养老医药: 0,
+      本年养老守田: 0,
+      本年养老旧识: 0,
+      本年养老铺账: 0,
+      本年养老节礼: 0,
+      本年养老季务: []
+    }, extraPatch || {}));
+    api.enterPhase('elder');
+    api.patchState({
+      老季: season,
+      老旬: xun,
+      本年养老协商: 0,
+      本年养老收租: 0,
+      本年养老卖田: 0,
+      本年养老医药: 0,
+      本年养老守田: 0,
+      本年养老旧识: 0,
+      本年养老铺账: 0,
+      本年养老节礼: 0,
+      本年养老季务: []
+    });
+    api.enterPhase('elder');
+    return { api, elements, window };
+  }
+
+  const springLower = setupAt(1, 3, { 铜钱: 900 });
+  const springLowerStage = normalizeHtml(springLower.elements.get('stage').innerHTML);
+  pickByPlan(springLower.api, ['e_wage_spring_packet_old', 'e_rest']);
+  springLower.api.commit();
+  const springLowerResolve = normalizeHtml(springLower.elements.get('stage').innerHTML);
+  const springLowerState = clone(springLower.api.getState());
+
+  const summerUpper = setupAt(2, 1, { 铜钱: 900 });
+  const summerUpperStage = normalizeHtml(summerUpper.elements.get('stage').innerHTML);
+  pickByPlan(summerUpper.api, ['e_wage_summer_soup_old', 'e_rest']);
+  summerUpper.api.commit();
+  const summerUpperResolve = normalizeHtml(summerUpper.elements.get('stage').innerHTML);
+  const summerUpperState = clone(summerUpper.api.getState());
+
+  const summerLower = setupAt(2, 3, { 铜钱: 900 });
+  const summerLowerStage = normalizeHtml(summerLower.elements.get('stage').innerHTML);
+  pickByPlan(summerLower.api, ['e_wage_summer_tail_old', 'e_rest']);
+  summerLower.api.commit();
+  const summerLowerResolve = normalizeHtml(summerLower.elements.get('stage').innerHTML);
+  const summerLowerState = clone(summerLower.api.getState());
+
+  const autumnUpper = setupAt(3, 1, { 铜钱: 900 });
+  const autumnUpperStage = normalizeHtml(autumnUpper.elements.get('stage').innerHTML);
+  pickByPlan(autumnUpper.api, ['e_wage_receipt_old', 'e_wage_autumn_head_old']);
+  autumnUpper.api.commit();
+  const autumnUpperResolve = normalizeHtml(autumnUpper.elements.get('stage').innerHTML);
+  const autumnUpperState = clone(autumnUpper.api.getState());
+
+  const autumnMid = setupAt(3, 2, { 铜钱: 920 });
+  const autumnMidStage = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  pickByPlan(autumnMid.api, ['e_wage_autumn_mid_old', 'e_rest']);
+  autumnMid.api.commit();
+  const autumnMidResolve = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  const autumnMidState = clone(autumnMid.api.getState());
+
+  const autumnLower = setupAt(3, 3, { 铜钱: 900 });
+  const autumnLowerStage = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  pickByPlan(autumnLower.api, ['e_wage_autumn_tail_old', 'e_rest']);
+  autumnLower.api.commit();
+  const autumnLowerResolve = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  const autumnLowerState = clone(autumnLower.api.getState());
+
+  const winterUpper = setupAt(4, 1, { 铜钱: 920 });
+  const winterUpperStage = normalizeHtml(winterUpper.elements.get('stage').innerHTML);
+  pickByPlan(winterUpper.api, ['e_wage_winter_head_old', 'e_rest']);
+  winterUpper.api.commit();
+  const winterUpperResolve = normalizeHtml(winterUpper.elements.get('stage').innerHTML);
+  const winterUpperState = clone(winterUpper.api.getState());
+
+  const winterMid = setupAt(4, 2, { 铜钱: 900 });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['e_wage_winter_reply_old', 'e_rest']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+
+  const winterLower = setupAt(4, 3, { 铜钱: 920 });
+  const winterLowerStage = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  pickByPlan(winterLower.api, ['e_wage_winter_tail_old', 'e_wage_route_old', 'e_rest']);
+  winterLower.api.commit();
+  const winterLowerResolve = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  const winterLowerState = clone(winterLower.api.getState());
+
+  return {
+    springLower: {
+      stage: springLowerStage,
+      resolve: springLowerResolve,
+      state: {
+        体魄: springLowerState.体魄,
+        家族: springLowerState.家族,
+        本年养老季务: springLowerState.本年养老季务
+      },
+      ok: springLowerStage.includes('把春尾草鞋香纸拆作回话与盐药')
+        && springLowerResolve.includes('〔春尾工包〕')
+        && springLowerState.体魄 >= 61
+        && springLowerState.家族 >= 69
+        && Array.isArray(springLowerState.本年养老季务)
+        && springLowerState.本年养老季务.some((tag) => String(tag).includes('春尾工包'))
+        && springLowerState.本年养老季务.some((tag) => String(tag).includes('春尾工包已分'))
+        && (springLower.window.__INV || []).length === 0
+    },
+    summerUpper: {
+      stage: summerUpperStage,
+      resolve: summerUpperResolve,
+      state: {
+        体魄: summerUpperState.体魄,
+        家族: summerUpperState.家族,
+        本年养老季务: summerUpperState.本年养老季务
+      },
+      ok: summerUpperStage.includes('先把伏夏工汤与草鞋药脚分开')
+        && summerUpperResolve.includes('〔伏夏工汤〕')
+        && summerUpperState.体魄 >= 61
+        && summerUpperState.家族 >= 69
+        && Array.isArray(summerUpperState.本年养老季务)
+        && summerUpperState.本年养老季务.some((tag) => String(tag).includes('伏夏工汤'))
+        && summerUpperState.本年养老季务.some((tag) => String(tag).includes('伏夏工汤已理'))
+        && (summerUpper.window.__INV || []).length === 0
+    },
+    summerLower: {
+      stage: summerLowerStage,
+      resolve: summerLowerResolve,
+      state: {
+        体魄: summerLowerState.体魄,
+        家族: summerLowerState.家族,
+        本年养老季务: summerLowerState.本年养老季务
+      },
+      ok: summerLowerStage.includes('先把夏尾回工信与秋前草料分开')
+        && summerLowerResolve.includes('〔夏尾工信〕')
+        && summerLowerState.体魄 >= 61
+        && summerLowerState.家族 >= 69
+        && Array.isArray(summerLowerState.本年养老季务)
+        && summerLowerState.本年养老季务.some((tag) => String(tag).includes('夏尾工信'))
+        && summerLowerState.本年养老季务.some((tag) => String(tag).includes('夏尾工信已理'))
+        && (summerLower.window.__INV || []).length === 0
+    },
+    autumnUpper: {
+      stage: autumnUpperStage,
+      resolve: autumnUpperResolve,
+      state: {
+        体魄: autumnUpperState.体魄,
+        家族: autumnUpperState.家族,
+        本年养老季务: autumnUpperState.本年养老季务
+      },
+      ok: autumnUpperStage.includes('先抄秋工欠单与租路次序')
+        && autumnUpperStage.includes('先把秋头工签与夹衣药包分开')
+        && autumnUpperResolve.includes('〔秋工欠单〕')
+        && autumnUpperResolve.includes('〔秋头夹衣〕')
+        && autumnUpperState.体魄 >= 58
+        && autumnUpperState.家族 >= 68
+        && Array.isArray(autumnUpperState.本年养老季务)
+        && autumnUpperState.本年养老季务.some((tag) => String(tag).includes('抄秋工欠单'))
+        && autumnUpperState.本年养老季务.some((tag) => String(tag).includes('秋工欠单已理'))
+        && autumnUpperState.本年养老季务.some((tag) => String(tag).includes('秋头夹衣'))
+        && autumnUpperState.本年养老季务.some((tag) => String(tag).includes('秋头夹衣已理'))
+        && (autumnUpper.window.__INV || []).length === 0
+    },
+    autumnMid: {
+      stage: autumnMidStage,
+      resolve: autumnMidResolve,
+      state: {
+        铜钱: autumnMidState.铜钱,
+        体魄: autumnMidState.体魄,
+        家族: autumnMidState.家族,
+        本年养老季务: autumnMidState.本年养老季务
+      },
+      ok: autumnMidStage.includes('先把秋中工签与锅火饭脚分开')
+        && autumnMidResolve.includes('〔工账租路〕')
+        && autumnMidState.铜钱 <= 900
+        && autumnMidState.体魄 >= 61
+        && autumnMidState.家族 >= 69
+        && Array.isArray(autumnMidState.本年养老季务)
+        && autumnMidState.本年养老季务.some((tag) => String(tag).includes('秋中工签'))
+        && autumnMidState.本年养老季务.some((tag) => String(tag).includes('工账租路已顾'))
+        && (autumnMid.window.__INV || []).length === 0
+    },
+    autumnLower: {
+      stage: autumnLowerStage,
+      resolve: autumnLowerResolve,
+      state: {
+        体魄: autumnLowerState.体魄,
+        家族: autumnLowerState.家族,
+        本年养老季务: autumnLowerState.本年养老季务
+      },
+      ok: autumnLowerStage.includes('先把秋尾锅火与回乡草鞋脚分开')
+        && autumnLowerResolve.includes('〔秋尾工脚〕')
+        && autumnLowerState.体魄 >= 61
+        && autumnLowerState.家族 >= 69
+        && Array.isArray(autumnLowerState.本年养老季务)
+        && autumnLowerState.本年养老季务.some((tag) => String(tag).includes('秋尾工脚'))
+        && autumnLowerState.本年养老季务.some((tag) => String(tag).includes('秋尾工脚已理'))
+        && (autumnLower.window.__INV || []).length === 0
+    },
+    winterUpper: {
+      stage: winterUpperStage,
+      resolve: winterUpperResolve,
+      state: {
+        铜钱: winterUpperState.铜钱,
+        体魄: winterUpperState.体魄,
+        家族: winterUpperState.家族,
+        本年养老季务: winterUpperState.本年养老季务
+      },
+      ok: winterUpperStage.includes('先把冬头炭药与旧工回签分开')
+        && winterUpperResolve.includes('〔年关工礼〕')
+        && winterUpperState.铜钱 <= 895
+        && winterUpperState.体魄 >= 61
+        && winterUpperState.家族 >= 69
+        && Array.isArray(winterUpperState.本年养老季务)
+        && winterUpperState.本年养老季务.some((tag) => String(tag).includes('冬头炭药拆开'))
+        && winterUpperState.本年养老季务.some((tag) => String(tag).includes('年关工礼已留'))
+        && (winterUpper.window.__INV || []).length === 0
+    },
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        体魄: winterMidState.体魄,
+        家族: winterMidState.家族,
+        本年养老季务: winterMidState.本年养老季务
+      },
+      ok: winterMidStage.includes('先把冬中回话脚费与灯炭小钱分开')
+        && winterMidResolve.includes('〔冬中回话〕')
+        && winterMidState.体魄 >= 61
+        && winterMidState.家族 >= 69
+        && Array.isArray(winterMidState.本年养老季务)
+        && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中回话'))
+        && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中回话已理'))
+        && (winterMid.window.__INV || []).length === 0
+    },
+    winterLower: {
+      stage: winterLowerStage,
+      resolve: winterLowerResolve,
+      state: {
+        体魄: winterLowerState.体魄,
+        家族: winterLowerState.家族,
+        本年养老季务: winterLowerState.本年养老季务
+      },
+      ok: winterLowerStage.includes('先把年下回签与来春草鞋分开')
+        && winterLowerStage.includes('先问明春工棚与头程脚路')
+        && winterLowerResolve.includes('〔冬尾草鞋〕')
+        && winterLowerResolve.includes('〔明春工路〕')
+        && winterLowerState.体魄 >= 61
+        && winterLowerState.家族 >= 70
+        && Array.isArray(winterLowerState.本年养老季务)
+        && winterLowerState.本年养老季务.some((tag) => String(tag).includes('冬尾草鞋'))
+        && winterLowerState.本年养老季务.some((tag) => String(tag).includes('冬尾草鞋已理'))
+        && winterLowerState.本年养老季务.some((tag) => String(tag).includes('问明春工棚'))
+        && winterLowerState.本年养老季务.some((tag) => String(tag).includes('明春工路已问'))
+        && (winterLower.window.__INV || []).length === 0
+    },
+    ok: springLowerStage.includes('把春尾草鞋香纸拆作回话与盐药')
+      && summerUpperStage.includes('先把伏夏工汤与草鞋药脚分开')
+      && summerLowerStage.includes('先把夏尾回工信与秋前草料分开')
+      && autumnUpperStage.includes('先抄秋工欠单与租路次序')
+      && autumnUpperStage.includes('先把秋头工签与夹衣药包分开')
+      && autumnMidStage.includes('先把秋中工签与锅火饭脚分开')
+      && autumnLowerStage.includes('先把秋尾锅火与回乡草鞋脚分开')
+      && winterUpperStage.includes('先把冬头炭药与旧工回签分开')
+      && winterMidStage.includes('先把冬中回话脚费与灯炭小钱分开')
+      && winterLowerStage.includes('先把年下回签与来春草鞋分开')
+      && winterLowerStage.includes('先问明春工棚与头程脚路')
+      && springLowerResolve.includes('〔春尾工包〕')
+      && summerUpperResolve.includes('〔伏夏工汤〕')
+      && summerLowerResolve.includes('〔夏尾工信〕')
+      && autumnUpperResolve.includes('〔秋工欠单〕')
+      && autumnUpperResolve.includes('〔秋头夹衣〕')
+      && autumnMidResolve.includes('〔工账租路〕')
+      && autumnLowerResolve.includes('〔秋尾工脚〕')
+      && winterUpperResolve.includes('〔年关工礼〕')
+      && winterMidResolve.includes('〔冬中回话〕')
+      && winterLowerResolve.includes('〔冬尾草鞋〕')
+      && winterLowerResolve.includes('〔明春工路〕')
+      && springLowerState.本年养老季务.some((tag) => String(tag).includes('春尾工包已分'))
+      && summerUpperState.本年养老季务.some((tag) => String(tag).includes('伏夏工汤已理'))
+      && summerLowerState.本年养老季务.some((tag) => String(tag).includes('夏尾工信已理'))
+      && autumnUpperState.本年养老季务.some((tag) => String(tag).includes('秋工欠单已理'))
+      && autumnUpperState.本年养老季务.some((tag) => String(tag).includes('秋头夹衣'))
+      && autumnUpperState.本年养老季务.some((tag) => String(tag).includes('秋头夹衣已理'))
+      && autumnMidState.本年养老季务.some((tag) => String(tag).includes('秋中工签'))
+      && autumnLowerState.本年养老季务.some((tag) => String(tag).includes('秋尾工脚已理'))
+      && winterUpperState.本年养老季务.some((tag) => String(tag).includes('冬头炭药拆开'))
+      && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中回话已理'))
+      && winterLowerState.本年养老季务.some((tag) => String(tag).includes('冬尾草鞋已理'))
+      && winterLowerState.本年养老季务.some((tag) => String(tag).includes('明春工路已问'))
+      && (springLower.window.__INV || []).length === 0
+      && (summerUpper.window.__INV || []).length === 0
+      && (summerLower.window.__INV || []).length === 0
+      && (autumnUpper.window.__INV || []).length === 0
+      && (autumnMid.window.__INV || []).length === 0
+      && (autumnLower.window.__INV || []).length === 0
+      && (winterUpper.window.__INV || []).length === 0
+      && (winterMid.window.__INV || []).length === 0
+      && (winterLower.window.__INV || []).length === 0
+  };
+}
+
+function runExamElderSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSequence(new Array(40).fill(0.01));
+  api.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 54,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    体魄: 55,
+    白银: 2,
+    铜钱: 1080,
+    存米: 3,
+    田亩: 4,
+    口食田: 1,
+    家族: 68,
+    负债银: 0,
+    童试层级: 3,
+    生员身份: true,
+    生员层级: '生员',
+    优免启用: true,
+    举业结局: '生员止步',
+    识字转业值: 3,
+    委托营生: '书户分得薄田出佃',
+    委托租谷: 1,
+    委托待收租谷: 1
+  });
+  api.enterPhase('elder');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_negotiate', 'e_tutor_spring_head_old']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor_note_old', 'e_rest']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  const resolveSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor_spring_packet_old', 'e_rest']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const resolveSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor_summer_soup_old', 'e_rest']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor_bundle_old', 'e_rest']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor_summer_tail_old', 'e_rest']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor_receipt_old', 'e_rest']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor_collect_old', 'e_rent']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  const resolveAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor_autumn_tail_reply_old', 'e_tutor_autumn_bundle_old']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor_gift_old', 'e_sell', 'e_rest']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor_winter_mid_old', 'e_tutor_post_old', 'e_rest']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor_winter_bundle_old', 'e_tutor_winter_tail_note_old', 'e_rest']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  const resolveWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSpringMid,
+      resolveSpringMid,
+      stageSpringLower,
+      stageSummerUpper,
+      resolveSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      resolveSummerLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper,
+      stageWinterMid,
+      resolveWinterMid,
+      stageWinterLower,
+      resolveWinterLower,
+      deathStage
+    },
+    postSpringUpper: {
+      铜钱: postSpringUpper.铜钱,
+      体魄: postSpringUpper.体魄,
+      存米: postSpringUpper.存米,
+      家族: postSpringUpper.家族,
+      本年养老协商: postSpringUpper.本年养老协商,
+      本年养老季务: postSpringUpper.本年养老季务
+    },
+    postSpringMid: {
+      铜钱: postSpringMid.铜钱,
+      体魄: postSpringMid.体魄,
+      家族: postSpringMid.家族,
+      本年养老季务: postSpringMid.本年养老季务
+    },
+    postSpringLower: {
+      铜钱: postSpringLower.铜钱,
+      体魄: postSpringLower.体魄,
+      家族: postSpringLower.家族,
+      本年养老季务: postSpringLower.本年养老季务
+    },
+    postSummerMid: {
+      铜钱: postSummerMid.铜钱,
+      体魄: postSummerMid.体魄,
+      家族: postSummerMid.家族,
+      本年养老季务: postSummerMid.本年养老季务
+    },
+    postSummerUpper: {
+      铜钱: postSummerUpper.铜钱,
+      体魄: postSummerUpper.体魄,
+      家族: postSummerUpper.家族,
+      本年养老季务: postSummerUpper.本年养老季务
+    },
+    postSummerLower: {
+      铜钱: postSummerLower.铜钱,
+      体魄: postSummerLower.体魄,
+      家族: postSummerLower.家族,
+      本年养老季务: postSummerLower.本年养老季务
+    },
+    postAutumnUpper: {
+      铜钱: postAutumnUpper.铜钱,
+      体魄: postAutumnUpper.体魄,
+      家族: postAutumnUpper.家族,
+      本年养老季务: postAutumnUpper.本年养老季务
+    },
+    postAutumnMid: {
+      铜钱: postAutumnMid.铜钱,
+      存米: postAutumnMid.存米,
+      本年养老收租: postAutumnMid.本年养老收租,
+      本年养老季务: postAutumnMid.本年养老季务
+    },
+    postAutumnLower: {
+      铜钱: postAutumnLower.铜钱,
+      体魄: postAutumnLower.体魄,
+      家族: postAutumnLower.家族,
+      本年养老季务: postAutumnLower.本年养老季务
+    },
+    postWinterUpper: {
+      白银: postWinterUpper.白银,
+      田亩: postWinterUpper.田亩,
+      体魄: postWinterUpper.体魄,
+      本年养老卖田: postWinterUpper.本年养老卖田,
+      本年养老节礼: postWinterUpper.本年养老节礼,
+      本年养老季务: postWinterUpper.本年养老季务
+    },
+    postWinterMid: {
+      铜钱: postWinterMid.铜钱,
+      体魄: postWinterMid.体魄,
+      家族: postWinterMid.家族,
+      本年养老季务: postWinterMid.本年养老季务
+    },
+    postWinterLower: {
+      铜钱: postWinterLower.铜钱,
+      体魄: postWinterLower.体魄,
+      家族: postWinterLower.家族,
+      本年养老季务: postWinterLower.本年养老季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('春安顿')
+      && stageSpringUpper.includes('与诸子协商轮养')
+      && stageSpringUpper.includes('先把春头馆契与灯油抄手分开')
+      && stageSpringMid.includes('先问旧馆回话与学生口风')
+      && resolveSpringMid.includes('〔旧馆回话〕')
+      && stageSpringLower.includes('把春尾抄手拆作香纸与回馆脚费')
+      && resolveSpringLower.includes('〔春尾纸香〕')
+      && stageSummerUpper.includes('先把伏夏馆汤与潮纸脚费分开')
+      && resolveSummerUpper.includes('〔伏夏馆汤〕')
+      && stageSummerMid.includes('把伏夏纸墨拆作凉药与回话脚费')
+      && resolveSummerMid.includes('〔伏夏纸药〕')
+      && stageSummerLower.includes('先把夏尾回签与秋前纸样分开')
+      && resolveSummerLower.includes('〔夏尾馆信〕')
+      && stageAutumnUpper.includes('先抄秋馆回签与租路次序')
+      && resolveAutumnUpper.includes('〔秋馆回签〕')
+      && stageAutumnMid.includes('结回旧馆润笔与抄手钱')
+      && stageAutumnMid.includes('先把秋中馆账脚费与租路饭钱分开')
+      && resolveAutumnMid.includes('〔馆账租路〕')
+      && stageAutumnLower.includes('先把秋尾学生回帖与灯炭脚费分开')
+      && stageAutumnLower.includes('把秋尾炭脚拆作锅火与学生回礼')
+      && resolveAutumnLower.includes('〔秋尾馆炭〕')
+      && stageWinterUpper.includes('先备塾师薄礼与年关帖费')
+      && resolveWinterUpper.includes('〔年关帖礼〕')
+      && stageWinterMid.includes('先留来春帖费与纸墨定钱')
+      && stageWinterMid.includes('先把冬中馆札与孩子炭笔分开')
+      && resolveWinterMid.includes('〔冬中馆札〕')
+      && resolveWinterMid.includes('〔来春帖费〕')
+      && stageWinterLower.includes('冬收束')
+      && stageWinterLower.includes('先把年下馆信与来春帖样分开')
+      && stageWinterLower.includes('把冬尾笔炭拆作守岁零用与学生回话')
+      && resolveWinterLower.includes('〔冬尾笔炭〕')
+      && resolveWinterLower.includes('〔冬尾馆信〕')
+      && deathStage.includes('死亡与传承')
+      && postSpringUpper.本年养老协商 >= 1
+      && postSpringUpper.存米 >= 4
+      && postSpringUpper.家族 >= 76
+      && postSpringMid.铜钱 <= 1040
+      && postSpringMid.体魄 >= 59
+      && postSpringMid.家族 >= 79
+      && Array.isArray(postSpringMid.本年养老季务)
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('问旧馆回话'))
+      && postSpringMid.本年养老季务.some((tag) => String(tag).includes('旧馆回话已理'))
+      && postSpringLower.铜钱 <= 1000
+      && postSpringLower.体魄 >= 63
+      && postSpringLower.家族 >= 82
+      && Array.isArray(postSpringLower.本年养老季务)
+      && postSpringLower.本年养老季务.some((tag) => String(tag).includes('春尾纸香'))
+      && postSpringLower.本年养老季务.some((tag) => String(tag).includes('春尾纸香已分'))
+      && postSummerUpper.铜钱 <= 930
+      && postSummerUpper.体魄 >= 67
+      && postSummerUpper.家族 >= 85
+      && Array.isArray(postSummerUpper.本年养老季务)
+      && postSummerUpper.本年养老季务.some((tag) => String(tag).includes('伏夏馆汤'))
+      && postSummerUpper.本年养老季务.some((tag) => String(tag).includes('伏夏馆汤已理'))
+      && postSummerMid.铜钱 <= 840
+      && postSummerMid.体魄 >= 72
+      && postSummerMid.家族 >= 83
+      && Array.isArray(postSummerMid.本年养老季务)
+      && postSummerMid.本年养老季务.some((tag) => String(tag).includes('拆伏夏纸药'))
+      && postSummerMid.本年养老季务.some((tag) => String(tag).includes('伏夏纸药已顾'))
+      && postSummerLower.铜钱 <= 790
+      && postSummerLower.体魄 >= 77
+      && postSummerLower.家族 >= 86
+      && Array.isArray(postSummerLower.本年养老季务)
+      && postSummerLower.本年养老季务.some((tag) => String(tag).includes('夏尾馆信'))
+      && postSummerLower.本年养老季务.some((tag) => String(tag).includes('夏尾馆信已理'))
+      && postAutumnUpper.铜钱 <= 910
+      && postAutumnUpper.体魄 >= 68
+      && postAutumnUpper.家族 >= 86
+      && Array.isArray(postAutumnUpper.本年养老季务)
+      && postAutumnUpper.本年养老季务.some((tag) => String(tag).includes('抄秋馆回签'))
+      && postAutumnUpper.本年养老季务.some((tag) => String(tag).includes('秋馆回签已理'))
+      && postAutumnMid.铜钱 >= 930
+      && postAutumnMid.存米 >= 0
+      && postAutumnMid.本年养老收租 >= 1
+      && Array.isArray(postAutumnMid.本年养老季务)
+      && postAutumnMid.本年养老季务.some((tag) => String(tag).includes('结馆账'))
+      && postAutumnMid.本年养老季务.some((tag) => String(tag).includes('结租谷'))
+      && postAutumnMid.本年养老季务.some((tag) => String(tag).includes('馆账租路已顾'))
+      && postAutumnLower.铜钱 <= 860
+      && postAutumnLower.体魄 >= 74
+      && postAutumnLower.家族 >= 90
+      && Array.isArray(postAutumnLower.本年养老季务)
+      && postAutumnLower.本年养老季务.some((tag) => String(tag).includes('秋尾回帖'))
+      && postAutumnLower.本年养老季务.some((tag) => String(tag).includes('秋尾馆炭'))
+      && postAutumnLower.本年养老季务.some((tag) => String(tag).includes('秋尾馆炭已分'))
+      && postWinterUpper.白银 >= 4
+      && postWinterUpper.田亩 === 3
+      && postWinterUpper.体魄 >= 75
+      && postWinterUpper.本年养老卖田 >= 1
+      && postWinterUpper.本年养老节礼 >= 1
+      && Array.isArray(postWinterUpper.本年养老季务)
+      && postWinterUpper.本年养老季务.some((tag) => String(tag).includes('备年关帖礼'))
+      && postWinterUpper.本年养老季务.some((tag) => String(tag).includes('年关帖礼已留'))
+      && postWinterMid.铜钱 <= 680
+      && postWinterMid.体魄 >= 80
+      && postWinterMid.家族 >= 94
+      && Array.isArray(postWinterMid.本年养老季务)
+      && postWinterMid.本年养老季务.some((tag) => String(tag).includes('冬中馆札'))
+      && postWinterMid.本年养老季务.some((tag) => String(tag).includes('留来春帖费'))
+      && postWinterMid.本年养老季务.some((tag) => String(tag).includes('来春帖费已留'))
+      && postWinterLower.铜钱 <= 640
+      && postWinterLower.体魄 >= 82
+      && postWinterLower.家族 >= 95
+      && Array.isArray(postWinterLower.本年养老季务)
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('冬尾笔炭'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('冬尾笔炭已分'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('冬尾馆信'))
+      && postWinterLower.本年养老季务.some((tag) => String(tag).includes('冬尾馆信已理'))
+      && includesOrderedPhases(phaseTrace, ['elder', 'death'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamElderChoiceDensityRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSequence(new Array(40).fill(0.01));
+    api.patchState(Object.assign({
+      路线: '路径五 · 读书应举',
+      识字: true,
+      年龄: 54,
+      妻室: true,
+      子数: 2,
+      女数: 1,
+      体魄: 55,
+      白银: 2,
+      铜钱: 980,
+      存米: 3,
+      田亩: 4,
+      口食田: 1,
+      家族: 68,
+      负债银: 0,
+      童试层级: 3,
+      生员身份: true,
+      生员层级: '生员',
+      优免启用: true,
+      举业结局: '生员止步',
+      识字转业值: 3,
+      委托营生: '书户分得薄田出佃',
+      委托租谷: 1,
+      委托待收租谷: 1,
+      本年养老协商: 0,
+      本年养老收租: 0,
+      本年养老卖田: 0,
+      本年养老医药: 0,
+      本年养老守田: 0,
+      本年养老旧识: 0,
+      本年养老铺账: 0,
+      本年养老节礼: 0,
+      本年养老季务: []
+    }, extraPatch || {}));
+    api.enterPhase('elder');
+    api.patchState({
+      老季: season,
+      老旬: xun,
+      本年养老协商: 0,
+      本年养老收租: 0,
+      本年养老卖田: 0,
+      本年养老医药: 0,
+      本年养老守田: 0,
+      本年养老旧识: 0,
+      本年养老铺账: 0,
+      本年养老节礼: 0,
+      本年养老季务: []
+    });
+    api.enterPhase('elder');
+    return { api, elements, window };
+  }
+
+  const springUpper = setupAt(1, 1, { 铜钱: 960 });
+  const springUpperStage = normalizeHtml(springUpper.elements.get('stage').innerHTML);
+  pickByPlan(springUpper.api, ['e_tutor_spring_head_old', 'e_rest']);
+  springUpper.api.commit();
+  const springUpperResolve = normalizeHtml(springUpper.elements.get('stage').innerHTML);
+  const springUpperState = clone(springUpper.api.getState());
+
+  const spring = setupAt(1, 2, { 铜钱: 960 });
+  const springStage = normalizeHtml(spring.elements.get('stage').innerHTML);
+  pickByPlan(spring.api, ['e_tutor_note_old', 'e_tutor_spring_reply_old']);
+  spring.api.commit();
+  const springResolve = normalizeHtml(spring.elements.get('stage').innerHTML);
+  const springState = clone(spring.api.getState());
+
+  const autumn = setupAt(3, 1, { 铜钱: 960, 存米: 3 });
+  const autumnStage = normalizeHtml(autumn.elements.get('stage').innerHTML);
+  pickByPlan(autumn.api, ['e_tutor_receipt_old', 'e_tutor_autumn_reply_old']);
+  autumn.api.commit();
+  const autumnResolve = normalizeHtml(autumn.elements.get('stage').innerHTML);
+  const autumnState = clone(autumn.api.getState());
+
+  const autumnMid = setupAt(3, 2, { 铜钱: 960, 存米: 3 });
+  const autumnMidStage = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  pickByPlan(autumnMid.api, ['e_tutor_collect_old', 'e_tutor_autumn_mid_old']);
+  autumnMid.api.commit();
+  const autumnMidResolve = normalizeHtml(autumnMid.elements.get('stage').innerHTML);
+  const autumnMidState = clone(autumnMid.api.getState());
+
+  const autumnLower = setupAt(3, 3, { 铜钱: 960, 存米: 3 });
+  const autumnLowerStage = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  pickByPlan(autumnLower.api, ['e_tutor_autumn_tail_reply_old', 'e_tutor_autumn_bundle_old']);
+  autumnLower.api.commit();
+  const autumnLowerResolve = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  const autumnLowerState = clone(autumnLower.api.getState());
+
+  const winter = setupAt(4, 1, { 铜钱: 960, 白银: 3, 田亩: 4 });
+  const winterStage = normalizeHtml(winter.elements.get('stage').innerHTML);
+  pickByPlan(winter.api, ['e_sell', 'e_tutor_gift_old', 'e_tutor_winter_reply_old']);
+  winter.api.commit();
+  const winterResolve = normalizeHtml(winter.elements.get('stage').innerHTML);
+  const winterState = clone(winter.api.getState());
+
+  const winterMid = setupAt(4, 2, { 铜钱: 960 });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['e_tutor_winter_mid_old', 'e_tutor_post_old', 'e_rest']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+
+  const winterLower = setupAt(4, 3, { 铜钱: 960 });
+  const winterLowerStage = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  pickByPlan(winterLower.api, ['e_tutor_winter_bundle_old', 'e_tutor_winter_tail_note_old']);
+  winterLower.api.commit();
+  const winterLowerResolve = normalizeHtml(winterLower.elements.get('stage').innerHTML);
+  const winterLowerState = clone(winterLower.api.getState());
+
+  return {
+    springUpper: {
+      stage: springUpperStage,
+      resolve: springUpperResolve,
+      state: {
+        铜钱: springUpperState.铜钱,
+        体魄: springUpperState.体魄,
+        家族: springUpperState.家族,
+        本年养老协商: springUpperState.本年养老协商,
+        本年养老季务: springUpperState.本年养老季务
+      },
+      ok: springUpperStage.includes('先把春头馆契与灯油抄手分开')
+        && springUpperResolve.includes('先把春头馆契与灯油抄手分开')
+        && springUpperResolve.includes('〔春头馆契〕')
+        && springUpperState.铜钱 <= 915
+        && springUpperState.体魄 >= 60
+        && springUpperState.家族 >= 71
+        && springUpperState.本年养老协商 === 0
+        && Array.isArray(springUpperState.本年养老季务)
+        && springUpperState.本年养老季务.some((tag) => String(tag).includes('春头馆契'))
+        && springUpperState.本年养老季务.some((tag) => String(tag).includes('春头馆契已理'))
+        && (springUpper.window.__INV || []).length === 0
+    },
+    spring: {
+      stage: springStage,
+      resolve: springResolve,
+      state: {
+        铜钱: springState.铜钱,
+        体魄: springState.体魄,
+        家族: springState.家族,
+        本年养老季务: springState.本年养老季务
+      },
+      ok: springStage.includes('先问旧馆回话与学生口风')
+        && springStage.includes('先把春中帖样与回馆门包分开')
+        && springResolve.includes('先把春中帖样与回馆门包分开')
+        && springResolve.includes('〔旧馆回话〕')
+        && springResolve.includes('〔春中帖脚〕')
+        && springState.铜钱 <= 870
+        && springState.体魄 >= 56
+        && springState.家族 >= 70
+        && Array.isArray(springState.本年养老季务)
+        && springState.本年养老季务.some((tag) => String(tag).includes('问旧馆回话'))
+        && springState.本年养老季务.some((tag) => String(tag).includes('春中帖脚'))
+        && springState.本年养老季务.some((tag) => String(tag).includes('旧馆回话已理'))
+        && springState.本年养老季务.some((tag) => String(tag).includes('春中帖脚已理'))
+        && (spring.window.__INV || []).length === 0
+    },
+    autumn: {
+      stage: autumnStage,
+      resolve: autumnResolve,
+      state: {
+        铜钱: autumnState.铜钱,
+        体魄: autumnState.体魄,
+        家族: autumnState.家族,
+        本年养老季务: autumnState.本年养老季务
+      },
+      ok: autumnStage.includes('先抄秋馆回签与租路次序')
+        && autumnStage.includes('先把秋头馆帖与回礼门包分开')
+        && autumnResolve.includes('先把秋头馆帖与回礼门包分开')
+        && autumnResolve.includes('〔秋馆回签〕')
+        && autumnResolve.includes('〔秋头帖脚〕')
+        && autumnState.铜钱 <= 870
+        && autumnState.体魄 >= 56
+        && autumnState.家族 >= 70
+        && Array.isArray(autumnState.本年养老季务)
+        && autumnState.本年养老季务.some((tag) => String(tag).includes('抄秋馆回签'))
+        && autumnState.本年养老季务.some((tag) => String(tag).includes('秋头帖脚'))
+        && autumnState.本年养老季务.some((tag) => String(tag).includes('秋馆回签已理'))
+        && autumnState.本年养老季务.some((tag) => String(tag).includes('秋头帖脚已理'))
+        && (autumn.window.__INV || []).length === 0
+    },
+    autumnMid: {
+      stage: autumnMidStage,
+      resolve: autumnMidResolve,
+      state: {
+        铜钱: autumnMidState.铜钱,
+        体魄: autumnMidState.体魄,
+        家族: autumnMidState.家族,
+        本年养老季务: autumnMidState.本年养老季务
+      },
+      ok: autumnMidStage.includes('先把秋中馆账脚费与租路饭钱分开')
+        && autumnMidResolve.includes('先把秋中馆账脚费与租路饭钱分开')
+        && autumnMidResolve.includes('〔馆账租路〕')
+        && autumnMidState.铜钱 >= 1115
+        && autumnMidState.体魄 >= 56
+        && autumnMidState.家族 >= 70
+        && Array.isArray(autumnMidState.本年养老季务)
+        && autumnMidState.本年养老季务.some((tag) => String(tag).includes('结馆账'))
+        && autumnMidState.本年养老季务.some((tag) => String(tag).includes('秋中馆脚'))
+        && autumnMidState.本年养老季务.some((tag) => String(tag).includes('馆账租路已顾'))
+        && (autumnMid.window.__INV || []).length === 0
+    },
+    autumnLower: {
+      stage: autumnLowerStage,
+      resolve: autumnLowerResolve,
+      state: {
+        铜钱: autumnLowerState.铜钱,
+        体魄: autumnLowerState.体魄,
+        家族: autumnLowerState.家族,
+        本年养老季务: autumnLowerState.本年养老季务
+      },
+      ok: autumnLowerStage.includes('先把秋尾学生回帖与灯炭脚费分开')
+        && autumnLowerStage.includes('把秋尾炭脚拆作锅火与学生回礼')
+        && autumnLowerResolve.includes('先把秋尾学生回帖与灯炭脚费分开')
+        && autumnLowerResolve.includes('〔秋尾馆炭〕')
+        && autumnLowerState.铜钱 <= 860
+        && autumnLowerState.体魄 >= 56
+        && autumnLowerState.家族 >= 70
+        && Array.isArray(autumnLowerState.本年养老季务)
+        && autumnLowerState.本年养老季务.some((tag) => String(tag).includes('秋尾回帖'))
+        && autumnLowerState.本年养老季务.some((tag) => String(tag).includes('秋尾馆炭'))
+        && autumnLowerState.本年养老季务.some((tag) => String(tag).includes('秋尾馆炭已分'))
+        && (autumnLower.window.__INV || []).length === 0
+    },
+    winter: {
+      stage: winterStage,
+      resolve: winterResolve,
+      state: {
+        白银: winterState.白银,
+        田亩: winterState.田亩,
+        体魄: winterState.体魄,
+        家族: winterState.家族,
+        本年养老卖田: winterState.本年养老卖田,
+        本年养老节礼: winterState.本年养老节礼,
+        本年养老季务: winterState.本年养老季务
+      },
+      ok: winterStage.includes('先备塾师薄礼与年关帖费')
+        && winterStage.includes('先把冬头馆信与灯炭脚费分开')
+        && winterResolve.includes('先把冬头馆信与灯炭脚费分开')
+        && winterResolve.includes('〔年关帖礼〕')
+        && winterResolve.includes('〔冬头馆信〕')
+        && winterState.白银 >= 5
+        && winterState.田亩 === 3
+        && winterState.体魄 >= 57
+        && winterState.家族 >= 71
+        && winterState.本年养老卖田 >= 1
+        && winterState.本年养老节礼 >= 1
+        && Array.isArray(winterState.本年养老季务)
+        && winterState.本年养老季务.some((tag) => String(tag).includes('卖田'))
+        && winterState.本年养老季务.some((tag) => String(tag).includes('备年关帖礼'))
+        && winterState.本年养老季务.some((tag) => String(tag).includes('冬头馆信'))
+        && winterState.本年养老季务.some((tag) => String(tag).includes('年关帖礼已留'))
+        && winterState.本年养老季务.some((tag) => String(tag).includes('冬头馆信已理'))
+        && (winter.window.__INV || []).length === 0
+    },
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        铜钱: winterMidState.铜钱,
+        体魄: winterMidState.体魄,
+        家族: winterMidState.家族,
+        本年养老季务: winterMidState.本年养老季务
+      },
+      ok: winterMidStage.includes('先把冬中馆札与孩子炭笔分开')
+        && winterMidStage.includes('先留来春帖费与纸墨定钱')
+        && winterMidResolve.includes('〔冬中馆札〕')
+        && winterMidResolve.includes('〔来春帖费〕')
+        && winterMidState.铜钱 <= 855
+        && winterMidState.体魄 >= 60
+        && winterMidState.家族 >= 72
+        && Array.isArray(winterMidState.本年养老季务)
+        && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中馆札'))
+        && winterMidState.本年养老季务.some((tag) => String(tag).includes('留来春帖费'))
+        && winterMidState.本年养老季务.some((tag) => String(tag).includes('来春帖费已留'))
+        && (winterMid.window.__INV || []).length === 0
+    },
+    winterLower: {
+      stage: winterLowerStage,
+      resolve: winterLowerResolve,
+      state: {
+        铜钱: winterLowerState.铜钱,
+        体魄: winterLowerState.体魄,
+        家族: winterLowerState.家族,
+        本年养老季务: winterLowerState.本年养老季务
+      },
+      ok: winterLowerStage.includes('先把年下馆信与来春帖样分开')
+        && winterLowerStage.includes('把冬尾笔炭拆作守岁零用与学生回话')
+        && winterLowerResolve.includes('先把年下馆信与来春帖样分开')
+        && winterLowerResolve.includes('〔冬尾馆信〕')
+        && winterLowerResolve.includes('〔冬尾笔炭〕')
+        && winterLowerState.铜钱 <= 865
+        && winterLowerState.体魄 >= 56
+        && winterLowerState.家族 >= 70
+        && Array.isArray(winterLowerState.本年养老季务)
+        && winterLowerState.本年养老季务.some((tag) => String(tag).includes('冬尾馆信'))
+        && winterLowerState.本年养老季务.some((tag) => String(tag).includes('冬尾馆信已理'))
+        && winterLowerState.本年养老季务.some((tag) => String(tag).includes('冬尾笔炭'))
+        && winterLowerState.本年养老季务.some((tag) => String(tag).includes('冬尾笔炭已分'))
+        && (winterLower.window.__INV || []).length === 0
+    },
+    ok: springUpperStage.includes('先把春头馆契与灯油抄手分开')
+      && autumnMidStage.includes('先把秋中馆账脚费与租路饭钱分开')
+      && springStage.includes('先把春中帖样与回馆门包分开')
+      && autumnStage.includes('先把秋头馆帖与回礼门包分开')
+      && autumnLowerStage.includes('先把秋尾学生回帖与灯炭脚费分开')
+      && winterStage.includes('先把冬头馆信与灯炭脚费分开')
+      && winterMidStage.includes('先把冬中馆札与孩子炭笔分开')
+      && winterLowerStage.includes('先把年下馆信与来春帖样分开')
+      && springUpperResolve.includes('〔春头馆契〕')
+      && autumnMidResolve.includes('〔馆账租路〕')
+      && springResolve.includes('〔春中帖脚〕')
+      && autumnResolve.includes('〔秋头帖脚〕')
+      && autumnLowerResolve.includes('〔秋尾馆炭〕')
+      && winterResolve.includes('〔冬头馆信〕')
+      && winterMidResolve.includes('〔冬中馆札〕')
+      && winterLowerResolve.includes('〔冬尾馆信〕')
+      && springUpperState.本年养老季务.some((tag) => String(tag).includes('春头馆契'))
+      && autumnMidState.本年养老季务.some((tag) => String(tag).includes('秋中馆脚'))
+      && springState.本年养老季务.some((tag) => String(tag).includes('春中帖脚'))
+      && autumnState.本年养老季务.some((tag) => String(tag).includes('秋头帖脚'))
+      && autumnLowerState.本年养老季务.some((tag) => String(tag).includes('秋尾回帖'))
+      && winterState.本年养老季务.some((tag) => String(tag).includes('冬头馆信'))
+      && winterMidState.本年养老季务.some((tag) => String(tag).includes('冬中馆札'))
+      && winterLowerState.本年养老季务.some((tag) => String(tag).includes('冬尾馆信'))
+      && (springUpper.window.__INV || []).length === 0
+      && (autumnMid.window.__INV || []).length === 0
+      && (spring.window.__INV || []).length === 0
+      && (autumn.window.__INV || []).length === 0
+      && (autumnLower.window.__INV || []).length === 0
+      && (winter.window.__INV || []).length === 0
+      && (winterMid.window.__INV || []).length === 0
+      && (winterLower.window.__INV || []).length === 0
+  };
+}
+
+function runExamRouteAwareDedupRegression() {
+  function countNeedle(text, needle) {
+    const source = String(text || '');
+    if (!needle) return 0;
+    let count = 0;
+    let index = 0;
+    while (index >= 0) {
+      index = source.indexOf(needle, index);
+      if (index >= 0) {
+        count += 1;
+        index += needle.length;
+      }
+    }
+    return count;
+  }
+
+  const householdHarness = createHarness();
+  householdHarness.api.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 34,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    体魄: 58,
+    白银: 2,
+    铜钱: 720,
+    存米: 3,
+    田亩: 4,
+    家族: 66,
+    口食田: 1,
+    童试层级: 3,
+    生员身份: true,
+    优免启用: true,
+    举业结局: '生员止步',
+    识字转业值: 3,
+    委托营生: '书户分得薄田出佃',
+    委托租谷: 1,
+    委托待收租谷: 1
+  });
+  householdHarness.api.enterPhase('household');
+  const householdStage = normalizeHtml(householdHarness.elements.get('stage').innerHTML);
+
+  const elderHarness = createHarness();
+  elderHarness.api.setRandomSequence(new Array(20).fill(0.01));
+  elderHarness.api.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 54,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    体魄: 55,
+    白银: 2,
+    铜钱: 960,
+    存米: 3,
+    田亩: 4,
+    口食田: 1,
+    家族: 68,
+    童试层级: 3,
+    生员身份: true,
+    生员层级: '生员',
+    优免启用: true,
+    举业结局: '生员止步',
+    识字转业值: 3,
+    委托营生: '书户分得薄田出佃',
+    委托租谷: 1,
+    委托待收租谷: 1
+  });
+  elderHarness.api.enterPhase('elder');
+  const elderStage = normalizeHtml(elderHarness.elements.get('stage').innerHTML);
+
+  const inheritedNeedle = '承继身份=次子｜承继定位=本房次子另起一手｜承嗣来路=本支次子承继｜委托营生=书户分得薄田出佃｜委托租谷=1石/年｜待收委托田租=1石｜举业结局=生员止步';
+  const inheritedNarrativeNeedle = '这一房仍按“本房次子另起一手”分工';
+  const examOutcomeNeedle = '举业结局=生员止步';
+
+  return {
+    household: {
+      inheritedNeedleCount: countNeedle(householdStage, inheritedNeedle),
+      inheritedNarrativeCount: countNeedle(householdStage, inheritedNarrativeNeedle),
+      examOutcomeCount: countNeedle(householdStage, examOutcomeNeedle),
+      stage: householdStage
+    },
+    elder: {
+      inheritedNeedleCount: countNeedle(elderStage, inheritedNeedle),
+      inheritedNarrativeCount: countNeedle(elderStage, inheritedNarrativeNeedle),
+      examOutcomeCount: countNeedle(elderStage, examOutcomeNeedle),
+      eventCount: countNeedle(elderStage, '[承继]'),
+      stage: elderStage
+    },
+    ok: countNeedle(householdStage, inheritedNeedle) === 0
+      && countNeedle(householdStage, examOutcomeNeedle) === 1
+      && countNeedle(elderStage, inheritedNeedle) === 2
+      && countNeedle(elderStage, inheritedNarrativeNeedle) === 1
+      && countNeedle(elderStage, examOutcomeNeedle) === 2
+      && countNeedle(elderStage, '[承继]') === 1
+      && (householdHarness.window.__INV || []).length === 0
+      && (elderHarness.window.__INV || []).length === 0
+  };
+}
+
+function runMerchantFamilySpringLedgerRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '路径四 · 徽商式亦贾亦儒',
+    识字: true,
+    年龄: 25,
+    妻室: true,
+    子数: 1,
+    女数: 0,
+    白银: 1,
+    铜钱: 620,
+    存米: 4,
+    家族: 61,
+    负债银: 1,
+    识货进度: 2,
+    账房进度: 2,
+    商信誉: 1,
+    商历练: 2,
+    未回款银: 2,
+    累计反哺银: 0,
+    商路供读银: 0
+  });
+  api.enterPhase('family');
+  api.patchState({
+    家年: 1,
+    家季: 1,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  api.enterPhase('family');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_spring_price', 'f_route_spring_packet']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_spring_ritual', 'f_route_split', 'f_market']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  const resolveSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_collect', 'f_duty', 'f_mend']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      resolveSpringMid,
+      stageSpringLower
+    },
+    postSpringUpper: {
+      本年家问价: postSpringUpper.本年家问价,
+      本年家捎信: postSpringUpper.本年家捎信,
+      本年家通融: postSpringUpper.本年家通融,
+      家族: postSpringUpper.家族
+    },
+    postSpringMid: {
+      本年家贴家: postSpringMid.本年家贴家,
+      本年家备役: postSpringMid.本年家备役,
+      本年家问价: postSpringMid.本年家问价,
+      本年家捎信: postSpringMid.本年家捎信
+    },
+    postSpringLower: {
+      本年家催账: postSpringLower.本年家催账,
+      白银: postSpringLower.白银,
+      未回款银: postSpringLower.未回款银,
+      本年家季务: postSpringLower.本年家季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('春起')
+      && stageSpringUpper.includes('先托熟号回问米价与旧账')
+      && stageSpringUpper.includes('先把样纸门包与回话脚费分开')
+      && stageSpringMid.includes('先把清明香纸与回话脚费分开')
+      && stageSpringMid.includes('先分脚费留家兼备差')
+      && stageSpringLower.includes('催回在路旧账')
+      && resolveSpringMid.includes('〔清明脚账〕')
+      && postSpringUpper.本年家问价 >= 1
+      && postSpringUpper.本年家捎信 >= 1
+      && postSpringUpper.本年家通融 >= 1
+      && postSpringUpper.家族 >= 62
+      && postSpringMid.本年家贴家 >= 2
+      && postSpringMid.本年家备役 >= 1
+      && postSpringMid.本年家问价 >= 2
+      && postSpringMid.本年家捎信 >= 2
+      && postSpringLower.本年家催账 >= 1
+      && postSpringLower.白银 >= 2
+      && postSpringLower.未回款银 === 0
+      && Array.isArray(postSpringLower.本年家季务)
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('春问价旧账'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('春纸门包'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('春礼脚费'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('春路碎账'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('清明脚账已分'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('分脚'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('催回旧账'))
+      && includesOrderedPhases(phaseTrace, ['family'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runApprenticeFamilySeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '路径三 · 入城学徒',
+    识字: true,
+    年龄: 26,
+    妻室: true,
+    子数: 1,
+    女数: 0,
+    白银: 1,
+    铜钱: 860,
+    存米: 4,
+    家族: 62,
+    负债银: 1,
+    学徒去向: '留店伙计',
+    学徒授艺度: 3,
+    学徒历练: 3
+  });
+  api.enterPhase('family');
+  api.patchState({
+    家年: 1,
+    家季: 2,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  api.enterPhase('family');
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_shop_note', 'f_route_shop_summer_head_reply']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_shop_bundle', 'f_route_shop_summer_counter', 'f_market']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_shop_collect', 'f_route_shop_summer_tail', 'f_repay']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_shop_note', 'f_route_shop_autumn_packet']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_shop_split', 'f_route_shop_autumn_reply', 'f_market']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  const resolveAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_shop_autumn_tail', 'f_route_master', 'f_duty']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_shop_book', 'f_route_shop_winter_counter']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_shop_winter_sign', 'f_route_shop_gift', 'f_rest']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSummerUpper,
+      stageSummerMid,
+      stageSummerLower,
+      resolveSummerLower,
+      stageAutumnUpper,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      stageWinterMid
+    },
+    postSummerUpper: {
+      本年家做活: postSummerUpper.本年家做活,
+      本年家衣药: postSummerUpper.本年家衣药,
+      本年家捎信: postSummerUpper.本年家捎信,
+      本年家通融: postSummerUpper.本年家通融,
+      家族: postSummerUpper.家族,
+      本年家季务: postSummerUpper.本年家季务
+    },
+    postSummerMid: {
+      本年家贴家: postSummerMid.本年家贴家,
+      本年家衣药: postSummerMid.本年家衣药,
+      本年家问价: postSummerMid.本年家问价,
+      本年家通融: postSummerMid.本年家通融,
+      本年家季务: postSummerMid.本年家季务
+    },
+    postSummerLower: {
+      本年家催账: postSummerLower.本年家催账,
+      本年家捎信: postSummerLower.本年家捎信,
+      本年家通融: postSummerLower.本年家通融,
+      负债银: postSummerLower.负债银,
+      铜钱: postSummerLower.铜钱,
+      本年家季务: postSummerLower.本年家季务
+    },
+    postAutumnUpper: {
+      本年家做活: postAutumnUpper.本年家做活,
+      本年家捎信: postAutumnUpper.本年家捎信,
+      本年家季务: postAutumnUpper.本年家季务
+    },
+    postAutumnMid: {
+      本年家贴家: postAutumnMid.本年家贴家,
+      本年家备役: postAutumnMid.本年家备役,
+      本年家通融: postAutumnMid.本年家通融,
+      本年家季务: postAutumnMid.本年家季务
+    },
+    postAutumnLower: {
+      本年家衣药: postAutumnLower.本年家衣药,
+      本年家备役: postAutumnLower.本年家备役,
+      本年家通融: postAutumnLower.本年家通融,
+      本年家季务: postAutumnLower.本年家季务
+    },
+    postWinterUpper: {
+      本年家捎信: postWinterUpper.本年家捎信,
+      本年家备役: postWinterUpper.本年家备役,
+      本年家衣药: postWinterUpper.本年家衣药,
+      本年家通融: postWinterUpper.本年家通融,
+      本年家季务: postWinterUpper.本年家季务
+    },
+    postWinterMid: {
+      本年家贴家: postWinterMid.本年家贴家,
+      本年家衣药: postWinterMid.本年家衣药,
+      本年家通融: postWinterMid.本年家通融,
+      本年家季务: postWinterMid.本年家季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSummerUpper.includes('夏长')
+      && stageSummerUpper.includes('托旧同门捎口信问铺账')
+      && stageSummerUpper.includes('先把伏夏回铺回签与茶汤药脚分开')
+      && stageSummerMid.includes('托铺里捎布药针线回家')
+      && stageSummerMid.includes('先把伏夏柜边凉茶与孩子布票分开')
+      && stageSummerLower.includes('回铺结一回旧脚钱')
+      && stageSummerLower.includes('先把夏尾回签与秋前样纸分开')
+      && resolveSummerLower.includes('〔夏尾铺签〕')
+      && stageAutumnUpper.includes('秋收')
+      && stageAutumnUpper.includes('托旧同门捎口信问铺账')
+      && stageAutumnUpper.includes('先把秋头脚单与孩子布药分开')
+      && stageAutumnMid.includes('把脚钱拆作家用与备差')
+      && stageAutumnMid.includes('先把秋中回铺回签与锅火门包分开')
+      && resolveAutumnMid.includes('秋中回铺回签与锅火门包分开')
+      && stageAutumnLower.includes('凭师门旧识先探差役路数')
+      && stageAutumnLower.includes('先把秋尾回铺脚费与灯油针线分开')
+      && resolveAutumnLower.includes('〔秋尾铺脚〕')
+      && stageWinterUpper.includes('冬藏')
+      && stageWinterUpper.includes('年关先对铺账留明春脚路')
+      && stageWinterUpper.includes('先把年关柜头值夜与守岁灯炭分开')
+      && stageWinterMid.includes('把年下客礼拆作炭药与回铺礼')
+      && stageWinterMid.includes('先把冬中回铺回签与灯炭门包分开')
+      && postSummerUpper.本年家做活 >= 1
+      && postSummerUpper.本年家衣药 >= 1
+      && postSummerUpper.本年家捎信 >= 1
+      && postSummerUpper.本年家通融 >= 1
+      && postSummerUpper.家族 >= 63
+      && Array.isArray(postSummerUpper.本年家季务)
+      && postSummerUpper.本年家季务.some((tag) => String(tag).includes('伏夏铺药已问'))
+      && postSummerUpper.本年家季务.some((tag) => String(tag).includes('伏夏铺签已分'))
+      && postSummerMid.本年家贴家 >= 1
+      && postSummerMid.本年家衣药 >= 2
+      && postSummerMid.本年家问价 >= 1
+      && postSummerMid.本年家通融 >= 1
+      && Array.isArray(postSummerMid.本年家季务)
+      && postSummerMid.本年家季务.some((tag) => String(tag).includes('伏夏柜边已分'))
+      && postSummerMid.本年家季务.some((tag) => String(tag).includes('伏夏柜边已理'))
+      && postSummerLower.本年家催账 >= 1
+      && postSummerLower.本年家捎信 >= 2
+      && postSummerLower.本年家通融 >= 2
+      && postSummerLower.负债银 === 0
+      && Array.isArray(postSummerLower.本年家季务)
+      && postSummerLower.本年家季务.some((tag) => String(tag).includes('夏尾铺签已分'))
+      && postSummerLower.本年家季务.some((tag) => String(tag).includes('夏尾铺签已理'))
+      && postAutumnUpper.本年家做活 >= 2
+      && postAutumnUpper.本年家捎信 >= 2
+      && Array.isArray(postAutumnUpper.本年家季务)
+      && postAutumnUpper.本年家季务.some((tag) => String(tag).includes('秋铺回话已问'))
+      && postAutumnUpper.本年家季务.some((tag) => String(tag).includes('秋头脚单已分'))
+      && postAutumnUpper.本年家季务.some((tag) => String(tag).includes('秋头脚账已分'))
+      && postAutumnMid.本年家贴家 >= 2
+      && postAutumnMid.本年家备役 >= 1
+      && postAutumnMid.本年家通融 >= 2
+      && Array.isArray(postAutumnMid.本年家季务)
+      && postAutumnMid.本年家季务.some((tag) => String(tag).includes('秋脚锅火已分'))
+      && postAutumnMid.本年家季务.some((tag) => String(tag).includes('秋中铺签已分'))
+      && postAutumnLower.本年家衣药 >= 2
+      && postAutumnLower.本年家备役 >= 2
+      && postAutumnLower.本年家通融 >= 2
+      && Array.isArray(postAutumnLower.本年家季务)
+      && postAutumnLower.本年家季务.some((tag) => String(tag).includes('铺里零耗已顾'))
+      && postAutumnLower.本年家季务.some((tag) => String(tag).includes('秋脚路已压'))
+      && postAutumnLower.本年家季务.some((tag) => String(tag).includes('秋尾铺脚已分'))
+      && postAutumnLower.本年家季务.some((tag) => String(tag).includes('秋尾铺脚已理'))
+      && postWinterUpper.本年家捎信 >= 3
+      && postWinterUpper.本年家备役 >= 4
+      && postWinterUpper.本年家衣药 >= 1
+      && postWinterUpper.本年家通融 >= 1
+      && Array.isArray(postWinterUpper.本年家季务)
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('捎布药'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('脚钱拆账'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('铺账年关'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('年关铺耗已分'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('年关柜头已分'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('年关柜头已理'))
+      && postWinterMid.本年家贴家 >= 3
+      && postWinterMid.本年家衣药 >= 3
+      && postWinterMid.本年家通融 >= 3
+      && Array.isArray(postWinterMid.本年家季务)
+      && postWinterMid.本年家季务.some((tag) => String(tag).includes('年下客礼已分'))
+      && postWinterMid.本年家季务.some((tag) => String(tag).includes('年下客礼已理'))
+      && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬中铺签已分'))
+      && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬中铺签已理'))
+      && includesOrderedPhases(phaseTrace, ['family'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runApprenticeFamilySpringWinterDensityRegression() {
+  const { api: springApi, elements: springElements, window: springWindow } = createHarness();
+  springApi.patchState({
+    路线: '路径三 · 入城学徒',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1120,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    学徒去向: '留店伙计',
+    学徒授艺度: 3,
+    学徒历练: 3
+  });
+  springApi.enterPhase('family');
+  springApi.patchState({
+    家年: 1,
+    家季: 1,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  springApi.enterPhase('family');
+
+  const stageSpringUpper = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_work', 'f_route_shop_note', 'f_route_shop_spring_counter']);
+  springApi.commit();
+  const postSpringUpper = clone(springApi.getState());
+  springApi.next();
+
+  const stageSpringMid = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_route_shop_spring_bundle', 'f_route_shop', 'f_child']);
+  springApi.commit();
+  const postSpringMid = clone(springApi.getState());
+  const resolveSpringMid = normalizeHtml(springElements.get('stage').innerHTML);
+  springApi.next();
+
+  const stageSpringLower = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_route_shop_spring_post', 'f_route_shop_collect', 'f_route_master']);
+  springApi.commit();
+  const postSpringLower = clone(springApi.getState());
+  const resolveSpringLower = normalizeHtml(springElements.get('stage').innerHTML);
+  const springPhaseTrace = clone(springApi.getPhaseTrace ? springApi.getPhaseTrace() : []);
+
+  const { api: winterApi, elements: winterElements, window: winterWindow } = createHarness();
+  winterApi.patchState({
+    路线: '路径三 · 入城学徒',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1280,
+    存米: 4,
+    家族: 64,
+    负债银: 1,
+    学徒去向: '留店伙计',
+    学徒授艺度: 3,
+    学徒历练: 3
+  });
+  winterApi.enterPhase('family');
+  winterApi.patchState({
+    家年: 1,
+    家季: 4,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  winterApi.enterPhase('family');
+
+  const stageWinterUpper = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_work', 'f_route_shop_book', 'f_route_shop_winter_counter']);
+  winterApi.commit();
+  const postWinterUpper = clone(winterApi.getState());
+  winterApi.next();
+
+  const stageWinterMid = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_shop_winter_sign', 'f_route_shop_gift', 'f_rest']);
+  winterApi.commit();
+  const postWinterMid = clone(winterApi.getState());
+  const resolveWinterMid = normalizeHtml(winterElements.get('stage').innerHTML);
+  winterApi.next();
+
+  const stageWinterLower = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_shop_winter_post', 'f_route_shop_collect', 'f_duty']);
+  winterApi.commit();
+  const postWinterLower = clone(winterApi.getState());
+  const resolveWinterLower = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterPhaseTrace = clone(winterApi.getPhaseTrace ? winterApi.getPhaseTrace() : []);
+
+  return {
+    spring: {
+      stageLabels: {
+        stageSpringUpper,
+        stageSpringMid,
+        resolveSpringMid,
+        stageSpringLower,
+        resolveSpringLower
+      },
+      postSpringUpper: {
+        本年家做活: postSpringUpper.本年家做活,
+        本年家衣药: postSpringUpper.本年家衣药,
+        本年家捎信: postSpringUpper.本年家捎信,
+        本年家通融: postSpringUpper.本年家通融,
+        本年家备役: postSpringUpper.本年家备役,
+        本年家季务: postSpringUpper.本年家季务
+      },
+      postSpringMid: {
+        本年家贴家: postSpringMid.本年家贴家,
+        本年家衣药: postSpringMid.本年家衣药,
+        家族: postSpringMid.家族,
+        本年家季务: postSpringMid.本年家季务
+      },
+      postSpringLower: {
+        本年家催账: postSpringLower.本年家催账,
+        本年家贴家: postSpringLower.本年家贴家,
+        本年家通融: postSpringLower.本年家通融,
+        本年家捎信: postSpringLower.本年家捎信,
+        本年家季务: postSpringLower.本年家季务
+      },
+      phaseTrace: springPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageSpringUpper.includes('春起')
+        && stageSpringUpper.includes('托旧同门捎口信问铺账')
+        && stageSpringUpper.includes('先把春头柜簿与灯草门包分开')
+        && stageSpringMid.includes('把春脚钱拆作布鞋与灯油')
+        && resolveSpringMid.includes('〔春铺零用〕')
+        && stageSpringLower.includes('把春脚钱拆作香纸与回铺脚路')
+        && resolveSpringLower.includes('〔春尾铺账〕')
+        && postSpringUpper.本年家做活 >= 1
+        && postSpringUpper.本年家衣药 >= 0
+        && postSpringUpper.本年家捎信 >= 2
+        && postSpringUpper.本年家通融 >= 1
+        && postSpringUpper.本年家备役 >= 1
+        && Array.isArray(postSpringUpper.本年家季务)
+        && postSpringUpper.本年家季务.some((tag) => String(tag).includes('春头柜簿已分'))
+        && postSpringUpper.本年家季务.some((tag) => String(tag).includes('春头柜簿已理'))
+        && postSpringMid.本年家贴家 >= 2
+        && postSpringMid.本年家衣药 >= 1
+        && postSpringMid.家族 >= 68
+        && Array.isArray(postSpringMid.本年家季务)
+        && postSpringMid.本年家季务.some((tag) => String(tag).includes('春脚拆家用'))
+        && postSpringMid.本年家季务.some((tag) => String(tag).includes('春铺零用已分'))
+        && postSpringLower.本年家催账 >= 1
+        && postSpringLower.本年家贴家 >= 3
+        && postSpringLower.本年家通融 >= 2
+        && postSpringLower.本年家捎信 >= 2
+        && Array.isArray(postSpringLower.本年家季务)
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('春尾铺脚已分'))
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('春尾铺账已理'))
+        && includesOrderedPhases(springPhaseTrace, ['family'])
+        && (springWindow.__INV || []).length === 0
+    },
+    winter: {
+      stageLabels: {
+        stageWinterUpper,
+        stageWinterMid,
+        resolveWinterMid,
+        stageWinterLower,
+        resolveWinterLower
+      },
+      postWinterUpper: {
+        本年家捎信: postWinterUpper.本年家捎信,
+        本年家备役: postWinterUpper.本年家备役,
+        本年家做活: postWinterUpper.本年家做活,
+        本年家衣药: postWinterUpper.本年家衣药,
+        本年家通融: postWinterUpper.本年家通融,
+        本年家季务: postWinterUpper.本年家季务
+      },
+      postWinterMid: {
+        本年家贴家: postWinterMid.本年家贴家,
+        本年家衣药: postWinterMid.本年家衣药,
+        本年家通融: postWinterMid.本年家通融,
+        本年家季务: postWinterMid.本年家季务
+      },
+      postWinterLower: {
+        家年: postWinterLower.家年,
+        本年家催账: postWinterLower.本年家催账,
+        本年家备役: postWinterLower.本年家备役,
+        本年家捎信: postWinterLower.本年家捎信,
+        本年家季务: postWinterLower.本年家季务
+      },
+      phaseTrace: winterPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageWinterUpper.includes('冬藏')
+        && stageWinterUpper.includes('年关先对铺账留明春脚路')
+        && stageWinterUpper.includes('先把年关柜头值夜与守岁灯炭分开')
+        && stageWinterMid.includes('把年下客礼拆作炭药与回铺礼')
+        && stageWinterMid.includes('先把冬中回铺回签与灯炭门包分开')
+        && resolveWinterMid.includes('〔年下客礼〕')
+        && resolveWinterMid.includes('〔冬中铺签〕')
+        && stageWinterLower.includes('先留来春回铺脚费与递话薄礼')
+        && resolveWinterLower.includes('〔来春铺路〕')
+        && postWinterUpper.本年家捎信 >= 1
+        && postWinterUpper.本年家备役 >= 2
+        && postWinterUpper.本年家做活 >= 1
+        && postWinterUpper.本年家衣药 >= 1
+        && postWinterUpper.本年家通融 >= 1
+        && Array.isArray(postWinterUpper.本年家季务)
+        && postWinterUpper.本年家季务.some((tag) => String(tag).includes('年关柜头已分'))
+        && postWinterUpper.本年家季务.some((tag) => String(tag).includes('年关柜头已理'))
+        && postWinterMid.本年家贴家 >= 1
+        && postWinterMid.本年家衣药 >= 1
+        && postWinterMid.本年家通融 >= 2
+        && Array.isArray(postWinterMid.本年家季务)
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('年下客礼已分'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('年下客礼已理'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬中铺签已分'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬中铺签已理'))
+        && postWinterLower.家年 >= 2
+        && postWinterLower.本年家催账 === 0
+        && postWinterLower.本年家备役 === 0
+        && postWinterLower.本年家捎信 === 0
+        && includesOrderedPhases(winterPhaseTrace, ['family'])
+        && (winterWindow.__INV || []).length === 0
+    },
+    ok: (springWindow.__INV || []).length === 0
+      && (winterWindow.__INV || []).length === 0
+      && stageSpringLower.includes('把春脚钱拆作香纸与回铺脚路')
+      && resolveSpringLower.includes('〔春尾铺账〕')
+      && stageWinterLower.includes('先留来春回铺脚费与递话薄礼')
+      && resolveWinterLower.includes('〔来春铺路〕')
+      && postSpringLower.本年家贴家 >= 3
+      && postWinterLower.家年 >= 2
+  };
+}
+
+function runApprenticeFamilyChoiceDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '路径三 · 入城学徒',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1320,
+    存米: 4,
+    家族: 64,
+    负债银: 1,
+    学徒去向: '留店伙计',
+    学徒授艺度: 3,
+    学徒历练: 3
+  });
+  api.enterPhase('family');
+  api.patchState({
+    家年: 1,
+    家季: 4,
+    家旬: 3,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  api.enterPhase('family');
+
+  const stage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_shop_winter_tail', 'f_route_shop_winter_post', 'f_duty']);
+  api.commit();
+  const resolve = normalizeHtml(elements.get('stage').innerHTML);
+  const state = clone(api.getState());
+
+  return {
+    stage,
+    resolve,
+    state: {
+      家年: state.家年,
+      铜钱: state.铜钱,
+      体魄: state.体魄
+    },
+    ok: stage.includes('先把年下回铺回签与来春脚单分开')
+      && stage.includes('先留来春回铺脚费与递话薄礼')
+      && resolve.includes('先把年下回铺回签与来春脚单分开')
+      && resolve.includes('〔冬尾铺签〕')
+      && resolve.includes('〔来春铺路〕')
+      && state.家年 >= 2
+      && state.铜钱 < 1320
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runWageFamilyRouteAwareRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '路径二 · 受雇长工 / 短工',
+    识字: true,
+    年龄: 26,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 520,
+    存米: 3,
+    家族: 60,
+    负债银: 0,
+    雇技进度: 2,
+    雇工历练: 3,
+    婚配路径: '先议亲后卖工'
+  });
+  api.enterPhase('family');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_wage_note', 'f_repair']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_wage_split', 'f_child']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_wage_collect', 'f_route_wage_duty', 'f_duty']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      stageSpringLower
+    },
+    postSpringUpper: {
+      本年家捎信: postSpringUpper.本年家捎信,
+      家族: postSpringUpper.家族,
+      本年家做活: postSpringUpper.本年家做活,
+      本年家季务: postSpringUpper.本年家季务
+    },
+    postSpringMid: {
+      本年家贴家: postSpringMid.本年家贴家,
+      本年家备役: postSpringMid.本年家备役,
+      铜钱: postSpringMid.铜钱
+    },
+    postSpringLower: {
+      本年家催账: postSpringLower.本年家催账,
+      本年家备役: postSpringLower.本年家备役,
+      本年家通融: postSpringLower.本年家通融,
+      铜钱: postSpringLower.铜钱,
+      本年家季务: postSpringLower.本年家季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('托工头先问下季活路')
+      && stageSpringMid.includes('把工钱拆作家用与差钱')
+      && stageSpringLower.includes('回工棚结一回欠工')
+      && stageSpringLower.includes('凭工头旧识先探差役')
+      && postSpringUpper.本年家捎信 >= 1
+      && postSpringUpper.家族 >= 61
+      && postSpringUpper.本年家做活 >= 1
+      && Array.isArray(postSpringUpper.本年家季务)
+      && postSpringUpper.本年家季务.some((tag) => String(tag).includes('春工脚费已理'))
+      && postSpringMid.本年家贴家 >= 1
+      && postSpringMid.本年家备役 >= 1
+      && postSpringLower.本年家催账 >= 1
+      && postSpringLower.本年家备役 >= 2
+      && postSpringLower.本年家通融 >= 1
+      && postSpringLower.铜钱 > postSpringMid.铜钱 - 180
+      && Array.isArray(postSpringLower.本年家季务)
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('问活路'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('工钱拆账'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('结回欠工'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('工头探差'))
+      && includesOrderedPhases(phaseTrace, ['family'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runWageFamilySeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '路径二 · 受雇长工 / 短工',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 920,
+    存米: 4,
+    家族: 62,
+    负债银: 1,
+    雇技进度: 2,
+    雇工历练: 3,
+    婚配路径: '先议亲后卖工'
+  });
+  api.enterPhase('family');
+  api.patchState({
+    家年: 1,
+    家季: 2,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  api.enterPhase('family');
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_wage_summer_note', 'f_repair']);
+  api.commit();
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_wage_summer_bundle', 'f_route_wage_summer_reply', 'f_market']);
+  api.commit();
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerMid = clone(api.getState());
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_wage_collect', 'f_route_wage_duty', 'f_mend']);
+  api.commit();
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerLower = clone(api.getState());
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_wage_autumn_note', 'f_child']);
+  api.commit();
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postAutumnUpper = clone(api.getState());
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_wage_autumn_split', 'f_route_wage_autumn_receipt', 'f_route_wage_autumn_cloth', 'f_market']);
+  api.commit();
+  const resolveAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  const postAutumnMid = clone(api.getState());
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_wage_collect', 'f_route_wage_duty', 'f_route_wage_autumn_lamp']);
+  api.commit();
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  const postAutumnLower = clone(api.getState());
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_wage_winter_book', 'f_route_wage_winter_paper']);
+  api.commit();
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postWinterUpper = clone(api.getState());
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSummerUpper,
+      resolveSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      resolveSummerLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper
+    },
+    postSummerUpper: {
+      本年家捎信: postSummerUpper.本年家捎信,
+      本年家通融: postSummerUpper.本年家通融,
+      家族: postSummerUpper.家族,
+      本年家季务: postSummerUpper.本年家季务
+    },
+    postSummerMid: {
+      本年家贴家: postSummerMid.本年家贴家,
+      本年家衣药: postSummerMid.本年家衣药,
+      本年家问价: postSummerMid.本年家问价,
+      本年家捎信: postSummerMid.本年家捎信,
+      本年家通融: postSummerMid.本年家通融,
+      本年家季务: postSummerMid.本年家季务
+    },
+    postSummerLower: {
+      本年家催账: postSummerLower.本年家催账,
+      本年家备役: postSummerLower.本年家备役,
+      本年家通融: postSummerLower.本年家通融,
+      本年家季务: postSummerLower.本年家季务
+    },
+    postAutumnUpper: {
+      本年家问价: postAutumnUpper.本年家问价,
+      本年家做活: postAutumnUpper.本年家做活,
+      本年家捎信: postAutumnUpper.本年家捎信,
+      本年家季务: postAutumnUpper.本年家季务
+    },
+    postAutumnMid: {
+      本年家贴家: postAutumnMid.本年家贴家,
+      本年家备役: postAutumnMid.本年家备役,
+      本年家衣药: postAutumnMid.本年家衣药,
+      本年家问价: postAutumnMid.本年家问价,
+      本年家捎信: postAutumnMid.本年家捎信,
+      本年家通融: postAutumnMid.本年家通融,
+      本年家季务: postAutumnMid.本年家季务
+    },
+    postAutumnLower: {
+      本年家催账: postAutumnLower.本年家催账,
+      本年家备役: postAutumnLower.本年家备役,
+      本年家照家: postAutumnLower.本年家照家,
+      铜钱: postAutumnLower.铜钱,
+      本年家季务: postAutumnLower.本年家季务
+    },
+    postWinterUpper: {
+      本年家供读: postWinterUpper.本年家供读,
+      本年家捎信: postWinterUpper.本年家捎信,
+      本年家备役: postWinterUpper.本年家备役,
+      本年家通融: postWinterUpper.本年家通融,
+      本年家季务: postWinterUpper.本年家季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSummerUpper.includes('夏长')
+      && stageSummerUpper.includes('先问工棚落脚与凉汤药脚路')
+      && resolveSummerUpper.includes('〔伏夏药脚〕')
+      && stageSummerMid.includes('把伏夏工食拆作汤药与家用')
+      && stageSummerMid.includes('先把伏夏回签与锅火凉药分开')
+      && resolveSummerMid.includes('〔伏夏工食〕')
+      && resolveSummerMid.includes('〔伏夏回签〕')
+      && stageSummerLower.includes('回工棚结一回欠工')
+      && stageSummerLower.includes('凭工头旧识先探差役')
+      && resolveSummerLower.includes('〔夏尾欠工〕')
+      && stageAutumnUpper.includes('秋收')
+      && stageAutumnUpper.includes('先问秋收旺工与回乡搭手')
+      && resolveAutumnUpper.includes('〔秋路搭手〕')
+      && stageAutumnMid.includes('把秋工钱拆作锅火与差钱')
+      && stageAutumnMid.includes('先把秋中回签与租路饭钱分开')
+      && stageAutumnMid.includes('先把秋中回签与孩子夹衣分开')
+      && resolveAutumnMid.includes('〔秋工锅火〕')
+      && resolveAutumnMid.includes('〔秋中夹衣〕')
+      && stageAutumnLower.includes('先把秋尾回签与灯油针线分开')
+      && resolveAutumnLower.includes('〔秋尾差脚〕')
+      && resolveAutumnLower.includes('〔秋尾灯油〕')
+      && stageWinterUpper.includes('冬藏')
+      && stageWinterUpper.includes('年关先问欠工与明春活路')
+      && stageWinterUpper.includes('先把冬头回签与孩子炭笔分开')
+      && resolveWinterUpper.includes('〔工棚年礼〕')
+      && resolveWinterUpper.includes('〔冬头炭笔〕')
+      && postSummerUpper.本年家捎信 >= 1
+      && postSummerUpper.本年家通融 >= 1
+      && postSummerUpper.家族 >= 63
+      && Array.isArray(postSummerUpper.本年家季务)
+      && postSummerUpper.本年家季务.some((tag) => String(tag).includes('伏夏药脚已问'))
+      && postSummerMid.本年家贴家 >= 1
+      && postSummerMid.本年家衣药 >= 1
+      && postSummerMid.本年家问价 >= 1
+      && postSummerMid.本年家捎信 >= 1
+      && postSummerMid.本年家通融 >= 1
+      && Array.isArray(postSummerMid.本年家季务)
+      && postSummerMid.本年家季务.some((tag) => String(tag).includes('伏夏工食已拆'))
+      && postSummerMid.本年家季务.some((tag) => String(tag).includes('伏夏回签已分'))
+      && postSummerMid.本年家季务.some((tag) => String(tag).includes('伏夏回签已理'))
+      && postSummerLower.本年家催账 >= 1
+      && postSummerLower.本年家备役 >= 1
+      && postSummerLower.本年家通融 >= 2
+      && Array.isArray(postSummerLower.本年家季务)
+      && postSummerLower.本年家季务.some((tag) => String(tag).includes('夏尾欠工已理'))
+      && postAutumnUpper.本年家问价 >= 2
+      && postAutumnUpper.本年家做活 >= 2
+      && postAutumnUpper.本年家捎信 >= 2
+      && Array.isArray(postAutumnUpper.本年家季务)
+      && postAutumnUpper.本年家季务.some((tag) => String(tag).includes('秋路搭手已问'))
+      && postAutumnMid.本年家贴家 >= 2
+      && postAutumnMid.本年家备役 >= 2
+      && postAutumnMid.本年家衣药 >= 2
+      && postAutumnMid.本年家问价 >= 3
+      && postAutumnMid.本年家捎信 >= 4
+      && postAutumnMid.本年家通融 >= 4
+      && Array.isArray(postAutumnMid.本年家季务)
+      && postAutumnMid.本年家季务.some((tag) => String(tag).includes('秋工锅火已分'))
+      && postAutumnMid.本年家季务.some((tag) => String(tag).includes('秋中回签已分'))
+      && postAutumnMid.本年家季务.some((tag) => String(tag).includes('秋中夹衣已分'))
+      && postAutumnMid.本年家季务.some((tag) => String(tag).includes('秋中夹衣已理'))
+      && postAutumnLower.本年家催账 >= 2
+      && postAutumnLower.本年家备役 >= 3
+      && postAutumnLower.本年家照家 >= 1
+      && postAutumnLower.铜钱 > 0
+      && Array.isArray(postAutumnLower.本年家季务)
+      && postAutumnLower.本年家季务.some((tag) => String(tag).includes('秋尾差脚已留'))
+      && postAutumnLower.本年家季务.some((tag) => String(tag).includes('秋尾灯油已分'))
+      && postAutumnLower.本年家季务.some((tag) => String(tag).includes('秋尾灯油已理'))
+      && postWinterUpper.本年家供读 >= 1
+      && postWinterUpper.本年家捎信 >= 3
+      && postWinterUpper.本年家备役 >= 4
+      && postWinterUpper.本年家通融 >= 5
+      && Array.isArray(postWinterUpper.本年家季务)
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('工棚年礼已分'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('冬头炭笔已分'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('冬头炭笔已理'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('问工棚药路'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('伏夏拆工食'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('伏夏回签'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('问秋工'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋工拆账'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('年关问欠工'))
+      && includesOrderedPhases(phaseTrace, ['family'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runWageFamilyChoiceDensityRegression() {
+  const { api: summerApi, elements: summerElements, window: summerWindow } = createHarness();
+  summerApi.patchState({
+    路线: '路径二 · 受雇长工 / 短工',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 980,
+    存米: 4,
+    家族: 62,
+    负债银: 1,
+    雇技进度: 2,
+    雇工历练: 3,
+    婚配路径: '先议亲后卖工'
+  });
+  summerApi.enterPhase('family');
+  summerApi.patchState({
+    家年: 1,
+    家季: 2,
+    家旬: 2,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  summerApi.enterPhase('family');
+
+  const summerStage = normalizeHtml(summerElements.get('stage').innerHTML);
+  pickByPlan(summerApi, ['f_route_wage_summer_bundle', 'f_route_wage_summer_reply', 'f_market']);
+  summerApi.commit();
+  const summerResolve = normalizeHtml(summerElements.get('stage').innerHTML);
+  const summerState = clone(summerApi.getState());
+
+  const { api: autumnApi, elements: autumnElements, window: autumnWindow } = createHarness();
+  autumnApi.patchState({
+    路线: '路径二 · 受雇长工 / 短工',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 980,
+    存米: 4,
+    家族: 62,
+    负债银: 1,
+    雇技进度: 2,
+    雇工历练: 3,
+    婚配路径: '先议亲后卖工'
+  });
+  autumnApi.enterPhase('family');
+  autumnApi.patchState({
+    家年: 1,
+    家季: 3,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  autumnApi.enterPhase('family');
+
+  const autumnStage = normalizeHtml(autumnElements.get('stage').innerHTML);
+  pickByPlan(autumnApi, ['f_work', 'f_route_wage_autumn_note', 'f_route_wage_autumn_packet']);
+  autumnApi.commit();
+  const autumnResolve = normalizeHtml(autumnElements.get('stage').innerHTML);
+  const autumnState = clone(autumnApi.getState());
+
+  const { api: autumnTailApi, elements: autumnTailElements, window: autumnTailWindow } = createHarness();
+  autumnTailApi.patchState({
+    路线: '路径二 · 受雇长工 / 短工',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1020,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    雇技进度: 2,
+    雇工历练: 3,
+    婚配路径: '先议亲后卖工'
+  });
+  autumnTailApi.enterPhase('family');
+  autumnTailApi.patchState({
+    家年: 1,
+    家季: 3,
+    家旬: 3,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  autumnTailApi.enterPhase('family');
+
+  const autumnTailStage = normalizeHtml(autumnTailElements.get('stage').innerHTML);
+  pickByPlan(autumnTailApi, ['f_route_wage_collect', 'f_route_wage_duty', 'f_route_wage_autumn_lamp']);
+  autumnTailApi.commit();
+  const autumnTailResolve = normalizeHtml(autumnTailElements.get('stage').innerHTML);
+  const autumnTailState = clone(autumnTailApi.getState());
+
+  const { api: winterUpperApi, elements: winterUpperElements, window: winterUpperWindow } = createHarness();
+  winterUpperApi.patchState({
+    路线: '路径二 · 受雇长工 / 短工',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1040,
+    存米: 4,
+    家族: 64,
+    负债银: 1,
+    雇技进度: 2,
+    雇工历练: 3,
+    婚配路径: '先议亲后卖工'
+  });
+  winterUpperApi.enterPhase('family');
+  winterUpperApi.patchState({
+    家年: 1,
+    家季: 4,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  winterUpperApi.enterPhase('family');
+
+  const winterUpperStage = normalizeHtml(winterUpperElements.get('stage').innerHTML);
+  pickByPlan(winterUpperApi, ['f_work', 'f_route_wage_winter_book', 'f_route_wage_winter_paper']);
+  winterUpperApi.commit();
+  const winterUpperResolve = normalizeHtml(winterUpperElements.get('stage').innerHTML);
+  const winterUpperState = clone(winterUpperApi.getState());
+
+  const { api: winterApi, elements: winterElements, window: winterWindow } = createHarness();
+  winterApi.patchState({
+    路线: '路径二 · 受雇长工 / 短工',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1040,
+    存米: 4,
+    家族: 64,
+    负债银: 1,
+    雇技进度: 2,
+    雇工历练: 3,
+    婚配路径: '先议亲后卖工'
+  });
+  winterApi.enterPhase('family');
+  winterApi.patchState({
+    家年: 1,
+    家季: 4,
+    家旬: 2,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  winterApi.enterPhase('family');
+
+  const winterStage = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_wage_winter_register', 'f_route_wage_winter_reply', 'f_route_wage_winter_gift']);
+  winterApi.commit();
+  const winterResolve = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterState = clone(winterApi.getState());
+
+  return {
+    summer: {
+      stage: summerStage,
+      resolve: summerResolve,
+      state: {
+        铜钱: summerState.铜钱,
+        本年家衣药: summerState.本年家衣药,
+        本年家问价: summerState.本年家问价,
+        本年家捎信: summerState.本年家捎信,
+        本年家通融: summerState.本年家通融,
+        本年家季务: summerState.本年家季务
+      },
+      ok: summerStage.includes('把伏夏工食拆作汤药与家用')
+        && summerStage.includes('先把伏夏回签与锅火凉药分开')
+        && summerResolve.includes('〔伏夏工食〕')
+        && summerResolve.includes('〔伏夏回签〕')
+        && summerState.本年家衣药 >= 1
+        && summerState.本年家问价 >= 1
+        && summerState.本年家捎信 >= 1
+        && summerState.本年家通融 >= 1
+        && Array.isArray(summerState.本年家季务)
+        && summerState.本年家季务.some((tag) => String(tag).includes('伏夏拆工食'))
+        && summerState.本年家季务.some((tag) => String(tag).includes('伏夏回签已分'))
+        && summerState.本年家季务.some((tag) => String(tag).includes('伏夏回签已理'))
+        && (summerWindow.__INV || []).length === 0
+    },
+    autumn: {
+      stage: autumnStage,
+      resolve: autumnResolve,
+      state: {
+        铜钱: autumnState.铜钱,
+        本年家做活: autumnState.本年家做活,
+        本年家问价: autumnState.本年家问价,
+        本年家衣药: autumnState.本年家衣药,
+        本年家捎信: autumnState.本年家捎信,
+        本年家通融: autumnState.本年家通融,
+        本年家季务: autumnState.本年家季务
+      },
+      ok: autumnStage.includes('先问秋收旺工与回乡搭手')
+        && autumnStage.includes('先把秋头回签与草鞋脚费分开')
+        && autumnResolve.includes('秋头回签与草鞋脚费分开')
+        && autumnState.本年家做活 >= 1
+        && autumnState.本年家问价 >= 1
+        && autumnState.本年家衣药 >= 1
+        && autumnState.本年家捎信 >= 2
+        && autumnState.本年家通融 >= 1
+        && Array.isArray(autumnState.本年家季务)
+        && autumnState.本年家季务.some((tag) => String(tag).includes('问秋工'))
+        && autumnState.本年家季务.some((tag) => String(tag).includes('秋头回签已分'))
+        && (autumnWindow.__INV || []).length === 0
+    },
+    autumnTail: {
+      stage: autumnTailStage,
+      resolve: autumnTailResolve,
+      state: {
+        本年家催账: autumnTailState.本年家催账,
+        本年家备役: autumnTailState.本年家备役,
+        本年家照家: autumnTailState.本年家照家,
+        本年家季务: autumnTailState.本年家季务
+      },
+      ok: autumnTailStage.includes('先把秋尾回签与灯油针线分开')
+        && autumnTailResolve.includes('〔秋尾灯油〕')
+        && autumnTailState.本年家催账 >= 1
+        && autumnTailState.本年家照家 >= 1
+        && Array.isArray(autumnTailState.本年家季务)
+        && autumnTailState.本年家季务.some((tag) => String(tag).includes('秋尾灯油已分'))
+        && autumnTailState.本年家季务.some((tag) => String(tag).includes('秋尾灯油已理'))
+        && (autumnTailWindow.__INV || []).length === 0
+    },
+    winterUpper: {
+      stage: winterUpperStage,
+      resolve: winterUpperResolve,
+      state: {
+        本年家供读: winterUpperState.本年家供读,
+        本年家捎信: winterUpperState.本年家捎信,
+        本年家备役: winterUpperState.本年家备役,
+        本年家通融: winterUpperState.本年家通融,
+        本年家季务: winterUpperState.本年家季务
+      },
+      ok: winterUpperStage.includes('先把冬头回签与孩子炭笔分开')
+        && winterUpperResolve.includes('〔冬头炭笔〕')
+        && winterUpperState.本年家供读 >= 1
+        && Array.isArray(winterUpperState.本年家季务)
+        && winterUpperState.本年家季务.some((tag) => String(tag).includes('冬头炭笔已分'))
+        && (winterUpperWindow.__INV || []).length === 0
+    },
+    winter: {
+      stage: winterStage,
+      resolve: winterResolve,
+      state: {
+        本年家备役: winterState.本年家备役,
+        本年家衣药: winterState.本年家衣药,
+        本年家捎信: winterState.本年家捎信,
+        本年家通融: winterState.本年家通融,
+        本年家季务: winterState.本年家季务
+      },
+      ok: winterStage.includes('先把里书催册与工棚回话分开')
+        && winterStage.includes('先把冬中欠工回话与炭鞋门包分开')
+        && winterStage.includes('先把旧工头薄礼与炭钱分开')
+        && winterResolve.includes('〔冬中抄册〕')
+        && winterResolve.includes('〔冬中炭鞋〕')
+        && winterResolve.includes('〔腊月小耗〕')
+        && winterState.本年家备役 >= 1
+        && winterState.本年家衣药 >= 1
+        && winterState.本年家捎信 >= 1
+        && winterState.本年家通融 >= 2
+        && Array.isArray(winterState.本年家季务)
+        && winterState.本年家季务.some((tag) => String(tag).includes('冬中抄册已理'))
+        && winterState.本年家季务.some((tag) => String(tag).includes('冬中回话已留'))
+        && winterState.本年家季务.some((tag) => String(tag).includes('工棚炭礼已分'))
+        && winterState.本年家季务.some((tag) => String(tag).includes('冬中炭鞋已分'))
+        && winterState.本年家季务.some((tag) => String(tag).includes('腊月碎账已分'))
+        && (winterWindow.__INV || []).length === 0
+    },
+    winter: {
+      stage: winterStage,
+      resolve: winterResolve,
+      state: {
+        本年家备役: winterState.本年家备役,
+        本年家衣药: winterState.本年家衣药,
+        本年家捎信: winterState.本年家捎信,
+        本年家通融: winterState.本年家通融,
+        本年家季务: winterState.本年家季务
+      },
+      ok: winterStage.includes('先把里书催册与工棚回话分开')
+        && winterStage.includes('先把冬中欠工回话与炭鞋门包分开')
+        && winterStage.includes('先把旧工头薄礼与炭钱分开')
+        && winterResolve.includes('〔冬中抄册〕')
+        && winterResolve.includes('〔冬中炭鞋〕')
+        && winterResolve.includes('〔腊月小耗〕')
+        && winterState.本年家备役 >= 1
+        && winterState.本年家衣药 >= 1
+        && winterState.本年家捎信 >= 1
+        && winterState.本年家通融 >= 2
+        && Array.isArray(winterState.本年家季务)
+        && winterState.本年家季务.some((tag) => String(tag).includes('冬中抄册已理'))
+        && winterState.本年家季务.some((tag) => String(tag).includes('冬中回话已留'))
+        && winterState.本年家季务.some((tag) => String(tag).includes('工棚炭礼已分'))
+        && winterState.本年家季务.some((tag) => String(tag).includes('冬中炭鞋已分'))
+        && winterState.本年家季务.some((tag) => String(tag).includes('腊月碎账已分'))
+        && (winterWindow.__INV || []).length === 0
+    },
+    ok: (summerWindow.__INV || []).length === 0
+      && (autumnWindow.__INV || []).length === 0
+      && (winterWindow.__INV || []).length === 0
+  };
+}
+
+function runWageFamilySpringWinterDensityRegression() {
+  const { api: springApi, elements: springElements, window: springWindow } = createHarness();
+  springApi.patchState({
+    路线: '路径二 · 受雇长工 / 短工',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1120,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    雇技进度: 2,
+    雇工历练: 3,
+    婚配路径: '先议亲后卖工'
+  });
+  springApi.enterPhase('family');
+  springApi.patchState({
+    家年: 1,
+    家季: 1,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  springApi.enterPhase('family');
+
+  const stageSpringUpper = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_work', 'f_route_wage_note', 'f_route_wage_spring_head_reply']);
+  springApi.commit();
+  const postSpringUpper = clone(springApi.getState());
+  const resolveSpringUpper = normalizeHtml(springElements.get('stage').innerHTML);
+  springApi.next();
+
+  const stageSpringMid = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_route_wage_spring_bundle', 'f_route_wage_spring_reply', 'f_route_send', 'f_child']);
+  springApi.commit();
+  const postSpringMid = clone(springApi.getState());
+  const resolveSpringMid = normalizeHtml(springElements.get('stage').innerHTML);
+  springApi.next();
+
+  const stageSpringLower = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_route_wage_collect', 'f_route_wage_spring_post', 'f_route_wage_spring_mat', 'f_duty']);
+  springApi.commit();
+  const postSpringLower = clone(springApi.getState());
+  const resolveSpringLower = normalizeHtml(springElements.get('stage').innerHTML);
+  const springPhaseTrace = clone(springApi.getPhaseTrace ? springApi.getPhaseTrace() : []);
+
+  const { api: winterApi, elements: winterElements, window: winterWindow } = createHarness();
+  winterApi.patchState({
+    路线: '路径二 · 受雇长工 / 短工',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1320,
+    存米: 4,
+    家族: 64,
+    负债银: 1,
+    雇技进度: 2,
+    雇工历练: 3,
+    婚配路径: '先议亲后卖工'
+  });
+  winterApi.enterPhase('family');
+  winterApi.patchState({
+    家年: 1,
+    家季: 4,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  winterApi.enterPhase('family');
+
+  const stageWinterUpper = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_work', 'f_route_wage_winter_book', 'f_route_wage_winter_jacket']);
+  winterApi.commit();
+  const postWinterUpper = clone(winterApi.getState());
+  const resolveWinterUpper = normalizeHtml(winterElements.get('stage').innerHTML);
+  winterApi.next();
+
+  const stageWinterMid = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_wage_winter_register', 'f_route_wage_winter_reply', 'f_route_wage_winter_gift']);
+  winterApi.commit();
+  const postWinterMid = clone(winterApi.getState());
+  const resolveWinterMid = normalizeHtml(winterElements.get('stage').innerHTML);
+  winterApi.next();
+
+  const stageWinterLower = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_wage_winter_tail', 'f_route_wage_winter_post', 'f_route_wage_collect']);
+  winterApi.commit();
+  const postWinterLower = clone(winterApi.getState());
+  const resolveWinterLower = normalizeHtml(winterElements.get('stage').innerHTML);
+  winterApi.next();
+  const nextYearStage = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterPhaseTrace = clone(winterApi.getPhaseTrace ? winterApi.getPhaseTrace() : []);
+
+  return {
+    spring: {
+      stageLabels: {
+        stageSpringUpper,
+        resolveSpringUpper,
+        stageSpringMid,
+        resolveSpringMid,
+        stageSpringLower,
+        resolveSpringLower
+      },
+      postSpringUpper: {
+        本年家做活: postSpringUpper.本年家做活,
+        本年家捎信: postSpringUpper.本年家捎信,
+        本年家衣药: postSpringUpper.本年家衣药,
+        本年家通融: postSpringUpper.本年家通融,
+        本年家季务: postSpringUpper.本年家季务
+      },
+      postSpringMid: {
+        本年家贴家: postSpringMid.本年家贴家,
+        本年家衣药: postSpringMid.本年家衣药,
+        家族: postSpringMid.家族,
+        本年家捎信: postSpringMid.本年家捎信,
+        本年家通融: postSpringMid.本年家通融,
+        本年家季务: postSpringMid.本年家季务
+      },
+      postSpringLower: {
+        本年家催账: postSpringLower.本年家催账,
+        本年家贴家: postSpringLower.本年家贴家,
+        本年家备役: postSpringLower.本年家备役,
+        本年家通融: postSpringLower.本年家通融,
+        本年家捎信: postSpringLower.本年家捎信,
+        本年家季务: postSpringLower.本年家季务
+      },
+      phaseTrace: springPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageSpringUpper.includes('春起')
+        && stageSpringUpper.includes('托工头先问下季活路')
+        && stageSpringUpper.includes('先把春头回签与门包盐药分开')
+        && resolveSpringUpper.includes('〔春工脚费〕')
+        && resolveSpringUpper.includes('〔春头回签〕')
+        && stageSpringMid.includes('把春工钱拆作锅火与草鞋')
+        && stageSpringMid.includes('先把春中回签与孩子草鞋分开')
+        && resolveSpringMid.includes('〔春锅草鞋〕')
+        && stageSpringLower.includes('先把回话脚费与下旬工路分开')
+        && stageSpringLower.includes('先把春尾回签与量斗草席分开')
+        && resolveSpringLower.includes('〔春尾草席〕')
+        && postSpringUpper.本年家做活 >= 1
+        && postSpringUpper.本年家捎信 >= 2
+        && postSpringUpper.本年家衣药 >= 1
+        && postSpringUpper.本年家通融 >= 1
+        && Array.isArray(postSpringUpper.本年家季务)
+        && postSpringUpper.本年家季务.some((tag) => String(tag).includes('春工脚费已理'))
+        && postSpringUpper.本年家季务.some((tag) => String(tag).includes('春头回签已分'))
+        && postSpringUpper.本年家季务.some((tag) => String(tag).includes('春头回签已理'))
+        && postSpringMid.本年家贴家 >= 2
+        && postSpringMid.本年家衣药 >= 2
+        && postSpringMid.家族 >= 67
+        && postSpringMid.本年家捎信 >= 2
+        && postSpringMid.本年家通融 >= 1
+        && Array.isArray(postSpringMid.本年家季务)
+        && postSpringMid.本年家季务.some((tag) => String(tag).includes('春工拆家用'))
+        && postSpringMid.本年家季务.some((tag) => String(tag).includes('春中回签已分'))
+        && postSpringMid.本年家季务.some((tag) => String(tag).includes('工头捎工食'))
+        && postSpringMid.本年家季务.some((tag) => String(tag).includes('春锅草鞋已分'))
+        && postSpringLower.本年家催账 >= 1
+        && postSpringLower.本年家贴家 >= 1
+        && postSpringLower.本年家备役 >= 1
+        && postSpringLower.本年家通融 >= 1
+        && postSpringLower.本年家捎信 >= 2
+        && Array.isArray(postSpringLower.本年家季务)
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('结回欠工'))
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('春尾草席已分'))
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('春尾草席已理'))
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('春尾工路已留'))
+        && includesOrderedPhases(springPhaseTrace, ['family'])
+        && (springWindow.__INV || []).length === 0
+    },
+    winter: {
+      stageLabels: {
+        stageWinterUpper,
+        resolveWinterUpper,
+        stageWinterMid,
+        resolveWinterMid,
+        stageWinterLower,
+        resolveWinterLower,
+        nextYearStage
+      },
+      postWinterUpper: {
+        本年家衣药: postWinterUpper.本年家衣药,
+        本年家捎信: postWinterUpper.本年家捎信,
+        本年家通融: postWinterUpper.本年家通融,
+        本年家备役: postWinterUpper.本年家备役,
+        本年家季务: postWinterUpper.本年家季务
+      },
+      postWinterMid: {
+        本年家贴家: postWinterMid.本年家贴家,
+        本年家备役: postWinterMid.本年家备役,
+        本年家衣药: postWinterMid.本年家衣药,
+        本年家捎信: postWinterMid.本年家捎信,
+        本年家通融: postWinterMid.本年家通融,
+        本年家季务: postWinterMid.本年家季务
+      },
+      postWinterLower: {
+        家年: postWinterLower.家年,
+        家季: postWinterLower.家季,
+        家旬: postWinterLower.家旬,
+        本年家催账: postWinterLower.本年家催账,
+        本年家备役: postWinterLower.本年家备役,
+        本年家衣药: postWinterLower.本年家衣药,
+        本年家捎信: postWinterLower.本年家捎信,
+        本年家通融: postWinterLower.本年家通融,
+        本年家季务: postWinterLower.本年家季务
+      },
+      phaseTrace: winterPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageWinterUpper.includes('冬藏')
+        && stageWinterUpper.includes('年关先问欠工与明春活路')
+        && stageWinterUpper.includes('先把孩子夹衣与回签门包分开')
+        && resolveWinterUpper.includes('〔工棚年礼〕')
+        && resolveWinterUpper.includes('〔冬头夹衣〕')
+        && stageWinterMid.includes('先把里书催册与工棚回话分开')
+        && stageWinterMid.includes('先把冬中欠工回话与炭鞋门包分开')
+        && stageWinterMid.includes('先把旧工头薄礼与炭钱分开')
+        && resolveWinterMid.includes('〔冬中抄册〕')
+        && resolveWinterMid.includes('〔冬中炭鞋〕')
+        && resolveWinterMid.includes('〔腊月小耗〕')
+        && stageWinterLower.includes('先问明春工棚与头程脚路')
+        && stageWinterLower.includes('先把年下回签与来春草鞋分开')
+        && resolveWinterLower.includes('〔冬尾草鞋〕')
+        && postWinterUpper.本年家衣药 >= 1
+        && postWinterUpper.本年家捎信 >= 2
+        && postWinterUpper.本年家通融 >= 1
+        && postWinterUpper.本年家备役 >= 1
+        && Array.isArray(postWinterUpper.本年家季务)
+        && postWinterUpper.本年家季务.some((tag) => String(tag).includes('年关问欠工'))
+        && postWinterUpper.本年家季务.some((tag) => String(tag).includes('工棚年礼已分'))
+        && postWinterUpper.本年家季务.some((tag) => String(tag).includes('冬头夹衣已分'))
+        && postWinterUpper.本年家季务.some((tag) => String(tag).includes('冬头夹衣已理'))
+        && postWinterMid.本年家贴家 >= 1
+        && postWinterMid.本年家备役 >= 1
+        && postWinterMid.本年家衣药 >= 1
+        && postWinterMid.本年家捎信 >= 1
+        && postWinterMid.本年家通融 >= 2
+        && Array.isArray(postWinterMid.本年家季务)
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬中抄册已理'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('工棚炭礼已分'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬中回话已留'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬中炭鞋已分'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('腊月碎账已分'))
+        && postWinterLower.家年 === 2
+        && postWinterLower.家季 === 1
+        && postWinterLower.家旬 === 1
+        && postWinterLower.本年家催账 === 0
+        && postWinterLower.本年家备役 === 0
+        && postWinterLower.本年家衣药 === 0
+        && postWinterLower.本年家捎信 === 0
+        && nextYearStage.includes('第2年')
+        && nextYearStage.includes('春起')
+        && nextYearStage.includes('上旬')
+        && includesOrderedPhases(winterPhaseTrace, ['family'])
+        && (winterWindow.__INV || []).length === 0
+    },
+    ok: (springWindow.__INV || []).length === 0
+      && (winterWindow.__INV || []).length === 0
+      && stageSpringMid.includes('把春工钱拆作锅火与草鞋')
+      && resolveSpringMid.includes('〔春锅草鞋〕')
+      && stageSpringLower.includes('先把春尾回签与量斗草席分开')
+      && resolveSpringLower.includes('〔春尾草席〕')
+      && stageWinterLower.includes('先把年下回签与来春草鞋分开')
+      && resolveWinterLower.includes('〔冬尾草鞋〕')
+      && postSpringLower.本年家贴家 >= 1
+      && postSpringLower.本年家捎信 >= 2
+      && nextYearStage.includes('第2年')
+  };
+}
+
+function runApprenticeFamilyRouteAwareRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '路径三 · 入城学徒',
+    识字: true,
+    年龄: 26,
+    妻室: true,
+    子数: 1,
+    女数: 0,
+    白银: 1,
+    铜钱: 520,
+    存米: 3,
+    家族: 61,
+    负债银: 0,
+    学徒去向: '留店伙计',
+    学徒授艺度: 3,
+    学徒历练: 3
+  });
+  api.enterPhase('family');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_shop_note', 'f_route_shop_spring_counter']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_shop_spring_bundle', 'f_route_shop', 'f_child']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_shop_collect', 'f_route_master', 'f_duty']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      stageSpringLower
+    },
+    postSpringUpper: {
+      本年家捎信: postSpringUpper.本年家捎信,
+      本年家备役: postSpringUpper.本年家备役,
+      本年家通融: postSpringUpper.本年家通融,
+      家族: postSpringUpper.家族,
+      本年家季务: postSpringUpper.本年家季务
+    },
+    postSpringMid: {
+      本年家贴家: postSpringMid.本年家贴家,
+      本年家衣药: postSpringMid.本年家衣药,
+      家族: postSpringMid.家族,
+      本年家季务: postSpringMid.本年家季务
+    },
+    postSpringLower: {
+      本年家催账: postSpringLower.本年家催账,
+      本年家备役: postSpringLower.本年家备役,
+      本年家通融: postSpringLower.本年家通融,
+      铜钱: postSpringLower.铜钱,
+      本年家季务: postSpringLower.本年家季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('托旧同门捎口信问铺账')
+      && stageSpringUpper.includes('先把春头柜簿与灯草门包分开')
+      && stageSpringMid.includes('把春脚钱拆作布鞋与灯油')
+      && stageSpringLower.includes('回铺结一回旧脚钱')
+      && stageSpringLower.includes('凭师门旧识先探差役路数')
+      && postSpringUpper.本年家捎信 >= 2
+      && postSpringUpper.本年家备役 >= 1
+      && postSpringUpper.本年家通融 >= 1
+      && postSpringUpper.家族 >= 62
+      && Array.isArray(postSpringUpper.本年家季务)
+      && postSpringUpper.本年家季务.some((tag) => String(tag).includes('春头柜簿已分'))
+      && postSpringUpper.本年家季务.some((tag) => String(tag).includes('春头柜簿已理'))
+      && postSpringMid.本年家贴家 >= 1
+      && postSpringMid.本年家衣药 >= 1
+      && postSpringMid.家族 >= 65
+      && Array.isArray(postSpringMid.本年家季务)
+      && postSpringMid.本年家季务.some((tag) => String(tag).includes('春脚拆家用'))
+      && postSpringMid.本年家季务.some((tag) => String(tag).includes('春铺零用已分'))
+      && postSpringLower.本年家催账 >= 1
+      && postSpringLower.本年家备役 >= 2
+      && postSpringLower.本年家通融 >= 1
+      && postSpringLower.铜钱 > postSpringMid.铜钱 - 200
+      && Array.isArray(postSpringLower.本年家季务)
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('问铺账'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('铺里捎脚钱'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('结回脚钱'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('师门探差'))
+      && includesOrderedPhases(phaseTrace, ['family'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamFamilyRouteAwareRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 26,
+    妻室: true,
+    子数: 1,
+    女数: 0,
+    白银: 1,
+    铜钱: 560,
+    存米: 3,
+    家族: 62,
+    负债银: 0,
+    生员身份: false,
+    优免启用: false,
+    识字转业值: 1,
+    举业结局: '屡试未第'
+  });
+  api.enterPhase('family');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_school_note', 'f_repair']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_write', 'f_child', 'f_market']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_tutor_collect', 'f_route_surety', 'f_duty']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      stageSpringLower
+    },
+    postSpringUpper: {
+      本年家捎信: postSpringUpper.本年家捎信,
+      家族: postSpringUpper.家族
+    },
+    postSpringMid: {
+      本年家贴家: postSpringMid.本年家贴家,
+      识字转业值: postSpringMid.识字转业值,
+      铜钱: postSpringMid.铜钱
+    },
+    postSpringLower: {
+      本年家催账: postSpringLower.本年家催账,
+      本年家贴家: postSpringLower.本年家贴家,
+      本年家备役: postSpringLower.本年家备役,
+      本年家通融: postSpringLower.本年家通融,
+      铜钱: postSpringLower.铜钱,
+      本年家季务: postSpringLower.本年家季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('先问馆课与保结门路')
+      && stageSpringMid.includes('代写文契补家计')
+      && stageSpringLower.includes('结回馆课与抄写钱')
+      && stageSpringLower.includes('凭塾师保结先探差役')
+      && postSpringUpper.本年家捎信 >= 1
+      && postSpringUpper.家族 >= 63
+      && postSpringMid.本年家贴家 >= 1
+      && postSpringMid.识字转业值 >= 2
+      && postSpringLower.本年家催账 >= 1
+      && postSpringLower.本年家贴家 >= 2
+      && postSpringLower.本年家备役 >= 2
+      && postSpringLower.本年家通融 >= 1
+      && postSpringLower.铜钱 > postSpringMid.铜钱 - 140
+      && Array.isArray(postSpringLower.本年家季务)
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('问馆课保结'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('代写文契'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('结回馆课钱'))
+      && postSpringLower.本年家季务.some((tag) => String(tag).includes('保结探差'))
+      && includesOrderedPhases(phaseTrace, ['family'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamFamilySeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 980,
+    存米: 4,
+    家族: 62,
+    负债银: 1,
+    生员身份: false,
+    优免启用: false,
+    识字转业值: 1,
+    举业结局: '屡试未第'
+  });
+  api.enterPhase('family');
+  api.patchState({
+    家年: 1,
+    家季: 2,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  api.enterPhase('family');
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_school_note', 'f_route_school_summer_soup']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_write', 'f_route_school_summer_fee', 'f_child']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_school_summer_reply', 'f_route_tutor_collect', 'f_route_surety']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_school_autumn_packet', 'f_route_school_autumn_cloth', 'f_route_school_note']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_school_split', 'f_route_school_autumn_mid_fee', 'f_social', 'f_market']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  const resolveAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_route_school_autumn_tail', 'f_route_tutor_collect', 'f_route_surety']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['f_work', 'f_route_school_winter_book', 'f_route_school_winter_fee']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSummerUpper,
+      resolveSummerUpper,
+      stageSummerMid,
+      resolveSummerMid,
+      stageSummerLower,
+      resolveSummerLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper
+    },
+    postSummerUpper: {
+      本年家捎信: postSummerUpper.本年家捎信,
+      家族: postSummerUpper.家族,
+      本年家做活: postSummerUpper.本年家做活,
+      本年家衣药: postSummerUpper.本年家衣药,
+      本年家通融: postSummerUpper.本年家通融
+    },
+    postSummerMid: {
+      本年家贴家: postSummerMid.本年家贴家,
+      识字转业值: postSummerMid.识字转业值,
+      本年家问价: postSummerMid.本年家问价,
+      本年家通融: postSummerMid.本年家通融
+    },
+    postSummerLower: {
+      本年家催账: postSummerLower.本年家催账,
+      本年家备役: postSummerLower.本年家备役,
+      本年家通融: postSummerLower.本年家通融,
+      本年家捎信: postSummerLower.本年家捎信,
+      本年家衣药: postSummerLower.本年家衣药
+    },
+    postAutumnUpper: {
+      本年家做活: postAutumnUpper.本年家做活,
+      本年家捎信: postAutumnUpper.本年家捎信,
+      本年家衣药: postAutumnUpper.本年家衣药,
+      本年家通融: postAutumnUpper.本年家通融,
+      本年家季务: postAutumnUpper.本年家季务
+    },
+    postAutumnMid: {
+      本年家贴家: postAutumnMid.本年家贴家,
+      本年家备役: postAutumnMid.本年家备役,
+      本年家问价: postAutumnMid.本年家问价
+    },
+    postAutumnLower: {
+      本年家催账: postAutumnLower.本年家催账,
+      本年家备役: postAutumnLower.本年家备役,
+      本年家通融: postAutumnLower.本年家通融,
+      本年家捎信: postAutumnLower.本年家捎信,
+      本年家衣药: postAutumnLower.本年家衣药
+    },
+    postWinterUpper: {
+      本年家捎信: postWinterUpper.本年家捎信,
+      本年家备役: postWinterUpper.本年家备役,
+      本年家做活: postWinterUpper.本年家做活,
+      本年家衣药: postWinterUpper.本年家衣药,
+      本年家通融: postWinterUpper.本年家通融,
+      本年家季务: postWinterUpper.本年家季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSummerUpper.includes('夏长')
+      && stageSummerUpper.includes('先问夏课馆账与保结门路')
+      && stageSummerUpper.includes('先把伏夏馆汤与凉药门包分开')
+      && resolveSummerUpper.includes('〔伏夏馆汤〕')
+      && stageSummerMid.includes('伏夏代写课单补家计')
+      && stageSummerMid.includes('把潮纸、投帖脚费与塾馆茶汤分开')
+      && resolveSummerMid.includes('〔馆课零耗〕')
+      && stageSummerLower.includes('先把夏尾馆信与秋前纸样分开')
+      && resolveSummerLower.includes('〔夏尾馆信〕')
+      && stageSummerLower.includes('凭塾师保结先探差役')
+      && stageAutumnUpper.includes('秋收')
+      && stageAutumnUpper.includes('先把秋头馆帖与孩子纸包分开')
+      && stageAutumnUpper.includes('先把秋头馆回与孩子夹衣分开')
+      && stageAutumnUpper.includes('先问秋馆课与学生人情')
+      && resolveAutumnUpper.includes('〔秋头夹衣〕')
+      && stageAutumnMid.includes('把秋里润笔拆作锅火与差钱')
+      && stageAutumnMid.includes('先把秋中馆账脚费与租路饭钱分开')
+      && resolveAutumnMid.includes('〔秋后纸墨〕')
+      && resolveAutumnMid.includes('〔秋中馆脚〕')
+      && stageAutumnLower.includes('先把秋尾回签与炭脚回礼分开')
+      && stageAutumnLower.includes('托廪保先问秋后差钱')
+      && resolveAutumnLower.includes('〔秋尾馆签〕')
+      && stageWinterUpper.includes('冬藏')
+      && stageWinterUpper.includes('年关先理馆账与明春纸墨')
+      && stageWinterUpper.includes('先把旧馆灯油与拜帖脚费分开')
+      && resolveWinterUpper.includes('〔年关纸墨〕')
+      && postSummerUpper.本年家捎信 >= 2
+      && postSummerUpper.家族 >= 63
+      && postSummerUpper.本年家做活 >= 1
+      && postSummerUpper.本年家衣药 >= 1
+      && postSummerUpper.本年家通融 >= 1
+      && postSummerMid.本年家贴家 >= 1
+      && postSummerMid.识字转业值 >= 2
+      && postSummerMid.本年家问价 >= 1
+      && postSummerMid.本年家通融 >= 1
+      && postSummerLower.本年家催账 >= 1
+      && postSummerLower.本年家备役 >= 1
+      && postSummerLower.本年家通融 >= 2
+      && postSummerLower.本年家捎信 >= 2
+      && postSummerLower.本年家衣药 >= 1
+      && postAutumnUpper.本年家做活 >= 1
+      && postAutumnUpper.本年家捎信 >= 3
+      && postAutumnUpper.本年家衣药 >= 2
+      && postAutumnUpper.本年家通融 >= 3
+      && Array.isArray(postAutumnUpper.本年家季务)
+      && postAutumnUpper.本年家季务.some((tag) => String(tag).includes('秋头馆帖'))
+      && postAutumnUpper.本年家季务.some((tag) => String(tag).includes('秋头夹衣'))
+      && postAutumnUpper.本年家季务.some((tag) => String(tag).includes('秋头夹衣已分'))
+      && postAutumnMid.本年家贴家 >= 2
+      && postAutumnMid.本年家备役 >= 2
+      && postAutumnMid.本年家问价 >= 2
+      && postAutumnMid.本年家捎信 >= 4
+      && postAutumnMid.本年家通融 >= 4
+      && postAutumnLower.本年家催账 >= 2
+      && postAutumnLower.本年家备役 >= 3
+      && postAutumnLower.本年家通融 >= 3
+      && postAutumnLower.本年家捎信 >= 5
+      && postAutumnLower.本年家衣药 >= 2
+      && postWinterUpper.本年家捎信 >= 3
+      && postWinterUpper.本年家备役 >= 4
+      && postWinterUpper.本年家做活 >= 2
+      && postWinterUpper.本年家衣药 >= 1
+      && postWinterUpper.本年家通融 >= 2
+      && Array.isArray(postWinterUpper.本年家季务)
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('问馆课保结'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('伏夏馆汤'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('夏课碎费'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('夏尾馆信'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('代写文契'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('馆课拆账'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋中馆脚'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋头馆帖'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋尾馆签'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋尾馆签已理'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('年关馆账'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('冬馆灯脚'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('伏夏馆汤已分'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('馆课零耗已顾'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋中馆脚已理'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('秋后纸墨已拆'))
+      && postWinterUpper.本年家季务.some((tag) => String(tag).includes('年关纸墨已分'))
+      && includesOrderedPhases(phaseTrace, ['family'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamFamilySpringWinterDensityRegression() {
+  const { api: springApi, elements: springElements, window: springWindow } = createHarness();
+  springApi.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1180,
+    存米: 4,
+    家族: 62,
+    负债银: 1,
+    生员身份: false,
+    优免启用: false,
+    识字转业值: 1,
+    举业结局: '屡试未第'
+  });
+  springApi.enterPhase('family');
+
+  const stageSpringUpper = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_work', 'f_route_school_spring_contract', 'f_route_school_note']);
+  springApi.commit();
+  const postSpringUpper = clone(springApi.getState());
+  springApi.next();
+
+  const stageSpringMid = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_route_school_spring_copy', 'f_market', 'f_child']);
+  springApi.commit();
+  const postSpringMid = clone(springApi.getState());
+  const resolveSpringMid = normalizeHtml(springElements.get('stage').innerHTML);
+  springApi.next();
+
+  const stageSpringLower = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_route_school_spring_fan', 'f_route_tutor_collect', 'f_route_surety']);
+  springApi.commit();
+  const postSpringLower = clone(springApi.getState());
+  const resolveSpringLower = normalizeHtml(springElements.get('stage').innerHTML);
+  const springPhaseTrace = clone(springApi.getPhaseTrace ? springApi.getPhaseTrace() : []);
+
+  const { api: winterApi, elements: winterElements, window: winterWindow } = createHarness();
+  winterApi.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1260,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    生员身份: false,
+    优免启用: false,
+    识字转业值: 2,
+    举业结局: '屡试未第'
+  });
+  winterApi.enterPhase('family');
+  winterApi.patchState({
+    家年: 1,
+    家季: 4,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  winterApi.enterPhase('family');
+
+  const stageWinterUpper = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_school_winter_book', 'f_route_school_winter_fee', 'f_route_school_winter_cloth']);
+  winterApi.commit();
+  const postWinterUpper = clone(winterApi.getState());
+  winterApi.next();
+
+  const stageWinterMid = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_school_winter_split', 'f_route_school_winter_mid_reply', 'f_route_write']);
+  winterApi.commit();
+  const postWinterMid = clone(winterApi.getState());
+  const resolveWinterMid = normalizeHtml(winterElements.get('stage').innerHTML);
+  winterApi.next();
+
+  const stageWinterLower = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_school_winter_post', 'f_route_school_winter_copy', 'f_route_school_winter_medicine']);
+  winterApi.commit();
+  const postWinterLower = clone(winterApi.getState());
+  const resolveWinterLower = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterPhaseTrace = clone(winterApi.getPhaseTrace ? winterApi.getPhaseTrace() : []);
+
+  return {
+    spring: {
+      stageLabels: {
+        stageSpringUpper,
+        stageSpringMid,
+        resolveSpringMid,
+        stageSpringLower,
+        resolveSpringLower
+      },
+      postSpringUpper: {
+        本年家做活: postSpringUpper.本年家做活,
+        本年家捎信: postSpringUpper.本年家捎信,
+        本年家通融: postSpringUpper.本年家通融,
+        本年家季务: postSpringUpper.本年家季务
+      },
+      postSpringMid: {
+        本年家贴家: postSpringMid.本年家贴家,
+        本年家衣药: postSpringMid.本年家衣药,
+        本年家问价: postSpringMid.本年家问价,
+        本年家季务: postSpringMid.本年家季务
+      },
+      postSpringLower: {
+        本年家催账: postSpringLower.本年家催账,
+        本年家备役: postSpringLower.本年家备役,
+        本年家通融: postSpringLower.本年家通融,
+        本年家衣药: postSpringLower.本年家衣药,
+        家族: postSpringLower.家族
+      },
+      phaseTrace: springPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageSpringUpper.includes('春起')
+        && stageSpringUpper.includes('先把春头馆契与学生纸样分开')
+        && stageSpringUpper.includes('先问馆课与保结门路')
+        && stageSpringMid.includes('把春里纸笔拆作香纸与课本')
+        && resolveSpringMid.includes('〔春课纸香〕')
+        && stageSpringLower.includes('结回馆课与抄写钱')
+        && stageSpringLower.includes('先把春尾扇药与塾门回帖分开')
+        && resolveSpringLower.includes('凭塾师保结先探差役')
+        && resolveSpringLower.includes('〔春尾扇药〕')
+        && postSpringUpper.本年家做活 >= 1
+        && postSpringUpper.本年家捎信 >= 2
+        && postSpringUpper.本年家通融 >= 1
+        && Array.isArray(postSpringUpper.本年家季务)
+        && postSpringUpper.本年家季务.some((tag) => String(tag).includes('春头馆契'))
+        && postSpringMid.本年家贴家 >= 1
+        && postSpringMid.本年家衣药 >= 1
+        && postSpringMid.本年家问价 >= 1
+        && Array.isArray(postSpringMid.本年家季务)
+        && postSpringMid.本年家季务.some((tag) => String(tag).includes('春课拆家用'))
+        && postSpringMid.本年家季务.some((tag) => String(tag).includes('春课纸香已分'))
+        && postSpringLower.本年家催账 >= 1
+        && postSpringLower.本年家备役 >= 1
+        && postSpringLower.本年家通融 >= 2
+        && postSpringLower.本年家衣药 >= 2
+        && postSpringLower.家族 >= 64
+        && includesOrderedPhases(springPhaseTrace, ['family'])
+        && (springWindow.__INV || []).length === 0
+    },
+    winter: {
+      stageLabels: {
+        stageWinterUpper,
+        stageWinterMid,
+        resolveWinterMid,
+        stageWinterLower,
+        resolveWinterLower
+      },
+      postWinterUpper: {
+        本年家捎信: postWinterUpper.本年家捎信,
+        本年家备役: postWinterUpper.本年家备役,
+        本年家做活: postWinterUpper.本年家做活,
+        本年家衣药: postWinterUpper.本年家衣药,
+        本年家通融: postWinterUpper.本年家通融,
+        本年家供读: postWinterUpper.本年家供读,
+        本年家季务: postWinterUpper.本年家季务
+      },
+      postWinterMid: {
+        本年家贴家: postWinterMid.本年家贴家,
+        本年家衣药: postWinterMid.本年家衣药,
+        本年家通融: postWinterMid.本年家通融,
+        本年家捎信: postWinterMid.本年家捎信,
+        本年家供读: postWinterMid.本年家供读,
+        家族: postWinterMid.家族,
+        本年家季务: postWinterMid.本年家季务
+      },
+      postWinterLower: {
+        家年: postWinterLower.家年,
+        本年家催账: postWinterLower.本年家催账,
+        本年家备役: postWinterLower.本年家备役,
+        本年家捎信: postWinterLower.本年家捎信,
+        家族: postWinterLower.家族
+      },
+      phaseTrace: winterPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageWinterUpper.includes('冬藏')
+        && stageWinterUpper.includes('年关先理馆账与明春纸墨')
+        && stageWinterUpper.includes('先把旧馆灯油与拜帖脚费分开')
+        && stageWinterUpper.includes('先把冬头馆回与孩子夹袄分开')
+        && stageWinterMid.includes('把年尾笔墨拆作炭药与帖费')
+        && stageWinterMid.includes('先把冬中馆札与孩子炭笔分开')
+        && resolveWinterMid.includes('〔冬尾笔炭〕')
+        && stageWinterLower.includes('先留来春拜帖与开馆脚费')
+        && stageWinterLower.includes('先把年下馆信与孩子帖样分开')
+        && stageWinterLower.includes('先把年下回话与炭药草鞋分开')
+        && resolveWinterLower.includes('〔来春帖费〕')
+        && resolveWinterLower.includes('〔冬尾帖样〕')
+        && resolveWinterLower.includes('〔冬尾炭鞋〕')
+        && postWinterUpper.本年家捎信 >= 3
+        && postWinterUpper.本年家备役 >= 1
+        && postWinterUpper.本年家做活 >= 0
+        && postWinterUpper.本年家衣药 >= 2
+        && postWinterUpper.本年家通融 >= 2
+        && postWinterUpper.本年家供读 >= 1
+        && Array.isArray(postWinterUpper.本年家季务)
+        && postWinterUpper.本年家季务.some((tag) => String(tag).includes('冬馆灯脚'))
+        && postWinterUpper.本年家季务.some((tag) => String(tag).includes('冬头夹衣'))
+        && postWinterMid.本年家贴家 >= 2
+        && postWinterMid.本年家衣药 >= 1
+        && postWinterMid.本年家通融 >= 2
+        && postWinterMid.本年家捎信 >= 1
+        && postWinterMid.本年家供读 >= 1
+        && postWinterMid.家族 >= 65
+        && Array.isArray(postWinterMid.本年家季务)
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬尾笔墨拆账'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬中馆札'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬尾笔炭已分'))
+        && postWinterLower.家年 >= 2
+        && postWinterLower.本年家催账 === 0
+        && postWinterLower.本年家备役 === 0
+        && postWinterLower.本年家捎信 === 0
+        && postWinterLower.家族 >= 64
+        && includesOrderedPhases(winterPhaseTrace, ['family'])
+        && (winterWindow.__INV || []).length === 0
+    },
+    ok: (springWindow.__INV || []).length === 0
+      && (winterWindow.__INV || []).length === 0
+      && stageSpringMid.includes('把春里纸笔拆作香纸与课本')
+      && resolveSpringMid.includes('〔春课纸香〕')
+      && stageSpringLower.includes('先把春尾扇药与塾门回帖分开')
+      && resolveSpringLower.includes('〔春尾扇药〕')
+      && stageWinterMid.includes('把年尾笔墨拆作炭药与帖费')
+      && stageWinterMid.includes('先把冬中馆札与孩子炭笔分开')
+      && resolveWinterMid.includes('〔冬尾笔炭〕')
+      && stageWinterLower.includes('先留来春拜帖与开馆脚费')
+      && stageWinterLower.includes('先把年下馆信与孩子帖样分开')
+      && stageWinterLower.includes('先把年下回话与炭药草鞋分开')
+      && resolveWinterLower.includes('〔来春帖费〕')
+      && resolveWinterLower.includes('〔冬尾帖样〕')
+      && resolveWinterLower.includes('〔冬尾炭鞋〕')
+      && postSpringMid.本年家贴家 >= 1
+      && postWinterMid.本年家衣药 >= 1
+      && postWinterLower.家年 >= 2
+  };
+}
+
+function runExamFamilyChoiceDensityRegression() {
+  const { api: springApi, elements: springElements, window: springWindow } = createHarness();
+  springApi.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 960,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    生员身份: false,
+    优免启用: false,
+    识字转业值: 2,
+    举业结局: '屡试未第'
+  });
+  springApi.enterPhase('family');
+  springApi.patchState({
+    家年: 1,
+    家季: 1,
+    家旬: 3,
+    本年家做活: 1,
+    本年家粜米: 0,
+    本年家问价: 1,
+    本年家备役: 0,
+    本年家衣药: 1,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 1,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 1,
+    本年家捎信: 1,
+    本年家供读: 0,
+    本年家季务: ['春起·上旬春头馆契', '春起·中旬春课拆家用']
+  });
+  springApi.enterPhase('family');
+
+  const stageSpringLower = normalizeHtml(springElements.get('stage').innerHTML);
+  pickByPlan(springApi, ['f_route_school_spring_fan', 'f_route_tutor_collect', 'f_route_surety']);
+  springApi.commit();
+  const postSpringLower = clone(springApi.getState());
+  const resolveSpringLower = normalizeHtml(springElements.get('stage').innerHTML);
+  const springPhaseTrace = clone(springApi.getPhaseTrace ? springApi.getPhaseTrace() : []);
+
+  const { api: autumnUpperApi, elements: autumnUpperElements, window: autumnUpperWindow } = createHarness();
+  autumnUpperApi.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 980,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    生员身份: false,
+    优免启用: false,
+    识字转业值: 2,
+    举业结局: '屡试未第'
+  });
+  autumnUpperApi.enterPhase('family');
+  autumnUpperApi.patchState({
+    家年: 1,
+    家季: 3,
+    家旬: 1,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  autumnUpperApi.enterPhase('family');
+
+  const stageAutumnUpper = normalizeHtml(autumnUpperElements.get('stage').innerHTML);
+  pickByPlan(autumnUpperApi, ['f_route_school_autumn_packet', 'f_route_school_autumn_cloth', 'f_route_school_note']);
+  autumnUpperApi.commit();
+  const postAutumnUpper = clone(autumnUpperApi.getState());
+  const resolveAutumnUpper = normalizeHtml(autumnUpperElements.get('stage').innerHTML);
+  const autumnUpperPhaseTrace = clone(autumnUpperApi.getPhaseTrace ? autumnUpperApi.getPhaseTrace() : []);
+
+  const { api: autumnApi, elements: autumnElements, window: autumnWindow } = createHarness();
+  autumnApi.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 980,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    生员身份: false,
+    优免启用: false,
+    识字转业值: 2,
+    举业结局: '屡试未第'
+  });
+  autumnApi.enterPhase('family');
+  autumnApi.patchState({
+    家年: 1,
+    家季: 3,
+    家旬: 2,
+    本年家做活: 1,
+    本年家粜米: 0,
+    本年家问价: 1,
+    本年家备役: 1,
+    本年家衣药: 1,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 1,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 1,
+    本年家捎信: 2,
+    本年家供读: 0,
+    本年家季务: ['秋收·上旬秋头馆帖', '秋收·上旬问秋馆课']
+  });
+  autumnApi.enterPhase('family');
+
+  const stageAutumnMid = normalizeHtml(autumnElements.get('stage').innerHTML);
+  pickByPlan(autumnApi, ['f_route_school_split', 'f_route_school_autumn_mid_fee', 'f_social', 'f_market']);
+  autumnApi.commit();
+  const postAutumnMid = clone(autumnApi.getState());
+  const resolveAutumnMid = normalizeHtml(autumnElements.get('stage').innerHTML);
+  autumnApi.next();
+
+  const stageAutumnLower = normalizeHtml(autumnElements.get('stage').innerHTML);
+  pickByPlan(autumnApi, ['f_route_school_autumn_tail', 'f_route_tutor_collect', 'f_route_surety']);
+  autumnApi.commit();
+  const postAutumnLower = clone(autumnApi.getState());
+  const resolveAutumnLower = normalizeHtml(autumnElements.get('stage').innerHTML);
+  const autumnPhaseTrace = clone(autumnApi.getPhaseTrace ? autumnApi.getPhaseTrace() : []);
+
+  const { api: winterApi, elements: winterElements, window: winterWindow } = createHarness();
+  winterApi.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1260,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    生员身份: false,
+    优免启用: false,
+    识字转业值: 2,
+    举业结局: '屡试未第'
+  });
+  winterApi.enterPhase('family');
+  winterApi.patchState({
+    家年: 1,
+    家季: 4,
+    家旬: 3,
+    本年家做活: 0,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 0,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 0,
+    本年家捎信: 0,
+    本年家供读: 0,
+    本年家季务: []
+  });
+  winterApi.enterPhase('family');
+
+  const stageWinterLower = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_school_winter_post', 'f_route_school_winter_copy', 'f_route_school_winter_medicine']);
+  winterApi.commit();
+  const postWinterLower = clone(winterApi.getState());
+  const resolveWinterLower = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterPhaseTrace = clone(winterApi.getPhaseTrace ? winterApi.getPhaseTrace() : []);
+
+  return {
+    spring: {
+      stageLabels: {
+        stageSpringLower,
+        resolveSpringLower
+      },
+      postSpringLower: {
+        本年家催账: postSpringLower.本年家催账,
+        本年家备役: postSpringLower.本年家备役,
+        本年家通融: postSpringLower.本年家通融,
+        本年家捎信: postSpringLower.本年家捎信,
+        本年家衣药: postSpringLower.本年家衣药,
+        本年家贴家: postSpringLower.本年家贴家,
+        铜钱: postSpringLower.铜钱,
+        本年家季务: postSpringLower.本年家季务
+      },
+      phaseTrace: springPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageSpringLower.includes('先把春尾馆批与端午纸样分开')
+        && stageSpringLower.includes('先把春尾扇药与塾门回帖分开')
+        && stageSpringLower.includes('结回馆课与抄写钱')
+        && stageSpringLower.includes('凭塾师保结先探差役')
+        && resolveSpringLower.includes('〔春尾馆批〕')
+        && resolveSpringLower.includes('〔春尾扇药〕')
+        && postSpringLower.本年家催账 >= 1
+        && postSpringLower.本年家备役 >= 1
+        && postSpringLower.本年家通融 >= 2
+        && postSpringLower.本年家捎信 >= 2
+        && postSpringLower.本年家衣药 >= 2
+        && postSpringLower.本年家贴家 >= 2
+        && postSpringLower.铜钱 >= 960 - 55 - 60 + 130
+        && Array.isArray(postSpringLower.本年家季务)
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('春尾扇药'))
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('春尾馆批'))
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('结回馆课钱'))
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('保结探差'))
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('春尾扇药已理'))
+        && postSpringLower.本年家季务.some((tag) => String(tag).includes('春尾馆批已分'))
+        && includesOrderedPhases(springPhaseTrace, ['family'])
+        && (springWindow.__INV || []).length === 0
+    },
+    autumn: {
+      stageLabels: {
+        stageAutumnUpper,
+        resolveAutumnUpper,
+        stageAutumnMid,
+        resolveAutumnMid,
+        stageAutumnLower,
+        resolveAutumnLower
+      },
+      postAutumn: {
+        本年家衣药_秋头: postAutumnUpper.本年家衣药,
+        本年家捎信_秋头: postAutumnUpper.本年家捎信,
+        本年家通融_秋头: postAutumnUpper.本年家通融,
+        本年家季务_秋头: postAutumnUpper.本年家季务,
+        本年家贴家: postAutumnLower.本年家贴家,
+        本年家备役: postAutumnLower.本年家备役,
+        本年家问价: postAutumnMid.本年家问价,
+        本年家捎信: postAutumnLower.本年家捎信,
+        本年家通融: postAutumnLower.本年家通融,
+        本年家催账: postAutumnLower.本年家催账,
+        本年家衣药: postAutumnLower.本年家衣药,
+        本年家季务: postAutumnLower.本年家季务
+      },
+      phaseTrace: autumnUpperPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → ') + ' || ' + autumnPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageAutumnUpper.includes('先把秋头馆帖与孩子纸包分开')
+        && stageAutumnUpper.includes('先把秋头馆回与孩子夹衣分开')
+        && resolveAutumnUpper.includes('〔秋头夹衣〕')
+        && postAutumnUpper.本年家衣药 >= 2
+        && postAutumnUpper.本年家捎信 >= 2
+        && postAutumnUpper.本年家通融 >= 2
+        && Array.isArray(postAutumnUpper.本年家季务)
+        && postAutumnUpper.本年家季务.some((tag) => String(tag).includes('秋头馆帖'))
+        && postAutumnUpper.本年家季务.some((tag) => String(tag).includes('秋头夹衣'))
+        && postAutumnUpper.本年家季务.some((tag) => String(tag).includes('秋头夹衣已分'))
+        && stageAutumnMid.includes('把秋里润笔拆作锅火与差钱')
+        && stageAutumnMid.includes('先把秋中馆账脚费与租路饭钱分开')
+        && resolveAutumnMid.includes('〔秋后纸墨〕')
+        && resolveAutumnMid.includes('〔秋中馆脚〕')
+        && stageAutumnLower.includes('先把秋尾回签与炭脚回礼分开')
+        && resolveAutumnLower.includes('〔秋尾馆签〕')
+        && postAutumnLower.本年家贴家 >= 2
+        && postAutumnLower.本年家备役 >= 2
+        && postAutumnMid.本年家问价 >= 2
+        && postAutumnLower.本年家捎信 >= 4
+        && postAutumnLower.本年家通融 >= 3
+        && postAutumnLower.本年家催账 >= 1
+        && postAutumnLower.本年家衣药 >= 2
+        && Array.isArray(postAutumnLower.本年家季务)
+        && postAutumnLower.本年家季务.some((tag) => String(tag).includes('馆课拆账'))
+        && postAutumnLower.本年家季务.some((tag) => String(tag).includes('秋中馆脚'))
+        && postAutumnLower.本年家季务.some((tag) => String(tag).includes('秋中馆脚已理'))
+        && postAutumnLower.本年家季务.some((tag) => String(tag).includes('秋后纸墨已拆'))
+        && postAutumnLower.本年家季务.some((tag) => String(tag).includes('秋尾馆签'))
+        && postAutumnLower.本年家季务.some((tag) => String(tag).includes('秋尾馆签已理'))
+        && includesOrderedPhases(autumnUpperPhaseTrace, ['family'])
+        && includesOrderedPhases(autumnPhaseTrace, ['family'])
+        && (autumnUpperWindow.__INV || []).length === 0
+        && (autumnWindow.__INV || []).length === 0
+    },
+    winter: {
+      stageLabels: {
+        stageWinterLower,
+        resolveWinterLower
+      },
+      postWinterLower: {
+        家年: postWinterLower.家年,
+        家族: postWinterLower.家族,
+        本年家捎信: postWinterLower.本年家捎信
+      },
+      phaseTrace: winterPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageWinterLower.includes('先留来春拜帖与开馆脚费')
+        && stageWinterLower.includes('先把年下馆信与孩子帖样分开')
+        && stageWinterLower.includes('先把年下回话与炭药草鞋分开')
+        && resolveWinterLower.includes('〔来春帖费〕')
+        && resolveWinterLower.includes('〔冬尾帖样〕')
+        && resolveWinterLower.includes('〔冬尾炭鞋〕')
+        && postWinterLower.家年 >= 2
+        && postWinterLower.家族 >= 64
+        && postWinterLower.本年家捎信 === 0
+        && includesOrderedPhases(winterPhaseTrace, ['family'])
+        && (winterWindow.__INV || []).length === 0
+    },
+    ok: (springWindow.__INV || []).length === 0
+      && (autumnUpperWindow.__INV || []).length === 0
+      && (autumnWindow.__INV || []).length === 0
+      && (winterWindow.__INV || []).length === 0
+      && stageSpringLower.includes('先把春尾馆批与端午纸样分开')
+      && stageSpringLower.includes('先把春尾扇药与塾门回帖分开')
+      && resolveSpringLower.includes('〔春尾馆批〕')
+      && resolveSpringLower.includes('〔春尾扇药〕')
+      && stageAutumnUpper.includes('先把秋头馆回与孩子夹衣分开')
+      && resolveAutumnUpper.includes('〔秋头夹衣〕')
+      && stageAutumnMid.includes('先把秋中馆账脚费与租路饭钱分开')
+      && resolveAutumnMid.includes('〔秋中馆脚〕')
+      && stageAutumnLower.includes('先把秋尾回签与炭脚回礼分开')
+      && resolveAutumnLower.includes('〔秋尾馆签〕')
+      && stageWinterLower.includes('先把年下馆信与孩子帖样分开')
+      && resolveWinterLower.includes('〔冬尾帖样〕')
+      && postSpringLower.本年家贴家 >= 2
+      && postAutumnUpper.本年家衣药 >= 2
+      && postAutumnMid.本年家问价 >= 2
+      && postAutumnLower.本年家捎信 >= 4
+      && postWinterLower.家年 >= 2
+  };
+}
+
+function runExamFamilyBodyInstitutionChoiceRegression() {
+  const { api: summerApi, elements: summerElements, window: summerWindow } = createHarness();
+  summerApi.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 980,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    生员身份: false,
+    优免启用: false,
+    识字转业值: 2,
+    举业结局: '屡试未第'
+  });
+  summerApi.enterPhase('family');
+  summerApi.patchState({
+    家年: 1,
+    家季: 2,
+    家旬: 2,
+    本年家做活: 1,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 0,
+    本年家衣药: 1,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 1,
+    本年家捎信: 1,
+    本年家供读: 0,
+    本年家季务: ['夏长·上旬伏夏馆汤']
+  });
+  summerApi.enterPhase('family');
+
+  const stageSummerMid = normalizeHtml(summerElements.get('stage').innerHTML);
+  pickByPlan(summerApi, ['f_route_school_summer_cough', 'f_route_write', 'f_child']);
+  summerApi.commit();
+  const postSummerMid = clone(summerApi.getState());
+  const resolveSummerMid = normalizeHtml(summerElements.get('stage').innerHTML);
+  const summerPhaseTrace = clone(summerApi.getPhaseTrace ? summerApi.getPhaseTrace() : []);
+
+  const { api: autumnApi, elements: autumnElements, window: autumnWindow } = createHarness();
+  autumnApi.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1040,
+    存米: 4,
+    家族: 63,
+    负债银: 1,
+    生员身份: false,
+    优免启用: false,
+    识字转业值: 2,
+    举业结局: '屡试未第'
+  });
+  autumnApi.enterPhase('family');
+  autumnApi.patchState({
+    家年: 1,
+    家季: 3,
+    家旬: 3,
+    本年家做活: 1,
+    本年家粜米: 0,
+    本年家问价: 1,
+    本年家备役: 0,
+    本年家衣药: 1,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 1,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 1,
+    本年家捎信: 2,
+    本年家供读: 0,
+    本年家季务: ['秋收·上旬秋头馆帖', '秋收·中旬秋中馆脚']
+  });
+  autumnApi.enterPhase('family');
+
+  const stageAutumnLower = normalizeHtml(autumnElements.get('stage').innerHTML);
+  pickByPlan(autumnApi, ['f_route_school_autumn_register', 'f_route_tutor_collect', 'f_route_surety']);
+  autumnApi.commit();
+  const postAutumnLower = clone(autumnApi.getState());
+  const resolveAutumnLower = normalizeHtml(autumnElements.get('stage').innerHTML);
+  const autumnPhaseTrace = clone(autumnApi.getPhaseTrace ? autumnApi.getPhaseTrace() : []);
+
+  const { api: winterApi, elements: winterElements, window: winterWindow } = createHarness();
+  winterApi.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 27,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: 1,
+    铜钱: 1180,
+    存米: 4,
+    家族: 64,
+    负债银: 1,
+    生员身份: false,
+    优免启用: false,
+    识字转业值: 2,
+    举业结局: '屡试未第'
+  });
+  winterApi.enterPhase('family');
+  winterApi.patchState({
+    家年: 1,
+    家季: 4,
+    家旬: 2,
+    本年家做活: 1,
+    本年家粜米: 0,
+    本年家问价: 0,
+    本年家备役: 1,
+    本年家衣药: 1,
+    本年家照家: 0,
+    本年家借粮: 0,
+    本年家还债: 0,
+    本年家贴家: 0,
+    本年家催账: 0,
+    本年家将养: 0,
+    本年家修缮: 0,
+    本年家通融: 1,
+    本年家捎信: 1,
+    本年家供读: 0,
+    本年家季务: ['冬藏·上旬年关馆账', '冬藏·上旬冬馆灯脚']
+  });
+  winterApi.enterPhase('family');
+
+  const stageWinterMid = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['f_route_school_winter_cough', 'f_route_school_winter_mid_reply', 'f_route_write']);
+  winterApi.commit();
+  const postWinterMid = clone(winterApi.getState());
+  const resolveWinterMid = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterPhaseTrace = clone(winterApi.getPhaseTrace ? winterApi.getPhaseTrace() : []);
+
+  return {
+    summer: {
+      stageLabels: { stageSummerMid, resolveSummerMid },
+      postSummerMid: {
+        本年家衣药: postSummerMid.本年家衣药,
+        本年家照家: postSummerMid.本年家照家,
+        本年家贴家: postSummerMid.本年家贴家,
+        本年家通融: postSummerMid.本年家通融,
+        本年家季务: postSummerMid.本年家季务
+      },
+      phaseTrace: summerPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageSummerMid.includes('先把伏夏抄手凉药与孩子草鞋分开')
+        && stageSummerMid.includes('伏夏代写课单补家计')
+        && resolveSummerMid.includes('伏夏抄手凉药与孩子草鞋分开')
+        && postSummerMid.本年家衣药 >= 2
+        && postSummerMid.本年家照家 >= 1
+        && postSummerMid.本年家贴家 >= 1
+        && postSummerMid.本年家通融 >= 2
+        && Array.isArray(postSummerMid.本年家季务)
+        && postSummerMid.本年家季务.some((tag) => String(tag).includes('伏夏抄手凉药'))
+        && includesOrderedPhases(summerPhaseTrace, ['family'])
+        && (summerWindow.__INV || []).length === 0
+    },
+    autumn: {
+      stageLabels: { stageAutumnLower, resolveAutumnLower },
+      postAutumnLower: {
+        本年家催账: postAutumnLower.本年家催账,
+        本年家备役: postAutumnLower.本年家备役,
+        本年家通融: postAutumnLower.本年家通融,
+        本年家捎信: postAutumnLower.本年家捎信,
+        本年家供读: postAutumnLower.本年家供读,
+        本年家季务: postAutumnLower.本年家季务
+      },
+      phaseTrace: autumnPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageAutumnLower.includes('先把秋尾簿册与孩子灯油分开')
+        && stageAutumnLower.includes('结回秋馆课与润笔')
+        && stageAutumnLower.includes('托廪保先问秋后差钱')
+        && resolveAutumnLower.includes('秋尾簿册与孩子灯油分开')
+        && postAutumnLower.本年家催账 >= 1
+        && postAutumnLower.本年家备役 >= 1
+        && postAutumnLower.本年家通融 >= 2
+        && postAutumnLower.本年家捎信 >= 3
+        && postAutumnLower.本年家供读 >= 1
+        && Array.isArray(postAutumnLower.本年家季务)
+        && postAutumnLower.本年家季务.some((tag) => String(tag).includes('秋尾簿册'))
+        && postAutumnLower.本年家季务.some((tag) => String(tag).includes('结回馆课钱'))
+        && postAutumnLower.本年家季务.some((tag) => String(tag).includes('保结探差'))
+        && includesOrderedPhases(autumnPhaseTrace, ['family'])
+        && (autumnWindow.__INV || []).length === 0
+    },
+    winter: {
+      stageLabels: { stageWinterMid, resolveWinterMid },
+      postWinterMid: {
+        本年家衣药: postWinterMid.本年家衣药,
+        本年家将养: postWinterMid.本年家将养,
+        本年家通融: postWinterMid.本年家通融,
+        本年家捎信: postWinterMid.本年家捎信,
+        本年家供读: postWinterMid.本年家供读,
+        本年家季务: postWinterMid.本年家季务
+      },
+      phaseTrace: winterPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageWinterMid.includes('先把冬中咳药与坐馆灯油分开')
+        && stageWinterMid.includes('先把冬中馆札与孩子炭笔分开')
+        && stageWinterMid.includes('年关誊账补现钱')
+        && resolveWinterMid.includes('冬中咳药与坐馆灯油分开')
+        && postWinterMid.本年家衣药 >= 2
+        && postWinterMid.本年家将养 >= 1
+        && postWinterMid.本年家通融 >= 3
+        && postWinterMid.本年家捎信 >= 2
+        && postWinterMid.本年家供读 >= 1
+        && Array.isArray(postWinterMid.本年家季务)
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬中咳药'))
+        && postWinterMid.本年家季务.some((tag) => String(tag).includes('冬中馆札'))
+        && includesOrderedPhases(winterPhaseTrace, ['family'])
+        && (winterWindow.__INV || []).length === 0
+    },
+    ok: (summerWindow.__INV || []).length === 0
+      && (autumnWindow.__INV || []).length === 0
+      && (winterWindow.__INV || []).length === 0
+      && resolveSummerMid.includes('伏夏抄手凉药与孩子草鞋分开')
+      && resolveAutumnLower.includes('秋尾簿册与孩子灯油分开')
+      && resolveWinterMid.includes('冬中咳药与坐馆灯油分开')
+  };
+}
+
+function runExamIntraYearExpenseChoiceRegression() {
+  const { api: summerApi, elements: summerElements, window: summerWindow } = createHarness();
+  summerApi.setRandomSeed(2501);
+  summerApi.setRandomSequence(new Array(24).fill(0.99));
+  summerApi.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 16,
+    铜钱: 420,
+    存米: 2,
+    家族: 64,
+    体魄: 52,
+    供读状态: '家中供读',
+    供读底子: 2,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    文章火候: 2
+  });
+  summerApi.enterPhase('civilExam');
+  summerApi.patchState({
+    举业年: 1,
+    举季: 2,
+    举旬: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年身子亏空: 1,
+    本年将养次数: 0,
+    本年举业季务: ['夏课·上旬伏夏馆账']
+  });
+  summerApi.enterPhase('civilExam');
+
+  const stageSummerMid = normalizeHtml(summerElements.get('stage').innerHTML);
+  const summerBefore = clone(summerApi.getState());
+  pickByPlan(summerApi, ['e_summer_cough']);
+  summerApi.commit();
+  const postSummerMid = clone(summerApi.getState());
+  const resolveSummerMid = normalizeHtml(summerElements.get('stage').innerHTML);
+  const summerPhaseTrace = clone(summerApi.getPhaseTrace ? summerApi.getPhaseTrace() : []);
+
+  const { api: autumnApi, elements: autumnElements, window: autumnWindow } = createHarness();
+  autumnApi.setRandomSeed(2502);
+  autumnApi.setRandomSequence(new Array(24).fill(0.99));
+  autumnApi.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 16,
+    铜钱: 460,
+    存米: 2,
+    家族: 65,
+    体魄: 51,
+    供读状态: '家中供读',
+    供读底子: 2,
+    供读压力: 2,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    文章火候: 3,
+    保结进度: 2
+  });
+  autumnApi.enterPhase('civilExam');
+  autumnApi.patchState({
+    举业年: 1,
+    举季: 3,
+    举旬: 3,
+    本年馆课次数: 2,
+    本年评文次数: 2,
+    本年保结次数: 2,
+    本年举业季务: ['秋试·中旬保结']
+  });
+  autumnApi.enterPhase('civilExam');
+
+  const stageAutumnLower = normalizeHtml(autumnElements.get('stage').innerHTML);
+  const autumnBefore = clone(autumnApi.getState());
+  pickByPlan(autumnApi, ['e_autumn_register']);
+  autumnApi.commit();
+  const postAutumnLower = clone(autumnApi.getState());
+  const resolveAutumnLower = normalizeHtml(autumnElements.get('stage').innerHTML);
+  const autumnPhaseTrace = clone(autumnApi.getPhaseTrace ? autumnApi.getPhaseTrace() : []);
+
+  const { api: winterApi, elements: winterElements, window: winterWindow } = createHarness();
+  winterApi.setRandomSeed(2503);
+  winterApi.setRandomSequence(new Array(24).fill(0.99));
+  winterApi.patchState({
+    路线: '路径五 · 读书应举',
+    识字: true,
+    年龄: 16,
+    铜钱: 520,
+    存米: 2,
+    家族: 65,
+    体魄: 49,
+    供读状态: '家中供读',
+    供读底子: 2,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    文章火候: 3
+  });
+  winterApi.enterPhase('civilExam');
+  winterApi.patchState({
+    举业年: 1,
+    举季: 4,
+    举旬: 2,
+    本年馆课次数: 2,
+    本年将养次数: 0,
+    本年身子亏空: 2,
+    本年举业季务: ['冬清账·上旬年关纸墨']
+  });
+  winterApi.enterPhase('civilExam');
+
+  const stageWinterMid = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterBefore = clone(winterApi.getState());
+  pickByPlan(winterApi, ['e_winter_cough']);
+  winterApi.commit();
+  const postWinterMid = clone(winterApi.getState());
+  const resolveWinterMid = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterPhaseTrace = clone(winterApi.getPhaseTrace ? winterApi.getPhaseTrace() : []);
+
+  return {
+    summer: {
+      stageLabels: { stageSummerMid, resolveSummerMid },
+      postSummerMid: {
+        体魄: postSummerMid.体魄,
+        家族: postSummerMid.家族,
+        本年将养次数: postSummerMid.本年将养次数,
+        本年身子亏空: postSummerMid.本年身子亏空,
+        本年衣药支出文: postSummerMid.本年衣药支出文,
+        本年举业季务: postSummerMid.本年举业季务
+      },
+      phaseTrace: summerPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageSummerMid.includes('先把伏夏凉药与草鞋脚费分开')
+        && resolveSummerMid.includes('伏夏凉药与草鞋脚费分开')
+        && postSummerMid.体魄 > summerBefore.体魄
+        && postSummerMid.家族 > summerBefore.家族
+        && postSummerMid.本年将养次数 >= 1
+        && postSummerMid.本年身子亏空 < summerBefore.本年身子亏空
+        && postSummerMid.本年衣药支出文 >= 55
+        && Array.isArray(postSummerMid.本年举业季务)
+        && postSummerMid.本年举业季务.some((tag) => String(tag).includes('伏夏凉药'))
+        && includesOrderedPhases(summerPhaseTrace, ['civilExam'])
+        && (summerWindow.__INV || []).length === 0
+    },
+    autumn: {
+      stageLabels: { stageAutumnLower, resolveAutumnLower },
+      postAutumnLower: {
+        家族: postAutumnLower.家族,
+        供读压力: postAutumnLower.供读压力,
+        本年零耗支出文: postAutumnLower.本年零耗支出文,
+        本年纸墨支出文: postAutumnLower.本年纸墨支出文,
+        本年举业季务: postAutumnLower.本年举业季务
+      },
+      phaseTrace: autumnPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageAutumnLower.includes('先把秋尾簿册与回帖灯油分开')
+        && resolveAutumnLower.includes('秋尾簿册与回帖灯油分开')
+        && postAutumnLower.家族 > autumnBefore.家族
+        && postAutumnLower.供读压力 < autumnBefore.供读压力
+        && postAutumnLower.本年零耗支出文 >= 35
+        && postAutumnLower.本年纸墨支出文 >= 25
+        && Array.isArray(postAutumnLower.本年举业季务)
+        && postAutumnLower.本年举业季务.some((tag) => String(tag).includes('秋尾簿册'))
+        && includesOrderedPhases(autumnPhaseTrace, ['civilExam'])
+        && (autumnWindow.__INV || []).length === 0
+    },
+    winter: {
+      stageLabels: { stageWinterMid, resolveWinterMid },
+      postWinterMid: {
+        体魄: postWinterMid.体魄,
+        家族: postWinterMid.家族,
+        本年将养次数: postWinterMid.本年将养次数,
+        本年身子亏空: postWinterMid.本年身子亏空,
+        本年衣药支出文: postWinterMid.本年衣药支出文,
+        本年举业季务: postWinterMid.本年举业季务
+      },
+      phaseTrace: winterPhaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: stageWinterMid.includes('先把冬中咳药与坐馆灯油分开')
+        && resolveWinterMid.includes('冬中咳药与坐馆灯油分开')
+        && postWinterMid.体魄 > winterBefore.体魄
+        && postWinterMid.家族 > winterBefore.家族
+        && postWinterMid.本年将养次数 >= 1
+        && postWinterMid.本年身子亏空 < winterBefore.本年身子亏空
+        && postWinterMid.本年衣药支出文 >= 70
+        && Array.isArray(postWinterMid.本年举业季务)
+        && postWinterMid.本年举业季务.some((tag) => String(tag).includes('冬中咳药'))
+        && includesOrderedPhases(winterPhaseTrace, ['civilExam'])
+        && (winterWindow.__INV || []).length === 0
+    },
+    ok: (summerWindow.__INV || []).length === 0
+      && (autumnWindow.__INV || []).length === 0
+      && (winterWindow.__INV || []).length === 0
+      && resolveSummerMid.includes('伏夏凉药与草鞋脚费分开')
+      && resolveAutumnLower.includes('秋尾簿册与回帖灯油分开')
+      && resolveWinterMid.includes('冬中咳药与坐馆灯油分开')
+  };
+}
+
+function runExamSeasonalRhythmRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(1616);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 320, 存米: 2, 家族: 64 });
+  api.setRandomSequence(new Array(40).fill(0.99));
+  api.enterPhase('civilExam');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_enroll', 'e_tutor']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_essay', 'e_home', 'e_spring_packet']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_home', 'e_spring_fan']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_enroll', 'e_tutor']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_essay', 'e_copy', 'e_summer_packet']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  api.next();
+
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_mend']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor', 'e_guarantee']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_guarantee', 'e_copy', 'e_autumn_packet']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_exam']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_home', 'e_rest']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_mend']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_reserve', 'e_home', 'e_winter_packet']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  api.next();
+
+  const nextYearStage = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      stageSpringMid,
+      stageSpringLower,
+      stageSummerUpper,
+      stageSummerMid,
+      stageSummerLower,
+      stageAutumnUpper,
+      stageAutumnMid,
+      stageAutumnLower,
+      stageWinterUpper,
+      stageWinterMid,
+      stageWinterLower,
+      nextYearStage
+    },
+    postSpringUpper: {
+      举季: postSpringUpper.举季,
+      举旬: examXun(postSpringUpper),
+      本年馆课次数: postSpringUpper.本年馆课次数,
+      读书方式: postSpringUpper.读书方式
+    },
+    postSpringLower: {
+      举季: postSpringLower.举季,
+      举旬: examXun(postSpringLower),
+      本年归家次数: postSpringLower.本年归家次数,
+      本年誊抄次数: postSpringLower.本年誊抄次数
+    },
+    postSpringMid: {
+      举季: postSpringMid.举季,
+      举旬: examXun(postSpringMid),
+      本年评文次数: postSpringMid.本年评文次数,
+      本年归家次数: postSpringMid.本年归家次数,
+      家族: postSpringMid.家族
+    },
+    postAutumnUpper: {
+      举季: postAutumnUpper.举季,
+      举旬: examXun(postAutumnUpper),
+      本年馆课次数: postAutumnUpper.本年馆课次数,
+      读书方式: postAutumnUpper.读书方式
+    },
+    postAutumnMid: {
+      举季: postAutumnMid.举季,
+      举旬: examXun(postAutumnMid),
+      保结进度: postAutumnMid.保结进度,
+      本年保结次数: postAutumnMid.本年保结次数,
+      铜钱: postAutumnMid.铜钱,
+      家族: postAutumnMid.家族
+    },
+    postSummerMid: {
+      举季: postSummerMid.举季,
+      举旬: examXun(postSummerMid),
+      本年评文次数: postSummerMid.本年评文次数,
+      本年誊抄次数: postSummerMid.本年誊抄次数,
+      铜钱: postSummerMid.铜钱,
+      家族: postSummerMid.家族
+    },
+    postSummerLower: {
+      举季: postSummerLower.举季,
+      举旬: examXun(postSummerLower),
+      本年将养次数: postSummerLower.本年将养次数,
+      本年誊抄次数: postSummerLower.本年誊抄次数
+    },
+    postAutumnLower: {
+      举季: postAutumnLower.举季,
+      举旬: examXun(postAutumnLower),
+      本年下场: postAutumnLower.本年下场,
+      本年应试结果: postAutumnLower.本年应试结果,
+      读书成本档: postAutumnLower.读书成本档
+    },
+    postWinterMid: {
+      举季: postWinterMid.举季,
+      举旬: examXun(postWinterMid),
+      本年将养次数: postWinterMid.本年将养次数,
+      本年誊抄次数: postWinterMid.本年誊抄次数
+    },
+    postWinterLower: {
+      举业年: postWinterLower.举业年,
+      举季: postWinterLower.举季,
+      举旬: examXun(postWinterLower),
+      本年备役次数: postWinterLower.本年备役次数,
+      本年举业季务: postWinterLower.本年举业季务,
+      文章火候: postWinterLower.文章火候,
+      保结进度: postWinterLower.保结进度,
+      家族: postWinterLower.家族
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('春课')
+      && stageSpringUpper.includes('上旬')
+      && stageSpringMid.includes('春课')
+      && stageSpringMid.includes('中旬')
+      && stageSpringMid.includes('先把春中评文回话与税则脚费分开')
+      && stageSpringLower.includes('春课')
+      && stageSpringLower.includes('下旬')
+      && stageSummerUpper.includes('夏课')
+      && stageSummerUpper.includes('上旬')
+      && stageSummerMid.includes('夏课')
+      && stageSummerMid.includes('中旬')
+      && stageSummerMid.includes('先把潮纸、投帖脚费与塾馆茶汤分开')
+      && stageSummerLower.includes('夏课')
+      && stageSummerLower.includes('下旬')
+      && stageAutumnUpper.includes('秋试')
+      && stageAutumnUpper.includes('上旬')
+      && stageAutumnMid.includes('秋试')
+      && stageAutumnMid.includes('中旬')
+      && stageAutumnMid.includes('先把保结薄礼与学生回话脚费分开')
+      && stageAutumnLower.includes('秋试')
+      && stageAutumnLower.includes('下旬')
+      && stageWinterUpper.includes('冬清账')
+      && stageWinterUpper.includes('上旬')
+      && stageWinterMid.includes('冬清账')
+      && stageWinterMid.includes('中旬')
+      && stageWinterLower.includes('冬清账')
+      && stageWinterLower.includes('下旬')
+      && stageWinterLower.includes('先把来春投帖门包与年下薄礼分开')
+      && postSpringUpper.本年馆课次数 >= 1
+      && postSpringUpper.读书方式 === '塾馆'
+      && postSpringMid.本年评文次数 >= 1
+      && postSpringMid.本年归家次数 >= 1
+      && postSpringMid.家族 >= 65
+      && postSpringLower.本年归家次数 >= 2
+      && postSpringLower.本年誊抄次数 >= 1
+      && postSummerMid.本年评文次数 >= 1
+      && postSummerMid.本年誊抄次数 >= 2
+      && postSummerMid.家族 >= 66
+      && postSummerLower.本年将养次数 >= 1
+      && postSummerLower.本年誊抄次数 >= 1
+      && postAutumnUpper.本年馆课次数 >= 3
+      && postAutumnUpper.读书方式 === '塾馆'
+      && postAutumnMid.家族 >= 67
+      && postAutumnLower.本年下场 === false
+      && postAutumnLower.本年应试结果 === '未下场'
+      && postAutumnLower.读书成本档 >= 5
+      && stageWinterUpper.includes('本年应试=')
+      && postWinterMid.本年将养次数 >= 2
+      && postWinterMid.本年誊抄次数 >= 3
+      && postWinterLower.本年备役次数 >= 1
+      && postWinterLower.家族 >= 68
+      && Array.isArray(postWinterLower.本年举业季务)
+      && postWinterLower.本年举业季务.length >= 9
+      && postWinterLower.文章火候 >= 9
+      && postWinterLower.保结进度 === 0
+      && nextYearStage.includes('第2举业年')
+      && nextYearStage.includes('春课')
+      && nextYearStage.includes('上旬')
+      && api.getState().举业年 === 2
+      && api.getState().举季 === 1
+      && examXun(api.getState()) === 1
+      && api.getState().本年下场 === false
+      && includesOrderedPhases(phaseTrace, ['civilExam'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamSeasonalDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(2626);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 360, 存米: 2, 家族: 64 });
+  api.setRandomSequence(new Array(40).fill(0.2));
+  api.enterPhase('civilExam');
+
+  pickByPlan(api, ['e_enroll', 'e_tutor']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_essay', 'e_home', 'e_spring_packet']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_copy', 'e_home']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_enroll', 'e_tutor']);
+  api.commit();
+  api.next();
+
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_essay', 'e_copy', 'e_summer_packet']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['e_copy', 'e_mend']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_tutor']);
+  api.commit();
+  api.next();
+
+  const stageAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_guarantee', 'e_copy', 'e_autumn_packet']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  const resolveAutumnMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['e_copy', 'e_autumn_tail_packet']);
+  api.commit();
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_home', 'e_copy', 'e_winter_open_packet']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSummerMid,
+      resolveSummerMid,
+      stageAutumnMid,
+      resolveAutumnMid,
+      stageWinterUpper,
+      resolveWinterUpper
+    },
+    postSummerMid: {
+      本年举业季务: postSummerMid.本年举业季务,
+      本年评文次数: postSummerMid.本年评文次数,
+      本年誊抄次数: postSummerMid.本年誊抄次数,
+      家族: postSummerMid.家族
+    },
+    postAutumnMid: {
+      本年举业季务: postAutumnMid.本年举业季务,
+      本年保结次数: postAutumnMid.本年保结次数,
+      保结进度: postAutumnMid.保结进度,
+      铜钱: postAutumnMid.铜钱,
+      家族: postAutumnMid.家族
+    },
+    postWinterUpper: {
+      本年举业季务: postWinterUpper.本年举业季务,
+      本年归家次数: postWinterUpper.本年归家次数,
+      本年誊抄次数: postWinterUpper.本年誊抄次数
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSummerMid.includes('夏课')
+      && stageSummerMid.includes('中旬')
+      && stageSummerMid.includes('先把潮纸、投帖脚费与塾馆茶汤分开')
+      && resolveSummerMid.includes('〔馆课零耗〕')
+      && resolveSummerMid.includes('潮纸')
+      && Array.isArray(postSummerMid.本年举业季务)
+      && postSummerMid.本年评文次数 >= 1
+      && postSummerMid.本年誊抄次数 >= 2
+      && postSummerMid.家族 >= 65
+      && postSummerMid.本年举业季务.some((tag) => String(tag).includes('馆课零耗已顾'))
+      && stageAutumnMid.includes('秋试')
+      && stageAutumnMid.includes('中旬')
+      && stageAutumnMid.includes('先把保结薄礼与学生回话脚费分开')
+      && resolveAutumnMid.includes('〔秋后纸墨〕')
+      && resolveAutumnMid.includes('保结薄礼')
+      && Array.isArray(postAutumnMid.本年举业季务)
+      && postAutumnMid.本年保结次数 === 0
+      && postAutumnMid.保结进度 === 0
+      && postAutumnMid.家族 >= 66
+      && postAutumnMid.本年举业季务.some((tag) => String(tag).includes('秋后纸墨已拆'))
+      && stageWinterUpper.includes('冬清账')
+      && stageWinterUpper.includes('上旬')
+      && resolveWinterUpper.includes('〔年关纸墨〕')
+      && resolveWinterUpper.includes('〔冬头馆信〕')
+      && resolveWinterUpper.includes('来春纸墨定钱')
+      && Array.isArray(postWinterUpper.本年举业季务)
+      && postWinterUpper.本年归家次数 >= 2
+      && postWinterUpper.本年誊抄次数 >= 4
+      && postWinterUpper.本年举业季务.some((tag) => String(tag).includes('年关纸墨已分'))
+      && postWinterUpper.本年举业季务.some((tag) => String(tag).includes('冬头馆信已分'))
+      && includesOrderedPhases(phaseTrace, ['civilExam'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamSeasonalExtensionRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(2727);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 420, 存米: 2, 家族: 64 });
+  api.setRandomSequence(new Array(50).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_enroll', 'e_tutor', 'e_spring_open_packet']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_essay', 'e_home', 'e_spring_packet']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  const resolveSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_home', 'e_spring_fan']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const resolveSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['e_tutor']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_essay', 'e_copy', 'e_summer_packet']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_copy', 'e_mend']);
+  api.commit();
+  api.next();
+
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['e_guarantee', 'e_copy', 'e_autumn_packet']);
+  api.commit();
+  api.next();
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_autumn_tail_packet']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['e_home', 'e_rest']);
+  api.commit();
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_guarantee', 'e_copy', 'e_winter_mid_packet']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_exam', 'e_home', 'e_winter_tail_cure']);
+  api.commit();
+  const postWinterLower = clone(api.getState());
+  const resolveWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSpringMid,
+      resolveSpringMid,
+      stageSpringLower,
+      resolveSpringLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterMid,
+      resolveWinterMid,
+      stageWinterLower,
+      resolveWinterLower
+    },
+    postSpringUpper: {
+      本年举业季务: postSpringUpper.本年举业季务,
+      本年馆课次数: postSpringUpper.本年馆课次数
+    },
+    postSpringMid: {
+      本年举业季务: postSpringMid.本年举业季务,
+      本年评文次数: postSpringMid.本年评文次数,
+      本年归家次数: postSpringMid.本年归家次数,
+      家族: postSpringMid.家族
+    },
+    postSpringLower: {
+      本年举业季务: postSpringLower.本年举业季务,
+      本年誊抄次数: postSpringLower.本年誊抄次数,
+      本年归家次数: postSpringLower.本年归家次数
+    },
+    postAutumnUpper: {
+      本年举业季务: postAutumnUpper.本年举业季务,
+      本年馆课次数: postAutumnUpper.本年馆课次数
+    },
+    postAutumnLower: {
+      本年举业季务: postAutumnLower.本年举业季务,
+      本年下场: postAutumnLower.本年下场,
+      本年应试结果: postAutumnLower.本年应试结果
+    },
+    postWinterMid: {
+      本年举业季务: postWinterMid.本年举业季务,
+      本年誊抄次数: postWinterMid.本年誊抄次数,
+      本年将养次数: postWinterMid.本年将养次数
+    },
+    postWinterLower: {
+      本年举业季务: postWinterLower.本年举业季务,
+      本年下场: postWinterLower.本年下场,
+      本年应试结果: postWinterLower.本年应试结果,
+      本年备役次数: postWinterLower.本年备役次数,
+      本年归家次数: postWinterLower.本年归家次数,
+      本年誊抄次数: postWinterLower.本年誊抄次数,
+      家族: postWinterLower.家族
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('春课')
+      && resolveSpringUpper.includes('〔春课开销〕')
+      && Array.isArray(postSpringUpper.本年举业季务)
+      && postSpringUpper.本年举业季务.some((tag) => String(tag).includes('春课开销已理'))
+      && stageSpringMid.includes('春课')
+      && resolveSpringMid.includes('〔春馆回话〕')
+      && Array.isArray(postSpringMid.本年举业季务)
+      && postSpringMid.本年举业季务.some((tag) => String(tag).includes('春馆回话已理'))
+      && stageSpringLower.includes('春课')
+      && resolveSpringLower.includes('〔春尾香纸〕')
+      && Array.isArray(postSpringLower.本年举业季务)
+      && postSpringLower.本年举业季务.some((tag) => String(tag).includes('春尾香纸已分'))
+      && stageAutumnUpper.includes('秋试')
+      && resolveAutumnUpper.includes('〔秋前盘缠〕')
+      && resolveAutumnUpper.includes('〔秋头夹衣〕')
+      && Array.isArray(postAutumnUpper.本年举业季务)
+      && postAutumnUpper.本年举业季务.some((tag) => String(tag).includes('秋前盘缠已理'))
+      && postAutumnUpper.本年举业季务.some((tag) => String(tag).includes('秋头夹衣已分'))
+      && stageAutumnLower.includes('秋试')
+      && resolveAutumnLower.includes('〔临场盘缠〕')
+      && Array.isArray(postAutumnLower.本年举业季务)
+      && postAutumnLower.本年举业季务.some((tag) => String(tag).includes('临场盘缠已留'))
+      && stageWinterMid.includes('冬清账')
+      && resolveWinterMid.includes('〔冬中灯炭〕')
+      && Array.isArray(postWinterMid.本年举业季务)
+      && postWinterMid.本年举业季务.some((tag) => String(tag).includes('冬中灯炭已分'))
+      && stageWinterLower.includes('冬清账')
+      && resolveWinterLower.includes('〔冬尾炭鞋〕')
+      && Array.isArray(postWinterLower.本年举业季务)
+      && postWinterLower.本年举业季务.some((tag) => String(tag).includes('冬尾炭鞋已分'))
+      && (
+        (postWinterLower.本年下场 === true && postWinterLower.本年应试结果 !== '未下场')
+        || (postWinterLower.本年下场 === false && postWinterLower.本年应试结果 === '未下场')
+      )
+      && includesOrderedPhases(phaseTrace, ['civilExam'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamSeasonalCarryCostRegression() {
+  function setupAt(season, xun, extraPatch) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSequence(new Array(40).fill(0.2));
+    api.patchState(Object.assign({
+      路线: '路径五 · 读书应举',
+      年龄: 16,
+      识字: true,
+      识字进度: 2,
+      举业年: 1,
+      举季: season,
+      举旬: xun,
+      举段: xun,
+      读书方式: '塾馆',
+      投塾进度: 2,
+      保结进度: 2,
+      文章火候: 3,
+      供读状态: '家中供读',
+      供读压力: 1,
+      体魄: 58,
+      家族: 66,
+      铜钱: 260,
+      白银: 1,
+      存米: 2,
+      负债银: 0,
+      本年下场: false,
+      本年应试结果: '未下场',
+      本年投塾次数: 1,
+      本年馆课次数: 1,
+      本年评文次数: 1,
+      本年保结次数: 1,
+      本年誊抄次数: 0,
+      本年归家次数: 0,
+      本年备役次数: 0,
+      本年将养次数: 0,
+      本年举业季务: [],
+      本年束脩支出文: 0,
+      本年纸墨支出文: 0,
+      本年保结支出文: 0,
+      本年盘缠支出文: 0,
+      本年零耗支出文: 0,
+      本年衣药支出文: 0,
+      本年役扰支出文: 0,
+      本年债息增银: 0,
+      本年役扰已结: false,
+      本年债息已结: false,
+      本年已落举业支出文: 0,
+      本年家中供读次: 0,
+      本年家中供读文: 0,
+      本年家中供读米: 0,
+      本年举业自筹文: 0,
+      本年举业自筹缓压: 0,
+      本年家中贴补次: 0,
+      本年家中贴补米: 0,
+      本年母纺贴补次: 0,
+      本年母纺贴补文: 0,
+      本年落第次数: 0,
+      本年身子亏空: 0,
+      本年延婚牵扯: 0,
+      本年供读转折旬数: 0,
+      本年婚事转折旬数: 0,
+      本年身耗转折旬数: 0
+    }, extraPatch || {}));
+    api.enterPhase('civilExam');
+    api.patchState(Object.assign({
+      举业年: 1,
+      举季: season,
+      举旬: xun,
+      举段: xun
+    }, extraPatch || {}));
+    api.enterPhase('civilExam');
+    return { api, elements, window };
+  }
+
+  const autumnLower = setupAt(3, 3, {
+    铜钱: 260,
+    负债银: 0,
+    本年备役次数: 0,
+    生员身份: false,
+    优免启用: false
+  });
+  const autumnLowerStage = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  pickByPlan(autumnLower.api, ['e_copy', 'e_autumn_tail_packet']);
+  autumnLower.api.commit();
+  const autumnLowerResolve = normalizeHtml(autumnLower.elements.get('stage').innerHTML);
+  const autumnLowerState = clone(autumnLower.api.getState());
+
+  const winterMid = setupAt(4, 2, {
+    铜钱: 240,
+    负债银: 2,
+    本年债息已结: false,
+    本年债息增银: 0
+  });
+  const winterMidStage = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  pickByPlan(winterMid.api, ['e_copy', 'e_winter_mid_packet']);
+  winterMid.api.commit();
+  const winterMidResolve = normalizeHtml(winterMid.elements.get('stage').innerHTML);
+  const winterMidState = clone(winterMid.api.getState());
+
+  return {
+    autumnLower: {
+      stage: autumnLowerStage,
+      resolve: autumnLowerResolve,
+      state: {
+        铜钱: autumnLowerState.铜钱,
+        本年役扰支出文: autumnLowerState.本年役扰支出文,
+        本年役扰已结: autumnLowerState.本年役扰已结,
+        本年举业季务: autumnLowerState.本年举业季务
+      },
+      ok: autumnLowerStage.includes('秋试')
+        && autumnLowerStage.includes('下旬')
+        && autumnLowerResolve.includes('〔秋尾差钱〕')
+        && autumnLowerState.本年役扰支出文 >= 120
+        && autumnLowerState.本年役扰已结 === true
+        && Array.isArray(autumnLowerState.本年举业季务)
+        && autumnLowerState.本年举业季务.some((tag) => String(tag).includes('秋尾差钱'))
+        && (autumnLower.window.__INV || []).length === 0
+    },
+    winterMid: {
+      stage: winterMidStage,
+      resolve: winterMidResolve,
+      state: {
+        负债银: winterMidState.负债银,
+        本年债息增银: winterMidState.本年债息增银,
+        本年债息已结: winterMidState.本年债息已结,
+        本年举业季务: winterMidState.本年举业季务
+      },
+      ok: winterMidStage.includes('冬清账')
+        && winterMidStage.includes('中旬')
+        && winterMidResolve.includes('〔冬中债息〕')
+        && winterMidState.负债银 > 2
+        && winterMidState.本年债息增银 >= 1
+        && winterMidState.本年债息已结 === true
+        && Array.isArray(winterMidState.本年举业季务)
+        && winterMidState.本年举业季务.some((tag) => String(tag).includes('冬中债息'))
+        && (winterMid.window.__INV || []).length === 0
+    },
+    ok: autumnLowerResolve.includes('〔秋尾差钱〕')
+      && winterMidResolve.includes('〔冬中债息〕')
+      && autumnLowerState.本年役扰已结 === true
+      && winterMidState.本年债息已结 === true
+      && (autumnLower.window.__INV || []).length === 0
+      && (winterMid.window.__INV || []).length === 0
+  };
+}
+
+function runExamChoiceDensityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(2929);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 520, 存米: 2, 家族: 64 });
+  api.setRandomSequence(new Array(60).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_enroll', 'e_spring_open_packet', 'e_home']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['e_essay', 'e_home', 'e_spring_packet']);
+  api.commit();
+  api.next();
+
+  api.patchState({ 铜钱: Math.max(api.getState().铜钱 || 0, 150) });
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_home', 'e_spring_fan']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const resolveSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  api.patchState({ 铜钱: Math.max(api.getState().铜钱 || 0, 160) });
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor', 'e_summer_open_packet']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['e_essay', 'e_copy', 'e_summer_packet']);
+  api.commit();
+  api.next();
+
+  api.patchState({ 铜钱: Math.max(api.getState().铜钱 || 0, 160) });
+  const stageSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_home', 'e_summer_tail_packet']);
+  api.commit();
+  const postSummerLower = clone(api.getState());
+  const resolveSummerLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  api.patchState({ 铜钱: Math.max(api.getState().铜钱 || 0, 180) });
+  const stageAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor', 'e_autumn_open_packet']);
+  api.commit();
+  const postAutumnUpper = clone(api.getState());
+  const resolveAutumnUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['e_guarantee', 'e_copy', 'e_autumn_packet']);
+  api.commit();
+  api.next();
+
+  api.patchState({ 铜钱: Math.max(api.getState().铜钱 || 0, 180) });
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_autumn_tail_packet']);
+  api.commit();
+  const postAutumnLower = clone(api.getState());
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  api.patchState({ 铜钱: Math.max(api.getState().铜钱 || 0, 180) });
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_home', 'e_copy', 'e_winter_open_packet']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  api.patchState({ 铜钱: Math.max(api.getState().铜钱 || 0, 180) });
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_guarantee', 'e_rest', 'e_winter_mid_packet']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSpringLower,
+      resolveSpringLower,
+      stageSummerUpper,
+      resolveSummerUpper,
+      stageSummerLower,
+      resolveSummerLower,
+      stageAutumnUpper,
+      resolveAutumnUpper,
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper,
+      stageWinterMid,
+      resolveWinterMid
+    },
+    postSpringUpper: {
+      家族: postSpringUpper.家族,
+      本年举业季务: postSpringUpper.本年举业季务
+    },
+    postSpringLower: {
+      本年归家次数: postSpringLower.本年归家次数,
+      本年誊抄次数: postSpringLower.本年誊抄次数,
+      本年举业季务: postSpringLower.本年举业季务
+    },
+    postSummerUpper: {
+      体魄: postSummerUpper.体魄,
+      本年馆课次数: postSummerUpper.本年馆课次数,
+      本年举业季务: postSummerUpper.本年举业季务
+    },
+    postSummerLower: {
+      体魄: postSummerLower.体魄,
+      本年举业季务: postSummerLower.本年举业季务
+    },
+    postAutumnUpper: {
+      家族: postAutumnUpper.家族,
+      本年举业季务: postAutumnUpper.本年举业季务
+    },
+    postAutumnLower: {
+      本年下场: postAutumnLower.本年下场,
+      本年举业季务: postAutumnLower.本年举业季务
+    },
+    postWinterUpper: {
+      本年归家次数: postWinterUpper.本年归家次数,
+      本年誊抄次数: postWinterUpper.本年誊抄次数,
+      本年举业季务: postWinterUpper.本年举业季务
+    },
+    postWinterMid: {
+      本年誊抄次数: postWinterMid.本年誊抄次数,
+      本年将养次数: postWinterMid.本年将养次数,
+      本年举业季务: postWinterMid.本年举业季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('先把拜师帖与开春锅火分开')
+      && resolveSpringUpper.includes('先把拜师帖与开春锅火分开')
+      && Array.isArray(postSpringUpper.本年举业季务)
+      && postSpringUpper.家族 >= 66
+      && postSpringUpper.本年举业季务.some((tag) => String(tag).includes('拆春课开销'))
+      && stageSpringLower.includes('先把春尾扇药与塾门回帖分开')
+      && resolveSpringLower.includes('先把春尾扇药与塾门回帖分开')
+      && postSpringLower.本年归家次数 >= 3
+      && postSpringLower.本年誊抄次数 >= 1
+      && postSpringLower.本年举业季务.some((tag) => String(tag).includes('拆春尾扇药'))
+      && stageSummerUpper.includes('先把伏夏馆账与凉茶脚费分开')
+      && resolveSummerUpper.includes('先把伏夏馆账与凉茶脚费分开')
+      && postSummerUpper.本年馆课次数 >= 1
+      && postSummerUpper.本年举业季务.some((tag) => String(tag).includes('拆伏夏馆账'))
+      && stageSummerLower.includes('先把夏尾衣药与回家带药小耗分开')
+      && resolveSummerLower.includes('先把夏尾衣药与回家带药小耗分开')
+      && postSummerLower.本年举业季务.some((tag) => String(tag).includes('拆夏尾衣药'))
+      && stageAutumnUpper.includes('先把秋前盘缠与拜帖小礼分开')
+      && resolveAutumnUpper.includes('先把秋前盘缠与拜帖小礼分开')
+      && resolveAutumnUpper.includes('〔秋头夹衣〕')
+      && postAutumnUpper.家族 >= 68
+      && postAutumnUpper.本年举业季务.some((tag) => String(tag).includes('拆秋前盘缠'))
+      && postAutumnUpper.本年举业季务.some((tag) => String(tag).includes('秋头夹衣已分'))
+      && stageAutumnLower.includes('先把临场盘缠与誊卷纸样分开')
+      && resolveAutumnLower.includes('〔临场盘缠〕')
+      && postAutumnLower.本年下场 === false
+      && postAutumnLower.本年举业季务.some((tag) => String(tag).includes('临场盘缠已留'))
+      && stageWinterUpper.includes('先把年关纸墨与来春定钱分开')
+      && resolveWinterUpper.includes('先把年关纸墨与来春定钱分开')
+      && resolveWinterUpper.includes('〔冬头馆信〕')
+      && postWinterUpper.本年归家次数 >= 4
+      && postWinterUpper.本年誊抄次数 >= 4
+      && postWinterUpper.本年举业季务.some((tag) => String(tag).includes('拆年关纸墨'))
+      && postWinterUpper.本年举业季务.some((tag) => String(tag).includes('冬头馆信已分'))
+      && stageWinterMid.includes('先把冬中灯炭与旧馆回话脚费分开')
+      && resolveWinterMid.includes('先把冬中灯炭与旧馆回话脚费分开')
+      && postWinterMid.本年誊抄次数 >= 4
+      && postWinterMid.本年举业季务.some((tag) => String(tag).includes('拆冬中灯炭'))
+      && includesOrderedPhases(phaseTrace, ['civilExam'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamStudyChainRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(2828);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: false, 识字进度: 0, 铜钱: 420, 存米: 2, 家族: 64 });
+  api.setRandomSequence(new Array(40).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_enroll', 'e_literacy', 'e_home']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_literacy', 'e_home', 'e_spring_packet']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  const resolveSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['e_copy', 'e_home']);
+  api.commit();
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_enroll', 'e_tutor', 'e_spring_open_packet']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSpringMid,
+      resolveSpringMid,
+      stageSummerUpper,
+      resolveSummerUpper
+    },
+    postSpringUpper: {
+      投塾进度: postSpringUpper.投塾进度,
+      本年投塾次数: postSpringUpper.本年投塾次数,
+      识字进度: postSpringUpper.识字进度,
+      本年识字旬数: postSpringUpper.本年识字旬数
+    },
+    postSpringMid: {
+      识字: postSpringMid.识字,
+      识字进度: postSpringMid.识字进度,
+      本年识字旬数: postSpringMid.本年识字旬数
+    },
+    postSummerUpper: {
+      投塾进度: postSummerUpper.投塾进度,
+      本年投塾次数: postSummerUpper.本年投塾次数,
+      本年馆课次数: postSummerUpper.本年馆课次数,
+      读书方式: postSummerUpper.读书方式
+    },
+    ok: stageSpringUpper.includes('先递塾帖试坐馆')
+      && stageSpringUpper.includes('先开蒙识字')
+      && resolveSpringUpper.includes('投塾进度推进到')
+      && !resolveSpringUpper.includes('举业只是在账边打转')
+      && postSpringUpper.投塾进度 >= 1
+      && postSpringUpper.本年投塾次数 >= 1
+      && postSpringUpper.识字进度 >= 1
+      && postSpringUpper.本年识字旬数 >= 1
+      && stageSpringMid.includes('补一旬认字开蒙')
+      && resolveSpringMid.includes('满2开蒙识字')
+      && postSpringMid.识字 === true
+      && postSpringMid.本年识字旬数 >= 2
+      && stageSummerUpper.includes('夏课')
+      && stageSummerUpper.includes('催塾门回话')
+      && resolveSummerUpper.includes('塾门终于坐实')
+      && postSummerUpper.投塾进度 >= 2
+      && postSummerUpper.本年投塾次数 >= 2
+      && postSummerUpper.本年馆课次数 >= 1
+      && postSummerUpper.读书方式 === '塾馆'
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamGuaranteePrepRegression() {
+  const { api: prepApi, elements: prepElements, window: prepWindow } = createHarness();
+  prepApi.setRandomSeed(2831);
+  chooseRoute(prepApi, '路径五 · 读书应举');
+  prepApi.patchState({
+    识字: true,
+    识字进度: 2,
+    铜钱: 480,
+    存米: 2,
+    家族: 58,
+    供读状态: '家中供读',
+    投塾进度: 2,
+    读书方式: '塾馆',
+    文章火候: 2
+  });
+  prepApi.setRandomSequence(new Array(20).fill(0.2));
+  prepApi.enterPhase('civilExam');
+  prepApi.patchState({
+    举业年: 1,
+    举季: 1,
+    举旬: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1
+  });
+  prepApi.enterPhase('civilExam');
+  const prepStage = normalizeHtml(prepElements.get('stage').innerHTML);
+  pickByPlan(prepApi, ['e_guarantee_prep']);
+  prepApi.commit();
+  const prepPost = clone(prepApi.getState());
+  const prepResolve = normalizeHtml(prepElements.get('stage').innerHTML);
+  const prepStatus = normalizeHtml(prepElements.get('status').innerHTML);
+
+  const { api: plainApi, elements: plainElements, window: plainWindow } = createHarness();
+  plainApi.setRandomSeed(2832);
+  chooseRoute(plainApi, '路径五 · 读书应举');
+  plainApi.patchState({
+    识字: true,
+    识字进度: 2,
+    铜钱: 520,
+    存米: 2,
+    家族: 44,
+    供读状态: '家中供读',
+    投塾进度: 2,
+    读书方式: '塾馆',
+    文章火候: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年保帖底样次数: 0
+  });
+  plainApi.setRandomSequence(new Array(20).fill(0.2));
+  plainApi.enterPhase('civilExam');
+  plainApi.patchState({
+    举业年: 2,
+    举季: 3,
+    举旬: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年保帖底样次数: 0
+  });
+  plainApi.enterPhase('civilExam');
+  const plainStage = normalizeHtml(plainElements.get('stage').innerHTML);
+  pickByPlan(plainApi, ['e_guarantee']);
+  plainApi.commit();
+  const plainPost = clone(plainApi.getState());
+  const plainResolve = normalizeHtml(plainElements.get('stage').innerHTML);
+
+  const { api: readyApi, elements: readyElements, window: readyWindow } = createHarness();
+  readyApi.setRandomSeed(2833);
+  chooseRoute(readyApi, '路径五 · 读书应举');
+  readyApi.patchState({
+    识字: true,
+    识字进度: 2,
+    铜钱: 520,
+    存米: 2,
+    家族: 44,
+    供读状态: '家中供读',
+    投塾进度: 2,
+    读书方式: '塾馆',
+    文章火候: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年保帖底样次数: 2
+  });
+  readyApi.setRandomSequence(new Array(20).fill(0.2));
+  readyApi.enterPhase('civilExam');
+  readyApi.patchState({
+    举业年: 2,
+    举季: 3,
+    举旬: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年保帖底样次数: 2
+  });
+  readyApi.enterPhase('civilExam');
+  const readyStage = normalizeHtml(readyElements.get('stage').innerHTML);
+  pickByPlan(readyApi, ['e_guarantee']);
+  readyApi.commit();
+  const readyPost = clone(readyApi.getState());
+  const readyResolve = normalizeHtml(readyElements.get('stage').innerHTML);
+  const readyStatus = normalizeHtml(readyElements.get('status').innerHTML);
+
+  return {
+    prep: {
+      stage: prepStage,
+      resolve: prepResolve,
+      status: prepStatus,
+      post: {
+        本年保帖底样次数: prepPost.本年保帖底样次数,
+        本年保结支出文: prepPost.本年保结支出文,
+        本年举业季务: prepPost.本年举业季务
+      }
+    },
+    plain: {
+      stage: plainStage,
+      resolve: plainResolve,
+      post: {
+        保结进度: plainPost.保结进度,
+        供读压力: plainPost.供读压力
+      }
+    },
+    ready: {
+      stage: readyStage,
+      resolve: readyResolve,
+      status: readyStatus,
+      post: {
+        保结进度: readyPost.保结进度,
+        本年保结次数: readyPost.本年保结次数
+      }
+    },
+    ok: prepStage.includes('先抄保结帖样与履历草单')
+      && prepResolve.includes('保帖底样+1')
+      && prepPost.本年保帖底样次数 >= 1
+      && prepPost.本年保结支出文 >= 20
+      && Array.isArray(prepPost.本年举业季务)
+      && prepPost.本年举业季务.some((tag) => String(tag).includes('保结底样'))
+      && prepStage.includes('保帖底样=0旬')
+      && plainStage.includes('先递保结帖样')
+      && plainResolve.includes('保结进度未动')
+      && plainPost.保结进度 === 0
+      && plainStage.includes('保帖底样=0旬')
+      && readyStage.includes('先递保结帖样')
+      && readyStage.includes('保帖底样=2旬')
+      && readyResolve.includes('保结进度推进到“已递帖样”')
+      && readyPost.保结进度 >= 1
+      && readyPost.本年保结次数 >= 1
+      && (prepWindow.__INV || []).length === 0
+      && (plainWindow.__INV || []).length === 0
+      && (readyWindow.__INV || []).length === 0
+  };
+}
+
+function runExamTutorSeatGateRegression() {
+  const { api: looseApi, elements: looseElements, window: looseWindow } = createHarness();
+  looseApi.setRandomSeed(2829);
+  chooseRoute(looseApi, '路径五 · 读书应举');
+  looseApi.patchState({ 识字: true, 识字进度: 2, 铜钱: 420, 存米: 2, 家族: 64, 供读压力: 0 });
+  looseApi.setRandomSequence(new Array(20).fill(0.2));
+  looseApi.enterPhase('civilExam');
+  const looseStage = normalizeHtml(looseElements.get('stage').innerHTML);
+  pickByPlan(looseApi, ['e_tutor']);
+  looseApi.commit();
+  const loosePost = clone(looseApi.getState());
+  const looseResolve = normalizeHtml(looseElements.get('stage').innerHTML);
+  const looseStatus = normalizeHtml(looseElements.get('status').innerHTML);
+
+  const { api: seatedApi, elements: seatedElements, window: seatedWindow } = createHarness();
+  seatedApi.setRandomSeed(2830);
+  chooseRoute(seatedApi, '路径五 · 读书应举');
+  seatedApi.patchState({ 识字: true, 识字进度: 2, 铜钱: 420, 存米: 2, 家族: 64, 供读压力: 0 });
+  seatedApi.setRandomSequence(new Array(20).fill(0.2));
+  seatedApi.enterPhase('civilExam');
+  const seatedStage = normalizeHtml(seatedElements.get('stage').innerHTML);
+  pickByPlan(seatedApi, ['e_enroll', 'e_tutor']);
+  seatedApi.commit();
+  const seatedPost = clone(seatedApi.getState());
+  const seatedResolve = normalizeHtml(seatedElements.get('stage').innerHTML);
+  const seatedStatus = normalizeHtml(seatedElements.get('status').innerHTML);
+
+  return {
+    loose: {
+      stage: looseStage,
+      resolve: looseResolve,
+      status: looseStatus,
+      post: {
+        投塾进度: loosePost.投塾进度,
+        读书方式: loosePost.读书方式,
+        本年馆课次数: loosePost.本年馆课次数,
+        文章火候: loosePost.文章火候
+      }
+    },
+    seated: {
+      stage: seatedStage,
+      resolve: seatedResolve,
+      status: seatedStatus,
+      post: {
+        投塾进度: seatedPost.投塾进度,
+        读书方式: seatedPost.读书方式,
+        本年馆课次数: seatedPost.本年馆课次数,
+        文章火候: seatedPost.文章火候
+      }
+    },
+    ok: looseStage.includes('先入塾定今年馆课')
+      && looseResolve.includes('只算借馆旁听')
+      && loosePost.投塾进度 === 0
+      && loosePost.读书方式 === '未定'
+      && loosePost.本年馆课次数 === 0
+      && loosePost.文章火候 >= 1
+      && looseStatus.includes('举链 <b>先认字再投塾</b>')
+      && seatedStage.includes('先递塾帖试坐馆')
+      && seatedResolve.includes('先把今年馆课定下来')
+      && seatedPost.投塾进度 >= 1
+      && seatedPost.读书方式 === '塾馆'
+      && seatedPost.本年馆课次数 >= 1
+      && seatedStatus.includes('举链 <b>首年先稳投塾</b>')
+      && (looseWindow.__INV || []).length === 0
+      && (seatedWindow.__INV || []).length === 0
+  };
+}
+
+function runExamSchoolSeatGateRegression() {
+  const { api: looseApi, elements: looseElements, window: looseWindow } = createHarness();
+  looseApi.setRandomSeed(2831);
+  chooseRoute(looseApi, '路径五 · 读书应举');
+  looseApi.patchState({ 识字: false, 识字进度: 0, 铜钱: 420, 存米: 2, 家族: 64, 供读压力: 0 });
+  looseApi.setRandomSequence(new Array(20).fill(0.2));
+  looseApi.enterPhase('civilExam');
+  const looseStage = normalizeHtml(looseElements.get('stage').innerHTML);
+  pickByPlan(looseApi, ['e_school']);
+  looseApi.commit();
+  const loosePost = clone(looseApi.getState());
+  const looseResolve = normalizeHtml(looseElements.get('stage').innerHTML);
+  const looseStatus = normalizeHtml(looseElements.get('status').innerHTML);
+
+  const { api: seatedApi, elements: seatedElements, window: seatedWindow } = createHarness();
+  seatedApi.setRandomSeed(2832);
+  chooseRoute(seatedApi, '路径五 · 读书应举');
+  seatedApi.patchState({ 识字: true, 识字进度: 2, 铜钱: 420, 存米: 2, 家族: 64, 供读压力: 0 });
+  seatedApi.setRandomSequence(new Array(20).fill(0.2));
+  seatedApi.enterPhase('civilExam');
+  const seatedStage = normalizeHtml(seatedElements.get('stage').innerHTML);
+  pickByPlan(seatedApi, ['e_school']);
+  seatedApi.commit();
+  const seatedPost = clone(seatedApi.getState());
+  const seatedResolve = normalizeHtml(seatedElements.get('stage').innerHTML);
+  const seatedStatus = normalizeHtml(seatedElements.get('status').innerHTML);
+
+  return {
+    loose: {
+      stage: looseStage,
+      resolve: looseResolve,
+      status: looseStatus,
+      post: {
+        读书方式: loosePost.读书方式,
+        本年寄读次数: loosePost.本年寄读次数,
+        供读压力: loosePost.供读压力,
+        家族: loosePost.家族
+      }
+    },
+    seated: {
+      stage: seatedStage,
+      resolve: seatedResolve,
+      status: seatedStatus,
+      post: {
+        读书方式: seatedPost.读书方式,
+        本年寄读次数: seatedPost.本年寄读次数,
+        投塾进度: seatedPost.投塾进度,
+        文章火候: seatedPost.文章火候
+      }
+    },
+    ok: looseStage.includes('投社学/寄读')
+      && looseResolve.includes('读书方式仍未坐实')
+      && loosePost.读书方式 === '未定'
+      && loosePost.本年寄读次数 === 0
+      && loosePost.供读压力 >= 1
+      && looseStatus.includes('举链 <b>先认字再投塾</b>')
+      && seatedStage.includes('投社学/寄读')
+      && seatedResolve.includes('低成本读法坐到了“社学/寄读”')
+      && seatedPost.读书方式 === '社学寄读'
+      && seatedPost.本年寄读次数 >= 1
+      && seatedPost.投塾进度 >= 1
+      && seatedPost.文章火候 >= 1
+      && seatedStatus.includes('社学/寄读')
+      && seatedStatus.includes('举链 <b>首年先坐读法</b>')
+      && (looseWindow.__INV || []).length === 0
+      && (seatedWindow.__INV || []).length === 0
+  };
+}
+
+function runExamFoundationLiteracyRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(2866);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 识字进度: 2, 铜钱: 420, 存米: 2, 家族: 64, 文章火候: 0 });
+  api.setRandomSequence(new Array(20).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_literacy', 'e_enroll', 'e_home']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper
+    },
+    postSpringUpper: {
+      识字: postSpringUpper.识字,
+      识字进度: postSpringUpper.识字进度,
+      本年识字旬数: postSpringUpper.本年识字旬数,
+      文章火候: postSpringUpper.文章火候,
+      投塾进度: postSpringUpper.投塾进度
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('温三百千与题样')
+      && stageSpringUpper.includes('识字底子=三百千底子')
+      && resolveSpringUpper.includes('这不是从零开蒙')
+      && postSpringUpper.识字 === true
+      && postSpringUpper.识字进度 >= 3
+      && postSpringUpper.本年识字旬数 >= 1
+      && postSpringUpper.文章火候 >= 1
+      && postSpringUpper.投塾进度 >= 1
+      && includesOrderedPhases(phaseTrace, ['civilExam'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamAttemptGateRegression() {
+  const { api: midApi, window: midWindow } = createHarness();
+  midApi.setRandomSeed(2888);
+  chooseRoute(midApi, '路径五 · 读书应举');
+  midApi.patchState({
+    识字: true, 铜钱: 320, 存米: 2, 家族: 64,
+    举季: 1, 举旬: 2, 举段: 2,
+    投塾进度: 0, 本年馆课次数: 0, 本年半读次数: 0, 本年寄读次数: 0,
+    文章火候: 1, 本年评文次数: 0, 保结进度: 0
+  });
+  midApi.enterPhase('civilExam');
+  const midActions = availableMap(midApi);
+  const essayAction = midActions.get('e_essay');
+
+  const { api: examApi, window: examWindow } = createHarness();
+  examApi.setRandomSeed(2889);
+  chooseRoute(examApi, '路径五 · 读书应举');
+  examApi.patchState({
+    识字: true, 铜钱: 420, 存米: 2, 家族: 64,
+    举业年: 2,
+    举季: 3, 举旬: 3, 举段: 3,
+    投塾进度: 1, 本年馆课次数: 1, 本年半读次数: 0, 本年寄读次数: 0,
+    文章火候: 1, 本年评文次数: 0, 保结进度: 2, 供读压力: 0
+  });
+  examApi.enterPhase('civilExam');
+  const examActions = availableMap(examApi);
+  const blockedExamAction = examActions.get('e_exam');
+
+  const { api: readyApi, window: readyWindow } = createHarness();
+  readyApi.setRandomSeed(2890);
+  chooseRoute(readyApi, '路径五 · 读书应举');
+  readyApi.patchState({
+    识字: true, 铜钱: 420, 存米: 2, 家族: 64,
+    举业年: 3,
+    举季: 3, 举旬: 3, 举段: 3,
+    投塾进度: 1, 本年馆课次数: 1, 本年半读次数: 0, 本年寄读次数: 0,
+    文章火候: 2, 本年评文次数: 1, 保结进度: 2, 供读压力: 0
+  });
+  readyApi.enterPhase('civilExam');
+  const readyActions = availableMap(readyApi);
+  const readyExamAction = readyActions.get('e_exam');
+
+  return {
+    essayGate: essayAction ? { can: essayAction.can, why: essayAction.why } : null,
+    examGate: blockedExamAction ? { can: blockedExamAction.can, why: blockedExamAction.why } : null,
+    readyExam: readyExamAction ? { can: readyExamAction.can, why: readyExamAction.why } : null,
+    ok: !!essayAction
+      && essayAction.can === false
+      && String(essayAction.why || '').includes('先把塾门或半读读法坐实')
+      && !!blockedExamAction
+      && blockedExamAction.can === false
+      && String(blockedExamAction.why || '').includes('第三年再真下场')
+      && !!readyExamAction
+      && readyExamAction.can === true
+      && (midWindow.__INV || []).length === 0
+      && (examWindow.__INV || []).length === 0
+      && (readyWindow.__INV || []).length === 0
+  };
+}
+
+function runExamTierSplitRegression() {
+  function playAttempt(level) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(2891 + level);
+    chooseRoute(api, '路径五 · 读书应举');
+    api.patchState({
+      识字: true,
+      识字进度: 3,
+      铜钱: 520,
+      存米: 3,
+      家族: 66,
+      供读压力: 0,
+      举业年: 3,
+      举季: 3,
+      举旬: 3,
+      举段: 9,
+      投塾进度: 2,
+      读书方式: '塾馆',
+      本年馆课次数: 2,
+      本年评文次数: 2,
+      文章火候: 5,
+      保结进度: 2,
+      童试层级: level,
+      本年应试结果: '未下场',
+      本年下场: false
+    });
+    api.setRandomSequence([0.64, 0.64, 0.64, 0.64]);
+    api.enterPhase('civilExam');
+    const statusBefore = normalizeHtml(elements.get('status').innerHTML);
+    const examAction = availableMap(api).get('e_exam');
+    pickByPlan(api, ['e_exam']);
+    api.commit();
+    return {
+      statusBefore,
+      resolveStage: normalizeHtml(elements.get('stage').innerHTML),
+      postState: clone(api.getState()),
+      examAction,
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  function settleFinalOutcome(level) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(2990 + level);
+    chooseRoute(api, '路径五 · 读书应举');
+    api.patchState({
+      年龄: 18,
+      识字: true,
+      识字进度: 3,
+      铜钱: 280,
+      存米: 2,
+      家族: 60,
+      体魄: 55,
+      供读状态: '紧供',
+      供读压力: 1,
+      举业年: 3,
+      举季: 4,
+      举旬: 3,
+      举段: 12,
+      投塾进度: 2,
+      读书方式: '塾馆',
+      本年馆课次数: 1,
+      本年评文次数: 1,
+      文章火候: 4,
+      保结进度: 2,
+      童试层级: level,
+      本年应试结果: '落第',
+      本年落第次数: 1,
+      本年下场: false,
+      举业累计落第次数: 1
+    });
+    api.enterPhase('civilExam');
+    const finalStage = normalizeHtml(elements.get('stage').innerHTML);
+    pickByPlan(api, ['e_home', 'e_rest']);
+    api.commit();
+    return {
+      finalStage,
+      postState: clone(api.getState()),
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  const county = playAttempt(0);
+  const prefecture = playAttempt(1);
+  const countyEnd = settleFinalOutcome(1);
+  const prefectureEnd = settleFinalOutcome(2);
+
+  return {
+    county: {
+      statusBefore: county.statusBefore,
+      examAction: county.examAction ? { name: county.examAction.name, eff: county.examAction.eff } : null,
+      resolveStage: county.resolveStage,
+      postState: {
+        本年应试结果: county.postState.本年应试结果,
+        童试层级: county.postState.童试层级,
+        本年已落举业支出文: county.postState.本年已落举业支出文
+      }
+    },
+    prefecture: {
+      statusBefore: prefecture.statusBefore,
+      examAction: prefecture.examAction ? { name: prefecture.examAction.name, eff: prefecture.examAction.eff } : null,
+      resolveStage: prefecture.resolveStage,
+      postState: {
+        本年应试结果: prefecture.postState.本年应试结果,
+        童试层级: prefecture.postState.童试层级,
+        本年已落举业支出文: prefecture.postState.本年已落举业支出文
+      }
+    },
+    yearEnd: {
+      countyEnd: {
+        finalStage: countyEnd.finalStage,
+        举业结局: countyEnd.postState.举业结局
+      },
+      prefectureEnd: {
+        finalStage: prefectureEnd.finalStage,
+        举业结局: prefectureEnd.postState.举业结局
+      }
+    },
+    ok: county.statusBefore.includes('本次应场')
+      && county.statusBefore.includes('县试')
+      && prefecture.statusBefore.includes('府试')
+      && county.examAction
+      && county.examAction.name.includes('县试')
+      && county.examAction.eff.includes('县试回话')
+      && county.postState.本年应试结果 === '县试已过'
+      && county.postState.童试层级 === 1
+      && county.resolveStage.includes('县试回话')
+      && prefecture.examAction
+      && prefecture.examAction.name.includes('府试')
+      && prefecture.examAction.eff.includes('府试回话')
+      && prefecture.postState.本年应试结果 === '落第'
+      && prefecture.postState.童试层级 === 1
+      && prefecture.resolveStage.includes('府试回话')
+      && prefecture.postState.本年已落举业支出文 > county.postState.本年已落举业支出文
+      && countyEnd.postState.举业结局 === '县试未冠'
+      && prefectureEnd.postState.举业结局 === '府试未冠'
+      && (county.inv || []).length === 0
+      && (prefecture.inv || []).length === 0
+      && (countyEnd.inv || []).length === 0
+      && (prefectureEnd.inv || []).length === 0
+  };
+}
+
+function runExamReplyFrictionRegression() {
+  const { api: enrollApi, elements: enrollElements, window: enrollWindow } = createHarness();
+  enrollApi.setRandomSeed(2891);
+  chooseRoute(enrollApi, '路径五 · 读书应举');
+  enrollApi.patchState({
+    识字: false,
+    识字进度: 0,
+    铜钱: 220,
+    存米: 1,
+    家族: 46,
+    供读压力: 3
+  });
+  enrollApi.enterPhase('civilExam');
+  const enrollStage = normalizeHtml(enrollElements.get('stage').innerHTML);
+  pickByPlan(enrollApi, ['e_enroll', 'e_home']);
+  enrollApi.commit();
+  const enrollState = clone(enrollApi.getState());
+  const enrollResolve = normalizeHtml(enrollElements.get('stage').innerHTML);
+
+  const { api: guaranteeApi, elements: guaranteeElements, window: guaranteeWindow } = createHarness();
+  guaranteeApi.setRandomSeed(2892);
+  chooseRoute(guaranteeApi, '路径五 · 读书应举');
+  guaranteeApi.patchState({
+    识字: true,
+    铜钱: 320,
+    存米: 2,
+    家族: 48,
+    供读压力: 3,
+    举业年: 2,
+    举季: 3,
+    举旬: 2,
+    举段: 2,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    本年馆课次数: 1,
+    文章火候: 2,
+    本年评文次数: 1,
+    保结进度: 1
+  });
+  guaranteeApi.enterPhase('civilExam');
+  const guaranteeStage = normalizeHtml(guaranteeElements.get('stage').innerHTML);
+  pickByPlan(guaranteeApi, ['e_guarantee', 'e_copy']);
+  guaranteeApi.commit();
+  const guaranteeState = clone(guaranteeApi.getState());
+  const guaranteeResolve = normalizeHtml(guaranteeElements.get('stage').innerHTML);
+
+  return {
+    enroll: {
+      enrollStage,
+      enrollResolve,
+      state: {
+        投塾进度: enrollState.投塾进度,
+        本年投塾次数: enrollState.本年投塾次数,
+        家族: enrollState.家族,
+        供读压力: enrollState.供读压力
+      },
+      ok: enrollStage.includes('先递塾帖试坐馆')
+        && enrollResolve.includes('塾门却还只肯说“再看看”')
+        && enrollResolve.includes('投塾进度没坐实')
+        && enrollState.投塾进度 === 0
+        && enrollState.本年投塾次数 === 1
+        && enrollState.家族 === 48
+        && enrollState.供读压力 === 3
+        && (enrollWindow.__INV || []).length === 0
+    },
+    guarantee: {
+      guaranteeStage,
+      guaranteeResolve,
+      state: {
+        保结进度: guaranteeState.保结进度,
+        本年保结次数: guaranteeState.本年保结次数,
+        家族: guaranteeState.家族,
+        供读压力: guaranteeState.供读压力
+      },
+      ok: guaranteeStage.includes('赶在秋里通保结')
+        && guaranteeResolve.includes('廪保和互结这一旬却还没肯把口风放实')
+        && guaranteeResolve.includes('保结进度未动')
+        && guaranteeState.保结进度 === 1
+        && guaranteeState.本年保结次数 === 1
+        && guaranteeState.家族 < 48
+        && guaranteeState.供读压力 >= 4
+        && (guaranteeWindow.__INV || []).length === 0
+    },
+    ok: enrollStage.includes('先递塾帖试坐馆')
+      && enrollResolve.includes('塾门却还只肯说“再看看”')
+      && enrollResolve.includes('投塾进度没坐实')
+      && enrollState.投塾进度 === 0
+      && enrollState.本年投塾次数 === 1
+      && enrollState.家族 === 48
+      && enrollState.供读压力 === 3
+      && guaranteeStage.includes('赶在秋里通保结')
+      && guaranteeResolve.includes('廪保和互结这一旬却还没肯把口风放实')
+      && guaranteeResolve.includes('保结进度未动')
+      && guaranteeState.保结进度 === 1
+      && guaranteeState.本年保结次数 === 1
+      && guaranteeState.家族 < 48
+      && guaranteeState.供读压力 >= 4
+      && (enrollWindow.__INV || []).length === 0
+      && (guaranteeWindow.__INV || []).length === 0
+  };
+}
+
+function runExamSharedSnapshotRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(2727);
+  chooseRoute(api, '路径五 · 读书应举');
+
+  const state = clone(api.getState());
+  const stageHtml = normalizeHtml(elements.get('stage').innerHTML);
+  const ledger = api.getLedger();
+  const stageLog = normalizeHtml(ledger.length ? ledger[ledger.length - 1].note : '');
+
+  return {
+    state: {
+      识字: state.识字,
+      识字进度: state.识字进度,
+      路线: state.路线,
+      起步模式: state._startMode
+    },
+    stage: stageHtml,
+    lastLog: stageLog,
+    ok: state.路线 === '读书应举'
+      && state._startMode === 'establishment'
+      && state.识字 === true
+      && state.识字进度 >= 2
+      && !stageHtml.includes('先开蒙识字')
+      && !stageHtml.includes('补一旬认字开蒙')
+      && stageLog.includes('读过“三百千”')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamFamilySupportLedgerRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(3030);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 90, 存米: 3, 家族: 64, 供读压力: 1 });
+  api.setRandomSequence(new Array(30).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_family_grain', 'e_enroll', 'e_home']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_essay', 'e_home', 'e_spring_packet']);
+  api.commit();
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_home']);
+  api.commit();
+  api.next();
+
+  const stageSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor']);
+  api.commit();
+  const postSummerUpper = clone(api.getState());
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  api.patchState({ 铜钱: Math.max(api.getState().铜钱 || 0, 120) });
+  const stageSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_mid_grain', 'e_copy', 'e_summer_packet']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const resolveSummerMid = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSummerUpper,
+      resolveSummerUpper,
+      stageSummerMid,
+      resolveSummerMid
+    },
+    postSpringUpper: {
+      铜钱: postSpringUpper.铜钱,
+      存米: postSpringUpper.存米,
+      供读压力: postSpringUpper.供读压力,
+      本年家中供读次: postSpringUpper.本年家中供读次,
+      本年家中供读米: postSpringUpper.本年家中供读米,
+      本年投塾次数: postSpringUpper.本年投塾次数
+    },
+    postSummerUpper: {
+      铜钱: postSummerUpper.铜钱,
+      存米: postSummerUpper.存米,
+      本年馆课次数: postSummerUpper.本年馆课次数,
+      读书方式: postSummerUpper.读书方式,
+      本年家中供读米: postSummerUpper.本年家中供读米,
+      本年举业自筹文: postSummerUpper.本年举业自筹文
+    },
+    postSummerMid: {
+      铜钱: postSummerMid.铜钱,
+      存米: postSummerMid.存米,
+      供读压力: postSummerMid.供读压力,
+      本年家中供读次: postSummerMid.本年家中供读次,
+      本年家中供读米: postSummerMid.本年家中供读米,
+      本年举业季务: postSummerMid.本年举业季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageSpringUpper.includes('先粜一石口粮换塾帖纸墨')
+      && resolveSpringUpper.includes('存米-1')
+      && resolveSpringUpper.includes('不是把米自动折成现银')
+      && resolveSpringUpper.includes('〔春课开销〕')
+      && postSpringUpper.存米 === 2
+      && postSpringUpper.铜钱 > 90
+      && postSpringUpper.供读压力 === 0
+      && postSpringUpper.本年家中供读次 >= 2
+      && postSpringUpper.本年家中供读米 === 1
+      && postSpringUpper.本年投塾次数 >= 1
+      && stageSpringMid.includes('春课')
+      && stageSpringLower.includes('春课')
+      && stageSummerUpper.includes('夏课')
+      && postSummerUpper.本年馆课次数 >= 1
+      && postSummerUpper.读书方式 === '塾馆'
+      && postSummerUpper.本年家中供读米 === 1
+      && postSummerUpper.本年举业自筹文 >= 140
+      && stageSummerMid.includes('先把一石存米换伏夏潮纸')
+      && resolveSummerMid.includes('先把一石存米换伏夏潮纸')
+      && resolveSummerMid.includes('不是把米自动折成现银')
+      && postSummerMid.存米 === 1
+      && postSummerMid.本年家中供读次 >= 3
+      && postSummerMid.本年家中供读米 === 2
+      && Array.isArray(postSummerMid.本年举业季务)
+      && postSummerMid.本年举业季务.some((tag) => String(tag).includes('米脚续供'))
+      && includesOrderedPhases(phaseTrace, ['civilExam'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamPublicSupportLedgerRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(3029);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 70, 存米: 2, 家族: 64, 供读压力: 2 });
+  api.setRandomSequence(new Array(20).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_family_cash', 'e_enroll', 'e_home']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  api.patchState({ 铜钱: Math.max(api.getState().铜钱 || 0, 100) });
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_family_cash', 'e_essay', 'e_spring_packet']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  const resolveSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSpringMid,
+      resolveSpringMid
+    },
+    postSpringUpper: {
+      铜钱: postSpringUpper.铜钱,
+      供读压力: postSpringUpper.供读压力,
+      家族: postSpringUpper.家族,
+      本年公账贴补次: postSpringUpper.本年公账贴补次,
+      本年公账贴补文: postSpringUpper.本年公账贴补文,
+      本年家中供读次: postSpringUpper.本年家中供读次,
+      本年待用公账文: postSpringUpper.本年待用公账文
+    },
+    postSpringMid: {
+      铜钱: postSpringMid.铜钱,
+      供读压力: postSpringMid.供读压力,
+      家族: postSpringMid.家族,
+      本年公账贴补次: postSpringMid.本年公账贴补次,
+      本年公账贴补文: postSpringMid.本年公账贴补文,
+      本年家中供读次: postSpringMid.本年家中供读次,
+      本年家中供读公账文: postSpringMid.本年家中供读公账文
+    },
+    ok: stageSpringUpper.includes('先从父账拨春课公账')
+      && stageSpringUpper.includes('户主公账')
+      && resolveSpringUpper.includes('父兄肯在户主公账上明着拨这一口钱')
+      && resolveSpringUpper.includes('不是后台自动配平')
+      && postSpringUpper.本年公账贴补次 === 1
+      && postSpringUpper.本年公账贴补文 === 170
+      && postSpringUpper.本年家中供读次 >= 2
+      && postSpringUpper.供读压力 <= 1
+      && postSpringUpper.家族 >= 69
+      && postSpringUpper.本年待用公账文 >= 120
+      && stageSpringMid.includes('再从父账拨春中纸样钱')
+      && resolveSpringMid.includes('再从父账拨春中纸样钱')
+      && postSpringMid.本年公账贴补次 === 2
+      && postSpringMid.本年公账贴补文 === 340
+      && postSpringMid.本年家中供读次 >= 4
+      && postSpringMid.本年家中供读公账文 >= 120
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamImplicitCashSupportLedgerRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(3028);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 260, 存米: 1, 家族: 64, 供读压力: 1 });
+  api.setRandomSequence(new Array(20).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_enroll', 'e_tutor', 'e_spring_open_packet']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const resolvedStatus = normalizeHtml(elements.get('status').innerHTML);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      resolvedStatus
+    },
+    postSpringUpper: {
+      铜钱: postSpringUpper.铜钱,
+      本年家中供读文: postSpringUpper.本年家中供读文,
+      本年家中供读公账文: postSpringUpper.本年家中供读公账文,
+      本年现钱供读已用文: postSpringUpper.本年现钱供读已用文,
+      本年粜米供读已用文: postSpringUpper.本年粜米供读已用文,
+      本年母纺供读已用文: postSpringUpper.本年母纺供读已用文,
+      本年兄婚供读已用文: postSpringUpper.本年兄婚供读已用文,
+      本年举业自筹已用文: postSpringUpper.本年举业自筹已用文
+    },
+    ok: stageSpringUpper.includes('先递塾帖试坐馆')
+      && stageSpringUpper.includes('先入塾定今年馆课')
+      && stageSpringUpper.includes('先把拜师帖与开春锅火分开')
+      && resolveSpringUpper.includes('投塾进度推进到')
+      && resolveSpringUpper.includes('先把今年馆课定下来')
+      && resolveSpringUpper.includes('先把拜师帖与开春锅火分开')
+      && postSpringUpper.本年家中供读文 >= 190
+      && postSpringUpper.本年现钱供读已用文 >= 190
+      && postSpringUpper.本年家中供读文 === postSpringUpper.本年现钱供读已用文
+      && postSpringUpper.本年家中供读公账文 === 0
+      && postSpringUpper.本年粜米供读已用文 === 0
+      && postSpringUpper.本年母纺供读已用文 === 0
+      && postSpringUpper.本年兄婚供读已用文 === 0
+      && postSpringUpper.本年举业自筹已用文 === 0
+      && resolvedStatus.includes('读法 <b>塾馆</b>')
+      && resolvedStatus.includes('投塾 <b>已递塾帖</b>')
+      && resolvedStatus.includes(`家${postSpringUpper.本年家中供读文}文/0石·自0文`)
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamMaternalSupportLedgerRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(3031);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 80, 存米: 2, 家族: 64, 供读压力: 1 });
+  api.setRandomSequence(new Array(20).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_mother_help', 'e_enroll', 'e_home']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  api.patchState({ 铜钱: Math.max(api.getState().铜钱 || 0, 100) });
+  const stageSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_mid_mother_help', 'e_essay', 'e_spring_packet']);
+  api.commit();
+  const postSpringMid = clone(api.getState());
+  const resolveSpringMid = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSpringMid,
+      resolveSpringMid
+    },
+    postSpringUpper: {
+      铜钱: postSpringUpper.铜钱,
+      供读压力: postSpringUpper.供读压力,
+      本年母纺贴补次: postSpringUpper.本年母纺贴补次,
+      本年母纺贴补文: postSpringUpper.本年母纺贴补文,
+      本年家中供读次: postSpringUpper.本年家中供读次
+    },
+    postSpringMid: {
+      铜钱: postSpringMid.铜钱,
+      供读压力: postSpringMid.供读压力,
+      本年母纺贴补次: postSpringMid.本年母纺贴补次,
+      本年母纺贴补文: postSpringMid.本年母纺贴补文,
+      本年家中供读次: postSpringMid.本年家中供读次
+    },
+    ok: stageSpringUpper.includes('托母亲先挪纺织钱垫塾帖')
+      && stageSpringUpper.includes('纺织私账')
+      && resolveSpringUpper.includes('母亲明着从自己的纺织私账里匀出这一口钱')
+      && postSpringUpper.本年母纺贴补次 === 1
+      && postSpringUpper.本年母纺贴补文 === 150
+      && postSpringUpper.本年家中供读次 >= 2
+      && postSpringUpper.供读压力 === 0
+      && postSpringUpper.铜钱 > 80
+      && stageSpringMid.includes('再托母亲纺线钱补春中纸样')
+      && resolveSpringMid.includes('再托母亲纺线钱补春中纸样')
+      && postSpringMid.本年母纺贴补次 === 2
+      && postSpringMid.本年母纺贴补文 === 300
+      && postSpringMid.本年家中供读次 >= 3
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamSiblingMarriageSupportRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(3032);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 60, 存米: 2, 家族: 64, 供读压力: 2 });
+  api.setRandomSequence(new Array(20).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const stageSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_brother_help', 'e_enroll', 'e_home']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  pickByPlan(api, ['e_essay', 'e_home']);
+  api.commit();
+  api.next();
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tail_brother_help', 'e_spring_tail_packet', 'e_home']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const resolveSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    stageLabels: {
+      stageSpringUpper,
+      resolveSpringUpper,
+      stageSpringLower,
+      resolveSpringLower
+    },
+    postSpringUpper: {
+      铜钱: postSpringUpper.铜钱,
+      供读压力: postSpringUpper.供读压力,
+      家族: postSpringUpper.家族,
+      本年兄婚让读次: postSpringUpper.本年兄婚让读次,
+      本年兄婚让读文: postSpringUpper.本年兄婚让读文,
+      本年延婚牵扯: postSpringUpper.本年延婚牵扯,
+      本年家中供读次: postSpringUpper.本年家中供读次
+    },
+    postSpringLower: {
+      铜钱: postSpringLower.铜钱,
+      供读压力: postSpringLower.供读压力,
+      家族: postSpringLower.家族,
+      本年兄婚让读次: postSpringLower.本年兄婚让读次,
+      本年兄婚让读文: postSpringLower.本年兄婚让读文,
+      本年延婚牵扯: postSpringLower.本年延婚牵扯,
+      本年家中供读次: postSpringLower.本年家中供读次
+    },
+    ok: stageSpringUpper.includes('先缓兄婚事钱换塾帖纸墨')
+      && stageSpringUpper.includes('兄并非默认提款机')
+      && resolveSpringUpper.includes('兄并不是默认让钱')
+      && postSpringUpper.本年兄婚让读次 === 1
+      && postSpringUpper.本年兄婚让读文 === 180
+      && postSpringUpper.供读压力 === 1
+      && postSpringUpper.家族 === 66
+      && postSpringUpper.本年延婚牵扯 === 2
+      && postSpringUpper.本年家中供读次 >= 2
+      && stageSpringLower.includes('再缓兄婚事钱垫春尾香纸')
+      && resolveSpringLower.includes('再缓兄婚事钱垫春尾香纸')
+      && postSpringLower.本年兄婚让读次 === 2
+      && postSpringLower.本年兄婚让读文 === 360
+      && postSpringLower.本年延婚牵扯 >= 4
+      && postSpringLower.本年家中供读次 >= 3
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamMidSiblingSupportRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(3033);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({
+    识字: true,
+    铜钱: 120,
+    存米: 2,
+    家族: 64,
+    供读压力: 2,
+    举季: 2,
+    举旬: 2,
+    举段: 2,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    本年馆课次数: 1,
+    文章火候: 2
+  });
+  api.setRandomSequence(new Array(20).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const summerMidStage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_mid_brother_help', 'e_essay']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const summerMidResolve = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    stageLabels: {
+      summerMidStage,
+      summerMidResolve
+    },
+    postSummerMid: {
+      铜钱: postSummerMid.铜钱,
+      供读状态: postSummerMid.供读状态,
+      供读压力: postSummerMid.供读压力,
+      家族: postSummerMid.家族,
+      本年兄婚让读次: postSummerMid.本年兄婚让读次,
+      本年兄婚让读文: postSummerMid.本年兄婚让读文,
+      本年延婚牵扯: postSummerMid.本年延婚牵扯,
+      本年家中供读次: postSummerMid.本年家中供读次,
+      本年举业季务: postSummerMid.本年举业季务
+    },
+    ok: summerMidStage.includes('再缓兄婚事钱续伏夏馆课')
+      && summerMidResolve.includes('再缓兄婚事钱续伏夏馆课')
+      && summerMidResolve.includes('兄并不是默认让钱')
+      && postSummerMid.本年兄婚让读次 === 1
+      && postSummerMid.本年兄婚让读文 === 190
+      && postSummerMid.供读状态 === '家中供读'
+      && postSummerMid.供读压力 === 1
+      && postSummerMid.家族 === 62
+      && postSummerMid.本年延婚牵扯 >= 1
+      && postSummerMid.本年家中供读次 >= 1
+      && Array.isArray(postSummerMid.本年举业季务)
+      && postSummerMid.本年举业季务.some((tag) => String(tag).includes('兄婚续供'))
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamAutumnBodyCareRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(3034);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({
+    识字: true,
+    铜钱: 260,
+    存米: 2,
+    家族: 64,
+    体魄: 52,
+    供读压力: 0,
+    举季: 3,
+    举旬: 2,
+    举段: 2,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    本年馆课次数: 1,
+    文章火候: 2,
+    本年评文次数: 1,
+    保结进度: 1
+  });
+  api.setRandomSequence(new Array(20).fill(0.9));
+  api.enterPhase('civilExam');
+
+  const autumnMidStage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_autumn_packet', 'e_autumn_cough']);
+  api.commit();
+  const postAutumnMid = clone(api.getState());
+  const autumnMidResolve = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    stageLabels: {
+      autumnMidStage,
+      autumnMidResolve
+    },
+    postAutumnMid: {
+      铜钱: postAutumnMid.铜钱,
+      体魄: postAutumnMid.体魄,
+      家族: postAutumnMid.家族,
+      本年将养次数: postAutumnMid.本年将养次数,
+      本年衣药支出文: postAutumnMid.本年衣药支出文,
+      本年举业季务: postAutumnMid.本年举业季务
+    },
+    ok: autumnMidStage.includes('先把秋凉药包与试鞋脚费分开')
+      && autumnMidResolve.includes('先把秋凉药包与试鞋脚费分开')
+      && autumnMidResolve.includes('秋试中旬这层')
+      && postAutumnMid.体魄 === 53
+      && postAutumnMid.家族 === 66
+      && postAutumnMid.本年将养次数 === 1
+      && postAutumnMid.本年衣药支出文 === 60
+      && Array.isArray(postAutumnMid.本年举业季务)
+      && postAutumnMid.本年举业季务.some((tag) => String(tag).includes('秋中寒热'))
+      && postAutumnMid.本年举业季务.some((tag) => String(tag).includes('秋后纸墨已拆'))
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamShoulderBodySplitRegression() {
+  const autumnHarness = createHarness();
+  const autumnApi = autumnHarness.api;
+  const autumnElements = autumnHarness.elements;
+  const autumnWindow = autumnHarness.window;
+  autumnApi.setRandomSeed(3035);
+  chooseRoute(autumnApi, '路径五 · 读书应举');
+  autumnApi.patchState({
+    识字: true,
+    铜钱: 280,
+    存米: 2,
+    家族: 64,
+    体魄: 51,
+    供读压力: 0,
+    举季: 3,
+    举旬: 1,
+    举段: 1,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    本年馆课次数: 1,
+    文章火候: 2,
+    本年评文次数: 1,
+    保结进度: 1
+  });
+  autumnApi.setRandomSequence(new Array(20).fill(0.9));
+  autumnApi.enterPhase('civilExam');
+  const autumnStage = normalizeHtml(autumnElements.get('stage').innerHTML);
+  pickByPlan(autumnApi, ['e_autumn_open_packet', 'e_autumn_open_cloth']);
+  autumnApi.commit();
+  const postAutumn = clone(autumnApi.getState());
+  const autumnResolve = normalizeHtml(autumnElements.get('stage').innerHTML);
+
+  const winterHarness = createHarness();
+  const winterApi = winterHarness.api;
+  const winterElements = winterHarness.elements;
+  const winterWindow = winterHarness.window;
+  winterApi.setRandomSeed(3036);
+  chooseRoute(winterApi, '路径五 · 读书应举');
+  winterApi.patchState({
+    识字: true,
+    铜钱: 320,
+    存米: 1,
+    家族: 65,
+    体魄: 49,
+    供读压力: 1,
+    举季: 4,
+    举旬: 1,
+    举段: 1,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    本年馆课次数: 1,
+    文章火候: 3,
+    本年评文次数: 1,
+    保结进度: 2
+  });
+  winterApi.setRandomSequence(new Array(20).fill(0.9));
+  winterApi.enterPhase('civilExam');
+  const winterStage = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['e_winter_open_packet', 'e_winter_open_reply']);
+  winterApi.commit();
+  const postWinter = clone(winterApi.getState());
+  const winterResolve = normalizeHtml(winterElements.get('stage').innerHTML);
+
+  return {
+    autumn: {
+      stage: autumnStage,
+      resolve: autumnResolve,
+      state: {
+        铜钱: postAutumn.铜钱,
+        体魄: postAutumn.体魄,
+        家族: postAutumn.家族,
+        本年将养次数: postAutumn.本年将养次数,
+        本年衣药支出文: postAutumn.本年衣药支出文,
+        本年举业季务: postAutumn.本年举业季务
+      }
+    },
+    winter: {
+      stage: winterStage,
+      resolve: winterResolve,
+      state: {
+        铜钱: postWinter.铜钱,
+        体魄: postWinter.体魄,
+        家族: postWinter.家族,
+        本年将养次数: postWinter.本年将养次数,
+        本年衣药支出文: postWinter.本年衣药支出文,
+        本年举业季务: postWinter.本年举业季务
+      }
+    },
+    ok: autumnStage.includes('先把秋头夹衣与试鞋脚费分开')
+      && autumnResolve.includes('先把秋头夹衣与试鞋脚费分开')
+      && postAutumn.体魄 === 52
+      && postAutumn.家族 === 66
+      && postAutumn.本年将养次数 === 1
+      && postAutumn.本年衣药支出文 === 55
+      && Array.isArray(postAutumn.本年举业季务)
+      && postAutumn.本年举业季务.some((tag) => String(tag).includes('拆秋前盘缠'))
+      && postAutumn.本年举业季务.some((tag) => String(tag).includes('拆秋头夹衣'))
+      && (autumnWindow.__INV || []).length === 0
+      && winterStage.includes('先把冬头馆信与护嗓灯油分开')
+      && winterResolve.includes('先把冬头馆信与护嗓灯油分开')
+      && postWinter.体魄 === 50
+      && postWinter.家族 === 67
+      && postWinter.本年将养次数 === 1
+      && postWinter.本年衣药支出文 === 35
+      && Array.isArray(postWinter.本年举业季务)
+      && postWinter.本年举业季务.some((tag) => String(tag).includes('拆年关纸墨'))
+      && postWinter.本年举业季务.some((tag) => String(tag).includes('拆冬头馆信'))
+      && (winterWindow.__INV || []).length === 0
+  };
+}
+
+function runExamSelfRaisedPressureRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(3131);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 420, 存米: 2, 家族: 64, 供读压力: 1, 体魄: 58 });
+  api.setRandomSequence(new Array(40).fill(0.2));
+  api.enterPhase('civilExam');
+
+  pickByPlan(api, ['e_enroll', 'e_spring_open_packet']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_essay', 'e_spring_packet']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_copy', 'e_home']);
+  api.commit();
+  api.next();
+
+  pickByPlan(api, ['e_tutor']);
+  api.commit();
+  api.next();
+
+  const summerMidStage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_rest']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const summerMidResolve = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    summerMidStage,
+    summerMidResolve,
+    postSummerMid: {
+      供读状态: postSummerMid.供读状态,
+      供读压力: postSummerMid.供读压力,
+      本年举业自筹文: postSummerMid.本年举业自筹文,
+      本年举业自筹缓压: postSummerMid.本年举业自筹缓压,
+      本年誊抄次数: postSummerMid.本年誊抄次数
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: summerMidStage.includes('夏课')
+      && summerMidStage.includes('中旬')
+      && summerMidResolve.includes('〔笔墨补贴〕')
+      && summerMidResolve.includes('缓去一线供读压力')
+      && postSummerMid.本年举业自筹文 >= 270
+      && postSummerMid.本年举业自筹缓压 >= 1
+      && postSummerMid.供读压力 <= 1
+      && postSummerMid.本年誊抄次数 >= 2
+      && includesOrderedPhases(phaseTrace, ['civilExam'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamSelfRaisedMultiReliefRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(3132);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({
+    识字: true,
+    铜钱: 260,
+    存米: 1,
+    家族: 64,
+    体魄: 58,
+    供读状态: '自筹苦撑',
+    供读压力: 2,
+    举季: 2,
+    举旬: 2,
+    举段: 2,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    本年馆课次数: 1,
+    文章火候: 3,
+    本年评文次数: 1,
+    本年誊抄次数: 1,
+    本年举业自筹文: 240,
+    本年举业自筹缓压: 1,
+    本年举业季务: []
+  });
+  api.setRandomSequence(new Array(12).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const summerMidStage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_rest']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const summerMidResolve = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    stageLabels: {
+      summerMidStage,
+      summerMidResolve
+    },
+    postSummerMid: {
+      供读状态: postSummerMid.供读状态,
+      供读压力: postSummerMid.供读压力,
+      本年举业自筹文: postSummerMid.本年举业自筹文,
+      本年举业自筹缓压: postSummerMid.本年举业自筹缓压,
+      本年誊抄次数: postSummerMid.本年誊抄次数,
+      本年举业季务: postSummerMid.本年举业季务
+    },
+    ok: summerMidStage.includes('夏课')
+      && summerMidStage.includes('中旬')
+      && summerMidResolve.includes('〔笔墨补贴〕')
+      && summerMidResolve.includes('再缓去一线供读压力')
+      && postSummerMid.本年举业自筹文 >= 360
+      && postSummerMid.本年举业自筹缓压 === 2
+      && postSummerMid.供读压力 <= 1
+      && postSummerMid.本年誊抄次数 === 2
+      && Array.isArray(postSummerMid.本年举业季务)
+      && postSummerMid.本年举业季务.some((tag) => String(tag).includes('笔墨补贴再缓压'))
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamSelfRaisedStateRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(3134);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({
+    识字: true,
+    年龄: 16,
+    铜钱: 220,
+    存米: 0,
+    家族: 64,
+    体魄: 58,
+    供读状态: '观望供读',
+    供读压力: 1,
+    供读底子: 0,
+    投塾进度: 2,
+    本年投塾次数: 1,
+    读书方式: '塾馆',
+    文章火候: 3,
+    举季: 2,
+    举旬: 2,
+    举段: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年家中供读次: 0,
+    本年家中供读米: 0,
+    本年誊抄次数: 0,
+    本年举业自筹文: 0,
+    本年举业自筹缓压: 0,
+    本年举业季务: []
+  });
+  api.setRandomSequence(new Array(12).fill(0.99));
+  api.enterPhase('civilExam');
+
+  const summerMidStage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_rest']);
+  api.commit();
+  const postSummerMid = clone(api.getState());
+  const summerMidResolve = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    stageLabels: {
+      summerMidStage,
+      summerMidResolve
+    },
+    postSummerMid: {
+      供读状态: postSummerMid.供读状态,
+      供读压力: postSummerMid.供读压力,
+      本年举业自筹文: postSummerMid.本年举业自筹文,
+      本年举业自筹缓压: postSummerMid.本年举业自筹缓压,
+      本年誊抄次数: postSummerMid.本年誊抄次数,
+      本年家中供读次: postSummerMid.本年家中供读次
+    },
+    ok: summerMidStage.includes('夏课')
+      && summerMidStage.includes('中旬')
+      && summerMidResolve.includes('〔供读口风〕')
+      && summerMidResolve.includes('缺口先由你自己顶在身上')
+      && postSummerMid.供读状态 === '自筹苦撑'
+      && postSummerMid.供读压力 === 1
+      && postSummerMid.本年举业自筹文 >= 130
+      && postSummerMid.本年举业自筹缓压 === 0
+      && postSummerMid.本年誊抄次数 === 1
+      && postSummerMid.本年家中供读次 === 0
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamTailSupportFrictionRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(3133);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({
+    识字: true,
+    年龄: 16,
+    铜钱: 60,
+    存米: 1,
+    家族: 64,
+    体魄: 58,
+    供读状态: '观望供读',
+    供读压力: 1,
+    供读底子: 1,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    文章火候: 3,
+    举季: 1,
+    举旬: 3,
+    举段: 3,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年举业季务: []
+  });
+  api.setRandomSequence(new Array(12).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const stageSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tail_grain']);
+  api.commit();
+  const postSpringLower = clone(api.getState());
+  const resolveSpringLower = normalizeHtml(elements.get('stage').innerHTML);
+
+  return {
+    stageLabels: {
+      stageSpringLower,
+      resolveSpringLower
+    },
+    postSpringLower: {
+      铜钱: postSpringLower.铜钱,
+      存米: postSpringLower.存米,
+      供读压力: postSpringLower.供读压力,
+      本年家中供读次: postSpringLower.本年家中供读次,
+      本年家中供读米: postSpringLower.本年家中供读米,
+      本年举业季务: postSpringLower.本年举业季务
+    },
+    ok: stageSpringLower.includes('粜一石口粮顶春尾香纸')
+      && resolveSpringLower.includes('粜一石口粮顶春尾香纸')
+      && resolveSpringLower.includes('〔春尾香纸〕这一旬先把')
+      && postSpringLower.铜钱 === 280
+      && postSpringLower.存米 === 0
+      && postSpringLower.供读压力 === 0
+      && postSpringLower.本年家中供读次 === 1
+      && postSpringLower.本年家中供读米 === 1
+      && Array.isArray(postSpringLower.本年举业季务)
+      && postSpringLower.本年举业季务.some((tag) => String(tag).includes('米脚收尾'))
+      && postSpringLower.本年举业季务.some((tag) => String(tag).includes('春尾香纸已分'))
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamSeasonalOutlayLedgerRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(4040);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 220, 存米: 3, 家族: 64, 供读压力: 0 });
+  api.setRandomSequence(new Array(40).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const springUpperStage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_enroll', 'e_spring_open_packet', 'e_home']);
+  api.commit();
+  const postSpringUpper = clone(api.getState());
+  const springUpperResolve = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+  const springMidStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  const { api: bodyApi, elements: bodyElements, window: bodyWindow } = createHarness();
+  bodyApi.setRandomSeed(4041);
+  chooseRoute(bodyApi, '路径五 · 读书应举');
+  bodyApi.patchState({ 识字: true, 铜钱: 260, 存米: 3, 家族: 64, 举季: 2, 举旬: 3, 举段: 3, 供读压力: 0 });
+  bodyApi.setRandomSequence(new Array(20).fill(0.2));
+  bodyApi.enterPhase('civilExam');
+  const summerLowerStage = normalizeHtml(bodyElements.get('stage').innerHTML);
+  pickByPlan(bodyApi, ['e_summer_tail_packet', 'e_mend']);
+  bodyApi.commit();
+  const postSummerLower = clone(bodyApi.getState());
+  const summerLowerResolve = normalizeHtml(bodyElements.get('stage').innerHTML);
+
+  const { api: yearApi, elements: yearElements, window: yearWindow } = createHarness();
+  yearApi.setRandomSeed(4042);
+  chooseRoute(yearApi, '路径五 · 读书应举');
+  yearApi.patchState({ 识字: true, 铜钱: 620, 存米: 3, 家族: 64, 白银: 2, 供读压力: 0 });
+  yearApi.setRandomSequence(new Array(80).fill(0.2));
+  yearApi.enterPhase('civilExam');
+  const yearlyPlan = {
+    '1-1': ['e_tutor', 'e_home'],
+    '1-2': ['e_essay', 'e_home', 'e_spring_packet'],
+    '1-3': ['e_copy', 'e_home', 'e_rest'],
+    '2-1': ['e_tutor', 'e_home'],
+    '2-2': ['e_essay', 'e_copy', 'e_summer_packet'],
+    '2-3': ['e_copy', 'e_summer_tail_packet', 'e_rest'],
+    '3-1': ['e_tutor', 'e_home'],
+    '3-2': ['e_guarantee', 'e_copy', 'e_autumn_packet'],
+    '3-3': ['e_copy', 'e_autumn_tail_packet'],
+    '4-1': ['e_home', 'e_winter_open_packet', 'e_rest'],
+    '4-2': ['e_guarantee', 'e_copy', 'e_winter_mid_packet'],
+    '4-3': ['e_exam', 'e_reserve', 'e_winter_packet']
+  };
+  let yearlyGuard = 0;
+  let winterLowerStage = '';
+  let winterLowerResolve = '';
+  let postWinterLower = null;
+  while (yearApi.getPhase() === 'civilExam' && yearlyGuard < 20) {
+    const state = yearApi.getState();
+    const key = `${state.举季 || 1}-${examXun(state)}`;
+    if (key === '4-3') winterLowerStage = normalizeHtml(yearElements.get('stage').innerHTML);
+    pickByPlan(yearApi, yearlyPlan[key] || ['e_home']);
+    yearApi.commit();
+    if (key === '4-3') {
+      postWinterLower = clone(yearApi.getState());
+      winterLowerResolve = normalizeHtml(yearElements.get('stage').innerHTML);
+    }
+    yearApi.next();
+    yearlyGuard += 1;
+  }
+
+  return {
+    spring: {
+      springUpperStage,
+      springUpperResolve,
+      springMidStage,
+      postSpringUpper: {
+        本年已落举业支出文: postSpringUpper.本年已落举业支出文,
+        本年家中供读文: postSpringUpper.本年家中供读文,
+        本年零耗支出文: postSpringUpper.本年零耗支出文,
+        本年衣药支出文: postSpringUpper.本年衣药支出文
+      },
+      ok: springUpperStage.includes('零耗=0文')
+        && springUpperResolve.includes('先把拜师帖与开春锅火分开')
+        && postSpringUpper.本年已落举业支出文 >= 85
+        && postSpringUpper.本年家中供读文 >= 85
+        && postSpringUpper.本年零耗支出文 >= 55
+        && postSpringUpper.本年衣药支出文 === 0
+        && springMidStage.includes('零耗=55文')
+        && (window.__INV || []).length === 0
+    },
+    summerLower: {
+      summerLowerStage,
+      summerLowerResolve,
+      postSummerLower: {
+        本年已落举业支出文: postSummerLower.本年已落举业支出文,
+        本年衣药支出文: postSummerLower.本年衣药支出文,
+        本年零耗支出文: postSummerLower.本年零耗支出文,
+        本年将养次数: postSummerLower.本年将养次数
+      },
+      ok: summerLowerStage.includes('衣药=0文')
+        && summerLowerResolve.includes('先把夏尾衣药与回家带药小耗分开')
+        && postSummerLower.本年衣药支出文 >= 160
+        && postSummerLower.本年零耗支出文 === 0
+        && postSummerLower.本年将养次数 >= 1
+        && (bodyWindow.__INV || []).length === 0
+    },
+    winterYearEnd: {
+      winterLowerStage,
+      winterLowerResolve,
+      postWinterLower: postWinterLower
+        ? {
+            本年已落举业支出文: postWinterLower.本年已落举业支出文,
+            供读桶合计: postWinterLower.本年束脩支出文
+              + postWinterLower.本年纸墨支出文
+              + postWinterLower.本年保结支出文
+              + postWinterLower.本年盘缠支出文
+              + postWinterLower.本年零耗支出文
+              + postWinterLower.本年衣药支出文,
+            本年束脩支出文: postWinterLower.本年束脩支出文,
+            本年纸墨支出文: postWinterLower.本年纸墨支出文,
+            本年保结支出文: postWinterLower.本年保结支出文,
+            本年盘缠支出文: postWinterLower.本年盘缠支出文,
+            本年零耗支出文: postWinterLower.本年零耗支出文,
+            本年衣药支出文: postWinterLower.本年衣药支出文,
+            举业累计投塾次数: postWinterLower.举业累计投塾次数,
+            举业累计识字旬数: postWinterLower.举业累计识字旬数,
+            举业累计保结次数: postWinterLower.举业累计保结次数,
+            举业累计落第次数: postWinterLower.举业累计落第次数,
+            举业累计延婚牵扯: postWinterLower.举业累计延婚牵扯,
+            举业累计身子亏空: postWinterLower.举业累计身子亏空
+          }
+        : null,
+      ok: winterLowerStage.includes('冬清账')
+        && winterLowerStage.includes('下旬')
+        && (winterLowerResolve.includes('大头已在春夏秋冬逐旬落账')
+          || winterLowerResolve.includes('前面逐旬虽已落账'))
+        && winterLowerResolve.includes('〔三年累账〕')
+        && !winterLowerResolve.includes('余下主账再收尾')
+        && !winterLowerResolve.includes('年终余下主账')
+        && !!postWinterLower
+        && postWinterLower.本年已落举业支出文
+          === postWinterLower.本年束脩支出文
+            + postWinterLower.本年纸墨支出文
+            + postWinterLower.本年保结支出文
+            + postWinterLower.本年盘缠支出文
+            + postWinterLower.本年零耗支出文
+            + postWinterLower.本年衣药支出文
+        && postWinterLower.举业累计投塾次数 === postWinterLower.本年投塾次数
+        && postWinterLower.举业累计识字旬数 === postWinterLower.本年识字旬数
+        && postWinterLower.举业累计保结次数 === postWinterLower.本年保结次数
+        && postWinterLower.举业累计落第次数 === postWinterLower.本年落第次数
+        && postWinterLower.举业累计延婚牵扯 === postWinterLower.本年延婚牵扯
+        && postWinterLower.举业累计身子亏空 === postWinterLower.本年身子亏空
+        && (yearWindow.__INV || []).length === 0
+    },
+    ok: false
+  };
+}
+
+function runExamFailureDelayRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(5150);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 420, 存米: 2, 家族: 64, 白银: 1, 负债银: 0 });
+  api.setRandomSequence(new Array(120).fill(0.99));
+  api.enterPhase('civilExam');
+
+  let guard = 0;
+  while (api.getPhase() === 'civilExam' && guard < 60) {
+    const state = api.getState();
+    if (examXun(state) === 1) pickByPlan(api, ['e_enroll', 'e_tutor', 'e_home']);
+    else if (examXun(state) === 2) {
+      if ((state.举季 || 1) >= 3 && (state.保结进度 || 0) < 2) pickByPlan(api, ['e_guarantee', 'e_copy']);
+      else pickByPlan(api, ['e_essay', 'e_copy']);
+    }
+    else if ((state.举季 || 1) >= 3 && (state.保结进度 || 0) >= 2 && !state.本年下场) pickByPlan(api, ['e_exam']);
+    else pickByPlan(api, ['e_copy', 'e_home']);
+    api.commit();
+    api.next();
+    guard += 1;
+  }
+
+  const phase = api.getPhase();
+  const state = clone(api.getState());
+  const lifeProfile = clone(api.getLifeProfile());
+  const childbearing = clone(api.getChildbearingProfile());
+  const marriageHtml = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    phase,
+    examState: {
+      举业结局: state.举业结局,
+      童试层级: state.童试层级,
+      本年应试结果: state.本年应试结果,
+      本年落第次数: state.本年落第次数,
+      举业累计落第次数: state.举业累计落第次数,
+      举业累计延婚牵扯: state.举业累计延婚牵扯,
+      举业累计身子亏空: state.举业累计身子亏空,
+      负债银: state.负债银,
+      _marriageAgeAdj: state._marriageAgeAdj,
+      生员身份: state.生员身份
+    },
+    lifeProfile: {
+      marriageAge: lifeProfile.marriageAge,
+      householdAge: lifeProfile.householdAge,
+      fertilityTag: lifeProfile.fertilityTag
+    },
+    childbearing: {
+      label: childbearing.label,
+      note: childbearing.note
+    },
+    marriageHtml,
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: phase === 'marriage'
+      && state.生员身份 === false
+      && state.举业结局 !== '成生员'
+      && state.本年应试结果 === '落第'
+      && state.举业累计落第次数 >= 1
+      && state.举业累计延婚牵扯 >= 8
+      && state.举业累计身子亏空 >= 3
+      && state._marriageAgeAdj >= 5
+      && lifeProfile.marriageAge === 29 + state._marriageAgeAdj
+      && lifeProfile.fertilityTag === 'lateStrict'
+      && childbearing.label === '窄窗'
+      && marriageHtml.includes(`婚配年龄=${lifeProfile.marriageAge}`)
+      && marriageHtml.includes(`婚育窗口=${childbearing.label}`)
+      && marriageHtml.includes('举业结局=屡试未第')
+      && marriageHtml.includes(`累计落第=${state.举业累计落第次数}`)
+      && marriageHtml.includes(`累计延婚=${state.举业累计延婚牵扯}`)
+      && marriageHtml.includes(`累计身耗=${state.举业累计身子亏空}`)
+      && includesOrderedPhases(phaseTrace, ['civilExam', 'marriage'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamFailureCarryRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(5251);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({
+    识字: true,
+    铜钱: 480,
+    存米: 2,
+    家族: 64,
+    白银: 1,
+    负债银: 0,
+    举业年: 3,
+    举季: 3,
+    举旬: 3,
+    举段: 3,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    本年馆课次数: 2,
+    本年评文次数: 1,
+    文章火候: 2,
+    保结进度: 2,
+    供读压力: 1
+  });
+  api.setRandomSequence([0.99, 0.99, 0.99, 0.99, 0.99]);
+  api.enterPhase('civilExam');
+
+  const stageAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_exam', 'e_autumn_tail_packet']);
+  api.commit();
+  const afterFail = clone(api.getState());
+  const resolveAutumnLower = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_fail_talk', 'e_winter_open_packet']);
+  api.commit();
+  const postWinterUpper = clone(api.getState());
+  const resolveWinterUpper = normalizeHtml(elements.get('stage').innerHTML);
+  api.next();
+
+  const stageWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_fail_copy', 'e_winter_mid_packet']);
+  api.commit();
+  const postWinterMid = clone(api.getState());
+  const resolveWinterMid = normalizeHtml(elements.get('stage').innerHTML);
+  const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+
+  return {
+    stageLabels: {
+      stageAutumnLower,
+      resolveAutumnLower,
+      stageWinterUpper,
+      resolveWinterUpper,
+      stageWinterMid,
+      resolveWinterMid
+    },
+    afterFail: {
+      本年应试结果: afterFail.本年应试结果,
+      本年落第次数: afterFail.本年落第次数,
+      供读压力: afterFail.供读压力,
+      家族: afterFail.家族
+    },
+    postWinterUpper: {
+      文章火候: postWinterUpper.文章火候,
+      本年评文次数: postWinterUpper.本年评文次数,
+      供读压力: postWinterUpper.供读压力,
+      家族: postWinterUpper.家族,
+      本年归家次数: postWinterUpper.本年归家次数,
+      本年举业季务: postWinterUpper.本年举业季务
+    },
+    postWinterMid: {
+      文章火候: postWinterMid.文章火候,
+      本年评文次数: postWinterMid.本年评文次数,
+      家族: postWinterMid.家族,
+      本年举业季务: postWinterMid.本年举业季务
+    },
+    phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    ok: stageAutumnLower.includes('秋试')
+      && (resolveAutumnLower.includes('〔应试回话〕') || resolveAutumnLower.includes('〔县试回话〕'))
+      && resolveAutumnLower.includes('落第')
+      && afterFail.本年应试结果 === '落第'
+      && afterFail.本年落第次数 >= 1
+      && stageWinterUpper.includes('落第后先回家缓口风')
+      && resolveWinterUpper.includes('落第后先回家缓口风')
+      && postWinterUpper.供读压力 < afterFail.供读压力
+      && postWinterUpper.家族 > afterFail.家族
+      && postWinterUpper.本年归家次数 >= 1
+      && Array.isArray(postWinterUpper.本年举业季务)
+      && postWinterUpper.本年举业季务.some((tag) => String(tag).includes('落第后回家缓口风'))
+      && stageWinterMid.includes('落第后重抄卷样与回帖')
+      && resolveWinterMid.includes('落第后重抄卷样与回帖')
+      && postWinterMid.文章火候 > postWinterUpper.文章火候
+      && postWinterMid.本年评文次数 >= postWinterUpper.本年评文次数 + 1
+      && Array.isArray(postWinterMid.本年举业季务)
+      && postWinterMid.本年举业季务.some((tag) => String(tag).includes('落第后重抄卷样'))
+      && includesOrderedPhases(phaseTrace, ['civilExam'])
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamCrossYearCarryRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(5252);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({
+    识字: true,
+    铜钱: 520,
+    存米: 2,
+    家族: 64,
+    白银: 1,
+    负债银: 0,
+    举业年: 1,
+    举季: 4,
+    举旬: 3,
+    举段: 3,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    本年馆课次数: 1,
+    本年投塾次数: 1,
+    本年评文次数: 1,
+    文章火候: 3,
+    保结进度: 2,
+    本年保结次数: 1,
+    供读压力: 0,
+    本年应试结果: '未下场',
+    本年身子亏空: 0,
+    本年将养次数: 1
+  });
+  api.enterPhase('civilExam');
+
+  const winterLowerStage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_copy', 'e_winter_packet']);
+  api.commit();
+  const resolveWinterLower = normalizeHtml(elements.get('stage').innerHTML);
+  const afterYearEnd = clone(api.getState());
+  api.next();
+
+  const nextYearStage = normalizeHtml(elements.get('stage').innerHTML);
+  const nextYearState = clone(api.getState());
+
+  return {
+    winterLowerStage,
+    resolveWinterLower,
+    afterYearEnd: {
+      举业年: afterYearEnd.举业年,
+      投塾进度: afterYearEnd.投塾进度,
+      保结进度: afterYearEnd.保结进度,
+      文章火候: afterYearEnd.文章火候
+    },
+    nextYearState: {
+      举业年: nextYearState.举业年,
+      举季: nextYearState.举季,
+      举旬: nextYearState.举旬,
+      投塾进度: nextYearState.投塾进度,
+      保结进度: nextYearState.保结进度,
+      文章火候: nextYearState.文章火候
+    },
+    nextYearStage,
+    ok: winterLowerStage.includes('冬清账')
+      && winterLowerStage.includes('下旬')
+      && resolveWinterLower.includes('〔跨年承接〕')
+      && resolveWinterLower.includes('塾门只续到“已递塾帖”')
+      && resolveWinterLower.includes('保结只续到“已递帖样”')
+      && afterYearEnd.投塾进度 === 1
+      && afterYearEnd.保结进度 === 1
+      && nextYearState.举业年 === 2
+      && nextYearState.举季 === 1
+      && nextYearState.举旬 === 1
+      && nextYearState.投塾进度 === 1
+      && nextYearState.保结进度 === 1
+      && nextYearStage.includes('第2举业年')
+      && nextYearStage.includes('投塾=已递塾帖')
+      && nextYearStage.includes('保结=已递帖样')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamIntraYearSignalRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(6060);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 260, 存米: 1, 家族: 64, 供读压力: 1, 体魄: 56 });
+  api.setRandomSequence(new Array(20).fill(0.99));
+  api.enterPhase('civilExam');
+
+  const springUpperStatus = normalizeHtml(elements.get('status').innerHTML);
+  const springUpperStage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_enroll', 'e_half', 'e_spring_open_packet']);
+  api.commit();
+  const resolveSpringUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postSpringUpper = clone(api.getState());
+  api.next();
+  const springMidStatus = normalizeHtml(elements.get('status').innerHTML);
+
+  return {
+    springUpperStatus,
+    springUpperStage,
+    resolveSpringUpper,
+    postSpringUpper: {
+      供读状态: postSpringUpper.供读状态,
+      供读压力: postSpringUpper.供读压力,
+      本年延婚牵扯: postSpringUpper.本年延婚牵扯,
+      本年身子亏空: postSpringUpper.本年身子亏空,
+      体魄: postSpringUpper.体魄
+    },
+    springMidStatus,
+    ok: springUpperStatus.includes('供读')
+      && springUpperStatus.includes('婚事')
+      && springUpperStatus.includes('身耗')
+      && springUpperStage.includes('春课')
+      && resolveSpringUpper.includes('〔供读口风〕')
+      && resolveSpringUpper.includes('〔婚事口风〕')
+      && resolveSpringUpper.includes('〔身子账〕')
+      && postSpringUpper.供读状态 === '断供边缘'
+      && postSpringUpper.供读压力 >= 2
+      && postSpringUpper.本年延婚牵扯 >= 2
+      && postSpringUpper.本年身子亏空 >= 1
+      && springMidStatus.includes('断供边缘·压')
+      && springMidStatus.includes('已见拖延')
+      && (springMidStatus.includes('灯下微亏') || springMidStatus.includes('肩眼见亏'))
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamUpperDelaySplitRegression() {
+  const autumnHarness = createHarness();
+  const autumnApi = autumnHarness.api;
+  const autumnElements = autumnHarness.elements;
+  const autumnWindow = autumnHarness.window;
+  autumnApi.setRandomSeed(6064);
+  chooseRoute(autumnApi, '路径五 · 读书应举');
+  autumnApi.patchState({
+    识字: true,
+    识字进度: 3,
+    铜钱: 360,
+    存米: 1,
+    家族: 62,
+    体魄: 55,
+    举业年: 1,
+    举季: 3,
+    举旬: 1,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    保结进度: 1,
+    文章火候: 2,
+    供读状态: '断供边缘',
+    供读压力: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年兄婚让读次: 1,
+    本年延婚牵扯: 3
+  });
+  autumnApi.setRandomSequence(new Array(20).fill(0.35));
+  autumnApi.enterPhase('civilExam');
+  const autumnStage = normalizeHtml(autumnElements.get('stage').innerHTML);
+  const autumnStatus = normalizeHtml(autumnElements.get('status').innerHTML);
+  pickByPlan(autumnApi, ['e_delay_upper', 'e_autumn_open_packet']);
+  autumnApi.commit();
+  const autumnResolve = normalizeHtml(autumnElements.get('stage').innerHTML);
+  const autumnPost = clone(autumnApi.getState());
+  const autumnStatusAfter = normalizeHtml(autumnElements.get('status').innerHTML);
+
+  const winterHarness = createHarness();
+  const winterApi = winterHarness.api;
+  const winterElements = winterHarness.elements;
+  const winterWindow = winterHarness.window;
+  winterApi.setRandomSeed(6065);
+  chooseRoute(winterApi, '路径五 · 读书应举');
+  winterApi.patchState({
+    识字: true,
+    识字进度: 3,
+    铜钱: 380,
+    存米: 1,
+    家族: 63,
+    体魄: 54,
+    举业年: 1,
+    举季: 4,
+    举旬: 1,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    保结进度: 2,
+    文章火候: 2,
+    供读状态: '断供边缘',
+    供读压力: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年兄婚让读次: 1,
+    本年延婚牵扯: 3
+  });
+  winterApi.setRandomSequence(new Array(20).fill(0.35));
+  winterApi.enterPhase('civilExam');
+  const winterStage = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterStatus = normalizeHtml(winterElements.get('status').innerHTML);
+  pickByPlan(winterApi, ['e_delay_upper', 'e_winter_open_reply']);
+  winterApi.commit();
+  const winterResolve = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterPost = clone(winterApi.getState());
+  const winterStatusAfter = normalizeHtml(winterElements.get('status').innerHTML);
+
+  return {
+    autumn: {
+      stage: autumnStage,
+      status: autumnStatus,
+      resolve: autumnResolve,
+      statusAfter: autumnStatusAfter,
+      post: {
+        家族: autumnPost.家族,
+        供读压力: autumnPost.供读压力,
+        本年延婚牵扯: autumnPost.本年延婚牵扯,
+        本年婚事让开次数: autumnPost.本年婚事让开次数,
+        本年举业季务: autumnPost.本年举业季务
+      }
+    },
+    winter: {
+      stage: winterStage,
+      status: winterStatus,
+      resolve: winterResolve,
+      statusAfter: winterStatusAfter,
+      post: {
+        家族: winterPost.家族,
+        供读压力: winterPost.供读压力,
+        本年延婚牵扯: winterPost.本年延婚牵扯,
+        本年婚事让开次数: winterPost.本年婚事让开次数,
+        本年举业季务: winterPost.本年举业季务
+      }
+    },
+    ok: autumnStage.includes('先把秋头婚话与夹衣盘缠分开')
+      && autumnStatus.includes('婚期越拖越迟')
+      && autumnResolve.includes('婚事口风没再一上来就和供读钱、护身钱硬挤在同一处')
+      && autumnResolve.includes('〔婚事口风〕这一旬先把兄房婚事、议亲回话和供读细账分开了一层')
+      && autumnPost.本年延婚牵扯 === 2
+      && autumnPost.本年婚事让开次数 === 1
+      && autumnPost.供读压力 === 1
+      && Array.isArray(autumnPost.本年举业季务)
+      && autumnPost.本年举业季务.some((tag) => String(tag).includes('婚话先分'))
+      && autumnPost.本年举业季务.some((tag) => String(tag).includes('拆秋前盘缠'))
+      && autumnStatusAfter.includes('婚期越拖越迟') === false
+      && autumnStatusAfter.includes('已见拖延')
+      && (autumnWindow.__INV || []).length === 0
+      && winterStage.includes('先把冬头婚期回话与馆札护嗓分开')
+      && winterStatus.includes('婚期越拖越迟')
+      && winterResolve.includes('婚事口风没再一上来就和供读钱、护身钱硬挤在同一处')
+      && winterResolve.includes('〔婚事口风〕这一旬先把兄房婚事、议亲回话和供读细账分开了一层')
+      && winterPost.本年延婚牵扯 === 2
+      && winterPost.本年婚事让开次数 === 1
+      && winterPost.供读压力 === 1
+      && Array.isArray(winterPost.本年举业季务)
+      && winterPost.本年举业季务.some((tag) => String(tag).includes('婚话先分'))
+      && winterPost.本年举业季务.some((tag) => String(tag).includes('拆冬头馆信'))
+      && winterStatusAfter.includes('婚期越拖越迟') === false
+      && winterStatusAfter.includes('已见拖延')
+      && (winterWindow.__INV || []).length === 0
+  };
+}
+
+function runExamUpperShoulderReliefRegression() {
+  const autumnHarness = createHarness();
+  const autumnApi = autumnHarness.api;
+  const autumnElements = autumnHarness.elements;
+  const autumnWindow = autumnHarness.window;
+  autumnApi.setRandomSeed(6066);
+  chooseRoute(autumnApi, '路径五 · 读书应举');
+  autumnApi.patchState({
+    识字: true,
+    识字进度: 3,
+    铜钱: 460,
+    存米: 1,
+    家族: 62,
+    体魄: 55,
+    举业年: 1,
+    举季: 3,
+    举旬: 1,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    保结进度: 1,
+    文章火候: 2,
+    供读状态: '断供边缘',
+    供读压力: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年兄婚让读次: 1,
+    本年延婚牵扯: 3
+  });
+  autumnApi.setRandomSequence(new Array(20).fill(0.35));
+  autumnApi.enterPhase('civilExam');
+  const autumnStage = normalizeHtml(autumnElements.get('stage').innerHTML);
+  pickByPlan(autumnApi, ['e_tutor', 'e_literacy', 'e_delay_upper']);
+  autumnApi.commit();
+  const autumnResolve = normalizeHtml(autumnElements.get('stage').innerHTML);
+  const autumnPost = clone(autumnApi.getState());
+  const autumnStatusAfter = normalizeHtml(autumnElements.get('status').innerHTML);
+
+  const winterHarness = createHarness();
+  const winterApi = winterHarness.api;
+  const winterElements = winterHarness.elements;
+  const winterWindow = winterHarness.window;
+  winterApi.setRandomSeed(6067);
+  chooseRoute(winterApi, '路径五 · 读书应举');
+  winterApi.patchState({
+    识字: true,
+    识字进度: 3,
+    铜钱: 520,
+    存米: 1,
+    家族: 63,
+    体魄: 54,
+    举业年: 1,
+    举季: 4,
+    举旬: 1,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    保结进度: 2,
+    文章火候: 2,
+    供读状态: '断供边缘',
+    供读压力: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年兄婚让读次: 1,
+    本年延婚牵扯: 3
+  });
+  winterApi.setRandomSequence(new Array(20).fill(0.35));
+  winterApi.enterPhase('civilExam');
+  const winterStage = normalizeHtml(winterElements.get('stage').innerHTML);
+  pickByPlan(winterApi, ['e_tutor', 'e_literacy', 'e_winter_open_reply']);
+  winterApi.commit();
+  const winterResolve = normalizeHtml(winterElements.get('stage').innerHTML);
+  const winterPost = clone(winterApi.getState());
+  const winterStatusAfter = normalizeHtml(winterElements.get('status').innerHTML);
+
+  return {
+    autumn: {
+      stage: autumnStage,
+      resolve: autumnResolve,
+      statusAfter: autumnStatusAfter,
+      post: {
+        供读压力: autumnPost.供读压力,
+        本年延婚牵扯: autumnPost.本年延婚牵扯,
+        本年婚事让开次数: autumnPost.本年婚事让开次数,
+        本年举业季务: autumnPost.本年举业季务
+      }
+    },
+    winter: {
+      stage: winterStage,
+      resolve: winterResolve,
+      statusAfter: winterStatusAfter,
+      post: {
+        供读压力: winterPost.供读压力,
+        本年延婚牵扯: winterPost.本年延婚牵扯,
+        本年身子亏空: winterPost.本年身子亏空,
+        体魄: winterPost.体魄,
+        本年将养次数: winterPost.本年将养次数,
+        本年举业季务: winterPost.本年举业季务
+      }
+    },
+    ok: autumnStage.includes('秋试')
+      && autumnResolve.includes('先把秋头婚话与夹衣盘缠分开')
+      && !autumnResolve.includes('〔举业内并账〕')
+      && autumnPost.供读压力 === 2
+      && autumnPost.本年延婚牵扯 === 3
+      && autumnPost.本年婚事让开次数 === 1
+      && Array.isArray(autumnPost.本年举业季务)
+      && autumnPost.本年举业季务.some((tag) => String(tag).includes('婚话先分'))
+      && autumnStatusAfter.includes('断供边缘·压2')
+      && (autumnWindow.__INV || []).length === 0
+      && winterStage.includes('冬清账')
+      && winterResolve.includes('先把冬头馆信与护嗓灯油分开')
+      && !winterResolve.includes('〔举业内并账〕')
+      && !winterResolve.includes('〔灯下透支〕')
+      && winterPost.供读压力 === 3
+      && winterPost.本年延婚牵扯 === 4
+      && winterPost.本年身子亏空 === 0
+      && winterPost.体魄 === 54
+      && winterPost.本年将养次数 >= 1
+      && Array.isArray(winterPost.本年举业季务)
+      && winterPost.本年举业季务.some((tag) => String(tag).includes('拆冬头馆信'))
+      && winterStatusAfter.includes('断供边缘·压3')
+      && (winterWindow.__INV || []).length === 0
+  };
+}
+
+function runExamDelaySplitRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(6062);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({
+    识字: true,
+    识字进度: 3,
+    铜钱: 320,
+    存米: 1,
+    家族: 62,
+    体魄: 55,
+    举业年: 1,
+    举季: 3,
+    举旬: 3,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    保结进度: 2,
+    文章火候: 2,
+    供读状态: '断供边缘',
+    供读压力: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年兄婚让读次: 1,
+    本年延婚牵扯: 3
+  });
+  api.setRandomSequence(new Array(20).fill(0.35));
+  api.enterPhase('civilExam');
+
+  const stageBefore = normalizeHtml(elements.get('stage').innerHTML);
+  const statusBefore = normalizeHtml(elements.get('status').innerHTML);
+  pickByPlan(api, ['e_delay_split', 'e_home']);
+  api.commit();
+
+  const resolveStage = normalizeHtml(elements.get('stage').innerHTML);
+  const postState = clone(api.getState());
+  const statusAfter = normalizeHtml(elements.get('status').innerHTML);
+
+  return {
+    stageBefore,
+    statusBefore,
+    resolveStage,
+    statusAfter,
+    postState: {
+      铜钱: postState.铜钱,
+      家族: postState.家族,
+      供读压力: postState.供读压力,
+      本年延婚牵扯: postState.本年延婚牵扯,
+      本年婚事让开次数: postState.本年婚事让开次数,
+      本年零耗支出文: postState.本年零耗支出文
+    },
+    ok: stageBefore.includes('先把秋尾婚话与临场盘缠分开')
+      && statusBefore.includes('婚事')
+      && statusBefore.includes('婚期越拖越迟')
+      && resolveStage.includes('婚事这口风没再继续和供读钱硬挤在同一处')
+      && resolveStage.includes('〔婚事口风〕这一旬先把兄房婚事、议亲回话和供读细账分开了一层')
+      && postState.本年延婚牵扯 === 2
+      && postState.本年婚事让开次数 === 1
+      && postState.供读压力 === 0
+      && postState.本年零耗支出文 >= 60
+      && statusAfter.includes('婚期越拖越迟') === false
+      && statusAfter.includes('已见拖延')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamMidDelaySplitRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(6063);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({
+    识字: true,
+    识字进度: 3,
+    铜钱: 320,
+    存米: 1,
+    家族: 62,
+    体魄: 55,
+    举业年: 1,
+    举季: 3,
+    举旬: 2,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    保结进度: 1,
+    文章火候: 2,
+    供读状态: '断供边缘',
+    供读压力: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年兄婚让读次: 1,
+    本年延婚牵扯: 3
+  });
+  api.setRandomSequence(new Array(20).fill(0.35));
+  api.enterPhase('civilExam');
+
+  const stageBefore = normalizeHtml(elements.get('stage').innerHTML);
+  const statusBefore = normalizeHtml(elements.get('status').innerHTML);
+  pickByPlan(api, ['e_delay_split', 'e_autumn_packet']);
+  api.commit();
+
+  const resolveStage = normalizeHtml(elements.get('stage').innerHTML);
+  const postState = clone(api.getState());
+  const statusAfter = normalizeHtml(elements.get('status').innerHTML);
+
+  return {
+    stageBefore,
+    statusBefore,
+    resolveStage,
+    statusAfter,
+    postState: {
+      铜钱: postState.铜钱,
+      家族: postState.家族,
+      供读压力: postState.供读压力,
+      本年延婚牵扯: postState.本年延婚牵扯,
+      本年婚事让开次数: postState.本年婚事让开次数,
+      本年零耗支出文: postState.本年零耗支出文,
+      本年举业季务: postState.本年举业季务
+    },
+    ok: stageBefore.includes('先把秋中婚话与保结回帖分开')
+      && statusBefore.includes('婚事')
+      && statusBefore.includes('婚期越拖越迟')
+      && resolveStage.includes('婚事这口风没再继续和供读钱硬挤在同一处')
+      && resolveStage.includes('〔婚事口风〕这一旬先把兄房婚事、议亲回话和供读细账分开了一层')
+      && postState.本年延婚牵扯 === 2
+      && postState.本年婚事让开次数 === 1
+      && postState.供读压力 === 1
+      && postState.本年零耗支出文 >= 110
+      && Array.isArray(postState.本年举业季务)
+      && postState.本年举业季务.some((tag) => String(tag).includes('婚事回话已分'))
+      && postState.本年举业季务.some((tag) => String(tag).includes('拆秋后纸墨'))
+      && statusAfter.includes('婚期越拖越迟') === false
+      && statusAfter.includes('已见拖延')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamStatusVisibilityRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(6061);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({
+    识字: true,
+    识字进度: 3,
+    铜钱: 320,
+    存米: 2,
+    家族: 64,
+    体魄: 57,
+    供读压力: 1
+  });
+  api.setRandomSequence(new Array(20).fill(0.2));
+  api.enterPhase('civilExam');
+
+  const initialStatus = normalizeHtml(elements.get('status').innerHTML);
+  const initialStage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_enroll', 'e_tutor', 'e_spring_open_packet']);
+  api.commit();
+  const postState = clone(api.getState());
+  const resolveStage = normalizeHtml(elements.get('stage').innerHTML);
+  const resolvedStatus = normalizeHtml(elements.get('status').innerHTML);
+
+  return {
+    initialStatus,
+    initialStage,
+    resolveStage,
+    resolvedStatus,
+    postState: {
+      读书方式: postState.读书方式,
+      投塾进度: postState.投塾进度,
+      文章火候: postState.文章火候,
+      本年应试结果: postState.本年应试结果,
+      本年家中供读文: postState.本年家中供读文,
+      本年已落举业支出文: postState.本年已落举业支出文
+    },
+    ok: initialStatus.includes('识字底子')
+      && initialStatus.includes('读法')
+      && initialStatus.includes('投塾')
+      && initialStatus.includes('本次应场')
+      && initialStatus.includes('文章')
+      && initialStatus.includes('应试')
+      && initialStatus.includes('供养')
+      && initialStatus.includes('已落支出')
+      && initialStatus.includes('能看题样')
+      && initialStatus.includes('未定')
+      && initialStatus.includes('未投塾')
+      && initialStatus.includes('未下场')
+      && initialStatus.includes('家0文/0石·自0文')
+      && initialStatus.includes('已落支出 <b>0</b>文')
+      && initialStage.includes('冬里只继续收余账')
+      && resolveStage.includes('先把拜师帖与开春锅火分开')
+      && postState.读书方式 === '塾馆'
+      && postState.投塾进度 >= 1
+      && postState.文章火候 >= 2
+      && postState.本年应试结果 === '未下场'
+      && postState.本年家中供读文 > 0
+      && postState.本年已落举业支出文 > 0
+      && resolvedStatus.includes('塾馆')
+      && resolvedStatus.includes('已递塾帖')
+      && resolvedStatus.includes('未下场')
+      && resolvedStatus.includes(`文章 <b>${postState.文章火候}</b>`)
+      && resolvedStatus.includes(`家${postState.本年家中供读文}文/0石·自0文`)
+      && resolvedStatus.includes(`已落支出 <b>${postState.本年已落举业支出文}</b>文`)
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamYearFocusRegression() {
+  function inspectYearFocus(year, season, xun) {
+    const { api, elements, window } = createHarness();
+    chooseRoute(api, '路径五 · 读书应举');
+    api.patchState({
+      识字: true,
+      识字进度: year === 1 ? 2 : 3,
+      铜钱: 360,
+      存米: 2,
+      家族: 64,
+      体魄: 56,
+      举业年: year,
+      举季: season,
+      举旬: xun,
+      举段: xun,
+      投塾进度: year >= 2 ? 2 : 1,
+      读书方式: year >= 2 ? '塾馆' : '未定',
+      文章火候: year >= 2 ? 2 : 1,
+      保结进度: year >= 2 ? 1 : 0,
+      本年馆课次数: year >= 2 ? 1 : 0,
+      本年评文次数: year >= 2 ? 1 : 0,
+      本年延婚牵扯: year === 3 ? 3 : 0,
+      本年身子亏空: year === 3 ? 2 : 0
+    });
+    api.enterPhase('civilExam');
+    return {
+      html: normalizeHtml(elements.get('stage').innerHTML),
+      inv: window.__INV || []
+    };
+  }
+
+  const yearOne = inspectYearFocus(1, 1, 1);
+  const yearTwo = inspectYearFocus(2, 3, 2);
+  const yearThree = inspectYearFocus(3, 4, 2);
+
+  return {
+    yearOne: yearOne.html,
+    yearTwo: yearTwo.html,
+    yearThree: yearThree.html,
+    ok: yearOne.html.includes('第1举业年重心：首年识字投塾')
+      && yearOne.html.includes('首年重心=识字/投塾/供读开账')
+      && yearOne.html.includes('塾门回话和谁真肯供读坐实')
+      && yearTwo.html.includes('第2举业年重心：次年评文保结')
+      && yearTwo.html.includes('次年重心=评文/保帖/保结')
+      && yearTwo.html.includes('评文、保帖底样与保结链条')
+      && yearThree.html.includes('第3举业年重心：三年应场取舍')
+      && yearThree.html.includes('三年重心=应场/落第/延婚/身耗')
+      && yearThree.html.includes('下场、落第、延婚与身耗一并摊回旬内')
+      && yearOne.inv.length === 0
+      && yearTwo.inv.length === 0
+      && yearThree.inv.length === 0
+  };
+}
+
+function runExamStudyBurdenRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(6161);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({ 识字: true, 铜钱: 420, 存米: 1, 家族: 64, 供读压力: 0, 体魄: 55 });
+  api.setRandomSequence(new Array(20).fill(0.99));
+  api.enterPhase('civilExam');
+  api.patchState({
+    举业年: 1,
+    举季: 2,
+    举旬: 1,
+    投塾进度: 0,
+    本年馆课次数: 0,
+    本年寄读次数: 0,
+    本年家中供读次: 0,
+    本年家中供读米: 0,
+    本年身子亏空: 0,
+    本年延婚牵扯: 0
+  });
+  api.enterPhase('civilExam');
+
+  const summerUpperStage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor', 'e_school']);
+  api.commit();
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerUpper = clone(api.getState());
+  const summerMidStatus = normalizeHtml(elements.get('status').innerHTML);
+
+  return {
+    summerUpperStage,
+    resolveSummerUpper,
+    postSummerUpper: {
+      供读状态: postSummerUpper.供读状态,
+      供读压力: postSummerUpper.供读压力,
+      本年延婚牵扯: postSummerUpper.本年延婚牵扯,
+      本年身子亏空: postSummerUpper.本年身子亏空,
+      本年供读缓冲已用: postSummerUpper.本年供读缓冲已用,
+      体魄: postSummerUpper.体魄,
+      本年举业季务: postSummerUpper.本年举业季务
+    },
+    summerMidStatus,
+    ok: summerUpperStage.includes('夏课')
+      && summerUpperStage.includes('上旬')
+      && !resolveSummerUpper.includes('〔家内续读缓冲〕')
+      && resolveSummerUpper.includes('〔灯下透支〕')
+      && postSummerUpper.供读状态 === '断供边缘'
+      && postSummerUpper.供读压力 === 2
+      && postSummerUpper.本年延婚牵扯 >= 3
+      && postSummerUpper.本年身子亏空 >= 2
+      && postSummerUpper.本年供读缓冲已用 === 0
+      && postSummerUpper.体魄 <= 53
+      && Array.isArray(postSummerUpper.本年举业季务)
+      && postSummerUpper.本年举业季务.some((tag) => String(tag).includes('举业内并账'))
+      && postSummerUpper.本年举业季务.some((tag) => String(tag).includes('灯下透支'))
+      && summerMidStatus.includes('断供边缘·压2')
+      && summerMidStatus.includes('婚期越拖越迟')
+      && summerMidStatus.includes('肩眼见亏')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runExamInheritedSupportBufferRegression() {
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(6162);
+  chooseRoute(api, '路径五 · 读书应举');
+  api.patchState({
+    识字: true,
+    铜钱: 420,
+    存米: 1,
+    家族: 64,
+    体魄: 55,
+    供读压力: 0,
+    承继定位: '长兄守户·次子续读',
+    供读底子: 0,
+    举业年: 1,
+    举季: 2,
+    举旬: 1,
+    举段: 1,
+    投塾进度: 0,
+    本年馆课次数: 0,
+    本年寄读次数: 0,
+    本年家中供读次: 0,
+    本年家中供读米: 0,
+    本年身子亏空: 0,
+    本年延婚牵扯: 0,
+    本年供读缓冲已用: 0
+  });
+  api.setRandomSequence(new Array(20).fill(0.99));
+  api.enterPhase('civilExam');
+
+  const summerUpperStage = normalizeHtml(elements.get('stage').innerHTML);
+  pickByPlan(api, ['e_tutor', 'e_school']);
+  api.commit();
+  const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
+  const postSummerUpper = clone(api.getState());
+  const summerMidStatus = normalizeHtml(elements.get('status').innerHTML);
+
+  return {
+    summerUpperStage,
+    resolveSummerUpper,
+    postSummerUpper: {
+      供读状态: postSummerUpper.供读状态,
+      供读压力: postSummerUpper.供读压力,
+      本年延婚牵扯: postSummerUpper.本年延婚牵扯,
+      本年身子亏空: postSummerUpper.本年身子亏空,
+      本年供读缓冲已用: postSummerUpper.本年供读缓冲已用,
+      本年举业季务: postSummerUpper.本年举业季务
+    },
+    summerMidStatus,
+    debugChecks: {
+      hasSupportBuffer: resolveSummerUpper.includes('〔家内续读缓冲〕'),
+      hasOverdrawnBody: resolveSummerUpper.includes('〔灯下透支〕'),
+      pressureHeld: postSummerUpper.供读压力 === 0,
+      delayTwo: postSummerUpper.本年延婚牵扯 === 2,
+      bodyWorn: postSummerUpper.本年身子亏空 >= 2,
+      bufferUsed: postSummerUpper.本年供读缓冲已用 === 1,
+      hasSupportTag: Array.isArray(postSummerUpper.本年举业季务)
+        && postSummerUpper.本年举业季务.some((tag) => String(tag).includes('家内续读缓冲')),
+      hasLedgerTag: Array.isArray(postSummerUpper.本年举业季务)
+        && postSummerUpper.本年举业季务.some((tag) => String(tag).includes('举业内并账已缓')),
+      statusShowsSupport: summerMidStatus.includes('家中供读·压0'),
+      invCount: (window.__INV || []).length
+    },
+    ok: summerUpperStage.includes('夏课')
+      && summerUpperStage.includes('上旬')
+      && resolveSummerUpper.includes('〔家内续读缓冲〕')
+      && !resolveSummerUpper.includes('〔举业内并账〕')
+      && resolveSummerUpper.includes('〔灯下透支〕')
+      && postSummerUpper.供读压力 === 0
+      && postSummerUpper.本年延婚牵扯 === 2
+      && postSummerUpper.本年身子亏空 >= 2
+      && postSummerUpper.本年供读缓冲已用 === 1
+      && Array.isArray(postSummerUpper.本年举业季务)
+      && postSummerUpper.本年举业季务.some((tag) => String(tag).includes('家内续读缓冲'))
+      && postSummerUpper.本年举业季务.some((tag) => String(tag).includes('举业内并账已缓'))
+      && summerMidStatus.includes('家中供读·压0')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function playHouseholdSideIncome(carry, patch) {
+  const { api, window } = createHarness();
+  api.restartFromCarry(carry, 2);
+  const inheritedState = clone(api.getState());
+  api.patchState(Object.assign({
+    路线: '留乡佃田',
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 0,
+    铜钱: 0,
+    存米: 3,
+    田亩: 4,
+    负债银: 0,
+    家族: 64,
+    农事历练: 4,
+    委托营生: '分得薄田自耕'
+  }, patch || {}));
+  api.enterPhase('household');
+  const beforeState = clone(api.getState());
+  api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+  const sideAction = api.getAvailableActions().find((a) => a.id === 'h_side');
+  pickByPlan(api, ['h_side']);
+  api.commit();
+  const postState = clone(api.getState());
+  return { inheritedState, beforeState, sideAction, postState, inv: clone(window.__INV || []) };
+}
+
+function runInheritedCraftSideIncomeRegression() {
+  const inheritedCarry = {
+    白银: 0,
+    存米: 3,
+    田亩: 2,
+    铜钱: 0,
+    负债银: 0,
+    家族: 64,
+    父辈路线: '留乡佃田',
+    承嗣来路: '本支次子承继',
+    家传书香: 0,
+    城里门路: 0,
+    商路门路: 0,
+    家传手艺: 1,
+    亦贾亦儒底子: 0,
+    供读底子: 0
+  };
+  const baselineCarry = Object.assign({}, inheritedCarry, { 家传手艺: 0 });
+  const skilledCarry = Object.assign({}, inheritedCarry);
+
+  const inherited = playHouseholdSideIncome(inheritedCarry, { 技艺: '无' });
+  const baseline = playHouseholdSideIncome(baselineCarry, { 技艺: '无' });
+  const skilled = playHouseholdSideIncome(skilledCarry, { 技艺: '木活' });
+
+  return {
+    inheritedState: {
+      家传手艺: inherited.inheritedState.家传手艺,
+      技艺: inherited.inheritedState.技艺
+    },
+    sideAction: inherited.sideAction ? { eff: inherited.sideAction.eff } : null,
+    postState: {
+      铜钱: inherited.postState.铜钱,
+      铜钱增量: inherited.postState.铜钱 - inherited.beforeState.铜钱,
+      技艺: inherited.postState.技艺,
+      最近农闲营生层级: inherited.postState.最近农闲营生层级,
+      最近农闲营生收益: inherited.postState.最近农闲营生收益
+    },
+    baselinePostState: {
+      铜钱: baseline.postState.铜钱,
+      铜钱增量: baseline.postState.铜钱 - baseline.beforeState.铜钱,
+      最近农闲营生层级: baseline.postState.最近农闲营生层级,
+      最近农闲营生收益: baseline.postState.最近农闲营生收益
+    },
+    skilledPostState: {
+      铜钱: skilled.postState.铜钱,
+      铜钱增量: skilled.postState.铜钱 - skilled.beforeState.铜钱,
+      最近农闲营生层级: skilled.postState.最近农闲营生层级,
+      最近农闲营生收益: skilled.postState.最近农闲营生收益
+    },
+    ok: inherited.inheritedState.家传手艺 === 1
+      && inherited.inheritedState.技艺 === '无'
+      && !!inherited.sideAction
+      && inherited.sideAction.eff.includes('家传手艺底子')
+      && inherited.postState.最近农闲营生收益 === 220
+      && baseline.postState.最近农闲营生层级 === '杂工'
+      && baseline.postState.最近农闲营生收益 === 120
+      && baseline.postState.最近农闲营生收益 === 120
+      && skilled.postState.最近农闲营生层级 === '自有手艺'
+      && skilled.postState.最近农闲营生收益 === 400
+      && skilled.postState.最近农闲营生收益 === 400
+      && inherited.postState.最近农闲营生层级 === '家传手艺底子'
+      && inherited.postState.最近农闲营生收益 === 220
+      && inherited.postState.技艺 === '无'
+      && inherited.inv.length === 0
+      && baseline.inv.length === 0
+      && skilled.inv.length === 0
+  };
+}
+
+function playInheritedFieldTurn(carry, randValue) {
+  const { api, window } = createHarness();
+  api.setRandomSeed(9101);
+  api.restartFromCarry(carry, 2);
+  api.chooseByName('路径一 · 留乡佃田');
+  api.next();
+  const routeState = clone(api.getState());
+  api.patchState({
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 0,
+    铜钱: 260,
+    存米: 3,
+    田亩: Math.max(2, routeState.田亩),
+    负债银: routeState.负债银 || 0,
+    家族: 60,
+    识字: false,
+    委托营生: '无',
+    委托租谷: 0,
+    应役: '未役'
+  });
+  api.enterPhase('household');
+  api.setRandomSequence(householdSafeSeq(randValue, 0.9));
+  // 当户已拆成“四季三旬”：为了观测“家传农事”对当役风险的影响，这里完整跑完一年（12 旬），
+  // 并将同一条行动序列施加在 inherited / baseline 两组上，差异只来自承接的家传农事底子。
+  for (let i = 0; i < 12; i += 1) {
+    pickByPlan(api, ['h_hold_field', 'h_literate', 'h_clan', 'h_rest', 'h_side', 'h_hire', 'h_pay']);
+    api.commit();
+    if (i < 11) api.next();
+  }
+  return {
+    routeState,
+    householdState: clone(api.getState()),
+    inv: clone(window.__INV || [])
+  };
+}
+
+function runInheritedFieldLineageRegression() {
+  const inheritedCarry = {
+    白银: 0,
+    存米: 3,
+    田亩: 2,
+    铜钱: 200,
+    负债银: 0,
+    家族: 64,
+    父辈路线: '留乡佃田',
+    承嗣来路: '本支次子承继',
+    家传书香: 0,
+    城里门路: 0,
+    商路门路: 0,
+    家传手艺: 0,
+    家传农事: 1,
+    亦贾亦儒底子: 0,
+    供读底子: 0
+  };
+  const baselineCarry = Object.assign({}, inheritedCarry, { 家传农事: 0 });
+
+  // 这一回归用同一个“风险抽签点”来体现家传农事对当役风险的压低：
+  // baseline 触发“赔累”，而 inherited 仍能落在“平安应役”。
+  const inherited = playInheritedFieldTurn(inheritedCarry, 0.89);
+  const baseline = playInheritedFieldTurn(baselineCarry, 0.89);
+
+  return {
+    inheritedRouteState: {
+      家传农事: inherited.routeState.家传农事,
+      农事历练: inherited.routeState.农事历练
+    },
+    baselineRouteState: {
+      家传农事: baseline.routeState.家传农事,
+      农事历练: baseline.routeState.农事历练
+    },
+    inheritedHousehold: {
+      存米: inherited.householdState.存米,
+      应役: inherited.householdState.应役,
+      农事历练: inherited.householdState.农事历练
+    },
+    baselineHousehold: {
+      存米: baseline.householdState.存米,
+      应役: baseline.householdState.应役,
+      农事历练: baseline.householdState.农事历练
+    },
+    ok: inherited.routeState.家传农事 === 1
+      && inherited.routeState.农事历练 >= 1
+      && baseline.routeState.农事历练 === 0
+      && inherited.householdState.农事历练 > baseline.householdState.农事历练
+      && inherited.householdState.存米 >= baseline.householdState.存米
+      && inherited.householdState.应役 === '平安应役'
+      && baseline.householdState.应役 === '赔累'
+      && inherited.inv.length === 0
+      && baseline.inv.length === 0
+  };
+}
+
+function playFarmEntryCarryCase(carry, actionId) {
+  const { api, window } = createHarness();
+  api.restartFromCarry(carry, 2);
+  api.chooseByName('路径一 · 留乡佃田');
+  api.next();
+  api.patchState({
+    存米: 3,
+    铜钱: 0,
+    体魄: 60,
+    _米价: '高',
+    已插秧: true,
+    秧苗进度: 4,
+    最近农闲营生层级: '未定',
+    最近农闲营生收益: 0
+  });
+  const action = availableMap(api).get(actionId) || null;
+  if (action && action.can !== false) {
+    pickByPlan(api, [actionId]);
+    api.commit();
+  }
+  return {
+    action: action ? { eff: action.eff } : null,
+    state: clone(api.getState()),
+    inv: clone(window.__INV || [])
+  };
+}
+
+function runFarmRouteCarryRegression() {
+  const inheritedCarry = {
+    白银: 0,
+    存米: 3,
+    田亩: 2,
+    铜钱: 0,
+    负债银: 0,
+    家族: 64,
+    父辈路线: '留乡佃田',
+    承嗣来路: '本支次子承继',
+    承继定位: '本房次子另起一手',
+    家传书香: 0,
+    城里门路: 1,
+    商路门路: 2,
+    家传手艺: 1,
+    家传农事: 0,
+    亦贾亦儒底子: 0,
+    供读底子: 0
+  };
+  const baselineCarry = Object.assign({}, inheritedCarry, {
+    城里门路: 0,
+    商路门路: 0,
+    家传手艺: 0
+  });
+
+  const inheritedSell = playFarmEntryCarryCase(inheritedCarry, 'sell');
+  const baselineSell = playFarmEntryCarryCase(baselineCarry, 'sell');
+  const inheritedCraft = playFarmEntryCarryCase(inheritedCarry, 'craft_side');
+  const baselineCraft = playFarmEntryCarryCase(baselineCarry, 'craft_side');
+
+  return {
+    inheritedSell: {
+      action: inheritedSell.action,
+      铜钱: inheritedSell.state.铜钱
+    },
+    baselineSell: {
+      action: baselineSell.action,
+      铜钱: baselineSell.state.铜钱
+    },
+    inheritedCraft: {
+      action: inheritedCraft.action,
+      铜钱: inheritedCraft.state.铜钱,
+      最近农闲营生层级: inheritedCraft.state.最近农闲营生层级,
+      最近农闲营生收益: inheritedCraft.state.最近农闲营生收益
+    },
+    baselineCraft: {
+      action: baselineCraft.action
+    },
+    ok: !!inheritedSell.action
+      && inheritedSell.action.eff.includes('铜钱+670')
+      && inheritedSell.action.eff.includes('旧门路问价')
+      && baselineSell.action.eff.includes('铜钱+550')
+      && inheritedSell.state.铜钱 === 670
+      && baselineSell.state.铜钱 === 550
+      && !!inheritedCraft.action
+      && inheritedCraft.action.eff.includes('家传手艺底子')
+      && inheritedCraft.state.铜钱 === 140
+      && inheritedCraft.state.最近农闲营生层级 === '家传手艺底子'
+      && inheritedCraft.state.最近农闲营生收益 === 140
+      && baselineCraft.action === null
+      && inheritedSell.inv.length === 0
+      && baselineSell.inv.length === 0
+      && inheritedCraft.inv.length === 0
+      && baselineCraft.inv.length === 0
+  };
+}
+
+function runInheritanceRemainderRegression() {
+  const { api, window } = createHarness();
+  api.patchState({
+    路线: '留乡佃田',
+    妻室: true,
+    子数: 3,
+    女数: 1,
+    白银: 6,
+    铜钱: 8,
+    存米: 6,
+    田亩: 5,
+    负债银: 0,
+    家族: 62,
+    农事历练: 4,
+    委托营生: '分得薄田自耕'
+  });
+  api.enterPhase('death');
+  const carry = clone(api.getState()._carry);
+  api.restartWithHeir();
+  const heirState = clone(api.getState());
+
+  return {
+    carry: {
+      白银: carry.白银,
+      铜钱: carry.铜钱,
+      存米: carry.存米,
+      田亩: carry.田亩,
+      负债银: carry.负债银
+    },
+    heirState: {
+      白银: heirState.白银,
+      铜钱: heirState.铜钱,
+      存米: heirState.存米,
+      田亩: heirState.田亩,
+      负债银: heirState.负债银
+    },
+    ok: carry.白银 === 2
+      && carry.铜钱 === 3
+      && carry.存米 === 2
+      && carry.田亩 === 2
+      && carry.负债银 === 0
+      && heirState.白银 === carry.白银
+      && heirState.铜钱 === carry.铜钱
+      && heirState.存米 === carry.存米
+      && heirState.田亩 === carry.田亩
+      && heirState.负债银 === carry.负债银
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runInheritanceDebtRemainderRegression() {
+  const { api, elements, window } = createHarness();
+  api.patchState({
+    路线: '受雇长工/短工',
+    妻室: true,
+    子数: 3,
+    女数: 1,
+    白银: 1,
+    铜钱: 7,
+    存米: 5,
+    田亩: 4,
+    负债银: 5,
+    家族: 57,
+    雇工历练: 3,
+    委托营生: '出佃收租',
+    委托租谷: 1,
+    委托待收租谷: 1
+  });
+  api.enterPhase('death');
+  const carry = clone(api.getState()._carry);
+  const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+  api.restartWithHeir();
+  const heirState = clone(api.getState());
+
+  return {
+    carry: {
+      白银: carry.白银,
+      铜钱: carry.铜钱,
+      存米: carry.存米,
+      田亩: carry.田亩,
+      负债银: carry.负债银,
+      委托营生: carry.委托营生,
+      委托租谷: carry.委托租谷,
+      委托待收租谷: carry.委托待收租谷
+    },
+    heirState: {
+      白银: heirState.白银,
+      铜钱: heirState.铜钱,
+      存米: heirState.存米,
+      田亩: heirState.田亩,
+      负债银: heirState.负债银,
+      委托营生: heirState.委托营生,
+      委托租谷: heirState.委托租谷,
+      委托待收租谷: heirState.委托待收租谷
+    },
+    deathStage,
+    ok: carry.白银 === 0
+      && carry.铜钱 === 2
+      && carry.存米 === 1
+      && carry.田亩 === 1
+      && carry.负债银 === 2
+      && heirState.白银 === carry.白银
+      && heirState.铜钱 === carry.铜钱
+      && heirState.存米 === carry.存米
+      && heirState.田亩 === carry.田亩
+      && heirState.负债银 === carry.负债银
+      && heirState.委托营生 === carry.委托营生
+      && heirState.委托租谷 === carry.委托租谷
+      && heirState.委托待收租谷 === carry.委托待收租谷
+      && deathStage.includes('并分担旧债2两')
+      && (window.__INV || []).length === 0
+  };
+}
+
+function runDelegatedRentEstateRegression() {
+  function playCase(kind) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+    const route = kind === 'apprentice'
+      ? '入城学徒'
+      : kind === 'merchant'
+        ? '徽商式亦贾亦儒'
+        : kind === 'farm'
+          ? '留乡佃田'
+          : '受雇长工/短工';
+    const householdAction = kind === 'apprentice'
+      ? 'h_lease_city'
+      : kind === 'merchant'
+        ? 'h_trust_field'
+        : 'h_lease_home';
+    api.patchState({
+      路线: route,
+      年龄: 38,
+      妻室: true,
+      子数: 1,
+      女数: 1,
+      白银: kind === 'merchant' ? 2 : 1,
+      铜钱: kind === 'farm' ? 360 : kind === 'wage' ? 0 : 360,
+      存米: 3,
+      田亩: 4,
+      负债银: 0,
+      家族: 62,
+      识字: kind !== 'wage',
+      农事历练: kind === 'farm' ? 5 : 3,
+      雇工历练: kind === 'wage' ? 2 : 0,
+      学徒去向: kind === 'apprentice' ? '留店伙计' : '未定',
+      学徒授艺度: kind === 'apprentice' ? 2 : 0,
+      商历练: kind === 'merchant' ? 2 : 0,
+      商信誉: kind === 'merchant' ? 2 : 0,
+      账房进度: kind === 'merchant' ? 1 : 0,
+      累计反哺银: kind === 'merchant' ? 2 : 0,
+      未回款银: 0,
+      委托营生: '无',
+      委托租谷: 0,
+      委托待收租谷: 0
+    });
+    api.enterPhase('household');
+    pickByPlan(api, [householdAction]);
+    api.commit();
+    const postHousehold = clone(api.getState());
+    api.enterPhase('death');
+    const carry = clone(api.getState()._carry);
+    const deathStage = elements.get('stage').innerHTML.replace(/\s+/g, ' ').trim();
+    api.restartWithHeir();
+    const heirState = clone(api.getState());
+    return {
+      postHousehold: {
+        委托营生: postHousehold.委托营生,
+        委托租谷: postHousehold.委托租谷,
+        委托待收租谷: postHousehold.委托待收租谷,
+        存米: postHousehold.存米
+      },
+      carry: {
+        存米: carry.存米,
+        田亩: carry.田亩,
+        铜钱: carry.铜钱,
+        委托营生: carry.委托营生,
+        委托租谷: carry.委托租谷,
+        委托待收租谷: carry.委托待收租谷,
+        承嗣来路: carry.承嗣来路,
+        城里门路: carry.城里门路,
+        商路门路: carry.商路门路,
+        家传农事: carry.家传农事
+      },
+      heirState: {
+        存米: heirState.存米,
+        田亩: heirState.田亩,
+        铜钱: heirState.铜钱,
+        委托营生: heirState.委托营生,
+        委托租谷: heirState.委托租谷,
+        委托待收租谷: heirState.委托待收租谷
+      },
+      deathStage,
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  const apprentice = playCase('apprentice');
+  const merchant = playCase('merchant');
+  const farm = playCase('farm');
+  const wage = playCase('wage');
+  return {
+    apprentice,
+    merchant,
+    farm,
+    wage,
+    ok: apprentice.postHousehold.委托营生 === '出佃收租'
+      && apprentice.postHousehold.委托租谷 === 1
+      && apprentice.postHousehold.委托待收租谷 === 1
+      && apprentice.carry.存米 === Math.max(0, apprentice.postHousehold.存米 - 1)
+      && apprentice.carry.田亩 === 4
+      && apprentice.carry.铜钱 > 0
+      && apprentice.carry.委托营生 === apprentice.postHousehold.委托营生
+      && apprentice.carry.委托租谷 === 1
+      && apprentice.carry.委托待收租谷 === 1
+      && apprentice.heirState.存米 === apprentice.carry.存米
+      && apprentice.heirState.田亩 === apprentice.carry.田亩
+      && apprentice.heirState.委托营生 === apprentice.carry.委托营生
+      && apprentice.heirState.委托租谷 === apprentice.carry.委托租谷
+      && apprentice.heirState.委托待收租谷 === apprentice.carry.委托待收租谷
+      && apprentice.deathStage.includes('待结的租谷 1 石')
+      && apprentice.carry.城里门路 >= 1
+      && merchant.postHousehold.委托营生 === '兄代管薄田'
+      && merchant.postHousehold.委托租谷 === 1
+      && merchant.postHousehold.委托待收租谷 === 1
+      && merchant.carry.存米 === Math.max(0, merchant.postHousehold.存米 - 1)
+      && merchant.carry.田亩 === 4
+      && merchant.carry.铜钱 > 0
+      && merchant.carry.委托营生 === merchant.postHousehold.委托营生
+      && merchant.carry.委托租谷 === 1
+      && merchant.carry.委托待收租谷 === 1
+      && merchant.heirState.存米 === merchant.carry.存米
+      && merchant.heirState.田亩 === merchant.carry.田亩
+      && merchant.heirState.委托营生 === merchant.carry.委托营生
+      && merchant.heirState.委托租谷 === merchant.carry.委托租谷
+      && merchant.heirState.委托待收租谷 === merchant.carry.委托待收租谷
+      && merchant.deathStage.includes('待结的租谷 1 石')
+      && merchant.carry.商路门路 >= 1
+      && farm.postHousehold.委托营生 === '出佃收租'
+      && farm.postHousehold.委托租谷 === 1
+      && farm.postHousehold.委托待收租谷 === 1
+      && farm.carry.存米 === Math.max(0, farm.postHousehold.存米 - 1)
+      && farm.carry.田亩 === 4
+      && farm.deathStage.includes('待结的租谷 1 石')
+      && farm.carry.委托营生 === farm.postHousehold.委托营生
+      && farm.carry.委托租谷 === 1
+      && farm.carry.委托待收租谷 === 1
+      && farm.heirState.存米 === farm.carry.存米
+      && farm.heirState.田亩 === farm.carry.田亩
+      && farm.heirState.委托营生 === farm.carry.委托营生
+      && farm.heirState.委托租谷 === farm.carry.委托租谷
+      && farm.heirState.委托待收租谷 === farm.carry.委托待收租谷
+      && farm.carry.家传农事 >= 1
+      && wage.postHousehold.委托营生 === '出佃收租'
+      && wage.postHousehold.委托租谷 === 1
+      && wage.postHousehold.委托待收租谷 === 1
+      && wage.carry.存米 === Math.max(0, wage.postHousehold.存米 - 1)
+      && wage.carry.田亩 === 4
+      && wage.deathStage.includes('待结的租谷 1 石')
+      && wage.carry.委托营生 === wage.postHousehold.委托营生
+      && wage.carry.委托租谷 === 1
+      && wage.carry.委托待收租谷 === 1
+      && wage.heirState.存米 === wage.carry.存米
+      && wage.heirState.田亩 === wage.carry.田亩
+      && wage.heirState.委托营生 === wage.carry.委托营生
+      && wage.heirState.委托租谷 === wage.carry.委托租谷
+      && wage.heirState.委托待收租谷 === wage.carry.委托待收租谷
+      && apprentice.inv.length === 0
+      && merchant.inv.length === 0
+      && farm.inv.length === 0
+      && wage.inv.length === 0
+  };
+}
+
+function captureLifecycleBridgeStage(phase, extraPatch = {}) {
+  const { api, elements, window } = createHarness();
+  const carry = {
+    白银: 2,
+    存米: 3,
+    田亩: 2,
+    铜钱: 420,
+    负债银: 1,
+    家族: 64,
+    父辈路线: '徽商式亦贾亦儒',
+    承继身份: '旁支继子',
+    承嗣来路: '旁支过继·旁支续承',
+    承继定位: '长兄续商·次子候读',
+    家传书香: 1,
+    城里门路: 1,
+    商路门路: 2,
+    家传手艺: 1,
+    家传农事: 1,
+    亦贾亦儒底子: 1,
+    供读底子: 1,
+    旧门路衰减: 2,
+    委托营生: '兄代管薄田',
+    委托租谷: 1,
+    委托待收租谷: 1,
+    婚配路径: '先应差·外出佣工',
+    合爨状态: '已析爨',
+    定额佃状态: '已立定额佃',
+    雇身份: '外出佣工',
+    学徒去向: '留店伙计',
+    举业结局: '屡试未第'
+  };
+  api.restartFromCarry(carry, 2);
+  api.patchState(Object.assign({
+    路线: '徽商式亦贾亦儒',
+    年龄: phase === 'marriage' ? 24 : (phase === 'family' ? 31 : (phase === 'household' ? 40 : (phase === 'elder' ? 58 : 69))),
+    妻室: phase !== 'marriage',
+    子数: phase === 'marriage' ? 0 : 2,
+    女数: phase === 'marriage' ? 0 : 1,
+    白银: 3,
+    铜钱: 420,
+    存米: 3,
+    田亩: 2,
+    负债银: 1,
+    家族: 64,
+    识字: true,
+    商历练: 3,
+    商信誉: 2,
+    账房进度: 2,
+    累计反哺银: 3,
+    商路供读银: 1,
+    未回款银: 1,
+    议旬: phase === 'marriage' ? 3 : 1,
+    家年: phase === 'family' ? 2 : 1,
+    家季: phase === 'family' ? 2 : 1,
+    家旬: phase === 'family' ? 2 : 1,
+    户季: phase === 'household' ? 2 : 1,
+    户旬: 2,
+    老季: phase === 'elder' ? 3 : 1,
+    老旬: 2
+  }, extraPatch));
+  api.enterPhase(phase);
+  return {
+    html: normalizeHtml(elements.get('stage').innerHTML),
+    carry: api.getState()._carry ? clone(api.getState()._carry) : null,
+    phaseTrace: clone(api.getPhaseTrace ? api.getPhaseTrace() : []),
+    inv: clone(window.__INV || [])
+  };
+}
+
+function runLifecycleCarryBridgeRegression() {
+  const requiredLifecycleTokens = [
+    '承继身份=旁支继子',
+    '父辈路线=徽商式亦贾亦儒',
+    '承继定位=长兄续商·次子候读',
+    '家传书香=1层',
+    '城里门路=1层',
+    '商路门路=2层',
+    '家传手艺=1层',
+    '家传农事=1层',
+    '亦贾亦儒底子=1层',
+    '供读底子=1层',
+    '旧门路衰减=2层',
+    '委托租谷=1石/年',
+    '待收委托田租=1石',
+    '婚配路径=先应差·外出佣工',
+    '合爨状态=已析爨',
+    '定额佃状态=已立定额佃',
+    '雇身份=外出佣工',
+    '学徒去向=留店伙计',
+    '举业结局=屡试未第'
+  ];
+  const marriage = captureLifecycleBridgeStage('marriage');
+  const family = captureLifecycleBridgeStage('family');
+  const household = captureLifecycleBridgeStage('household');
+  const elder = captureLifecycleBridgeStage('elder');
+  const death = captureLifecycleBridgeStage('death');
+
+  const deepReplayCarry = {
+    白银: 2,
+    存米: 3,
+    田亩: 2,
+    铜钱: 420,
+    负债银: 1,
+    家族: 64,
+    父辈路线: '全生命周期承接验证',
+    承继身份: '旁支继子',
+    承嗣来路: '旁支过继·旁支续承',
+    承继定位: '长兄续商·次子候读',
+    家传书香: 1,
+    城里门路: 1,
+    商路门路: 2,
+    家传手艺: 1,
+    家传农事: 1,
+    亦贾亦儒底子: 1,
+    供读底子: 1,
+    旧门路衰减: 2,
+    委托营生: '兄代管薄田',
+    委托租谷: 1,
+    委托待收租谷: 1,
+    婚配路径: '先应差·外出佣工',
+    合爨状态: '已析爨',
+    定额佃状态: '已立定额佃',
+    雇身份: '外出佣工',
+    学徒去向: '留店伙计',
+    举业结局: '屡试未第'
+  };
+  const routes = [
+    '路径一 · 留乡佃田',
+    '路径二 · 受雇长工 / 短工',
+    '路径三 · 入城学徒',
+    '路径四 · 徽商式亦贾亦儒',
+    '路径五 · 读书应举'
+  ];
+  const deepReplay = routes.map((routeName, index) => {
+    const { api, elements, window } = createHarness();
+    api.restartFromCarry(deepReplayCarry, 2);
+    api.setRandomSeed(5200 + index);
+    chooseRoute(api, routeName);
+    let guard = 0;
+    while (api.getPhase() !== 'death' && guard < 420) {
+      const phase = api.getPhase();
+      if (['apprentice', 'merchant', 'civilExam', 'wage', 'farm', 'marriage', 'family', 'household', 'elder'].includes(phase)) {
+        pickByPlan(api, phasePlan(api));
+        api.commit();
+        api.next();
+      } else {
+        api.next();
+      }
+      guard += 1;
+    }
+    const state = clone(api.getState());
+    const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+    return {
+      route: routeName,
+      phase: api.getPhase(),
+      phaseTrace: (api.getPhaseTrace ? api.getPhaseTrace() : []).map((step) => `${step.phase}@${step.age}`).join(' → '),
+      carry: state._carry ? {
+        承继身份: state._carry.承继身份,
+        承继定位: state._carry.承继定位,
+        供读底子: state._carry.供读底子,
+        旧门路衰减: state._carry.旧门路衰减,
+        委托待收租谷: state._carry.委托待收租谷
+      } : null,
+      ok: api.getPhase() === 'death'
+        && includesOrderedPhases(api.getPhaseTrace ? api.getPhaseTrace() : [], [routePhaseKey(routeName), 'marriage', 'family', 'household', 'elder', 'death'])
+        && deathStageCoversCarry(state._carry, deathStage)
+        && (window.__INV || []).length === 0
+    };
+  });
+
+  return {
+    marriage: {
+      html: marriage.html,
+      ok: requiredLifecycleTokens.every((token) => marriage.html.includes(token)) && marriage.inv.length === 0
+    },
+    family: {
+      html: family.html,
+      ok: requiredLifecycleTokens.every((token) => family.html.includes(token)) && family.inv.length === 0
+    },
+    household: {
+      html: household.html,
+      ok: requiredLifecycleTokens.every((token) => household.html.includes(token)) && household.inv.length === 0
+    },
+    elder: {
+      html: elder.html,
+      ok: requiredLifecycleTokens.every((token) => elder.html.includes(token)) && elder.inv.length === 0
+    },
+    death: {
+      html: death.html,
+      ok: !!death.carry
+        && deathStageCoversCarry(death.carry, death.html)
+        && death.inv.length === 0
+    },
+    deepReplay,
+    ok: requiredLifecycleTokens.every((token) => marriage.html.includes(token))
+      && requiredLifecycleTokens.every((token) => family.html.includes(token))
+      && requiredLifecycleTokens.every((token) => household.html.includes(token))
+      && requiredLifecycleTokens.every((token) => elder.html.includes(token))
+      && !!death.carry
+      && deathStageCoversCarry(death.carry, death.html)
+      && deepReplay.every((item) => item.ok)
+  };
+}
+
+function runCurrentLifecycleRouteAwareVisibilityRegression() {
+  const requiredTokens = [
+    '婚配路径=暂不婚·改定额佃',
+    '合爨状态=已析爨',
+    '定额佃状态=已立定额佃',
+    '雇身份=外出佣工',
+    '学徒去向=留店伙计',
+    '举业结局=屡试未第',
+    '委托租谷=1石/年',
+    '待收委托田租=1石'
+  ];
+  const phases = [
+    { phase: 'marriage', age: 24, extra: { 妻室: false, 子数: 0, 女数: 0, 议旬: 3 } },
+    { phase: 'household', age: 40, extra: { 妻室: true, 子数: 2, 女数: 1, 户季: 2, 户旬: 2 } },
+    { phase: 'elder', age: 58, extra: { 妻室: true, 子数: 2, 女数: 1, 老季: 3, 老旬: 2 } }
+  ];
+  const results = phases.map(({ phase, age, extra }) => {
+    const { api, elements, window } = createHarness();
+    api.restart();
+    api.patchState(Object.assign({
+      路线: '留乡佃田',
+      年龄: age,
+      白银: 2,
+      铜钱: 320,
+      存米: 3,
+      田亩: 2,
+      负债银: 1,
+      家族: 62,
+      识字: true,
+      婚配路径: '暂不婚·改定额佃',
+      合爨状态: '已析爨',
+      定额佃状态: '已立定额佃',
+      雇身份: '外出佣工',
+      学徒去向: '留店伙计',
+      举业结局: '屡试未第',
+      委托营生: '兄代管薄田',
+      委托租谷: 1,
+      委托待收租谷: 1
+    }, extra));
+    api.enterPhase(phase);
+    const html = normalizeHtml(elements.get('stage').innerHTML);
+    const ok = requiredTokens.every((token) => html.includes(token)) && (window.__INV || []).length === 0;
+    return { phase, html, ok };
+  });
+  return {
+    results,
+    ok: results.every((item) => item.ok)
+  };
+}
+
+function runLifecycleNarrativeBridgeRegression() {
+  const carry = {
+    白银: 2,
+    铜钱: 320,
+    存米: 3,
+    田亩: 2,
+    负债银: 2,
+    家族: 63,
+    父辈路线: '徽商式亦贾亦儒',
+    承继身份: '旁支继子',
+    承嗣来路: '旁支过继·旁支续承',
+    承继定位: '长兄续商·次子候读',
+    家传书香: 1,
+    城里门路: 1,
+    商路门路: 2,
+    家传手艺: 1,
+    家传农事: 1,
+    亦贾亦儒底子: 1,
+    供读底子: 1,
+    旧门路衰减: 2,
+    委托营生: '兄代管薄田',
+    委托租谷: 1,
+    委托待收租谷: 1,
+    婚配路径: '先应差·外出佣工',
+    合爨状态: '已析爨',
+    定额佃状态: '已立定额佃',
+    雇身份: '外出佣工',
+    学徒去向: '留店伙计',
+    举业结局: '屡试未第'
+  };
+  const phases = [
+    { phase: 'marriage', patch: { 路线: '徽商式亦贾亦儒', 年龄: 24, 妻室: false, 子数: 0, 女数: 0, 议旬: 3 } },
+    { phase: 'household', patch: { 路线: '徽商式亦贾亦儒', 年龄: 40, 妻室: true, 子数: 2, 女数: 1, 户季: 2, 户旬: 2 } },
+    { phase: 'elder', patch: { 路线: '徽商式亦贾亦儒', 年龄: 58, 妻室: true, 子数: 2, 女数: 1, 老季: 3, 老旬: 2 } }
+  ];
+  const mustAppear = [
+    '承继底子：',
+    '这一程不是白纸起步：',
+    '上一代没还清的旧债还有2两',
+    '账上另有待收委托田租1石',
+    '这一房仍按“长兄续商·次子候读”分工'
+  ];
+  const results = phases.map(({ phase, patch }) => {
+    const { api, elements, window } = createHarness();
+    api.restartFromCarry(carry, 2);
+    api.patchState(Object.assign({
+      白银: 2,
+      铜钱: 320,
+      存米: 3,
+      田亩: 2,
+      负债银: 2,
+      家族: 63,
+      识字: true,
+      商历练: 2,
+      商信誉: 2,
+      账房进度: 2,
+      累计反哺银: 2,
+      商路供读银: 1,
+      未回款银: 1
+    }, patch));
+    api.enterPhase(phase);
+    const html = normalizeHtml(elements.get('stage').innerHTML);
+    return {
+      phase,
+      html,
+      ok: mustAppear.every((token) => html.includes(token))
+        && (window.__INV || []).length === 0
+    };
+  });
+  return {
+    results,
+    ok: results.every((item) => item.ok)
+  };
+}
+
+function runDeathButtonLabelRegression() {
+  function playCase(sons) {
+    const { api, elements, window } = createHarness();
+    api.patchState({
+      路线: '留乡佃田',
+      年龄: 52,
+      妻室: true,
+      子数: sons,
+      女数: 1,
+      白银: 2,
+      铜钱: 300,
+      存米: 3,
+      田亩: 4,
+      负债银: 0,
+      家族: 62,
+      农事历练: 3,
+      委托营生: '分得薄田自耕'
+    });
+    api.enterPhase('death');
+    const stageHtml = normalizeHtml(elements.get('stage').innerHTML);
+    const buttonLabel = extractStageButtonLabel(stageHtml, 'btn-pnext');
+    const carry = clone(api.getState()._carry);
+    api.restartWithHeir();
+    const heirState = clone(api.getState());
+    const establishmentHtml = normalizeHtml(elements.get('stage').innerHTML);
+    return { sons, stageHtml, buttonLabel, carry, heirState, establishmentHtml, inv: clone(window.__INV || []) };
+  }
+
+  const oneSon = playCase(1);
+  const threeSons = playCase(3);
+  const noSon = playCase(0);
+
+  return {
+    oneSon: {
+      ok: oneSon.stageHtml.includes('以独子身份')
+        && oneSon.buttonLabel === '以独子身份 · 递归重开新一生 →'
+        && oneSon.carry.承继身份 === '独子'
+        && oneSon.carry.承嗣来路 === '本支独子承继'
+        && oneSon.carry.承继定位 === '独子承家'
+        && oneSon.heirState.承继身份 === '独子'
+        && oneSon.heirState.承继定位 === '独子承家'
+        && oneSon.heirState.承嗣来路 === '本支独子承继'
+        && oneSon.stageHtml.includes('承嗣来路=本支独子承继')
+        && oneSon.stageHtml.includes('承继定位=独子承家')
+        && oneSon.establishmentHtml.includes('独子承家')
+        && oneSon.inv.length === 0
+    },
+    threeSons: {
+      ok: threeSons.stageHtml.includes('以次子身份')
+        && threeSons.buttonLabel === '以次子身份 · 递归重开新一生 →'
+        && threeSons.carry.承继身份 === '次子'
+        && threeSons.carry.承嗣来路 === '本支次子承继'
+        && threeSons.heirState.承继身份 === '次子'
+        && threeSons.heirState.承嗣来路 === '本支次子承继'
+        && threeSons.stageHtml.includes('承嗣来路=本支次子承继')
+        && threeSons.establishmentHtml.includes('你仍是这一房的次子')
+        && threeSons.inv.length === 0
+    },
+    noSon: {
+      ok: noSon.stageHtml.includes('以旁支继子身份')
+        && noSon.buttonLabel === '以旁支继子身份 · 递归重开新一生 →'
+        && noSon.carry.承继身份 === '旁支继子'
+        && noSon.carry.承嗣来路.includes('旁支过继')
+        && noSon.carry.承继定位 === '旁支接祧续户'
+        && noSon.heirState.承继身份 === '旁支继子'
+        && noSon.heirState.承嗣来路 === noSon.carry.承嗣来路
+        && noSon.heirState.承继定位 === '旁支接祧续户'
+        && noSon.stageHtml.includes('承嗣来路=')
+        && noSon.stageHtml.includes('承继定位=旁支接祧续户')
+        && noSon.establishmentHtml.includes('旁支继子续这一房')
+        && noSon.inv.length === 0
+    },
+    ok: oneSon.stageHtml.includes('以独子身份')
+      && threeSons.stageHtml.includes('以次子身份')
+      && noSon.stageHtml.includes('以旁支继子身份')
+      && oneSon.buttonLabel === '以独子身份 · 递归重开新一生 →'
+      && threeSons.buttonLabel === '以次子身份 · 递归重开新一生 →'
+      && noSon.buttonLabel === '以旁支继子身份 · 递归重开新一生 →'
+      && oneSon.heirState.承继身份 === '独子'
+      && threeSons.heirState.承继身份 === '次子'
+      && noSon.heirState.承继身份 === '旁支继子'
+      && oneSon.heirState.承嗣来路 === '本支独子承继'
+      && threeSons.heirState.承嗣来路 === '本支次子承继'
+      && noSon.heirState.承嗣来路 === noSon.carry.承嗣来路
+      && oneSon.heirState.承继定位 === '独子承家'
+      && threeSons.heirState.承继定位 === '长兄守田·次子另起一手'
+      && noSon.heirState.承继定位 === '旁支接祧续户'
+      && oneSon.stageHtml.includes('承嗣来路=本支独子承继')
+      && threeSons.stageHtml.includes('承嗣来路=本支次子承继')
+      && noSon.stageHtml.includes('承嗣来路=')
+      && oneSon.establishmentHtml.includes('独子承家')
+      && threeSons.establishmentHtml.includes('你仍是这一房的次子')
+      && noSon.establishmentHtml.includes('旁支继子续这一房')
+      && oneSon.inv.length === 0
+      && threeSons.inv.length === 0
+      && noSon.inv.length === 0
+  };
+}
+
+function runLegacyCarryIdentityNormalizationRegression() {
+  function playCase(carry) {
+    const { api, elements, window } = createHarness();
+    api.restartFromCarry(carry, 3);
+    return {
+      state: clone(api.getState()),
+      carryOver: clone(api.getCarryOver()),
+      stageHtml: normalizeHtml(elements.get('stage').innerHTML),
+      expectedButton: expectedHeirButtonLabel(carry),
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  const onlyViaOnlySon = playCase({
+    父辈路线: '读书应举',
+    承嗣来路: '本支独子承继',
+    白银: 2,
+    存米: 1,
+    铜钱: 180,
+    田亩: 2,
+    家族: 60,
+    家传书香: 2,
+    供读底子: 1
+  });
+
+  const onlyViaCollateral = playCase({
+    父辈路线: '留乡佃田',
+    承嗣来路: '旁支过继',
+    白银: 1,
+    存米: 2,
+    铜钱: 120,
+    田亩: 2,
+    家族: 56,
+    家传农事: 1
+  });
+
+  return {
+    onlyViaOnlySon: {
+      ok: onlyViaOnlySon.expectedButton === '以独子身份 · 递归重开新一生 →'
+        && onlyViaOnlySon.carryOver.承继身份 === '独子'
+        && onlyViaOnlySon.carryOver.承嗣来路 === '本支独子承继'
+        && onlyViaOnlySon.carryOver.承继定位 === '独子承家'
+        && onlyViaOnlySon.state.承继身份 === '独子'
+        && onlyViaOnlySon.state.承嗣来路 === '本支独子承继'
+        && onlyViaOnlySon.state.承继定位 === '独子承家'
+        && onlyViaOnlySon.stageHtml.includes('独子承家')
+        && onlyViaOnlySon.stageHtml.includes('承继身份=独子')
+        && onlyViaOnlySon.inv.length === 0
+    },
+    onlyViaCollateral: {
+      ok: onlyViaCollateral.expectedButton === '以旁支继子身份 · 递归重开新一生 →'
+        && onlyViaCollateral.carryOver.承继身份 === '旁支继子'
+        && onlyViaCollateral.carryOver.承嗣来路 === '旁支过继'
+        && onlyViaCollateral.carryOver.承继定位 === '旁支接祧续户'
+        && onlyViaCollateral.state.承继身份 === '旁支继子'
+        && onlyViaCollateral.state.承嗣来路 === '旁支过继'
+        && onlyViaCollateral.state.承继定位 === '旁支接祧续户'
+        && onlyViaCollateral.stageHtml.includes('旁支继子续这一房')
+        && onlyViaCollateral.stageHtml.includes('承继身份=旁支继子')
+        && onlyViaCollateral.inv.length === 0
+    },
+    ok: onlyViaOnlySon.carryOver.承继身份 === '独子'
+      && onlyViaOnlySon.state.承继定位 === '独子承家'
+      && onlyViaOnlySon.stageHtml.includes('承继身份=独子')
+      && onlyViaCollateral.carryOver.承继身份 === '旁支继子'
+      && onlyViaCollateral.state.承继定位 === '旁支接祧续户'
+      && onlyViaCollateral.stageHtml.includes('承继身份=旁支继子')
+      && onlyViaOnlySon.inv.length === 0
+      && onlyViaCollateral.inv.length === 0
+  };
+}
+
+function runDeathRemainderCarryRegression() {
+  function almostEqual(a, b) {
+    return Math.abs((Number(a) || 0) - (Number(b) || 0)) < 1e-9;
+  }
+  function playCase(patch) {
+    const { api, elements, window } = createHarness();
+    api.patchState(Object.assign({
+      路线: '留乡佃田',
+      年龄: 54,
+      妻室: true,
+      子数: 3,
+      女数: 1,
+      家族: 63,
+      农事历练: 4,
+      委托营生: '兄代管薄田',
+      委托租谷: 5,
+      委托待收租谷: 2
+    }, patch));
+    api.enterPhase('death');
+    const stageHtml = normalizeHtml(elements.get('stage').innerHTML);
+    const carry = clone(api.getState()._carry);
+    api.restartWithHeir();
+    return {
+      stageHtml,
+      carry,
+      heirState: clone(api.getState()),
+      establishmentHtml: normalizeHtml(elements.get('stage').innerHTML),
+      inv: (window.__INV || []).slice()
+    };
+  }
+  const integerCase = playCase({
+    白银: 6,
+    铜钱: 5,
+    存米: 6,
+    田亩: 5,
+    负债银: 10
+  });
+  const fractionalSilverCase = playCase({
+    白银: 4.51,
+    铜钱: 5,
+    存米: 6,
+    田亩: 5,
+    负债银: 0
+  });
+  const fractionalDebtCase = playCase({
+    白银: 2,
+    铜钱: 5,
+    存米: 6,
+    田亩: 5,
+    负债银: 3.51
+  });
+  const checks = {
+    integerStageText: integerCase.stageHtml.includes('余数落房：按第2子落份')
+      && integerCase.stageHtml.includes('余下的铜钱1文')
+      && integerCase.stageHtml.includes('存米1石')
+      && integerCase.stageHtml.includes('田1亩')
+      && integerCase.stageHtml.includes('旧债1两')
+      && integerCase.stageHtml.includes('委托定额租谷1石')
+      && integerCase.stageHtml.includes('待收委托田租1石'),
+    integerCarry: integerCase.carry.承继身份 === '次子'
+      && integerCase.carry.白银 === 0
+      && integerCase.carry.铜钱 === 2
+      && integerCase.carry.存米 === 2
+      && integerCase.carry.田亩 === 2
+      && integerCase.carry.负债银 === 2
+      && integerCase.carry.委托租谷 === 2
+      && integerCase.carry.委托待收租谷 === 1,
+    integerHeir: integerCase.heirState.承继身份 === '次子'
+      && integerCase.heirState.铜钱 === 2
+      && integerCase.heirState.存米 === 2
+      && integerCase.heirState.田亩 === 2
+      && integerCase.heirState.负债银 === 2
+      && integerCase.establishmentHtml.includes('长兄守田·次子另起一手')
+      && integerCase.inv.length === 0,
+    fractionalSilver: almostEqual(fractionalSilverCase.carry.白银, 1.17)
+      && almostEqual(fractionalSilverCase.heirState.白银, 1.17)
+      && fractionalSilverCase.inv.length === 0,
+    fractionalDebt: almostEqual(fractionalDebtCase.carry.负债银, 0.84)
+      && almostEqual(fractionalDebtCase.heirState.负债银, 0.84)
+      && fractionalDebtCase.inv.length === 0
+  };
+  return {
+    integerCase,
+    fractionalSilverCase,
+    fractionalDebtCase,
+    checks,
+    ok: Object.values(checks).every(Boolean)
+  };
+}
+
+function runCollateralDirectHeirLineageRegression() {
+  function playCase(sons) {
+    const { api, elements, window } = createHarness();
+    api.patchState({
+      路线: '留乡佃田',
+      年龄: 56,
+      妻室: true,
+      子数: sons,
+      女数: 1,
+      白银: 3,
+      铜钱: 180,
+      存米: 5,
+      田亩: 3,
+      家族: 62,
+      承继身份: '旁支继子',
+      承嗣来路: '旁支过继·旁支续承',
+      承继定位: '旁支接祧续户',
+      家传农事: 2,
+      委托营生: '出佃收租',
+      委托租谷: 2,
+      委托待收租谷: 1
+    });
+    api.enterPhase('death');
+    const stageHtml = normalizeHtml(elements.get('stage').innerHTML);
+    const buttonLabel = extractStageButtonLabel(stageHtml, 'btn-pnext');
+    const carry = clone(api.getState()._carry);
+    api.restartWithHeir();
+    const heirState = clone(api.getState());
+    const establishmentHtml = normalizeHtml(elements.get('stage').innerHTML);
+    return { sons, stageHtml, buttonLabel, carry, heirState, establishmentHtml, inv: clone(window.__INV || []) };
+  }
+
+  const oneSon = playCase(1);
+  const threeSons = playCase(3);
+
+  return {
+    oneSon: {
+      ok: oneSon.stageHtml.includes('以独子身份')
+        && oneSon.buttonLabel === '以独子身份 · 递归重开新一生 →'
+        && oneSon.carry.承继身份 === '独子'
+        && oneSon.carry.承嗣来路 === '旁支过继·旁支续承·本支独子承继'
+        && oneSon.heirState.承继身份 === '独子'
+        && oneSon.heirState.承嗣来路 === '旁支过继·旁支续承·本支独子承继'
+        && oneSon.stageHtml.includes('承嗣来路=旁支过继·旁支续承·本支独子承继')
+        && oneSon.establishmentHtml.includes('旁支续承')
+        && oneSon.inv.length === 0
+    },
+    threeSons: {
+      ok: threeSons.stageHtml.includes('以次子身份')
+        && threeSons.buttonLabel === '以次子身份 · 递归重开新一生 →'
+        && threeSons.carry.承继身份 === '次子'
+        && threeSons.carry.承嗣来路 === '旁支过继·旁支续承·本支次子承继'
+        && threeSons.heirState.承继身份 === '次子'
+        && threeSons.heirState.承嗣来路 === '旁支过继·旁支续承·本支次子承继'
+        && threeSons.stageHtml.includes('承嗣来路=旁支过继·旁支续承·本支次子承继')
+        && threeSons.establishmentHtml.includes('旁支续承')
+        && threeSons.inv.length === 0
+    },
+    ok: oneSon.stageHtml.includes('以独子身份')
+      && threeSons.stageHtml.includes('以次子身份')
+      && oneSon.carry.承继身份 === '独子'
+      && threeSons.carry.承继身份 === '次子'
+      && oneSon.carry.承嗣来路 === '旁支过继·旁支续承·本支独子承继'
+      && threeSons.carry.承嗣来路 === '旁支过继·旁支续承·本支次子承继'
+      && oneSon.heirState.承嗣来路 === '旁支过继·旁支续承·本支独子承继'
+      && threeSons.heirState.承嗣来路 === '旁支过继·旁支续承·本支次子承继'
+      && oneSon.establishmentHtml.includes('旁支续承')
+      && threeSons.establishmentHtml.includes('旁支续承')
+      && oneSon.inv.length === 0
+      && threeSons.inv.length === 0
+  };
+}
+
+function runDebtVisibilityLifecycleRegression() {
+  const carry = {
+    白银: 1,
+    铜钱: 260,
+    存米: 4,
+    田亩: 2,
+    负债银: 2,
+    家族: 61,
+    承继身份: '次子',
+    承嗣来路: '本支次子承继',
+    承继定位: '长兄续商·次子候读',
+    家传书香: 1,
+    城里门路: 1,
+    商路门路: 1,
+    家传手艺: 0,
+    家传农事: 0,
+    亦贾亦儒底子: 1,
+    供读底子: 1,
+    旧门路衰减: 1,
+    委托营生: '出佃收租',
+    委托租谷: 1,
+    委托待收租谷: 1
+  };
+  const { api, elements, window } = createHarness();
+  api.restartFromCarry(carry, 2);
+  const establishmentHtml = normalizeHtml(elements.get('stage').innerHTML);
+  const merchantChoice = api.getChoices().find((choice) => choice.name === '路径四 · 徽商式亦贾亦儒');
+  if (!api.chooseByName('路径四 · 徽商式亦贾亦儒')) throw new Error('未找到商路入口');
+  api.next();
+  const merchantStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  api.patchState({
+    年龄: 24,
+    妻室: false,
+    子数: 0,
+    女数: 0,
+    白银: 1,
+    铜钱: 260,
+    存米: 4,
+    田亩: 2,
+    家族: 61,
+    路线: '徽商式亦贾亦儒'
+  });
+  api.enterPhase('marriage');
+  const marriageStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  api.patchState({
+    年龄: 38,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 1,
+    铜钱: 260,
+    存米: 4,
+    田亩: 2,
+    家族: 61,
+    路线: '徽商式亦贾亦儒'
+  });
+  api.enterPhase('household');
+  const householdStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  api.patchState({
+    年龄: 52,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 1,
+    铜钱: 260,
+    存米: 4,
+    田亩: 2,
+    家族: 61,
+    路线: '徽商式亦贾亦儒'
+  });
+  api.enterPhase('elder');
+  const elderStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  api.patchState({
+    年龄: 58,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 1,
+    铜钱: 260,
+    存米: 4,
+    田亩: 2,
+    家族: 61,
+    路线: '徽商式亦贾亦儒'
+  });
+  api.enterPhase('death');
+  const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+  const deathCarry = clone(api.getState()._carry);
+  api.restartWithHeir();
+  const heirState = clone(api.getState());
+  const heirEstablishment = normalizeHtml(elements.get('stage').innerHTML);
+  const stageMentionsDebt = (stageHtml, amount) => {
+    const text = String(stageHtml || '');
+    return text.includes(`旧债${amount}两`)
+      || text.includes(`旧债还有${amount}两`)
+      || text.includes(`负债银=${amount}两`);
+  };
+  const checks = {
+    establishmentDebtVisible: stageMentionsDebt(establishmentHtml, 2),
+    merchantChoiceExists: !!merchantChoice,
+    merchantChoiceDebtVisible: !!merchantChoice && stageMentionsDebt(merchantChoice.note, 2),
+    marriageDebtVisible: stageMentionsDebt(marriageStage, 2),
+    householdDebtVisible: stageMentionsDebt(householdStage, 2),
+    elderDebtVisible: stageMentionsDebt(elderStage, 2),
+    deathCarryRemainderOk: deathCarry.负债银 === 1,
+    deathSummaryDebtVisible: stageMentionsDebt(deathStage, deathCarry.负债银),
+    heirDebtInherited: heirState.负债银 === deathCarry.负债银,
+    heirEstablishmentDebtVisible: stageMentionsDebt(heirEstablishment, 1)
+  };
+
+  return {
+    establishmentHtml,
+    merchantChoiceNote: merchantChoice ? merchantChoice.note : '',
+    merchantStage,
+    marriageStage,
+    householdStage,
+    elderStage,
+    deathStage,
+    deathCarry,
+    heirState,
+    heirEstablishment,
+    checks,
+    ok: Object.values(checks).every(Boolean)
+  };
+}
+
+function runFiveRouteLifecycleClosureRegression() {
+  const carry = {
+    白银: 2,
+    铜钱: 420,
+    存米: 3,
+    田亩: 2,
+    负债银: 2,
+    家族: 64,
+    父辈路线: '全生命周期承接验证',
+    承继身份: '旁支继子',
+    承嗣来路: '旁支过继·旁支续承',
+    承继定位: '长兄续商·次子候读',
+    家传书香: 1,
+    城里门路: 1,
+    商路门路: 2,
+    家传手艺: 1,
+    家传农事: 1,
+    亦贾亦儒底子: 1,
+    供读底子: 1,
+    旧门路衰减: 2,
+    委托营生: '兄代管薄田',
+    委托租谷: 1,
+    委托待收租谷: 1
+  };
+  const requiredLifecycleTokens = [
+    '承继身份=旁支继子',
+    '父辈路线=全生命周期承接验证',
+    '承继定位=长兄续商·次子候读',
+    '承嗣来路=旁支过继·旁支续承',
+    '家传书香=1层',
+    '城里门路=1层',
+    '商路门路=2层',
+    '家传手艺=1层',
+    '家传农事=1层',
+    '亦贾亦儒底子=1层',
+    '供读底子=1层',
+    '旧门路衰减=2层',
+    '委托租谷=1石/年'
+  ];
+  const routes = [
+    {
+      routeName: '路径一 · 留乡佃田',
+      routeState: {
+        路线: '留乡佃田',
+        识字: true,
+        农事历练: 4,
+        最近农闲营生层级: '家传农事底子',
+        最近农闲营生收益: 140
+      }
+    },
+    {
+      routeName: '路径二 · 受雇长工 / 短工',
+      routeState: {
+        路线: '受雇长工/短工',
+        识字: true,
+        农事历练: 1,
+        雇工历练: 3,
+        雇技进度: 2,
+        雇身份: '外出佣工'
+      }
+    },
+    {
+      routeName: '路径三 · 入城学徒',
+      routeState: {
+        路线: '入城学徒',
+        识字: true,
+        学徒合同: '说合中',
+        学徒授艺度: 2,
+        学徒去向: '留店伙计'
+      }
+    },
+    {
+      routeName: '路径四 · 徽商式亦贾亦儒',
+      routeState: {
+        路线: '徽商式亦贾亦儒',
+        识字: true,
+        商历练: 3,
+        商信誉: 2,
+        账房进度: 2,
+        识货进度: 1,
+        累计反哺银: 2,
+        商路供读银: 1,
+        未回款银: 1
+      }
+    },
+    {
+      routeName: '路径五 · 读书应举',
+      routeState: {
+        路线: '读书应举',
+        识字: true,
+        保结进度: 1,
+        童试层级: 1,
+        举业结局: '县试未冠'
+      }
+    }
+  ];
+  const buildPhasePatch = (phase, routeState) => Object.assign({
+    年龄: phase === 'marriage' ? 24 : (phase === 'household' ? 38 : (phase === 'elder' ? 52 : 60)),
+    妻室: phase !== 'marriage',
+    子数: phase === 'marriage' ? 0 : 2,
+    女数: phase === 'marriage' ? 0 : 1,
+    白银: 2,
+    铜钱: 420,
+    存米: 3,
+    田亩: 2,
+    负债银: 2,
+    家族: 64,
+    议旬: phase === 'marriage' ? 3 : 1,
+    户季: phase === 'household' ? 2 : 1,
+    户旬: phase === 'household' ? 2 : 1,
+    老季: phase === 'elder' ? 3 : 1,
+    老旬: phase === 'elder' ? 2 : 1
+  }, routeState);
+  const stageCoversCarry = (stageHtml) => {
+    const text = normalizeHtml(stageHtml || '');
+    return requiredLifecycleTokens.every((token) => text.includes(token))
+      && stageMentionsDebt(text, carry.负债银)
+      && stageMentionsDelegatedRent(text, carry.委托待收租谷);
+  };
+  const results = routes.map(({ routeName, routeState }, index) => {
+    const { api, elements, window } = createHarness();
+    api.restartFromCarry(carry, 2);
+    api.setRandomSeed(8600 + index);
+    const establishmentHtml = normalizeHtml(elements.get('stage').innerHTML);
+    const routeChoice = api.getChoices().find((choice) => choice.name === routeName) || null;
+    if (!api.chooseByName(routeName)) throw new Error(`未找到路线：${routeName}`);
+    api.next();
+    const entryState = clone(api.getState());
+    const entryStage = normalizeHtml(elements.get('stage').innerHTML);
+
+    api.patchState(buildPhasePatch('marriage', routeState));
+    api.enterPhase('marriage');
+    const marriageStage = normalizeHtml(elements.get('stage').innerHTML);
+
+    api.patchState(buildPhasePatch('household', routeState));
+    api.enterPhase('household');
+    const householdStage = normalizeHtml(elements.get('stage').innerHTML);
+
+    api.patchState(buildPhasePatch('elder', routeState));
+    api.enterPhase('elder');
+    const elderStage = normalizeHtml(elements.get('stage').innerHTML);
+
+    api.patchState(buildPhasePatch('death', routeState));
+    api.enterPhase('death');
+    const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+    const deathCarry = clone(api.getState()._carry);
+    const buttonLabel = extractStageButtonLabel(deathStage, 'btn-pnext');
+    api.restartWithHeir();
+    const heirState = clone(api.getState());
+    const heirEstablishment = normalizeHtml(elements.get('stage').innerHTML);
+    const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+    const checks = {
+      establishmentCarryApplied: establishmentCarryApplied(carry, api.getInitialState ? api.getInitialState() : api.getState()) || stageCoversCarry(establishmentHtml),
+      routeChoiceVisible: !!routeChoice,
+      entryCarryApplied: runtimeCarryApplied(routeName, carry, entryState),
+      entryStageLoaded: entryStage.length > 0 && entryState.路线 === routeState.路线,
+      marriageCarryVisible: stageCoversCarry(marriageStage),
+      householdCarryVisible: stageCoversCarry(householdStage),
+      elderCarryVisible: stageCoversCarry(elderStage),
+      deathCarryVisible: !!deathCarry && deathStageCoversCarry(deathCarry, deathStage),
+      deathButtonMatchesIdentity: !!deathCarry && buttonLabel === `以${deathCarry.承继身份}身份 · 递归重开新一生 →`,
+      heirCarryApplied: !!deathCarry && establishmentCarryApplied(deathCarry, heirState),
+      heirIdentityVisible: !!deathCarry && heirEstablishment.includes(deathCarry.承继定位),
+      phaseTraceClosed: api.getPhase() === 'establishment' && phaseTrace.length >= 1,
+      phaseTraceAgeMonotonic: phaseTraceAgeNeverDrops(phaseTrace),
+      noInvLeak: (window.__INV || []).length === 0
+    };
+    return {
+      route: routeName,
+      establishmentHtml,
+      routeChoiceNote: routeChoice ? normalizeHtml(routeChoice.note) : '',
+      entryStage,
+      marriageStage,
+      householdStage,
+      elderStage,
+      deathStage,
+      buttonLabel,
+      deathCarry,
+      heirState,
+      heirEstablishment,
+      phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      checks,
+      ok: Object.values(checks).every(Boolean)
+    };
+  });
+  return {
+    results,
+    ok: results.every((item) => item.ok)
+  };
+}
+
+function runRouteAwareLifecycleStageVisibilityRegression() {
+  const cases = [
+    {
+      routeName: '路径一 · 留乡佃田',
+      carry: {
+        白银: 2,
+        铜钱: 380,
+        存米: 4,
+        田亩: 3,
+        负债银: 1,
+        家族: 65,
+        父辈路线: '留乡佃田',
+        承继身份: '次子',
+        承嗣来路: '本支次子承继',
+        承继定位: '长兄守田·次子另起一手',
+        家传书香: 1,
+        家传农事: 1,
+        旧门路衰减: 0,
+        委托营生: '兄代管薄田',
+        委托租谷: 1,
+        委托待收租谷: 1,
+        婚配路径: '暂不婚·改定额佃',
+        定额佃状态: '已立定额佃'
+      },
+      routeState: {
+        路线: '留乡佃田',
+        识字: true,
+        农事历练: 4,
+        定额佃状态: '已立定额佃',
+        婚配路径: '暂不婚·改定额佃'
+      },
+      stageTokens: [
+        '父辈路线=留乡佃田',
+        '承继定位=长兄守田·次子另起一手',
+        '婚配路径=暂不婚·改定额佃',
+        '定额佃状态=已立定额佃',
+        '委托租谷=1石/年',
+        '待收委托田租=1石'
+      ]
+    },
+    {
+      routeName: '路径二 · 受雇长工 / 短工',
+      carry: {
+        白银: 2,
+        铜钱: 360,
+        存米: 3,
+        田亩: 2,
+        负债银: 1,
+        家族: 63,
+        父辈路线: '受雇长工/短工',
+        承继身份: '次子',
+        承嗣来路: '本支次子承继',
+        承继定位: '长兄守田·次子另起一手',
+        城里门路: 1,
+        家传手艺: 1,
+        旧门路衰减: 0,
+        委托营生: '兄代管薄田',
+        委托租谷: 1,
+        委托待收租谷: 1,
+        婚配路径: '先应差·外出佣工',
+        雇身份: '外出佣工'
+      },
+      routeState: {
+        路线: '受雇长工/短工',
+        识字: true,
+        雇工历练: 3,
+        雇技进度: 2,
+        雇身份: '外出佣工',
+        婚配路径: '先应差·外出佣工',
+        城里门路: 1
+      },
+      stageTokens: [
+        '父辈路线=受雇长工/短工',
+        '承继定位=长兄守田·次子另起一手',
+        '婚配路径=先应差·外出佣工',
+        '雇身份=外出佣工',
+        '城里门路=1层',
+        '待收委托田租=1石'
+      ]
+    },
+    {
+      routeName: '路径三 · 入城学徒',
+      carry: {
+        白银: 2,
+        铜钱: 340,
+        存米: 3,
+        田亩: 2,
+        负债银: 1,
+        家族: 64,
+        父辈路线: '入城学徒',
+        承继身份: '次子',
+        承嗣来路: '本支次子承继',
+        承继定位: '长兄守户·次子循城外求',
+        城里门路: 1,
+        商路门路: 1,
+        旧门路衰减: 0,
+        委托营生: '兄代管薄田',
+        委托租谷: 1,
+        委托待收租谷: 1,
+        学徒去向: '留店伙计'
+      },
+      routeState: {
+        路线: '入城学徒',
+        识字: true,
+        学徒合同: '说合中',
+        学徒授艺度: 2,
+        学徒去向: '留店伙计',
+        城里门路: 1
+      },
+      stageTokens: [
+        '父辈路线=入城学徒',
+        '承继定位=长兄守户·次子循城外求',
+        '学徒去向=留店伙计',
+        '城里门路=1层',
+        '商路门路=1层',
+        '待收委托田租=1石'
+      ]
+    },
+    {
+      routeName: '路径四 · 徽商式亦贾亦儒',
+      carry: {
+        白银: 3,
+        铜钱: 520,
+        存米: 4,
+        田亩: 2,
+        负债银: 1,
+        家族: 66,
+        父辈路线: '徽商式亦贾亦儒',
+        承继身份: '次子',
+        承嗣来路: '本支次子承继',
+        承继定位: '长兄续商·次子候读',
+        城里门路: 1,
+        商路门路: 2,
+        亦贾亦儒底子: 1,
+        供读底子: 1,
+        旧门路衰减: 1,
+        委托营生: '出佃收租',
+        委托租谷: 2,
+        委托待收租谷: 2
+      },
+      routeState: {
+        路线: '徽商式亦贾亦儒',
+        识字: true,
+        商历练: 3,
+        商信誉: 2,
+        账房进度: 2,
+        识货进度: 1,
+        累计反哺银: 2,
+        商路供读银: 1,
+        未回款银: 1
+      },
+      stageTokens: [
+        '父辈路线=徽商式亦贾亦儒',
+        '承继定位=长兄续商·次子候读',
+        '商路门路=2层',
+        '亦贾亦儒底子=1层',
+        '供读底子=1层',
+        '委托租谷=2石/年',
+        '待收委托田租=2石'
+      ]
+    },
+    {
+      routeName: '路径五 · 读书应举',
+      carry: {
+        白银: 2,
+        铜钱: 400,
+        存米: 3,
+        田亩: 2,
+        负债银: 1,
+        家族: 65,
+        父辈路线: '读书应举',
+        承继身份: '次子',
+        承嗣来路: '本支次子承继',
+        承继定位: '长兄守户·次子续读',
+        家传书香: 2,
+        商路门路: 1,
+        供读底子: 1,
+        旧门路衰减: 0,
+        委托营生: '兄代管薄田',
+        委托租谷: 1,
+        委托待收租谷: 1,
+        举业结局: '屡试未第'
+      },
+      routeState: {
+        路线: '读书应举',
+        识字: true,
+        保结进度: 1,
+        童试层级: 1,
+        举业结局: '屡试未第'
+      },
+      stageTokens: [
+        '父辈路线=读书应举',
+        '承继定位=长兄守户·次子续读',
+        '家传书香=2层',
+        '供读底子=1层',
+        '举业结局=屡试未第',
+        '待收委托田租=1石'
+      ]
+    }
+  ];
+  const buildPhasePatch = (phase, routeState, carry) => Object.assign({
+    年龄: phase === 'marriage' ? 24 : (phase === 'household' ? 38 : (phase === 'elder' ? 52 : 60)),
+    妻室: phase !== 'marriage',
+    子数: phase === 'marriage' ? 0 : 2,
+    女数: phase === 'marriage' ? 0 : 1,
+    白银: Math.max(2, carry.白银 || 0),
+    铜钱: Math.max(360, carry.铜钱 || 0),
+    存米: Math.max(3, carry.存米 || 0),
+    田亩: Math.max(2, carry.田亩 || 0),
+    负债银: carry.负债银 || 0,
+    家族: Math.max(62, carry.家族 || 0),
+    委托营生: carry.委托营生 || '无',
+    委托租谷: carry.委托租谷 || 0,
+    委托待收租谷: carry.委托待收租谷 || 0,
+    婚配路径: carry.婚配路径 || '未定',
+    合爨状态: carry.合爨状态 || '未合爨',
+    定额佃状态: carry.定额佃状态 || '未立',
+    雇身份: carry.雇身份 || '未定',
+    学徒去向: carry.学徒去向 || '未定',
+    举业结局: carry.举业结局 || '未定',
+    供读底子: carry.供读底子 || 0,
+    家传书香: carry.家传书香 || 0,
+    家传手艺: carry.家传手艺 || 0,
+    家传农事: carry.家传农事 || 0,
+    城里门路: carry.城里门路 || 0,
+    商路门路: carry.商路门路 || 0,
+    亦贾亦儒底子: carry.亦贾亦儒底子 || 0,
+    旧门路衰减: carry.旧门路衰减 || 0,
+    议旬: phase === 'marriage' ? 3 : 1,
+    户季: phase === 'household' ? 2 : 1,
+    户旬: phase === 'household' ? 2 : 1,
+    老季: phase === 'elder' ? 3 : 1,
+    老旬: phase === 'elder' ? 2 : 1
+  }, routeState);
+  function stageHasCarryTokens(stageHtml, carry, tokens) {
+    const text = normalizeHtml(stageHtml || '');
+    if (!tokens.every((token) => text.includes(token))) return false;
+    if ((carry.负债银 || 0) > 0 && !stageMentionsDebt(text, carry.负债银)) return false;
+    if ((carry.委托待收租谷 || 0) > 0 && !stageMentionsDelegatedRent(text, carry.委托待收租谷)) return false;
+    return true;
+  }
+  const results = cases.map(({ routeName, carry, routeState, stageTokens }, index) => {
+    const { api, elements, window } = createHarness();
+    api.restartFromCarry(carry, 2);
+    api.setRandomSeed(9700 + index);
+    const establishmentHtml = normalizeHtml(elements.get('stage').innerHTML);
+    if (!api.chooseByName(routeName)) throw new Error(`未找到路线：${routeName}`);
+    api.next();
+    const entryState = clone(api.getState());
+    const entryStage = normalizeHtml(elements.get('stage').innerHTML);
+
+    api.patchState(buildPhasePatch('marriage', routeState, carry));
+    api.enterPhase('marriage');
+    const marriageStage = normalizeHtml(elements.get('stage').innerHTML);
+
+    api.patchState(buildPhasePatch('household', routeState, carry));
+    api.enterPhase('household');
+    const householdStage = normalizeHtml(elements.get('stage').innerHTML);
+
+    api.patchState(buildPhasePatch('elder', routeState, carry));
+    api.enterPhase('elder');
+    const elderStage = normalizeHtml(elements.get('stage').innerHTML);
+
+    api.patchState(buildPhasePatch('death', routeState, carry));
+    api.enterPhase('death');
+    const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+    const deathCarry = clone(api.getState()._carry);
+    api.restartWithHeir();
+    const heirState = clone(api.getState());
+    const heirEstablishment = normalizeHtml(elements.get('stage').innerHTML);
+
+    const checks = {
+      establishmentCarryVisible: stageHasCarryTokens(establishmentHtml, carry, stageTokens),
+      routeEntryCarryApplied: runtimeCarryApplied(routeName, carry, entryState),
+      routeEntryMentionsCarry: expectedHintFragments(carry).every((fragment) => entryStage.includes(fragment)),
+      marriageCarryVisible: stageHasCarryTokens(marriageStage, carry, stageTokens),
+      householdCarryVisible: stageHasCarryTokens(householdStage, carry, stageTokens),
+      elderCarryVisible: stageHasCarryTokens(elderStage, carry, stageTokens),
+      deathCarryVisible: !!deathCarry && deathStageCoversCarry(deathCarry, deathStage),
+      heirCarryApplied: !!deathCarry && establishmentCarryApplied(deathCarry, heirState),
+      heirMentionsCarry: !!deathCarry && expectedHintFragments(deathCarry).every((fragment) => heirEstablishment.includes(fragment)),
+      noInvLeak: (window.__INV || []).length === 0
+    };
+
+    return {
+      route: routeName,
+      stageTokens,
+      establishmentHtml,
+      entryStage,
+      marriageStage,
+      householdStage,
+      elderStage,
+      deathStage,
+      heirEstablishment,
+      checks,
+      ok: Object.values(checks).every(Boolean)
+    };
+  });
+  return {
+    results,
+    ok: results.every((item) => item.ok)
+  };
+}
+
+function runInheritedRouteAwareCarryOnlyVisibilityRegression() {
+  const cases = [
+    {
+      routeName: '路径一 · 留乡佃田',
+      carry: {
+        白银: 2,
+        铜钱: 380,
+        存米: 4,
+        田亩: 3,
+        负债银: 1,
+        家族: 65,
+        父辈路线: '留乡佃田',
+        承继身份: '次子',
+        承嗣来路: '本支次子承继',
+        承继定位: '长兄守田·次子另起一手',
+        家传农事: 1,
+        委托营生: '兄代管薄田',
+        委托租谷: 1,
+        委托待收租谷: 1,
+        婚配路径: '暂不婚·改定额佃',
+        定额佃状态: '已立定额佃'
+      },
+      routeState: { 路线: '留乡佃田', 识字: true, 农事历练: 4 },
+      stageTokens: [
+        '婚配路径=暂不婚·改定额佃',
+        '定额佃状态=已立定额佃',
+        '承继定位=长兄守田·次子另起一手',
+        '待收委托田租=1石'
+      ]
+    },
+    {
+      routeName: '路径二 · 受雇长工 / 短工',
+      carry: {
+        白银: 2,
+        铜钱: 360,
+        存米: 3,
+        田亩: 2,
+        负债银: 1,
+        家族: 63,
+        父辈路线: '受雇长工/短工',
+        承继身份: '次子',
+        承嗣来路: '本支次子承继',
+        承继定位: '长兄守田·次子另起一手',
+        城里门路: 1,
+        家传手艺: 1,
+        委托营生: '兄代管薄田',
+        委托租谷: 1,
+        委托待收租谷: 1,
+        婚配路径: '先应差·外出佣工',
+        雇身份: '外出佣工'
+      },
+      routeState: { 路线: '受雇长工/短工', 识字: true, 雇工历练: 3, 雇技进度: 2, 城里门路: 1 },
+      stageTokens: [
+        '婚配路径=先应差·外出佣工',
+        '雇身份=外出佣工',
+        '承继定位=长兄守田·次子另起一手',
+        '待收委托田租=1石'
+      ]
+    },
+    {
+      routeName: '路径三 · 入城学徒',
+      carry: {
+        白银: 2,
+        铜钱: 340,
+        存米: 3,
+        田亩: 2,
+        负债银: 1,
+        家族: 64,
+        父辈路线: '入城学徒',
+        承继身份: '次子',
+        承嗣来路: '本支次子承继',
+        承继定位: '长兄守户·次子循城外求',
+        城里门路: 1,
+        商路门路: 1,
+        委托营生: '兄代管薄田',
+        委托租谷: 1,
+        委托待收租谷: 1,
+        学徒去向: '留店伙计'
+      },
+      routeState: { 路线: '入城学徒', 识字: true, 学徒合同: '说合中', 学徒授艺度: 2, 城里门路: 1 },
+      stageTokens: [
+        '学徒去向=留店伙计',
+        '承继定位=长兄守户·次子循城外求',
+        '商路门路=1层',
+        '待收委托田租=1石'
+      ]
+    },
+    {
+      routeName: '路径四 · 徽商式亦贾亦儒',
+      carry: {
+        白银: 3,
+        铜钱: 520,
+        存米: 4,
+        田亩: 2,
+        负债银: 1,
+        家族: 66,
+        父辈路线: '徽商式亦贾亦儒',
+        承继身份: '次子',
+        承嗣来路: '本支次子承继',
+        承继定位: '长兄续商·次子候读',
+        商路门路: 2,
+        亦贾亦儒底子: 1,
+        供读底子: 1,
+        旧门路衰减: 1,
+        委托营生: '出佃收租',
+        委托租谷: 2,
+        委托待收租谷: 2
+      },
+      routeState: {
+        路线: '徽商式亦贾亦儒',
+        识字: true,
+        商历练: 3,
+        商信誉: 2,
+        账房进度: 2,
+        识货进度: 1,
+        累计反哺银: 2,
+        商路供读银: 1,
+        未回款银: 1
+      },
+      stageTokens: [
+        '承继定位=长兄续商·次子候读',
+        '亦贾亦儒底子=1层',
+        '供读底子=1层',
+        '待收委托田租=2石'
+      ]
+    },
+    {
+      routeName: '路径五 · 读书应举',
+      carry: {
+        白银: 2,
+        铜钱: 400,
+        存米: 3,
+        田亩: 2,
+        负债银: 1,
+        家族: 65,
+        父辈路线: '读书应举',
+        承继身份: '次子',
+        承嗣来路: '本支次子承继',
+        承继定位: '长兄守户·次子续读',
+        家传书香: 2,
+        商路门路: 1,
+        供读底子: 1,
+        委托营生: '兄代管薄田',
+        委托租谷: 1,
+        委托待收租谷: 1,
+        举业结局: '屡试未第'
+      },
+      routeState: { 路线: '读书应举', 识字: true, 保结进度: 1, 童试层级: 1 },
+      stageTokens: [
+        '承继定位=长兄守户·次子续读',
+        '家传书香=2层',
+        '供读底子=1层',
+        '举业结局=屡试未第',
+        '待收委托田租=1石'
+      ]
+    }
+  ];
+  const phasePatches = {
+    marriage: { 年龄: 24, 妻室: false, 子数: 0, 女数: 0, 议旬: 3 },
+    household: { 年龄: 38, 妻室: true, 子数: 2, 女数: 1, 户季: 2, 户旬: 2 },
+    elder: { 年龄: 52, 妻室: true, 子数: 2, 女数: 1, 老季: 3, 老旬: 2 },
+    death: { 年龄: 60, 妻室: true, 子数: 2, 女数: 1 }
+  };
+  const stageHasCarryTokens = (stageHtml, carry, tokens) => {
+    const text = normalizeHtml(stageHtml || '');
+    if (!tokens.every((token) => text.includes(token))) return false;
+    if ((carry.负债银 || 0) > 0 && !stageMentionsDebt(text, carry.负债银)) return false;
+    if ((carry.委托待收租谷 || 0) > 0 && !stageMentionsDelegatedRent(text, carry.委托待收租谷)) return false;
+    return true;
+  };
+  const buildPatch = (phase, carry, routeState) => Object.assign({
+    白银: Math.max(2, carry.白银 || 0),
+    铜钱: Math.max(360, carry.铜钱 || 0),
+    存米: Math.max(3, carry.存米 || 0),
+    田亩: Math.max(2, carry.田亩 || 0),
+    负债银: carry.负债银 || 0,
+    家族: Math.max(62, carry.家族 || 0),
+    委托营生: carry.委托营生 || '无',
+    委托租谷: carry.委托租谷 || 0,
+    委托待收租谷: carry.委托待收租谷 || 0
+  }, phasePatches[phase], routeState);
+  const results = cases.map(({ routeName, carry, routeState, stageTokens }, index) => {
+    const { api, elements, window } = createHarness();
+    api.restartFromCarry(carry, 2);
+    api.setRandomSeed(9900 + index);
+    if (!api.chooseByName(routeName)) throw new Error(`未找到路线：${routeName}`);
+    api.next();
+    const phases = ['marriage', 'household', 'elder', 'death'].map((phase) => {
+      api.patchState(buildPatch(phase, carry, routeState));
+      api.enterPhase(phase);
+      const html = normalizeHtml(elements.get('stage').innerHTML);
+      if (phase === 'death') {
+        const deathCarry = clone(api.getState()._carry);
+        return { phase, html, ok: !!deathCarry && deathStageCoversCarry(deathCarry, html) };
+      }
+      return { phase, html, ok: stageHasCarryTokens(html, carry, stageTokens) };
+    });
+    return {
+      route: routeName,
+      phases,
+      ok: phases.every((item) => item.ok) && (window.__INV || []).length === 0
+    };
+  });
+  return {
+    results,
+    ok: results.every((item) => item.ok)
+  };
+}
+
+function runInheritedDelegatedRentBridgeRegression() {
+  function playCase(routeChoice, patch, carry) {
+    const { api, elements, window } = createHarness();
+    api.setRandomSeed(9201);
+    api.restartFromCarry(carry, 2);
+    if (!api.chooseByName(routeChoice)) throw new Error(`未找到路线：${routeChoice}`);
+    api.next();
+    api.patchState(Object.assign({
+      年龄: 38,
+      妻室: true,
+      子数: 2,
+      女数: 1,
+      白银: 1,
+      铜钱: 280,
+      存米: 3,
+      田亩: Math.max(2, carry.田亩 || 0),
+      负债银: carry.负债银 || 0,
+      家族: 64,
+      分家: false
+    }, patch || {}));
+    api.enterPhase('household');
+    const householdStage = normalizeHtml(elements.get('stage').innerHTML);
+    const beforeState = clone(api.getState());
+    api.setRandomSequence(householdSafeSeq(0.01, 0.9));
+    pickByPlan(api, ['h_literate', 'h_clan', 'h_rest', 'h_side', 'h_school_fund']);
+    api.commit();
+    const postState = clone(api.getState());
+    api.enterPhase('death');
+    const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+    const deathCarry = clone(api.getState()._carry);
+    return {
+      householdStage,
+      beforeState,
+      postState,
+      deathStage,
+      deathCarry,
+      inv: clone(window.__INV || [])
+    };
+  }
+
+  const farmCarry = {
+    白银: 1,
+    存米: 3,
+    田亩: 2,
+    铜钱: 260,
+    负债银: 1,
+    家族: 65,
+    父辈路线: '留乡佃田',
+    承嗣来路: '本支次子承继',
+    承继身份: '次子',
+    承继定位: '长兄守田·次子另起一手',
+    委托营生: '兄代管薄田',
+    委托租谷: 1,
+    委托待收租谷: 2,
+    家传农事: 1,
+    家传手艺: 0,
+    家传书香: 0,
+    城里门路: 0,
+    商路门路: 0,
+    亦贾亦儒底子: 0,
+    供读底子: 0
+  };
+  const merchantCarry = {
+    白银: 2,
+    存米: 4,
+    田亩: 2,
+    铜钱: 320,
+    负债银: 0,
+    家族: 66,
+    父辈路线: '徽商式亦贾亦儒',
+    承嗣来路: '本支次子承继',
+    承继身份: '次子',
+    承继定位: '长兄续商·次子候读',
+    委托营生: '出佃收租',
+    委托租谷: 2,
+    委托待收租谷: 3,
+    家传农事: 0,
+    家传手艺: 0,
+    家传书香: 0,
+    城里门路: 0,
+    商路门路: 1,
+    亦贾亦儒底子: 1,
+    供读底子: 1
+  };
+
+  const farm = playCase('路径一 · 留乡佃田', {
+    农事历练: 4,
+    委托营生: farmCarry.委托营生,
+    委托租谷: farmCarry.委托租谷,
+    委托待收租谷: farmCarry.委托待收租谷
+  }, farmCarry);
+  const merchant = playCase('路径四 · 徽商式亦贾亦儒', {
+    商历练: 3,
+    识字: true,
+    商信誉: 2,
+    委托营生: merchantCarry.委托营生,
+    委托租谷: merchantCarry.委托租谷,
+    委托待收租谷: merchantCarry.委托待收租谷
+  }, merchantCarry);
+
+  return {
+    farm: {
+      householdStage: farm.householdStage,
+      beforeState: {
+        委托营生: farm.beforeState.委托营生,
+        委托租谷: farm.beforeState.委托租谷,
+        委托待收租谷: farm.beforeState.委托待收租谷
+      },
+      postState: {
+        委托营生: farm.postState.委托营生,
+        委托租谷: farm.postState.委托租谷,
+        委托待收租谷: farm.postState.委托待收租谷
+      },
+      deathStage: farm.deathStage,
+      deathCarry: {
+        委托营生: farm.deathCarry.委托营生,
+        委托租谷: farm.deathCarry.委托租谷,
+        委托待收租谷: farm.deathCarry.委托待收租谷
+      },
+      inv: farm.inv,
+      ok: farm.householdStage.includes('承继身份=次子')
+        && farm.householdStage.includes('待收委托田租=2石')
+        && farm.beforeState.委托营生 === '兄代管薄田'
+        && farm.postState.委托营生 === '兄代管薄田'
+        && farm.postState.委托租谷 === 1
+        && farm.postState.委托待收租谷 === 2
+        && farm.deathCarry.委托营生 === '兄代管薄田'
+        && farm.deathCarry.委托租谷 === 0
+        && farm.deathCarry.委托待收租谷 === 1
+        && farm.inv.length === 0
+    },
+    merchant: {
+      householdStage: merchant.householdStage,
+      beforeState: {
+        委托营生: merchant.beforeState.委托营生,
+        委托租谷: merchant.beforeState.委托租谷,
+        委托待收租谷: merchant.beforeState.委托待收租谷
+      },
+      postState: {
+        委托营生: merchant.postState.委托营生,
+        委托租谷: merchant.postState.委托租谷,
+        委托待收租谷: merchant.postState.委托待收租谷,
+        商路供读银: merchant.postState.商路供读银
+      },
+      deathStage: merchant.deathStage,
+      deathCarry: {
+        委托营生: merchant.deathCarry.委托营生,
+        委托租谷: merchant.deathCarry.委托租谷,
+        委托待收租谷: merchant.deathCarry.委托待收租谷
+      },
+      inv: merchant.inv,
+      ok: merchant.householdStage.includes('承继身份=次子')
+        && merchant.householdStage.includes('待收委托田租=3石')
+        && merchant.beforeState.委托营生 === '出佃收租'
+        && merchant.postState.委托营生 === '出佃收租'
+        && merchant.postState.委托租谷 === 2
+        && merchant.postState.委托待收租谷 === 3
+        && merchant.deathCarry.委托营生 === '出佃收租'
+        && merchant.deathCarry.委托租谷 === 1
+        && merchant.deathCarry.委托待收租谷 === 1
+        && merchant.inv.length === 0
+    },
+    ok: farm.householdStage.includes('待收委托田租=2石')
+      && farm.postState.委托营生 === '兄代管薄田'
+      && farm.postState.委托待收租谷 === 2
+      && farm.deathCarry.委托待收租谷 === 1
+      && merchant.householdStage.includes('待收委托田租=3石')
+      && merchant.postState.委托营生 === '出佃收租'
+      && merchant.postState.委托待收租谷 === 3
+      && merchant.deathCarry.委托待收租谷 === 1
+      && farm.inv.length === 0
+      && merchant.inv.length === 0
+  };
+}
+
+function runMarriageCarrySettlementRegression() {
+  const merchantCarry = {
+    白银: 1,
+    铜钱: 260,
+    存米: 2,
+    田亩: 2,
+    负债银: 2,
+    家族: 61,
+    父辈路线: '徽商式亦贾亦儒',
+    承继身份: '次子',
+    承嗣来路: '本支次子承继',
+    承继定位: '长兄续商·次子候读',
+    商路门路: 1,
+    亦贾亦儒底子: 1,
+    供读底子: 1,
+    委托营生: '出佃收租',
+    委托租谷: 2,
+    委托待收租谷: 3
+  };
+  const { api, elements, window } = createHarness();
+  api.setRandomSeed(9305);
+  api.restartFromCarry(merchantCarry, 2);
+  if (!api.chooseByName('路径四 · 徽商式亦贾亦儒')) throw new Error('未找到商路入口');
+  api.next();
+  api.patchState({
+    年龄: 24,
+    妻室: false,
+    子数: 0,
+    女数: 0,
+    白银: merchantCarry.白银,
+    铜钱: merchantCarry.铜钱,
+    存米: merchantCarry.存米,
+    田亩: merchantCarry.田亩,
+    负债银: merchantCarry.负债银,
+    家族: merchantCarry.家族,
+    路线: '徽商式亦贾亦儒',
+    商历练: 3,
+    识字: true,
+    商信誉: 2,
+    账房进度: 1,
+    累计回钱银: 2,
+    累计反哺银: 1,
+    商路供读银: 1,
+    委托营生: merchantCarry.委托营生,
+    委托租谷: merchantCarry.委托租谷,
+    委托待收租谷: merchantCarry.委托待收租谷
+  });
+  api.enterPhase('marriage');
+  const marriageStage = normalizeHtml(elements.get('stage').innerHTML);
+  const marriageActions = availableMap(api);
+  const beforeMarriage = clone(api.getState());
+  pickByPlan(api, ['m_collect_rent']);
+  api.commit();
+  const afterMarriage = clone(api.getState());
+  const marriageFollowup = normalizeHtml(elements.get('stage').innerHTML);
+
+  api.patchState({
+    年龄: 38,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: afterMarriage.白银,
+    铜钱: afterMarriage.铜钱,
+    存米: afterMarriage.存米,
+    田亩: 2,
+    负债银: afterMarriage.负债银,
+    家族: afterMarriage.家族,
+    路线: '徽商式亦贾亦儒',
+    商历练: 3,
+    识字: true,
+    商信誉: 2,
+    商路供读银: 1,
+    委托营生: afterMarriage.委托营生,
+    委托租谷: afterMarriage.委托租谷,
+    委托待收租谷: afterMarriage.委托待收租谷
+  });
+  api.enterPhase('household');
+  const householdStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  api.patchState({
+    年龄: 52,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: afterMarriage.白银,
+    铜钱: afterMarriage.铜钱,
+    存米: afterMarriage.存米,
+    田亩: 2,
+    负债银: afterMarriage.负债银,
+    家族: afterMarriage.家族,
+    路线: '徽商式亦贾亦儒',
+    商历练: 3,
+    识字: true,
+    商信誉: 2,
+    商路供读银: 1,
+    委托营生: afterMarriage.委托营生,
+    委托租谷: afterMarriage.委托租谷,
+    委托待收租谷: afterMarriage.委托待收租谷
+  });
+  api.enterPhase('elder');
+  const elderStage = normalizeHtml(elements.get('stage').innerHTML);
+
+  api.patchState({
+    年龄: 58,
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: afterMarriage.白银,
+    铜钱: afterMarriage.铜钱,
+    存米: afterMarriage.存米,
+    田亩: 2,
+    负债银: afterMarriage.负债银,
+    家族: afterMarriage.家族,
+    路线: '徽商式亦贾亦儒',
+    商历练: 3,
+    识字: true,
+    商信誉: 2,
+    商路供读银: 1,
+    委托营生: afterMarriage.委托营生,
+    委托租谷: afterMarriage.委托租谷,
+    委托待收租谷: afterMarriage.委托待收租谷
+  });
+  api.enterPhase('death');
+  const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+  const deathCarry = clone(api.getState()._carry);
+
+  const examCarry = {
+    白银: 1,
+    铜钱: 240,
+    存米: 2,
+    田亩: 2,
+    负债银: 1,
+    家族: 60,
+    父辈路线: '读书应举',
+    承继身份: '旁支继子',
+    承嗣来路: '旁支过继·旁支续承',
+    承继定位: '旁支接祧续户',
+    家传书香: 1,
+    商路门路: 1,
+    供读底子: 2,
+    委托营生: '出佃收租',
+    委托租谷: 1,
+    委托待收租谷: 1
+  };
+  const { api: examApi, elements: examElements, window: examWindow } = createHarness();
+  examApi.setRandomSeed(9306);
+  examApi.restartFromCarry(examCarry, 2);
+  if (!examApi.chooseByName('路径五 · 读书应举')) throw new Error('未找到举业入口');
+  examApi.next();
+  examApi.patchState({
+    年龄: 24,
+    妻室: false,
+    子数: 0,
+    女数: 0,
+    白银: examCarry.白银,
+    铜钱: examCarry.铜钱,
+    存米: examCarry.存米,
+    田亩: examCarry.田亩,
+    负债银: examCarry.负债银,
+    家族: examCarry.家族,
+    路线: '读书应举',
+    识字: true,
+    童试层级: 1,
+    识字转业值: 2,
+    举业结局: '屡试未第',
+    委托营生: examCarry.委托营生,
+    委托租谷: examCarry.委托租谷,
+    委托待收租谷: examCarry.委托待收租谷
+  });
+  examApi.enterPhase('marriage');
+  const examMarriageStage = normalizeHtml(examElements.get('stage').innerHTML);
+
+  const checks = {
+    merchantIdentityVisible: marriageStage.includes('承继身份=次子') && marriageStage.includes('承继定位=长兄续商·次子候读'),
+    merchantDebtVisible: stageMentionsDebt(marriageStage, 2),
+    merchantPendingRentVisible: stageMentionsDelegatedRent(marriageStage, 3),
+    merchantSupplyFundVisible: marriageStage.includes('供读底子=1层') && marriageStage.includes('承继供读=1层'),
+    merchantRentActionVisible: marriageActions.has('m_collect_rent'),
+    merchantRentReduced: beforeMarriage.委托待收租谷 === 3
+      && afterMarriage.委托待收租谷 === 2
+      && afterMarriage.存米 === beforeMarriage.存米 + 1
+      && afterMarriage.家族 === beforeMarriage.家族 + 1,
+    merchantMarriageFollowupReduced: marriageFollowup.includes('待收委托田租-1')
+      && marriageFollowup.includes('续议亲·回话中旬'),
+    householdCarryReduced: stageMentionsDelegatedRent(householdStage, 2) && householdStage.includes('承继身份=次子'),
+    elderCarryReduced: stageMentionsDelegatedRent(elderStage, 2) && stageMentionsDebt(elderStage, 2),
+    deathCarryReduced: stageMentionsDelegatedRent(deathStage, 2) && deathCarry.委托待收租谷 === 2,
+    examSupplyFundVisible: examMarriageStage.includes('承继身份=旁支继子')
+      && examMarriageStage.includes('供读底子=2层')
+      && examMarriageStage.includes('承继供读=2层')
+      && stageMentionsDebt(examMarriageStage, 1)
+      && stageMentionsDelegatedRent(examMarriageStage, 1),
+    invEmpty: (window.__INV || []).length === 0 && (examWindow.__INV || []).length === 0
+  };
+
+  return {
+    merchant: {
+      marriageStage,
+      marriageFollowup,
+      beforeState: {
+        存米: beforeMarriage.存米,
+        家族: beforeMarriage.家族,
+        委托待收租谷: beforeMarriage.委托待收租谷
+      },
+      afterState: {
+        存米: afterMarriage.存米,
+        家族: afterMarriage.家族,
+        委托待收租谷: afterMarriage.委托待收租谷
+      },
+      householdStage,
+      elderStage,
+      deathStage,
+      deathCarry: {
+        委托待收租谷: deathCarry.委托待收租谷,
+        负债银: deathCarry.负债银
+      }
+    },
+    exam: {
+      marriageStage: examMarriageStage
+    },
+    checks,
+    ok: Object.values(checks).every(Boolean)
+  };
+}
+
+function runPendingRentWithoutWholeFieldInheritanceRegression() {
+  function playDeathCarry(routeName, carry, patch, seed) {
+    const { api } = createHarness();
+    api.setRandomSeed(seed);
+    api.restartFromCarry(carry, 2);
+    if (!api.chooseByName(routeName)) throw new Error(`未找到入口：${routeName}`);
+    api.next();
+    api.patchState(patch);
+    api.enterPhase('death');
+    const deathStage = normalizeHtml(api.getStageHTML());
+    const deathCarry = api.getState()._carry || {};
+    api.restartWithHeir();
+    const heirState = api.getState();
+    const restartStage = normalizeHtml(api.getStageHTML());
+    return { deathStage, deathCarry, heirState, restartStage };
+  }
+
+  const splitCarry = {
+    白银: 2,
+    铜钱: 180,
+    存米: 3,
+    田亩: 1,
+    负债银: 1,
+    家族: 64,
+    父辈路线: '留乡佃田',
+    承继身份: '次子',
+    承嗣来路: '本支次子承继',
+    承继定位: '长兄守田·次子另起一手',
+    家传农事: 1,
+    家传手艺: 0,
+    家传书香: 0,
+    城里门路: 0,
+    商路门路: 0,
+    亦贾亦儒底子: 0,
+    供读底子: 0,
+    委托营生: '兄代管薄田',
+    委托租谷: 2,
+    委托待收租谷: 3
+  };
+  const split = playDeathCarry('路径一 · 留乡佃田', splitCarry, {
+    年龄: 63,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 3,
+    铜钱: 260,
+    存米: 5,
+    田亩: 1,
+    负债银: 1,
+    家族: 66,
+    路线: '留乡佃田',
+    农事历练: 4,
+    委托营生: '兄代管薄田',
+    委托租谷: 2,
+    委托待收租谷: 3,
+    婚配路径: '继娶稳家',
+    合爨状态: '兄弟分灶',
+    定额佃状态: '未立',
+    雇身份: '未定',
+    学徒去向: '未定',
+    举业结局: '未定'
+  }, 9311);
+
+  const collateralCarry = {
+    白银: 3,
+    铜钱: 260,
+    存米: 4,
+    田亩: 0,
+    负债银: 1,
+    家族: 63,
+    父辈路线: '徽商式亦贾亦儒',
+    承继身份: '旁支继子',
+    承嗣来路: '旁支续承',
+    承继定位: '旁支过继续香火',
+    家传农事: 0,
+    家传手艺: 0,
+    家传书香: 0,
+    城里门路: 0,
+    商路门路: 1,
+    亦贾亦儒底子: 1,
+    供读底子: 1,
+    委托营生: '出佃收租',
+    委托租谷: 0,
+    委托待收租谷: 2
+  };
+  const collateral = playDeathCarry('路径四 · 徽商式亦贾亦儒', collateralCarry, {
+    年龄: 67,
+    妻室: true,
+    子数: 0,
+    女数: 1,
+    白银: 4,
+    铜钱: 320,
+    存米: 5,
+    田亩: 0,
+    负债银: 1,
+    家族: 61,
+    路线: '徽商式亦贾亦儒',
+    商历练: 4,
+    商信誉: 2,
+    识字: true,
+    委托营生: '出佃收租',
+    委托租谷: 0,
+    委托待收租谷: 2,
+    婚配路径: '商媒速配',
+    合爨状态: '自立门户',
+    定额佃状态: '未立',
+    雇身份: '未定',
+    学徒去向: '未定',
+    举业结局: '未定'
+  }, 9312);
+
+  const splitChecks = {
+    zeroWholeFieldButPendingRentKept: split.deathCarry.田亩 === 0
+      && split.deathCarry.委托租谷 === 0
+      && split.deathCarry.委托待收租谷 === 1
+      && split.deathCarry.委托营生 === '兄代管薄田',
+    deathStageShowsPendingRent: split.deathStage.includes('待收委托田租1石'),
+    heirStateKeepsPendingRent: split.heirState.田亩 === 0
+      && split.heirState.委托租谷 === 0
+      && split.heirState.委托待收租谷 === 1
+      && split.heirState.委托营生 === '兄代管薄田',
+    restartStageMentionsPendingRent: split.restartStage.includes('待收委托田租=1石')
+  };
+
+  const collateralChecks = {
+    collateralPendingRentKeptWithoutFields: collateral.deathCarry.田亩 === 0
+      && collateral.deathCarry.委托租谷 === 0
+      && collateral.deathCarry.委托待收租谷 === 2
+      && collateral.deathCarry.委托营生 === '出佃收租',
+    deathStageShowsCollateralPendingRent: collateral.deathStage.includes('待收委托田租2石'),
+    collateralHeirStateKeepsPendingRent: collateral.heirState.田亩 === 0
+      && collateral.heirState.委托租谷 === 0
+      && collateral.heirState.委托待收租谷 === 2
+      && collateral.heirState.委托营生 === '出佃收租',
+    collateralRestartStageMentionsPendingRent: collateral.restartStage.includes('待收委托田租=2石')
+  };
+
+  return {
+    split: {
+      deathCarry: {
+        田亩: split.deathCarry.田亩,
+        委托营生: split.deathCarry.委托营生,
+        委托租谷: split.deathCarry.委托租谷,
+        委托待收租谷: split.deathCarry.委托待收租谷
+      },
+      heirState: {
+        田亩: split.heirState.田亩,
+        委托营生: split.heirState.委托营生,
+        委托租谷: split.heirState.委托租谷,
+        委托待收租谷: split.heirState.委托待收租谷
+      },
+      checks: splitChecks,
+      ok: Object.values(splitChecks).every(Boolean)
+    },
+    collateral: {
+      deathCarry: {
+        田亩: collateral.deathCarry.田亩,
+        委托营生: collateral.deathCarry.委托营生,
+        委托租谷: collateral.deathCarry.委托租谷,
+        委托待收租谷: collateral.deathCarry.委托待收租谷
+      },
+      heirState: {
+        田亩: collateral.heirState.田亩,
+        委托营生: collateral.heirState.委托营生,
+        委托租谷: collateral.heirState.委托租谷,
+        委托待收租谷: collateral.heirState.委托待收租谷
+      },
+      checks: collateralChecks,
+      ok: Object.values(collateralChecks).every(Boolean)
+    },
+    ok: Object.values(splitChecks).every(Boolean) && Object.values(collateralChecks).every(Boolean)
+  };
+}
+
+function runSharedCashContentionRegression() {
+  const { api: merchantApi, elements: merchantElements, window: merchantWindow } = createHarness();
+  merchantApi.patchState({
+    路线: '徽商式亦贾亦儒',
+    年龄: 18,
+    商年: 1,
+    商季: 3,
+    商段: 2,
+    白银: 1,
+    铜钱: 200,
+    存米: 3,
+    家族: 64,
+    识字: true,
+    识货进度: 1,
+    账房进度: 1,
+    商信誉: 1,
+    本年商路议本: 1,
+    本年商路季务: []
+  });
+  merchantApi.enterPhase('merchant');
+  merchantApi.setRandomSequence([0.9, 0.9]);
+  pickByPlan(merchantApi, ['m_try']);
+  merchantApi.commit();
+  const afterTry = clone(merchantApi.getState());
+  merchantApi.next();
+  const merchantStage = normalizeHtml(merchantElements.get('stage').innerHTML);
+  pickByPlan(merchantApi, ['m_support']);
+  merchantApi.commit();
+  const merchantState = clone(merchantApi.getState());
+
+  const { api: householdApi, elements: householdElements, window: householdWindow } = createHarness();
+  householdApi.patchState({
+    路线: '入城学徒',
+    年龄: 36,
+    妻室: true,
+    子数: 2,
+    女数: 1,
+    白银: 0,
+    铜钱: 300,
+    存米: 3,
+    田亩: 4,
+    家族: 66,
+    识字: true,
+    学徒去向: '留店伙计',
+    学徒历练: 2,
+    学徒授艺度: 2,
+    分家: true,
+    委托营生: '无',
+    委托租谷: 0,
+    委托待收租谷: 0
+  });
+  householdApi.enterPhase('household');
+  householdApi.setRandomSequence(householdSafeSeq(0, 0.9));
+  pickByPlan(householdApi, ['h_proxy', 'h_hire']);
+  householdApi.commit();
+  const householdState = clone(householdApi.getState());
+  const householdStage = normalizeHtml(householdElements.get('stage').innerHTML);
+
+  return {
+    merchantSilver: {
+      白银: merchantState.白银,
+      商路供读银: merchantState.商路供读银,
+      带本银: afterTry.带本银,
+      累计反哺银: merchantState.累计反哺银,
+      ok: afterTry.白银 === 0
+        && merchantState.白银 === 0
+        && merchantState.商路供读银 === 0
+        && afterTry.带本银 === 1
+        && merchantStage.includes('白银不足1两')
+        && (merchantWindow.__INV || []).length === 0
+    },
+    householdCopper: {
+      铜钱: householdState.铜钱,
+      本年户备役: householdState.本年户备役,
+      户旬: householdState.户旬,
+      应役: householdState.应役,
+      ok: householdState.铜钱 === 150
+        && householdState.本年户备役 === 1
+        && householdState.户旬 === 2
+        && householdState.应役 === '未役'
+        && (householdWindow.__INV || []).length === 0
+    },
+    ok: afterTry.白银 === 0
+      && merchantState.白银 === 0
+      && merchantState.商路供读银 === 0
+      && afterTry.带本银 === 1
+      && merchantStage.includes('白银不足1两')
+      && householdState.铜钱 === 150
+      && householdState.本年户备役 === 1
+      && householdState.户旬 === 2
+      && householdState.应役 === '未役'
+      && (merchantWindow.__INV || []).length === 0
+      && (householdWindow.__INV || []).length === 0
+  };
+}
+
+function runDesignDocClosureRegression() {
+  const missingFiles = [];
+  const missingSnippets = [];
+  const checkedDocs = [];
+  const missingLedgerSyncSnippets = [];
+
+  REQUIRED_DESIGN_DOCS.forEach((spec) => {
+    const filePath = path.join(DESIGN_DOC_ROOT, spec.file);
+    const text = readTextIfExists(filePath);
+    if (text == null) {
+      missingFiles.push(spec.file);
+      return;
+    }
+    checkedDocs.push(spec.file);
+    (spec.mustInclude || []).forEach((snippet) => {
+      if (!text.includes(snippet)) {
+        missingSnippets.push(`${spec.file} :: ${snippet}`);
+      }
+    });
+  });
+
+  const dirEntries = fs.readdirSync(DESIGN_DOC_ROOT);
+  const routeDocs = dirEntries.filter((name) => /^ming-path-\d-.*\.md$/.test(name)).sort();
+  const ledgerDocs = dirEntries.filter((name) => /^ming-multigen-ledger-\d-.*\.md$/.test(name)).sort();
+  const missingRouteDocs = REQUIRED_ROUTE_DOCS.filter((name) => !routeDocs.includes(name));
+  const missingLedgerDocs = REQUIRED_LEDGER_DOCS.filter((name) => !ledgerDocs.includes(name));
+  REQUIRED_LEDGER_SYNC_DOCS.forEach((spec) => {
+    const filePath = path.join(DESIGN_DOC_ROOT, spec.file);
+    const text = readTextIfExists(filePath);
+    if (text == null) return;
+    if (!checkedDocs.includes(spec.file)) checkedDocs.push(spec.file);
+    (spec.mustInclude || []).forEach((snippet) => {
+      if (!text.includes(snippet)) {
+        missingLedgerSyncSnippets.push(`${spec.file} :: ${snippet}`);
+      }
+    });
+  });
+
+  return {
+    checkedDocs,
+    routeDocs,
+    ledgerDocs,
+    missingFiles,
+    missingSnippets,
+    missingLedgerSyncSnippets,
+    missingRouteDocs,
+    missingLedgerDocs,
+    ok: missingFiles.length === 0
+      && missingSnippets.length === 0
+      && missingLedgerSyncSnippets.length === 0
+      && missingRouteDocs.length === 0
+      && missingLedgerDocs.length === 0
+      && routeDocs.length === REQUIRED_ROUTE_DOCS.length
+      && ledgerDocs.length === REQUIRED_LEDGER_DOCS.length
+  };
+}
+
+function collectFailures(node, path = 'summary') {
+  const failures = [];
+  if (Array.isArray(node)) {
+    node.forEach((item, index) => {
+      failures.push(...collectFailures(item, `${path}[${index}]`));
+    });
+    return failures;
+  }
+  if (!node || typeof node !== 'object') return failures;
+  if (Object.prototype.hasOwnProperty.call(node, 'ok') && node.ok === false) {
+    failures.push(path);
+  }
+  Object.keys(node).forEach((key) => {
+    if (key === 'ok') return;
+    failures.push(...collectFailures(node[key], `${path}.${key}`));
+  });
+  return failures;
+}
+
+function buildDeepReplaySummary() {
+  return [
+    driveToDeath('路径一 · 留乡佃田', 200),
+    driveToDeath('路径二 · 受雇长工 / 短工', 201),
+    driveToDeath('路径三 · 入城学徒', 202),
+    driveToDeath('路径四 · 徽商式亦贾亦儒', 203),
+    driveToDeath('路径五 · 读书应举', 204)
+  ].map((item) => ({
+    route: item.route,
+    seed: item.seed,
+    phase: item.phase,
+    carry: item.carry,
+    stage: item.stage,
+    phaseTrace: item.phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+    deathStage: item.deathStage,
+    ok: item.phase === 'death'
+      && item.stage === '死亡与传承'
+      && item.inv.length === 0
+      && includesOrderedPhases(item.phaseTrace, [routePhaseKey(item.route), 'marriage', 'family', 'household', 'elder', 'death'])
+      && deathStageCoversCarry(item.carry, item.deathStage)
+  }));
+}
+
+function lifecycleTokensFromCarry(carry) {
+  return [
+    carry && carry.承继身份 ? `承继身份=${carry.承继身份}` : '',
+    carry && carry.父辈路线 && carry.父辈路线 !== '未定' ? `父辈路线=${carry.父辈路线}` : '',
+    carry && carry.承继定位 ? `承继定位=${carry.承继定位}` : '',
+    carry && carry.承嗣来路 ? `承嗣来路=${carry.承嗣来路}` : '',
+    (carry && (carry.家传书香 || 0) > 0) ? `家传书香=${carry.家传书香}层` : '',
+    (carry && (carry.城里门路 || 0) > 0) ? `城里门路=${carry.城里门路}层` : '',
+    (carry && (carry.商路门路 || 0) > 0) ? `商路门路=${carry.商路门路}层` : '',
+    (carry && (carry.家传手艺 || 0) > 0) ? `家传手艺=${carry.家传手艺}层` : '',
+    (carry && (carry.家传农事 || 0) > 0) ? `家传农事=${carry.家传农事}层` : '',
+    (carry && (carry.亦贾亦儒底子 || 0) > 0) ? `亦贾亦儒底子=${carry.亦贾亦儒底子}层` : '',
+    (carry && (carry.供读底子 || 0) > 0) ? `供读底子=${carry.供读底子}层` : '',
+    (carry && (carry.旧门路衰减 || 0) > 0) ? `旧门路衰减=${carry.旧门路衰减}层` : '',
+    (carry && (carry.委托营生 || '') && carry.委托营生 !== '无') ? `委托营生=${carry.委托营生}` : '',
+    (carry && (carry.委托租谷 || 0) > 0) ? `委托租谷=${carry.委托租谷}石/年` : '',
+    (carry && (carry.委托待收租谷 || 0) > 0) ? `待收委托田租=${carry.委托待收租谷}石` : ''
+  ].filter(Boolean);
+}
+
+function lifecycleStageCoversCarry(stageHtml, carry) {
+  const text = normalizeHtml(stageHtml || '');
+  if (!text) return false;
+  return lifecycleTokensFromCarry(carry).every((token) => text.includes(token))
+    && stageMentionsDebt(text, carry.负债银 || 0)
+    && stageMentionsDelegatedRent(text, carry.委托待收租谷 || 0);
+}
+
+function buildInheritedLifecycleDeepReplaySummary() {
+  const carry = {
+    白银: 2,
+    铜钱: 420,
+    存米: 3,
+    田亩: 2,
+    负债银: 2,
+    家族: 64,
+    父辈路线: '全生命周期承接验证',
+    承继身份: '旁支继子',
+    承嗣来路: '旁支过继·旁支续承',
+    承继定位: '长兄续商·次子候读',
+    家传书香: 1,
+    城里门路: 1,
+    商路门路: 2,
+    家传手艺: 1,
+    家传农事: 1,
+    亦贾亦儒底子: 1,
+    供读底子: 1,
+    旧门路衰减: 2,
+    委托营生: '兄代管薄田',
+    委托租谷: 1,
+    委托待收租谷: 1
+  };
+  const routes = [
+    '路径一 · 留乡佃田',
+    '路径二 · 受雇长工 / 短工',
+    '路径三 · 入城学徒',
+    '路径四 · 徽商式亦贾亦儒',
+    '路径五 · 读书应举'
+  ];
+  return routes.map((routeName, index) => {
+    const { api, elements, window } = createHarness();
+    api.restartFromCarry(carry, 2);
+    api.setRandomSeed(6200 + index);
+    chooseRoute(api, routeName);
+    const captured = {};
+    let guard = 0;
+    while (api.getPhase() !== 'death' && guard < 420) {
+      const phase = api.getPhase();
+      if ((phase === 'marriage' || phase === 'family' || phase === 'household' || phase === 'elder') && !captured[phase]) {
+        captured[phase] = {
+          html: normalizeHtml(elements.get('stage').innerHTML),
+          state: clone(api.getState())
+        };
+      }
+      if (['apprentice', 'merchant', 'civilExam', 'wage', 'farm', 'marriage', 'family', 'household', 'elder'].includes(phase)) {
+        pickByPlan(api, phasePlan(api));
+        api.commit();
+        api.next();
+      } else {
+        api.next();
+      }
+      guard += 1;
+    }
+    if (api.getPhase() === 'death') {
+      captured.death = {
+        html: normalizeHtml(elements.get('stage').innerHTML),
+        state: clone(api.getState())
+      };
+    }
+    const phaseTrace = clone(api.getPhaseTrace ? api.getPhaseTrace() : []);
+    const deathCarry = clone(api.getState()._carry);
+    const deathButtonLabel = extractStageButtonLabel(captured.death ? captured.death.html : '', 'btn-pnext');
+    api.restartWithHeir();
+    const carryOver = clone(api.getCarryOver());
+    const heirState = clone(api.getState());
+    const heirEstablishment = normalizeHtml(elements.get('stage').innerHTML);
+    const heirChoices = api.getChoices ? api.getChoices() : [];
+    const heirNotesJoined = heirChoices.map((choice) => choice.note || '').join(' ');
+    const hints = expectedHintFragments(deathCarry || {});
+    const hintsOk = hints.every((fragment) => heirEstablishment.includes(fragment) || heirNotesJoined.includes(fragment));
+    const stageIdentityChecks = {
+      marriage: lifecycleStageIdentityStable(carry, captured.marriage),
+      family: lifecycleStageIdentityStable(carry, captured.family),
+      household: lifecycleStageIdentityStable(carry, captured.household),
+      elder: lifecycleStageIdentityStable(carry, captured.elder)
+    };
+    const stageCarryChecks = {
+      marriage: lifecycleStateCarryApplied(carry, captured.marriage ? captured.marriage.state : null),
+      family: lifecycleStateCarryApplied(carry, captured.family ? captured.family.state : null),
+      household: lifecycleStateCarryApplied(carry, captured.household ? captured.household.state : null),
+      elder: lifecycleStateCarryApplied(carry, captured.elder ? captured.elder.state : null)
+    };
+    let reroutedPhase = api.getPhase();
+    let reroutedState = clone(heirState);
+    let reroutedStage = heirEstablishment;
+    let reroutedChoices = [];
+    let reroutedHintsOk = false;
+    let reroutedHintFragments = [];
+    let reroutedNotes = '';
+    if (deathCarry && api.chooseByName(routeName)) {
+      api.next();
+      reroutedPhase = api.getPhase();
+      reroutedState = clone(api.getState());
+      reroutedStage = normalizeHtml(elements.get('stage').innerHTML);
+      reroutedChoices = api.getAvailableActions ? api.getAvailableActions() : [];
+      reroutedNotes = reroutedChoices.map((choice) => choice.why || '').join(' ');
+      reroutedHintFragments = expectedHintFragments(deathCarry);
+      reroutedHintsOk = reroutedHintFragments.every((fragment) => reroutedStage.includes(fragment) || reroutedNotes.includes(fragment));
+    }
+    return {
+      route: routeName,
+      carryFixture: carry,
+      stageSnapshots: {
+        marriage: captured.marriage ? captured.marriage.html : '',
+        family: captured.family ? captured.family.html : '',
+        household: captured.household ? captured.household.html : '',
+        elder: captured.elder ? captured.elder.html : '',
+        death: captured.death ? captured.death.html : ''
+      },
+      stageIdentitySlices: {
+        marriage: lifecycleIdentitySlice(captured.marriage ? captured.marriage.state : null),
+        family: lifecycleIdentitySlice(captured.family ? captured.family.state : null),
+        household: lifecycleIdentitySlice(captured.household ? captured.household.state : null),
+        elder: lifecycleIdentitySlice(captured.elder ? captured.elder.state : null)
+      },
+      stageCarrySlices: {
+        marriage: captured.marriage ? {
+          负债银: captured.marriage.state.负债银,
+          供读底子: captured.marriage.state.供读底子,
+          旧门路衰减: captured.marriage.state.旧门路衰减,
+          委托营生: captured.marriage.state.委托营生,
+          委托租谷: captured.marriage.state.委托租谷,
+          委托待收租谷: captured.marriage.state.委托待收租谷
+        } : {},
+        family: captured.family ? {
+          负债银: captured.family.state.负债银,
+          供读底子: captured.family.state.供读底子,
+          旧门路衰减: captured.family.state.旧门路衰减,
+          委托营生: captured.family.state.委托营生,
+          委托租谷: captured.family.state.委托租谷,
+          委托待收租谷: captured.family.state.委托待收租谷
+        } : {},
+        household: captured.household ? {
+          负债银: captured.household.state.负债银,
+          供读底子: captured.household.state.供读底子,
+          旧门路衰减: captured.household.state.旧门路衰减,
+          委托营生: captured.household.state.委托营生,
+          委托租谷: captured.household.state.委托租谷,
+          委托待收租谷: captured.household.state.委托待收租谷
+        } : {},
+        elder: captured.elder ? {
+          负债银: captured.elder.state.负债银,
+          供读底子: captured.elder.state.供读底子,
+          旧门路衰减: captured.elder.state.旧门路衰减,
+          委托营生: captured.elder.state.委托营生,
+          委托租谷: captured.elder.state.委托租谷,
+          委托待收租谷: captured.elder.state.委托待收租谷
+        } : {}
+      },
+      stageIdentityChecks,
+      stageCarryChecks,
+      deathCarry,
+      deathButtonLabel,
+      carryOver,
+      heirHintFragments: hints,
+      heirState: {
+        承继身份: heirState.承继身份,
+        承嗣来路: heirState.承嗣来路,
+        承继定位: heirState.承继定位,
+        负债银: heirState.负债银,
+        供读底子: heirState.供读底子,
+        旧门路衰减: heirState.旧门路衰减,
+        委托营生: heirState.委托营生,
+        委托租谷: heirState.委托租谷,
+        委托待收租谷: heirState.委托待收租谷
+      },
+      reroutedPhase,
+      reroutedHintFragments,
+      reroutedChoiceWhy: reroutedNotes,
+      reroutedState: {
+        路线: reroutedState.路线,
+        承继身份: reroutedState.承继身份,
+        承嗣来路: reroutedState.承嗣来路,
+        承继定位: reroutedState.承继定位,
+        负债银: reroutedState.负债银,
+        供读底子: reroutedState.供读底子,
+        旧门路衰减: reroutedState.旧门路衰减,
+        委托营生: reroutedState.委托营生,
+        委托租谷: reroutedState.委托租谷,
+        委托待收租谷: reroutedState.委托待收租谷
+      },
+      reroutedStage,
+      phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
+      ok: includesOrderedPhases(phaseTrace, [routePhaseKey(routeName), 'marriage', 'family', 'household', 'elder', 'death'])
+        && Object.values(stageIdentityChecks).every(Boolean)
+        && Object.values(stageCarryChecks).every(Boolean)
+        && captured.marriage && lifecycleStageCoversCarry(captured.marriage.html, captured.marriage.state)
+        && captured.family && lifecycleStageCoversCarry(captured.family.html, captured.family.state)
+        && captured.household && lifecycleStageIdentityStable(carry, captured.household)
+        && captured.elder && lifecycleStageCoversCarry(captured.elder.html, captured.elder.state)
+        && deathStageCoversCarry(deathCarry, captured.death ? captured.death.html : '')
+        && deathButtonLabel === expectedHeirButtonLabel(deathCarry)
+        && JSON.stringify(carryOver) === JSON.stringify(deathCarry)
+        && establishmentCarryApplied(deathCarry, heirState)
+        && heirState.承嗣来路 === deathCarry.承嗣来路
+        && heirState.负债银 === deathCarry.负债银
+        && delegatedEstateStable(deathCarry, heirState)
+        && heirEstablishment.includes(deathCarry.承继定位)
+        && hintsOk
+        && reroutedPhase === routePhaseKey(routeName)
+        && runtimeCarryApplied(routeName, deathCarry, reroutedState)
+        && reroutedState.承嗣来路 === deathCarry.承嗣来路
+        && reroutedState.负债银 === deathCarry.负债银
+        && delegatedEstateStable(deathCarry, reroutedState)
+        && (window.__INV || []).length === 0
+    };
+  });
+}
+
+function runRouteAwareHeirMatrixRegression() {
+  const routes = [
+    {
+      routeName: '路径一 · 留乡佃田',
+      routeState: {
+        路线: '留乡佃田',
+        识字: true,
+        农事历练: 4,
+        最近农闲营生层级: '家传农事底子',
+        最近农闲营生收益: 140
+      }
+    },
+    {
+      routeName: '路径二 · 受雇长工 / 短工',
+      routeState: {
+        路线: '受雇长工/短工',
+        识字: true,
+        农事历练: 1,
+        雇工历练: 3,
+        雇技进度: 2,
+        雇身份: '外出佣工'
+      }
+    },
+    {
+      routeName: '路径三 · 入城学徒',
+      routeState: {
+        路线: '入城学徒',
+        识字: true,
+        学徒合同: '说合中',
+        学徒授艺度: 2,
+        学徒去向: '留店伙计'
+      }
+    },
+    {
+      routeName: '路径四 · 徽商式亦贾亦儒',
+      routeState: {
+        路线: '徽商式亦贾亦儒',
+        识字: true,
+        商历练: 3,
+        商信誉: 2,
+        账房进度: 2,
+        识货进度: 1,
+        累计反哺银: 2,
+        商路供读银: 1,
+        未回款银: 1
+      }
+    },
+    {
+      routeName: '路径五 · 读书应举',
+      routeState: {
+        路线: '读书应举',
+        识字: true,
+        保结进度: 1,
+        童试层级: 1,
+        举业结局: '县试未冠'
+      }
+    }
+  ];
+  const scenarios = [
+    {
+      name: '独子承家',
+      patch: {
+        子数: 1,
+        女数: 1,
+        白银: 3,
+        铜钱: 180,
+        存米: 5,
+        田亩: 3,
+        负债银: 2,
+        委托营生: '兄代管薄田',
+        委托租谷: 2,
+        委托待收租谷: 1
+      },
+      expectedIdentity: {
+        承继身份: '独子',
+        承嗣来路: '本支独子承继',
+        承继定位: '独子承家'
+      },
+      stageTokens: ['待收委托田租1石']
+    },
+    {
+      name: '次子承余数',
+      patch: {
+        子数: 3,
+        女数: 1,
+        白银: 6,
+        铜钱: 5,
+        存米: 6,
+        田亩: 5,
+        负债银: 10,
+        委托营生: '兄代管薄田',
+        委托租谷: 5,
+        委托待收租谷: 2
+      },
+      expectedIdentity: {
+        承继身份: '次子'
+      },
+      stageTokens: ['余数落房：按第2子落份', '待收委托田租1石']
+    },
+    {
+      name: '绝嗣旁支承继',
+      patch: {
+        子数: 0,
+        女数: 1,
+        白银: 3,
+        铜钱: 180,
+        存米: 5,
+        田亩: 3,
+        负债银: 1,
+        承继身份: '旁支继子',
+        承嗣来路: '旁支过继',
+        承继定位: '旁支接祧续户',
+        委托营生: '兄代管薄田',
+        委托租谷: 2,
+        委托待收租谷: 1
+      },
+      expectedIdentity: {
+        承继身份: '旁支继子',
+        承嗣来路: '旁支过继',
+        承继定位: '旁支接祧续户'
+      },
+      stageTokens: ['待收委托田租1石']
+    }
+  ];
+  const basePatch = {
+    年龄: 60,
+    妻室: true,
+    家族: 63
+  };
+  const results = [];
+  routes.forEach((route, routeIndex) => {
+    scenarios.forEach((scenario, scenarioIndex) => {
+      const { api, elements, window } = createHarness();
+      api.setRandomSeed(9800 + routeIndex * 10 + scenarioIndex);
+      api.patchState(Object.assign({}, basePatch, route.routeState, scenario.patch));
+      api.enterPhase('death');
+      const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+      const carry = clone(api.getState()._carry);
+      const deathButtonLabel = extractStageButtonLabel(deathStage, 'btn-pnext');
+      api.restartWithHeir();
+      const heirState = clone(api.getState());
+      const heirEstablishment = normalizeHtml(elements.get('stage').innerHTML);
+      const checks = {
+        routeAwareParentRoute: carry.父辈路线 === route.routeState.路线,
+        deathStageVisible: deathStage.includes(`父辈路线=${route.routeState.路线}`),
+        identityButtonMatches: deathButtonLabel === expectedHeirButtonLabel(carry),
+        carryIdentityMatches: Object.keys(scenario.expectedIdentity).every((key) => carry[key] === scenario.expectedIdentity[key]),
+        heirIdentityMatches: Object.keys(scenario.expectedIdentity).every((key) => heirState[key] === carry[key]),
+        heirCarryApplied: establishmentCarryApplied(carry, heirState),
+        heirPositionVisible: heirEstablishment.includes(carry.承继定位),
+        debtVisible: (carry.负债银 || 0) <= 0 || stageMentionsDebt(deathStage, carry.负债银 || 0),
+        delegatedRentVisible: (carry.委托待收租谷 || 0) <= 0 || stageMentionsDelegatedRent(deathStage, carry.委托待收租谷 || 0),
+        stageTokensVisible: scenario.stageTokens.every((token) => deathStage.includes(token)),
+        noInvLeak: (window.__INV || []).length === 0
+      };
+      results.push({
+        route: route.routeName,
+        scenario: scenario.name,
+        carry: {
+          父辈路线: carry.父辈路线,
+          承继身份: carry.承继身份,
+          承嗣来路: carry.承嗣来路,
+          承继定位: carry.承继定位,
+          负债银: carry.负债银,
+          委托待收租谷: carry.委托待收租谷
+        },
+        deathButtonLabel,
+        heirState: {
+          承继身份: heirState.承继身份,
+          承嗣来路: heirState.承嗣来路,
+          承继定位: heirState.承继定位,
+          负债银: heirState.负债银,
+          委托待收租谷: heirState.委托待收租谷
+        },
+        checks,
+        ok: Object.values(checks).every(Boolean)
+      });
+    });
+  });
+  return {
+    results,
+    ok: results.every((item) => item.ok)
+  };
+}
+
+function runRouteAwareRestartChoiceMatrixRegression() {
+  const rerouteTargets = [
+    '路径一 · 留乡佃田',
+    '路径二 · 受雇长工 / 短工',
+    '路径三 · 入城学徒',
+    '路径四 · 徽商式亦贾亦儒',
+    '路径五 · 读书应举'
+  ];
+  const scenarios = [
+    {
+      name: '独子守成重选',
+      expectedIdentity: '独子',
+      routeState: {
+        路线: '留乡佃田',
+        识字: true,
+        农事历练: 4
+      },
+      patch: {
+        年龄: 63,
+        妻室: true,
+        子数: 1,
+        女数: 1,
+        白银: 3,
+        铜钱: 210,
+        存米: 5,
+        田亩: 3,
+        负债银: 1,
+        家族: 65,
+        承嗣来路: '本支独子承继',
+        承继定位: '独子守成续户',
+        家传农事: 2,
+        家传书香: 1,
+        委托营生: '出佃收租',
+        委托租谷: 1,
+        委托待收租谷: 1
+      }
+    },
+    {
+      name: '次子候读重选',
+      expectedIdentity: '次子',
+      routeState: {
+        路线: '徽商式亦贾亦儒',
+        识字: true,
+        商历练: 4,
+        商信誉: 2,
+        账房进度: 2,
+        识货进度: 1
+      },
+      patch: {
+        年龄: 64,
+        妻室: true,
+        子数: 3,
+        女数: 1,
+        白银: 6,
+        铜钱: 260,
+        存米: 6,
+        田亩: 2,
+        负债银: 3,
+        家族: 66,
+        承继身份: '次子',
+        承嗣来路: '本支次子承继',
+        承继定位: '长兄续商·次子候读',
+        家传书香: 1,
+        城里门路: 1,
+        商路门路: 2,
+        供读底子: 1,
+        旧门路衰减: 1,
+        委托营生: '兄代管薄田',
+        委托租谷: 1,
+        委托待收租谷: 2
+      }
+    },
+    {
+      name: '旁支续承重选',
+      expectedIdentity: '旁支继子',
+      routeState: {
+        路线: '读书应举',
+        识字: true,
+        保结进度: 1,
+        童试层级: 1
+      },
+      patch: {
+        年龄: 62,
+        妻室: true,
+        子数: 0,
+        女数: 1,
+        白银: 2,
+        铜钱: 240,
+        存米: 4,
+        田亩: 1,
+        负债银: 2,
+        家族: 61,
+        承嗣来路: '旁支过继·旁支续承',
+        承继定位: '旁支接祧续户',
+        家传书香: 2,
+        商路门路: 1,
+        供读底子: 2,
+        旧门路衰减: 2,
+        委托营生: '出佃收租',
+        委托租谷: 0,
+        委托待收租谷: 2
+      }
+    }
+  ];
+  const results = [];
+  scenarios.forEach((scenario, scenarioIndex) => {
+    rerouteTargets.forEach((routeName, routeIndex) => {
+      const { api, elements, window } = createHarness();
+      api.setRandomSeed(9950 + scenarioIndex * 10 + routeIndex);
+      api.patchState(Object.assign({}, scenario.routeState, scenario.patch));
+      api.enterPhase('death');
+      const deathStage = normalizeHtml(elements.get('stage').innerHTML);
+      const deathCarry = clone(api.getState()._carry);
+      const deathButtonLabel = extractStageButtonLabel(deathStage, 'btn-pnext');
+      api.restartWithHeir();
+      const heirState = clone(api.getState());
+      const heirEstablishment = normalizeHtml(elements.get('stage').innerHTML);
+      const heirChoices = api.getChoices ? api.getChoices() : [];
+      const heirNotes = heirChoices.map((choice) => `${choice.note || ''} ${choice.why || ''}`).join(' ');
+      const hintFragments = expectedHintFragments(deathCarry);
+      const heirHintsOk = hintFragments.every((fragment) => heirEstablishment.includes(fragment) || heirNotes.includes(fragment));
+      if (!api.chooseByName(routeName)) throw new Error(`未找到路线：${routeName}`);
+      api.next();
+      const reroutedPhase = api.getPhase();
+      const reroutedState = clone(api.getState());
+      const reroutedStage = normalizeHtml(elements.get('stage').innerHTML);
+      const reroutedNotes = (api.getAvailableActions ? api.getAvailableActions() : [])
+        .map((action) => `${action.note || ''} ${action.why || ''}`)
+        .join(' ');
+      const reroutedHintsOk = hintFragments.every((fragment) => reroutedStage.includes(fragment) || reroutedNotes.includes(fragment));
+      const checks = {
+        carryIdentityNormalized: deathCarry.承继身份 === scenario.expectedIdentity,
+        buttonMatchesIdentity: deathButtonLabel === `以${scenario.expectedIdentity}身份 · 递归重开新一生 →`,
+        heirIdentityNormalized: heirState.承继身份 === scenario.expectedIdentity,
+        reroutedIdentityNormalized: reroutedState.承继身份 === scenario.expectedIdentity,
+        heirCarryApplied: establishmentCarryApplied(deathCarry, heirState),
+        heirPositionVisible: heirEstablishment.includes(deathCarry.承继定位),
+        heirHintsOk,
+        reroutedPhaseOk: reroutedPhase === routePhaseKey(routeName),
+        reroutedCarryApplied: runtimeCarryApplied(routeName, deathCarry, reroutedState),
+        reroutedHintsOk,
+        debtStable: reroutedState.负债银 === deathCarry.负债银,
+        heirDelegatedEstateStable: delegatedEstateStable(deathCarry, heirState),
+        reroutedDelegatedEstateStable: delegatedEstateStable(deathCarry, reroutedState),
+        noInvLeak: (window.__INV || []).length === 0
+      };
+      results.push({
+        scenario: scenario.name,
+        targetRoute: routeName,
+        deathCarry: {
+          父辈路线: deathCarry.父辈路线,
+          承继身份: deathCarry.承继身份,
+          承嗣来路: deathCarry.承嗣来路,
+          承继定位: deathCarry.承继定位,
+          负债银: deathCarry.负债银,
+          供读底子: deathCarry.供读底子,
+          旧门路衰减: deathCarry.旧门路衰减,
+          委托营生: deathCarry.委托营生,
+          委托租谷: deathCarry.委托租谷,
+          委托待收租谷: deathCarry.委托待收租谷
+        },
+        deathButtonLabel,
+        heirState: {
+          承继身份: heirState.承继身份,
+          承嗣来路: heirState.承嗣来路,
+          承继定位: heirState.承继定位,
+          负债银: heirState.负债银,
+          供读底子: heirState.供读底子,
+          旧门路衰减: heirState.旧门路衰减,
+          委托营生: heirState.委托营生,
+          委托租谷: heirState.委托租谷,
+          委托待收租谷: heirState.委托待收租谷
+        },
+        reroutedState: {
+          路线: reroutedState.路线,
+          承继身份: reroutedState.承继身份,
+          承嗣来路: reroutedState.承嗣来路,
+          承继定位: reroutedState.承继定位,
+          负债银: reroutedState.负债银,
+          供读底子: reroutedState.供读底子,
+          旧门路衰减: reroutedState.旧门路衰减,
+          委托营生: reroutedState.委托营生,
+          委托租谷: reroutedState.委托租谷,
+          委托待收租谷: reroutedState.委托待收租谷
+        },
+        hintFragments,
+        checks,
+        ok: Object.values(checks).every(Boolean)
+      });
+    });
+  });
+  return {
+    results,
+    ok: results.every((item) => item.ok)
+  };
+}
+
+function runMarriagePathOverwriteRegression() {
+  // 验证“本代已成婚”必须覆盖上一代遗留的 `婚配路径`，
+  // 避免出现“本代已成婚，但死亡传承仍把上一代婚配路径原样带进下一代”的断链误读。
+  const inheritedCarry = {
+    白银: 3,
+    铜钱: 320,
+    存米: 2,
+    田亩: 2,
+    负债银: 1,
+    家族: 60,
+    父辈路线: '受雇长工 / 短工',
+    承继身份: '次子',
+    承嗣来路: '本支次子承继',
+    承继定位: '本房次子另起一手',
+    城里门路: 1,
+    旧门路衰减: 0,
+    婚配路径: '先应差·外出佣工',
+    雇身份: '外出佣工'
+  };
+
+  const { api, window } = createHarness();
+  api.setRandomSequence(Array.from({ length: 40 }, () => 0.01));
+  api.restartFromCarry(inheritedCarry, 2);
+  if (!api.chooseByName('路径一 · 留乡佃田')) throw new Error('未找到农路入口');
+  api.next();
+
+  api.patchState({
+    年龄: 24,
+    路线: '留乡佃田',
+    妻室: false,
+    子数: 0,
+    女数: 0,
+    白银: 4,
+    铜钱: 260,
+    存米: 2,
+    田亩: 2,
+    负债银: inheritedCarry.负债银,
+    家族: 62,
+    议旬: 3
+  });
+
+  // `enterPhase('marriage')` 首次进入会强制 resetMarriageAttemptState() 并把 `议旬` 清零为 1，
+  // 因此这里先进入一次，再补写 `议旬=3`，再进入第二次以便直接测试“下聘下旬”的成婚路径覆盖逻辑。
+  api.enterPhase('marriage');
+  api.patchState({ 议旬: 3 });
+  api.enterPhase('marriage');
+  pickByPlan(api, ['m_gift1', 'm_match']);
+  api.commit();
+  const afterMarriage = clone(api.getState());
+
+  api.patchState({
+    年龄: 58,
+    路线: '留乡佃田',
+    妻室: true,
+    子数: 1,
+    女数: 1,
+    白银: Math.max(0, afterMarriage.白银),
+    铜钱: Math.max(0, afterMarriage.铜钱),
+    存米: Math.max(0, afterMarriage.存米),
+    田亩: 2,
+    负债银: Math.max(0, afterMarriage.负债银),
+    家族: Math.max(0, afterMarriage.家族)
+  });
+  api.enterPhase('death');
+  const deathCarry = clone(api.getState()._carry);
+
+  const ok = afterMarriage.妻室 === true
+    && afterMarriage.婚配路径
+    && afterMarriage.婚配路径 !== '未定'
+    && afterMarriage.婚配路径 !== inheritedCarry.婚配路径
+    && deathCarry
+    && deathCarry.婚配路径 === afterMarriage.婚配路径
+    && (window.__INV || []).length === 0;
+
+  return {
+    inheritedMarriagePath: inheritedCarry.婚配路径,
+    updatedMarriagePath: afterMarriage.婚配路径,
+    deathCarryMarriagePath: deathCarry ? deathCarry.婚配路径 : undefined,
+    ok
+  };
+}
+
+const TEST_BUILDERS = {
+  birthReplay: runBirthReplay,
+  siblingContinuationReplay: runSiblingContinuationReplay,
+  entryReplay: runEntryReplay,
+  deepReplay: buildDeepReplaySummary,
+  inheritedLifecycleDeepReplay: buildInheritedLifecycleDeepReplaySummary,
+  crossGenReplay: runCrossGenReplay,
+  legacyRegression: runLegacyRegression,
+  fieldInheritanceRegression: runFieldInheritanceRegression,
+  wageFieldRegression: runWageFieldRegression,
+  debtRegression: runDebtRegression,
+  childlessCollateralEstateRegression: runChildlessCollateralEstateRegression,
+  inheritedLegacyCarryForwardRegression: runInheritedLegacyCarryForwardRegression,
+  collateralDecayCarryForwardRegression: runCollateralDecayCarryForwardRegression,
+  siblingLineageRegression: runSiblingLineageRegression,
+  sponsoredExamRegression: runSponsoredExamRegression,
+  merchantSchoolFundHeirRegression: runMerchantSchoolFundHeirRegression,
+  merchantTradeCarryRegression: runMerchantTradeCarryRegression,
+  merchantSameYearSettlementRegression: runMerchantSameYearSettlementRegression,
+  merchantTrialCapitalGateRegression: runMerchantTrialCapitalGateRegression,
+  merchantFrictionHandledChoiceRegression: runMerchantFrictionHandledChoiceRegression,
+  merchantSeasonCarryRegression: runMerchantSeasonCarryRegression,
+  merchantRemittanceLedgerRegression: runMerchantRemittanceLedgerRegression,
+  merchantRemittanceCapacityCapRegression: runMerchantRemittanceCapacityCapRegression,
+  merchantCollateralSupportRegression: runMerchantCollateralSupportRegression,
+  lineageDecayRegression: runLineageDecayRegression,
+  merchantRoleCarryRegression: runMerchantRoleCarryRegression,
+  apprenticeRoleCarryRegression: runApprenticeRoleCarryRegression,
+  examRoleCarryRegression: runExamRoleCarryRegression,
+  examContinuationPositionBufferRegression: runExamContinuationPositionBufferRegression,
+  lifecycleProfileRegression: runLifecycleProfileRegression,
+  establishmentAtlasRegression: runEstablishmentAtlasRegression,
+  householdFallbackSeasonalRegression: runHouseholdFallbackSeasonalRegression,
+  marriageDeferralRegression: runMarriageDeferralRegression,
+  marriageBrokenEngagementRegression: runMarriageBrokenEngagementRegression,
+  marriageFertilityRegression: runMarriageFertilityRegression,
+  marriagePathOverwriteRegression: runMarriagePathOverwriteRegression,
+  marriageBranchCarryRegression: runMarriageBranchCarryRegression,
+  marriageBranchDeepLifecycleRegression: runMarriageBranchDeepLifecycleRegression,
+  wageLegacyGenerationRegression: runWageLegacyGenerationRegression,
+  wageCarryRegression: runWageCarryRegression,
+  wageSeasonalRhythmRegression: runWageSeasonalRhythmRegression,
+  wageSeasonalDensityRegression: runWageSeasonalDensityRegression,
+  apprenticeSeasonalRhythmRegression: runApprenticeSeasonalRhythmRegression,
+  apprenticeSeasonalDensityRegression: runApprenticeSeasonalDensityRegression,
+  apprenticeSeasonalExtensionRegression: runApprenticeSeasonalExtensionRegression,
+  merchantSeasonalRhythmRegression: runMerchantSeasonalRhythmRegression,
+  merchantSeasonalDensityRegression: runMerchantSeasonalDensityRegression,
+  merchantRouteChoiceDensityRegression: runMerchantRouteChoiceDensityRegression,
+  merchantAutumnDutyChoiceRegression: runMerchantAutumnDutyChoiceRegression,
+  merchantSpringHeadBodyChoiceRegression: runMerchantSpringHeadBodyChoiceRegression,
+  merchantRouteShoulderChoiceRegression: runMerchantRouteShoulderChoiceRegression,
+  merchantAutumnTailConflictRegression: runMerchantAutumnTailConflictRegression,
+  merchantSummerWinterDragChoiceRegression: runMerchantSummerWinterDragChoiceRegression,
+  merchantConflictChoiceRegression: runMerchantConflictChoiceRegression,
+  merchantMidBodyChoiceRegression: runMerchantMidBodyChoiceRegression,
+  merchantAutumnRemittanceChoiceRegression: runMerchantAutumnRemittanceChoiceRegression,
+  merchantWinterRemittanceChoiceRegression: runMerchantWinterRemittanceChoiceRegression,
+  merchantLifecycleDeepReplayRegression: runMerchantLifecycleDeepReplayRegression,
+  familyAdultRhythmRegression: runFamilyAdultRhythmRegression,
+  farmFamilySeasonalDensityRegression: runFarmFamilySeasonalDensityRegression,
+  farmFamilyChoiceDensityRegression: runFarmFamilyChoiceDensityRegression,
+  farmHouseholdSeasonalDensityRegression: runFarmHouseholdSeasonalDensityRegression,
+  farmHouseholdChoiceDensityRegression: runFarmHouseholdChoiceDensityRegression,
+  farmElderSeasonalDensityRegression: runFarmElderSeasonalDensityRegression,
+  farmElderChoiceDensityRegression: runFarmElderChoiceDensityRegression,
+  merchantFamilyRouteAwareRegression: runMerchantFamilyRouteAwareRegression,
+  merchantFamilySpringLedgerRegression: runMerchantFamilySpringLedgerRegression,
+  merchantFamilySpringWinterDensityRegression: runMerchantFamilySpringWinterDensityRegression,
+  merchantFamilyRouteSpecificFrictionRegression: runMerchantFamilyRouteSpecificFrictionRegression,
+  merchantFamilyChoiceDensityRegression: runMerchantFamilyChoiceDensityRegression,
+  merchantFamilySeasonalDensityRegression: runMerchantFamilySeasonalDensityRegression,
+  merchantHouseholdSeasonalDensityRegression: runMerchantHouseholdSeasonalDensityRegression,
+  merchantHouseholdChoiceDensityRegression: runMerchantHouseholdChoiceDensityRegression,
+  merchantHouseholdSpringChoiceRegression: runMerchantHouseholdSpringChoiceRegression,
+  merchantHouseholdShoulderChoiceRegression: runMerchantHouseholdShoulderChoiceRegression,
+  merchantHouseholdEarlyFrictionFallbackRegression: runMerchantHouseholdEarlyFrictionFallbackRegression,
+  wageHouseholdSeasonalDensityRegression: runWageHouseholdSeasonalDensityRegression,
+  wageHouseholdChoiceDensityRegression: runWageHouseholdChoiceDensityRegression,
+  apprenticeHouseholdSeasonalDensityRegression: runApprenticeHouseholdSeasonalDensityRegression,
+  apprenticeHouseholdChoiceDensityRegression: runApprenticeHouseholdChoiceDensityRegression,
+  examHouseholdSeasonalDensityRegression: runExamHouseholdSeasonalDensityRegression,
+  examHouseholdChoiceDensityRegression: runExamHouseholdChoiceDensityRegression,
+  merchantElderSeasonalDensityRegression: runMerchantElderSeasonalDensityRegression,
+  merchantElderChoiceDensityRegression: runMerchantElderChoiceDensityRegression,
+  merchantElderSchoolFundRegression: runMerchantElderSchoolFundRegression,
+  merchantDeathClosureRegression: runMerchantDeathClosureRegression,
+  wageElderSeasonalDensityRegression: runWageElderSeasonalDensityRegression,
+  wageElderCarryNoteRegression: runWageElderCarryNoteRegression,
+  wageElderChoiceDensityRegression: runWageElderChoiceDensityRegression,
+  apprenticeElderSeasonalDensityRegression: runApprenticeElderSeasonalDensityRegression,
+  apprenticeElderChoiceDensityRegression: runApprenticeElderChoiceDensityRegression,
+  examElderSeasonalDensityRegression: runExamElderSeasonalDensityRegression,
+  examElderChoiceDensityRegression: runExamElderChoiceDensityRegression,
+  examRouteAwareDedupRegression: runExamRouteAwareDedupRegression,
+  apprenticeFamilySeasonalDensityRegression: runApprenticeFamilySeasonalDensityRegression,
+  apprenticeFamilySpringWinterDensityRegression: runApprenticeFamilySpringWinterDensityRegression,
+  apprenticeFamilyChoiceDensityRegression: runApprenticeFamilyChoiceDensityRegression,
+  wageFamilyRouteAwareRegression: runWageFamilyRouteAwareRegression,
+  wageFamilySeasonalDensityRegression: runWageFamilySeasonalDensityRegression,
+  wageFamilyChoiceDensityRegression: runWageFamilyChoiceDensityRegression,
+  wageFamilySpringWinterDensityRegression: runWageFamilySpringWinterDensityRegression,
+  apprenticeFamilyRouteAwareRegression: runApprenticeFamilyRouteAwareRegression,
+  examFamilyRouteAwareRegression: runExamFamilyRouteAwareRegression,
+  examFamilySeasonalDensityRegression: runExamFamilySeasonalDensityRegression,
+  examFamilySpringWinterDensityRegression: runExamFamilySpringWinterDensityRegression,
+  examFamilyChoiceDensityRegression: runExamFamilyChoiceDensityRegression,
+  examFamilyBodyInstitutionChoiceRegression: runExamFamilyBodyInstitutionChoiceRegression,
+  examIntraYearExpenseChoiceRegression: runExamIntraYearExpenseChoiceRegression,
+  examSharedSnapshotRegression: runExamSharedSnapshotRegression,
+  examSeasonalRhythmRegression: runExamSeasonalRhythmRegression,
+  examSeasonalDensityRegression: runExamSeasonalDensityRegression,
+  examSeasonalExtensionRegression: runExamSeasonalExtensionRegression,
+  examSeasonalCarryCostRegression: runExamSeasonalCarryCostRegression,
+  examChoiceDensityRegression: runExamChoiceDensityRegression,
+  examStudyChainRegression: runExamStudyChainRegression,
+  examGuaranteePrepRegression: runExamGuaranteePrepRegression,
+  examTutorSeatGateRegression: runExamTutorSeatGateRegression,
+  examSchoolSeatGateRegression: runExamSchoolSeatGateRegression,
+  examFoundationLiteracyRegression: runExamFoundationLiteracyRegression,
+  examAttemptGateRegression: runExamAttemptGateRegression,
+  examTierSplitRegression: runExamTierSplitRegression,
+  examReplyFrictionRegression: runExamReplyFrictionRegression,
+  examFamilySupportLedgerRegression: runExamFamilySupportLedgerRegression,
+  examPublicSupportLedgerRegression: runExamPublicSupportLedgerRegression,
+  examImplicitCashSupportLedgerRegression: runExamImplicitCashSupportLedgerRegression,
+  examMaternalSupportLedgerRegression: runExamMaternalSupportLedgerRegression,
+  examSiblingMarriageSupportRegression: runExamSiblingMarriageSupportRegression,
+  examMidSiblingSupportRegression: runExamMidSiblingSupportRegression,
+  examAutumnBodyCareRegression: runExamAutumnBodyCareRegression,
+  examShoulderBodySplitRegression: runExamShoulderBodySplitRegression,
+  examUpperDelaySplitRegression: runExamUpperDelaySplitRegression,
+  examUpperShoulderReliefRegression: runExamUpperShoulderReliefRegression,
+  examSelfRaisedPressureRegression: runExamSelfRaisedPressureRegression,
+  examSelfRaisedMultiReliefRegression: runExamSelfRaisedMultiReliefRegression,
+  examSelfRaisedStateRegression: runExamSelfRaisedStateRegression,
+  examTailSupportFrictionRegression: runExamTailSupportFrictionRegression,
+  examSeasonalOutlayLedgerRegression: runExamSeasonalOutlayLedgerRegression,
+  examFailureDelayRegression: runExamFailureDelayRegression,
+  examFailureCarryRegression: runExamFailureCarryRegression,
+  examCrossYearCarryRegression: runExamCrossYearCarryRegression,
+  examIntraYearSignalRegression: runExamIntraYearSignalRegression,
+  examDelaySplitRegression: runExamDelaySplitRegression,
+  examMidDelaySplitRegression: runExamMidDelaySplitRegression,
+  examStatusVisibilityRegression: runExamStatusVisibilityRegression,
+  examYearFocusRegression: runExamYearFocusRegression,
+  examStudyBurdenRegression: runExamStudyBurdenRegression,
+  examInheritedSupportBufferRegression: runExamInheritedSupportBufferRegression,
+  inheritedCraftSideIncomeRegression: runInheritedCraftSideIncomeRegression,
+  inheritedFieldLineageRegression: runInheritedFieldLineageRegression,
+  farmRouteCarryRegression: runFarmRouteCarryRegression,
+  inheritanceRemainderRegression: runInheritanceRemainderRegression,
+  inheritanceDebtRemainderRegression: runInheritanceDebtRemainderRegression,
+  delegatedRentEstateRegression: runDelegatedRentEstateRegression,
+  lifecycleCarryBridgeRegression: runLifecycleCarryBridgeRegression,
+  currentLifecycleRouteAwareVisibilityRegression: runCurrentLifecycleRouteAwareVisibilityRegression,
+  lifecycleNarrativeBridgeRegression: runLifecycleNarrativeBridgeRegression,
+  debtVisibilityLifecycleRegression: runDebtVisibilityLifecycleRegression,
+  fiveRouteLifecycleClosureRegression: runFiveRouteLifecycleClosureRegression,
+  routeAwareLifecycleStageVisibilityRegression: runRouteAwareLifecycleStageVisibilityRegression,
+  inheritedRouteAwareCarryOnlyVisibilityRegression: runInheritedRouteAwareCarryOnlyVisibilityRegression,
+  deathButtonLabelRegression: runDeathButtonLabelRegression,
+  legacyCarryIdentityNormalizationRegression: runLegacyCarryIdentityNormalizationRegression,
+  deathRemainderCarryRegression: runDeathRemainderCarryRegression,
+  collateralDirectHeirLineageRegression: runCollateralDirectHeirLineageRegression,
+  inheritedDelegatedRentBridgeRegression: runInheritedDelegatedRentBridgeRegression,
+  siblingContinuationCarryRegression: runSiblingContinuationCarryRegression,
+  wageLegacyGenerationRegression: runWageLegacyGenerationRegression,
+  marriageCarrySettlementRegression: runMarriageCarrySettlementRegression,
+  pendingRentWithoutWholeFieldInheritanceRegression: runPendingRentWithoutWholeFieldInheritanceRegression,
+  sharedCashContentionRegression: runSharedCashContentionRegression,
+  routeAwareHeirMatrixRegression: runRouteAwareHeirMatrixRegression,
+  routeAwareRestartChoiceMatrixRegression: runRouteAwareRestartChoiceMatrixRegression,
+  designDocClosureRegression: runDesignDocClosureRegression
+};
+
+const TEST_SUITES = {
+  'five-routes': ['entryReplay', 'deepReplay', 'inheritedLifecycleDeepReplay'],
+  'merchant-deep': [
+    'merchantTradeCarryRegression',
+    'merchantSameYearSettlementRegression',
+    'merchantTrialCapitalGateRegression',
+    'merchantFrictionHandledChoiceRegression',
+    'merchantSeasonCarryRegression',
+    'merchantRemittanceLedgerRegression',
+    'merchantRemittanceCapacityCapRegression',
+    'merchantCollateralSupportRegression',
+    'merchantSeasonalRhythmRegression',
+    'merchantSeasonalDensityRegression',
+    'merchantRouteChoiceDensityRegression',
+    'merchantAutumnDutyChoiceRegression',
+    'merchantSpringHeadBodyChoiceRegression',
+    'merchantRouteShoulderChoiceRegression',
+    'merchantAutumnTailConflictRegression',
+    'merchantSummerWinterDragChoiceRegression',
+    'merchantConflictChoiceRegression',
+    'merchantMidBodyChoiceRegression',
+    'merchantAutumnRemittanceChoiceRegression',
+    'merchantWinterRemittanceChoiceRegression',
+    'merchantLifecycleDeepReplayRegression',
+    'merchantFamilyRouteAwareRegression',
+    'merchantFamilySpringLedgerRegression',
+    'merchantFamilySpringWinterDensityRegression',
+    'merchantFamilyRouteSpecificFrictionRegression',
+    'merchantFamilyChoiceDensityRegression',
+    'merchantFamilySeasonalDensityRegression',
+    'merchantHouseholdSeasonalDensityRegression',
+    'merchantHouseholdChoiceDensityRegression',
+    'merchantHouseholdSpringChoiceRegression',
+    'merchantHouseholdShoulderChoiceRegression',
+    'merchantHouseholdEarlyFrictionFallbackRegression',
+    'merchantElderSeasonalDensityRegression',
+    'merchantElderChoiceDensityRegression',
+    'merchantElderSchoolFundRegression',
+    'merchantDeathClosureRegression'
+  ],
+  'exam-deep': [
+    'examRoleCarryRegression',
+    'examFamilyRouteAwareRegression',
+    'examFamilySeasonalDensityRegression',
+    'examFamilySpringWinterDensityRegression',
+    'examFamilyChoiceDensityRegression',
+    'examFamilyBodyInstitutionChoiceRegression',
+    'examIntraYearExpenseChoiceRegression',
+    'examSharedSnapshotRegression',
+    'examSeasonalRhythmRegression',
+    'examSeasonalDensityRegression',
+    'examSeasonalExtensionRegression',
+    'examSeasonalCarryCostRegression',
+    'examChoiceDensityRegression',
+    'examStudyChainRegression',
+    'examGuaranteePrepRegression',
+    'examTutorSeatGateRegression',
+    'examSchoolSeatGateRegression',
+    'examFoundationLiteracyRegression',
+    'examAttemptGateRegression',
+    'examTierSplitRegression',
+    'examReplyFrictionRegression',
+    'examFamilySupportLedgerRegression',
+    'examPublicSupportLedgerRegression',
+    'examImplicitCashSupportLedgerRegression',
+    'examMaternalSupportLedgerRegression',
+    'examSiblingMarriageSupportRegression',
+    'examMidSiblingSupportRegression',
+    'examAutumnBodyCareRegression',
+    'examShoulderBodySplitRegression',
+    'examUpperDelaySplitRegression',
+    'examUpperShoulderReliefRegression',
+    'examSelfRaisedPressureRegression',
+    'examSelfRaisedMultiReliefRegression',
+    'examSelfRaisedStateRegression',
+    'examTailSupportFrictionRegression',
+    'examSeasonalOutlayLedgerRegression',
+    'examFailureDelayRegression',
+    'examFailureCarryRegression',
+    'examCrossYearCarryRegression',
+    'examIntraYearSignalRegression',
+    'examDelaySplitRegression',
+    'examMidDelaySplitRegression',
+    'examStatusVisibilityRegression',
+    'examYearFocusRegression',
+    'examStudyBurdenRegression',
+    'examInheritedSupportBufferRegression',
+    'examContinuationPositionBufferRegression',
+    'examRouteAwareDedupRegression',
+    'examHouseholdSeasonalDensityRegression',
+    'examHouseholdChoiceDensityRegression',
+    'examElderSeasonalDensityRegression',
+    'examElderChoiceDensityRegression'
+  ],
+  'lifecycle-deep': [
+    'crossGenReplay',
+    'marriageDeferralRegression',
+    'marriageBrokenEngagementRegression',
+    'marriageFertilityRegression',
+    'marriagePathOverwriteRegression',
+    'marriageBranchCarryRegression',
+    'marriageBranchDeepLifecycleRegression',
+    'lifecycleCarryBridgeRegression',
+    'currentLifecycleRouteAwareVisibilityRegression',
+    'lifecycleNarrativeBridgeRegression',
+    'householdFallbackSeasonalRegression',
+    'fiveRouteLifecycleClosureRegression',
+    'routeAwareLifecycleStageVisibilityRegression',
+    'inheritedRouteAwareCarryOnlyVisibilityRegression',
+    'routeAwareHeirMatrixRegression',
+    'routeAwareRestartChoiceMatrixRegression',
+    'deathButtonLabelRegression',
+    'legacyCarryIdentityNormalizationRegression',
+    'deathRemainderCarryRegression',
+    'collateralDirectHeirLineageRegression',
+    'inheritedDelegatedRentBridgeRegression',
+    'siblingContinuationCarryRegression',
+    'wageLegacyGenerationRegression',
+    'marriageCarrySettlementRegression',
+    'inheritedLegacyCarryForwardRegression',
+    'collateralDecayCarryForwardRegression',
+    'delegatedRentEstateRegression',
+    'inheritanceRemainderRegression',
+    'inheritanceDebtRemainderRegression',
+    'pendingRentWithoutWholeFieldInheritanceRegression'
+  ],
+  'legacy-paths': [
+    'legacyRegression',
+    'fieldInheritanceRegression',
+    'wageFieldRegression',
+    'debtRegression',
+    'childlessCollateralEstateRegression',
+    'inheritedLegacyCarryForwardRegression',
+    'collateralDecayCarryForwardRegression',
+    'siblingLineageRegression',
+    'birthReplay',
+    'siblingContinuationReplay',
+    'siblingContinuationCarryRegression',
+    'wageLegacyGenerationRegression'
+  ],
+  regressions: [
+    'legacyRegression',
+    'fieldInheritanceRegression',
+    'wageFieldRegression',
+    'debtRegression',
+    'childlessCollateralEstateRegression',
+    'inheritedLegacyCarryForwardRegression',
+    'collateralDecayCarryForwardRegression',
+    'siblingLineageRegression',
+    'birthReplay',
+    'siblingContinuationReplay',
+    'siblingContinuationCarryRegression',
+    'wageLegacyGenerationRegression'
+  ],
+  docs: ['designDocClosureRegression'],
+  required: [
+    'entryReplay',
+    'deepReplay',
+    'crossGenReplay',
+    'legacyRegression',
+    'fieldInheritanceRegression',
+    'wageFieldRegression',
+    'debtRegression',
+    'childlessCollateralEstateRegression',
+    'siblingLineageRegression',
+    'siblingContinuationCarryRegression',
+    'wageLegacyGenerationRegression',
+    'marriageDeferralRegression',
+    'marriageBrokenEngagementRegression',
+    'marriageFertilityRegression',
+    'marriagePathOverwriteRegression',
+    'marriageBranchCarryRegression',
+    'marriageBranchDeepLifecycleRegression',
+    'lifecycleCarryBridgeRegression',
+    'lifecycleNarrativeBridgeRegression',
+    'debtVisibilityLifecycleRegression',
+    'fiveRouteLifecycleClosureRegression',
+    'routeAwareLifecycleStageVisibilityRegression',
+    'inheritedRouteAwareCarryOnlyVisibilityRegression',
+    'routeAwareHeirMatrixRegression',
+    'routeAwareRestartChoiceMatrixRegression',
+    'deathButtonLabelRegression',
+    'legacyCarryIdentityNormalizationRegression',
+    'deathRemainderCarryRegression',
+    'collateralDirectHeirLineageRegression',
+    'inheritedDelegatedRentBridgeRegression',
+    'marriageCarrySettlementRegression',
+    'inheritedLegacyCarryForwardRegression',
+    'collateralDecayCarryForwardRegression',
+    'delegatedRentEstateRegression',
+    'inheritanceRemainderRegression',
+    'inheritanceDebtRemainderRegression',
+    'pendingRentWithoutWholeFieldInheritanceRegression',
+    'designDocClosureRegression'
+  ]
+};
+
+function uniq(list) {
+  return Array.from(new Set(list));
+}
+
+function parseRequestedTests(argv) {
+  const requestedTests = [];
+  const requestedSuites = [];
+  let listOnly = false;
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg === '--test') {
+      const next = argv[i + 1];
+      if (!next) throw new Error('`--test` 后缺少测试名');
+      requestedTests.push(next);
+      i += 1;
+      continue;
+    }
+    if (arg === '--suite') {
+      const next = argv[i + 1];
+      if (!next) throw new Error('`--suite` 后缺少套件名');
+      requestedSuites.push(next);
+      i += 1;
+      continue;
+    }
+    if (arg === '--list') {
+      listOnly = true;
+      continue;
+    }
+    if (Object.prototype.hasOwnProperty.call(TEST_SUITES, arg)) {
+      requestedSuites.push(arg);
+      continue;
+    }
+    if (Object.prototype.hasOwnProperty.call(TEST_BUILDERS, arg)) {
+      requestedTests.push(arg);
+      continue;
+    }
+    throw new Error(`未知参数：${arg}`);
+  }
+  return { requestedTests, requestedSuites, listOnly };
+}
+
+function resolveRequestedTests(argv) {
+  const parsed = parseRequestedTests(argv);
+  if (parsed.listOnly) {
+    return { listOnly: true, tests: [] };
+  }
+  if (!parsed.requestedTests.length && !parsed.requestedSuites.length) {
+    return { listOnly: false, tests: Object.keys(TEST_BUILDERS) };
+  }
+  // 兼容 `--suite <单测名>`：
+  // 生命周期与旧路径回放现在既有“套件”也有若干可单独运行的汇总测试。
+  // 实操里很容易把 `entryReplay` / `deepReplay` / `inheritedLifecycleDeepReplay`
+  // 这类单测名误当成 suite 传进来；此前会直接报“未知套件”，
+  // 让“验证入口不存在”和“验证本身失败”混在一起。
+  // 这里允许 `--suite` 同时接收：
+  // 1) TEST_SUITES 里的真正套件名；
+  // 2) TEST_BUILDERS 里的单个测试名（按单元素 suite 展开）。
+  const unknownSuites = parsed.requestedSuites.filter((name) => {
+    return !Object.prototype.hasOwnProperty.call(TEST_SUITES, name)
+      && !Object.prototype.hasOwnProperty.call(TEST_BUILDERS, name);
+  });
+  if (unknownSuites.length) throw new Error(`未知套件：${unknownSuites.join(', ')}`);
+  const unknownTests = parsed.requestedTests.filter((name) => !Object.prototype.hasOwnProperty.call(TEST_BUILDERS, name));
+  if (unknownTests.length) throw new Error(`未知测试：${unknownTests.join(', ')}`);
+  const suiteTests = parsed.requestedSuites.flatMap((name) => {
+    if (Object.prototype.hasOwnProperty.call(TEST_SUITES, name)) return TEST_SUITES[name];
+    return [name];
+  });
+  return { listOnly: false, tests: uniq(suiteTests.concat(parsed.requestedTests)) };
+}
+
+function buildSummary(testNames) {
+  const summary = {};
+  testNames.forEach((name) => {
+    summary[name] = TEST_BUILDERS[name]();
+  });
+  if (summary.examSeasonalOutlayLedgerRegression) {
+    summary.examSeasonalOutlayLedgerRegression.ok = summary.examSeasonalOutlayLedgerRegression.spring.ok
+      && summary.examSeasonalOutlayLedgerRegression.summerLower.ok
+      && summary.examSeasonalOutlayLedgerRegression.winterYearEnd.ok;
+  }
+  return summary;
+}
+
+function main() {
+  const selection = resolveRequestedTests(process.argv.slice(2));
+  if (selection.listOnly) {
+    console.log(JSON.stringify({
+      tests: Object.keys(TEST_BUILDERS),
+      suites: TEST_SUITES
+    }, null, 2));
+    return;
+  }
+  const summary = buildSummary(selection.tests);
+
+  fs.writeFileSync(SUMMARY_PATH, JSON.stringify(summary, null, 2) + '\n');
+  const failures = collectFailures(summary);
+  if (failures.length) {
+    throw new Error(`验证失败：${failures.join(', ')}`);
+  }
+  console.log(JSON.stringify(summary, null, 2));
+}
+
+main();

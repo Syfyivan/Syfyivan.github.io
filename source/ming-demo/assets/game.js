@@ -5092,6 +5092,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return h;
   }
 
+  function joinUniqueDossierParts(parts) {
+    var tokens = [];
+    var seen = Object.create(null);
+    (parts || []).forEach(function (part) {
+      String(part || '').split('｜').forEach(function (token) {
+        var text = String(token || '').trim();
+        if (!text || seen[text]) return;
+        seen[text] = true;
+        tokens.push(text);
+      });
+    });
+    return tokens.join('｜');
+  }
+
   function establishmentAtlasDossier() {
     var routeRows = [
       '路径一 · 留乡佃田：三农年起手，后续接养家 / 当户 / 养老。',
@@ -9457,10 +9471,6 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         pack.extraActions.push({ id: 'h_copy_mid', name: '以笔墨代写文契', cost: 1, eff: '铜钱+160·风险降', desc: '分家立户之际替人抄账写契，先把识字底子换成一点现钱，也让乡里知道你不是白读书。', can: S.识字 || S.识字转业值 >= 2, once: true });
       }
     }
-    var bridge = lifecycleInheritanceBridge();
-    if (bridge.note) pack.note += (pack.note ? ' ' : '') + bridge.note;
-    if (bridge.dossier) pack.dossier += (pack.dossier ? '｜' : '') + bridge.dossier;
-    if (bridge.event) pack.event = bridge.event;
     return pack;
   }
 
@@ -19319,10 +19329,6 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       pack.extraActions.push({ id: 'e_tutor_winter_bundle_old', name: '把冬尾笔炭拆作守岁零用与学生回话', cost: 1, eff: '铜钱-45·家族+1·体魄+1', desc: '冬尾最怕炭药、守岁零用和学生家回话脚费一起冒头。先把这层小账拆开，让举业路晚景不必把明春口风又押回同一口过冬钱上。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
       pack.extraActions.push({ id: 'e_tutor_winter_tail_note_old', name: '先把年下馆信与来春帖样分开', cost: 1, eff: '铜钱-50·家族+1·体魄+1', desc: '冬尾最怕旧馆年下回信、来春帖样、递话门包和守岁锅火一起冒头。先把这层冬尾馆信拆开，旧馆回音与家里续帖样就不必继续抢同一口过冬钱。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
     }
-    var bridge = lifecycleInheritanceBridge();
-    if (bridge.note) pack.note += (pack.note ? ' ' : '') + bridge.note;
-    if (bridge.dossier) pack.dossier += (pack.dossier ? '｜' : '') + bridge.dossier;
-    if (bridge.event) pack.event = bridge.event;
     return pack;
   }
 
@@ -19360,13 +19366,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         + (bridge.note ? ' ' + bridge.note : '')
         + (ep.note ? ' ' + ep.note : ''),
       narrative: '你已<span class="em">' + S.年龄 + '岁</span>。这一程是<span class="em">' + season.name + '·' + xunLabel + '</span>，这一旬 <span class="em">' + (season.id === 'winter' ? 3 : 2) + ' 个行动点</span>，仍要把奉养、医药、租谷与年关后手一笔笔拆开过。你年轻时走的那条路，此时会变成旧识、旧账、名色和体面。'
-        + (bridge.narrative ? (' ' + bridge.narrative) : ''),
+        ,
       dossier: function () {
-        var seasonFoot = '｜老程=' + season.name + '·' + xunLabel + '｜本年养老季务=' + ((S.本年养老季务 || []).length);
-        return lifeDossier((S.子数 > 0 ? ('诸子 ' + S.子数 + ' 人各有小家，奉养多寡要看协商成算。') : '无子可依，奉养这条路走不通，须自筹。')
-          + (bridge.dossier ? '｜' + bridge.dossier : '')
-          + (ep.dossier ? '｜' + ep.dossier : '')
-          + seasonFoot);
+        var base = S.子数 > 0 ? ('诸子 ' + S.子数 + ' 人各有小家，奉养多寡要看协商成算。') : '无子可依，奉养这条路走不通，须自筹。';
+        var seasonFoot = '老程=' + season.name + '·' + xunLabel + '｜本年养老季务=' + ((S.本年养老季务 || []).length);
+        return lifeDossier(joinUniqueDossierParts([base, bridge.dossier, ep.dossier, seasonFoot]));
       },
       events: events,
       prompt: season.name + '·' + xunLabel + '怎么过？（分配 ' + (season.id === 'winter' ? 3 : 2) + ' 点）',
