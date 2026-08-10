@@ -221,7 +221,7 @@
       户年: 1, 户季: 1, 户旬: 1, 本年户核账: 0, 本年户催账: 0, 本年户备役: 0, 本年户通融: 0, 本年户委托: 0, 本年户供读: 0, 本年户季务: [],
       委托营生: '无', 委托租谷: 0, 委托待收租谷: 0, 最近农闲营生层级: '未定', 最近农闲营生收益: 0,
       // 养老阶段：按四季推进（同一年内继续拆账），避免“老年只点一次就结算”
-      老季: 1, 老旬: 1, 本年养老协商: 0, 本年养老收租: 0, 本年养老卖田: 0, 本年养老医药: 0, 本年养老守田: 0, 本年养老旧识: 0, 本年养老铺账: 0, 本年养老节礼: 0, 本年养老季务: [],
+      老季: 1, 老旬: 1, 本年养老协商: 0, 本年养老收租: 0, 本年养老卖田: 0, 本年养老医药: 0, 本年养老守田: 0, 本年养老旧识: 0, 本年养老铺账: 0, 本年养老节礼: 0, 本年养老归乡: 0, 本年养老季务: [],
       _advanceElderSeason: false,
       // 代际承接字段（不直接折现，只改变下一代入口分布）
       父辈路线: '未定', 承继身份: '次子', 承嗣来路: '本支次子承继', 承继定位: '本房次子另起一手', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0, 旧门路衰减: 0,
@@ -3676,6 +3676,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     S.本年养老旧识 = 0;
     S.本年养老铺账 = 0;
     S.本年养老节礼 = 0;
+    S.本年养老归乡 = 0;
     S.本年养老季务 = [];
   }
   function resetHouseholdYearLedger() {
@@ -18750,6 +18751,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (isApprenticeRouteState()) return stageApprenticeHousehold();
     if (isMerchantRouteState()) return stageMerchantHousehold();
     if (isCivilExamRouteState()) return stageExamHousehold();
+    var bridge = lifecycleInheritanceBridge();
     var hp = householdRoutePack();
     var seasonIdx = Math.max(1, Math.min(HOUSEHOLD_SEASONS.length, S.户季 || 1));
     var xun = Math.max(1, Math.min(3, S.户旬 || 1));
@@ -18779,15 +18781,21 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       ap: 2,
       shock: false,
       commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
-      note: '当户阶段的默认兜底口径也按“四季三旬”推进。分家、旧账、差钱与里甲人情，不再一口气结成“一次 4 点”，而要在同一年里逐旬拆开。〔均分与破家为制度事实，具体银额为占位〕' + (hp.note ? ' ' + hp.note : ''),
-      narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是把当户一次结掉，而是先把旧账、差钱和人情里最要紧的那两手坐实。',
+      note: '当户阶段的默认兜底口径也按“四季三旬”推进。分家、旧账、差钱与里甲人情，不再一口气结成“一次 4 点”，而要在同一年里逐旬拆开。〔均分与破家为制度事实，具体银额为占位〕'
+        + (bridge.note ? ' ' + bridge.note : '')
+        + (hp.note ? ' ' + hp.note : ''),
+      narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是把当户一次结掉，而是先把旧账、差钱和人情里最要紧的那两手坐实。'
+        + (bridge.narrative ? (' ' + bridge.narrative) : ''),
       dossier: function () {
-        return lifeDossier('当户默认兜底也按四季三旬｜户程=' + stepLabel + '｜应役=' + S.应役 + '｜本年户季务=' + ((S.本年户季务 || []).join(' / ') || '无') + (hp.dossier ? '｜' + hp.dossier : ''));
+        return lifeDossier('当户默认兜底也按四季三旬｜户程=' + stepLabel + '｜应役=' + S.应役 + '｜本年户季务=' + ((S.本年户季务 || []).join(' / ') || '无')
+          + (bridge.dossier ? '｜' + bridge.dossier : '')
+          + (hp.dossier ? '｜' + hp.dossier : ''));
       },
       events: [
         { t: 'rel', tag: '[分家]', txt: '立阄书、品搭均分只是开始。真正难的是把这一房的旧账、差钱、人情与锅火在同一年里逐旬坐实。' },
         { t: 'rel', tag: '[' + season.name + ']', txt: season.note },
         { t: 'rel', tag: '[户账]', txt: eventTxt },
+        bridge.event,
         hp.event,
         householdSeasonPulseEvent(season.id, xun)
       ].filter(Boolean),
@@ -19150,6 +19158,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       }
       pack.extraActions.push({ id: 'e_route_wharf_old', name: '托熟号问明春水脚', cost: 1, eff: '铜钱-50·家族+1', desc: '趁年关熟号还在，先把哪条水脚肯接、哪笔旧账还可缓一旬摸明。它不立刻变现，却能让来年不至从两眼一抹黑开始。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
       pack.extraActions.push({ id: 'e_route_winter_tail_old', name: '先把年下回签与来春样纸分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '冬尾最怕年下回签、来春样纸定钱、递话脚费和眼前锅火一起压上来。先把这层冬尾小账拆开，明春第一程和今冬家里口风才不必继续挤在同一口现钱上。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
+      pack.extraActions.push({ id: 'e_route_return_old', name: '先把归乡船脚与年下回签分开', cost: 1, eff: '铜钱-70·家族+2·体魄+1', desc: '冬尾若还想赶在身子再坏前回到故里，就得先把归乡船脚、年下回签、递话门包和眼前锅火拆开。先把这层归乡后手坐实，路四收口才不至只剩“人还在外头、账也还在外头”。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
       if (S.商路供读银 >= 1) {
         pack.extraActions.push({ id: 'e_route_winter_school_tail_old', name: '先把冬尾供读帖样与年下锅火分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬尾最怕孙辈来春帖样、炭笔门包、年下锅火和熟号回签一起冒头。先把这层供读帖样拆开，不让家里读写后手和明春商路门路继续抢同一口过冬钱。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
       }
@@ -19192,6 +19201,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   // ── 养老：拆成四季（春安顿/夏将养/秋结租/冬收束），让老年也有同年节奏 ──
   function stageElder() {
     var ep = elderRoutePack();
+    var bridge = lifecycleInheritanceBridge();
     var seasonIdx = Math.max(1, Math.min(ELDER_SEASONS.length, S.老季 || 1));
     var season = elderSeasonInfo(seasonIdx);
     var xun = Math.max(1, Math.min(3, S.老旬 || 1));
@@ -19204,6 +19214,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       { t: 'rel', tag: '[季节]', txt: season.note + ' ' + season.actionLead },
       { t: 'rel', tag: '[养老]', txt: S.子数 > 0 ? '诸子就"谁出米、谁出工"各持立场——他们也有自己的妻儿要养，奉养须双方同意、镜像入各自账本。' : '无子可依，只能靠口食田薄租、自身积蓄，或变卖田产。' }
     ];
+    if (bridge.event) events.push(bridge.event);
     if (ep.event) events.push(ep.event);
 
     return {
@@ -19217,11 +19228,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           : ('转入' + season.name + '·' + elderXunLabel(xun + 1) + ' →')),
       ap: (season.id === 'winter' ? 3 : 2),
       commitLabel: isSeasonEnd ? '了这一季养老账 →' : '收住这一旬养老账 →',
-      note: '功能容量随龄下降，劳作让位于休息医药。奉养是与诸子协商的结果、不是默认义务；口食田与委托田租要靠人去收，旧识照应也要靠钱去维。〔机制事实，标准为占位〕' + (ep.note ? ' ' + ep.note : ''),
-      narrative: '你已<span class="em">' + S.年龄 + '岁</span>。这一程是<span class="em">' + season.name + '·' + xunLabel + '</span>，这一旬 <span class="em">' + (season.id === 'winter' ? 3 : 2) + ' 个行动点</span>，仍要把奉养、医药、租谷与年关后手一笔笔拆开过。你年轻时走的那条路，此时会变成旧识、旧账、名色和体面。',
+      note: '功能容量随龄下降，劳作让位于休息医药。奉养是与诸子协商的结果、不是默认义务；口食田与委托田租要靠人去收，旧识照应也要靠钱去维。〔机制事实，标准为占位〕'
+        + (bridge.note ? ' ' + bridge.note : '')
+        + (ep.note ? ' ' + ep.note : ''),
+      narrative: '你已<span class="em">' + S.年龄 + '岁</span>。这一程是<span class="em">' + season.name + '·' + xunLabel + '</span>，这一旬 <span class="em">' + (season.id === 'winter' ? 3 : 2) + ' 个行动点</span>，仍要把奉养、医药、租谷与年关后手一笔笔拆开过。你年轻时走的那条路，此时会变成旧识、旧账、名色和体面。'
+        + (bridge.narrative ? (' ' + bridge.narrative) : ''),
       dossier: function () {
         var seasonFoot = '｜老程=' + season.name + '·' + xunLabel + '｜本年养老季务=' + ((S.本年养老季务 || []).length);
-        return lifeDossier((S.子数 > 0 ? ('诸子 ' + S.子数 + ' 人各有小家，奉养多寡要看协商成算。') : '无子可依，奉养这条路走不通，须自筹。') + (ep.dossier ? '｜' + ep.dossier : '') + seasonFoot);
+        return lifeDossier((S.子数 > 0 ? ('诸子 ' + S.子数 + ' 人各有小家，奉养多寡要看协商成算。') : '无子可依，奉养这条路走不通，须自筹。')
+          + (bridge.dossier ? '｜' + bridge.dossier : '')
+          + (ep.dossier ? '｜' + ep.dossier : '')
+          + seasonFoot);
       },
       events: events,
       prompt: season.name + '·' + xunLabel + '怎么过？（分配 ' + (season.id === 'winter' ? 3 : 2) + ' 点）',
@@ -19491,6 +19508,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           } else if (a.id === 'e_route_winter_tail_old') {
             a.can = (season.id === 'winter') && xun === 3 && S.铜钱 >= 55;
             a.why = !(season.id === 'winter' && xun === 3) ? '这一旬不便先拆年下回签账' : (S.铜钱 >= 55 ? '' : '铜钱不足55文');
+            a.once = true;
+          } else if (a.id === 'e_route_return_old') {
+            a.can = (season.id === 'winter') && xun === 3 && (S.本年养老归乡 || 0) <= 0 && S.铜钱 >= 70;
+            a.why = !(season.id === 'winter' && xun === 3)
+              ? '这一旬不便先坐实归乡船脚'
+              : (((S.本年养老归乡 || 0) > 0) ? '本年已先把归乡船脚坐实' : (S.铜钱 >= 70 ? '' : '铜钱不足70文'));
             a.once = true;
           } else if (a.id === 'e_route_winter_school_tail_old') {
             a.can = (season.id === 'winter') && xun === 3 && S.商路供读银 >= 1 && S.铜钱 >= 60;
@@ -20157,6 +20180,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['〔冬尾铺签〕先把年下回签与来春样纸分开：铜钱-55、家族+1、体魄+1。年下回签、来春样纸定钱、递话脚费和眼前锅火终于不再一起挤在冬尾这一口现钱上。', 'good']);
               } else log.push(['〔冬尾铺签〕想先把年下回签与来春样纸分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
+            case 'e_route_return_old':
+              if ((S.本年养老归乡 || 0) <= 0 && spendCopper(70)) {
+                S.本年养老归乡 = 1;
+                S.家族 += 2; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·归乡船脚');
+                log.push(['〔归乡船脚〕先把归乡船脚与年下回签分开：铜钱-70、家族+2、体魄+1。你先把回乡船脚、年下回签、递话门包和锅火后手都落回这一旬，商路晚景终于不再只剩“人还在外头、账也还在外头”的收口。', 'good']);
+              } else if ((S.本年养老归乡 || 0) <= 0) log.push(['〔归乡船脚〕想先把归乡船脚与年下回签分开，但这一旬现钱不够，只得把“能不能赶回故里”继续压在客途中。', 'bad']);
+              break;
             case 'e_route_winter_school_tail_old':
               if (S.商路供读银 >= 1 && spendCopper(60)) {
                 S.家族 += 1; S.体魄 += 1;
@@ -20431,10 +20462,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var livedAge = Math.max(0, Number(S.年龄 || 0));
     var ageRoll = Math.max(livedAge, Number(rollProb(life.deathTable) || 0));
     S._deathAge = ageRoll; S.年龄 = ageRoll;
-    // 丧葬支出（棺木为大项）：从遗产扣
-    var funeral = 1; // 白银
+    var isMerchantDeathRoute = (S.路线.indexOf('徽商') === 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商历练 > 0);
+    var merchantReturnedHome = isMerchantDeathRoute && (((S.本年养老归乡 || 0) > 0) || (S.未回款银 || 0) <= 0);
+    var merchantDiedOnRoad = isMerchantDeathRoute && !merchantReturnedHome;
+    var merchantExtraFuneralSilver = merchantDiedOnRoad ? 1 : 0;
+    var merchantExtraFuneralCopper = merchantDiedOnRoad ? 180 : 0;
+    var merchantReceivableRatio = merchantDiedOnRoad ? 0.25 : (isMerchantDeathRoute ? 0.75 : 0.6);
+    S._merchantDeathClosure = isMerchantDeathRoute ? (merchantDiedOnRoad ? '客死商途' : '归乡终老') : '';
+    // 丧葬支出（棺木为大项；商路客死另加运柩停厝）：从遗产扣
+    var funeral = 1 + merchantExtraFuneralSilver; // 白银
     var funeralMi = 1;
-    var recoveredReceivable = S.未回款银 > 0 ? Math.floor(S.未回款银 * 0.6) : 0;
+    var recoveredReceivable = S.未回款银 > 0 ? Math.floor(S.未回款银 * merchantReceivableRatio) : 0;
     var estateSilverGross = Math.max(0, S.白银 - funeral + recoveredReceivable);
     var estateDebt = Math.max(0, S.负债银 - estateSilverGross);
     var estateSilver = Math.max(0, estateSilverGross - S.负债银);
@@ -20442,7 +20480,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     // “待结委托田租”是应收，不是已得存米；必须随代际承接，而不是自动折算为存米。
     var estateMi = Math.max(0, S.存米 - funeralMi);
     var estateTian = S.田亩;
-    var estateCopper = Math.max(0, S.铜钱);
+    var estateCopper = Math.max(0, S.铜钱 - merchantExtraFuneralCopper);
     var sons = S.子数;
     var heirOrdinal = sons > 1 ? 2 : 1;
     // 仅用于 UI 文案与回放断言，不参与任何评分；避免“独子/过继”仍显示“次子”造成闭环误读。
@@ -20457,6 +20495,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var carriedWageIdentity = carriedRouteAwareValue('雇身份', '未定');
     var carriedApprenticeDest = carriedRouteAwareValue('学徒去向', '未定');
     var carriedExamOutcome = carriedRouteAwareValue('举业结局', '未定');
+    var merchantClosureNote = '';
+    if (isMerchantDeathRoute) {
+      if (merchantDiedOnRoad) merchantClosureNote = '你临了仍压着几笔旧账在外，没能赶回故里；收口时又多出运柩停厝这一层客途后手。';
+      else if ((S.本年养老归乡 || 0) > 0) merchantClosureNote = '你晚景总算先把归乡船脚与年下回签拆清，临了是在故里收束。';
+      else merchantClosureNote = '商路旧账虽未必全厚，临了总算没再把人留死在客途。';
+      if ((S.未回款银 || 0) > 0) merchantClosureNote += ' 商路旧账 ' + S.未回款银 + ' 两里，最终只结回 ' + recoveredReceivable + ' 两，余下仍算未取得。';
+    }
     var narrative, deathTag, collateralEstateNote = '';
     if (sons > 0) {
       var shareSilver = shareByOrdinal(estateSilver, sons, heirOrdinal);
@@ -20497,11 +20542,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         举业结局: carriedExamOutcome
       };
       S._deathRemainderText = remainderText;
-      if (S.路线.indexOf('徽商') === 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，身后连旧账、回钱与反哺名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、尚未结回的委托田租' : '') + '也一并结进遗产。';
+      if (isMerchantDeathRoute) deathTag = '你这一生在外跑过商路，' + (merchantDiedOnRoad ? '临了客死商途' : '临了总算归乡收束') + '；身后连旧账、回钱与反哺名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、尚未结回的委托田租' : '') + '也一并结进遗产。';
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了能传下去的不只是薄田' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '与委托田租' : '') + '，还有一层见过世面的门路。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨不会直接分成银两，却会作为体面与起点留在下一代门前。';
       else deathTag = '你这一辈子的每一分积累与亏空，都成了子孙的期初。';
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。丧礼依家礼办讫（棺木等丧葬支出白银1两、米1石从遗产扣除）' + (pendingRentMi > 0 ? '；另有委托经营账上待结的租谷 ' + pendingRentMi + ' 石（未取得），记作应收，随房分到下一代' : '') + '。遗产按<span class="em">诸子均分</span>传给下一代' + (estateDebt > 0 ? '，未抵清的旧债也随房分担' : '') + (remainderText ? '；' + remainderText.replace(/。$/, '') : '') + (lifecycleResidue.text ? '。' + lifecycleResidue.text : '') + '——' + deathTag;
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。' + (merchantClosureNote ? (merchantClosureNote + ' ') : '') + '丧礼依家礼办讫（棺木等丧葬支出白银' + funeral + '两、米1石' + (merchantExtraFuneralCopper > 0 ? ('，另支运柩停厝铜钱' + merchantExtraFuneralCopper + '文') : '') + '从遗产扣除）' + (pendingRentMi > 0 ? '；另有委托经营账上待结的租谷 ' + pendingRentMi + ' 石（未取得），记作应收，随房分到下一代' : '') + '。遗产按<span class="em">诸子均分</span>传给下一代' + (estateDebt > 0 ? '，未抵清的旧债也随房分担' : '') + (remainderText ? '；' + remainderText.replace(/。$/, '') : '') + (lifecycleResidue.text ? '。' + lifecycleResidue.text : '') + '——' + deathTag;
     } else {
       collateralEstateNote = '结清丧葬与旧债后，这一房真正还能被过继承走的，只剩白银' + estateSilver + '两、铜钱' + estateCopper + '文、存米' + estateMi + '石、田' + estateTian + '亩' + (pendingRentMi > 0 ? ('，另有账上待结租谷' + pendingRentMi + '石（未取得）') : '') + '。';
       var collateralDelegatedRoute = S.委托营生 || '无';
@@ -20526,18 +20571,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         举业结局: carriedExamOutcome
       };
       S._deathRemainderText = '';
-      if (S.路线.indexOf('徽商') === 0 || (S.累计回钱银 || 0) > 0 || S.累计反哺银 > 0 || S.商历练 > 0) deathTag = '你这一生在外跑过商路，临了虽未留下亲生承嗣，旧账、回钱与顾家名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、委托经营账上的待结田租' : '') + '仍要在旁支账里结清。';
+      if (isMerchantDeathRoute) deathTag = '你这一生在外跑过商路，' + (merchantDiedOnRoad ? '临了客死商途' : '临了总算归乡收束') + '；虽未留下亲生承嗣，旧账、回钱与顾家名声' + (S.商路供读银 > 0 ? '与供读专账' : '') + (pendingRentMi > 0 ? '、委托经营账上的待结田租' : '') + '仍要在旁支账里结清。';
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了虽绝嗣，城中门路与见识' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '连同委托田租的薄底子' : '') + '也只剩旁支可续。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨终究未能直接传给亲子，只在旁支门前留下些体面与余绪。';
       else deathTag = '这不是"游戏失败"，而是明代极高绝嗣率下的真实分支。';
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>，然膝下无育成之子。依明代常俗，触发<span class="em">过继/立嗣</span>：族中侄辈过继承祧，但承的不是一张重置模板，而是这户结清后的真实余产' + (pendingRentMi > 0 ? '、账上待结委托田租（未取得）' : '') + (estateDebt > 0 ? '与未了旧债' : '') + (lifecycleResidue.text ? '。' + lifecycleResidue.text : '') + '——' + deathTag;
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>，然膝下无育成之子。' + (merchantClosureNote ? (merchantClosureNote + ' ') : '') + '依明代常俗，触发<span class="em">过继/立嗣</span>：族中侄辈过继承祧，但承的不是一张重置模板，而是这户结清后的真实余产' + (pendingRentMi > 0 ? '、账上待结委托田租（未取得）' : '') + (estateDebt > 0 ? '与未了旧债' : '') + (merchantExtraFuneralCopper > 0 ? ('，另已扣客途运柩停厝铜钱' + merchantExtraFuneralCopper + '文') : '') + (lifecycleResidue.text ? '。' + lifecycleResidue.text : '') + '——' + deathTag;
     }
     return {
       title: '死亡与传承', label: '传承', next: null, nextLabel: '递归重开 →',
       note: '死亡不是失败结算，而是把资源账结清、生成下一代期初快照。绝嗣/破家是真实分支，不评分。',
       narrative: narrative,
       events: [
-        { t: 'rand', tag: '[丧葬]', txt: '丧葬支出：棺木等白银1两、米1石，从遗产/诸子分摊账扣除（镜像入出资子账，不凭空消失）。' },
+        { t: 'rand', tag: '[丧葬]', txt: '丧葬支出：棺木等白银' + funeral + '两、米1石' + (merchantExtraFuneralCopper > 0 ? ('，另有运柩停厝铜钱' + merchantExtraFuneralCopper + '文') : '') + '，从遗产/诸子分摊账扣除（镜像入出资子账，不凭空消失）。' },
+        (isMerchantDeathRoute ? { t: 'rel', tag: '[归处]', txt: merchantDiedOnRoad ? '这一次没能先把归乡船脚坐实，临终时人仍在外头，旧账与运柩停厝要一起结。' : '这一次总算先把归乡船脚与年下回签坐实，临了是在故里收束，不再把人和账都留在客途。' } : null),
         (lifecycleResidue.text ? { t: 'life', tag: '[旧账余绪]', txt: lifecycleResidue.text + '。' } : null),
         { t: 'rel', tag: '[传承]', txt: sons > 0
           ? ('遗产品搭均分给 ' + sons + ' 子：你继续跟的是第' + heirOrdinal + '子这一房，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩'
