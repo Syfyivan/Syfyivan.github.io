@@ -1965,6 +1965,11 @@
   if (multiplayerPlayButton) {
     multiplayerPlayButton.addEventListener("click", function () {
       unlockAudio();
+      if (inviteInput.value.trim()) {
+        state.soloAutoStart = false;
+        applyInviteCode(inviteInput.value, true);
+        return;
+      }
       roomInput.value = randomRoomCode();
       inviteInput.value = "";
       serverInput.value = PUBLIC_GAME_SERVER;
@@ -2082,6 +2087,7 @@
     var pageUrl = new URL(window.location.href);
     pageUrl.search = "";
     pageUrl.searchParams.set("invite", inviteCode);
+    pageUrl.searchParams.set("join", "1");
     var text = [
       "邀请码：" + inviteCode,
       "房间：" + room,
