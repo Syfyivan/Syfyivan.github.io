@@ -257,6 +257,15 @@
       if (typeof carry.委托营生 === 'string') S.委托营生 = carry.委托营生;
       S.委托租谷 = Math.max(0, carry.委托租谷 || 0);
       S.委托待收租谷 = Math.max(0, carry.委托待收租谷 || 0);
+      // route-aware 生命周期状态位也必须真正写回运行时状态；
+      // 否则死亡页虽然能借 carryOver 文案“看见”它们，下一代运行中的真实状态仍是空白，
+      // 会在 marriage/household/elder/death/restartWithHeir 这条链上形成“文案连着、状态已掉”的假闭环。
+      S.婚配路径 = carry.婚配路径 || '未定';
+      S.合爨状态 = carry.合爨状态 || '未合爨';
+      S.定额佃状态 = carry.定额佃状态 || '未立';
+      S.雇身份 = carry.雇身份 || '未定';
+      S.学徒去向 = carry.学徒去向 || '未定';
+      S.举业结局 = carry.举业结局 || '未定';
     }
     ledger = []; seq = 0; xunIndex = 0; picks = []; resolved = null; gameOver = false;
     phaseTrace = [];
