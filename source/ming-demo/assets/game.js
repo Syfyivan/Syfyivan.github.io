@@ -3573,7 +3573,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'body'
     });
     if (season.id === 'summer' && xun === 3) apply({
-      handledIds: ['m_shop', 'm_market', 'm_letter', 'm_mend', 'm_counter', 'm_summer_tail_duty', 'm_summer_tail_school', 'm_summer_tail_drag'],
+      handledIds: ['m_shop', 'm_market', 'm_letter', 'm_mend', 'm_counter', 'm_summer_tail_duty', 'm_summer_tail_school', 'm_summer_tail_drag', 'm_summer_tail_remit_school'],
       doneTag: '伏夏柜耗已分',
       doneLog: '〔伏夏柜耗〕这一旬先把柜边包纸、请脚夫的小茶钱、回客话门包、供读纸样、夏尾拖欠和凉药门包分开了；伏夏尾声这层“不大、却天天有”的柜上、家里、旧账与身子摩擦没有再混成一团。',
       cost: 35,
@@ -6297,6 +6297,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_summer_tail_duty', name: '先把伏夏差票与回客话门包分开', cost: 1, eff: '铜钱-65·备役+1·家书+1·商信誉+1·家族+1', desc: '伏夏尾声最怕差票回话、回客话门包、递话脚费和柜边碎耗一起上来。先把这层夏尾差票拆开，不让商路、家计和年底差役后手还没到秋里就先挤在同一口现钱上。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
           A.push({ id: 'm_summer_tail_school', name: '先把伏夏尾供读纸样与凉药门包分开', cost: 1, eff: '铜钱-70·家书+1·供读+1·歇养+1·体魄+1·家族+1', desc: '伏夏尾声最怕供读纸样、凉药门包、回客话脚费和柜边碎耗一起追钱。先把这层夏尾供身账拆开，秋路未开前，家里供读、自己的身子和家书回话就不至继续抢同一口现钱。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
           A.push({ id: 'm_summer_tail_drag', name: '先把夏尾拖欠与回客脚费分开', cost: 1, eff: '铜钱-75·催账+1·家书+1·拖欠+1·歇养+1·体魄+1·家族+1', desc: '伏夏尾声最怕旧拖欠、回客脚费、秋前样纸和凉药门包一起追钱。先把这层夏尾拖账拆开，秋路未开前，拖欠回话、家里催信和自己这副身子就不至继续抢同一口现钱。', can: S.铜钱 >= 75, why: S.铜钱 >= 75 ? '' : '铜钱不足75文', once: true });
+          A.push({
+            id: 'm_summer_tail_remit_school',
+            name: '先把伏夏回钱拆作供读与凉药',
+            cost: 1,
+            eff: '白银-1·反哺+1·供读专账+1·供读+1·家书+1·歇养+1·体魄+1·贴家+1·家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? '·商信誉+1' : ''),
+            desc: '伏夏尾声最怕一笔刚回手的商路银，还没等秋路开，就先被供读纸样、凉药门包、回客话脚费和锅火后手一并追上。先把这层夏尾回钱拆作供读与凉药，让真回钱在伏夏尾声就先改写家里与身子的次序，而不再主要等到秋里才见光。',
+            can: S.白银 >= 1 && supportCapacity >= 1 && (S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路催账 > 0),
+            why: S.白银 < 1 ? '白银不足1两' : (supportCapacity < 1 ? '眼下还没有可拆去向的商路回账或浮账' : '需先有回钱或催账口风'),
+            once: true
+          });
         }
         A.push({ id: 'm_home', name: season.id === 'autumn' ? '回乡省亲搭秋收' : (isLate ? '回乡把家里这旬过住' : '回乡省亲'), cost: 1, eff: '家族+' + homeFamily + (homeRice > 0 ? ('·存米+' + homeRice) : ''), desc: season.id === 'autumn' ? '秋里先回乡搭一把，虽少跑一程货，却把家里口粮与脸面先稳住。' : '回乡看看父母，也把一点心力和米粮带回去。', can: true, once: true });
         A.push({ id: 'm_reserve', name: '先留一角差役钱', cost: 1, eff: '铜钱-' + reserveCost + '·本年差役准备+1', desc: '先把年关差役钱留出一角，等真轮到本户时，不至两手一空。', can: S.铜钱 >= reserveCost, why: S.铜钱 >= reserveCost ? '' : ('铜钱不足' + reserveCost + '文'), once: true });
@@ -7026,6 +7036,25 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把夏尾拖欠与回客脚费分开：铜钱-75、催账+1、家书+1、拖欠+1、体魄+1、家族+1。伏夏尾声这层旧拖欠、回客脚费、秋前样纸和凉药门包先被压回了这一旬，秋路未开前，拖欠回话、家里催信和自己这副身子不再继续抢同一口现钱。', 'good']);
               } else {
                 log.push(['想先把夏尾拖欠与回客脚费分开，但这旬铜钱已先紧，只得让旧拖欠、回客脚费和凉药门包继续一起追这口现钱。', 'bad']);
+              }
+              break;
+            case 'm_summer_tail_remit_school':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.本年商路反哺银 += 1;
+                S.商路供读银 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                S.本年商路供读 += 1;
+                S.本年商路家书 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.本年商路贴家 += 1;
+                S.家族 += supportProfile.familyGain;
+                if (supportProfile.trustGain > 0) S.商信誉 += supportProfile.trustGain;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆夏尾回钱');
+                log.push(['先把伏夏回钱拆作供读与凉药：白银-1、反哺+1、供读专账+1、供读+1、家书+1、歇养+1、体魄+1、贴家+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。伏夏尾声这笔真回钱没有再只写成“等秋里再贴家”，而是当场把供读、凉药、家书和锅火后手一起压回了这一旬。', 'good']);
+              } else {
+                log.push(['想先把伏夏回钱拆作供读与凉药，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
               }
               break;
             case 'm_home':
