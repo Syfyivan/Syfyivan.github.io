@@ -6348,6 +6348,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_summer_head_home_split', name: '先把伏夏凉汤与家里纸样分开', cost: 1, eff: '铜钱-60·家书+1·供读+1·体魄+1·家族+1', desc: '伏夏第一旬最怕凉汤汗巾、家里纸样、递话脚费和柜边小门面一起冒头。先把这层伏夏身家细账拆开，落脚后的身子、家书和供读去向才不至继续挤在同一口现钱上。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
           A.push({ id: 'm_summer_head_supply_duty', name: '先把伏夏差帖与供读纸样分开', cost: 1, eff: '铜钱-65·家书+1·供读+1·备役+1·体魄+1·家族+1', desc: '伏夏第一旬最怕差帖门包、供读纸样、凉汤汗巾和递话脚费一起追钱。先把这层伏夏供差去向拆开，刚落脚时，家里供读、年里的差役后手和自己这副身子才不至继续挤在同一口现钱上。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
           A.push({ id: 'm_summer_head_drag', name: '先把伏夏起脚与回签拖欠分开', cost: 1, eff: '铜钱-70·跑单+1·家书+1·拖欠+1·体魄+1·家族+1', desc: '伏夏第一旬最怕起脚脚费、春尾回签、拖欠口风和锅火家书一起冒头。先把这层起脚拖账拆开，跑单、人情回话和家里那口现钱才不至一起烧在热里。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
+          A.push({
+            id: 'm_summer_head_remit_duty',
+            name: '先把伏夏头回钱拆作供读与差票',
+            cost: 1,
+            eff: '白银-1·反哺+1·供读专账+1·供读+1·备役+1·家书+1·歇养+1·体魄+1·贴家+1·家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? '·商信誉+1' : ''),
+            desc: '伏夏第一旬最怕一笔刚回手的商路银，才落脚就先被供读纸样、差帖门包、凉汤汗巾和递话脚费一起追上。先把这层伏夏头回钱拆作供读与差票，让真回钱在夏头就先改写供读、差役、家书与身子的次序，而不再只靠夏中夏尾去收拾。',
+            can: S.白银 >= 1 && supportCapacity >= 1 && (S.累计回钱银 > 0 || S.未回款银 > 0 || S.累计反哺银 > 0 || S.商路门路 > 0),
+            why: S.白银 < 1
+              ? '白银不足1两'
+              : (supportCapacity < 1
+                ? '眼下还没有可拆去向的商路回账或浮账'
+                : '需先有回钱、浮账或上一手商路门道可动用'),
+            once: true
+          });
         }
         if (season.id === 'summer' && xun === 2) {
           A.push({ id: 'm_summer_bundle', name: '先把伏夏茶汤与汗药草鞋分开', cost: 1, eff: '铜钱-55·家书+1·体魄+1·商信誉+1', desc: '伏夏中旬最磨人的不是哪一笔大账，而是行栈茶汤、汗药草鞋、带话脚费和柜边小门面同时来要钱。先把这层伏夏碎耗拆开，后头坐店、核账和跑路才不至一起被热里磨薄。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
@@ -6797,6 +6811,26 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把伏夏起脚与回签拖欠分开：铜钱-70、跑单+1、家书+1、拖欠+1、体魄+1、家族+1。伏夏起手这一旬最细的起脚脚费、春尾回签、拖欠口风和锅火家书先被压回了账面，跑单、人情回话和家里这口现钱不再一起烧在热里。', 'good']);
               } else {
                 log.push(['想先把伏夏起脚与回签拖欠分开，但这旬铜钱已先被别处占住，只得让起脚脚费、拖欠口风和锅火家书继续一起追这口现钱。', 'bad']);
+              }
+              break;
+            case 'm_summer_head_remit_duty':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.本年商路反哺银 += 1;
+                S.商路供读银 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                S.本年商路供读 += 1;
+                S.本年商路备役 += 1;
+                S.本年商路家书 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.本年商路贴家 += 1;
+                S.家族 += supportProfile.familyGain;
+                if (supportProfile.trustGain > 0) S.商信誉 += supportProfile.trustGain;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆伏夏头回钱');
+                log.push(['先把伏夏头回钱拆作供读与差票：白银-1、反哺+1、供读专账+1、供读+1、备役+1、家书+1、歇养+1、体魄+1、贴家+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。伏夏第一旬这笔真回钱没有再只写成“先报个平安”，而是当场把供读、差票、凉汤与家书次序一起压回了这一旬。', 'good']);
+              } else {
+                log.push(['想先把伏夏头回钱拆作供读与差票，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
               }
               break;
             case 'm_summer_bundle':
