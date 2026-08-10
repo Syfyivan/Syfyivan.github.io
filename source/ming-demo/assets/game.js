@@ -2072,47 +2072,47 @@
     return ((S.本年保帖底样次数 || 0) > 0) || ((S.举业累计保帖底样次数 || 0) > 0);
   }
   function examGuaranteeWindowReady() {
-    return (S.举业年 || 1) >= 2;
+    return true;
   }
   function examAttemptWindowReady() {
-    return (S.举业年 || 1) >= 3;
+    return true;
   }
   function examAttemptWindowLabel() {
     if (S.生员身份) return '已入泮';
-    if (!examGuaranteeWindowReady()) return '首年先稳识字投塾';
-    if (!examAttemptWindowReady()) return '次年先把保结坐实';
+    if (!examStudyTrackReady()) return ((S.识字进度 || 0) >= 3) ? '先稳题样' : '先稳读法';
+    if (!examGuaranteeDraftReady()) return '先理保帖';
+    if ((S.保结进度 || 0) < 2) return '先通保结';
+    if (!examArticleReady()) return '先磨文章';
+    if (examActiveStudyCount() < 2) return '先坐馆课';
     return examAttemptTargetLabel(S.童试层级, S.生员身份);
   }
   function examChainStageLabel() {
     if (S.生员身份) return '已入泮';
     if (S.本年下场) return '当年已下场';
-    if (!examGuaranteeWindowReady()) {
-      if (examArticleReady()) return '首年先稳投塾';
-      if (examStudyTrackReady()) return '首年先坐读法';
+    if (!examStudyTrackReady()) {
+      if ((S.识字进度 || 0) >= 3) return '先稳题样';
+      return '先认字再投塾';
     }
-    if (!examGuaranteeDraftReady() && examArticleReady()) return '先理保帖底样';
-    if (!examAttemptWindowReady() && (S.保结进度 || 0) >= 2 && examArticleReady()) return '次年只把保结坐实';
+    if (!examArticleReady()) return (S.投塾进度 || 0) >= 1 ? '塾门已起' : '先稳读法';
+    if (!examGuaranteeDraftReady()) return '先理保帖底样';
     if ((S.保结进度 || 0) >= 2 && examArticleReady() && examActiveStudyCount() >= 2) return '可议下场';
     if ((S.保结进度 || 0) >= 1 || (S.本年保结次数 || 0) > 0) return '正跑保结';
     if ((S.本年保帖底样次数 || 0) > 0 && examArticleReady()) return '帖样已理';
     if (examArticleReady()) return '文章渐成';
-    if (examStudyTrackReady()) return (S.投塾进度 || 0) >= 1 ? '塾门已起' : '先稳读法';
-    if ((S.识字进度 || 0) >= 3) return '先稳题样';
-    return '先认字再投塾';
+    return (S.投塾进度 || 0) >= 1 ? '塾门已起' : '先稳读法';
   }
   function examGuaranteeBlockedWhy(seasonId) {
     if (S.生员身份) return '已是生员';
     if ((S.保结进度 || 0) >= 2) return '本年保结已通';
     if (!(seasonId === 'autumn' || seasonId === 'winter')) return '通常到秋冬才真跑保结';
-    if (!examGuaranteeWindowReady()) return '首年先把塾门、评文和帖样坐稳';
     if (!examStudyTrackReady()) return '先把塾门或半读读法坐实';
+    if (!examArticleReady()) return '先把文章火候磨到能递帖样';
     if (!examGuaranteeDraftReady()) return '先把保结帖样与履历草单理出来';
     return '';
   }
   function examAttemptReady() {
     return !S.生员身份
       && !S.本年下场
-      && examAttemptWindowReady()
       && (S.保结进度 || 0) >= 2
       && S.供读状态 !== '已断供'
       && examActiveStudyCount() >= 2
@@ -2123,8 +2123,8 @@
     if (S.生员身份) return '已是生员';
     if (S.本年下场) return '本年已下场过';
     if (!(seasonId === 'autumn' || seasonId === 'winter')) return '通常要到秋冬才真正下场';
-    if (!examAttemptWindowReady()) return examGuaranteeWindowReady() ? '先把次年的保结坐实，第三年再真下场' : '首年先稳识字投塾，第三年再真下场';
     if (!(((S.投塾进度 || 0) >= 1) || S.读书方式 === '半耕半读' || S.读书方式 === '社学寄读')) return '先把塾门或半读读法坐稳';
+    if (!examGuaranteeDraftReady()) return '先把保帖底样与履历草单理出来';
     if ((S.保结进度 || 0) < 2) return '保结未通';
     if (S.供读状态 === '已断供') return '家中已断供';
     if (examActiveStudyCount() < 2) return '先把馆课或半读坐稳两旬';
@@ -2869,6 +2869,8 @@
       + Math.min(0.08, S.本年评文次数 * attempt.essayBonus)
       + (S.本年保结次数 > 0 ? attempt.guaranteeBonus : 0)
       + literacyBonus;
+    if ((S.举业年 || 1) <= 1) chance -= 0.06;
+    else if ((S.举业年 || 1) === 2) chance -= 0.02;
     chance = Math.max(attempt.min, Math.min(attempt.max, chance));
     if (rand() < chance && S.童试层级 < 3) {
       S.童试层级 += 1;
@@ -8252,7 +8254,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         - (S.供读压力 || 0) * 4;
     }
     function examGuaranteeGateTarget() {
-      return (S.保结进度 || 0) <= 0 ? 66 : 74;
+      var base = (S.保结进度 || 0) <= 0 ? 66 : 74;
+      var year = Math.max(1, Math.min(EXAM_YEARS, Number(S.举业年) || 1));
+      if (year <= 1) return base + 8;
+      if (year === 2) return base + 4;
+      return base;
     }
     var examCarryHook = (S.举业年 === 1 && season.id === 'spring' && xun === 1) ? routeStageInheritanceHook('civilExam') : { note: '', dossier: '' };
     return {
@@ -20151,16 +20157,21 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         pack.extraActions.push({ id: 'e_collect_old', name: '催回商路旧账', cost: 1, eff: '未回款→部分现银', desc: '趁还走得动，把商路上的旧账催回一部分作养老钱。', can: true, once: true });
       }
       pack.extraActions.push({ id: 'e_route_spring_head_old', name: '先把春头样纸与递话脚费分开', cost: 1, eff: '铜钱-45·家族+1·体魄+1', desc: '开春头一旬，熟号还只肯先递口风，样纸、递话脚费和家里灯油盐药却已一起要钱。先把这层春头小账拆开，议轮养和后头问春价时就不必先拿同一口现钱两头堵漏。', can: S.铜钱 >= 45, why: S.铜钱 >= 45 ? '' : '铜钱不足45文', once: true });
+      pack.extraActions.push({ id: 'e_route_spring_head_body_old', name: '先把春头药包与锅火家书分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '开春头一旬，最怕归乡药包、锅火家书、递话脚费和样纸门包一起冒头。先把这层春头身家小账拆开，商路晚景刚起头时，自己的身子和家里那口锅火就不必继续抢同一口现钱。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
       pack.extraActions.push({ id: 'e_route_price_old', name: '先问春价与旧账次序', cost: 1, eff: '铜钱-50·家族+1', desc: '先托熟号把春价、回话次序和哪笔旧账更该先动问清。钱还没回，但养老账先不至两头乱猜。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
       pack.extraActions.push({ id: 'e_route_spring_reply_old', name: '先把春中回签与样纸门包分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '春安顿到了中旬，最怕熟号回签、样纸门包、递话脚费和家里盐药一起冒头。先把这层春中小账拆开，春价还没坐实前，也不至让门路和锅火继续挤在同一口现钱里。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
       pack.extraActions.push({ id: 'e_route_spring_packet_old', name: '把春尾香纸拆作回话与盐药', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '春尾最怕清明香纸、回话脚费和家里盐药锅火一起挤上来。先把这层小账拆开，旧账还没真回到手时，家里和熟号也不至一齐空等。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
       pack.extraActions.push({ id: 'e_route_summer_note_old', name: '先把伏夏回签与凉药脚费分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '伏夏刚起头时，最怕上一程回签还没稳，熟号递话、凉药脚费和行栈茶钱就一起冒头。先把这层小钱拆开，后头捎布药与催旧账才不至拿同一口现钱四处堵漏。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+      if (S.商路供读银 >= 1) {
+        pack.extraActions.push({ id: 'e_route_summer_head_school_old', name: '先把伏夏孙辈纸样与凉药门包分开', cost: 1, eff: '铜钱-65·家族+1·体魄+1', desc: '伏夏刚起头时，最怕孙辈纸样、凉药门包、递话脚费和家里茶汤一起冒头。先把这层伏夏头供读小账拆开，商路晚景夏头这一口钱就不必一边顾身子、一边顾家里读写，还得替旧门路垫脚费。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
+      }
       pack.extraActions.push({ id: 'e_route_summer_wharf_old', name: '先把伏夏水脚与凉药门包分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '伏夏到了中旬，最怕熟号水脚、凉药门包、捎布脚费和家里茶汤一起冒头。先把这层中腰小账拆开，托熟号捎布药与回乡脚路就不必继续抢同一口现钱。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
       pack.extraActions.push({ id: 'e_route_bundle_old', name: '托熟号捎布药回家', cost: 1, eff: '铜钱-100·家族+2·体魄+1', desc: '伏夏不是只缺现银，也缺布、药和一口真能落到锅火边的小物。先托熟号把这一包捎回去，家里与身子都能少熬一层。', can: S.铜钱 >= 100, why: S.铜钱 >= 100 ? '' : '铜钱不足100文', once: true });
       if (S.商路供读银 >= 1) {
         pack.extraActions.push({ id: 'e_route_summer_school_old', name: '先把伏夏炭笔纸样与捎布脚费分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '伏夏到了中旬，最怕孙辈炭笔纸样、捎布脚费、凉药门包和家里茶汤一起冒头。先把这层供读余绪拆开，老来托熟号捎布药与替孙辈续纸笔，就不必继续抢同一口现钱。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
       }
       pack.extraActions.push({ id: 'e_route_summer_packet_old', name: '先把夏尾客签与秋前样纸分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '伏夏收尾最怕秋路未开，客签回话、秋前样纸、递话门包和过路药包却先一起找上门。先把这层秋前后手拆开，不让同一口现钱既顾夏尾锅火、又顾秋前脚路。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+      pack.extraActions.push({ id: 'e_route_summer_tail_drag_old', name: '先把夏尾客签与拖欠药包分开', cost: 1, eff: '铜钱-65·家族+1·体魄+1', desc: '伏夏收尾最怕客签回话、旧拖欠口风、过路药包和锅火后手一起冒头。先把这层夏尾拖账拆开，秋路未开前，欠账回话、自己的身子和家里后手就不必继续抢同一口现钱。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
       pack.extraActions.push({ id: 'e_route_receipt_old', name: '先抄旧账脚单与租路次序', cost: 1, eff: '铜钱-40·家族+1', desc: '秋后最怕“都说在路上，却不知道先催哪笔”。先把脚单、拖欠次序和租路回话抄明，后面的养老账才不至继续糊着走。', can: S.铜钱 >= 40, why: S.铜钱 >= 40 ? '' : '铜钱不足40文', once: true });
       pack.extraActions.push({ id: 'e_route_autumn_note_old', name: '先把秋头回签与米脚锅火分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '秋头租谷刚起时，最怕熟号回签、米脚锅火和收租脚费一起冒头。先把这层头账拆开，秋中催旧账时才不必一边等回钱、一边让家里和熟号都空着。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
       if (S.商路供读银 >= 1) {
@@ -20458,6 +20469,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             a.can = (season.id === 'spring') && xun === 1 && S.铜钱 >= 45;
             a.why = !(season.id === 'spring' && xun === 1) ? '这一旬不便先拆春头样纸账' : (S.铜钱 >= 45 ? '' : '铜钱不足45文');
             a.once = true;
+          } else if (a.id === 'e_route_spring_head_body_old') {
+            a.can = (season.id === 'spring') && xun === 1 && S.铜钱 >= 55;
+            a.why = !(season.id === 'spring' && xun === 1) ? '这一旬不便先拆春头药包账' : (S.铜钱 >= 55 ? '' : '铜钱不足55文');
+            a.once = true;
           } else if (a.id === 'e_route_price_old') {
             a.can = (season.id === 'spring') && xun === 2 && S.铜钱 >= 50;
             a.why = !(season.id === 'spring' && xun === 2) ? '这一旬不便先问春价与旧账次序' : (S.铜钱 >= 50 ? '' : '铜钱不足50文');
@@ -20485,6 +20500,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           } else if (a.id === 'e_route_summer_note_old') {
             a.can = (season.id === 'summer') && xun === 1 && S.铜钱 >= 60;
             a.why = !(season.id === 'summer' && xun === 1) ? '这一旬不便先拆伏夏回签账' : (S.铜钱 >= 60 ? '' : '铜钱不足60文');
+            a.once = true;
+          } else if (a.id === 'e_route_summer_head_school_old') {
+            a.can = (season.id === 'summer') && xun === 1 && S.商路供读银 >= 1 && S.铜钱 >= 65;
+            a.why = !(season.id === 'summer' && xun === 1)
+              ? '这一旬不便先拆伏夏头供读后手'
+              : (S.商路供读银 >= 1 ? (S.铜钱 >= 65 ? '' : '铜钱不足65文') : '眼下没有可守的商路供读底银');
+            a.once = true;
+          } else if (a.id === 'e_route_summer_tail_drag_old') {
+            a.can = (season.id === 'summer') && xun === 3 && S.铜钱 >= 65;
+            a.why = !(season.id === 'summer' && xun === 3) ? '这一旬不便先拆夏尾拖账' : (S.铜钱 >= 65 ? '' : '铜钱不足65文');
             a.once = true;
           } else if (a.id === 'e_route_receipt_old') {
             a.can = (season.id === 'autumn') && xun === 1 && S.铜钱 >= 40;
@@ -20953,6 +20978,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把春头样纸与递话脚费分开：铜钱-45、家族+1、体魄+1。样纸、递话脚费和家里灯油盐药先被拆开，开春议轮养与后头问春价时就不必继续拿同一口现钱四处堵漏。', 'good']);
               } else log.push(['想先把春头样纸与递话脚费分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
+            case 'e_route_spring_head_body_old':
+              if (spendCopper(55)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·春头药包');
+                log.push(['先把春头药包与锅火家书分开：铜钱-55、家族+1、体魄+1。归乡药包、锅火家书、递话脚费和样纸门包先被拆开，商路晚景开年第一旬终于也把身子与家里这层小账压回了同一年。', 'good']);
+              } else log.push(['想先把春头药包与锅火家书分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
             case 'e_route_price_old':
               if (spendCopper(50)) {
                 S.家族 += 1;
@@ -21008,6 +21040,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushElderSeasonTag(stepLabel + '·伏夏回签拆开');
                 log.push(['先把伏夏回签与凉药脚费分开：铜钱-60、家族+1、体魄+1。熟号回签、凉药脚费和行栈茶钱先被拆开，后头捎布药与催旧账不必再抢同一口现钱。', 'good']);
               } else log.push(['想先把伏夏回签与凉药脚费分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_route_summer_head_school_old':
+              if (S.商路供读银 >= 1 && spendCopper(65)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·伏夏头供读');
+                log.push(['先把伏夏孙辈纸样与凉药门包分开：铜钱-65、家族+1、体魄+1。孙辈纸样、凉药门包、递话脚费和家里茶汤先被拆开，商路晚景夏头这层“身子、家里读写与旧门路同时追钱”的细账终于也落回了这一旬。', 'good']);
+              } else if (S.商路供读银 >= 1) log.push(['想先把伏夏孙辈纸样与凉药门包分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_route_summer_tail_drag_old':
+              if (spendCopper(65)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·夏尾拖账');
+                log.push(['先把夏尾客签与拖欠药包分开：铜钱-65、家族+1、体魄+1。客签回话、旧拖欠口风、过路药包和锅火后手先被拆开，秋路未开前，欠账回话、身子和家里后手也不必继续抢同一口现钱。', 'good']);
+              } else log.push(['想先把夏尾客签与拖欠药包分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_route_receipt_old':
               if (spendCopper(40)) {
