@@ -2371,7 +2371,7 @@
       hardship: 'body'
     });
     if (season.id === 'winter' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_copy', 'e_mend', 'e_winter_open_packet', 'e_fail_talk']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_copy', 'e_mend', 'e_winter_open_packet']),
       doneTag: '年关纸墨已分',
       doneLog: '〔年关纸墨〕旧馆账、来春纸墨定钱、灯油和拜帖脚费已被你先分开；举业路这层门路没有在年关忽然断掉。',
       cost: 40,
@@ -2382,7 +2382,7 @@
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_copy', 'e_mend', 'e_winter_open_packet', 'e_winter_open_reply', 'e_fail_talk']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_copy', 'e_mend', 'e_winter_open_reply']),
       doneTag: '冬头馆信已分',
       doneLog: '〔冬头馆信〕这一旬先把旧馆回札、护嗓咳药、灯油脚费和来春样纸分开了；冬清账上旬不再只剩“理旧账”，连年下门路和护身小耗抢钱的那层冬头肩账也被压回了这一旬。',
       cost: 60,
