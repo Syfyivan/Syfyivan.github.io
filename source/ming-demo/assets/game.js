@@ -329,7 +329,7 @@
       S.负债银 = Math.max(0, carry.负债银 || 0);
       S.家族 = Math.max(20, Math.min(80, carry.家族 == null ? 60 : carry.家族));
       S.父辈路线 = carry.父辈路线 || '未定';
-      S.承继身份 = carry.承继身份 || inheritanceRoleFromLineage(carry.承嗣来路) || (isCollateralCarry(carry) ? '旁支继子' : '次子');
+      S.承继身份 = normalizeCarryRole(carry);
       S.承嗣来路 = carry.承嗣来路 || directHeirLineageTag(S.承继身份);
       S.承继定位 = carry.承继定位 || defaultInheritancePosition(S.承继身份);
       S.家传书香 = Math.max(0, carry.家传书香 || 0);
@@ -602,12 +602,18 @@
   }
   function currentInheritanceRole(carry) {
     if (!carry) return '次子';
-    return carry.承继身份 || inheritanceRoleFromLineage(carry.承嗣来路) || (isCollateralCarry(carry) ? '旁支继子' : '次子');
+    return normalizeCarryRole(carry);
   }
   function normalizeCarryRole(carry) {
     if (!carry) return '次子';
-    if (carry.承继身份) return carry.承继身份;
+    var explicitRole = String(carry.承继身份 == null ? '' : carry.承继身份).trim();
     var viaRole = inheritanceRoleFromLineage(carry.承嗣来路);
+    // 承嗣来路是跨代累积出来的时间顺序事实；显式“承继身份”更像快照切片。
+    // 若旧 fixture / 老快照里两者冲突，必须以承嗣来路为准，
+    // 否则会把“已成旁支/独子/长子”的这一手又误写回“次子”，
+    // 直接带偏死亡按钮、承继定位与 restartWithHeir 的真实身份。
+    if (viaRole && explicitRole && explicitRole !== viaRole) return viaRole;
+    if (explicitRole) return explicitRole;
     if (viaRole) return viaRole;
     return isCollateralCarry(carry) ? '旁支继子' : '次子';
   }
@@ -9156,6 +9162,30 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               once: true
             });
           }
+          if (examYear === 3 && season.id === 'spring') {
+            A.push({
+              id: 'e_year3_spring_focus',
+              name: '先把三年春头婚话与保帖底样分开',
+              cost: 1,
+              eff: '铜钱-50·保帖底样+1·家族+1·缓婚事口风',
+              desc: '第三举业年的春头，最怕婚话回札、保帖底样、递话脚费和开春锅火一起追钱。先把这层“还要不要继续供到第三年”和“婚事还能不能再拖”的开年压力拆开，第三年春头就不再只是沿用前两年的通用春账。',
+              can: S.铜钱 >= 50,
+              why: S.铜钱 >= 50 ? '' : '铜钱不足50文',
+              once: true
+            });
+          }
+          if (examYear === 3 && season.id === 'summer') {
+            A.push({
+              id: 'e_year3_summer_focus',
+              name: '先把三年伏夏回场履历与凉药门包分开',
+              cost: 1,
+              eff: '铜钱-55·保帖底样+1·体魄+1·供读压力-1',
+              desc: '第三举业年的伏夏上旬，最怕回场履历、秋前帖样、凉药门包和递话脚费一起追钱。先把这层“还冲不冲第三年秋场”的伏夏后手拆开，第三年的身子账和回场口风就不再只混在通用馆账里。',
+              can: S.铜钱 >= 55,
+              why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
+              once: true
+            });
+          }
           A.push({
             id: 'e_family_grain',
             name: season.id === 'autumn'
@@ -9242,6 +9272,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             });
           } else if (season.id === 'autumn') {
             A.push({ id: 'e_autumn_open_packet', name: '先把秋前盘缠与拜帖小礼分开', cost: 1, eff: '铜钱-50·家族+1', desc: '秋试上旬最怕应试盘缠、拜帖小礼和家里秋收锅火一起追钱。先把这层临场前的后手拆开，保结与应场才不至先被现钱卡死。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
+            if (examYear === 2) {
+              A.push({
+                id: 'e_year2_autumn_focus',
+                name: '先把二年秋头保帖门路与试鞋盘缠分开',
+                cost: 1,
+                eff: '铜钱-60·保帖底样+1·体魄+1·供读压力-1',
+                desc: '第二举业年的秋头，最怕保帖门路、试鞋盘缠、递话脚费和秋凉锅火一起追钱。先把这层“春夏攒下的保结底稿要不要真往秋里接成资格”的后手拆开，第二年秋头就不再只是通用盘缠与换季小耗。',
+                can: S.铜钱 >= 60,
+                why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
+                once: true
+              });
+            }
             if (examYear >= 3) {
               A.push({
                 id: 'e_year3_autumn_focus',
@@ -9866,6 +9908,33 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把二年伏夏馆批与履历口风拆开，但这一旬铜钱已先被别处占住，只得让第二举业年伏夏这层续馆回话和履历底稿继续贴着馆账一起追钱。', 'bad']);
               }
               break;
+            case 'e_year3_spring_focus':
+              if (spendCopper(50)) {
+                noteExamOutlay(50, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 15, 本年零耗支出文: 15 } });
+                S.本年保帖底样次数 += 1;
+                S.家族 += 1;
+                if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
+                S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+                pushExamSeasonTag(stepTag + '三年春底样');
+                log.push(['先把三年春头婚话与保帖底样分开：铜钱-50、保帖底样+1、家族+1、婚事口风缓一线。第三举业年春头先把婚话回札、保帖底样和递话脚费拆开，这层“还要不要继续供到第三年”和“婚事还能不能再拖”终于没再一起贴着开春锅火发硬。', 'good']);
+              } else {
+                log.push(['想先把三年春头婚话与保帖底样拆开，但这一旬铜钱已先被别处占住，只得让第三举业年开春这层婚话回札与底稿细账继续挤着锅火一起追钱。', 'bad']);
+              }
+              break;
+            case 'e_year3_summer_focus':
+              if (spendCopper(55)) {
+                noteExamOutlay(55, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 15, 本年衣药支出文: 20 } });
+                S.本年保帖底样次数 += 1;
+                S.体魄 += 1;
+                S.本年将养次数 += 1;
+                if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
+                pushExamSeasonTag(stepTag + '三年伏夏回场');
+                log.push(['先把三年伏夏回场履历与凉药门包分开：铜钱-55、保帖底样+1、体魄+1、供读压力-1。第三举业年伏夏上旬先把回场履历、秋前帖样、凉药门包和递话脚费拆开，这层“还冲不冲第三年秋场”的身子账与门路钱没再继续一起贴着馆账发硬。', 'good']);
+              } else {
+                log.push(['想先把三年伏夏回场履历与凉药门包拆开，但这一旬铜钱已先被别处占住，只得让第三举业年伏夏这层回场口风、凉药和递话脚费继续一起追钱。', 'bad']);
+              }
+              break;
             case 'e_guarantee':
               var guaranteePay = settleExamAdvanceCost(80);
               var guaranteeBefore = S.保结进度 || 0;
@@ -10062,6 +10131,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把秋前盘缠与拜帖小礼分开：铜钱-50、家族+1。秋试上旬这层应试盘缠、拜帖小礼和家里秋收锅火先被拆开，保结与应场没再先被现钱卡住。', 'good']);
               } else {
                 log.push(['想先把秋前盘缠与拜帖小礼拆开，但这一旬铜钱已先被别处占住，只得让秋头临场后手继续和锅火挤同一口现钱。', 'bad']);
+              }
+              break;
+            case 'e_year2_autumn_focus':
+              if (spendCopper(60)) {
+                noteExamOutlay(60, { buckets: { 本年保结支出文: 20, 本年盘缠支出文: 20, 本年衣药支出文: 20 } });
+                S.本年保帖底样次数 += 1;
+                S.体魄 += 1;
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
+                S.本年将养次数 += 1;
+                pushExamSeasonTag(stepTag + '二年秋头门路');
+                log.push(['先把二年秋头保帖门路与试鞋盘缠分开：铜钱-60、保帖底样+1、体魄+1、供读压力-1。第二举业年秋头先把保帖门路、试鞋盘缠和递话脚费拆开，这层“春夏攒下的底稿到底接不接得成资格”的细账终于没再只混在通用盘缠里。', 'good']);
+              } else {
+                log.push(['想先把二年秋头保帖门路与试鞋盘缠拆开，但这一旬铜钱已先被别处占住，只得让第二举业年秋头这层保帖门路和试鞋盘缠继续贴着同一口现钱发硬。', 'bad']);
               }
               break;
             case 'e_year3_autumn_focus':
