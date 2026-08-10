@@ -2147,12 +2147,22 @@
     var brotherUsed = Math.max(0, Number(S.本年兄婚供读已用文) || 0);
     var cashUsed = Math.max(0, Number(S.本年现钱供读已用文) || 0);
     var selfUsed = Math.max(0, Number(S.本年举业自筹已用文) || 0);
+    var publicPending = Math.max(0, Number(S.本年待用公账文) || 0);
+    var grainPending = Math.max(0, Number(S.本年待用米脚文) || 0);
+    var motherPending = Math.max(0, Number(S.本年待用母纺文) || 0);
+    var brotherPending = Math.max(0, Number(S.本年待用兄让文) || 0);
+    var selfPending = Math.max(0, Number(S.本年待用自筹文) || 0);
     if (publicUsed > 0) parts.push('公' + publicUsed + '文');
     if (grainUsed > 0 || grainShi > 0) parts.push('米' + grainUsed + '文/' + grainShi + '石');
     if (motherUsed > 0) parts.push('母' + motherUsed + '文');
     if (brotherUsed > 0) parts.push('兄' + brotherUsed + '文');
     if (cashUsed > 0) parts.push('现' + cashUsed + '文');
     if (selfUsed > 0) parts.push('自' + selfUsed + '文');
+    if (publicPending > 0) parts.push('待公' + publicPending + '文');
+    if (grainPending > 0) parts.push('待米' + grainPending + '文');
+    if (motherPending > 0) parts.push('待母' + motherPending + '文');
+    if (brotherPending > 0) parts.push('待兄' + brotherPending + '文');
+    if (selfPending > 0) parts.push('待自' + selfPending + '文');
     return parts.length ? parts.join('·') : '未落账';
   }
   function examVisibleOutlayTotal() {
