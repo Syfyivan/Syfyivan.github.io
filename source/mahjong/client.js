@@ -31,6 +31,15 @@
   var STORAGE_KEY = "lanMahjongProfile";
   var BROWSER_GAME_SERVER = "browser://local";
   var PUBLIC_GAME_SERVER = "wss://124-221-36-36.anyip.dev:8443/mahjong/ws";
+  var AUDIO_VERSION = "20260810-audio-1";
+  var AUDIO_FILES = {
+    select: "tile-select.mp3",
+    discard: "tile-discard.mp3",
+    turn: "turn.mp3",
+    claim: "claim.mp3",
+    bao: "bao.mp3",
+    end: "round-end.mp3"
+  };
   var roomInput = document.getElementById("roomInput");
   var nameInput = document.getElementById("nameInput");
   var serverInput = document.getElementById("serverInput");
@@ -106,6 +115,10 @@
     selectedTileId: null,
     lastSignals: {},
     audioContext: null,
+    audioBuffers: {},
+    audioLoads: {},
+    musicElement: null,
+    musicWanted: false,
     soundEnabled: localStorage.getItem(STORAGE_KEY + ".sound") !== "off",
     soloAutoStart: false,
     guide: {
@@ -432,6 +445,10 @@
       setNotice("HTTPS 页面需要 wss 联机地址；和人机玩请点“单机人机”");
       return;
     }
+
+    state.musicWanted = true;
+    unlockAudio();
+    startBackgroundMusic();
 
     var socket = isBrowserGameServer(profile.server) ? new BrowserGameSocket() : new WebSocket(profile.server);
     socket.manualClose = false;
@@ -1205,9 +1222,11 @@
   }
 
   function updateSoundButton() {
-    soundButton.textContent = state.soundEnabled ? "提示音开" : "提示音关";
+    soundButton.textContent = state.soundEnabled ? "声音开" : "声音关";
     soundButton.setAttribute("aria-pressed", state.soundEnabled ? "true" : "false");
-    soundButton.title = state.soundEnabled ? "轮到你、可响应、看宝和结算时会播放提示音" : "点击开启回合提示音";
+    soundButton.title = state.soundEnabled
+      ? "背景音乐和摸牌、出牌、碰杠胡提示音已开启"
+      : "点击开启背景音乐和牌局音效";
   }
 
   function setSoundEnabled(enabled) {
@@ -1216,13 +1235,96 @@
     updateSoundButton();
     if (state.soundEnabled) {
       unlockAudio();
+      startBackgroundMusic();
       playTone("select");
+    } else {
+      pauseBackgroundMusic(false);
     }
+  }
+
+  function audioUrl(fileName) {
+    return "./audio/" + fileName + "?v=" + AUDIO_VERSION;
+  }
+
+  function getMusicElement() {
+    if (!state.musicElement) {
+      state.musicElement = new Audio(audioUrl("ambient-night.mp3"));
+      state.musicElement.loop = true;
+      state.musicElement.preload = "auto";
+      state.musicElement.volume = 0.28;
+      state.musicElement.setAttribute("playsinline", "");
+    }
+    return state.musicElement;
+  }
+
+  function startBackgroundMusic() {
+    var music;
+    var playback;
+    if (!state.soundEnabled || !state.musicWanted || document.hidden) {
+      return;
+    }
+    music = getMusicElement();
+    if (!music.paused) {
+      return;
+    }
+    playback = music.play();
+    if (playback && typeof playback.catch === "function") {
+      playback.catch(function () {
+        // Browsers may require a fresh user gesture. The next pointer event retries it.
+      });
+    }
+  }
+
+  function pauseBackgroundMusic(reset) {
+    if (!state.musicElement) {
+      return;
+    }
+    state.musicElement.pause();
+    if (reset) {
+      try {
+        state.musicElement.currentTime = 0;
+      } catch (error) {
+        // Some browsers reject seeking before metadata is loaded.
+      }
+    }
+  }
+
+  function loadSound(kind, context) {
+    if (!AUDIO_FILES[kind] || state.audioBuffers[kind] || state.audioLoads[kind]) {
+      return;
+    }
+    state.audioLoads[kind] = fetch(audioUrl(AUDIO_FILES[kind]))
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("audio unavailable");
+        }
+        return response.arrayBuffer();
+      })
+      .then(function (data) {
+        return context.decodeAudioData(data);
+      })
+      .then(function (buffer) {
+        state.audioBuffers[kind] = buffer;
+      })
+      .catch(function () {
+        state.audioBuffers[kind] = null;
+      });
+  }
+
+  function prepareAudio(context) {
+    Object.keys(AUDIO_FILES).forEach(function (kind) {
+      loadSound(kind, context);
+    });
+    getMusicElement();
   }
 
   function unlockAudio() {
     var AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-    if (!state.soundEnabled || !AudioContextCtor) {
+    if (!state.soundEnabled) {
+      return null;
+    }
+    if (!AudioContextCtor) {
+      startBackgroundMusic();
       return null;
     }
     if (!state.audioContext) {
@@ -1231,6 +1333,8 @@
     if (state.audioContext.state === "suspended") {
       state.audioContext.resume();
     }
+    prepareAudio(state.audioContext);
+    startBackgroundMusic();
     return state.audioContext;
   }
 
@@ -1245,10 +1349,26 @@
     }[kind] || [560];
   }
 
-  function playTone(kind) {
-    var context = unlockAudio();
+  function playSample(kind, context) {
+    var buffer = state.audioBuffers[kind];
+    var source;
+    var gain;
+    if (!buffer) {
+      return false;
+    }
+    source = context.createBufferSource();
+    gain = context.createGain();
+    source.buffer = buffer;
+    gain.gain.value = kind === "bao" || kind === "end" ? 0.9 : 1;
+    source.connect(gain);
+    gain.connect(context.destination);
+    source.start();
+    return true;
+  }
+
+  function playSynthTone(kind, context) {
     var notes = tonePattern(kind);
-    if (!context || !notes.length) {
+    if (!notes.length) {
       return;
     }
     notes.forEach(function (frequency, index) {
@@ -1265,6 +1385,14 @@
       oscillator.start(start);
       oscillator.stop(start + 0.15);
     });
+  }
+
+  function playTone(kind) {
+    var context = unlockAudio();
+    if (!context || playSample(kind, context)) {
+      return;
+    }
+    playSynthTone(kind, context);
   }
 
   function pulseElement(element, className) {
@@ -1297,6 +1425,8 @@
 
   function notifyForView(view) {
     var claimActions = Array.isArray(view.claimActions) ? view.claimActions : [];
+    var discardHistory = Array.isArray(view.discardHistory) ? view.discardHistory : [];
+    var newestDiscard = discardHistory[discardHistory.length - 1];
     var selfTurn = Boolean(view.canDraw || view.canDiscard);
     var turnSignal = [
       view.phase,
@@ -1308,6 +1438,9 @@
     var claimSignal = claimActions.map(function (action) {
       return action.id;
     }).join("|");
+    var discardSignal = newestDiscard
+      ? [view.round, discardHistory.length, newestDiscard.fromSeat, newestDiscard.tile.id].join(":")
+      : "";
     var baoSignal = view.canPeekBao ? view.round + ":" + view.wallCount + ":" + view.player.seat : "";
     var endSignal = view.phase === "ended" ? view.round + ":" + (view.result || "") : "";
 
@@ -1324,6 +1457,9 @@
       playTone("claim");
       pulseElement(claimBar, "attention-pulse");
     }
+    if (discardSignal && state.lastSignals.discard !== discardSignal) {
+      playTone("discard");
+    }
     if (baoSignal && state.lastSignals.bao !== baoSignal) {
       playTone("bao");
       pulseElement(actionRow, "attention-pulse");
@@ -1335,6 +1471,7 @@
     state.lastSignals = {
       turn: turnSignal,
       claim: claimSignal,
+      discard: discardSignal,
       bao: baoSignal,
       end: endSignal
     };
@@ -1433,6 +1570,12 @@
     button.textContent = label;
     button.addEventListener("click", function (event) {
       unlockAudio();
+      if (kind === "draw") {
+        playTone("select");
+      }
+      if (["chow", "pong", "kong"].includes(kind)) {
+        playTone("claim");
+      }
       onClick(event);
     });
     return button;
@@ -1681,7 +1824,6 @@
             return;
           }
           state.selectedTileId = null;
-          playTone("discard");
           send({ type: "discard", tileId: selected.id });
         }
       }));
@@ -1871,6 +2013,8 @@
     state.endDialogRound = null;
     state.selectedTileId = null;
     state.lastSignals = {};
+    state.musicWanted = false;
+    pauseBackgroundMusic(true);
     stopFullGuide();
     hideEndModal();
     hideRulesModal();
@@ -2104,6 +2248,13 @@
   });
 
   document.addEventListener("pointerdown", unlockAudio, { once: true });
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+      pauseBackgroundMusic(false);
+      return;
+    }
+    startBackgroundMusic();
+  });
   updateSoundButton();
   initForm();
   if (!inviteInput.value && (getQuery().get("join") === "1" || getQuery().get("autojoin") === "1")) {
