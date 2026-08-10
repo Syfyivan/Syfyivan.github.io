@@ -29,14 +29,12 @@
   }));
 
   var STORAGE_KEY = "lanMahjongProfile";
-  var PUBLIC_MAHJONG_PAGE = "http://8.218.149.148:8792/mahjong/";
-  var PUBLIC_MAHJONG_WS = "ws://8.218.149.148:8792/mahjong/ws";
+  var BROWSER_GAME_SERVER = "browser://local";
   var roomInput = document.getElementById("roomInput");
   var nameInput = document.getElementById("nameInput");
   var serverInput = document.getElementById("serverInput");
   var inviteInput = document.getElementById("inviteInput");
-  var publicServiceLink = document.getElementById("publicServiceLink");
-  var copyPublicEntryButton = document.getElementById("copyPublicEntryButton");
+  var soloPlayButton = document.getElementById("soloPlayButton");
   var platformGuideBadge = document.getElementById("platformGuideBadge");
   var variantInputs = Array.from(document.querySelectorAll('input[name="variant"]'));
   var seatCountInputs = Array.from(document.querySelectorAll('input[name="seatCount"]'));
@@ -107,6 +105,7 @@
     lastSignals: {},
     audioContext: null,
     soundEnabled: localStorage.getItem(STORAGE_KEY + ".sound") !== "off",
+    soloAutoStart: false,
     guide: {
       active: false,
       currentKey: "",
@@ -114,6 +113,49 @@
       completed: false
     }
   };
+
+  class BrowserGameSocket extends EventTarget {
+    constructor() {
+      super();
+      this.readyState = WebSocket.CONNECTING;
+      this.manualClose = false;
+      this.worker = new Worker("./local-game-worker.mjs", { type: "module" });
+      this.worker.addEventListener("message", (event) => {
+        if (event.data && event.data.type === "open") {
+          this.readyState = WebSocket.OPEN;
+          this.dispatchEvent(new Event("open"));
+        }
+        if (event.data && event.data.type === "message") {
+          this.dispatchEvent(new MessageEvent("message", { data: event.data.data }));
+        }
+      });
+      this.worker.addEventListener("error", () => {
+        if (this.readyState === WebSocket.CLOSED) {
+          return;
+        }
+        this.dispatchEvent(new Event("error"));
+        this.readyState = WebSocket.CLOSED;
+        this.dispatchEvent(new CloseEvent("close"));
+      });
+    }
+
+    send(data) {
+      if (this.readyState !== WebSocket.OPEN) {
+        throw new Error("浏览器牌局尚未连接");
+      }
+      this.worker.postMessage({ type: "send", data });
+    }
+
+    close() {
+      if (this.readyState === WebSocket.CLOSED) {
+        return;
+      }
+      this.worker.postMessage({ type: "close" });
+      this.worker.terminate();
+      this.readyState = WebSocket.CLOSED;
+      this.dispatchEvent(new CloseEvent("close"));
+    }
+  }
 
   function getClientId() {
     var existing = localStorage.getItem(STORAGE_KEY + ".clientId");
@@ -172,8 +214,8 @@
     return window.location.hostname.endsWith("github.io");
   }
 
-  function isLocalServerUrl(value) {
-    return /^wss?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::|\/)/.test(String(value || ""));
+  function isBrowserGameServer(value) {
+    return String(value || "") === BROWSER_GAME_SERVER;
   }
 
   function randomRoomCode() {
@@ -185,36 +227,10 @@
     return code;
   }
 
-  function publicServiceUrl(profile) {
-    var next = profile || {
-      name: nameInput.value.trim() || "玩家",
-      room: roomInput.value.trim().toUpperCase() || randomRoomCode(),
-      variant: selectedVariant(),
-      seatCount: selectedSeatCount()
-    };
-    var url = new URL(PUBLIC_MAHJONG_PAGE);
-    url.searchParams.set("name", next.name || "玩家");
-    url.searchParams.set("room", String(next.room || randomRoomCode()).toUpperCase());
-    url.searchParams.set("variant", next.variant || selectedVariant());
-    url.searchParams.set("seatCount", String(next.seatCount || selectedSeatCount()));
-    url.searchParams.set("autojoin", "1");
-    return url.toString();
-  }
-
   function updatePlatformGuide() {
-    if (!publicServiceLink) {
-      return;
-    }
-    publicServiceLink.href = publicServiceUrl();
     if (platformGuideBadge) {
-      platformGuideBadge.textContent = isGithubPagesHost() ? "博客入口" : "公网服务";
+      platformGuideBadge.textContent = "无需服务器";
     }
-  }
-
-  function shouldLaunchPublicService(profile) {
-    return isGithubPagesHost() &&
-      profile.server.indexOf("ws://") === 0 &&
-      profile.server.indexOf("8.218.149.148:8792") !== -1;
   }
 
   function encodeInvitePayload(payload) {
@@ -307,7 +323,7 @@
       return "ws://localhost:8787/mahjong/ws";
     }
     if (isGithubPagesHost()) {
-      return PUBLIC_MAHJONG_WS;
+      return BROWSER_GAME_SERVER;
     }
     var protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     return protocol + "//" + window.location.host + "/mahjong/ws";
@@ -317,6 +333,9 @@
     var raw = String(value || "").trim();
     if (!raw) {
       return defaultServerUrl();
+    }
+    if (isBrowserGameServer(raw)) {
+      return BROWSER_GAME_SERVER;
     }
     if (!/^[a-z]+:\/\//i.test(raw)) {
       raw = "ws://" + raw;
@@ -344,15 +363,15 @@
     var savedServer = profile.server || "";
     nameInput.value = query.get("name") || profile.name || "玩家" + Math.floor(Math.random() * 90 + 10);
     roomInput.value = (query.get("room") || profile.room || randomRoomCode()).toUpperCase();
-    serverInput.value = queryServer || (isGithubPagesHost() && isLocalServerUrl(savedServer)
-      ? defaultServerUrl()
+    serverInput.value = queryServer || (isGithubPagesHost()
+      ? BROWSER_GAME_SERVER
       : savedServer || defaultServerUrl());
     setRadioValue(variantInputs, query.get("variant") || profile.variant || "sichuan");
     setRadioValue(seatCountInputs, query.get("seatCount") || profile.seatCount || 3);
     inviteInput.value = query.get("invite") || "";
     updatePlatformGuide();
     if (isGithubPagesHost()) {
-      setNotice("博客页是入口；点下方公网服务和人机或朋友开局");
+      setNotice("点“单机人机”，直接在浏览器里开局");
     }
     if (inviteInput.value) {
       applyInviteCode(inviteInput.value, query.get("join") === "1" || query.get("autojoin") === "1");
@@ -392,13 +411,6 @@
     serverInput.value = profile.server;
     updatePlatformGuide();
 
-    if (shouldLaunchPublicService(profile)) {
-      setNotice("正在打开公网麻将服务");
-      connectionStatus.textContent = "跳转中";
-      window.location.href = publicServiceUrl(profile);
-      return;
-    }
-
     clearTimeout(state.reconnectTimer);
 
     if (state.socket) {
@@ -415,11 +427,11 @@
       !/^ws:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::|\/)/.test(profile.server)
     ) {
       connectionStatus.textContent = "连接受限";
-      setNotice("HTTPS 页面需要 wss 邀请码；和人机玩请点公网服务入口");
+      setNotice("HTTPS 页面需要 wss 联机地址；和人机玩请点“单机人机”");
       return;
     }
 
-    var socket = new WebSocket(profile.server);
+    var socket = isBrowserGameServer(profile.server) ? new BrowserGameSocket() : new WebSocket(profile.server);
     socket.manualClose = false;
     state.socket = socket;
 
@@ -452,6 +464,7 @@
       if (data.type === "view") {
         state.view = data.view;
         render();
+        continueSoloAutoStart(data.view);
       }
       if (data.type === "error") {
         setNotice(data.message || "操作失败");
@@ -467,8 +480,10 @@
         return;
       }
       connectionStatus.textContent = "重连中";
-      if (isGithubPagesHost()) {
-        setNotice("GitHub Pages 不运行房间服务器，请打开公网麻将服务");
+      if (isBrowserGameServer(profile.server)) {
+        setNotice("浏览器牌局正在重启");
+      } else if (isGithubPagesHost()) {
+        setNotice("联机服务器已断开；和人机玩请点“单机人机”");
       } else {
         setNotice("连接断开，正在重连");
       }
@@ -480,12 +495,37 @@
         return;
       }
       connectionStatus.textContent = "连接失败";
-      if (isGithubPagesHost()) {
-        setNotice("博客页只做入口，请使用下方公网服务");
+      if (isBrowserGameServer(profile.server)) {
+        state.soloAutoStart = false;
+        setNotice("浏览器牌局启动失败，请刷新后重试");
+      } else if (isGithubPagesHost()) {
+        setNotice("联机服务器连接失败；和人机玩请点“单机人机”");
       } else {
         setNotice("连接失败");
       }
     });
+  }
+
+  function continueSoloAutoStart(view) {
+    if (!state.soloAutoStart) {
+      return;
+    }
+    if (view.phase === "playing") {
+      state.soloAutoStart = false;
+      return;
+    }
+    if (view.players.length < view.config.seatCount && view.canAddBot) {
+      send({ type: "addBot" });
+      return;
+    }
+    if (!view.player.ready) {
+      send({ type: "ready" });
+      return;
+    }
+    if (view.canStart) {
+      state.soloAutoStart = false;
+      send({ type: "startRound" });
+    }
   }
 
   function tileMeta(type) {
@@ -1825,6 +1865,7 @@
     }
     state.socket = null;
     state.view = null;
+    state.soloAutoStart = false;
     state.endDialogRound = null;
     state.selectedTileId = null;
     state.lastSignals = {};
@@ -1903,28 +1944,15 @@
     input.addEventListener("change", updatePlatformGuide);
   });
 
-  if (publicServiceLink) {
-    publicServiceLink.addEventListener("click", function () {
-      publicServiceLink.href = publicServiceUrl();
-      setNotice("正在打开公网麻将服务");
-    });
-  }
-
-  if (copyPublicEntryButton) {
-    copyPublicEntryButton.addEventListener("click", function () {
+  if (soloPlayButton) {
+    soloPlayButton.addEventListener("click", function () {
       unlockAudio();
-      var text = [
-        "公网麻将服务：" + PUBLIC_MAHJONG_PAGE,
-        "和人机玩：打开后点 创建/加入，再点 补人机、准备、开局。",
-        "和朋友玩：房主复制邀请码发朋友，朋友打开同一入口粘贴邀请码。"
-      ].join("\n");
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(function () {
-          setNotice("已复制公网入口");
-        });
-      } else {
-        setNotice("复制失败，请手动复制公网入口");
-      }
+      roomInput.value = randomRoomCode();
+      inviteInput.value = "";
+      serverInput.value = BROWSER_GAME_SERVER;
+      state.soloAutoStart = true;
+      setNotice("正在创建单机人机牌局");
+      connect();
     });
   }
 

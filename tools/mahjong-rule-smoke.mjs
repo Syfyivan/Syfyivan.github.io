@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { canWinTypes, initialSpecialKongTypes, mahjongTestHooks } from "./mahjong-lan-server.mjs";
+import { LocalGamePeer, canWinTypes, initialSpecialKongTypes, mahjongTestHooks } from "./mahjong-lan-server.mjs";
 
 function expect(name, actual, expected) {
   assert.equal(actual, expected, name);
@@ -285,4 +285,30 @@ withFixedDice(() => {
   assert.equal(view.canDiscard, true, "dealer can discard immediately after the opening deal");
   assert.equal(view.hand.length > 0, true);
   console.log("PASS opening deal does not mark a drawn tile but still allows discard");
+}
+
+{
+  const messages = [];
+  const peer = new LocalGamePeer((data) => messages.push(JSON.parse(data)));
+  const receive = (message) => peer.receive(JSON.stringify(message));
+  receive({
+    type: "join",
+    name: "浏览器玩家",
+    room: "LOCAL1",
+    clientId: "local-smoke-player",
+    variant: "sichuan",
+    seatCount: 3
+  });
+  receive({ type: "addBot" });
+  receive({ type: "addBot" });
+  receive({ type: "ready" });
+  receive({ type: "startRound" });
+  const view = messages.filter((message) => message.type === "view").at(-1).view;
+  assert.equal(view.phase, "playing");
+  assert.equal(view.players.length, 3);
+  assert.equal(view.players.filter((player) => player.bot).length, 2);
+  assert.equal(view.hand.length, 14);
+  assert.equal(view.wallCount, 68);
+  peer.close();
+  console.log("PASS browser-local peer starts one human with two bots");
 }
