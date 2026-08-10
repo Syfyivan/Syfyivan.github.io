@@ -6465,6 +6465,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 : '需先有回钱、浮账或上一手商路门道可动用'),
             once: true
           });
+          A.push({
+            id: 'm_summer_head_remit_body',
+            name: '先把伏夏头回钱拆作锅火与凉药',
+            cost: 1,
+            eff: '白银-1·反哺+1·贴家+1·家书+1·歇养+1·体魄+1·家族+' + homeRemitProfile.familyGain,
+            desc: '伏夏第一旬最怕一笔刚回手的商路银，才落脚就先被锅火后手、凉药门包、递话脚费和家里催问一起追上。先把这层伏夏头回钱拆作锅火与凉药，让真回钱在夏头就先改写贴家、身子与家书次序，而不再只把“先顾锅火还是先顾自己”留给后头几旬。',
+            can: S.白银 >= 1 && supportCapacity >= 1 && (S.累计回钱银 > 0 || S.未回款银 > 0 || (S.体魄 || 0) <= 57 || S.本年商路歇养 > 0),
+            why: S.白银 < 1
+              ? '白银不足1两'
+              : (supportCapacity < 1
+                ? '眼下还没有可拆去向的商路回账或浮账'
+                : '需先有回钱、浮账或眼前要紧的锅火药包后手'),
+            once: true
+          });
         }
         if (season.id === 'summer' && xun === 2) {
           A.push({ id: 'm_summer_bundle', name: '先把伏夏茶汤与汗药草鞋分开', cost: 1, eff: '铜钱-55·家书+1·体魄+1·商信誉+1', desc: '伏夏中旬最磨人的不是哪一笔大账，而是行栈茶汤、汗药草鞋、带话脚费和柜边小门面同时来要钱。先把这层伏夏碎耗拆开，后头坐店、核账和跑路才不至一起被热里磨薄。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
@@ -6976,6 +6990,21 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把伏夏头回钱拆作供读与差票：白银-1、反哺+1、供读专账+1、供读+1、备役+1、家书+1、歇养+1、体魄+1、贴家+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。伏夏第一旬这笔真回钱没有再只写成“先报个平安”，而是当场把供读、差票、凉汤与家书次序一起压回了这一旬。', 'good']);
               } else {
                 log.push(['想先把伏夏头回钱拆作供读与差票，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
+              }
+              break;
+            case 'm_summer_head_remit_body':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.本年商路反哺银 += 1;
+                S.本年商路贴家 += 1;
+                S.本年商路家书 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.家族 += homeRemitProfile.familyGain;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆伏夏头回钱身家');
+                log.push(['先把伏夏头回钱拆作锅火与凉药：白银-1、反哺+1、贴家+1、家书+1、歇养+1、体魄+1、家族+' + homeRemitProfile.familyGain + '。伏夏第一旬这笔真回钱没有再只写成“先贴回家”，而是当场把锅火、凉药和家书次序一起压回了这一旬。', 'good']);
+              } else {
+                log.push(['想先把伏夏头回钱拆作锅火与凉药，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
               }
               break;
             case 'm_summer_bundle':
