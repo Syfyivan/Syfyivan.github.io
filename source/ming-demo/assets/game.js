@@ -16238,6 +16238,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     };
   }
   function stageMerchantHousehold() {
+    var bridge = lifecycleInheritanceBridge();
     var hp = householdRoutePack();
     var seasonIdx = Math.max(1, Math.min(HOUSEHOLD_SEASONS.length, S.户季 || 1));
     var xun = Math.max(1, Math.min(3, S.户旬 || 1));
@@ -16300,15 +16301,21 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       nextLabel: isYearEnd ? householdYearEndNextLabel() : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
       ap: 2,
       commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
-      note: '这任当户不再按“一次 4 点”一口气结掉，而是拆成四季三旬。分家后的薄田、商路旧账、供读后手与应役现银，都要在同一年里分段落账。' + (hp.note ? ' ' + hp.note : ''),
-      narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是“再做一件大事”，而是把哪笔钱、哪层人情、哪口薄田先落到账上。',
+      note: '这任当户不再按“一次 4 点”一口气结掉，而是拆成四季三旬。分家后的薄田、商路旧账、供读后手与应役现银，都要在同一年里分段落账。'
+        + (bridge.note ? ' ' + bridge.note : '')
+        + (hp.note ? ' ' + hp.note : ''),
+      narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是“再做一件大事”，而是把哪笔钱、哪层人情、哪口薄田先落到账上。'
+        + (bridge.narrative ? (' ' + bridge.narrative) : ''),
       dossier: function () {
-        return lifeDossier('商路当户拆为四季三旬｜户程=' + stepLabel + '｜未回款=' + (S.未回款银 || 0) + '两｜委托营生=' + S.委托营生 + '｜委托租谷=' + (S.委托租谷 || 0) + '｜商路供读=' + (S.商路供读银 || 0) + '｜应役=' + S.应役 + '｜本年户季务=' + ((S.本年户季务 || []).join(' / ') || '无') + (hp.dossier ? '｜' + hp.dossier : ''));
+        return lifeDossier('商路当户拆为四季三旬｜户程=' + stepLabel + '｜未回款=' + (S.未回款银 || 0) + '两｜委托营生=' + S.委托营生 + '｜委托租谷=' + (S.委托租谷 || 0) + '｜商路供读=' + (S.商路供读银 || 0) + '｜应役=' + S.应役 + '｜本年户季务=' + ((S.本年户季务 || []).join(' / ') || '无')
+          + (bridge.dossier ? '｜' + bridge.dossier : '')
+          + (hp.dossier ? '｜' + hp.dossier : ''));
       },
       events: [
         { t: 'rel', tag: '[分家]', txt: '立阄书只是开始。对常年在外的人家而言，真正难的是把“这 4 亩薄田谁代看、哪笔旧账先回、哪口现银先备役”在同一年里逐笔坐实。' },
         { t: 'rel', tag: '[' + season.name + ']', txt: season.note },
         { t: 'rel', tag: '[商账]', txt: eventTxt },
+        bridge.event,
         hp.event,
         householdFlavorEvent('merchant', season.id, xun),
         householdSeasonPulseEvent(season.id, xun)
