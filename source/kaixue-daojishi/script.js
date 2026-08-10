@@ -266,6 +266,97 @@ function bindClearPick(button,item,card) {
   },{once:true});
 }
 
+function categoryChoices() {
+  const choices = [];
+  const seen = new Set();
+  const add = (name,emoji='📦') => {
+    if (!name || seen.has(name)) return;
+    seen.add(name);
+    choices.push({ name, emoji:emoji || '📦' });
+  };
+  NOTION_CATALOG.forEach(group => add(group.category,group.emoji));
+  state.items.forEach(item => add(item.category,item.emoji));
+  return choices;
+}
+
+const normalizeCategory = value => String(value || '').toLowerCase().replace(/[\s·・]/g,'');
+
+function matchingCategories(query) {
+  const normalized = normalizeCategory(query);
+  return categoryChoices().filter(choice => !normalized || normalizeCategory(choice.name).includes(normalized));
+}
+
+function closeCategorySuggestions() {
+  $('#category-suggestions').classList.remove('is-open');
+  $('#item-category').setAttribute('aria-expanded','false');
+}
+
+function chooseCategory(choice) {
+  $('#item-category').value = choice.name;
+  $('#item-category').setCustomValidity('');
+  $('#item-emoji').value = choice.emoji || '📦';
+  closeCategorySuggestions();
+}
+
+function renderCategorySuggestions() {
+  const input = $('#item-category');
+  const root = $('#category-suggestions');
+  const query = input.value.trim();
+  const matches = matchingCategories(query);
+  root.innerHTML = matches.length
+    ? matches.map((choice,index) => `<button class="category-option" type="button" role="option" data-index="${index}"><span>${safeText(choice.emoji)}</span><strong>${safeText(choice.name)}</strong></button>`).join('')
+    : query
+      ? `<button class="category-option category-option--create" type="button" role="option" data-create="true"><span>＋</span><strong>新建分类“${safeText(query)}”</strong><small>没有找到相似分类</small></button>`
+      : '<p class="category-no-result">还没有可选分类。</p>';
+  root.classList.add('is-open');
+  input.setAttribute('aria-expanded','true');
+  $$('.category-option',root).forEach(button => {
+    button.addEventListener('mousedown',event => event.preventDefault());
+    button.addEventListener('click',() => {
+      if (button.dataset.create) chooseCategory({name:query,emoji:$('#item-emoji').value || '📦'});
+      else chooseCategory(matches[Number(button.dataset.index)]);
+    });
+    button.addEventListener('keydown',event => {
+      const options = $$('.category-option',root);
+      const index = options.indexOf(button);
+      if (event.key === 'ArrowDown') { event.preventDefault(); options[(index + 1) % options.length].focus(); }
+      if (event.key === 'ArrowUp') { event.preventDefault(); options[(index - 1 + options.length) % options.length].focus(); }
+      if (event.key === 'Escape') { event.preventDefault(); closeCategorySuggestions(); input.focus(); }
+    });
+  });
+}
+
+function setupCategoryPicker() {
+  const input = $('#item-category');
+  const picker = $('#category-picker-btn');
+  input.addEventListener('focus',renderCategorySuggestions);
+  input.addEventListener('input',() => {
+    input.setCustomValidity('');
+    const exact = categoryChoices().find(choice => choice.name === input.value.trim());
+    if (exact) $('#item-emoji').value = exact.emoji;
+    renderCategorySuggestions();
+  });
+  input.addEventListener('keydown',event => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      renderCategorySuggestions();
+      $('.category-option',$('#category-suggestions'))?.focus();
+    }
+    if (event.key === 'Escape') closeCategorySuggestions();
+    if (event.key === 'Enter' && $('#category-suggestions').classList.contains('is-open')) {
+      const first = $('.category-option',$('#category-suggestions'));
+      if (first) { event.preventDefault(); first.click(); }
+    }
+  });
+  picker.addEventListener('click',() => {
+    if ($('#category-suggestions').classList.contains('is-open')) closeCategorySuggestions();
+    else { input.focus(); renderCategorySuggestions(); }
+  });
+  document.addEventListener('click',event => {
+    if (!event.target.closest('.category-field')) closeCategorySuggestions();
+  });
+}
+
 function addPlanRow(plan={}) {
   const count = $$('.plan-edit-row', $('#plan-editor')).length;
   const letter = plan.id || String.fromCharCode(65 + Math.min(count,25));
@@ -281,24 +372,38 @@ function openItemDialog(id='') {
   const item = state.items.find(x => x.id === id);
   $('#item-dialog-title').textContent = item ? '编辑准备项' : '添加准备项';
   $('#item-id').value = item?.id || '';
-  $('#item-category').value = item?.category || '🧴 护肤 · 日用';
+  $('#item-category').value = item?.category || '';
+  $('#item-category').setCustomValidity('');
   $('#item-emoji').value = item?.emoji || '📦';
   $('#item-title').value = item?.title || '';
   $('#item-note').value = item?.note || '';
   $('#plan-editor').innerHTML = '';
+  closeCategorySuggestions();
   (item?.plans?.length ? item.plans : [{}]).forEach(addPlanRow);
   $('#item-dialog').showModal();
-  setTimeout(()=>$('#item-title').focus(),0);
+  setTimeout(()=>$(item ? '#item-title' : '#item-category').focus(),0);
 }
 
 function setupItemEditor() {
+  setupCategoryPicker();
   $('#add-item-btn').addEventListener('click',()=>openItemDialog());
   $('#add-plan-row').addEventListener('click',()=>addPlanRow());
   $('#item-form').addEventListener('submit',event=>{
     event.preventDefault();
+    const categoryInput = $('#item-category');
+    const category = categoryInput.value.trim();
+    const exactCategory = categoryChoices().find(choice => choice.name === category);
+    const partialMatches = matchingCategories(category);
+    if (!exactCategory && partialMatches.length) {
+      categoryInput.setCustomValidity('已经找到相似分类，请先从列表中选择；完全没有匹配时才能新建。');
+      categoryInput.reportValidity();
+      categoryInput.focus();
+      renderCategorySuggestions();
+      return;
+    }
     const existing = state.items.find(x=>x.id === $('#item-id').value);
     const plans = $$('.plan-edit-row', $('#plan-editor')).map((row,index)=>({id:String.fromCharCode(65+index),name:$('.plan-name-input',row).value.trim(),price:$('.plan-price-input',row).value.trim(),thought:$('.plan-thought-input',row).value.trim()})).filter(plan=>plan.name);
-    const data = { id: existing?.id || uid(), category:$('#item-category').value.trim(), emoji:$('#item-emoji').value.trim() || '📦', title:$('#item-title').value.trim(), note:$('#item-note').value.trim(), done:existing?.done||false, picked:existing?.picked||'', plans };
+    const data = { id: existing?.id || uid(), category, emoji:$('#item-emoji').value.trim() || '📦', title:$('#item-title').value.trim(), note:$('#item-note').value.trim(), done:existing?.done||false, picked:existing?.picked||'', plans };
     if (data.picked && !plans.some(plan=>plan.id===data.picked)) data.picked='';
     if (existing) state.items[state.items.indexOf(existing)] = data; else state.items.push(data);
     save(existing?'修改保存好啦':'已经加进清单啦'); $('#item-dialog').close(); renderList();

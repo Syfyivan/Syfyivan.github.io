@@ -142,7 +142,15 @@
       <div class="dialog-head"><div><span class="kicker">EDIT ITEM</span><h2 id="item-dialog-title">添加准备项</h2></div><button class="close-btn" type="button" data-close="item-dialog" aria-label="关闭">×</button></div>
       <input id="item-id" type="hidden" />
       <div class="form-grid">
-        <label><span>分类</span><input id="item-category" required placeholder="例如：护肤日用" /></label>
+        <div class="category-field">
+          <label for="item-category"><span>分类</span></label>
+          <div class="category-combobox">
+            <input id="item-category" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="category-suggestions" aria-describedby="category-help" aria-expanded="false" placeholder="搜索或选择分类" />
+            <button class="category-picker-btn" id="category-picker-btn" type="button" aria-label="查看全部分类" tabindex="-1">⌄</button>
+            <div class="category-suggestions" id="category-suggestions" role="listbox" aria-label="分类建议"></div>
+          </div>
+          <small class="field-help" id="category-help">先搜索现有分类；没有匹配时才能新建。</small>
+        </div>
         <label><span>小图标</span><input id="item-emoji" maxlength="4" placeholder="🧴" /></label>
         <label class="full"><span>要准备什么</span><input id="item-title" required placeholder="例如：防晒霜" /></label>
         <label class="full"><span>我的备注</span><textarea id="item-note" rows="2" placeholder="尺寸、预算、需要注意的事……"></textarea></label>
