@@ -1867,6 +1867,11 @@
     if (drag >= 1) return '三年已起牵扯';
     return '三年尚可议亲';
   }
+  function examDelayCarryActive() {
+    return examLifetimeDelayLoad() > 0
+      || Math.max(0, Number(S && S.举业累计婚事让开次数) || 0) > 0
+      || Math.max(0, Number(S && S._marriageAgeAdj) || 0) > 0;
+  }
   function examBodyStatusLabel() {
     var wear = Math.max(0, Number(S.本年身子亏空) || 0);
     var body = Number(S.体魄) || 0;
@@ -3994,6 +3999,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += '<span class="chip">供养 <b>' + examVisibleSupportLedger() + '</b></span>';
       h += '<span class="chip">已落支出 <b>' + examVisibleOutlayTotal() + '</b>文</span>';
       h += '<span class="chip">婚事 <b>' + examDelayStatusLabel() + '</b></span>';
+      h += '<span class="chip">婚压 <b>' + examLifetimeDelayLabel() + '</b></span>';
       h += '<span class="chip">身耗 <b>' + examBodyStatusLabel() + '</b></span>';
     } else if (phase === 'family') {
       var familySeason = familySeasonInfo(S.家季 || 1);
@@ -7537,7 +7543,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       : (xun === 2
         ? '中旬最像把资格、人情、纸墨和评文一起往前推。'
         : '下旬则把应不应场、回不回家、差役钱和衣药这些后手一并收住。');
-    var delayUpperActive = xun === 1 && (((S.本年延婚牵扯 || 0) > 0) || ((S.本年兄婚让读次 || 0) > 0) || ((S.供读压力 || 0) >= 2) || ((S.本年婚事让开次数 || 0) > 0));
+    var delayUpperActive = xun === 1 && (((S.本年延婚牵扯 || 0) > 0) || ((S.本年兄婚让读次 || 0) > 0) || ((S.供读压力 || 0) >= 2) || ((S.本年婚事让开次数 || 0) > 0) || examDelayCarryActive());
     var delayUpperName = season.id === 'spring'
       ? '先把春头婚话与塾帖锅火分开'
       : (season.id === 'summer'
@@ -7552,7 +7558,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         : (season.id === 'autumn'
           ? '秋头最怕议亲回话、夹衣试鞋、拜帖盘缠和递话脚费一起抢现钱。先把婚话与换季盘缠拆开，婚事口风才不至还没到秋中秋尾就先贴着应场后手往下塌。'
           : '冬头最怕婚期回话、旧馆回札、护嗓咳药和灯油样纸一起追钱。先把婚期口风与馆札护嗓拆开，婚事就不必在年关一开头先跟着续门路和身子账一起发硬。'));
-    var delaySplitActive = xun >= 2 && (((S.本年延婚牵扯 || 0) > 0) || ((S.本年兄婚让读次 || 0) > 0) || ((S.供读压力 || 0) >= 2));
+    var delaySplitActive = xun >= 2 && (((S.本年延婚牵扯 || 0) > 0) || ((S.本年兄婚让读次 || 0) > 0) || ((S.供读压力 || 0) >= 2) || examDelayCarryActive());
     var delaySplitName = xun === 2
       ? (season.id === 'spring'
         ? '先把春中婚话与评文回帖分开'
@@ -8313,7 +8319,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                     + (S.保结进度 >= 2
                       ? '。到这一步，廪保与报名链条才算真正走通。'
                       : '。这一旬只先把帖样、履历与廪保口风递到位，离“保结已通”还差后一步。'),
-                  'bad'
+                  'good'
                 ]);
               } else {
                 S.家族 = Math.max(0, S.家族 - 1);
