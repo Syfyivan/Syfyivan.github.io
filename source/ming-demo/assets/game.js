@@ -3672,7 +3672,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 3) apply({
-      handledIds: ['m_reserve', 'm_collect', 'm_mend', 'm_letter', 'm_book', 'm_winter_tail', 'm_winter_tail_school', 'm_winter_tail_supply_duty', 'm_winter_drag_split', 'm_winter_body_split', 'm_winter_tail_remit_drag'],
+      handledIds: ['m_reserve', 'm_collect', 'm_mend', 'm_letter', 'm_book', 'm_winter_tail', 'm_winter_tail_school', 'm_winter_tail_home_body', 'm_winter_tail_supply_duty', 'm_winter_drag_split', 'm_winter_body_split', 'm_winter_tail_remit_drag'],
       doneTag: '年下客礼已分',
       doneLog: '〔年下客礼〕这一旬先把守岁炭钱、客脚薄礼与来春样纸定钱分开了；冬清账的最后一程不再被年下这层碎账悄悄搅乱。',
       cost: 50,
