@@ -179,9 +179,11 @@ function renderList() {
     const allCategoryItems = state.items.filter(item => item.category === category);
     const done = allCategoryItems.filter(item => item.done).length;
     const collapsed = state.collapsedCategories.includes(category);
+    const categoryChoice = categoryChoices().find(choice => choice.name === category) || { name:category, emoji:items[0]?.emoji || '📦', stickerIndex:null };
+    const categoryLabel = categoryDisplayName(category);
     return `<section class="category ${collapsed?'is-collapsed':''}" data-category="${safeText(category)}">
       <button class="category__toggle" type="button" aria-expanded="${!collapsed}" aria-controls="category-items-${index}">
-        <span class="category__title">${safeText(category)}</span>
+        <span class="category__identity">${categoryArtTemplate(categoryChoice,'category-art category-art--heading')}<span class="category__title">${safeText(categoryLabel)}</span></span>
         <span class="category__summary"><strong>${done}/${allCategoryItems.length}</strong><span class="category__chevron" aria-hidden="true">⌄</span></span>
       </button>
       <div class="category__items" id="category-items-${index}">${items.map(itemTemplate).join('')}</div>
@@ -269,25 +271,40 @@ function bindClearPick(button,item,card) {
 function categoryChoices() {
   const choices = [];
   const seen = new Set();
-  const add = (name,emoji='📦') => {
+  const add = (name,emoji='📦',stickerIndex=null) => {
     if (!name || seen.has(name)) return;
     seen.add(name);
-    choices.push({ name, emoji:emoji || '📦' });
+    choices.push({ name, emoji:emoji || '📦', stickerIndex });
   };
-  NOTION_CATALOG.forEach(group => add(group.category,group.emoji));
+  NOTION_CATALOG.forEach((group,index) => add(group.category,group.emoji,index));
   state.items.forEach(item => add(item.category,item.emoji));
   return choices;
 }
 
 const normalizeCategory = value => String(value || '').toLowerCase().replace(/[\s·・]/g,'');
 
+function categoryDisplayName(value) {
+  const name = String(value || '').replace(/^[^\p{L}\p{N}]+/u,'').trim();
+  return name || String(value || '未分类');
+}
+
 function matchingCategories(query) {
   const normalized = normalizeCategory(query);
   return categoryChoices().filter(choice => !normalized || normalizeCategory(choice.name).includes(normalized));
 }
 
+function categoryArtTemplate(choice,className='category-art') {
+  const hasSticker = Number.isInteger(choice.stickerIndex);
+  if (!hasSticker) return `<span class="${className} category-art--emoji" aria-hidden="true">${safeText(choice.emoji || '📦')}</span>`;
+  const column = choice.stickerIndex % 5;
+  const row = Math.floor(choice.stickerIndex / 5);
+  return `<span class="${className}" style="--sticker-x:${column * 25}%;--sticker-y:${row * 100}%" aria-hidden="true"></span>`;
+}
+
 function closeCategorySuggestions() {
   $('#category-suggestions').classList.remove('is-open');
+  $('#category-picker-btn').classList.remove('is-open');
+  $('#category-picker-btn').setAttribute('aria-label','打开分类贴纸盒');
   $('#item-category').setAttribute('aria-expanded','false');
 }
 
@@ -301,23 +318,30 @@ function chooseCategory(choice) {
 function renderCategorySuggestions() {
   const input = $('#item-category');
   const root = $('#category-suggestions');
+  const optionsRoot = $('#category-options');
   const query = input.value.trim();
   const matches = matchingCategories(query);
-  root.innerHTML = matches.length
-    ? matches.map((choice,index) => `<button class="category-option" type="button" role="option" data-index="${index}"><span>${safeText(choice.emoji)}</span><strong>${safeText(choice.name)}</strong></button>`).join('')
+  optionsRoot.innerHTML = matches.length
+    ? matches.map((choice,index) => {
+      const hasSticker = Number.isInteger(choice.stickerIndex);
+      const art = categoryArtTemplate(choice);
+      return `<button class="category-option" type="button" role="option" data-index="${index}">${art}<span class="category-option-copy"><strong>${safeText(choice.name)}</strong><small>${hasSticker?'像素贴纸':'我的自定义分类'}</small></span></button>`;
+    }).join('')
     : query
-      ? `<button class="category-option category-option--create" type="button" role="option" data-create="true"><span>＋</span><strong>新建分类“${safeText(query)}”</strong><small>没有找到相似分类</small></button>`
+      ? `<button class="category-option category-option--create" type="button" role="option" data-create="true"><span class="category-create-plus" aria-hidden="true">＋</span><span class="category-option-copy"><strong>新建分类“${safeText(query)}”</strong><small>没有找到相似贴纸，画一张新的</small></span></button>`
       : '<p class="category-no-result">还没有可选分类。</p>';
   root.classList.add('is-open');
+  $('#category-picker-btn').classList.add('is-open');
+  $('#category-picker-btn').setAttribute('aria-label','收起分类贴纸盒');
   input.setAttribute('aria-expanded','true');
-  $$('.category-option',root).forEach(button => {
+  $$('.category-option',optionsRoot).forEach(button => {
     button.addEventListener('mousedown',event => event.preventDefault());
     button.addEventListener('click',() => {
       if (button.dataset.create) chooseCategory({name:query,emoji:$('#item-emoji').value || '📦'});
       else chooseCategory(matches[Number(button.dataset.index)]);
     });
     button.addEventListener('keydown',event => {
-      const options = $$('.category-option',root);
+      const options = $$('.category-option',optionsRoot);
       const index = options.indexOf(button);
       if (event.key === 'ArrowDown') { event.preventDefault(); options[(index + 1) % options.length].focus(); }
       if (event.key === 'ArrowUp') { event.preventDefault(); options[(index - 1 + options.length) % options.length].focus(); }
@@ -340,11 +364,11 @@ function setupCategoryPicker() {
     if (event.key === 'ArrowDown') {
       event.preventDefault();
       renderCategorySuggestions();
-      $('.category-option',$('#category-suggestions'))?.focus();
+      $('.category-option',$('#category-options'))?.focus();
     }
     if (event.key === 'Escape') closeCategorySuggestions();
     if (event.key === 'Enter' && $('#category-suggestions').classList.contains('is-open')) {
-      const first = $('.category-option',$('#category-suggestions'));
+      const first = $('.category-option',$('#category-options'));
       if (first) { event.preventDefault(); first.click(); }
     }
   });

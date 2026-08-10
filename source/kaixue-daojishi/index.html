@@ -145,9 +145,12 @@
         <div class="category-field">
           <label for="item-category"><span>分类</span></label>
           <div class="category-combobox">
-            <input id="item-category" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="category-suggestions" aria-describedby="category-help" aria-expanded="false" placeholder="搜索或选择分类" />
-            <button class="category-picker-btn" id="category-picker-btn" type="button" aria-label="查看全部分类" tabindex="-1">⌄</button>
-            <div class="category-suggestions" id="category-suggestions" role="listbox" aria-label="分类建议"></div>
+            <input id="item-category" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="category-options" aria-describedby="category-help" aria-expanded="false" placeholder="搜索或选择分类" />
+            <button class="category-picker-btn" id="category-picker-btn" type="button" aria-label="打开分类贴纸盒"><span class="pixel-arrow" aria-hidden="true"></span></button>
+            <div class="category-suggestions" id="category-suggestions">
+              <div class="category-box-header"><span class="category-box-flower" aria-hidden="true"></span><div><strong>我的分类贴纸盒</strong><small>挑一张合适的贴纸吧</small></div></div>
+              <div class="category-options" id="category-options" role="listbox" aria-label="分类建议"></div>
+            </div>
           </div>
           <small class="field-help" id="category-help">先搜索现有分类；没有匹配时才能新建。</small>
         </div>
