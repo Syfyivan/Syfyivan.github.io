@@ -3279,14 +3279,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     hardship: 'body'
   });
   if (isMerchantElder && season.id === 'winter' && xun === 2) apply({
-    handledIds: ['e_route_guest_old', 'e_route_winter_reply_old', 'e_rest'],
+    handledIds: ['e_route_guest_old', 'e_route_winter_reply_old', 'e_route_winter_school_old', 'e_rest'],
     doneTag: '熟号薄礼已留',
-    doneLog: '〔熟号薄礼〕这一旬先把熟号薄礼、脚夫回话、来春样纸定钱和柜边回签门包分开了；商路老来最怕“人情还在，却没有哪口小钱把它续到明春”，这一层门路没有在冬里忽然断掉。',
+    doneLog: '〔熟号薄礼〕这一旬先把熟号薄礼、脚夫回话、来春样纸定钱、柜边回签门包和孙辈炭笔底银分开了；商路老来最怕“人情还在，供读后手也还在，却没有哪口小钱把它们一并续到明春”，这一层门路与家里读写后手没有在冬里忽然断掉。',
     cost: 40,
     costTag: '熟号薄礼',
-    costLog: '〔熟号薄礼〕熟号薄礼、脚夫回话、来春样纸定钱和柜边回签门包一起要钱：铜钱-{cost}。不是体面消费，而是让明春第一旬不必重新从冷面求人开始。',
+    costLog: '〔熟号薄礼〕熟号薄礼、脚夫回话、来春样纸定钱、柜边回签门包和炭笔灯炭底银一起要钱：铜钱-{cost}。不是体面消费，而是让明春第一旬不必重新从冷面求人开始，也不至让晚景供读余绪在冬里被锅火顺手吞掉。',
     failTag: '熟号薄礼硬顶',
-    failLog: '〔熟号薄礼〕这一旬连薄礼、样纸定钱和回签门包都腾挪不开，只得先硬顶过去；熟号与脚夫这层门路又薄了一线（家族-1）。',
+    failLog: '〔熟号薄礼〕这一旬连薄礼、样纸定钱、回签门包和炭笔底银都腾挪不开，只得先硬顶过去；熟号、脚夫与家里供读余绪这几层后手一起薄了一线（家族-1）。',
     hardship: 'clan'
   });
   if (isApprenticeElder && season.id === 'winter' && xun === 2) apply({
@@ -3367,14 +3367,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     hardship: 'clan'
   });
   if (isMerchantElder && season.id === 'winter' && xun === 3) apply({
-    handledIds: ['e_route_wharf_old', 'e_route_winter_tail_old', 'e_rest'],
+    handledIds: ['e_route_wharf_old', 'e_route_winter_tail_old', 'e_route_return_old', 'e_route_winter_school_tail_old', 'e_rest'],
     doneTag: '明春水脚已问',
-    doneLog: '〔明春水脚〕这一旬先把来春水脚、旧账缓催次序、年下回签和给家里回话的口风留住了；人虽然老了，明春却不必再从两眼一抹黑开始。',
+    doneLog: '〔明春水脚〕这一旬先把来春水脚、归乡船脚、旧账缓催次序、年下回签、供读帖样和给家里回话的口风留住了；人虽然老了，明春却不必再从两眼一抹黑开始，商路晚景收口也终于不再把归乡与家里读写后手全拖到身后账上。',
     cost: 40,
     costTag: '明春水脚',
-    costLog: '〔明春水脚〕来春水脚、旧账缓催口风、年下回签和回话脚费一起要钱：铜钱-{cost}。不是立刻变现，却正把商路晚景最关键的后手留在今冬。',
+    costLog: '〔明春水脚〕来春水脚、归乡船脚、旧账缓催口风、年下回签、供读帖样和回话脚费一起要钱：铜钱-{cost}。不是立刻变现，却正把商路晚景最关键、也最容易被顺手拖烂的那层后手留在今冬。',
     failTag: '明春水脚硬顶',
-    failLog: '〔明春水脚〕这一旬连回话脚费、年下回签和来春水脚都腾挪不开，只得先硬顶过去；明春第一程又更像瞎撞了一层（家族-1）。',
+    failLog: '〔明春水脚〕这一旬连回话脚费、年下回签、归乡船脚和来春水脚都腾挪不开，只得先硬顶过去；明春第一程、归乡收口和家里这层口风都更像瞎撞了一层（家族-1）。',
     hardship: 'clan'
   });
   if (isApprenticeElder && season.id === 'winter' && xun === 3) apply({
