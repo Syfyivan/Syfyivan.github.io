@@ -8467,7 +8467,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'e_rest', name: '歇息养身', cost: 1, eff: '体魄+5', desc: '让眼睛和身子缓一口气。', can: true });
         } else {
           A.push({ id: 'e_essay', name: season.id === 'autumn' ? '临场再磨一轮文章' : '再请塾师评文改卷', cost: 1, eff: '文章火候+' + essayGain + '·成本档+1', desc: '把这一旬能再稳一稳的文章火候压出来。临场前还能再改一轮，但前提仍是今年真有塾门、读法和评文链条。', can: S.供读状态 !== '已断供' && examStudyTrackReady(), why: S.供读状态 !== '已断供' ? (examStudyTrackReady() ? '' : '先把塾门或半读读法坐实') : '家中已断供' });
-          A.push({ id: 'e_exam', name: season.id === 'winter' ? ('冬前补撞一回' + examAttemptTargetLabel(S.童试层级, S.生员身份)) : ('下场冲' + examAttemptTargetLabel(S.童试层级, S.生员身份)), cost: 2, eff: '触发' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '回话·盘缠档+1', desc: '只有保结真通了、这一年又真下了功夫，才值得去撞一撞。先有读法、再有评文和火候、再有保结，最后才是下场；眼下冲的只是' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '，并不会把后面几关一并抹平。', can: (season.id === 'autumn' || season.id === 'winter') && examAttemptReady(), why: examAttemptBlockedWhy(season.id), once: true });
+          // `e_exam` 必须允许玩家在秋冬“硬撞资格闸”：
+          // 真正的应场资格改在 `resolveExamAttempt()` 里落账判定，
+          // 否则会把“场外受阻”提前拦死在按钮层，既进不了状态，也锁不住回放。
+          A.push({ id: 'e_exam', name: season.id === 'winter' ? ('冬前补撞一回' + examAttemptTargetLabel(S.童试层级, S.生员身份)) : ('下场冲' + examAttemptTargetLabel(S.童试层级, S.生员身份)), cost: 2, eff: '触发' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '回话·盘缠档+1', desc: '秋冬若硬去撞场，也会先把盘缠、保结后手和纸墨落到账里；若读法、文章、保结或供读链条没真接成线，就只算“场外受阻”，不会被按钮层提前抹掉。眼下冲的只是' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '，并不会把后面几关一并抹平。', can: (season.id === 'autumn' || season.id === 'winter') && !S.生员身份 && !S.本年下场, why: examAttemptBlockedWhy(season.id), once: true });
           A.push({ id: 'e_copy', name: season.id === 'winter' ? '誊抄契字补年关钱' : '抄书/看账补贴', cost: 1, eff: '铜钱+' + copyCopper + '·识字转业值+1·文章火候+1', desc: '把识字底子临时换成一点现钱，也算给后路添一层。', can: S.识字, why: S.识字 ? '' : '尚不识字' });
           A.push({
             id: 'e_tail_grain',
