@@ -243,7 +243,7 @@
       S.父辈路线 = carry.父辈路线 || '未定';
       S.承继身份 = carry.承继身份 || inheritanceRoleFromLineage(carry.承嗣来路) || (isCollateralCarry(carry) ? '旁支继子' : '次子');
       S.承嗣来路 = carry.承嗣来路 || directHeirLineageTag(S.承继身份);
-      S.承继定位 = carry.承继定位 || '本房次子另起一手';
+      S.承继定位 = carry.承继定位 || defaultInheritancePosition(S.承继身份);
       S.家传书香 = Math.max(0, carry.家传书香 || 0);
       S.城里门路 = Math.max(0, carry.城里门路 || 0);
       S.商路门路 = Math.max(0, carry.商路门路 || 0);
@@ -500,6 +500,7 @@
   function defaultInheritancePosition(role) {
     if (role === '旁支继子') return '旁支接祧续户';
     if (role === '独子') return '独子承家';
+    if (role === '长子') return '长子承家';
     return '本房次子另起一手';
   }
   function normalizeCarrySnapshot(carry) {
@@ -4641,7 +4642,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       父辈路线: S.父辈路线 || '未定',
       承继身份: carriedIdentity,
       承嗣来路: via,
-      承继定位: S.承继定位 || '本房次子另起一手',
+      承继定位: S.承继定位 || defaultInheritancePosition(carriedIdentity),
       家传书香: S.家传书香 || 0,
       城里门路: S.城里门路 || 0,
       商路门路: S.商路门路 || 0,
@@ -7589,6 +7590,46 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           : (season.id === 'autumn'
             ? '秋尾最怕议亲回话、临场盘缠、簿册灯油和递话脚费一起追钱。先把这层婚话与应场后手分开，婚事口风才不至跟着临场细账一起继续往后拖。'
             : '冬尾最怕婚期回话、来春帖样、年下门包和守岁锅火一起追钱。先把这层婚期回话和续帖后手分开，婚事口风才不至继续贴着年关锅火一起发硬。')));
+    function examDelayReliefProfile(amount, upper) {
+      var clothes = 0;
+      var body = 0;
+      var care = 0;
+      if (upper && season.id === 'autumn') {
+        clothes = Math.min(25, amount);
+        body = 1;
+        care = 1;
+      } else if (upper && season.id === 'winter') {
+        clothes = Math.min(25, amount);
+        body = 1;
+        care = 1;
+      }
+      var zero = Math.max(0, amount - clothes);
+      var buckets = {};
+      if (zero > 0) buckets.本年零耗支出文 = zero;
+      if (clothes > 0) buckets.本年衣药支出文 = clothes;
+      return {
+        zero: zero,
+        clothes: clothes,
+        body: body,
+        care: care,
+        buckets: buckets
+      };
+    }
+    function examDelayEffectText(amount, profile) {
+      var text = '铜钱-' + amount + '·家族+1';
+      if (profile && profile.body > 0) text += '·体魄+' + profile.body + '·将养+' + profile.care;
+      text += '·缓婚事口风';
+      return text;
+    }
+    function applyExamDelayRelief(profile) {
+      if (!profile || profile.body <= 0) return '';
+      S.体魄 += profile.body;
+      S.本年将养次数 += profile.care;
+      if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 = Math.max(0, S.本年身子亏空 - profile.body);
+      return '、体魄+' + profile.body;
+    }
+    var delayUpperRelief = examDelayReliefProfile(delayUpperCost, true);
+    var delaySplitRelief = examDelayReliefProfile(delaySplitCost, false);
     if (S.家传书香 > 0) copyCopper += 40;
     if (S.供读底子 > 0) copyCopper += 20;
     function examEnrollGateScore() {
@@ -7778,7 +7819,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               id: 'e_delay_upper',
               name: delayUpperName,
               cost: 1,
-              eff: '铜钱-' + delayUpperCost + '·家族+1·缓婚事口风',
+              eff: examDelayEffectText(delayUpperCost, delayUpperRelief),
               desc: delayUpperDesc,
               can: S.铜钱 >= delayUpperCost,
               why: S.铜钱 >= delayUpperCost ? '' : ('铜钱不足' + delayUpperCost + '文'),
@@ -8002,7 +8043,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               id: 'e_delay_split',
               name: delaySplitName,
               cost: 1,
-              eff: '铜钱-' + delaySplitCost + '·家族+1·缓婚事口风',
+              eff: examDelayEffectText(delaySplitCost, delaySplitRelief),
               desc: delaySplitDesc,
               can: S.铜钱 >= delaySplitCost,
               why: S.铜钱 >= delaySplitCost ? '' : ('铜钱不足' + delaySplitCost + '文'),
@@ -8664,26 +8705,28 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               break;
             case 'e_delay_upper':
               if (spendCopper(delayUpperCost)) {
-                noteExamOutlay(delayUpperCost, { familySupport: false, buckets: { 本年零耗支出文: delayUpperCost } });
+                noteExamOutlay(delayUpperCost, { familySupport: false, buckets: delayUpperRelief.buckets });
                 S.家族 += 1;
+                var delayUpperBodyText = applyExamDelayRelief(delayUpperRelief);
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
                 pushExamSeasonTag(stepTag + '婚话先分');
-                log.push([delayUpperName + '：铜钱-' + delayUpperCost + '、家族+1。你在这一季刚起头就先把婚话、婚期或兄房置办和盘缠馆账分开记了，婚事口风没再一上来就和供读钱、护身钱硬挤在同一处。', 'good']);
+                log.push([delayUpperName + '：铜钱-' + delayUpperCost + '、家族+1' + delayUpperBodyText + '。你在这一季刚起头就先把婚话、婚期或兄房置办和盘缠馆账分开记了；若里头带着夹衣、护嗓这层换季护身钱，如今也一并落进衣药与将养账。婚事口风没再一上来就和供读钱、护身钱硬挤在同一处。', 'good']);
               } else {
                 log.push(['想在这一季一开头就把婚话和书路细账分开，但铜钱已先被别处占住，只得让婚期口风继续贴着供读与锅火一起发硬。', 'bad']);
               }
               break;
             case 'e_delay_split':
               if (spendCopper(delaySplitCost)) {
-                noteExamOutlay(delaySplitCost, { familySupport: false, buckets: { 本年零耗支出文: delaySplitCost } });
+                noteExamOutlay(delaySplitCost, { familySupport: false, buckets: delaySplitRelief.buckets });
                 S.家族 += 1;
+                var delaySplitBodyText = applyExamDelayRelief(delaySplitRelief);
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
                 pushExamSeasonTag(stepTag + '婚事回话已分');
-                log.push([delaySplitName + '：铜钱-' + delaySplitCost + '、家族+1。你把婚事回话、兄房置办或婚期口风和这一旬纸墨盘缠先分开记了，婚事这口风没再继续和供读钱硬挤在同一处。', 'good']);
+                log.push([delaySplitName + '：铜钱-' + delaySplitCost + '、家族+1' + delaySplitBodyText + '。你把婚事回话、兄房置办或婚期口风和这一旬纸墨盘缠先分开记了，婚事这口风没再继续和供读钱硬挤在同一处。', 'good']);
               } else {
                 log.push(['想先把这一旬婚事回话和书路细账分开，但铜钱已先被别处占住，只得继续让婚话和供读口风互相顶着走。', 'bad']);
               }
@@ -20603,7 +20646,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var legacy = {
         父辈路线: S.路线 || '未定',
         承嗣来路: nextVia,
-        承继定位: S.承继定位 || '本房次子另起一手',
+        承继定位: defaultInheritancePosition(nextRole),
         // 这里要把“已经继承到这一代的底子”继续带到身后结算里，
         // 否则上一代留下的供读专账/亦贾亦儒分工/旧门路衰减只会活在入口文案里，
         // 一旦本代没有再次显式加码，就会在死亡与重开之间被悄悄洗掉。
