@@ -412,7 +412,7 @@ html[data-user-color-scheme="dark"] .workshop-page .ws-read:focus {
       <p>这里是我的工作台。自己写的项目，每个一张工单：它解决什么问题、用了什么技术、踩过什么坑；读过的好项目，也留一份源码拆解笔记。每篇都配可以照着做的教程。</p>
     </div>
     <div class="ws-hero-stats">
-      <div class="ws-stat"><strong>6</strong><span>个自研项目</span></div>
+      <div class="ws-stat"><strong>7</strong><span>个自研项目</span></div>
       <div class="ws-stat"><strong>8</strong><span>篇拆解教程</span></div>
     </div>
   </header>
@@ -530,6 +530,24 @@ html[data-user-color-scheme="dark"] .workshop-page .ws-read:focus {
         <a class="ws-read" href="/courses/novel-activity-workflow/">进入加密课程 →</a>
       </div>
     </article>
+    <article class="ws-card ws-card--rust">
+      <div class="ws-card-head">
+        <span class="ws-card-no">WS-07</span>
+        <span class="ws-tag ws-tag--self">自研</span>
+        <span class="ws-card-repo">pindou-studio</span>
+      </div>
+      <h3>豆格工坊</h3>
+      <p class="ws-card-sub">Photo → Cartoon → MARD Pattern</p>
+      <p class="ws-card-desc">把照片先做本地卡通化，再生成带 MARD 色号的拼豆图纸；复杂度、五官、连续眼镜和挂饰连接都可以单独调整，图片不会上传服务器。</p>
+      <div class="ws-chips">
+        <span class="ws-chip">Canvas</span>
+        <span class="ws-chip">Pixel Art</span>
+        <span class="ws-chip">Local-first</span>
+      </div>
+      <div class="ws-card-foot">
+        <a class="ws-read" href="/pindou-studio/">打开豆格工坊 →</a>
+      </div>
+    </article>
   </div>
   <div class="ws-section-head">
     <h2>源码学习</h2>
@@ -538,7 +556,7 @@ html[data-user-color-scheme="dark"] .workshop-page .ws-read:focus {
   <div class="ws-grid">
     <article class="ws-card ws-card--violet">
       <div class="ws-card-head">
-        <span class="ws-card-no">WS-07</span>
+        <span class="ws-card-no">WS-08</span>
         <span class="ws-tag ws-tag--study">源码学习</span>
         <span class="ws-card-repo">mcp-server-weread</span>
       </div>
@@ -556,7 +574,7 @@ html[data-user-color-scheme="dark"] .workshop-page .ws-read:focus {
     </article>
     <article class="ws-card ws-card--blue">
       <div class="ws-card-head">
-        <span class="ws-card-no">WS-08</span>
+        <span class="ws-card-no">WS-09</span>
         <span class="ws-tag ws-tag--study">源码学习</span>
         <span class="ws-card-repo">lark-codex-bot</span>
       </div>

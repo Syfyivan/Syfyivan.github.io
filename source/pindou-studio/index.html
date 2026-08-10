@@ -1,0 +1,206 @@
+---
+layout: false
+---
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="上传照片，在浏览器里生成卡通化预览、MARD 色号拼豆图纸，并手动修整五官与连接结构。">
+  <meta name="theme-color" content="#f4eee5">
+  <title>豆格工坊｜照片变卡通与拼豆图纸</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="回到一凡的博客">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span>一凡的博客</span>
+    </a>
+    <nav aria-label="页面导航">
+      <a href="/projects/">项目工坊</a>
+      <a href="#how-it-works">设计逻辑</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">PERLER PATTERN STUDIO · 本地处理</p>
+        <h1>照片先变得可爱，<br><em>再变成能拼的图纸。</em></h1>
+        <p class="hero-lead">不是把整张照片粗暴缩成马赛克。先压缩杂色、保住脸型与轮廓，再用真实 MARD 色号生成图纸；眼睛、嘴和眼镜还可以最后单独修。</p>
+        <div class="hero-points" aria-label="产品特点">
+          <span>照片直转</span><span>卡通化后再转</span><span>五官修整</span><span>连体加固</span>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="bead-board">
+          <div class="mini-face face-a"><b></b><b></b><i></i></div>
+          <div class="mini-face face-b"><b></b><b></b><i></i></div>
+          <div class="mini-face face-c"><b></b><b></b><i></i></div>
+          <div class="mini-face face-d"><b></b><b></b><i></i></div>
+        </div>
+        <p>四张脸可以不同，也必须连成一整片。</p>
+      </div>
+    </section>
+
+    <section class="privacy-note" role="note">
+      <span aria-hidden="true">◎</span>
+      <div><strong>照片不会离开你的设备</strong><small>第一版所有转换都在当前浏览器完成，不上传服务器，也不需要账号或密钥。</small></div>
+    </section>
+
+    <section class="maker" aria-labelledby="maker-title">
+      <div class="section-heading">
+        <p class="eyebrow">START HERE</p>
+        <h2 id="maker-title">制作一张自己的拼豆图纸</h2>
+        <p>先上传照片，再选择“卡通化后转图纸”或“照片直接转图纸”。所有参数都可以反复调整。</p>
+      </div>
+
+      <div class="maker-grid">
+        <aside class="control-panel">
+          <label class="upload-zone" id="upload-zone" for="photo-input" tabindex="0">
+            <input id="photo-input" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+            <span class="upload-icon" aria-hidden="true">＋</span>
+            <strong id="upload-title">选择一张照片</strong>
+            <small id="upload-copy">也可以把图片拖到这里 · JPG / PNG / WebP</small>
+          </label>
+
+          <fieldset class="route-picker">
+            <legend>1 · 选择生成路线</legend>
+            <label class="route-option active">
+              <input type="radio" name="route" value="cartoon" checked>
+              <span><strong>卡通化后转图纸</strong><small>平滑杂色、压缩色阶、突出轮廓，适合人物合照</small></span>
+            </label>
+            <label class="route-option">
+              <input type="radio" name="route" value="direct">
+              <span><strong>照片直接转图纸</strong><small>保留更多原图明暗，适合物品、宠物和简单背景</small></span>
+            </label>
+          </fieldset>
+
+          <div class="control-group">
+            <div class="control-title"><span>2 · 控制复杂度</span><output id="grid-output">100 × 100</output></div>
+            <input id="grid-size" type="range" min="0" max="3" step="1" value="2" aria-label="图纸格数">
+            <div class="range-labels" aria-hidden="true"><span>60</span><span>80</span><span>100</span><span>120</span></div>
+            <p class="control-hint" id="complexity-hint">平衡版：脸部较清楚，工作量仍低于小王子示例。</p>
+          </div>
+
+          <div class="control-group">
+            <label class="control-title" for="outline-strength"><span>3 · 卡通轮廓强度</span><output id="outline-output">适中</output></label>
+            <input id="outline-strength" type="range" min="0" max="2" step="1" value="1">
+            <div class="range-labels" aria-hidden="true"><span>柔和</span><span>适中</span><span>清晰</span></div>
+          </div>
+
+          <div class="select-row">
+            <label>背景处理
+              <select id="background-mode">
+                <option value="auto">自动去除相近背景</option>
+                <option value="keep">保留完整背景</option>
+              </select>
+            </label>
+            <label>色号方案
+              <select id="palette-mode">
+                <option value="13">MARD 人像 13 色</option>
+                <option value="8">MARD 简化 8 色</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="switch-row">
+            <input id="connect-toggle" type="checkbox" checked>
+            <span><strong>自动连体并加固</strong><small>把分开的主要区域连接起来，适合做挂饰</small></span>
+          </label>
+
+          <button class="primary-button" id="generate-button" type="button" disabled>请先上传照片</button>
+          <p class="status-message" id="status-message" aria-live="polite">上传后会自动生成第一版。</p>
+        </aside>
+
+        <section class="preview-panel" aria-label="图纸预览与编辑">
+          <div class="preview-toolbar">
+            <div class="view-tabs" role="tablist" aria-label="预览方式">
+              <button type="button" data-view="source" role="tab">原图</button>
+              <button type="button" data-view="cartoon" role="tab">卡通图</button>
+              <button type="button" data-view="preview" role="tab" class="active">拼豆预览</button>
+              <button type="button" data-view="chart" role="tab">格子图</button>
+              <button type="button" data-view="connectivity" role="tab">连体检查</button>
+            </div>
+            <button class="icon-button" id="zoom-button" type="button" aria-pressed="false">放大编辑</button>
+          </div>
+
+          <div class="canvas-shell empty" id="canvas-shell">
+            <canvas id="preview-canvas" width="1000" height="1000" aria-label="拼豆图纸预览"></canvas>
+            <div class="empty-state" id="empty-state">
+              <div class="empty-pattern" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <strong>上传照片后，图纸会在这里出现</strong>
+              <span>建议选择脸部较大、人物互相靠近的照片。</span>
+            </div>
+          </div>
+
+          <div class="pattern-stats" aria-label="图纸统计">
+            <div><strong id="stat-grid">—</strong><span>格数</span></div>
+            <div><strong id="stat-beads">—</strong><span>豆子</span></div>
+            <div><strong id="stat-colors">—</strong><span>颜色</span></div>
+            <div><strong id="stat-components">—</strong><span>连通块</span></div>
+          </div>
+
+          <div class="editor-panel" id="editor-panel">
+            <div class="editor-heading">
+              <div><strong>五官修整台</strong><small>先自动生成，再只改最敏感的眼睛、嘴和眼镜。</small></div>
+              <button class="text-button" id="undo-button" type="button" disabled>撤销</button>
+            </div>
+            <div class="tool-row" role="toolbar" aria-label="绘制工具">
+              <button type="button" data-tool="pen" class="active">画笔</button>
+              <button type="button" data-tool="erase">橡皮</button>
+              <button type="button" data-tool="oval-eye">小椭圆眼</button>
+              <button type="button" data-tool="closed-eye">闭眼</button>
+              <button type="button" data-tool="smile">闭嘴笑</button>
+              <button type="button" data-tool="kiss">亲嘴</button>
+              <button type="button" data-tool="glasses">连续眼镜</button>
+            </div>
+            <div class="palette-row" id="palette-row" aria-label="MARD 颜色选择"></div>
+            <p class="editor-tip" id="editor-tip">选择工具后，直接点格子图上的位置。眼睛可以简单，但轮廓必须完整。</p>
+          </div>
+
+          <div class="export-row">
+            <button type="button" id="download-preview" disabled>下载成品预览</button>
+            <button type="button" id="download-chart" disabled>下载带色号图纸</button>
+            <button type="button" id="download-grid" disabled>下载格子 CSV</button>
+            <button type="button" id="download-counts" disabled>下载用量表</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="logic-section" id="how-it-works">
+      <div class="section-heading">
+        <p class="eyebrow">WHAT WE LEARNED</p>
+        <h2>今天这轮对话，最后沉淀成了五条规则</h2>
+      </div>
+      <ol class="logic-grid">
+        <li><span>01</span><strong>先卡通化，再像素化</strong><p>直接缩小照片会把阴影当五官。先压缩杂色，脸型和人物关系才不会散。</p></li>
+        <li><span>02</span><strong>复杂度让给脸，不让给衣服</strong><p>豆子优先花在眼睛、眉毛、嘴与轮廓；衣服和大片阴影可以主动合并。</p></li>
+        <li><span>03</span><strong>四张脸不能复制粘贴</strong><p>开口笑、闭嘴笑、眨眼、亲嘴和微表情要有区别，但都使用完整的小形状。</p></li>
+        <li><span>04</span><strong>品牌色号不能编</strong><p>图纸只显示本工具内置并核对过的 MARD 色号，同时给出逐色用量和逐格 CSV。</p></li>
+        <li><span>05</span><strong>好看之后还要能挂</strong><p>系统检查四向连接；镜框转角不能只对角相碰，主要头像之间也要留冗余连接。</p></li>
+      </ol>
+    </section>
+
+    <section class="boundary-section">
+      <div>
+        <p class="eyebrow">FIRST PUBLIC VERSION</p>
+        <h2>这一版能做什么，不能假装什么</h2>
+      </div>
+      <div class="boundary-copy">
+        <p><strong>已经可以：</strong>照片直转、浏览器卡通化、MARD 色号映射、复杂度控制、手动修五官、自动连体、导出预览/图纸/用量。</p>
+        <p><strong>暂不冒充：</strong>网页里的卡通化是本地轮廓简化，不是云端生成式模型。以后接入真正 AI 时，会放在安全服务端，不把密钥写进公开博客。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>豆格工坊 · 从一张真正想拼出来的合照开始</span>
+    <a href="/">返回一凡的博客</a>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>
