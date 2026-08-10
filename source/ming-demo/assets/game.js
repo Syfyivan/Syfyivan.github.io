@@ -1918,6 +1918,9 @@
       + (S.本年寄读次数 || 0)
       + (S.本年评文次数 || 0);
   }
+  function examGuaranteeDraftReady() {
+    return ((S.本年保帖底样次数 || 0) > 0) || ((S.举业累计保帖底样次数 || 0) > 0);
+  }
   function examGuaranteeWindowReady() {
     return (S.举业年 || 1) >= 2;
   }
@@ -1937,6 +1940,7 @@
       if (examArticleReady()) return '首年先稳投塾';
       if (examStudyTrackReady()) return '首年先坐读法';
     }
+    if (!examGuaranteeDraftReady() && examArticleReady()) return '先理保帖底样';
     if (!examAttemptWindowReady() && (S.保结进度 || 0) >= 2 && examArticleReady()) return '次年只把保结坐实';
     if ((S.保结进度 || 0) >= 2 && examArticleReady() && examActiveStudyCount() >= 2) return '可议下场';
     if ((S.保结进度 || 0) >= 1 || (S.本年保结次数 || 0) > 0) return '正跑保结';
@@ -1952,6 +1956,7 @@
     if (!(seasonId === 'autumn' || seasonId === 'winter')) return '通常到秋冬才真跑保结';
     if (!examGuaranteeWindowReady()) return '首年先把塾门、评文和帖样坐稳';
     if (!examStudyTrackReady()) return '先把塾门或半读读法坐实';
+    if (!examGuaranteeDraftReady()) return '先把保结帖样与履历草单理出来';
     return '';
   }
   function examAttemptReady() {
@@ -7983,9 +7988,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             cost: 1,
             eff: '尝试推进保结进度·保结脚费先支80文·未点头则只落人情脚费',
             desc: (S.保结进度 || 0) <= 0
-              ? '资格不通，本年就算想下场也不成。先把帖样、履历与廪保口风递到位，别把“已递帖样”省成一句话。没先坐实读法与塾门，保结也只是空跑人情；就算坐实了，也未必这一旬立刻放话。'
+              ? '资格不通，本年就算想下场也不成。先把帖样、履历与廪保口风递到位，别把“已递帖样”省成一句话。若连春夏先理过的保帖底样都没有，秋冬这一旬就还谈不上真跑保结；就算底样先有了、读法也坐实了，廪保也未必立刻放话。'
               : '资格不通，本年就算想下场也不成。帖样既已递过，这一旬再把廪保、互结与报名链条真正走通，才配说“保结已通”；人情脚费先花出去，回话却还可能拖着。',
-            can: !S.生员身份 && S.保结进度 < 2 && (season.id === 'autumn' || season.id === 'winter') && examStudyTrackReady() && examGuaranteeWindowReady(),
+            can: !S.生员身份 && S.保结进度 < 2 && (season.id === 'autumn' || season.id === 'winter') && examStudyTrackReady() && examGuaranteeWindowReady() && examGuaranteeDraftReady(),
             why: examGuaranteeBlockedWhy(season.id),
             once: true
           });
