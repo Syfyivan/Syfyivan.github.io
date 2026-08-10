@@ -3,12 +3,26 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>麻将局</title>
-    <meta name="description" content="可和朋友联机的麻将网页桌。" />
+    <title>麻将局｜打开就能和人机来一桌</title>
+    <meta name="description" content="无需下载、无需服务器，打开博客即可和人机来一桌川麻或东北麻将。" />
+    <meta name="theme-color" content="#0b2f25" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="麻将局｜打开就能和人机来一桌" />
+    <meta property="og:description" content="无需下载、无需服务器，选好玩法马上开局。" />
+    <meta property="og:url" content="https://syfyivan.github.io/mahjong/" />
+    <meta property="og:image" content="https://syfyivan.github.io/mahjong/og.jpg" />
+    <meta property="og:image:width" content="1536" />
+    <meta property="og:image:height" content="1024" />
+    <meta property="og:image:alt" content="墨绿色麻将桌与四张麻将牌，文字为麻将局，打开就能和人机来一桌" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="麻将局｜打开就能和人机来一桌" />
+    <meta name="twitter:description" content="无需下载、无需服务器，选好玩法马上开局。" />
+    <meta name="twitter:image" content="https://syfyivan.github.io/mahjong/og.jpg" />
+    <meta name="twitter:image:alt" content="墨绿色麻将桌与四张麻将牌，文字为麻将局，打开就能和人机来一桌" />
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="./styles.css?v=20260607-guide-cache-3" />
+    <link rel="stylesheet" href="./styles.css?v=20260810-lobby-redesign-1" />
   </head>
-  <body>
+  <body class="lobby-view">
     <main class="mahjong-app">
       <section class="table-shell" aria-label="麻将局">
         <header class="table-header">
@@ -21,78 +35,119 @@
             <span class="status-pill" id="roomStatus">房间 --</span>
             <span class="status-pill" id="wallStatus">牌山 --</span>
           </div>
+          <div class="lobby-perks" aria-label="平台特点">
+            <span><i aria-hidden="true"></i> 无需下载</span>
+            <span><i aria-hidden="true"></i> 无需登录</span>
+          </div>
         </header>
 
         <section class="lobby-panel" id="lobbyPanel" aria-label="房间">
-          <form class="join-form" id="joinForm">
-            <label>
-              <span>名字</span>
-              <input id="nameInput" name="name" type="text" maxlength="16" autocomplete="nickname" required />
-            </label>
-            <label>
-              <span>房号</span>
-              <input id="roomInput" name="room" type="text" maxlength="8" autocapitalize="characters" required />
-            </label>
-            <fieldset class="segmented-field">
-              <legend>玩法</legend>
-              <div class="segmented-control" role="radiogroup" aria-label="玩法">
-                <label>
-                  <input type="radio" name="variant" value="sichuan" checked />
-                  <span>川麻</span>
-                </label>
-                <label>
-                  <input type="radio" name="variant" value="dongbei" />
-                  <span>东北</span>
-                </label>
+          <div class="lobby-stage">
+            <section class="hero-copy" aria-labelledby="lobbyTitle">
+              <div class="hero-eyebrow"><span aria-hidden="true">●</span> 浏览器即开即玩</div>
+              <h1 id="lobbyTitle">随时来一桌，<br /><em>打开就能玩</em></h1>
+              <p class="hero-description">不下载，不等人。选好玩法，机器人马上入座陪你打完这一局。</p>
+              <div class="hero-features" aria-label="游戏特点">
+                <span>自动补满人机</span>
+                <span>川麻与东北麻将</span>
+                <span>规则与牌局都在浏览器运行</span>
               </div>
-            </fieldset>
-            <fieldset class="segmented-field">
-              <legend>人数</legend>
-              <div class="segmented-control" role="radiogroup" aria-label="人数">
-                <label>
-                  <input type="radio" name="seatCount" value="3" checked />
-                  <span>三人局</span>
-                </label>
-                <label>
-                  <input type="radio" name="seatCount" value="4" />
-                  <span>四人局</span>
-                </label>
+              <div class="tile-scene" aria-hidden="true">
+                <div class="table-halo"></div>
+                <img class="hero-tile hero-tile-one" src="./assets/tiles/wan-1.png" alt="" />
+                <img class="hero-tile hero-tile-two" src="./assets/tiles/tong-5.png" alt="" />
+                <img class="hero-tile hero-tile-three" src="./assets/tiles/tiao-8.png" alt="" />
+                <img class="hero-tile hero-tile-four" src="./assets/tiles/red.png" alt="" />
+                <span class="tile-shadow"></span>
               </div>
-            </fieldset>
-            <label>
-              <span>服务器</span>
-              <input id="serverInput" name="server" type="text" inputmode="url" autocomplete="off" required />
-            </label>
-            <div class="form-actions">
-              <button class="primary-button" type="submit">创建/加入</button>
-              <button class="ghost-button" type="button" id="randomRoomButton">新房号</button>
-            </div>
-          </form>
-          <section class="platform-guide" id="platformGuide" aria-label="平台使用说明">
-            <div class="platform-guide-header">
-              <div>
-                <span class="meta-label">平台使用</span>
-                <strong>打开博客，直接和人机开一桌</strong>
+            </section>
+
+            <section class="platform-guide" id="platformGuide" aria-label="快速开局">
+              <div class="quick-start-heading">
+                <div>
+                  <span class="meta-label">快速开局</span>
+                  <h2>开始一桌</h2>
+                </div>
+                <span class="platform-badge" id="platformGuideBadge">无需服务器</span>
               </div>
-              <span class="platform-badge" id="platformGuideBadge">无需服务器</span>
-            </div>
-            <div class="platform-guide-steps">
-              <p><strong>直接开局</strong><span>点“单机人机”，博客会自动创建房间、补齐人机、准备并开局。</span></p>
-              <p><strong>分享给朋友</strong><span>朋友打开同一个博客入口，也可以在自己的浏览器里独立和人机玩。</span></p>
-              <p><strong>无需安装</strong><span>牌局和人机都在当前浏览器里运行，不依赖公网服务器，也不需要保持你的电脑开机。</span></p>
-            </div>
-            <div class="platform-guide-actions">
-              <button class="primary-button platform-link" type="button" id="soloPlayButton">单机人机</button>
-            </div>
-          </section>
-          <div class="invite-panel" aria-label="邀请码">
-            <label>
-              <span>邀请码</span>
-              <input id="inviteInput" type="text" autocomplete="off" placeholder="粘贴房主发来的 MJ1 邀请码" />
-            </label>
-            <button class="ghost-button" type="button" id="applyInviteButton">使用邀请码</button>
+              <p class="quick-start-copy">你的牌桌只在当前浏览器运行，退出页面也不会影响其他朋友玩。</p>
+              <label class="player-name-field">
+                <span>怎么称呼你</span>
+                <input id="nameInput" name="name" type="text" maxlength="16" autocomplete="nickname" required />
+              </label>
+              <div class="quick-options">
+                <fieldset class="segmented-field">
+                  <legend>玩法</legend>
+                  <div class="segmented-control" role="radiogroup" aria-label="玩法">
+                    <label>
+                      <input type="radio" name="variant" value="sichuan" checked />
+                      <span>川麻</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="variant" value="dongbei" />
+                      <span>东北</span>
+                    </label>
+                  </div>
+                </fieldset>
+                <fieldset class="segmented-field">
+                  <legend>人数</legend>
+                  <div class="segmented-control" role="radiogroup" aria-label="人数">
+                    <label>
+                      <input type="radio" name="seatCount" value="3" checked />
+                      <span>三人</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="seatCount" value="4" />
+                      <span>四人</span>
+                    </label>
+                  </div>
+                </fieldset>
+              </div>
+              <button class="primary-button solo-play-button" type="button" id="soloPlayButton">
+                <span>
+                  <small>人机自动入座</small>
+                  <strong>立即和人机开局</strong>
+                </span>
+                <b aria-hidden="true">→</b>
+              </button>
+              <div class="lobby-note" id="lobbyNote">点一下，马上发牌</div>
+              <div class="safe-note"><span aria-hidden="true">✓</span> 无需注册，也不会上传牌局数据</div>
+            </section>
           </div>
-          <div class="lobby-note" id="lobbyNote">房主先生成房号</div>
+
+          <details class="advanced-panel">
+            <summary>
+              <span>
+                <strong>同桌联机与高级设置</strong>
+                <small>房号、邀请码和自定义服务器</small>
+              </span>
+              <span class="advanced-toggle" aria-hidden="true">展开</span>
+            </summary>
+            <div class="advanced-content">
+              <p class="advanced-notice">只有你和朋友要进入同一张桌时才需要这里，并且需要一个可用的联机服务器。</p>
+              <form class="join-form" id="joinForm">
+                <label>
+                  <span>房号</span>
+                  <input id="roomInput" name="room" type="text" maxlength="8" autocapitalize="characters" required />
+                </label>
+                <label class="server-field">
+                  <span>联机服务器</span>
+                  <input id="serverInput" name="server" type="text" inputmode="url" autocomplete="off" required />
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">创建 / 加入</button>
+                  <button class="ghost-button" type="button" id="randomRoomButton">换个房号</button>
+                </div>
+              </form>
+              <div class="invite-panel" aria-label="邀请码">
+                <label>
+                  <span>朋友发来的邀请码</span>
+                  <input id="inviteInput" type="text" autocomplete="off" placeholder="粘贴 MJ1 邀请码" />
+                </label>
+                <button class="ghost-button" type="button" id="applyInviteButton">使用邀请码</button>
+              </div>
+            </div>
+          </details>
         </section>
 
         <section class="game-layout" id="gamePanel" aria-label="牌桌" hidden>
@@ -234,6 +289,6 @@
         </div>
       </div>
     </main>
-    <script src="./client.js?v=20260607-guide-cache-3"></script>
+    <script src="./client.js?v=20260810-lobby-redesign-1"></script>
   </body>
 </html>

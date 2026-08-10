@@ -1873,6 +1873,8 @@
     hideEndModal();
     hideRulesModal();
     hideGuideModal();
+    document.body.classList.remove("game-view");
+    document.body.classList.add("lobby-view");
     lobbyPanel.hidden = false;
     gamePanel.hidden = true;
     connectionStatus.textContent = "未连接";
@@ -1887,6 +1889,8 @@
       return;
     }
 
+    document.body.classList.remove("lobby-view");
+    document.body.classList.add("game-view");
     lobbyPanel.hidden = true;
     gamePanel.hidden = false;
     connectionStatus.textContent = view.connected ? "已连接" : "已断开";
