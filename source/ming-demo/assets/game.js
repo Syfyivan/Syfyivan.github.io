@@ -141,14 +141,14 @@
       identity: '军籍·次子待立身',
       publicSummary: '军户次子、原籍军装盘缠需由家中真实供给、家账更紧，具体量值仍属设计占位',
       establishmentLead: '这一户不只要过自家锅火，还得为军装、盘缠和原籍差派预留后手。你若不尽早找出路，制度那层外流会先把家账拖薄。',
-      atlasTip: '父快照二：江南军户次子。现仅接入立身入口首版框架，用来把“军户供养是真实流出”先挂到运行时；五路专档与专门回放仍待继续补齐。',
-      switchNote: '新开的第二父快照入口：先把军户供养压力接上立身页，具体量值仍按设计占位处理。',
+      atlasTip: '父快照二：江南军户次子。现已接入立身入口与五路首年专门回放，用来把“军户供养是真实流出”先锁进同一父快照分路验证；五路专档与多代账本仍待继续补齐。',
+      switchNote: '第二父快照入口：军户供养压力已接上立身页与五路首年回放，具体量值仍按设计占位处理。',
       event: { t: 'inst', tag: '[军户]', txt: '这一户除锅火外，还得替在卫军丁留军装与盘缠。那不是背景设定，而是会先挤掉家里现钱的一层真外流。' },
       patch: {
         年龄: 16, 身份: '军籍·次子待立身', 体魄: 64, 家族: 56,
         白银: 1, 铜钱: 900, 存米: 2, 田亩: 3,
         识字: false, 技艺: '无',
-        父快照类型: '江南军户次子', 户籍类型: '军籍', 父快照说明: '立身入口首版框架（设计占位）'
+        父快照类型: '江南军户次子', 户籍类型: '军籍', 父快照说明: '立身入口与五路首年回放已接通（设计占位）'
       },
       routeHooks: {
         farm: '留乡守田能先稳住一口口粮，但军装与盘缠这层外流不会自己消失，守田也得先替制度留后手。',
@@ -626,6 +626,20 @@
     var s = String(value == null ? '' : value).trim();
     return s || emptyValue;
   }
+  function normalizeRouteAwareStateValue(key, value, emptyValue) {
+    var s = normalizeCarryString(value, emptyValue);
+    if (s === emptyValue) return emptyValue;
+    if (key === '定额佃状态') {
+      if (s === '已立' || s === '立定额佃') return '已立定额佃';
+      return s;
+    }
+    if (key === '合爨状态') {
+      if (s === '合爨随兄') return '随兄合户';
+      if (s === '已分爨') return '已析爨';
+      return s;
+    }
+    return s;
+  }
   function normalizeCarryLineageSource(via, role) {
     var base = String(via || '').trim();
     var directTag = directHeirLineageTag(role);
@@ -648,12 +662,12 @@
     normalized.承嗣来路 = normalizeCarryLineageSource(normalized.承嗣来路, role);
     normalized.承继定位 = normalizeCarryPosition(normalized.承继定位, role);
     normalized.父辈路线 = normalizeCarryString(normalized.父辈路线, '未定');
-    normalized.婚配路径 = normalizeCarryString(normalized.婚配路径, '未定');
-    normalized.合爨状态 = normalizeCarryString(normalized.合爨状态, '未合爨');
-    normalized.定额佃状态 = normalizeCarryString(normalized.定额佃状态, '未立');
-    normalized.雇身份 = normalizeCarryString(normalized.雇身份, '未定');
-    normalized.学徒去向 = normalizeCarryString(normalized.学徒去向, '未定');
-    normalized.举业结局 = normalizeCarryString(normalized.举业结局, '未定');
+    normalized.婚配路径 = normalizeRouteAwareStateValue('婚配路径', normalized.婚配路径, '未定');
+    normalized.合爨状态 = normalizeRouteAwareStateValue('合爨状态', normalized.合爨状态, '未合爨');
+    normalized.定额佃状态 = normalizeRouteAwareStateValue('定额佃状态', normalized.定额佃状态, '未立');
+    normalized.雇身份 = normalizeRouteAwareStateValue('雇身份', normalized.雇身份, '未定');
+    normalized.学徒去向 = normalizeRouteAwareStateValue('学徒去向', normalized.学徒去向, '未定');
+    normalized.举业结局 = normalizeRouteAwareStateValue('举业结局', normalized.举业结局, '未定');
     normalized.委托营生 = normalizeCarryString(normalized.委托营生, '无');
     normalized.白银 = normalizeCarryNumber(normalized.白银);
     normalized.铜钱 = normalizeCarryNumber(normalized.铜钱);
@@ -753,9 +767,9 @@
       // 哪怕本代把它清回“未定 / 未立 / 未合爨 / 无”，也代表这一代已经把上一代旧余绪结清或改写。
       // 这里若继续回退到 carryOver，会把已经清掉的婚配/合爨/供读或委托状态又偷带回
       // marriage → household → elder → death → restartWithHeir，形成“当前状态已清、死亡页仍写旧账”的假闭环。
-      return current;
+      return normalizeRouteAwareStateValue(key, current, emptyValue);
     }
-    return inheritedRouteAwareValue(key, emptyValue);
+    return normalizeRouteAwareStateValue(key, inheritedRouteAwareValue(key, emptyValue), emptyValue);
   }
   function snapshotRouteAwareCarryState() {
     return {
@@ -938,7 +952,7 @@
       if ((carry.家传书香 || 0) > 0) hints.push('田上记账、认税则不至全靠别人念给你听');
       if ((carry.商路门路 || 0) > 0 || (carry.城里门路 || 0) > 0) hints.push('去市镇卖米换钱时不至样样都吃生');
       if ((carry.家传手艺 || 0) > 0) hints.push('农闲还能凭一点手艺补贴家计');
-      if ((carry.定额佃状态 || '') === '已立' || (carry.定额佃状态 || '') === '已立定额佃' || (carry.婚配路径 || '') === '暂不婚·改定额佃') {
+      if ((carry.定额佃状态 || '') === '已立定额佃' || (carry.婚配路径 || '') === '暂不婚·改定额佃') {
         hints.push('上一代为缓婚先立过定额佃，这一房更知道怎么把薄田先压成定额租账');
       }
       if ((carry.合爨状态 || '') === '随兄合户' || (carry.合爨状态 || '') === '已析爨') {
@@ -6909,6 +6923,22 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.白银 < 1 ? '白银不足1两' : (supportCapacity < 1 ? '暂无可拆回钱' : '需先有回钱或催账口风'),
             once: true
           });
+          if (S.商年 === 3) {
+            A.push({
+              id: 'm_autumn_third_head_return',
+              name: '先把三年秋头回钱拆作供读、差票与锅火',
+              cost: 1,
+              eff: '白银-1·反哺+1·供读专账+1·供读+1·备役+1·贴家+1·家书+1·催账+1·家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? '·商信誉+1' : ''),
+              desc: '第三商年秋试手一起头最怕一笔真回钱刚落手，供读纸包、差帖回话、锅火后手、递话脚费与催账口风就先一起追来。先把这层“三年秋头先收哪几本账”拆开，让供读、差役、贴家与催账在秋头就先见真账，而不再主要等到秋中秋尾才收口。',
+              can: S.白银 >= 1 && supportCapacity >= 1 && (S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路备役 > 0 || S.本年商路贴家 > 0 || S.商路供读银 > 0),
+              why: S.白银 >= 1
+                ? (supportCapacity >= 1
+                  ? ((S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路备役 > 0 || S.本年商路贴家 > 0 || S.商路供读银 > 0) ? '' : '需先有回钱、供读、贴家或差票后手可拆')
+                  : '眼下还没有可拆去向的商路回账或浮账')
+                : '白银不足1两',
+              once: true
+            });
+          }
         }
         if (season.id === 'autumn' && xun === 2) {
           A.push({ id: 'm_autumn_mid_bundle', name: '先把秋中门包与牙帖茶钱分开', cost: 1, eff: '铜钱-60·核账+1·问价+1·商信誉+1', desc: '秋试手中旬最怕试手门包、牙帖茶钱、递话脚费和样货小耗一起冒头。先把这层秋中碎账拆开，试贩、核账与问价才不至一口气全压在带本银边上。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
@@ -7133,6 +7163,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_winter_family_split', name: '先把拖欠回话与差票家书分开', cost: 1, eff: '铜钱-70·催账+1·备役+1·家书+1·家族+1', desc: '冬里第二程最怕旧账拖欠、差票回话、家书催问和锅火后手一起压来。先把这层家计与制度冲突拆开，回钱不至一回手就被几头一并咬住。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
           A.push({ id: 'm_winter_mid_supply_duty', name: '先把冬中拖欠与供读差票分开', cost: 1, eff: '铜钱-75·催账+1·家书+1·供读+1·备役+1·体魄+1·家族+1', desc: '冬里第二程最怕旧账拖欠、供读纸包、差票回话、药包和守岁灯炭一起追钱。先把这层冬中供差身账拆开，回钱未净时，供读、差役、家里催问和自己这副身子才不至继续抢同一口现钱。', can: S.铜钱 >= 75, why: S.铜钱 >= 75 ? '' : '铜钱不足75文', once: true });
           A.push({ id: 'm_winter_mid_body', name: '先把冬中药包与拖欠回话分开', cost: 1, eff: '铜钱-75·催账+1·家书+1·歇养+1·体魄+1·商信誉+1', desc: '冬里第二程最怕药包、拖欠回话、递话小礼和守岁灯炭一起追钱。先把这层冬中身账拆开，旧账未净时，身子与回话次序也不至继续抢同一口现钱。', can: S.铜钱 >= 75, why: S.铜钱 >= 75 ? '' : '铜钱不足75文', once: true });
+          if (S.商年 === 2) {
+            A.push({
+              id: 'm_winter_second_mid_trial',
+              name: '先把二年冬中试本与拖欠回话分开',
+              cost: 1,
+              eff: '铜钱-80·议本+1·催账+1·拖欠+1·家书+1·商信誉+1',
+              desc: '第二商年冬里第二程最怕试本回话、拖欠回签、递话小礼、守岁灯炭和来春样纸定钱一起追钱。先把这层“二年冬中先把试本还是旧账排前头”拆开，让议本、催账与拖欠不再只在冬头、冬尾露脸，而是在冬中就先互相咬住。',
+              can: S.铜钱 >= 80 && (S.本年商路议本 > 0 || S.本年商路催账 > 0 || S.本年商路问价 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0),
+              why: S.铜钱 >= 80
+                ? ((S.本年商路议本 > 0 || S.本年商路催账 > 0 || S.本年商路问价 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0) ? '' : '需先有试本、催账、回钱或问价口风可拆')
+                : '铜钱不足80文',
+              once: true
+            });
+          }
           A.push({
             id: 'm_winter_mid_remit_school',
             name: '先把冬中回钱拆作供读与药包',
@@ -7828,6 +7872,25 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把秋头回钱拆作供读与药包，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
               }
               break;
+            case 'm_autumn_third_head_return':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.本年商路反哺银 += 1;
+                S.商路供读银 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                S.本年商路供读 += 1;
+                S.本年商路备役 += 1;
+                S.本年商路贴家 += 1;
+                S.本年商路家书 += 1;
+                S.本年商路催账 += 1;
+                S.家族 += supportProfile.familyGain;
+                if (supportProfile.trustGain > 0) S.商信誉 += supportProfile.trustGain;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆三年秋头回钱');
+                log.push(['先把三年秋头回钱拆作供读、差票与锅火：白银-1、反哺+1、供读专账+1、供读+1、备役+1、贴家+1、家书+1、催账+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。第三商年刚进秋头，这笔真回钱就先把供读、差票、锅火和催账次序压回了这一旬，不再主要等到秋中秋尾才见光。', 'good']);
+              } else {
+                log.push(['想先把三年秋头回钱拆作供读、差票与锅火，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
+              }
+              break;
             case 'm_autumn_mid_bundle':
               if (spendCopper(60)) {
                 S.本年商路核账 += 1;
@@ -8356,6 +8419,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把冬中药包与拖欠回话分开：铜钱-75、催账+1、家书+1、歇养+1、体魄+1、商信誉+1。冬中这层“旧账拖着未回、药包和递话却已先来”的身账，先被压回了这一旬。', 'good']);
               } else {
                 log.push(['想先把冬中药包与拖欠回话分开，但这旬铜钱已先被别处吃住，只得让药包、拖欠回话和守岁灯炭继续一起抢钱。', 'bad']);
+              }
+              break;
+            case 'm_winter_second_mid_trial':
+              if (spendCopper(80)) {
+                S.本年商路议本 += 1;
+                S.本年商路催账 += 1;
+                S.本年商路拖欠 += 1;
+                S.本年商路家书 += 1;
+                S.商信誉 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆二年冬中试拖');
+                log.push(['先把二年冬中试本与拖欠回话分开：铜钱-80、议本+1、催账+1、拖欠+1、家书+1、商信誉+1。第二商年冬中这层试本回话、拖欠回签、递话小礼和守岁灯炭先被压回了这一旬，议本、催账与拖欠不再只在冬头和冬尾露脸。', 'good']);
+              } else {
+                log.push(['想先把二年冬中试本与拖欠回话分开，但这旬铜钱已先被别处占住，只得让试本回话、拖欠回签和守岁灯炭继续一起追这口现钱。', 'bad']);
               }
               break;
             case 'm_winter_mid_remit_school':
@@ -9068,6 +9144,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               once: true
             });
           }
+          if (examYear === 2 && season.id === 'summer') {
+            A.push({
+              id: 'e_year2_summer_focus',
+              name: '先把二年伏夏馆批与履历口风分开',
+              cost: 1,
+              eff: '铜钱-50·保帖底样+1·家族+1·供读压力-1',
+              desc: '第二举业年的伏夏上旬，最怕旧馆批语、履历草单、廪保口风和凉茶脚费一起追钱。先把这层“续馆回话还要接着坐实、秋前保结底稿也得重理”的伏夏细账拆开，第二年就不再只靠通用馆账撑着走。',
+              can: S.铜钱 >= 50,
+              why: S.铜钱 >= 50 ? '' : '铜钱不足50文',
+              once: true
+            });
+          }
           A.push({
             id: 'e_family_grain',
             name: season.id === 'autumn'
@@ -9764,6 +9852,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把次年馆批与保帖底样分开：铜钱-45、保帖底样+1、家族+1。第二举业年春头先把旧馆批语、保帖底样和递话脚费坐实，次年这层“续馆口风还在、递帖底稿又得重理”的细账没再混进开春锅火里。', 'good']);
               } else {
                 log.push(['想先把次年馆批与保帖底样拆开，但这一旬铜钱已先被别处占住，只得让第二举业年春头这层续馆回话和底稿细账继续贴着锅火一起追钱。', 'bad']);
+              }
+              break;
+            case 'e_year2_summer_focus':
+              if (spendCopper(50)) {
+                noteExamOutlay(50, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 15, 本年零耗支出文: 15 } });
+                S.本年保帖底样次数 += 1;
+                S.家族 += 1;
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
+                pushExamSeasonTag(stepTag + '二年伏夏底样');
+                log.push(['先把二年伏夏馆批与履历口风分开：铜钱-50、保帖底样+1、家族+1、供读压力-1。第二举业年伏夏上旬先把旧馆批语、履历草单、廪保口风和凉茶脚费拆开，秋前这层“续馆回话还在、保结底稿又得重理”的细账没再继续贴着通用馆账一起发硬。', 'good']);
+              } else {
+                log.push(['想先把二年伏夏馆批与履历口风拆开，但这一旬铜钱已先被别处占住，只得让第二举业年伏夏这层续馆回话和履历底稿继续贴着馆账一起追钱。', 'bad']);
               }
               break;
             case 'e_guarantee':
