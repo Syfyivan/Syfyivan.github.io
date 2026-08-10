@@ -139,16 +139,16 @@
       title: '江南军户次子',
       shortTitle: '军户次子',
       identity: '军籍·次子待立身',
-      publicSummary: '军户次子、原籍军装盘缠需由家中真实供给、家账更紧，具体量值仍属设计占位',
+      publicSummary: '军户次子、原籍军装盘缠需由家中真实供给，现已沿立身到养老的年度开账持续落账',
       establishmentLead: '这一户不只要过自家锅火，还得为军装、盘缠和原籍差派预留后手。你若不尽早找出路，制度那层外流会先把家账拖薄。',
-      atlasTip: '父快照二：江南军户次子。现已接入立身入口与五路首年专门回放，用来把“军户供养是真实流出”先锁进同一父快照分路验证；五路专档与多代账本仍待继续补齐。',
-      switchNote: '第二父快照入口：军户供养压力已接上立身页与五路首年回放，具体量值仍按设计占位处理。',
+      atlasTip: '父快照二：江南军户次子。现已接入立身入口、五路分路、同代生命周期与年度开账，用来把“军户供养是真实流出”锁进同一父快照整代回放；五路专档与多代账本仍需继续补齐。',
+      switchNote: '第二父快照入口：军户供养压力现已接上立身页、五路分路与后续年度开账，量值仍按设计占位处理。',
       event: { t: 'inst', tag: '[军户]', txt: '这一户除锅火外，还得替在卫军丁留军装与盘缠。那不是背景设定，而是会先挤掉家里现钱的一层真外流。' },
       patch: {
         年龄: 16, 身份: '军籍·次子待立身', 体魄: 64, 家族: 56,
         白银: 1, 铜钱: 900, 存米: 2, 田亩: 3,
         识字: false, 技艺: '无',
-        父快照类型: '江南军户次子', 户籍类型: '军籍', 父快照说明: '立身入口与五路首年回放已接通（设计占位）'
+        父快照类型: '江南军户次子', 户籍类型: '军籍', 父快照说明: '立身入口、五路分路与后续年度开账已接通（设计占位）'
       },
       routeHooks: {
         farm: '留乡守田能先稳住一口口粮，但军装与盘缠这层外流不会自己消失，守田也得先替制度留后手。',
@@ -195,6 +195,54 @@
     if (generation > 1 || carryOver) return '';
     var hooks = (currentFoundingSnapshot().routeHooks || {});
     return hooks[routeKey] || '';
+  }
+
+  function isMilitaryFoundingState() {
+    return generation === 1
+      && !carryOver
+      && !!S
+      && S.父快照类型 === '江南军户次子'
+      && S.户籍类型 === '军籍';
+  }
+
+  function settleMilitaryFoundingBurden(key, opts) {
+    opts = opts || {};
+    if (!isMilitaryFoundingState()) return '';
+    if (!Array.isArray(S._militaryBurdenPaidKeys)) S._militaryBurdenPaidKeys = [];
+    if (S._militaryBurdenPaidKeys.indexOf(key) >= 0) return '';
+    S._militaryBurdenPaidKeys.push(key);
+
+    var copperNeed = Math.max(0, Number(opts.copper) || 0);
+    var debtRate = Math.max(0.1, Number(opts.debtRate) || 0.2);
+    var parts = [];
+    var remain = copperNeed;
+
+    if (remain > 0) {
+      var copperPaid = Math.min(S.铜钱, remain);
+      if (copperPaid > 0) {
+        S.铜钱 -= copperPaid;
+        remain -= copperPaid;
+        parts.push('铜钱-' + copperPaid + '文');
+      }
+    }
+    if (remain > 0) {
+      var silverNeed = Math.min(S.白银, Math.ceil(remain / 300));
+      if (silverNeed > 0) {
+        S.白银 -= silverNeed;
+        remain = Math.max(0, remain - silverNeed * 300);
+        parts.push('白银-' + silverNeed + '两');
+      }
+    }
+    if (remain > 0) {
+      var debt = Math.round((remain / 300) * 10) / 10;
+      debt = Math.max(debtRate, debt);
+      S.负债银 = Math.round((S.负债银 + debt) * 10) / 10;
+      parts.push('负债+' + debt + '两');
+    }
+
+    return parts.length
+      ? ((opts.label || '这一年军户后手') + '先抽走一口军装盘缠：' + parts.join('、') + '。')
+      : '';
   }
 
   function currentPhaseTitle() {
@@ -298,6 +346,7 @@
       // 人生链路字段
       妻室: false, 子数: 0, 女数: 0, 负债银: 0, 口食田: 0, 分家: false, 应役: '未役',
       婚配路径: '未定', 合爨状态: '未合爨', 定额佃状态: '未立',
+      _militaryBurdenPaidKeys: [],
       // “人情欠条”不是评分字段，只是把“借出一口急钱/回收一口人情钱”显式写进账，
       // 避免被口头带过或被误解为“凭空通融”。欠条不计入现银，只有讨回时才入铜钱流水。
       人情欠条: 0,
@@ -608,12 +657,14 @@
     if (!carry) return '次子';
     var explicitRole = String(carry.承继身份 == null ? '' : carry.承继身份).trim();
     var viaRole = inheritanceRoleFromLineage(carry.承嗣来路);
-    // 承嗣来路是跨代累积出来的时间顺序事实；显式“承继身份”更像快照切片。
-    // 若旧 fixture / 老快照里两者冲突，必须以承嗣来路为准，
-    // 否则会把“已成旁支/独子/长子”的这一手又误写回“次子”，
-    // 直接带偏死亡按钮、承继定位与 restartWithHeir 的真实身份。
-    if (viaRole && explicitRole && explicitRole !== viaRole) return viaRole;
-    if (explicitRole) return explicitRole;
+    // 显式“承继身份”描述的是当前这一手真实承到谁；
+    // “承嗣来路”则是跨代历史链，可能还保留上一轮的直系/旁支标签。
+    // 例如“旁支过继·旁支续承·本支次子承继”仍然是在旁支这一房里生出的次子，
+    // 而“本支独子承继 + 当前显式旁支继子”则表示这一手后来又转成了旁支续脉。
+    // 因此只要快照里已经显式写明当前身份，就必须以它为准；否则会在 deep replay 的
+    // death → restartWithHeir → 下一代立身链上把真实身份反向覆盖，导致按钮文案、
+    // 承继定位与运行时状态重新分叉。
+    if (explicitRole === '旁支继子' || explicitRole === '独子' || explicitRole === '长子' || explicitRole === '次子') return explicitRole;
     if (viaRole) return viaRole;
     return isCollateralCarry(carry) ? '旁支继子' : '次子';
   }
@@ -4025,7 +4076,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'spring' && xun === 2) apply({
-      handledIds: ['m_book', 'm_market', 'm_letter', 'm_packet', 'm_spring_home_split', 'm_spring_mid_school', 'm_spring_mid_body'],
+      handledIds: ['m_book', 'm_market', 'm_letter', 'm_packet', 'm_spring_home_split', 'm_spring_mid_school', 'm_spring_mid_body', 'm_spring_second_mid_trial', 'm_spring_third_mid_remit'],
       doneTag: '开路回话已压',
       doneLog: '〔开路回话〕这一旬先把样价抄单、回话脚费、柜边包纸与春中药包拆开了；春里第二程不再只剩“继续学生意”，而是真把人情回话、家里锅火和身子后手一起压回同一年里。',
       cost: 30,
@@ -4069,7 +4120,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'body'
     });
     if (season.id === 'summer' && xun === 3) apply({
-      handledIds: ['m_shop', 'm_market', 'm_letter', 'm_mend', 'm_counter', 'm_summer_tail_duty', 'm_summer_tail_school', 'm_summer_tail_drag', 'm_summer_tail_remit_school', 'm_summer_second_tail_trial'],
+      handledIds: ['m_shop', 'm_market', 'm_letter', 'm_mend', 'm_counter', 'm_summer_tail_duty', 'm_summer_tail_school', 'm_summer_tail_drag', 'm_summer_tail_remit_school', 'm_summer_second_tail_trial', 'm_summer_third_tail_remit'],
       doneTag: '伏夏柜耗已分',
       doneLog: '〔伏夏柜耗〕这一旬先把柜边包纸、请脚夫的小茶钱、回客话门包、供读纸样、夏尾拖欠和凉药门包分开了；伏夏尾声这层“不大、却天天有”的柜上、家里、旧账与身子摩擦没有再混成一团。',
       cost: 35,
@@ -4911,8 +4962,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function startFarmYear() {
     xunIndex = 0; picks = []; resolved = null;
     S.秧苗进度 = 0; S.已插秧 = false; S._已收割 = false; S.菜圃进度 = 0; S.母出工 = true;
-    recordEntry('第 ' + S.农年 + ' 农年·春耕开账（' + S.年龄 + '岁）', snapshot(),
-      '又是一年春耕。' + (S.负债银 > 0 ? '债还挂在账上（负债 ' + S.负债银 + ' 两），这一年得多挣些米还债、缴租。' : '这一年仍要缴租 ' + S.租额石 + ' 石、供全家嚼用，能落下多少全看安排。'));
+    var farmOpenBefore = snapshot();
+    var militaryNote = settleMilitaryFoundingBurden('farm:' + S.农年, { copper: 60, label: '军户原籍这一农年' });
+    recordEntry('第 ' + S.农年 + ' 农年·春耕开账（' + S.年龄 + '岁）', farmOpenBefore,
+      '又是一年春耕。' + (S.负债银 > 0 ? '债还挂在账上（负债 ' + S.负债银 + ' 两），这一年得多挣些米还债、缴租。' : '这一年仍要缴租 ' + S.租额石 + ' 石、供全家嚼用，能落下多少全看安排。') + (militaryNote ? ' ' + militaryNote : ''));
     rollXun(); renderStatus(); renderStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -5238,8 +5291,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function enterFarm() {
     phase = 'farm'; S.年龄 = 16; S.身份 = '民籍·佃农子'; S.路线 = '留乡佃田'; S.农年 = 1; picks = []; resolved = null; curStage = null;
     var inherited = (S.农年 === 1) ? applyRouteInheritance('farm') : [];
+    var farmBefore = snapshot();
+    var farmMilitaryNote = settleMilitaryFoundingBurden('farm:' + S.农年, { copper: 60, label: '军户原籍这一农年' });
     tracePhase('route:farm');
-    recordEntry('立身分路·留乡佃田', snapshot(), '你没去城里，也没再继续读书，而是留在乡里，接下这几亩水田，准备靠一双手和九旬光阴吃饭。' + (inherited.length ? ' 父辈留下的余绪在田上也不是全无用处：' + inherited.join('；') + '。' : ''));
+    recordEntry('立身分路·留乡佃田', farmBefore, '你没去城里，也没再继续读书，而是留在乡里，接下这几亩水田，准备靠一双手和九旬光阴吃饭。' + (inherited.length ? ' 父辈留下的余绪在田上也不是全无用处：' + inherited.join('；') + '。' : '') + (farmMilitaryNote ? (' ' + farmMilitaryNote) : ''));
     rollXun(); renderStatus(); renderStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -5266,9 +5321,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var inherited = (S.工年 === 1) ? applyRouteInheritance('wage') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageWage();
+    var wageBefore = snapshot();
+    var wageMilitaryNote = (S.工季 === 1 && (S.工段 || 1) === 1)
+      ? settleMilitaryFoundingBurden('wage:' + S.工年, { copper: 70, label: '军户原籍这一工年' })
+      : '';
     if (S.工年 === 1) tracePhase('route:wage');
-    if (S.工年 === 1) recordEntry('立身分路·受雇谋生', snapshot(), '你没去守那几亩佃田，而是去乡里和市镇寻工：靠体魄、识字和一点手艺底子，先把工食挣出来。' + (inherited.length ? ' 父辈承下来的余绪在这里先起了作用：' + inherited.join('；') + '。' : ''));
-    else if (S.工季 === 1 && (S.工段 || 1) === 1) recordEntry('第 ' + S.工年 + ' 工年·春忙开账', snapshot(), '上一工年已了，这一年改按“春忙→夏忙→秋收→冬闲”四季、每季再分上中下三旬过账；议雇、奔走、贴家、备差、衣药与旧债不再糊成两笔，而是逐旬摊开。');
+    if (S.工年 === 1) recordEntry('立身分路·受雇谋生', wageBefore, '你没去守那几亩佃田，而是去乡里和市镇寻工：靠体魄、识字和一点手艺底子，先把工食挣出来。' + (inherited.length ? ' 父辈承下来的余绪在这里先起了作用：' + inherited.join('；') + '。' : '') + (wageMilitaryNote ? (' ' + wageMilitaryNote) : ''));
+    else if (S.工季 === 1 && (S.工段 || 1) === 1) recordEntry('第 ' + S.工年 + ' 工年·春忙开账', wageBefore, '上一工年已了，这一年改按“春忙→夏忙→秋收→冬闲”四季、每季再分上中下三旬过账；议雇、奔走、贴家、备差、衣药与旧债不再糊成两笔，而是逐旬摊开。' + (wageMilitaryNote ? (' ' + wageMilitaryNote) : ''));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -5295,9 +5354,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var inherited = (S.学年 === 1) ? applyRouteInheritance('apprentice') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageApprentice();
+    var apprenticeBefore = snapshot();
+    var apprenticeMilitaryNote = ((S.学季 || 1) === 1 && (S.学旬 || 1) === 1)
+      ? settleMilitaryFoundingBurden('apprentice:' + S.学年, { copper: 60, label: '军户原籍这一学年' })
+      : '';
     if (S.学年 === 1) tracePhase('route:apprentice');
-    if (S.学年 === 1) recordEntry('立身分路·入城学徒', snapshot(), '你不留乡守田，也不先去打长短工，而是进城投商铺学徒：先求师、立据、守店、识货，再把行市、家计和年关去留一起熬出来，看三年后能不能留店或另谋。' + (inherited.length ? ' 父辈留下的门路先替你垫了一步：' + inherited.join('；') + '。' : ''));
-    else if ((S.学季 || 1) === 1 && (S.学旬 || 1) === 1) recordEntry('第 ' + S.学年 + ' 学年·投师季上旬开账', snapshot(), '这一学年不再按“一年一把过账”，而是拆成投师季、坐店季、行市季、年关季四季、每季三旬推进。你得把说合、守店、认账、问价、贴家、衣药、备差与去留，逐旬算在同一本账里。');
+    if (S.学年 === 1) recordEntry('立身分路·入城学徒', apprenticeBefore, '你不留乡守田，也不先去打长短工，而是进城投商铺学徒：先求师、立据、守店、识货，再把行市、家计和年关去留一起熬出来，看三年后能不能留店或另谋。' + (inherited.length ? ' 父辈留下的门路先替你垫了一步：' + inherited.join('；') + '。' : '') + (apprenticeMilitaryNote ? (' ' + apprenticeMilitaryNote) : ''));
+    else if ((S.学季 || 1) === 1 && (S.学旬 || 1) === 1) recordEntry('第 ' + S.学年 + ' 学年·投师季上旬开账', apprenticeBefore, '这一学年不再按“一年一把过账”，而是拆成投师季、坐店季、行市季、年关季四季、每季三旬推进。你得把说合、守店、认账、问价、贴家、衣药、备差与去留，逐旬算在同一本账里。' + (apprenticeMilitaryNote ? (' ' + apprenticeMilitaryNote) : ''));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -5324,9 +5387,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var inherited = (S.商年 === 1) ? applyRouteInheritance('merchant') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageMerchant();
+    var merchantBefore = snapshot();
+    var merchantMilitaryNote = ((S.商季 || 1) === 1 && (S.商段 || 1) === 1)
+      ? settleMilitaryFoundingBurden('merchant:' + S.商年, { copper: 70, label: '军户原籍这一商年' })
+      : '';
     if (S.商年 === 1) tracePhase('route:merchant');
-    if (S.商年 === 1) recordEntry('立身分路·徽商学生意', snapshot(), '你决定投族叔商号学生意：先当伙计学认货、跑单、看账，再看能否挣出反哺家中的现钱。' + (inherited.length ? ' 上一代留下的商路余绪先替你开了个口：' + inherited.join('；') + '。' : ''));
-    else if ((S.商季 || 1) === 1 && (S.商段 || 1) === 1) recordEntry('第 ' + S.商年 + ' 商年·春开路上旬开账', snapshot(), '这一商年不再按“一年一把过账”，而是拆成春开路、夏坐店、秋试手、冬清账四季、每季三旬推进。认货、跑单、催账、试贩、贴家、差役准备与补衣买药，都要在同一年里逐旬配平。');
+    if (S.商年 === 1) recordEntry('立身分路·徽商学生意', merchantBefore, '你决定投族叔商号学生意：先当伙计学认货、跑单、看账，再看能否挣出反哺家中的现钱。' + (inherited.length ? ' 上一代留下的商路余绪先替你开了个口：' + inherited.join('；') + '。' : '') + (merchantMilitaryNote ? (' ' + merchantMilitaryNote) : ''));
+    else if ((S.商季 || 1) === 1 && (S.商段 || 1) === 1) recordEntry('第 ' + S.商年 + ' 商年·春开路上旬开账', merchantBefore, '这一商年不再按“一年一把过账”，而是拆成春开路、夏坐店、秋试手、冬清账四季、每季三旬推进。认货、跑单、催账、试贩、贴家、差役准备与补衣买药，都要在同一年里逐旬配平。' + (merchantMilitaryNote ? (' ' + merchantMilitaryNote) : ''));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -5356,12 +5423,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var inherited = (S.举业年 === 1) ? applyRouteInheritance('civilExam') : [];
     picks = []; resolved = null; lifePicks = [];
     curStage = stageCivilExam();
+    var examBefore = snapshot();
+    var examMilitaryNote = ((S.举季 || 1) === 1 && currentExamXun() === 1)
+      ? settleMilitaryFoundingBurden('civilExam:' + S.举业年, { copper: 80, label: '军户原籍这一举业年' })
+      : '';
     if (S.举业年 === 1) tracePhase('route:civilExam');
     if (S.举业年 === 1) {
       var firstYearNotes = baselineNotes.concat(inherited);
-      recordEntry('立身分路·读书应举', snapshot(), '你把家中有限的银钱、纸墨与人情先压到读书上：供读不等于录取，只意味着这一户先把资源让给你。' + (firstYearNotes.length ? ' 起手先承下这层底子：' + firstYearNotes.join('；') + '。' : ''));
+      recordEntry('立身分路·读书应举', examBefore, '你把家中有限的银钱、纸墨与人情先压到读书上：供读不等于录取，只意味着这一户先把资源让给你。' + (firstYearNotes.length ? ' 起手先承下这层底子：' + firstYearNotes.join('；') + '。' : '') + (examMilitaryNote ? (' ' + examMilitaryNote) : ''));
     }
-    else if ((S.举季 || 1) === 1 && currentExamXun() === 1) recordEntry('第 ' + S.举业年 + ' 举业年·春课上旬开账', snapshot(), '这一举业年不再按“整年四点一次结账”推进，而是拆成春课、夏课、秋试、冬清账四季、每季三旬。馆课、评文、保结、盘缠、抄写补贴、回家缓家计、差役钱与衣药小账，都要在同一年里逐旬配平。');
+    else if ((S.举季 || 1) === 1 && currentExamXun() === 1) recordEntry('第 ' + S.举业年 + ' 举业年·春课上旬开账', examBefore, '这一举业年不再按“整年四点一次结账”推进，而是拆成春课、夏课、秋试、冬清账四季、每季三旬。馆课、评文、保结、盘缠、抄写补贴、回家缓家计、差役钱与衣药小账，都要在同一年里逐旬配平。' + (examMilitaryNote ? (' ' + examMilitaryNote) : ''));
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -5386,8 +5457,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     curStage = stageElder();
     tracePhase('enter:elder');
     if (S.老季 === 1 && (S.老旬 || 1) === 1) {
-      recordEntry('步入老年·' + elderSeasonInfo(S.老季).name + '·' + elderXunLabel(S.老旬), snapshot(),
-        '人到五十上下，身子与家计都开始显出另一层“细账”：奉养要谈、医药要花、口食田要收、旧识要维。养老不再只是一跳跳过，而是照着一年四季继续过账。');
+      var elderBefore = snapshot();
+      var elderMilitaryNote = settleMilitaryFoundingBurden('elder:1', { copper: 40, label: '军户原籍这一年老来收束' });
+      recordEntry('步入老年·' + elderSeasonInfo(S.老季).name + '·' + elderXunLabel(S.老旬), elderBefore,
+        '人到五十上下，身子与家计都开始显出另一层“细账”：奉养要谈、医药要花、口食田要收、旧识要维。养老不再只是一跳跳过，而是照着一年四季继续过账。' + (elderMilitaryNote ? (' ' + elderMilitaryNote) : ''));
     }
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -5451,6 +5524,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var base = (S._marriageAtAge != null ? S._marriageAtAge : life.marriageAge) + 1;
       S.年龄 = base + Math.max(0, (S.家年 || 1) - 1);
       curStage = stageFamily();
+      if ((S.家季 || 1) === 1 && (S.家旬 || 1) === 1) {
+        var familyBefore = snapshot();
+        var familyMilitaryNote = settleMilitaryFoundingBurden('family:' + (S.家年 || 1), { copper: 50, label: '军户原籍这一养家年' });
+        recordEntry('养家·第' + (S.家年 || 1) + '年·春起·上旬开账', familyBefore,
+          '成家后家计不再只看大账，锅火、口粮、孩子衣药、差役与来春后手都要在同一年里拆开。' + (familyMilitaryNote ? (' ' + familyMilitaryNote) : ''));
+      }
     }
     else if (p === 'household') {
       var householdLife = currentLifeProfile();
@@ -5460,6 +5539,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       }
       S.年龄 = householdLife.householdAge + Math.max(0, (S.户年 || 1) - 1);
       curStage = stageHousehold();
+      if ((S.户季 || 1) === 1 && (S.户旬 || 1) === 1) {
+        var householdBefore = snapshot();
+        var householdMilitaryNote = settleMilitaryFoundingBurden('household:' + (S.户年 || 1), { copper: 60, label: '军户原籍这一当户年' });
+        recordEntry('当户·第' + (S.户年 || 1) + '年·春分书·上旬开账', householdBefore,
+          '分家、催账、委托田面、供读与应役，不再只在年终并成一句，而要在当户这一年里逐旬落账。' + (householdMilitaryNote ? (' ' + householdMilitaryNote) : ''));
+      }
     }
     else if (p === 'elder') {
       if (prevPhase !== 'elder') resetElderYearLedger();
@@ -6739,6 +6824,36 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_spring_home_split', name: '先把春中回话与家里锅火分开', cost: 1, eff: '铜钱-55·家书+1·家族+1·商信誉+1', desc: '春开路中旬最怕熟号回话、递话门包、家里锅火和样纸小耗一起追钱。先把这层春中家计回话拆开，不让商路刚认到一半，就先被家里那口锅和门面碎费一起磨薄。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
           A.push({ id: 'm_spring_mid_school', name: '先把春中孩子纸样与差钱口风分开', cost: 1, eff: '铜钱-60·家书+1·供读+1·备役+1·家族+1', desc: '春开路中旬最怕孩子纸样、差钱口风、递话门包和熟号回话一起追钱。先把这层春中纸样与差钱拆开，不让商路刚认出一点门路，就先被家里读写和年里差役后手一并咬住。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
           A.push({ id: 'm_spring_mid_body', name: '先把春中药包与样价脚费分开', cost: 1, eff: '铜钱-60·家书+1·歇养+1·体魄+1·家族+1', desc: '春开路中旬最怕归乡药包、样价脚费、递话门包和家里锅火一起追钱。先把这层春中药脚拆开，商路刚认出一点门路时，自己的身子和家里那口现钱也不至继续抢同一口。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+          if (S.商年 === 2) {
+            A.push({
+              id: 'm_spring_second_mid_trial',
+              name: '先把二年春中样价与试本回话分开',
+              cost: 1,
+              eff: '铜钱-75·认货+1·问价+1·议本+1·家书+1·商信誉+1',
+              desc: '第二商年春开路中旬最怕样价抄单、试本回话、柜边包纸、递话脚费和旧客口风一起追钱。先把这层“二年春中先把试本口风坐实，还是继续认价认人”拆开，让认货、问价与议本在伏夏前就先互相咬住。',
+              can: S.铜钱 >= 75 && (S.识货进度 >= 1 || S.本年商路问价 > 0 || S.账房进度 >= 1),
+              why: S.铜钱 >= 75
+                ? ((S.识货进度 >= 1 || S.本年商路问价 > 0 || S.账房进度 >= 1) ? '' : '先坐实一点认货、问价或核账底子')
+                : '铜钱不足75文',
+              once: true
+            });
+          }
+          if (S.商年 === 3) {
+            A.push({
+              id: 'm_spring_third_mid_remit',
+              name: '先把三年春中回钱拆作供读、差钱与药包',
+              cost: 1,
+              eff: '白银-1·反哺+1·供读专账+1·供读+1·备役+1·家书+1·歇养+1·体魄+1·贴家+1·家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? '·商信誉+1' : ''),
+              desc: '第三商年春开路中旬最怕一笔刚回手的商路银，供读纸样、差钱口风、归乡药包、回话脚费和锅火后手就一起追来。先把这层“三年春中真回钱先照哪几头”拆开，让供读、差役、身子与锅火在伏夏前就先写成真账。',
+              can: S.白银 >= 1 && supportCapacity >= 1 && (S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路供读 > 0 || S.本年商路贴家 > 0 || S.本年商路备役 > 0 || S.本年商路歇养 > 0),
+              why: S.白银 >= 1
+                ? (supportCapacity >= 1
+                  ? ((S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路供读 > 0 || S.本年商路贴家 > 0 || S.本年商路备役 > 0 || S.本年商路歇养 > 0) ? '' : '需先有回钱、供读、贴家、差钱或药包后手可拆')
+                  : '眼下还没有可拆去向的商路回账或浮账')
+                : '白银不足1两',
+              once: true
+            });
+          }
         }
         if (season.id === 'spring' && xun === 3) {
           A.push({ id: 'm_spring_tail_split', name: '先把春尾回签与归乡脚费分开', cost: 1, eff: '铜钱-55·家书+1·家族+1·商信誉+1', desc: '春开路收尾这一旬，最怕熟号回签、归乡脚费、柜边包纸和递话门包一齐来要钱。先把这层春尾回签拆开，夏里要继续坐店、跑单与捎家书时，才不至还被春尾后手拖着走。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
@@ -7115,6 +7230,22 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               once: true
             });
           }
+          if (S.商年 === 3) {
+            A.push({
+              id: 'm_summer_third_tail_remit',
+              name: '先把三年夏尾回钱拆作供读、拖欠与差票',
+              cost: 1,
+              eff: '白银-1·反哺+1·供读专账+1·供读+1·催账+1·拖欠+1·备役+1·家书+1·贴家+1·歇养+1·体魄+1·家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? '·商信誉+1' : ''),
+              desc: '第三商年伏夏尾声最怕一笔刚回手的商路银，供读纸样、旧拖欠口风、差票回话、凉药门包和回客话脚费就一起追来。先把这层“三年夏尾真回钱先收哪几本账”拆开，让供读、拖欠、差票与身子在秋路未开前就先收一遍口。',
+              can: S.白银 >= 1 && supportCapacity >= 1 && (S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路供读 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0 || S.本年商路备役 > 0 || S.本年商路歇养 > 0 || S.本年商路贴家 > 0),
+              why: S.白银 >= 1
+                ? (supportCapacity >= 1
+                  ? ((S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路供读 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0 || S.本年商路备役 > 0 || S.本年商路歇养 > 0 || S.本年商路贴家 > 0) ? '' : '需先有回钱、供读、拖欠、差票或药包后手可拆')
+                  : '眼下还没有可拆去向的商路回账或浮账')
+                : '白银不足1两',
+              once: true
+            });
+          }
           A.push({
             id: 'm_summer_tail_remit_school',
             name: '先把伏夏回钱拆作供读与凉药',
@@ -7459,6 +7590,39 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把三年春头回钱拆作供读、拖欠与锅火，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
               }
               break;
+            case 'm_spring_second_mid_trial':
+              if (spendCopper(75)) {
+                S.本年商路认货 += 1;
+                S.本年商路问价 += 1;
+                S.本年商路议本 += 1;
+                S.本年商路家书 += 1;
+                S.商信誉 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆二年春中试本');
+                log.push(['先把二年春中样价与试本回话分开：铜钱-75、认货+1、问价+1、议本+1、家书+1、商信誉+1。第二商年春中这层样价抄单、试本回话、柜边包纸和递话脚费先被压回了这一旬，认货、问价与议本不再只在春头或伏夏起手露一面。', 'good']);
+              } else {
+                log.push(['想先把二年春中样价与试本回话分开，但这旬铜钱已先被别处占住，只得让样价抄单、试本回话和柜边包纸继续一起追这口现钱。', 'bad']);
+              }
+              break;
+            case 'm_spring_third_mid_remit':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.本年商路反哺银 += 1;
+                S.商路供读银 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                S.本年商路供读 += 1;
+                S.本年商路备役 += 1;
+                S.本年商路家书 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.本年商路贴家 += 1;
+                S.家族 += supportProfile.familyGain;
+                if (supportProfile.trustGain > 0) S.商信誉 += supportProfile.trustGain;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆三年春中回钱');
+                log.push(['先把三年春中回钱拆作供读、差钱与药包：白银-1、反哺+1、供读专账+1、供读+1、备役+1、家书+1、歇养+1、体魄+1、贴家+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。第三商年春中这笔真回钱没有再只写成“先贴家里”，而是当场把供读、差钱、药包和锅火次序一起压回了伏夏前的中腰。', 'good']);
+              } else {
+                log.push(['想先把三年春中回钱拆作供读、差钱与药包，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
+              }
+              break;
             case 'm_spring_tail_split':
               if (spendCopper(55)) {
                 S.本年商路家书 += 1;
@@ -7761,6 +7925,28 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把三年伏夏回钱拆作供读、拖欠与锅火：白银-1、反哺+1、供读专账+1、供读+1、催账+1、拖欠+1、贴家+1、家书+1、歇养+1、体魄+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。第三商年伏夏中旬这笔真回钱没有再只写成“先贴家”或“等秋里再分”，而是当场把供读、拖欠、锅火和家书次序一起压回了盛夏中腰。', 'good']);
               } else {
                 log.push(['想先把三年伏夏回钱拆作供读、拖欠与锅火，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
+              }
+              break;
+            case 'm_summer_third_tail_remit':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.本年商路反哺银 += 1;
+                S.商路供读银 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                S.本年商路供读 += 1;
+                S.本年商路催账 += 1;
+                S.本年商路拖欠 += 1;
+                S.本年商路备役 += 1;
+                S.本年商路家书 += 1;
+                S.本年商路贴家 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.家族 += supportProfile.familyGain;
+                if (supportProfile.trustGain > 0) S.商信誉 += supportProfile.trustGain;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆三年夏尾回钱');
+                log.push(['先把三年夏尾回钱拆作供读、拖欠与差票：白银-1、反哺+1、供读专账+1、供读+1、催账+1、拖欠+1、备役+1、家书+1、贴家+1、歇养+1、体魄+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。第三商年伏夏尾声这笔真回钱没有再只等秋里才收口，而是当场把供读、拖欠、差票、凉药和锅火次序一起压回了夏尾。', 'good']);
+              } else {
+                log.push(['想先把三年夏尾回钱拆作供读、拖欠与差票，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
               }
               break;
             case 'm_summer_mid_remit_drag':
