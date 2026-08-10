@@ -3791,7 +3791,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'summer' && xun === 1) apply({
-      handledIds: ['m_run', 'm_letter', 'm_mend', 'm_rest', 'm_wharf', 'm_summer_head_packet', 'm_summer_head_home_split', 'm_summer_head_supply_duty', 'm_summer_head_drag'],
+      handledIds: ['m_run', 'm_letter', 'm_mend', 'm_rest', 'm_wharf', 'm_summer_head_packet', 'm_summer_head_home_split', 'm_summer_head_supply_duty', 'm_summer_head_drag', 'm_summer_head_remit_duty'],
       doneTag: '伏夏茶脚已留',
       doneLog: '〔伏夏茶脚〕这一旬先把行栈茶钱、脚夫点心、家里带话脚费和起脚拖欠口风分开了；伏夏刚开头那层“先落脚、先递话、先顾一口凉药与旧回签”的碎账，没有再悄悄拖到夏中夏尾一起爆。',
       cost: 35,
