@@ -2242,6 +2242,18 @@
       failLog: '〔秋前盘缠〕这一旬连盘缠和拜帖小礼都腾挪不开，只得先硬顶过去；应试前这层人情门路又薄了一线（家族-1）。',
       hardship: 'clan'
     });
+    if (season.id === 'autumn' && xun === 1) apply({
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_autumn_open_packet', 'e_autumn_open_cloth']),
+      doneTag: '秋头夹衣已分',
+      doneLog: '〔秋头夹衣〕这一旬先把夹衣、试鞋草履、递话脚费和秋凉锅火分开了；秋试上旬不再只剩“先凑盘缠”，连保结未稳时最先追上门的换季小耗也被压回了这一旬。',
+      cost: 55,
+      buckets: { 本年衣药支出文: 55 },
+      costTag: '秋头夹衣',
+      costLog: '〔秋头夹衣〕夹衣、试鞋草履、递话脚费和秋凉锅火一起要钱：铜钱-{cost}。不是另起一条主线，却正把“盘缠未坐实，换季小耗先来追钱”的秋头肩账重新压回了真账。',
+      failTag: '秋头夹衣硬顶',
+      failLog: '〔秋头夹衣〕这一旬连夹衣和试鞋草履都腾挪不开，只得先硬扛过去；秋头这层换季小耗先落到了脚路和身子上（体魄-1）。',
+      hardship: 'body'
+    });
     if (season.id === 'autumn' && xun === 2) apply({
       handledIds: examSupportHandledIds(['e_guarantee', 'e_copy', 'e_home', 'e_autumn_packet', 'e_autumn_cough']),
       doneTag: '秋后纸墨已拆',
@@ -2274,6 +2286,18 @@
       failTag: '年关纸墨硬顶',
       failLog: '〔年关纸墨〕这一旬连纸墨定钱和拜帖脚费都腾挪不开，只得先硬顶过去；举业路这层门路又薄了一线（家族-1）。',
       hardship: 'clan'
+    });
+    if (season.id === 'winter' && xun === 1) apply({
+      handledIds: examSupportHandledIds(['e_enroll', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_copy', 'e_mend', 'e_winter_open_packet', 'e_winter_open_reply', 'e_fail_talk']),
+      doneTag: '冬头馆信已分',
+      doneLog: '〔冬头馆信〕这一旬先把旧馆回札、护嗓咳药、灯油脚费和来春样纸分开了；冬清账上旬不再只剩“理旧账”，连年下门路和护身小耗抢钱的那层冬头肩账也被压回了这一旬。',
+      cost: 60,
+      buckets: { 本年零耗支出文: 25, 本年衣药支出文: 35 },
+      costTag: '冬头馆信',
+      costLog: '〔冬头馆信〕旧馆回札、护嗓咳药、灯油脚费和来春样纸一起要钱：铜钱-{cost}。不是体面消费，却正把“旧馆还有回音，嗓子和灯油先来追钱”的冬头细账重新压回了真账。',
+      failTag: '冬头馆信硬顶',
+      failLog: '〔冬头馆信〕这一旬连护嗓咳药和旧馆回札脚费都腾挪不开，只得先硬顶过去；冬头这层年下门路和护身小耗先一起压到了身上（体魄-1）。',
+      hardship: 'body'
     });
     if (season.id === 'winter' && xun === 2) apply({
       handledIds: examSupportHandledIds(['e_copy', 'e_mend', 'e_rest', 'e_winter_mid_packet', 'e_fail_copy', 'e_winter_cough']),
