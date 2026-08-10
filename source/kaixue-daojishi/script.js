@@ -40,6 +40,7 @@ const DEFAULT_STATE = {
   schemaVersion: 3,
   profile: { school: '我的大学', date: '2026-09-02T08:00' },
   items: DEFAULT_ITEMS,
+  collapsedCategories: [],
   journeyPlans: DEFAULT_JOURNEY_PLANS,
   diaries: [{ id:'first-note', date:'2026-08-09', mood:'🌻 期待', title:'我的大学准备手账开张啦', content:'离出发还有一段时间。我要一边慢慢收拾东西，一边记住这个很特别的夏天。希望开学后的我回来看，会觉得现在的期待很可爱。' }],
   wish: '希望我可以慢慢认识新的朋友，认真喜欢自己的专业，也别忘了好好吃饭、好好睡觉。第一次离家很远也没关系，我会长成更勇敢的大人。',
@@ -86,6 +87,7 @@ function loadState() {
     normalizedSaved.forEach(item => {
       if (!matchedSaved.has(item.id) && !legacyIds.has(item.id) && !String(item.id).startsWith('notion-')) migrated.items.push(item);
     });
+    migrated.collapsedCategories = Array.isArray(saved.collapsedCategories) ? saved.collapsedCategories : [];
     const savedJourney = Array.isArray(saved.journeyPlans) ? saved.journeyPlans : [];
     const savedJourneyByTitle = new Map(savedJourney.map(item => [item.title,item]));
     migrated.journeyPlans = clone(DEFAULT_JOURNEY_PLANS).map(item => ({ ...item, done:Boolean(savedJourneyByTitle.get(item.title)?.done) }));
@@ -173,12 +175,36 @@ function renderList() {
     updateProgress(); return;
   }
   const groups = visible.reduce((map,item) => { (map[item.category] ||= []).push(item); return map; },{});
-  root.innerHTML = Object.entries(groups).map(([category,items]) => `
-    <section class="category"><h3 class="category__title">${safeText(category)}</h3>
-      ${items.map(itemTemplate).join('')}
-    </section>`).join('');
+  root.innerHTML = Object.entries(groups).map(([category,items],index) => {
+    const allCategoryItems = state.items.filter(item => item.category === category);
+    const done = allCategoryItems.filter(item => item.done).length;
+    const collapsed = state.collapsedCategories.includes(category);
+    return `<section class="category ${collapsed?'is-collapsed':''}" data-category="${safeText(category)}">
+      <button class="category__toggle" type="button" aria-expanded="${!collapsed}" aria-controls="category-items-${index}">
+        <span class="category__title">${safeText(category)}</span>
+        <span class="category__summary"><strong>${done}/${allCategoryItems.length}</strong><span class="category__chevron" aria-hidden="true">⌄</span></span>
+      </button>
+      <div class="category__items" id="category-items-${index}">${items.map(itemTemplate).join('')}</div>
+    </section>`;
+  }).join('');
+  bindCategoryEvents();
   bindListEvents();
   updateProgress();
+}
+
+function bindCategoryEvents() {
+  $$('.category__toggle', $('#list-root')).forEach(button => button.addEventListener('click',() => {
+    const category = button.closest('.category');
+    const name = category.dataset.category;
+    const collapsed = category.classList.toggle('is-collapsed');
+    button.setAttribute('aria-expanded',String(!collapsed));
+    if (collapsed) {
+      if (!state.collapsedCategories.includes(name)) state.collapsedCategories.push(name);
+    } else {
+      state.collapsedCategories = state.collapsedCategories.filter(item => item !== name);
+    }
+    save(collapsed ? `“${name}”收好啦` : `“${name}”展开啦`);
+  }));
 }
 
 function itemTemplate(item) {
