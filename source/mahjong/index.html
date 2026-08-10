@@ -3,24 +3,25 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>麻将局｜打开就能和人机来一桌</title>
-    <meta name="description" content="无需下载、无需服务器，打开博客即可和人机来一桌川麻或东北麻将。" />
+    <title>麻将局｜不用凑人，照样开桌</title>
+    <meta name="description" content="一个人和牌搭子开局，朋友来了发个链接就能同桌。川麻、东北麻将，打开博客就能玩。" />
     <meta name="theme-color" content="#0b2f25" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="麻将局｜打开就能和人机来一桌" />
-    <meta property="og:description" content="无需下载、无需服务器，选好玩法马上开局。" />
+    <meta property="og:title" content="麻将局｜不用凑人，照样开桌" />
+    <meta property="og:description" content="一个人有牌搭子，朋友来了也能同桌。打开博客，选好玩法马上开局。" />
     <meta property="og:url" content="https://syfyivan.github.io/mahjong/" />
-    <meta property="og:image" content="https://syfyivan.github.io/mahjong/og.jpg" />
+    <meta property="og:image" content="https://syfyivan.github.io/mahjong/og-clubhouse.png" />
     <meta property="og:image:width" content="1536" />
     <meta property="og:image:height" content="1024" />
-    <meta property="og:image:alt" content="墨绿色麻将桌与四张麻将牌，文字为麻将局，打开就能和人机来一桌" />
+    <meta property="og:image:alt" content="深墨绿色麻将桌与四张麻将牌，文字为麻将局，不用凑人，照样开桌" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="麻将局｜打开就能和人机来一桌" />
-    <meta name="twitter:description" content="无需下载、无需服务器，选好玩法马上开局。" />
-    <meta name="twitter:image" content="https://syfyivan.github.io/mahjong/og.jpg" />
-    <meta name="twitter:image:alt" content="墨绿色麻将桌与四张麻将牌，文字为麻将局，打开就能和人机来一桌" />
+    <meta name="twitter:title" content="麻将局｜不用凑人，照样开桌" />
+    <meta name="twitter:description" content="一个人有牌搭子，朋友来了也能同桌。打开博客，选好玩法马上开局。" />
+    <meta name="twitter:image" content="https://syfyivan.github.io/mahjong/og-clubhouse.png" />
+    <meta name="twitter:image:alt" content="深墨绿色麻将桌与四张麻将牌，文字为麻将局，不用凑人，照样开桌" />
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="./styles.css?v=20260810-lobby-redesign-2" />
+    <link rel="stylesheet" href="./styles.css?v=20260810-clubhouse-1" />
+    <link rel="stylesheet" href="./clubhouse.css?v=20260810-clubhouse-1" />
   </head>
   <body class="lobby-view">
     <main class="mahjong-app">
@@ -44,13 +45,13 @@
         <section class="lobby-panel" id="lobbyPanel" aria-label="房间">
           <div class="lobby-stage">
             <section class="hero-copy" aria-labelledby="lobbyTitle">
-              <div class="hero-eyebrow"><span aria-hidden="true">●</span> 浏览器即开即玩</div>
-              <h1 id="lobbyTitle">随时来一桌，<br /><em>打开就能玩</em></h1>
-              <p class="hero-description">不下载，不等人。选好玩法，机器人马上入座陪你打完这一局。</p>
+              <div class="hero-eyebrow"><span aria-hidden="true">●</span> 今晚 · 随时开桌</div>
+              <h1 id="lobbyTitle">不用凑人，<br /><em>照样开桌</em></h1>
+              <p class="hero-description">一个人，牌搭子陪你；朋友来了，发个链接就能同桌。川麻、东北麻将，想打就打。</p>
               <div class="hero-features" aria-label="游戏特点">
-                <span>自动补满人机</span>
-                <span>川麻与东北麻将</span>
-                <span>规则与牌局都在浏览器运行</span>
+                <span>朋友点链接即入桌</span>
+                <span>缺人自动补牌搭子</span>
+                <span>不注册 · 不下载</span>
               </div>
               <div class="tile-scene" aria-hidden="true">
                 <div class="table-halo"></div>
@@ -65,12 +66,12 @@
             <section class="platform-guide" id="platformGuide" aria-label="快速开局">
               <div class="quick-start-heading">
                 <div>
-                  <span class="meta-label">快速开局</span>
-                  <h2>开始一桌</h2>
+                  <span class="meta-label">开桌设置</span>
+                  <h2>选好就开打</h2>
                 </div>
                 <span class="platform-badge" id="platformGuideBadge">无需服务器</span>
               </div>
-              <p class="quick-start-copy">你的牌桌只在当前浏览器运行，退出页面也不会影响其他朋友玩。</p>
+              <p class="quick-start-copy">单机局只在你的浏览器里运行；好友局由云端同步，不用保持自己的电脑开机。</p>
               <label class="player-name-field">
                 <span>怎么称呼你</span>
                 <input id="nameInput" name="name" type="text" maxlength="16" autocomplete="nickname" required />
@@ -105,8 +106,8 @@
               </div>
               <button class="primary-button solo-play-button" type="button" id="soloPlayButton">
                 <span>
-                  <small>人机自动入座</small>
-                  <strong>立即和人机开局</strong>
+                  <small>牌搭子自动入座</small>
+                  <strong>一个人，马上开打</strong>
                 </span>
                 <b aria-hidden="true">→</b>
               </button>
@@ -114,13 +115,13 @@
               <button class="friend-play-button" type="button" id="multiplayerPlayButton">
                 <span class="friend-play-icon" aria-hidden="true">友</span>
                 <span>
-                  <strong>和朋友开一桌</strong>
-                  <small>云端同步 · 人数不够也能补人机</small>
+                  <strong>叫朋友来同桌</strong>
+                  <small>复制链接 · 缺人照样补牌搭子</small>
                 </span>
                 <b aria-hidden="true">›</b>
               </button>
               <div class="lobby-note" id="lobbyNote">点一下，马上发牌</div>
-              <div class="safe-note"><span aria-hidden="true">✓</span> 无需注册 · 单机本地运行，多人仅同步房间状态</div>
+              <div class="safe-note"><span aria-hidden="true">✓</span> 无需注册 · 单机本地运行 · 好友局云端同步</div>
             </section>
           </div>
 
