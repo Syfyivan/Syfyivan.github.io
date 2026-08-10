@@ -6167,6 +6167,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (season.id === 'winter' && xun === 3) {
           A.push({ id: 'm_winter_tail', name: '先把年下回签与来春样纸分开', cost: 1, eff: '铜钱-75·核账+1·家书+1·商信誉+1', desc: '冬清账最后一旬最怕年下回签、来春样纸定钱、递话门包和守岁前的小礼一起压来。先把这层冬尾碎账拆开，年关就不至只剩“再等等看”。', can: S.铜钱 >= 75, why: S.铜钱 >= 75 ? '' : '铜钱不足75文', once: true });
           A.push({ id: 'm_winter_tail_school', name: '先把冬尾回签与供读纸包分开', cost: 1, eff: '铜钱-80·催账+1·家书+1·供读+1·家族+1', desc: '冬清账最后一旬最怕年下回签、供读纸包、递话脚费和来春样纸定钱一起压来。先把这层冬尾供读去向拆开，年关收口时，回签、锅火和来春后手就不至继续抢同一口现钱。', can: S.铜钱 >= 80, why: S.铜钱 >= 80 ? '' : '铜钱不足80文', once: true });
+          A.push({ id: 'm_winter_tail_home_body', name: '先把冬尾药包与供读家书分开', cost: 1, eff: '铜钱-85·家书+1·供读+1·歇养+1·体魄+1·家族+1', desc: '冬清账最后一旬最怕年下药包、供读纸包、家书催问和来春样纸定钱一起追钱。先把这层冬尾供身家书拆开，年关收口时，孩子读写、家里锅火和自己这副身子才不至继续抢同一口现钱。', can: S.铜钱 >= 85, why: S.铜钱 >= 85 ? '' : '铜钱不足85文', once: true });
           A.push({ id: 'm_winter_tail_supply_duty', name: '先把冬尾供读差票与药包分开', cost: 1, eff: '铜钱-90·催账+1·家书+1·供读+1·备役+1·歇养+1·体魄+1·家族+1', desc: '冬清账最后一旬最怕年下回签还没坐实，供读纸包、差票回话、年下药包和递话脚费却一起追钱。先把这层冬尾供差身账拆开，年关收口时，供读、差役、身子和家里那口锅火就不至继续抢同一口现钱。', can: S.铜钱 >= 90, why: S.铜钱 >= 90 ? '' : '铜钱不足90文', once: true });
           A.push({ id: 'm_winter_drag_split', name: '先把年下拖欠与差票回话分开', cost: 1, eff: '铜钱-80·催账+1·备役+1·家书+1·家族+1', desc: '冬清账最后一旬最怕年下拖欠、差票回话、递话门包和锅火后手一起追钱。先把这层冬尾拖欠拆开，不让旧账未回、差役已到和家里催信继续一股脑挤在同一口现钱上。', can: S.铜钱 >= 80, why: S.铜钱 >= 80 ? '' : '铜钱不足80文', once: true });
           A.push({ id: 'm_winter_body_split', name: '先把年下药包与拖欠回签分开', cost: 1, eff: '铜钱-85·催账+1·家书+1·体魄+1·商信誉+1', desc: '冬清账最后一旬最怕年下药包、拖欠回签、递话脚费和锅火后手一起磨人。先把这层冬尾身账拆开，旧账、家里催信和自己这副身子才不至继续挤在同一口现钱上。', can: S.铜钱 >= 85, why: S.铜钱 >= 85 ? '' : '铜钱不足85文', once: true });
@@ -6984,6 +6985,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把冬尾回签与供读纸包分开：铜钱-80、催账+1、家书+1、供读+1、家族+1。冬尾这层年下回签、供读纸包、递话脚费和来春样纸定钱先被压回了这一旬，年关收口时，回签、供读和来春后手不再继续抢同一口现钱。', 'good']);
               } else {
                 log.push(['想先把冬尾回签与供读纸包分开，但这旬铜钱已先被别处吃住，只得让年下回签、供读纸包和来春样纸继续一起追钱。', 'bad']);
+              }
+              break;
+            case 'm_winter_tail_home_body':
+              if (spendCopper(85)) {
+                S.本年商路家书 += 1;
+                S.本年商路供读 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.家族 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                pushMerchantSeasonTag(season.name + xunLabel + '拆冬尾供身');
+                log.push(['先把冬尾药包与供读家书分开：铜钱-85、家书+1、供读+1、体魄+1、家族+1。冬尾这层年下药包、供读纸包、家书催问和来春样纸定钱先被压回了这一旬，年关收口时，孩子读写、家里锅火和自己这副身子不再继续抢同一口现钱。', 'good']);
+              } else {
+                log.push(['想先把冬尾药包与供读家书分开，但这旬铜钱已先被别处吃住，只得让年下药包、供读纸包和家书催问继续一起追这口现钱。', 'bad']);
               }
               break;
             case 'm_winter_tail_supply_duty':
@@ -20266,7 +20281,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       return '按第' + ordinal + '子落份，这一房另吃到余下的' + parts.join('、') + '。';
     }
     // 寿命 roll：多数五十余，长尾少数活到60-70+
-    var ageRoll = rollProb(life.deathTable);
+    // 但一旦已经活进当前阶段（尤其是老年/当户晚段），死亡结算不得把年龄回写得比“已经活到的年龄”更小，
+    // 否则 phase trace 会出现 elder@57 → death@52 这类倒跳，闭环虽然顺序没断，时间轴却被悄悄改坏。
+    var livedAge = Math.max(0, Number(S.年龄 || 0));
+    var ageRoll = Math.max(livedAge, Number(rollProb(life.deathTable) || 0));
     S._deathAge = ageRoll; S.年龄 = ageRoll;
     // 丧葬支出（棺木为大项）：从遗产扣
     var funeral = 1; // 白银
