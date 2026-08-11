@@ -4778,6 +4778,61 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return true;
   }
 
+  function stagePlainText(html) {
+    return String(html || '')
+      .replace(/<br\s*\/?\s*>/gi, ' ')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function sceneLead(html) {
+    var text = stagePlainText(html);
+    if (text.length <= 92) return text;
+    var cut = -1;
+    for (var i = 42; i < Math.min(text.length, 92); i++) {
+      if ('。！？；'.indexOf(text.charAt(i)) >= 0) { cut = i + 1; break; }
+    }
+    if (cut < 0) cut = 88;
+    return text.slice(0, cut) + (cut < text.length && '。！？；'.indexOf(text.charAt(cut - 1)) < 0 ? '…' : '');
+  }
+
+  function renderContextNote(note) {
+    if (!note) return '';
+    return '<details class="context-note"><summary>这一阶段怎么运作</summary><div class="phase-note">' + note + '</div></details>';
+  }
+
+  function renderStoryBlock(narrativeHtml) {
+    var plain = stagePlainText(narrativeHtml);
+    var h = '<div class="story-card"><div class="story-label">眼下</div>';
+    if (plain.length <= 92) {
+      h += '<div class="story-lead">' + narrativeHtml + '</div>';
+    } else {
+      h += '<div class="story-lead">' + escapeHtml(sceneLead(narrativeHtml)) + '</div>';
+      h += '<details class="story-more"><summary>读完整处境</summary><div class="narr">' + narrativeHtml + '</div></details>';
+    }
+    h += '</div>';
+    return h;
+  }
+
+  function eventCard(e) {
+    return '<div class="evt ' + e.t + '"><span class="tag">' + e.tag + '</span>' + e.txt + '</div>';
+  }
+
+  function renderEventsBlock(events) {
+    var list = (events || []).filter(Boolean);
+    if (!list.length) return '';
+    var h = '<div class="events">' + eventCard(list[0]);
+    if (list.length > 1) {
+      h += '<details class="more-events"><summary>还有 ' + (list.length - 1) + ' 条局势变化</summary><div class="more-events-body">';
+      for (var i = 1; i < list.length; i++) h += eventCard(list[i]);
+      h += '</div></details>';
+    }
+    h += '</div>';
+    return h;
+  }
+
   function renderStatus() {
     var h = '';
     h += '<span class="chip">第 <b>' + generation + '</b> 代</span>';
@@ -4875,7 +4930,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     // 轨迹可见化：用于人工复核“立身→成家→当户→养老→死亡→重开”的闭环是否在同一程里真实跑通。
     // 仅用 title tooltip 展示，不额外占版面；数字显式，便于截图对照。
     h += '<span class="chip" title="' + escapeHtml(phaseTraceLabel(14)) + '">轨迹 <b>' + (phaseTrace || []).length + '</b>步</span>';
-    $('status').innerHTML = h;
+
+    var routeLabel = S.路线 && S.路线 !== '未定' ? S.路线 : S.身份;
+    var core = '';
+    core += '<span class="chip">第 <b>' + generation + '</b> 代 · <b>' + S.年龄 + '</b> 岁</span>';
+    core += '<span class="chip">' + curLabel() + '</span>';
+    core += '<span class="chip">' + escapeHtml(routeLabel || '尚未立身') + '</span>';
+    core += '<span class="chip hp">体魄 <b>' + S.体魄 + '</b></span>';
+    core += '<span class="chip coin">银 <b>' + S.白银 + '</b> · 钱 <b>' + S.铜钱 + '</b> · 米 <b>' + S.存米 + '</b></span>';
+    var detailCount = (h.match(/class="chip/g) || []).length;
+    $('status').innerHTML = '<div class="status-core">' + core + '</div>' +
+      '<details class="status-more"><summary>更多状态 · ' + detailCount + ' 项</summary><div class="status-full">' + h + '</div></details>';
   }
 
   function spent() { return picks.reduce(function (a, p) { return a + p.cost; }, 0); }
@@ -4891,7 +4956,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var isLastXun = (xunIndex === (TOTAL_XUN - 1));
     var h = '';
     h += '<div class="season-line">◆ ' + curLabel() + ' ｜ 天气：' + curWeather.k + '（' + curWeather.note + '）</div>';
-    if (farmCarryHook.note) h += '<div class="phase-note">' + farmCarryHook.note + '</div>';
+    if (farmCarryHook.note) h += renderContextNote(farmCarryHook.note);
     var g = growthInfo();
     h += '<div class="crop-bar ' + g.cls + '">' +
       '<div class="cb-head"><span class="cb-title">🌾 田亩 ' + S.田亩 + ' 亩 · 庄稼长势</span>' +
@@ -4900,11 +4965,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       '<div class="cb-tip">' + (g.planted ? (S.秧苗进度 >= GROW_TARGET ? '禾苗已<b>长足封顶（12/12）</b>，再看水也不会长了——把人手匀去挣钱或顾家更划算。' : '离"长足丰收（12/12）"还差 ' + (GROW_TARGET - S.秧苗进度) + ' 点生长；勤看水除草、遇喜雨可加快。到 12 即封顶。') : '春耕正是插秧时，越早插下，可生长的旬数越多（生长满 12 即达丰收上限）。') + '</div>' +
       '</div>';
     if (farmCarryHook.dossier) h += lifeDossier(farmCarryHook.dossier);
-    h += '<div class="narr">' + narrative() + '</div>';
-
-    h += '<div class="events">';
-    curEvents.forEach(function (e) { h += '<div class="evt ' + e.t + '"><span class="tag">' + e.tag + '</span>' + e.txt + '</div>'; });
-    h += '</div>';
+    h += renderStoryBlock(narrative());
+    h += renderEventsBlock(curEvents);
 
     if (resolved) {
       h += resolved;
@@ -5304,7 +5366,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       { label: '农事历练', cur: Math.min(6, S.农事历练), max: 6, done: false, cls: 'g-thin' },
       { label: '家务历练', cur: Math.min(6, S.家务历练), max: 6, done: false, cls: 'g-thin' }
     ];
-    var h = '<div class="crop-bar g-ok"><div class="cb-head"><span class="cb-title">🧒 成长档案 · 这些年攒下的底子</span>' +
+    var h = '<details class="dossier"><summary>成长档案 · 这些年攒下的底子</summary><div class="dossier-body">' +
+      '<div class="crop-bar g-ok"><div class="cb-head"><span class="cb-title">🧒 成长档案 · 这些年攒下的底子</span>' +
       '<span class="cb-val">体魄 ' + S.体魄 + '</span></div>';
     rows.forEach(function (r) {
       var pct = Math.round(r.cur / r.max * 100);
@@ -5312,7 +5375,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         '<span class="cb-val">' + (r.done ? r.doneTxt : (r.cur + '/' + r.max)) + '</span></div>' +
         '<div class="cb-track"><i style="width:' + pct + '%"></i></div></div>';
     });
-    h += '</div>';
+    h += '</div></div></details>';
     return h;
   }
 
@@ -5322,7 +5385,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var isLast = (childRound === st.rounds - 1);
     var h = '';
     h += '<div class="season-line phase">◆ 幼年 · ' + st.name + '（' + st.age + '岁）｜ 第 ' + (childRound + 1) + ' / ' + st.rounds + ' 轮</div>';
-    h += '<div class="phase-note">' + st.note + '</div>';
+    h += renderContextNote(st.note);
     h += childDossier();
 
     var narr;
@@ -5331,11 +5394,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       '往后十几年，你一天天长大，家里也一年年在耕、在缴租、在吃饭——你的每一样活计，都掺进这本家计账里。';
     else if (isLast) narr = '这一段的日子将到头。手里还有几分气力，是再学一学、练一练，还是帮衬家里？段末就要结这几年的家计账了。';
     else narr = '日子一天天地过。你掂量着这点力气：是去认几个字、学门手艺，还是下田、帮补家用、带弟妹？';
-    h += '<div class="narr">' + narr + '</div>';
-
-    h += '<div class="events">';
-    curChildEvents.forEach(function (e) { h += '<div class="evt ' + e.t + '"><span class="tag">' + e.tag + '</span>' + e.txt + '</div>'; });
-    h += '</div>';
+    h += renderStoryBlock(narr);
+    h += renderEventsBlock(curChildEvents);
 
     if (childResolved) {
       h += childResolved;
@@ -5866,7 +5926,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var h = '';
     var kind = (phase === 'childhood') ? '幼年阶段' : '人生阶段';
     h += '<div class="season-line phase">◆ ' + kind + ' · ' + st.title + ' ｜ ' + S.年龄 + ' 岁</div>';
-    h += '<div class="phase-note">' + st.note + '</div>';
+    h += renderContextNote(st.note);
     if (!st.outcome && st.switches && st.switches.length) {
       h += '<div class="ap-head"><h3>父快照</h3><span class="ap-dots">先定同一份过去，再在同一户里分五路</span></div>';
       h += '<div class="choices">';
@@ -5878,12 +5938,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       });
       h += '</div>';
     }
-    h += '<div class="narr">' + st.narrative + '</div>';
-    if (st.events && st.events.length) {
-      h += '<div class="events">';
-      st.events.forEach(function (e) { h += '<div class="evt ' + e.t + '"><span class="tag">' + e.tag + '</span>' + e.txt + '</div>'; });
-      h += '</div>';
-    }
+    h += renderStoryBlock(st.narrative);
+    h += renderEventsBlock(st.events);
     if (st.outcome) {
       h += st.outcome;
       var isChild = (phase === 'childhood');
@@ -6050,10 +6106,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     }
     if (S.商路供读银 > 0) tags.push('供读专账 ' + S.商路供读银 + '两');
     tags.push('家族声望 ' + S.家族);
-    var h = '<div class="crop-bar g-ok"><div class="cb-head">' +
+    var h = '<details class="dossier"><summary>人物底子与家计细账</summary><div class="dossier-body">' +
+      '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">📇 共享状态账 · 这本账一路带到底</span>' +
       '<span class="cb-val">体魄 ' + S.体魄 + '</span></div>' +
-      '<div class="cb-tip">' + tags.join(' ｜ ') + (extra ? ('<br>' + extra) : '') + '</div></div>';
+      '<div class="cb-tip">' + tags.join(' ｜ ') + (extra ? ('<br>' + extra) : '') + '</div></div></div></details>';
     return h;
   }
 
@@ -24873,7 +24930,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var u = k === '白银' ? '两' : k === '铜钱' ? '文' : '石';
       return k + ' <b style="color:var(--info)">' + (S[k] || 0) + '</b>' + u;
     }).join(' · ');
-    var h = '<div class="lg-head"><span>人生流水账</span><span class="lg-sum">共 ' + ledger.length + ' 笔</span></div>';
+    var h = '<details class="ledger-details"><summary><strong>人生账本</strong><small>共 ' + ledger.length + ' 笔 · 点击展开</small>' +
+      '<span class="ledger-balance">银 ' + (S.白银 || 0) + ' · 钱 ' + (S.铜钱 || 0) + ' · 米 ' + (S.存米 || 0) + '</span></summary><div class="ledger-body">';
     h += '<div class="lg-sum" style="margin-bottom:.5rem">结余：' + sum + (S.负债银 > 0 ? ' ｜ <span style="color:var(--danger)">负债' + S.负债银 + '两</span>' : '') + '</div>';
     for (var i = ledger.length - 1; i >= 0; i--) {
       var en = ledger[i];
@@ -24888,6 +24946,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         (en.note ? '<div class="lg-top" style="color:var(--muted)">' + en.note + '</div>' : '') +
         '</div>';
     }
+    h += '</div></details>';
     $('ledger').innerHTML = h;
   }
 
