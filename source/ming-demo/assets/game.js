@@ -1035,6 +1035,9 @@
     var parentRoute = syncCurrentParentRouteState();
     syncCurrentRouteAwareState();
     var role = lifecycleDisplayedInheritanceRole();
+    var visibleFoundingSnapshotId = normalizeCarryString((carryOver || {}).父快照ID || (S && S.父快照ID), '');
+    var visibleFoundingSnapshotType = normalizeCarryString((carryOver || {}).父快照类型 || (S && S.父快照类型), '');
+    var visibleHouseholdType = normalizeCarryString((carryOver || {}).户籍类型 || (S && S.户籍类型), '');
     var routeAwareState = snapshotRouteAwareCarryState();
     var visibleMarriagePath = routeAwareState.婚配路径;
     var visibleJointState = routeAwareState.合爨状态;
@@ -1066,7 +1069,9 @@
       || ((S.委托营生 || '无') !== '无' && ((S.委托租谷 || 0) > 0 || (S.委托待收租谷 || 0) > 0));
     if (!inherited) return { note: '', narrative: '', dossier: '', event: null };
     var parts = ['承继身份=' + role];
-    if ((carryOver || {}).父快照类型) parts.push('父快照类型=' + carryOver.父快照类型);
+    if (visibleFoundingSnapshotId) parts.push('父快照ID=' + visibleFoundingSnapshotId);
+    if (visibleFoundingSnapshotType) parts.push('父快照类型=' + visibleFoundingSnapshotType);
+    if (visibleHouseholdType) parts.push('户籍类型=' + visibleHouseholdType);
     if (parentRoute !== '未定') parts.push('父辈路线=' + parentRoute);
     if (S.承继定位) parts.push('承继定位=' + S.承继定位);
     if (S.承嗣来路) parts.push('承嗣来路=' + S.承嗣来路);
@@ -1091,6 +1096,8 @@
     if (visibleExamOutcome !== '未定') parts.push('举业结局=' + visibleExamOutcome);
     var explain = [];
     if (parentRoute !== '未定') explain.push('父辈这一手走的是“' + parentRoute + '”');
+    if (visibleFoundingSnapshotType) explain.push('这一房承的仍是“' + visibleFoundingSnapshotType + '”这张父快照');
+    if (visibleHouseholdType === '军籍') explain.push('原籍仍记作军籍，后面军装盘缠与差派口径不能悄悄洗回民籍');
     if (role !== '次子') explain.push('这一手眼下是以“' + role + '”续承上一代结清后的账');
     if (S.承继定位) explain.push('这一房仍按“' + S.承继定位 + '”分工');
     if ((S.家传书香 || 0) > 1) explain.push('屋里旧书、师承和识字底子还算扎实');
@@ -1130,6 +1137,9 @@
     var includeIdentity = opts.includeIdentity !== false;
     var includeLineage = opts.includeLineage !== false;
     var role = lifecycleDisplayedInheritanceRole();
+    var visibleFoundingSnapshotId = normalizeCarryString((carryOver || {}).父快照ID || (S && S.父快照ID), '');
+    var visibleFoundingSnapshotType = normalizeCarryString((carryOver || {}).父快照类型 || (S && S.父快照类型), '');
+    var visibleHouseholdType = normalizeCarryString((carryOver || {}).户籍类型 || (S && S.户籍类型), '');
     var routeAwareState = snapshotRouteAwareCarryState();
     var visibleMarriagePath = routeAwareState.婚配路径;
     var visibleJointState = routeAwareState.合爨状态;
@@ -1139,7 +1149,9 @@
     var visibleExamOutcome = routeAwareState.举业结局;
     var parts = [];
     if (includeIdentity) parts.push('承继身份=' + role);
-    if ((carryOver || {}).父快照类型) parts.push('父快照类型=' + carryOver.父快照类型);
+    if (visibleFoundingSnapshotId) parts.push('父快照ID=' + visibleFoundingSnapshotId);
+    if (visibleFoundingSnapshotType) parts.push('父快照类型=' + visibleFoundingSnapshotType);
+    if (visibleHouseholdType) parts.push('户籍类型=' + visibleHouseholdType);
     if (parentRoute !== '未定') parts.push('父辈路线=' + parentRoute);
     if (includeLineage && S.承嗣来路) parts.push('承嗣来路=' + S.承嗣来路);
     if (S.承继定位) parts.push('承继定位=' + S.承继定位);
@@ -8478,9 +8490,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         var preferredOrder = [];
         if (season.id === 'spring' && xun === 1) {
           preferredOrder = S.商年 === 2
-            ? ['m_spring_second_head_remit', 'm_spring_second_head_route']
+            ? ['m_spring_second_head_remit', 'm_spring_second_head_route', 'm_spring_head_duty']
             : (S.商年 === 3
-              ? ['m_spring_third_head_remit']
+              ? ['m_spring_third_head_remit', 'm_spring_head_duty', 'm_spring_school_split']
               : ['m_spring_head_duty', 'm_spring_head_body', 'm_spring_school_split', 'm_spring_head_packet']);
         } else if (season.id === 'spring' && xun === 2) {
           preferredOrder = S.商年 === 2
@@ -8496,9 +8508,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               : ['m_spring_tail_supply', 'm_spring_tail_body', 'm_spring_tail_goods', 'm_spring_tail_split']);
         } else if (season.id === 'summer' && xun === 1) {
           preferredOrder = S.商年 === 2
-            ? ['m_summer_second_head_remit', 'm_summer_second_route']
+            ? ['m_summer_second_head_remit', 'm_summer_second_route', 'm_summer_head_supply_duty']
             : (S.商年 === 3
-              ? ['m_summer_third_head_remit', 'm_summer_third_head_split']
+              ? ['m_summer_third_head_remit', 'm_summer_third_head_split', 'm_summer_head_remit_duty', 'm_summer_head_supply_duty']
               : ['m_summer_head_remit_drag', 'm_summer_head_remit_duty', 'm_summer_head_remit_body', 'm_summer_head_supply_duty']);
         } else if (season.id === 'summer' && xun === 2) {
           preferredOrder = S.商年 === 2
@@ -12363,6 +12375,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 if (yearOneSpringUpperBecameLiterate) S.识字 = true;
                 S.家族 += 1;
                 S.本年延婚牵扯 += 1;
+                noteExamTutorGuaranteeReply();
                 didStudy = true;
                 pushExamSeasonTag(stepTag + '首年春头底样');
                 pushExamSeasonTag(stepTag + '首年春头塾帖');
@@ -12406,6 +12419,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 if (yearOneSummerUpperBecameLiterate) S.识字 = true;
                 S.家族 += 1;
                 S.本年延婚牵扯 += 1;
+                noteExamTutorGuaranteeReply();
                 didStudy = true;
                 pushExamSeasonTag(stepTag + '首年夏头履历');
                 pushExamSeasonTag(stepTag + '首年夏头塾门');
@@ -12482,6 +12496,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.本年识字旬数 += 1;
                 S.文章火候 += 1;
                 S.家族 += 1;
+                noteExamTutorGuaranteeReply();
                 didStudy = true;
                 var yearOneMidBecameLiterate = (!S.识字 && S.识字进度 >= 2);
                 if (yearOneMidBecameLiterate) S.识字 = true;
@@ -12529,6 +12544,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(55, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 20, 本年零耗支出文: 15 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
+                noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 pushExamSeasonTag(stepTag + '二年春尾帖样');
                 log.push(['先把二年春尾馆信与清明帖样分开：铜钱-55、保帖底样+1、家族+1、供读压力-1。第二举业年春尾先把旧馆回信、清明帖样、递话脚费和入夏前锅火拆开，这层“春里续馆口风还没散、伏夏保结底稿又已先来”的尾账没再继续混在通用香纸碎费里。', 'good']);
@@ -12571,6 +12587,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(55, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 15, 本年零耗支出文: 20 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
+                noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 pushExamSeasonTag(stepTag + '二年夏尾续帖');
                 log.push(['先把二年夏尾馆信与秋前保帖分开：铜钱-55、保帖底样+1、家族+1、供读压力-1。第二举业年夏尾先把旧馆回信、秋前保帖底样、递话脚费和锅火后手拆开，这层“伏夏馆批还没散、秋前保结底稿却已先来”的尾账没再继续拖进秋头。', 'good']);
@@ -12587,6 +12604,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+                noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年夏尾婚帖');
                 log.push(['先把三年夏尾婚话回信与秋前回场帖样分开：铜钱-60、家族+1、体魄+1、婚事口风缓一线。第三举业年夏尾先把婚话回信、秋前回场帖样、凉药门包与递话脚费拆开，这层“还冲不冲秋场”和“婚期还能不能再拖”终于没再一起贴着伏夏尾账发硬。', 'good']);
               } else {
@@ -12857,6 +12875,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+                noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '首年秋头婚保');
                 log.push(['先把首年秋头保帖底样与婚话夹衣分开：铜钱-60、保帖底样+1、家族+1、体魄+1、婚事口风缓一线。首年秋头先把保帖底样、婚话回声、夹衣试鞋和递话脚费拆开，这层“夏里刚把读法坐住、秋里保结和拖婚却已一齐压上来”的肩账终于没再只混在通用盘缠里。', 'good']);
               } else {
@@ -13009,9 +13028,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(65, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 25, 本年零耗支出文: 20 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
+                noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+                noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '二年秋尾婚簿');
                 log.push(['先把二年秋尾保帖回信与婚话簿册分开：铜钱-65、保帖底样+1、家族+1、供读压力-1、婚事口风缓一线。第二举业年秋尾先把保帖回信、婚话簿册、递话脚费和冬前锅火拆开，这层“资格刚接上一截，冬里续帖后手又已先来”和“婚话是不是已得先回一句再缓”的尾账没再继续贴着通用回帖钱一起追上来。', 'good']);
               } else {
@@ -13027,6 +13048,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+                noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年秋尾婚簿');
                 log.push(['先把三年秋尾婚话回信与回场簿册分开：铜钱-70、家族+1、体魄+1、婚事口风缓一线。第三举业年秋尾先把婚话回信、回场簿册、试鞋药包与递话脚费拆开，这层“书路还续不续到冬里”和“婚期还能不能再拖”终于没再只贴着临场尾账一起发硬。', 'good']);
               } else {
@@ -13378,9 +13400,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(75, { buckets: { 本年零耗支出文: 40, 本年纸墨支出文: 35 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
+                noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+                noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '二年冬尾婚门');
                 log.push(['先把二年冬尾来春保帖与婚期门包分开：铜钱-75、保帖底样+1、家族+1、供读压力-1、婚事口风缓一线。第二举业年冬尾先把来春保帖、婚期门包、年下锅火和旧馆回音拆开，这层“第二年资格尾账还没散、第三年春头底稿又已先来”和“婚期要不要硬挪到来春”的后手没再继续贴着年关锅火一起找钱。', 'good']);
               } else {
