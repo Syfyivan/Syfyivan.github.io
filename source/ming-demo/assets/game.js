@@ -2771,7 +2771,7 @@
       }
     }
     if (season.id === 'spring' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_guarantee_prep', 'e_spring_open_packet']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_guarantee_prep', 'e_spring_open_packet', 'e_year2_spring_focus', 'e_year3_spring_focus']),
       doneTag: '春课开销已理',
       doneLog: '〔春课开销〕这一旬先把拜师帖、启蒙纸样、塾馆茶水与家里开春锅火分开了；春课刚起头时最容易被当作“不过几文钱”的那层开销，没有再悄悄把今年第一口供读钱磨薄。',
       cost: 30,
@@ -2782,7 +2782,7 @@
       hardship: 'clan'
     });
     if (season.id === 'spring' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_spring_open_packet', 'e_spring_open_shoe']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_spring_open_packet', 'e_spring_open_shoe', 'e_year2_spring_focus', 'e_year3_spring_focus']),
       doneTag: '春头草鞋已分',
       doneLog: '〔春头草鞋〕这一旬先把草鞋脚费、早春盐药、塾门递话与开春锅火分开了；举业首旬不再只剩拜师帖和塾馆茶水，连“脚还没走稳、门路先要跑”的那层春头细账也被压回了同一年里。',
       cost: 40,
@@ -2794,7 +2794,7 @@
       hardship: 'body'
     });
     if (season.id === 'spring' && xun === 2) apply({
-      handledIds: examSupportHandledIds(['e_essay', 'e_home', 'e_rest', 'e_spring_packet', 'e_year2_spring_mid_focus', 'e_year3_spring_mid_focus']),
+      handledIds: examSupportHandledIds(['e_essay', 'e_home', 'e_rest', 'e_spring_packet', 'e_year1_spring_mid_focus', 'e_year2_spring_mid_focus', 'e_year3_spring_mid_focus']),
       doneTag: '春馆回话已理',
       doneLog: '〔春馆回话〕这一旬先把塾师评文回话、税则小纸与替保结递话的小脚费分开了；春课中旬不再只剩“继续读不读”，而是真把制度与家计碎账压回了这一旬。',
       cost: 35,
@@ -2805,7 +2805,7 @@
       hardship: 'clan'
     });
     if (season.id === 'spring' && xun === 2) apply({
-      handledIds: examSupportHandledIds(['e_essay', 'e_home', 'e_rest', 'e_spring_packet', 'e_spring_cough', 'e_year3_spring_mid_focus']),
+      handledIds: examSupportHandledIds(['e_essay', 'e_home', 'e_rest', 'e_spring_packet', 'e_spring_cough', 'e_year1_spring_mid_focus', 'e_year3_spring_mid_focus']),
       doneTag: '春中灯咳已分',
       doneLog: '〔春中灯咳〕这一旬先把护嗓咳药、灯油、草鞋脚费和递话门包分开了；春课中旬不再只剩评文回话，连“馆课刚起，嗓子、脚路与灯下气力先来追钱”的护身肩账也被压回了这一旬。',
       cost: 45,
@@ -2817,7 +2817,7 @@
       hardship: 'body'
     });
     if (season.id === 'spring' && xun === 3) apply({
-      handledIds: examSupportHandledIds(['e_copy', 'e_home', 'e_rest', 'e_spring_tail_packet', 'e_spring_fan', 'e_year2_spring_tail_focus', 'e_year3_spring_tail_focus']),
+      handledIds: examSupportHandledIds(['e_copy', 'e_home', 'e_rest', 'e_spring_tail_packet', 'e_spring_fan', 'e_year1_spring_tail_focus', 'e_year2_spring_tail_focus', 'e_year3_spring_tail_focus']),
       doneTag: '春尾香纸已分',
       doneLog: '〔春尾香纸〕这一旬先把清明香纸、回馆脚费与春尾抄写纸墨分开了；春课收尾不再只是“再抄两页补贴”，而把季末这层家用与笔墨碎账一并摊回了同一年里。',
       cost: 40,
@@ -2828,7 +2828,7 @@
       hardship: 'clan'
     });
     if (season.id === 'spring' && xun === 3) apply({
-      handledIds: examSupportHandledIds(['e_copy', 'e_home', 'e_rest', 'e_spring_tail_packet', 'e_spring_fan', 'e_year3_spring_tail_focus']),
+      handledIds: examSupportHandledIds(['e_copy', 'e_home', 'e_rest', 'e_spring_tail_packet', 'e_spring_fan', 'e_year1_spring_tail_focus', 'e_year3_spring_tail_focus']),
       doneTag: '春尾扇药已分',
       doneLog: '〔春尾扇药〕这一旬先把换季扇药、塾门回帖门包与春尾草鞋脚费分开了；春尾这层“馆批将回未回、换季小耗却先来”的细账终于也回到了同一年里。',
       cost: 45,
@@ -2840,7 +2840,7 @@
       hardship: 'body'
     });
     if (season.id === 'summer' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_guarantee_prep', 'e_home', 'e_summer_open_packet']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_guarantee_prep', 'e_home', 'e_summer_open_packet', 'e_year2_summer_focus', 'e_year3_summer_focus']),
       doneTag: '伏夏馆账已顾',
       doneLog: '〔伏夏馆账〕这一旬先把夏课束脩、凉茶脚费与家里消暑小耗分开了；伏夏刚起头时最容易把“继续读书”磨成一句空话的那层馆账，没有继续滚大。',
       cost: 30,
@@ -2851,7 +2851,7 @@
       hardship: 'clan'
     });
     if (season.id === 'summer' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_summer_open_packet', 'e_summer_open_cure']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_summer_open_packet', 'e_summer_open_cure', 'e_year2_summer_focus', 'e_year3_summer_focus']),
       doneTag: '伏夏凉药已分',
       doneLog: '〔伏夏凉药〕这一旬先把凉药门包、草鞋汗巾、塾门回话与暑天锅火分开了；夏课上旬不再只剩束脩馆账，连“塾门还没坐稳、身子和脚路先被暑气磨着走”的那层伏夏肩账也被压回了这一旬。',
       cost: 45,
@@ -2863,7 +2863,7 @@
       hardship: 'body'
     });
     if (season.id === 'summer' && xun === 2) apply({
-      handledIds: examSupportHandledIds(['e_essay', 'e_copy', 'e_mend', 'e_rest', 'e_summer_packet', 'e_summer_cough', 'e_year2_summer_mid_focus', 'e_year3_summer_mid_focus']),
+      handledIds: examSupportHandledIds(['e_essay', 'e_copy', 'e_mend', 'e_rest', 'e_summer_packet', 'e_summer_cough', 'e_year1_summer_mid_focus', 'e_year2_summer_mid_focus', 'e_year3_summer_mid_focus']),
       doneTag: '馆课零耗已顾',
       doneLog: '〔馆课零耗〕这一旬先把潮纸、投帖脚费、塾馆茶汤和家里凉热小耗顾住了；举业路这层最容易被一句“不过几文钱”带过的小耗，没有继续滚成更大的缺口。',
       cost: 35,
@@ -2874,7 +2874,7 @@
       hardship: 'clan'
     });
     if (season.id === 'summer' && xun === 3) apply({
-      handledIds: examSupportHandledIds(['e_copy', 'e_mend', 'e_rest', 'e_home', 'e_summer_tail_packet', 'e_year3_summer_tail_focus']),
+      handledIds: examSupportHandledIds(['e_copy', 'e_mend', 'e_rest', 'e_home', 'e_summer_tail_packet', 'e_year1_summer_tail_focus', 'e_year2_summer_tail_focus', 'e_year3_summer_tail_focus']),
       doneTag: '夏尾衣药已分',
       doneLog: '〔夏尾衣药〕这一旬先把补鞋药钱、伏夏尾声纸墨与回家带药小耗分开了；夏课收尾不再只剩“熬过这一旬”，而是真把人和账都往秋里收住了一层。',
       cost: 35,
@@ -2886,7 +2886,7 @@
       hardship: 'body'
     });
   if (season.id === 'summer' && xun === 3) apply({
-    handledIds: examSupportHandledIds(['e_copy', 'e_home', 'e_rest', 'e_summer_tail_reply', 'e_year2_summer_tail_focus', 'e_year3_summer_tail_focus']),
+    handledIds: examSupportHandledIds(['e_copy', 'e_home', 'e_rest', 'e_summer_tail_reply', 'e_year1_summer_tail_focus', 'e_year2_summer_tail_focus', 'e_year3_summer_tail_focus']),
     doneTag: '夏尾馆信已理',
     doneLog: '〔夏尾馆信〕这一旬先把旧馆回话、秋前纸样、递话脚费和锅火后手分开了；首三学年伏夏收尾不再只剩衣药，还把“秋前续馆与续帖先来抢钱”的那层馆信细账压回了这一旬。',
     cost: 40,
@@ -2898,7 +2898,7 @@
     hardship: 'clan'
   });
     if (season.id === 'autumn' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_autumn_open_packet']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_autumn_open_packet', 'e_year2_autumn_focus', 'e_year3_autumn_focus']),
       doneTag: '秋前盘缠已理',
       doneLog: '〔秋前盘缠〕这一旬先把应试盘缠、拜帖小礼与家里秋收锅火分开了；秋试刚起头时最容易被一句“先把书读下去”盖过去的那层临场后手，没有再混成一团。',
       cost: 40,
@@ -2909,7 +2909,7 @@
       hardship: 'clan'
     });
     if (season.id === 'autumn' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_autumn_open_packet', 'e_autumn_open_cloth']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_autumn_open_packet', 'e_autumn_open_cloth', 'e_year2_autumn_focus', 'e_year3_autumn_focus']),
       doneTag: '秋头夹衣已分',
       doneLog: '〔秋头夹衣〕这一旬先把夹衣、试鞋草履、递话脚费和秋凉锅火分开了；秋试上旬不再只剩“先凑盘缠”，连保结未稳时最先追上门的换季小耗也被压回了这一旬。',
       cost: 55,
@@ -2921,7 +2921,7 @@
       hardship: 'body'
     });
     if (season.id === 'autumn' && xun === 2) apply({
-      handledIds: examSupportHandledIds(['e_guarantee', 'e_copy', 'e_home', 'e_autumn_packet', 'e_autumn_cough', 'e_year2_autumn_mid_focus', 'e_year3_autumn_mid_focus']),
+      handledIds: examSupportHandledIds(['e_guarantee', 'e_copy', 'e_home', 'e_autumn_packet', 'e_autumn_cough', 'e_year1_autumn_focus', 'e_year2_autumn_mid_focus', 'e_year3_autumn_mid_focus']),
       doneTag: '秋后纸墨已拆',
       doneLog: '〔秋后纸墨〕这一旬先把保结薄礼、学生家回话脚费和润笔纸墨拆开了；秋试前最容易把“还能不能再往前推一口气”磨薄的那层碎耗，没有继续滚大。',
       cost: 45,
@@ -2932,7 +2932,7 @@
       hardship: 'clan'
     });
     if (season.id === 'autumn' && xun === 3) apply({
-      handledIds: examSupportHandledIds(['e_exam', 'e_reserve', 'e_mend', 'e_home', 'e_autumn_tail_packet', 'e_autumn_register', 'e_year2_autumn_tail_focus', 'e_year3_autumn_tail_focus']),
+      handledIds: examSupportHandledIds(['e_exam', 'e_reserve', 'e_mend', 'e_home', 'e_autumn_tail_packet', 'e_autumn_register', 'e_year1_autumn_tail_focus', 'e_year2_autumn_tail_focus', 'e_year3_autumn_tail_focus']),
       doneTag: '临场盘缠已留',
       doneLog: '〔临场盘缠〕这一旬先把下场盘缠、誊卷纸样、回乡脚费与秋尾锅火分开了；秋试下旬终于不再只是“去不去考”，而把临场前后那层真后手压进了这一旬。',
       cost: 50,
@@ -2943,7 +2943,7 @@
       hardship: 'body'
     });
     if (season.id === 'winter' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_copy', 'e_mend', 'e_winter_open_packet', 'e_year2_winter_focus', 'e_year3_winter_focus']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_copy', 'e_mend', 'e_winter_open_packet', 'e_year1_winter_focus', 'e_year2_winter_focus', 'e_year3_winter_focus', 'e_fail_talk']),
       doneTag: '年关纸墨已分',
       doneLog: '〔年关纸墨〕旧馆账、来春纸墨定钱、灯油和拜帖脚费已被你先分开；举业路这层门路没有在年关忽然断掉。',
       cost: 40,
@@ -2954,7 +2954,7 @@
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_copy', 'e_mend', 'e_winter_open_reply', 'e_year2_winter_focus', 'e_year3_winter_focus']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_copy', 'e_mend', 'e_winter_open_reply', 'e_year1_winter_focus', 'e_year2_winter_focus', 'e_year3_winter_focus', 'e_fail_talk']),
       doneTag: '冬头馆信已分',
       doneLog: '〔冬头馆信〕这一旬先把旧馆回札、护嗓咳药、灯油脚费和来春样纸分开了；冬清账上旬不再只剩“理旧账”，连年下门路和护身小耗抢钱的那层冬头肩账也被压回了这一旬。',
       cost: 60,
@@ -2966,7 +2966,7 @@
       hardship: 'body'
     });
     if (season.id === 'winter' && xun === 2) apply({
-      handledIds: examSupportHandledIds(['e_copy', 'e_mend', 'e_rest', 'e_winter_mid_packet', 'e_fail_copy', 'e_winter_cough', 'e_year2_winter_mid_focus', 'e_year3_winter_mid_focus']),
+      handledIds: examSupportHandledIds(['e_copy', 'e_mend', 'e_rest', 'e_winter_mid_packet', 'e_fail_copy', 'e_winter_cough', 'e_year1_winter_mid_focus', 'e_year2_winter_mid_focus', 'e_year3_winter_mid_focus', 'e_winter_debt_note']),
       doneTag: '冬中灯炭已分',
       doneLog: '〔冬中灯炭〕这一旬先把灯炭、旧馆回话脚费与来春笔墨样纸分开了；冬清账中旬不再只是翻旧账，而把“明春这条笔墨门路怎么续”提前压进了这一旬。',
       cost: 45,
@@ -2977,7 +2977,7 @@
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 3) apply({
-      handledIds: examSupportHandledIds(['e_reserve', 'e_home', 'e_mend', 'e_rest', 'e_exam', 'e_winter_packet', 'e_winter_tail_cure', 'e_year2_winter_tail_focus', 'e_year3_winter_tail_focus']),
+      handledIds: examSupportHandledIds(['e_reserve', 'e_home', 'e_mend', 'e_rest', 'e_exam', 'e_winter_packet', 'e_winter_tail_cure', 'e_year1_winter_tail_focus', 'e_year2_winter_tail_focus', 'e_year3_winter_tail_focus']),
       doneTag: '冬尾门包已留',
       doneLog: '〔冬尾门包〕这一旬先把来春投帖门包、年下薄礼、回乡脚钱与锅火后手分开了；冬清账最后一程终于也不再只是等总账，而把明春第一口门路和眼前家计一并收住。',
       cost: 50,
@@ -2988,7 +2988,7 @@
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 3) apply({
-      handledIds: examSupportHandledIds(['e_reserve', 'e_home', 'e_mend', 'e_rest', 'e_exam', 'e_winter_packet', 'e_winter_tail_cure', 'e_year2_winter_tail_focus', 'e_year3_winter_tail_focus']),
+      handledIds: examSupportHandledIds(['e_reserve', 'e_home', 'e_mend', 'e_rest', 'e_exam', 'e_winter_packet', 'e_winter_tail_cure', 'e_year1_winter_tail_focus', 'e_year2_winter_tail_focus', 'e_year3_winter_tail_focus']),
       doneTag: '冬尾炭鞋已分',
       doneLog: '〔冬尾炭鞋〕这一旬先把守岁炭药、来春草鞋与旧馆年下回话脚费分开了；冬尾这层过冬与明春脚路后手，不再只留到年终一句话里。',
       cost: 60,
@@ -3000,7 +3000,7 @@
       hardship: 'body'
     });
   if (season.id === 'winter' && xun === 3) apply({
-    handledIds: examSupportHandledIds(['e_reserve', 'e_home', 'e_rest', 'e_exam', 'e_winter_packet', 'e_winter_tail_note', 'e_year2_winter_tail_focus', 'e_year3_winter_tail_focus']),
+    handledIds: examSupportHandledIds(['e_reserve', 'e_home', 'e_rest', 'e_exam', 'e_winter_packet', 'e_winter_tail_note', 'e_year1_winter_tail_focus', 'e_year2_winter_tail_focus', 'e_year3_winter_tail_focus']),
     doneTag: '冬尾馆信已分',
     doneLog: '〔冬尾馆信〕这一旬先把旧馆年下回信、来春帖样、递话门包和守岁锅火分开了；首三学年冬尾不再只剩门包和炭鞋，连“旧馆还有回音、来春续帖已先来追钱”的那层馆信细账也被压回了这一旬。',
     cost: 45,
@@ -3075,10 +3075,19 @@
       'e_spring_open_packet', 'e_spring_packet', 'e_spring_tail_packet',
       'e_summer_open_packet', 'e_summer_packet', 'e_summer_tail_packet', 'e_summer_tail_reply',
       'e_autumn_open_packet', 'e_autumn_packet', 'e_autumn_tail_packet', 'e_autumn_register',
-      'e_year2_autumn_mid_focus', 'e_year3_autumn_mid_focus', 'e_year2_autumn_tail_focus', 'e_year3_autumn_tail_focus',
+      'e_year2_spring_focus', 'e_year3_spring_focus',
+      'e_year1_spring_mid_focus', 'e_year2_spring_mid_focus', 'e_year3_spring_mid_focus',
+      'e_year1_spring_tail_focus', 'e_year2_spring_tail_focus', 'e_year3_spring_tail_focus',
+      'e_year2_summer_focus', 'e_year3_summer_focus',
+      'e_year1_summer_mid_focus', 'e_year2_summer_mid_focus', 'e_year3_summer_mid_focus',
+      'e_year1_summer_tail_focus', 'e_year2_summer_tail_focus', 'e_year3_summer_tail_focus',
+      'e_year1_autumn_focus', 'e_year2_autumn_focus', 'e_year3_autumn_focus',
+      'e_year2_autumn_mid_focus', 'e_year3_autumn_mid_focus',
+      'e_year1_autumn_tail_focus', 'e_year2_autumn_tail_focus', 'e_year3_autumn_tail_focus',
       'e_winter_open_packet', 'e_winter_mid_packet', 'e_winter_debt_note', 'e_winter_packet', 'e_winter_tail_note',
-      'e_year2_winter_mid_focus', 'e_year3_winter_mid_focus', 'e_year2_winter_tail_focus', 'e_year3_winter_tail_focus',
-      'e_year2_winter_focus', 'e_year3_winter_focus'
+      'e_year1_winter_focus', 'e_year2_winter_focus', 'e_year3_winter_focus',
+      'e_year1_winter_mid_focus', 'e_year2_winter_mid_focus', 'e_year3_winter_mid_focus',
+      'e_year1_winter_tail_focus', 'e_year2_winter_tail_focus', 'e_year3_winter_tail_focus'
     ]));
     if (heavyStudyCount >= 2 && supportCount <= 0) {
       if (consumeExamStudyBuffer(log, stepLabel)) {
@@ -3098,7 +3107,12 @@
       'e_rest', 'e_mend',
       'e_home', 'e_fail_talk',
       'e_summer_cough', 'e_autumn_cough', 'e_winter_cough',
-      'e_year3_autumn_mid_focus', 'e_year3_autumn_tail_focus', 'e_year3_winter_mid_focus', 'e_year3_winter_tail_focus',
+      'e_year1_autumn_focus', 'e_year2_autumn_focus', 'e_year3_autumn_focus',
+      'e_year2_autumn_mid_focus', 'e_year3_autumn_mid_focus',
+      'e_year1_autumn_tail_focus', 'e_year2_autumn_tail_focus', 'e_year3_autumn_tail_focus',
+      'e_year1_winter_focus', 'e_year2_winter_focus', 'e_year3_winter_focus',
+      'e_year1_winter_mid_focus', 'e_year2_winter_mid_focus', 'e_year3_winter_mid_focus',
+      'e_year1_winter_tail_focus', 'e_year2_winter_tail_focus', 'e_year3_winter_tail_focus',
       'e_spring_fan', 'e_spring_open_shoe', 'e_summer_open_cure', 'e_autumn_open_cloth', 'e_winter_open_reply', 'e_winter_tail_cure',
       'e_summer_packet', 'e_summer_tail_packet',
       'e_winter_mid_packet', 'e_winter_packet'
@@ -7569,6 +7583,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 : '铜钱不足125文',
               once: true
             });
+            A.push({
+              id: 'm_winter_second_mid_remit',
+              name: '先把二年冬中回钱拆作试本、供读与拖欠',
+              cost: 1,
+              eff: '白银-1·反哺+1·供读专账+1·供读+1·议本+1·催账+1·拖欠+1·贴家+1·家书+1·家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? '·商信誉+1' : ''),
+              desc: '第二商年冬里第二程最怕一笔回钱刚落手，来春试本样纸、供读纸包、旧拖欠回签、递话小礼和守岁灯炭就一起追来。先把这层“二年冬中真回钱先稳哪几本账”拆开，让第二商年的冬头、冬中、冬尾都各自见真回钱，而不再只靠冬中一层铜钱回话硬撑着把试本、供读与拖欠拖到年下才收口。',
+              can: S.白银 >= 1 && supportCapacity >= 1 && (S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路供读 > 0 || S.本年商路议本 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0 || S.本年商路贴家 > 0),
+              why: S.白银 >= 1
+                ? (supportCapacity >= 1
+                  ? ((S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路供读 > 0 || S.本年商路议本 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0 || S.本年商路贴家 > 0) ? '' : '需先有回钱、试本、供读、拖欠或贴家后手可拆')
+                  : '眼下还没有可拆去向的商路回账或浮账')
+                : '白银不足1两',
+              once: true
+            });
           }
           A.push({
             id: 'm_winter_mid_remit_school',
@@ -9081,6 +9109,26 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把二年冬中试本与拖欠回话分开，但这旬铜钱已先被别处占住，只得让试本回话、拖欠回签和守岁灯炭继续一起追这口现钱。', 'bad']);
               }
               break;
+            case 'm_winter_second_mid_remit':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.本年商路反哺银 += 1;
+                S.商路供读银 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                S.本年商路供读 += 1;
+                S.本年商路议本 += 1;
+                S.本年商路催账 += 1;
+                S.本年商路拖欠 += 1;
+                S.本年商路贴家 += 1;
+                S.本年商路家书 += 1;
+                S.家族 += supportProfile.familyGain;
+                if (supportProfile.trustGain > 0) S.商信誉 += supportProfile.trustGain;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆二年冬中回钱');
+                log.push(['先把二年冬中回钱拆作试本、供读与拖欠：白银-1、反哺+1、供读专账+1、供读+1、议本+1、催账+1、拖欠+1、贴家+1、家书+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。第二商年冬中这笔真回钱没有再只留给通用供读或药包，而是当场把试本、供读、拖欠与贴家次序一起压回了这一旬。', 'good']);
+              } else {
+                log.push(['想先把二年冬中回钱拆作试本、供读与拖欠，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
+              }
+              break;
             case 'm_winter_mid_remit_school':
               if (spendSilver(1)) {
                 S.累计反哺银 += 1;
@@ -10143,6 +10191,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
               once: true
             });
+            if (examYear === 1) {
+              A.push({
+                id: 'e_year1_summer_mid_focus',
+                name: '先把首年夏中识字题样与伏夏馆批分开',
+                cost: 1,
+                eff: '铜钱-55·识字进度+1·文章火候+1·家族+1',
+                desc: '首年伏夏中旬，最怕识字题样、伏夏馆批、潮纸脚费和塾馆茶汤一起追钱。先把这层“开蒙底子到底稳没稳、塾门回话能不能真接成夏里的馆课”拆开，首年夏中就不再只剩通用潮纸与凉药小耗。',
+                can: S.铜钱 >= 55,
+                why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
+                once: true
+              });
+            }
             if (examYear === 2) {
               A.push({
                 id: 'e_year2_summer_mid_focus',
@@ -10168,6 +10228,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               });
             }
           } else if (season.id === 'autumn') {
+            if (examYear === 1) {
+              A.push({
+                id: 'e_year1_autumn_focus',
+                name: '先把首年秋头保帖底样与婚话夹衣分开',
+                cost: 1,
+                eff: '铜钱-60·保帖底样+1·家族+1·体魄+1·将养+1',
+                desc: '首年秋头最怕保帖底样、婚话回声、夹衣试鞋和递话脚费一起追钱。先把这层“夏里刚把读法坐住、秋里保结和拖婚却已一齐压上来”的肩账拆开，首年秋头就不再只剩通用盘缠与换季小耗。',
+                can: S.铜钱 >= 60,
+                why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
+                once: true
+              });
+            }
             if (examYear === 2) {
               A.push({
                 id: 'e_year2_autumn_mid_focus',
@@ -10204,6 +10276,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               once: true
             });
           } else if (season.id === 'winter') {
+            if (examYear === 1) {
+              A.push({
+                id: 'e_year1_winter_focus',
+                name: '先把首年冬头回榜口风与来春帖样分开',
+                cost: 1,
+                eff: '铜钱-65·文章火候+1·家族+1·供读压力-1',
+                desc: '首年冬头最怕秋里回榜口风、旧馆回札、来春帖样与灯油门包一起追钱。先把这层“今年到底撞没撞场、来春这条书路还续不续”拆开，首年冬头就不再只靠通用年关纸墨和馆信撑住。',
+                can: S.铜钱 >= 65,
+                why: S.铜钱 >= 65 ? '' : '铜钱不足65文',
+                once: true
+              });
+            }
             A.push({ id: 'e_winter_mid_packet', name: '先把冬中灯炭与旧馆回话脚费分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬清账中旬最怕灯炭、旧馆回话脚费和来春样纸一起追钱。先把这层续门路的钱拆开，冬里就不至一边熬身子一边把来春口风熬断。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
             A.push({
               id: 'e_winter_cough',
@@ -11297,6 +11381,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把二年秋头保帖门路与试鞋盘缠拆开，但这一旬铜钱已先被别处占住，只得让第二举业年秋头这层保帖门路和试鞋盘缠继续贴着同一口现钱发硬。', 'bad']);
               }
               break;
+            case 'e_year1_autumn_focus':
+              if (spendCopper(60)) {
+                noteExamOutlay(60, { buckets: { 本年保结支出文: 20, 本年零耗支出文: 20, 本年衣药支出文: 20 } });
+                S.本年保帖底样次数 += 1;
+                S.家族 += 1;
+                S.体魄 += 1;
+                S.本年将养次数 += 1;
+                if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
+                pushExamSeasonTag(stepTag + '首年秋头婚保');
+                log.push(['先把首年秋头保帖底样与婚话夹衣分开：铜钱-60、保帖底样+1、家族+1、体魄+1。首年秋头先把保帖底样、婚话回声、夹衣试鞋和递话脚费拆开，这层“夏里刚把读法坐住、秋里保结和拖婚却已一齐压上来”的肩账终于没再只混在通用盘缠里。', 'good']);
+              } else {
+                log.push(['想先把首年秋头保帖底样与婚话夹衣拆开，但这一旬铜钱已先被别处占住，只得让首年秋头这层保帖、婚话与夹衣继续贴着同一口现钱发硬。', 'bad']);
+              }
+              break;
             case 'e_year2_autumn_mid_focus':
               if (spendCopper(65)) {
                 noteExamOutlay(65, { buckets: { 本年保结支出文: 25, 本年纸墨支出文: 20, 本年零耗支出文: 20 } });
@@ -11346,6 +11444,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把二年冬头保帖回札与来春帖样分开：铜钱-65、保帖底样+1、家族+1、供读压力-1。第二举业年冬头先把旧馆回札、保帖回信、来春帖样和递话灯油拆开，这层“今年保结还没完全散、明春续帖却已先来”的细账终于没再只混在通用冬账里。', 'good']);
               } else {
                 log.push(['想先把二年冬头保帖回札与来春帖样拆开，但这一旬铜钱已先被别处占住，只得让第二举业年冬头这层回札与帖样继续贴着年关锅火一起追钱。', 'bad']);
+              }
+              break;
+            case 'e_year1_winter_focus':
+              if (spendCopper(65)) {
+                noteExamOutlay(65, { buckets: { 本年零耗支出文: 30, 本年纸墨支出文: 35 } });
+                S.文章火候 += 1;
+                S.家族 += 1;
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
+                didStudy = true;
+                pushExamSeasonTag(stepTag + '首年冬头回榜');
+                log.push(['先把首年冬头回榜口风与来春帖样分开：铜钱-65、文章火候+1、家族+1、供读压力-1。首年冬头先把秋里回榜口风、旧馆回札、来春帖样和灯油门包拆开，这层“今年到底撞没撞场、来春这条书路还续不续”的细账终于没再只混在通用年关纸墨里。', 'good']);
+              } else {
+                log.push(['想先把首年冬头回榜口风与来春帖样拆开，但这一旬铜钱已先被别处占住，只得让首年冬头这层回榜口风与续帖样继续贴着年关锅火一起追钱。', 'bad']);
               }
               break;
             case 'e_year3_winter_focus':
