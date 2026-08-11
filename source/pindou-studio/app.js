@@ -48,6 +48,7 @@
     tool: 'pen',
     selectedCode: 'H7',
     undoStack: [],
+    editGesture: null,
     analysis: null,
     busy: false,
   };
@@ -223,7 +224,7 @@
         document.querySelectorAll('[data-tool]').forEach((item) => item.classList.toggle('active', item === button));
         const tips = {
           pen: '画笔会使用下面选中的 MARD 色号。',
-          erase: '橡皮会移除豆子；注意不要把头像之间的连接擦断。',
+          erase: '按住橡皮并拖动，经过的格子会连续擦除；注意不要把头像之间的连接擦断。',
           'oval-eye': '点击眼睛中心，放置完整的 2×4 黑色小椭圆。',
           'anime-eye': '点击眼睛中心，放置完整的 4×5 黑色动漫大眼，并保留一颗白色高光。',
           'closed-eye': '点击眼睛中心，放置一条完整的弯曲闭眼。',
@@ -235,7 +236,14 @@
         if (!LOCAL_VIEWS.has(state.view)) setView('chart');
       });
     });
-    els.canvas.addEventListener('pointerdown', editAtPointer);
+    els.canvas.addEventListener('pointerdown', beginEditAtPointer);
+    els.canvas.addEventListener('pointermove', continueEraserGesture);
+    els.canvas.addEventListener('pointerup', finishEraserGesture);
+    els.canvas.addEventListener('pointercancel', finishEraserGesture);
+    els.canvas.addEventListener('lostpointercapture', finishEraserGesture);
+    els.canvas.addEventListener('contextmenu', (event) => {
+      if (state.cells.length && !LOCAL_VIEWS.has(state.view)) event.preventDefault();
+    });
     els.undo.addEventListener('click', undoEdit);
   }
 
@@ -599,6 +607,7 @@
     const ctx = els.canvas.getContext('2d');
     ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
     if (LOCAL_VIEWS.has(state.view)) {
+      els.canvas.classList.remove('drag-erase-ready');
       ctx.imageSmoothingEnabled = true;
       const canvas = state.view === 'source'
         ? state.sourceCanvas
@@ -608,9 +617,11 @@
       return;
     }
     if (!state.cells.length) {
+      els.canvas.classList.remove('drag-erase-ready');
       els.canvas.style.cursor = 'default';
       return renderEmptyBoard();
     }
+    els.canvas.classList.toggle('drag-erase-ready', state.tool === 'erase');
     els.canvas.style.cursor = 'crosshair';
     drawPatternCanvas(ctx, els.canvas.width, state.view);
   }
@@ -660,16 +671,97 @@
     ctx.fillRect(0, 0, els.canvas.width, els.canvas.height);
   }
 
-  function editAtPointer(event) {
+  function beginEditAtPointer(event) {
     if (!state.cells.length || LOCAL_VIEWS.has(state.view)) return;
-    const rect = els.canvas.getBoundingClientRect();
-    const x = Math.min(state.grid - 1, Math.max(0, Math.floor((event.clientX - rect.left) / rect.width * state.grid)));
-    const y = Math.min(state.grid - 1, Math.max(0, Math.floor((event.clientY - rect.top) / rect.height * state.grid)));
+    if (event.isPrimary === false || event.button !== 0) return;
+    const point = gridPointAtPointer(event);
+    if (!point) return;
+
+    if (state.tool === 'erase') {
+      event.preventDefault();
+      state.editGesture = {
+        pointerId: event.pointerId,
+        lastPoint: point,
+        erased: 0,
+        undoPushed: false,
+        renderFrame: 0,
+      };
+      els.canvas.classList.add('is-erasing');
+      els.canvas.setPointerCapture(event.pointerId);
+      eraseGridPoints([point]);
+      return;
+    }
+
+    const [x, y] = point;
     pushUndo();
     applyTool(x, y);
     refreshAnalysis();
     renderCurrentView();
     setStatus(`已修改第 ${x + 1} 列、第 ${y + 1} 行；当前 ${state.analysis.components} 个连通块。`);
+  }
+
+  function continueEraserGesture(event) {
+    const gesture = state.editGesture;
+    if (!gesture || event.pointerId !== gesture.pointerId) return;
+    if (event.pointerType === 'mouse' && (event.buttons & 1) === 0) {
+      finishEraserGesture(event);
+      return;
+    }
+    event.preventDefault();
+    const point = gridPointAtPointer(event);
+    if (!point) {
+      gesture.lastPoint = null;
+      return;
+    }
+    const path = gesture.lastPoint
+      ? window.PindouPatternUtils.traceGridLine(gesture.lastPoint, point)
+      : [point];
+    gesture.lastPoint = point;
+    eraseGridPoints(path);
+  }
+
+  function finishEraserGesture(event) {
+    const gesture = state.editGesture;
+    if (!gesture || (event.pointerId !== undefined && event.pointerId !== gesture.pointerId)) return;
+    state.editGesture = null;
+    els.canvas.classList.remove('is-erasing');
+    if (gesture.renderFrame) cancelAnimationFrame(gesture.renderFrame);
+    if (els.canvas.hasPointerCapture?.(gesture.pointerId)) els.canvas.releasePointerCapture(gesture.pointerId);
+    if (!gesture.erased) return;
+    refreshAnalysis();
+    renderCurrentView();
+    setStatus(`连续擦除了 ${gesture.erased} 格；当前 ${state.analysis.components} 个连通块。`);
+  }
+
+  function gridPointAtPointer(event) {
+    const rect = els.canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    const offsetX = event.clientX - rect.left;
+    const offsetY = event.clientY - rect.top;
+    if (offsetX < 0 || offsetY < 0 || offsetX >= rect.width || offsetY >= rect.height) return null;
+    return [
+      Math.min(state.grid - 1, Math.floor(offsetX / rect.width * state.grid)),
+      Math.min(state.grid - 1, Math.floor(offsetY / rect.height * state.grid)),
+    ];
+  }
+
+  function eraseGridPoints(points) {
+    const gesture = state.editGesture;
+    if (!gesture) return;
+    const occupied = points.filter(([x, y]) => inside(state.cells, x, y) && state.cells[y][x]);
+    if (!occupied.length) return;
+    if (!gesture.undoPushed) {
+      pushUndo();
+      gesture.undoPushed = true;
+    }
+    occupied.forEach(([x, y]) => { state.cells[y][x] = null; });
+    gesture.erased += occupied.length;
+    if (!gesture.renderFrame) {
+      gesture.renderFrame = requestAnimationFrame(() => {
+        gesture.renderFrame = 0;
+        if (state.editGesture === gesture) renderCurrentView();
+      });
+    }
   }
 
   function applyTool(x, y) {

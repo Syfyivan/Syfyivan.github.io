@@ -156,7 +156,9 @@ select { width: 100%; margin-top: 7px; padding: 10px 30px 10px 10px; border: 1px
 .icon-button { padding: 8px 11px; font-size: 11px; white-space: nowrap; }
 .icon-button[aria-pressed="true"] { border-color: var(--coral); color: var(--coral-dark); background: #fff4ee; }
 .canvas-shell { position: relative; width: 100%; max-height: 76vh; min-height: 460px; display: grid; place-items: center; overflow: auto; border: 1px solid var(--line); border-radius: 16px; background-color: #f4f1eb; background-image: linear-gradient(45deg, rgba(31,28,26,.025) 25%, transparent 25%), linear-gradient(-45deg, rgba(31,28,26,.025) 25%, transparent 25%); background-size: 22px 22px; }
-.canvas-shell canvas { display: block; width: min(100%, 780px); height: auto; image-rendering: pixelated; cursor: crosshair; }
+.canvas-shell canvas { display: block; width: min(100%, 780px); height: auto; image-rendering: pixelated; cursor: crosshair; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.canvas-shell canvas.drag-erase-ready { touch-action: none; }
+.canvas-shell canvas.is-erasing { cursor: grabbing !important; }
 .canvas-shell.zoomed { place-items: start; }
 .canvas-shell.zoomed canvas { width: 1000px; max-width: none; }
 .canvas-shell.empty canvas { visibility: hidden; }

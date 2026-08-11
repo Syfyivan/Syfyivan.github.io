@@ -10,6 +10,37 @@
   const DEFAULT_NOISE_CODES = ['G4', 'G16'];
   const ORTHOGONAL = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
+  function traceGridLine(from, to) {
+    if (!Array.isArray(from) || !Array.isArray(to)) return [];
+    let x = Math.round(from[0]);
+    let y = Math.round(from[1]);
+    const targetX = Math.round(to[0]);
+    const targetY = Math.round(to[1]);
+    if (![x, y, targetX, targetY].every(Number.isFinite)) return [];
+
+    const points = [];
+    const deltaX = Math.abs(targetX - x);
+    const deltaY = Math.abs(targetY - y);
+    const stepX = x < targetX ? 1 : -1;
+    const stepY = y < targetY ? 1 : -1;
+    let error = deltaX - deltaY;
+
+    while (true) {
+      points.push([x, y]);
+      if (x === targetX && y === targetY) break;
+      const doubledError = error * 2;
+      if (doubledError > -deltaY) {
+        error -= deltaY;
+        x += stepX;
+      }
+      if (doubledError < deltaX) {
+        error += deltaX;
+        y += stepY;
+      }
+    }
+    return points;
+  }
+
   function selectAdaptivePalette(samples, palette, maxColors) {
     if (!Array.isArray(samples) || !samples.length || !Array.isArray(palette) || !palette.length) return [];
     const limit = Math.max(1, Math.min(Math.floor(maxColors) || 1, palette.length));
@@ -186,5 +217,5 @@
     return rgb[0] * .299 + rgb[1] * .587 + rgb[2] * .114;
   }
 
-  return { cleanSkinToneNoise, selectAdaptivePalette };
+  return { cleanSkinToneNoise, selectAdaptivePalette, traceGridLine };
 }));

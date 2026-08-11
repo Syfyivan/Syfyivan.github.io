@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 
 const require = createRequire(import.meta.url);
-const { cleanSkinToneNoise, selectAdaptivePalette } = require('../source/pindou-studio/pattern-utils.js');
+const { cleanSkinToneNoise, selectAdaptivePalette, traceGridLine } = require('../source/pindou-studio/pattern-utils.js');
 const mardPalette = require('../source/pindou-studio/mard-221.js').map((item) => ({ ...item, rgb: hexToRgb(item.hex) }));
 
 const color = (code) => ({ code });
@@ -62,7 +62,14 @@ const board = (size, code) => Array.from({ length: size }, () => Array.from({ le
   assert.deepEqual(new Set(selected), new Set(['G2', 'C16', 'F3', 'H2']));
 }
 
-console.log('pindou palette and skin-tone smoke tests passed');
+{
+  assert.deepEqual(traceGridLine([2, 3], [6, 3]), [[2, 3], [3, 3], [4, 3], [5, 3], [6, 3]]);
+  assert.deepEqual(traceGridLine([4, 5], [4, 2]), [[4, 5], [4, 4], [4, 3], [4, 2]]);
+  assert.deepEqual(traceGridLine([1, 1], [4, 4]), [[1, 1], [2, 2], [3, 3], [4, 4]]);
+  assert.deepEqual(traceGridLine([7, 4], [3, 2]), [[7, 4], [6, 4], [5, 3], [4, 3], [3, 2]]);
+}
+
+console.log('pindou palette, skin-tone, and drag-path smoke tests passed');
 
 function repeatColor(code, count) {
   const rgb = mardPalette.find((item) => item.code === code).rgb;
