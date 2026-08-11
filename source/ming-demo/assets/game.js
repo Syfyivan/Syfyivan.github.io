@@ -2873,7 +2873,7 @@
       }
     }
     if (season.id === 'spring' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_guarantee_prep', 'e_spring_open_packet', 'e_year2_spring_focus', 'e_year3_spring_focus']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_guarantee_prep', 'e_spring_open_packet', 'e_year1_spring_focus', 'e_year2_spring_focus', 'e_year3_spring_focus']),
       doneTag: '春课开销已理',
       doneLog: '〔春课开销〕这一旬先把拜师帖、启蒙纸样、塾馆茶水与家里开春锅火分开了；春课刚起头时最容易被当作“不过几文钱”的那层开销，没有再悄悄把今年第一口供读钱磨薄。',
       cost: 30,
@@ -2884,7 +2884,7 @@
       hardship: 'clan'
     });
     if (season.id === 'spring' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_spring_open_packet', 'e_spring_open_shoe', 'e_year2_spring_focus', 'e_year3_spring_focus']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_spring_open_packet', 'e_spring_open_shoe', 'e_year1_spring_focus', 'e_year2_spring_focus', 'e_year3_spring_focus']),
       doneTag: '春头草鞋已分',
       doneLog: '〔春头草鞋〕这一旬先把草鞋脚费、早春盐药、塾门递话与开春锅火分开了；举业首旬不再只剩拜师帖和塾馆茶水，连“脚还没走稳、门路先要跑”的那层春头细账也被压回了同一年里。',
       cost: 40,
@@ -2942,7 +2942,7 @@
       hardship: 'body'
     });
     if (season.id === 'summer' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_guarantee_prep', 'e_home', 'e_summer_open_packet', 'e_year2_summer_focus', 'e_year3_summer_focus']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_guarantee_prep', 'e_home', 'e_summer_open_packet', 'e_year1_summer_focus', 'e_year2_summer_focus', 'e_year3_summer_focus']),
       doneTag: '伏夏馆账已顾',
       doneLog: '〔伏夏馆账〕这一旬先把夏课束脩、凉茶脚费与家里消暑小耗分开了；伏夏刚起头时最容易把“继续读书”磨成一句空话的那层馆账，没有继续滚大。',
       cost: 30,
@@ -2953,7 +2953,7 @@
       hardship: 'clan'
     });
     if (season.id === 'summer' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_summer_open_packet', 'e_summer_open_cure', 'e_year2_summer_focus', 'e_year3_summer_focus']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_school', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_summer_open_packet', 'e_summer_open_cure', 'e_year1_summer_focus', 'e_year2_summer_focus', 'e_year3_summer_focus']),
       doneTag: '伏夏凉药已分',
       doneLog: '〔伏夏凉药〕这一旬先把凉药门包、草鞋汗巾、塾门回话与暑天锅火分开了；夏课上旬不再只剩束脩馆账，连“塾门还没坐稳、身子和脚路先被暑气磨着走”的那层伏夏肩账也被压回了这一旬。',
       cost: 45,
@@ -3177,10 +3177,10 @@
       'e_spring_open_packet', 'e_spring_packet', 'e_spring_tail_packet',
       'e_summer_open_packet', 'e_summer_packet', 'e_summer_tail_packet', 'e_summer_tail_reply',
       'e_autumn_open_packet', 'e_autumn_packet', 'e_autumn_tail_packet', 'e_autumn_register',
-      'e_year2_spring_focus', 'e_year3_spring_focus',
+      'e_year1_spring_focus', 'e_year2_spring_focus', 'e_year3_spring_focus',
       'e_year1_spring_mid_focus', 'e_year2_spring_mid_focus', 'e_year3_spring_mid_focus',
       'e_year1_spring_tail_focus', 'e_year2_spring_tail_focus', 'e_year3_spring_tail_focus',
-      'e_year2_summer_focus', 'e_year3_summer_focus',
+      'e_year1_summer_focus', 'e_year2_summer_focus', 'e_year3_summer_focus',
       'e_year1_summer_mid_focus', 'e_year2_summer_mid_focus', 'e_year3_summer_mid_focus',
       'e_year1_summer_tail_focus', 'e_year2_summer_tail_focus', 'e_year3_summer_tail_focus',
       'e_year1_autumn_focus', 'e_year2_autumn_focus', 'e_year3_autumn_focus',
@@ -10035,26 +10035,50 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               ? examStudyTrackReady()
               : (S.识字 || (S.识字进度 || 0) >= 2));
           if (upperGuaranteePrepReady) {
-            A.push({
-              id: 'e_guarantee_prep',
-              name: examYear >= 2
-                ? (season.id === 'spring' ? '先在春头理保帖底样' : '先在夏头温保结履历')
-                : (season.id === 'spring' ? '先在春头认保帖底样' : '先在夏头抄履历草单'),
-              cost: 1,
-              eff: examYear >= 2
-                ? ('铜钱-' + guaranteePrepCost + '·保帖底样+1·把保结前手提前压进上旬')
-                : ('铜钱-' + guaranteePrepCost + '·保帖底样+1·识字进度+1(满2开蒙)·把保结前手提前压进上旬'),
-              desc: examYear >= 2
-                ? (season.id === 'spring'
-                  ? '从第二举业年起，春头就得先把保结帖样、履历草单和递话口风摊开，不能再等到春中才补。家里愿续供的那口钱比首年更短，保结前手若不提早落账，秋里容易又回到临门抱脚。'
-                  : '到了第二、三举业年，伏夏一开头就得把保结履历、廪保口风和递话门包先压回这一旬。否则秋里真跑资格时，保结、人情和暑天身耗又会一起抢同一口现钱。')
-                : (season.id === 'spring'
-                  ? '首年春头还没真跑到廪保门前，但题样、姓名排行、里甲履历和递话门包得先认熟。若这层底稿不在春头先压回账里，秋里真要递帖样时就又会像从零起手。'
-                  : '首年伏夏一开头就得把履历草单、保帖称呼和递话口风先理顺。它不直接算“保结已通”，却能让秋里真跑资格时，不再连名字排行和帖样细账也一起临门抱脚。'),
-              can: S.铜钱 >= guaranteePrepCost,
-              why: S.铜钱 >= guaranteePrepCost ? '' : ('铜钱不足' + guaranteePrepCost + '文'),
-              once: true
-            });
+            if (examYear === 1 && season.id === 'spring') {
+              A.push({
+                id: 'e_year1_spring_focus',
+                name: '先在春头认保帖底样',
+                cost: 1,
+                eff: '铜钱-' + guaranteePrepCost + '·保帖底样+1·识字进度+1(满2开蒙)·投塾进度+1·把首年春头底稿压回上旬',
+                desc: '首年春头还没真跑到廪保门前，但题样、姓名排行、里甲履历、塾帖回话和递话门包得先认熟。先把这层“识字底子还浅、塾门也还未坐实”的肩部旬账拆出来，秋里真递帖样时就不再连底稿和投塾口风一起从零起手。',
+                can: S.铜钱 >= guaranteePrepCost,
+                why: S.铜钱 >= guaranteePrepCost ? '' : ('铜钱不足' + guaranteePrepCost + '文'),
+                once: true
+              });
+            } else if (examYear === 1 && season.id === 'summer') {
+              A.push({
+                id: 'e_year1_summer_focus',
+                name: '先在夏头抄履历草单',
+                cost: 1,
+                eff: '铜钱-' + guaranteePrepCost + '·保帖底样+1·识字进度+1(满2开蒙)·投塾进度+1·把首年伏夏底稿压回上旬',
+                desc: '首年伏夏一开头就得把履历草单、保帖称呼、塾门回声和递话口风先理顺。它不直接算“保结已通”，却能让秋里真跑资格时，不再连名字排行、塾门回话和帖样细账也一起临门发硬。',
+                can: S.铜钱 >= guaranteePrepCost,
+                why: S.铜钱 >= guaranteePrepCost ? '' : ('铜钱不足' + guaranteePrepCost + '文'),
+                once: true
+              });
+            } else {
+              A.push({
+                id: 'e_guarantee_prep',
+                name: examYear >= 2
+                  ? (season.id === 'spring' ? '先在春头理保帖底样' : '先在夏头温保结履历')
+                  : (season.id === 'spring' ? '先在春头认保帖底样' : '先在夏头抄履历草单'),
+                cost: 1,
+                eff: examYear >= 2
+                  ? ('铜钱-' + guaranteePrepCost + '·保帖底样+1·把保结前手提前压进上旬')
+                  : ('铜钱-' + guaranteePrepCost + '·保帖底样+1·识字进度+1(满2开蒙)·把保结前手提前压进上旬'),
+                desc: examYear >= 2
+                  ? (season.id === 'spring'
+                    ? '从第二举业年起，春头就得先把保结帖样、履历草单和递话口风摊开，不能再等到春中才补。家里愿续供的那口钱比首年更短，保结前手若不提早落账，秋里容易又回到临门抱脚。'
+                    : '到了第二、三举业年，伏夏一开头就得把保结履历、廪保口风和递话门包先压回这一旬。否则秋里真跑资格时，保结、人情和暑天身耗又会一起抢同一口现钱。')
+                  : (season.id === 'spring'
+                    ? '首年春头还没真跑到廪保门前，但题样、姓名排行、里甲履历和递话门包得先认熟。若这层底稿不在春头先压回账里，秋里真要递帖样时就又会像从零起手。'
+                    : '首年伏夏一开头就得把履历草单、保帖称呼和递话口风先理顺。它不直接算“保结已通”，却能让秋里真跑资格时，不再连名字排行和帖样细账也一起临门抱脚。'),
+                can: S.铜钱 >= guaranteePrepCost,
+                why: S.铜钱 >= guaranteePrepCost ? '' : ('铜钱不足' + guaranteePrepCost + '文'),
+                once: true
+              });
+            }
           }
           if (examYear === 2 && season.id === 'spring') {
             A.push({
@@ -11194,6 +11218,35 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把次年馆批与保帖底样拆开，但这一旬铜钱已先被别处占住，只得让第二举业年春头这层续馆回话和底稿细账继续贴着锅火一起追钱。', 'bad']);
               }
               break;
+            case 'e_year1_spring_focus':
+              if (spendCopper(guaranteePrepCost)) {
+                var yearOneSpringUpperBuckets = {
+                  本年保结支出文: 15,
+                  本年纸墨支出文: 15,
+                  本年零耗支出文: Math.max(0, guaranteePrepCost - 30)
+                };
+                noteExamOutlay(guaranteePrepCost, { buckets: yearOneSpringUpperBuckets });
+                var yearOneSpringUpperWasLiterate = !!S.识字;
+                S.本年保帖底样次数 += 1;
+                S.投塾进度 = Math.max(1, S.投塾进度 || 0);
+                S.本年投塾次数 += 1;
+                S.识字进度 = Math.min(4, (S.识字进度 || 0) + 1);
+                S.本年识字旬数 += 1;
+                var yearOneSpringUpperBecameLiterate = (!S.识字 && S.识字进度 >= 2);
+                if (yearOneSpringUpperBecameLiterate) S.识字 = true;
+                S.家族 += 1;
+                S.本年延婚牵扯 += 1;
+                didStudy = true;
+                pushExamSeasonTag(stepTag + '首年春头底样');
+                pushExamSeasonTag(stepTag + '首年春头塾帖');
+                log.push(['先在春头认保帖底样：铜钱-' + guaranteePrepCost + '、保帖底样+1、识字进度+1、投塾进度+1、家族+1。首年春头先把题样、姓名排行、里甲履历、塾帖回话和递话门包拆开，这层“底稿还浅、塾门也未坐实”的肩账终于不再只混在通用塾帖脚费里。'
+                  + (yearOneSpringUpperBecameLiterate
+                    ? ' 这一旬也把底子推到开蒙识字。'
+                    : (yearOneSpringUpperWasLiterate ? ' 识字底子更稳，后头抄样与履历才不像空口。' : ' 虽还未满开蒙，但已不再只是照着描字。')), 'good']);
+              } else {
+                log.push(['想先在春头把保帖底样、塾帖回话和递话门包拆开，但这一旬铜钱已先被别处占住，只得让首年春头这层底稿和塾门口风继续一起挤着锅火追钱。', 'bad']);
+              }
+              break;
             case 'e_year2_summer_focus':
               if (spendCopper(50)) {
                 noteExamOutlay(50, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 15, 本年零耗支出文: 15 } });
@@ -11204,6 +11257,35 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把二年伏夏馆批与履历口风分开：铜钱-50、保帖底样+1、家族+1、供读压力-1。第二举业年伏夏上旬先把旧馆批语、履历草单、廪保口风和凉茶脚费拆开，秋前这层“续馆回话还在、保结底稿又得重理”的细账没再继续贴着通用馆账一起发硬。', 'good']);
               } else {
                 log.push(['想先把二年伏夏馆批与履历口风拆开，但这一旬铜钱已先被别处占住，只得让第二举业年伏夏这层续馆回话和履历底稿继续贴着馆账一起追钱。', 'bad']);
+              }
+              break;
+            case 'e_year1_summer_focus':
+              if (spendCopper(guaranteePrepCost)) {
+                var yearOneSummerUpperBuckets = {
+                  本年保结支出文: 15,
+                  本年纸墨支出文: 10,
+                  本年零耗支出文: Math.max(0, guaranteePrepCost - 25)
+                };
+                noteExamOutlay(guaranteePrepCost, { buckets: yearOneSummerUpperBuckets });
+                var yearOneSummerUpperWasLiterate = !!S.识字;
+                S.本年保帖底样次数 += 1;
+                S.投塾进度 = Math.max(1, S.投塾进度 || 0);
+                S.本年投塾次数 += 1;
+                S.识字进度 = Math.min(4, (S.识字进度 || 0) + 1);
+                S.本年识字旬数 += 1;
+                var yearOneSummerUpperBecameLiterate = (!S.识字 && S.识字进度 >= 2);
+                if (yearOneSummerUpperBecameLiterate) S.识字 = true;
+                S.家族 += 1;
+                S.本年延婚牵扯 += 1;
+                didStudy = true;
+                pushExamSeasonTag(stepTag + '首年夏头履历');
+                pushExamSeasonTag(stepTag + '首年夏头塾门');
+                log.push(['先在夏头抄履历草单：铜钱-' + guaranteePrepCost + '、保帖底样+1、识字进度+1、投塾进度+1、家族+1。首年伏夏上旬先把履历草单、保帖称呼、塾门回声和递话口风拆开，这层“秋前资格底稿要不要先坐稳”的肩账终于不再只混在通用馆账里。'
+                  + (yearOneSummerUpperBecameLiterate
+                    ? ' 这一旬也把底子推到开蒙识字，履历草单终于不再只是照着描。'
+                    : (yearOneSummerUpperWasLiterate ? ' 识字底子更稳，后头抄样与履历也不再那么虚。' : ' 虽还未满开蒙，但已不再只是囫囵认字。')), 'good']);
+              } else {
+                log.push(['想先在夏头把履历草单、塾门回声和递话口风拆开，但这一旬铜钱已先被别处占住，只得让首年伏夏这层履历底稿和塾门口风继续一起追钱。', 'bad']);
               }
               break;
             case 'e_year3_spring_focus':
