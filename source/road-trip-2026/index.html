@@ -481,8 +481,8 @@ sup a:hover{text-decoration:underline;}
   <div class="map-launchers">
     <p><strong>交互路线图</strong> 使用同一套路线与地点数据：在线版叠加真实高德底图，离线版保留真实路线折线、道路编号和规划地点，并支持拖动、滚轮/按钮缩放。首次在线打开后会缓存离线文件。</p>
     <div class="actions">
-      <a class="primary" href="./route-map-amap.html?v=7">打开在线高德详图</a>
-      <a href="./route-map-offline.html?v=7">打开可缩放离线版</a>
+      <a class="primary" href="./route-map-amap.html?v=8">打开在线高德详图</a>
+      <a href="./route-map-offline.html?v=8">打开可缩放离线版</a>
     </div>
   </div>
 
@@ -496,7 +496,7 @@ sup a:hover{text-decoration:underline;}
       </div>
     </div>
     <div id="routePreviewHome" class="map-preview-frame">
-      <iframe id="routePreviewFrame" src="./route-map-amap.html?v=7" data-mode="online" title="路线地图预览" loading="lazy"></iframe>
+      <iframe id="routePreviewFrame" src="./route-map-amap.html?v=8" data-mode="online" title="路线地图预览" loading="lazy"></iframe>
     </div>
     <div class="map-preview-note">地图按20段城市间主干导航绘制，并加入住宿、景点、吃饭区域、采购加油、厕所参考和医疗救援图层。厕所、营业和住宿地址属于规划参考，出发前仍要用实时地图或订单页复核。</div>
   </div>
@@ -2117,7 +2117,7 @@ function switchPacking(tab) {
 }
 
 function getMapPage(mode) {
-  return mode === 'offline' ? './route-map-offline.html?v=7' : './route-map-amap.html?v=7';
+  return mode === 'offline' ? './route-map-offline.html?v=8' : './route-map-amap.html?v=8';
 }
 function notifyMapResize() {
   var frame = document.getElementById('routePreviewFrame');
