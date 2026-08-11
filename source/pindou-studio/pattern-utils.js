@@ -10,6 +10,67 @@
   const DEFAULT_NOISE_CODES = ['G4', 'G16'];
   const ORTHOGONAL = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
+  function selectAdaptivePalette(samples, palette, maxColors) {
+    if (!Array.isArray(samples) || !samples.length || !Array.isArray(palette) || !palette.length) return [];
+    const limit = Math.max(1, Math.min(Math.floor(maxColors) || 1, palette.length));
+    const counts = new Map();
+
+    samples.forEach((sample) => {
+      const rgb = Array.isArray(sample) ? sample : sample?.rgb;
+      if (!rgb || rgb.length < 3) return;
+      let nearest = palette[0];
+      let nearestDistance = Number.POSITIVE_INFINITY;
+      palette.forEach((color) => {
+        const distance = colorDistance(rgb, color.rgb);
+        if (distance < nearestDistance) {
+          nearest = color;
+          nearestDistance = distance;
+        }
+      });
+      counts.set(nearest.code, (counts.get(nearest.code) || 0) + 1);
+    });
+
+    const entries = palette
+      .filter((color) => counts.has(color.code))
+      .map((color) => ({ color, count: counts.get(color.code) }))
+      .sort((a, b) => b.count - a.count);
+    if (entries.length <= limit) return entries.map((entry) => entry.color);
+
+    // Ignore one-pixel compression artefacts while retaining small eyes and garment accents.
+    const minimumCount = Math.max(2, Math.floor(samples.length * .0005));
+    const eligible = entries.filter((entry) => entry.count >= minimumCount);
+    const candidates = eligible.length >= Math.min(limit, 4) ? eligible : entries;
+    const selected = [];
+    const selectedCodes = new Set();
+    const add = (entry) => {
+      if (!entry || selectedCodes.has(entry.color.code) || selected.length >= limit) return;
+      selected.push(entry.color);
+      selectedCodes.add(entry.color.code);
+    };
+
+    add(candidates[0]);
+    add(candidates.reduce((best, entry) => luminance(entry.color.rgb) < luminance(best.color.rgb) ? entry : best));
+    add(candidates.reduce((best, entry) => luminance(entry.color.rgb) > luminance(best.color.rgb) ? entry : best));
+
+    while (selected.length < limit && selected.length < candidates.length) {
+      let best = null;
+      let bestScore = Number.NEGATIVE_INFINITY;
+      candidates.forEach((entry) => {
+        if (selectedCodes.has(entry.color.code)) return;
+        const separation = selected.reduce((distance, color) => Math.min(distance, colorDistance(entry.color.rgb, color.rgb)), Number.POSITIVE_INFINITY);
+        const score = Math.log2(entry.count + 1) * (1 + separation / 65);
+        if (score > bestScore) {
+          best = entry;
+          bestScore = score;
+        }
+      });
+      add(best);
+    }
+
+    if (selected.length < limit) entries.forEach(add);
+    return selected;
+  }
+
   function cleanSkinToneNoise(cells, colorByCode, options = {}) {
     const height = cells.length;
     const width = height ? cells[0].length : 0;
@@ -113,5 +174,17 @@
     return { replaced, components: cleanedComponents };
   }
 
-  return { cleanSkinToneNoise };
+  function colorDistance(a, b) {
+    const meanRed = (a[0] + b[0]) / 2;
+    const dr = a[0] - b[0];
+    const dg = a[1] - b[1];
+    const db = a[2] - b[2];
+    return Math.sqrt((2 + meanRed / 256) * dr * dr + 4 * dg * dg + (2 + (255 - meanRed) / 256) * db * db);
+  }
+
+  function luminance(rgb) {
+    return rgb[0] * .299 + rgb[1] * .587 + rgb[2] * .114;
+  }
+
+  return { cleanSkinToneNoise, selectAdaptivePalette };
 }));

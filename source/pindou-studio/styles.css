@@ -122,6 +122,8 @@ input[type="range"] { width: 100%; accent-color: var(--coral); cursor: pointer; 
 .select-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
 .select-row label { color: #4d4640; font-size: 12px; font-weight: 750; }
 select { width: 100%; margin-top: 7px; padding: 10px 30px 10px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); font-size: 11px; }
+.palette-note { margin: 9px 2px 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
+.palette-note strong { color: #5b5047; }
 .switch-row { margin-top: 18px; padding: 12px; display: flex; gap: 10px; align-items: flex-start; border-radius: 12px; background: #f5f1eb; cursor: pointer; }
 .switch-row input { margin-top: 2px; accent-color: var(--coral); }
 .switch-row span, .switch-row strong, .switch-row small { display: block; }

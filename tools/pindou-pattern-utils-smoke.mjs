@@ -2,7 +2,8 @@ import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 
 const require = createRequire(import.meta.url);
-const { cleanSkinToneNoise } = require('../source/pindou-studio/pattern-utils.js');
+const { cleanSkinToneNoise, selectAdaptivePalette } = require('../source/pindou-studio/pattern-utils.js');
+const mardPalette = require('../source/pindou-studio/mard-221.js').map((item) => ({ ...item, rgb: hexToRgb(item.hex) }));
 
 const color = (code) => ({ code });
 const board = (size, code) => Array.from({ length: size }, () => Array.from({ length: size }, () => color(code)));
@@ -41,4 +42,34 @@ const board = (size, code) => Array.from({ length: size }, () => Array.from({ le
   assert.equal(result.replaced, 2);
 }
 
-console.log('pindou skin-tone cleanup smoke test passed');
+{
+  assert.equal(mardPalette.length, 221);
+  assert.equal(new Set(mardPalette.map((item) => item.code)).size, 221);
+  assert.deepEqual(
+    Object.fromEntries([...new Set(mardPalette.map((item) => item.code[0]))].map((series) => [series, mardPalette.filter((item) => item.code.startsWith(series)).length])),
+    { A: 26, B: 32, C: 29, D: 26, E: 24, F: 25, G: 21, H: 23, M: 15 },
+  );
+}
+
+{
+  const samples = [
+    ...repeatColor('G2', 600),
+    ...repeatColor('C16', 280),
+    ...repeatColor('F3', 120),
+    ...repeatColor('H2', 80),
+  ];
+  const selected = selectAdaptivePalette(samples, mardPalette, 4).map((item) => item.code);
+  assert.deepEqual(new Set(selected), new Set(['G2', 'C16', 'F3', 'H2']));
+}
+
+console.log('pindou palette and skin-tone smoke tests passed');
+
+function repeatColor(code, count) {
+  const rgb = mardPalette.find((item) => item.code === code).rgb;
+  return Array.from({ length: count }, () => rgb);
+}
+
+function hexToRgb(hex) {
+  const value = Number.parseInt(hex.slice(1), 16);
+  return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+}

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const MARD_PALETTE = [
+  const LEGACY_PORTRAIT_PALETTE = [
     { code: 'H7', name: '黑色', hex: '#000000' },
     { code: 'C18', name: '深蓝黑', hex: '#1C3344' },
     { code: 'H16', name: '深咖啡', hex: '#3B2F23' },
@@ -15,9 +15,13 @@
     { code: 'G16', name: '奶咖色', hex: '#F2D9BA' },
     { code: 'G1', name: '浅肤色', hex: '#FFE2CE' },
     { code: 'H2', name: '白色', hex: '#FFFFFF' },
-  ].map((color) => ({ ...color, rgb: hexToRgb(color.hex) }));
-
-  const SIMPLE_CODES = new Set(['H7', 'H16', 'M8', 'F9', 'F17', 'G16', 'G1', 'H2']);
+  ];
+  const MARD_PALETTE = (Array.isArray(window.Mard221Palette) && window.Mard221Palette.length === 221
+    ? window.Mard221Palette
+    : LEGACY_PORTRAIT_PALETTE)
+    .map((color) => ({ ...color, rgb: hexToRgb(color.hex) }));
+  const PORTRAIT_CODES = new Set(LEGACY_PORTRAIT_PALETTE.map((color) => color.code));
+  const PORTRAIT_PALETTE = MARD_PALETTE.filter((color) => PORTRAIT_CODES.has(color.code));
   const GRID_OPTIONS = [60, 80, 100, 120];
   const COMPLEXITY_COPY = [
     '轻量版：豆子少，适合物品和单人头像，合照五官可能不够清楚。',
@@ -34,7 +38,7 @@
     cartoonCanvas: document.createElement('canvas'),
     cells: [],
     grid: 100,
-    palette: MARD_PALETTE,
+    palette: PORTRAIT_PALETTE,
     view: 'preview',
     tool: 'pen',
     selectedCode: 'H7',
@@ -208,10 +212,17 @@
       const route = checkedValue('route');
       const outlineStrength = Number(els.outline.value);
       state.grid = GRID_OPTIONS[Number(els.gridSize.value)];
-      state.palette = els.paletteMode.value === '8' ? MARD_PALETTE.filter((item) => SIMPLE_CODES.has(item.code)) : MARD_PALETTE;
       drawSourceCanvas();
       drawCartoonCanvas(outlineStrength);
       const inputCanvas = route === 'cartoon' ? state.cartoonCanvas : state.sourceCanvas;
+      const paletteMode = els.paletteMode.value;
+      if (paletteMode === 'portrait13') {
+        state.palette = PORTRAIT_PALETTE;
+      } else {
+        const samples = collectColorSamples(inputCanvas, state.grid, els.background.value, route);
+        state.palette = window.PindouPatternUtils.selectAdaptivePalette(samples, MARD_PALETTE, Number(paletteMode));
+        if (!state.palette.length) state.palette = PORTRAIT_PALETTE;
+      }
       state.cells = quantizeToPattern(inputCanvas, state.grid, state.palette, els.background.value);
       if (els.smooth.checked) smoothConcaveContours(state.cells);
       const skinCleanup = els.skinClean.checked
@@ -228,7 +239,13 @@
       const cleanupCopy = skinCleanup.replaced
         ? `已合并 ${skinCleanup.replaced} 格零碎肤色阴影，`
         : '';
-      setStatus(`完成：${state.analysis.total.toLocaleString('zh-CN')} 颗豆，${cleanupCopy}${connectedCopy}。建议放大检查五官。`);
+      const colorCopy = paletteMode === 'portrait13'
+        ? '使用旧版人像 13 色限制'
+        : `已从 221 色库自动挑选最多 ${paletteMode} 色`;
+      const routeCopy = route === 'direct' && state.grid < 100
+        ? ' 照片直转的低格数不适合多人脸；合照请切到“卡通化后转图纸”并用 100 格以上。'
+        : '';
+      setStatus(`完成：${state.analysis.total.toLocaleString('zh-CN')} 颗豆，${colorCopy}，${cleanupCopy}${connectedCopy}。${routeCopy || '建议放大检查五官。'}`);
     } catch (error) {
       console.error(error);
       setStatus('生成时遇到问题，请换一张尺寸更小的图片再试。', true);
@@ -248,7 +265,7 @@
     ctx.clearRect(0, 0, size, size);
     ctx.fillStyle = '#f7f3ec';
     ctx.fillRect(0, 0, size, size);
-    drawImageCover(ctx, state.image, size, size);
+    drawImageContain(ctx, state.image, size, size);
   }
 
   function drawCartoonCanvas(strength) {
@@ -305,6 +322,27 @@
       }
     }
     return cells;
+  }
+
+  function collectColorSamples(canvas, grid, backgroundMode, route) {
+    const sample = document.createElement('canvas');
+    sample.width = grid;
+    sample.height = grid;
+    const ctx = sample.getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(canvas, 0, 0, grid, grid);
+    const pixels = ctx.getImageData(0, 0, grid, grid).data;
+    const backgrounds = estimateCornerColors(pixels, grid);
+    const tolerance = route === 'cartoon' ? 37 : 31;
+    const samples = [];
+    for (let index = 0; index < pixels.length; index += 4) {
+      if (pixels[index + 3] < 128) continue;
+      const rgb = [pixels[index], pixels[index + 1], pixels[index + 2]];
+      if (backgroundMode === 'auto' && backgrounds.some((bg) => colorDistance(rgb, bg) < tolerance)) continue;
+      samples.push(rgb);
+    }
+    return samples;
   }
 
   function cleanTinyComponents(cells) {
@@ -533,7 +571,8 @@
 
   function renderPalette() {
     els.paletteRow.innerHTML = '';
-    state.palette.forEach((color) => {
+    const editorColors = uniqueColors([colorByCode('H7'), colorByCode('H2'), ...state.palette]);
+    editorColors.forEach((color) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = `palette-chip${readableTextColor(color.rgb) === '#1f1c1a' ? ' light' : ''}${state.selectedCode === color.code ? ' active' : ''}`;
@@ -770,11 +809,20 @@
     return Math.sqrt((2 + meanRed / 256) * dr * dr + 4 * dg * dg + (2 + (255 - meanRed) / 256) * db * db);
   }
 
-  function drawImageCover(ctx, image, width, height) {
-    const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+  function drawImageContain(ctx, image, width, height) {
+    const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
     const drawWidth = image.naturalWidth * scale;
     const drawHeight = image.naturalHeight * scale;
     ctx.drawImage(image, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
+  }
+
+  function uniqueColors(colors) {
+    const seen = new Set();
+    return colors.filter((color) => {
+      if (!color || seen.has(color.code)) return false;
+      seen.add(color.code);
+      return true;
+    });
   }
 
   function downloadCanvas(canvas, name) {

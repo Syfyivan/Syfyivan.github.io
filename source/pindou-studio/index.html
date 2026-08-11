@@ -73,7 +73,7 @@ layout: false
             </label>
             <label class="route-option">
               <input type="radio" name="route" value="direct">
-              <span><strong>照片直接转图纸</strong><small>保留更多原图明暗，适合物品、宠物和简单背景</small></span>
+              <span><strong>照片直接转图纸</strong><small>保留更多原图明暗，只建议物品、宠物和简单背景；多人合照请选上面的卡通路线</small></span>
             </label>
           </fieldset>
 
@@ -99,11 +99,14 @@ layout: false
             </label>
             <label>色号方案
               <select id="palette-mode">
-                <option value="13">MARD 人像 13 色</option>
-                <option value="8">MARD 简化 8 色</option>
+                <option value="24" selected>全 221 色库 · 自动选 24 色</option>
+                <option value="36">全 221 色库 · 自动选 36 色</option>
+                <option value="48">全 221 色库 · 自动选 48 色</option>
+                <option value="portrait13">旧版人像 13 色（仅肤色头像）</option>
               </select>
             </label>
           </div>
+          <p class="palette-note"><strong>不是人物只有 13 种颜色：</strong>自动方案会从 221 个 MARD 标准色中，按当前照片挑出最有用的一组；蓝、绿、红等衣服颜色都会保留。屏幕色值仅供匹配，实物仍可能受批次与光线影响。</p>
 
           <label class="switch-row">
             <input id="connect-toggle" type="checkbox" checked>
@@ -190,7 +193,7 @@ layout: false
         <li><span>01</span><strong>先卡通化，再像素化</strong><p>直接缩小照片会把阴影当五官。先压缩色阶，再合并肤色区的孤立阴影，脸才不会长出黄绿色斑点。</p></li>
         <li><span>02</span><strong>复杂度让给脸，不让给衣服</strong><p>豆子优先花在眼睛、眉毛、嘴与轮廓；衣服和大片阴影可以主动合并。</p></li>
         <li><span>03</span><strong>四张脸不能复制粘贴</strong><p>开口笑、闭嘴笑、眨眼、亲嘴和微表情要有区别，但都使用完整的小形状。</p></li>
-        <li><span>04</span><strong>品牌色号不能编</strong><p>图纸只显示本工具内置并核对过的 MARD 色号，同时给出逐色用量和逐格 CSV。</p></li>
+        <li><span>04</span><strong>品牌色号不能编</strong><p>从 MARD 221 色参考表中按照片自动选色，同时给出逐色用量和逐格 CSV；屏幕色只作为近似参考。</p></li>
         <li><span>05</span><strong>好看之后还要能挂</strong><p>系统检查四向连接；镜框转角不能只对角相碰，主要头像之间也要留冗余连接。</p></li>
       </ol>
     </section>
@@ -212,6 +215,7 @@ layout: false
     <a href="/">返回一凡的博客</a>
   </footer>
 
+  <script src="./mard-221.js"></script>
   <script src="./pattern-utils.js"></script>
   <script src="./app.js"></script>
 </body>
