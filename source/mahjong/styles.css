@@ -660,6 +660,10 @@ a.ghost-button {
   box-shadow: 0 5px 14px rgba(13, 72, 51, 0.22);
 }
 
+.segmented-control.three-options {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .solo-play-button {
   display: flex;
   align-items: center;
@@ -1981,7 +1985,6 @@ a.ghost-button {
   color: rgba(247, 240, 220, 0.86);
   background: rgba(120, 126, 121, 0.88);
 }
-}
 
 .end-modal {
   position: fixed;
@@ -2008,70 +2011,431 @@ a.ghost-button {
 
 .end-card {
   display: grid;
-  width: min(520px, 100%);
-  gap: 12px;
-  padding: 20px;
-  background: rgba(24, 33, 27, 0.96);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(780px, 100%);
+  max-height: min(880px, calc(100dvh - 32px));
+  gap: 16px;
+  padding: 22px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(216, 163, 63, 0.13), transparent 32%),
+    rgba(18, 38, 30, 0.98);
+  border: 1px solid rgba(216, 163, 63, 0.3);
+  border-radius: 24px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.end-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.end-card-heading h2 {
+  margin: 0;
+  color: var(--cream);
+  font-family: STKaiti, KaiTi, "Songti SC", serif;
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.match-meta {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  color: rgba(247, 240, 220, 0.78);
+  background: rgba(255, 255, 255, 0.065);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .end-result {
   display: grid;
-  gap: 10px;
+  gap: 16px;
+  min-height: 0;
+  padding-right: 4px;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
-.end-result-title,
-.score-detail-list p,
-.score-transfers p {
-  margin: 0;
-}
-
-.end-result-title {
-  color: var(--text);
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.score-detail-list,
-.score-transfers {
+.settlement-outcome {
   display: grid;
-  gap: 5px;
-  color: var(--muted);
-  font-size: 13px;
+  gap: 8px;
+  padding: 17px 18px;
+  background: linear-gradient(135deg, rgba(216, 163, 63, 0.17), rgba(255, 255, 255, 0.035));
+  border: 1px solid rgba(216, 163, 63, 0.3);
+  border-radius: 18px;
+}
+
+.settlement-section-label {
+  color: var(--gold-light);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.settlement-result-title {
+  margin: 0;
+  color: var(--cream);
+  font-size: clamp(19px, 2.8vw, 26px);
   line-height: 1.35;
 }
 
-.score-deltas {
+.winner-summary-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.winner-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.winner-summary > div:first-child,
+.winner-payout-box {
+  display: grid;
+  gap: 3px;
+}
+
+.winner-name {
+  color: #fff2c6;
+  font-size: 16px;
+}
+
+.winner-patterns,
+.winner-payout-label,
+.settlement-draw-note {
+  margin: 0;
+  color: rgba(247, 240, 220, 0.68);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.winner-payout-box {
+  justify-items: end;
+}
+
+.winner-payout {
+  color: #79dda4;
+  font-size: 20px;
+}
+
+.settlement-balance-section,
+.match-ledger {
+  display: grid;
+  gap: 10px;
+}
+
+.settlement-section-heading {
   display: flex;
-  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settlement-section-heading h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.settlement-section-heading span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.settlement-balances {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 9px;
+}
+
+.settlement-player-card {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 13px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 15px;
+}
+
+.settlement-player-card[data-tone="positive"] {
+  background: linear-gradient(145deg, rgba(59, 146, 98, 0.22), rgba(255, 255, 255, 0.045));
+  border-color: rgba(121, 221, 164, 0.3);
+}
+
+.settlement-player-card[data-tone="negative"] {
+  background: linear-gradient(145deg, rgba(160, 71, 65, 0.2), rgba(255, 255, 255, 0.04));
+  border-color: rgba(255, 145, 130, 0.25);
+}
+
+.settlement-player-top {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.settlement-seat {
+  display: grid;
+  width: 26px;
+  height: 30px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: #7c311f;
+  background: linear-gradient(150deg, #fff8df, #d9c496);
+  border-radius: 7px;
+  box-shadow: inset 0 -3px 0 rgba(116, 85, 42, 0.2);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.settlement-player-top > div {
+  display: grid;
+  min-width: 0;
+}
+
+.settlement-player-name {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settlement-player-kind {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.settlement-change {
+  display: flex;
+  align-items: baseline;
   gap: 6px;
 }
 
-.score-chip {
-  display: inline-flex;
+.settlement-change strong {
+  color: rgba(247, 240, 220, 0.72);
+  font-size: 27px;
+  line-height: 1;
+}
+
+.settlement-player-card[data-tone="positive"] .settlement-change strong,
+td[data-tone="positive"] strong {
+  color: #79dda4;
+}
+
+.settlement-player-card[data-tone="negative"] .settlement-change strong,
+td[data-tone="negative"] strong {
+  color: #ff9182;
+}
+
+.settlement-change span,
+.settlement-balance span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.settlement-balance {
+  display: flex;
   align-items: center;
-  min-height: 28px;
-  padding: 0 8px;
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settlement-balance strong {
+  color: var(--gold-light);
   font-size: 12px;
   font-weight: 800;
 }
 
-.score-chip[data-positive="true"] {
-  color: #f7d77c;
-  border-color: rgba(216, 163, 63, 0.48);
+.settlement-transfers {
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 15px;
 }
 
-.score-transfers summary {
-  color: var(--gold);
+.settlement-transfers summary {
+  padding: 13px 14px;
+  color: var(--text);
   cursor: pointer;
+  list-style: none;
+}
+
+.settlement-transfers summary::-webkit-details-marker {
+  display: none;
+}
+
+.settlement-transfers summary::after {
+  float: right;
+  color: var(--gold);
+  content: "⌄";
+  font-size: 18px;
+}
+
+.settlement-transfers summary > span {
+  display: inline-grid;
+  gap: 2px;
+}
+
+.settlement-transfers summary strong {
+  font-size: 13px;
+}
+
+.settlement-transfers summary small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.settlement-transfer-list {
+  display: grid;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settlement-transfer-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.8fr) minmax(220px, 1.25fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 14px;
+}
+
+.settlement-transfer-row + .settlement-transfer-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.settlement-transfer-direction {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.settlement-transfer-direction span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settlement-transfer-direction .payer {
+  color: #ff9182;
+}
+
+.settlement-transfer-direction .receiver {
+  color: #79dda4;
+}
+
+.transfer-arrow {
+  color: var(--muted);
+}
+
+.settlement-transfer-reason {
+  display: grid;
+  min-width: 0;
+}
+
+.settlement-transfer-reason strong {
+  overflow: hidden;
+  color: rgba(247, 240, 220, 0.82);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settlement-transfer-reason small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.settlement-transfer-amount {
+  color: var(--gold-light);
   font-size: 13px;
   font-weight: 900;
+  white-space: nowrap;
+}
+
+.settlement-transfer-empty,
+.settlement-empty {
+  margin: 0;
+  padding: 14px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.match-ledger-scroll {
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 15px;
+}
+
+.match-ledger table {
+  width: 100%;
+  min-width: 540px;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.match-ledger th,
+.match-ledger td {
+  min-width: 100px;
+  padding: 9px 11px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
+}
+
+.match-ledger thead th {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.045);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.match-ledger tbody th,
+.match-ledger td {
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.09);
+}
+
+.match-ledger tbody tr:last-child th,
+.match-ledger tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.match-ledger tbody th,
+.match-ledger td {
+  display: table-cell;
+}
+
+.match-ledger tbody th strong,
+.match-ledger tbody th small,
+.match-ledger td strong,
+.match-ledger td small {
+  display: block;
+}
+
+.match-ledger tbody th small,
+.match-ledger td small {
+  max-width: 150px;
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .rules-card,
@@ -2253,24 +2617,15 @@ button.guide-target {
   font-weight: 900;
 }
 
-.end-card h2,
-.end-card p {
-  margin: 0;
-}
-
 .end-card h2 {
-  font-size: 28px;
-}
-
-.end-card p {
-  color: var(--text);
-  font-size: 18px;
-  font-weight: 800;
+  margin: 0;
 }
 
 .end-actions {
   display: flex;
+  justify-content: flex-end;
   gap: 8px;
+  padding-top: 2px;
 }
 
 [hidden] {
@@ -2496,6 +2851,98 @@ button.guide-target {
   .guide-choice-actions,
   .guide-coach {
     align-items: stretch;
+  }
+
+  .end-modal {
+    place-items: stretch;
+    padding: 8px;
+  }
+
+  .end-card {
+    width: 100%;
+    max-height: calc(100dvh - 16px);
+    gap: 12px;
+    padding: 15px;
+    border-radius: 20px;
+  }
+
+  .end-card-heading {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .end-card-heading h2 {
+    font-size: 27px;
+  }
+
+  .match-meta {
+    align-self: flex-start;
+    padding: 6px 9px;
+    font-size: 10px;
+    white-space: normal;
+  }
+
+  .end-result {
+    gap: 12px;
+    padding-right: 1px;
+  }
+
+  .settlement-outcome {
+    padding: 14px;
+    border-radius: 15px;
+  }
+
+  .settlement-result-title {
+    font-size: 21px;
+  }
+
+  .settlement-balances {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .settlement-player-card {
+    gap: 9px;
+    padding: 10px;
+    border-radius: 13px;
+  }
+
+  .settlement-change strong {
+    font-size: 23px;
+  }
+
+  .settlement-transfer-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 7px 10px;
+    padding: 10px 12px;
+  }
+
+  .settlement-transfer-reason {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .settlement-transfer-reason strong {
+    white-space: normal;
+  }
+
+  .settlement-transfer-amount {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .match-ledger table {
+    min-width: 500px;
+  }
+
+  .end-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .end-actions button {
+    width: 100%;
   }
 }
 

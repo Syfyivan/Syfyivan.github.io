@@ -219,11 +219,23 @@ function normalizeSeatCount(value) {
   return count === 4 ? 4 : 3;
 }
 
+function normalizeStartingCoins(value) {
+  const coins = Number(value);
+  return [200, 400, 800].includes(coins) ? coins : 400;
+}
+
+function normalizeStakeMultiplier(value) {
+  const multiplier = Number(value);
+  return [1, 2, 5].includes(multiplier) ? multiplier : 1;
+}
+
 function makeConfig(options = {}) {
   const variant = normalizeVariant(options.variant);
   return {
     variant,
-    seatCount: normalizeSeatCount(options.seatCount)
+    seatCount: normalizeSeatCount(options.seatCount),
+    startingCoins: normalizeStartingCoins(options.startingCoins),
+    stakeMultiplier: normalizeStakeMultiplier(options.stakeMultiplier)
   };
 }
 
@@ -236,7 +248,12 @@ function roomSeatCount(room) {
 }
 
 function roomConfigLabel(room) {
-  return variantFor(room).label + " · " + roomSeatCount(room) + "人局";
+  return [
+    variantFor(room).label,
+    roomSeatCount(room) + "人局",
+    room.config.startingCoins + "枚初始币",
+    room.config.stakeMultiplier + "倍底注"
+  ].join(" · ");
 }
 
 function sanitizeName(value) {
@@ -278,11 +295,12 @@ function makeRoom(code, options) {
     result: "",
     scoreTransfers: [],
     scoreResult: null,
+    roundHistory: [],
     events: ["房间已创建"]
   };
 }
 
-function makePlayer(id, name, seat, bot = false) {
+function makePlayer(id, name, seat, bot = false, startingCoins = 400) {
   return {
     id,
     name,
@@ -299,7 +317,7 @@ function makePlayer(id, name, seat, bot = false) {
     waitingTypes: [],
     baoSeen: false,
     lockedWaitingTypes: [],
-    score: 0,
+    score: normalizeStartingCoins(startingCoins),
     roundDelta: 0,
     peer: null
   };
@@ -929,18 +947,33 @@ function scoreWinningHand(room, player, context = {}) {
 }
 
 function finishRoundScores(room, winSummaries = []) {
+  const multiplier = room.config.stakeMultiplier;
+  const settledTransfers = room.scoreTransfers.map((transfer) => ({
+    ...transfer,
+    basePoints: transfer.points,
+    multiplier,
+    coins: transfer.points * multiplier
+  }));
   const deltas = new Map(room.players.map((player) => [player.seat, 0]));
-  room.scoreTransfers.forEach((transfer) => {
-    deltas.set(transfer.fromSeat, (deltas.get(transfer.fromSeat) || 0) - transfer.points);
-    deltas.set(transfer.toSeat, (deltas.get(transfer.toSeat) || 0) + transfer.points);
+  settledTransfers.forEach((transfer) => {
+    deltas.set(transfer.fromSeat, (deltas.get(transfer.fromSeat) || 0) - transfer.coins);
+    deltas.set(transfer.toSeat, (deltas.get(transfer.toSeat) || 0) + transfer.coins);
   });
   room.players.forEach((player) => {
     player.roundDelta = deltas.get(player.seat) || 0;
     player.score += player.roundDelta;
   });
   room.scoreResult = {
-    winSummaries,
-    transfers: room.scoreTransfers.slice(),
+    round: room.round,
+    currency: "coins",
+    startingCoins: room.config.startingCoins,
+    multiplier,
+    winSummaries: winSummaries.map((summary) => ({
+      ...summary,
+      basePoints: summary.points,
+      coinsPerPayer: summary.points * multiplier
+    })),
+    transfers: settledTransfers,
     deltas: room.players
       .slice()
       .sort((a, b) => a.seat - b.seat)
@@ -948,11 +981,25 @@ function finishRoundScores(room, winSummaries = []) {
         seat: player.seat,
         name: player.name,
         delta: player.roundDelta,
-        total: player.score
+        total: player.score,
+        balance: player.score
       }))
   };
+  if (!Array.isArray(room.roundHistory)) {
+    room.roundHistory = [];
+  }
+  room.roundHistory.push({
+    round: room.round,
+    result: room.result || "本局结束",
+    multiplier,
+    transfers: settledTransfers.map((transfer) => ({ ...transfer })),
+    deltas: room.scoreResult.deltas.map((item) => ({ ...item }))
+  });
+  if (room.roundHistory.length > 50) {
+    room.roundHistory.splice(0, room.roundHistory.length - 50);
+  }
   const scoreLine = room.scoreResult.deltas
-    .map((item) => item.name + " " + (item.delta >= 0 ? "+" : "") + item.delta + "（总 " + item.total + "）")
+    .map((item) => item.name + " " + (item.delta >= 0 ? "+" : "") + item.delta + " 币（余额 " + item.total + "）")
     .join("；");
   if (scoreLine) {
     log(room, "本局结算：" + scoreLine);
@@ -1197,7 +1244,13 @@ function addBot(room) {
   if (room.phase === "playing" || room.players.length >= roomSeatCount(room)) {
     return false;
   }
-  const bot = makePlayer("bot-" + room.code + "-" + randomUUID(), nextBotName(room), nextOpenSeat(room), true);
+  const bot = makePlayer(
+    "bot-" + room.code + "-" + randomUUID(),
+    nextBotName(room),
+    nextOpenSeat(room),
+    true,
+    room.config.startingCoins
+  );
   room.players.push(bot);
   log(room, bot.name + " 补位入座");
   return true;
@@ -1209,6 +1262,37 @@ function roomIsVacant(room) {
 
 function applyRoomConfig(room, options) {
   room.config = makeConfig(options);
+  if (room.round === 0) {
+    room.players.forEach((player) => {
+      player.score = room.config.startingCoins;
+      player.roundDelta = 0;
+    });
+  }
+}
+
+function resetRoomForNewMatch(room, options) {
+  if (room.botTimer) {
+    clearTimeout(room.botTimer);
+  }
+  room.config = makeConfig(options);
+  room.players = [];
+  room.phase = "lobby";
+  room.round = 0;
+  room.dealerSeat = 0;
+  room.currentSeat = 0;
+  room.turnDrawn = false;
+  room.wall = [];
+  room.bao = null;
+  room.dice = null;
+  room.lastDiscard = null;
+  room.discardHistory = [];
+  room.pending = null;
+  room.botTimer = null;
+  room.result = "";
+  room.scoreTransfers = [];
+  room.scoreResult = null;
+  room.roundHistory = [];
+  room.events = ["房间已创建"];
 }
 
 function tileKeepScore(hand, tile) {
@@ -1327,14 +1411,13 @@ function settleWin(room, winners, fromPlayer, tile) {
       addScoreFromOthers(room, player, summary.points, reason);
     }
   });
-  finishRoundScores(room, summaries);
   if (fromPlayer && tile) {
     room.result = winnerNames + " 胡 " + fromPlayer.name + " 的 " + tileName(tile.type);
-    log(room, room.result);
   } else {
     room.result = winnerNames + " 自摸";
-    log(room, room.result);
   }
+  finishRoundScores(room, summaries);
+  log(room, room.result);
 }
 
 function settleBaoWin(room, player) {
@@ -1592,18 +1675,22 @@ function buildView(room, player) {
       variant: variant.key,
       variantLabel: variant.label,
       seatCount: roomSeatCount(room),
+      startingCoins: room.config.startingCoins,
+      stakeMultiplier: room.config.stakeMultiplier,
       tileCount: variant.tileTypes.length * 4,
       allowChow: variant.allowChow,
       rules: variant.rules.concat([
         roomSeatCount(room) + " 人局：庄家 14 张，其余玩家 13 张",
-        "开局掷 2 骰用于桌面提示，本版不按骰子切牌墩"
+        "开局掷 2 骰用于桌面提示，本版不按骰子切牌墩",
+        "每人初始 " + room.config.startingCoins + " 币；每一分按 " + room.config.stakeMultiplier + " 倍底注折算，余额跨小局累计"
       ]),
       detailedRules: (variant.detailedRules || []).concat([
         {
           title: "本局发牌",
           items: [
             roomSeatCount(room) + " 人局：庄家 14 张，其余玩家 13 张。",
-            "开局掷 2 骰用于桌面提示，本版不按骰子切牌墩。"
+            "开局掷 2 骰用于桌面提示，本版不按骰子切牌墩。",
+            "本场每人从 " + room.config.startingCoins + " 币开始；一分等于 " + room.config.stakeMultiplier + " 币，每局结算后继续累计余额。"
           ]
         }
       ])
@@ -1628,6 +1715,7 @@ function buildView(room, player) {
     wallCount: room.wall.length,
     result: room.result,
     scoreResult: room.scoreResult,
+    roundHistory: (room.roundHistory || []).slice(-12),
     turnName: turn ? turn.name : "",
     turnSeat: turn ? turn.seat : null,
     player: {
@@ -1641,6 +1729,7 @@ function buildView(room, player) {
       baoSeen: player.baoSeen,
       lockedWaitingTypes: player.lockedWaitingTypes,
       score: player.score,
+      coins: player.score,
       roundDelta: player.roundDelta
     },
     players: room.players
@@ -1660,6 +1749,7 @@ function buildView(room, player) {
         baoSeen: item.baoSeen,
         drawnTileId: item.id === player.id ? item.drawnTileId : null,
         score: item.score,
+        coins: item.score,
         roundDelta: item.roundDelta,
         isSelf: item.id === player.id
       })),
@@ -1700,9 +1790,7 @@ function handleJoin(peer, message) {
   const name = sanitizeName(message.name);
 
   if (room.phase !== "playing" && roomIsVacant(room)) {
-    room.players = [];
-    room.events = ["房间已创建"];
-    applyRoomConfig(room, requestedConfig);
+    resetRoomForNewMatch(room, requestedConfig);
   }
 
   let player = room.players.find((candidate) => candidate.id === requestedId);
@@ -1726,18 +1814,21 @@ function handleJoin(peer, message) {
       player.drawnSource = null;
       player.ting = false;
       player.waitingTypes = [];
-      player.score = 0;
+      if (room.round === 0) {
+        player.score = room.config.startingCoins;
+      }
       player.roundDelta = 0;
       resetBaoChoice(player);
     } else {
       if (room.players.length === 0) {
         applyRoomConfig(room, requestedConfig);
       }
-      player = makePlayer(requestedId, name, nextOpenSeat(room));
+      player = makePlayer(requestedId, name, nextOpenSeat(room), false, room.config.startingCoins);
       room.players.push(player);
     }
   } else if (
     room.phase !== "playing" &&
+    room.round === 0 &&
     player.seat === 0 &&
     room.players.every((candidate) => candidate.id === requestedId || !connectedOrBot(candidate))
   ) {

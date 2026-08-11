@@ -103,6 +103,40 @@
                     </label>
                   </div>
                 </fieldset>
+                <fieldset class="segmented-field">
+                  <legend>每人初始币</legend>
+                  <div class="segmented-control three-options" role="radiogroup" aria-label="每人初始币">
+                    <label>
+                      <input type="radio" name="startingCoins" value="200" />
+                      <span>200</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="startingCoins" value="400" checked />
+                      <span>400</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="startingCoins" value="800" />
+                      <span>800</span>
+                    </label>
+                  </div>
+                </fieldset>
+                <fieldset class="segmented-field">
+                  <legend>底注倍率</legend>
+                  <div class="segmented-control three-options" role="radiogroup" aria-label="底注倍率">
+                    <label>
+                      <input type="radio" name="stakeMultiplier" value="1" checked />
+                      <span>1×</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="stakeMultiplier" value="2" />
+                      <span>2×</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="stakeMultiplier" value="5" />
+                      <span>5×</span>
+                    </label>
+                  </div>
+                </fieldset>
               </div>
               <button class="primary-button solo-play-button" type="button" id="soloPlayButton">
                 <span>
@@ -244,12 +278,17 @@
       </section>
       <div class="end-modal" id="endModal" role="dialog" aria-modal="true" aria-labelledby="endTitle" hidden>
         <div class="end-card">
-          <div class="end-kicker">本局结束</div>
-          <h2 id="endTitle">结算</h2>
+          <div class="end-card-heading">
+            <div>
+              <div class="end-kicker" id="endKicker">本局结束</div>
+              <h2 id="endTitle">牌桌账本</h2>
+            </div>
+            <div class="match-meta" id="matchMeta">--</div>
+          </div>
           <div class="end-result" id="endResult">--</div>
           <div class="end-actions">
-            <button class="primary-button" type="button" id="modalNewRoundButton">再来</button>
-            <button class="ghost-button" type="button" id="modalExitButton">退出</button>
+            <button class="primary-button" type="button" id="modalNewRoundButton">下一局</button>
+            <button class="ghost-button" type="button" id="modalExitButton">结束本场</button>
           </div>
         </div>
       </div>
@@ -300,6 +339,6 @@
         </div>
       </div>
     </main>
-    <script src="./client.js?v=20260811-audio-2"></script>
+    <script src="./client.js?v=20260811-ledger-1"></script>
   </body>
 </html>

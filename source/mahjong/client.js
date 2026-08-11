@@ -53,6 +53,8 @@
   var platformGuideBadge = document.getElementById("platformGuideBadge");
   var variantInputs = Array.from(document.querySelectorAll('input[name="variant"]'));
   var seatCountInputs = Array.from(document.querySelectorAll('input[name="seatCount"]'));
+  var startingCoinsInputs = Array.from(document.querySelectorAll('input[name="startingCoins"]'));
+  var stakeMultiplierInputs = Array.from(document.querySelectorAll('input[name="stakeMultiplier"]'));
   var joinForm = document.getElementById("joinForm");
   var randomRoomButton = document.getElementById("randomRoomButton");
   var applyInviteButton = document.getElementById("applyInviteButton");
@@ -78,6 +80,8 @@
   var modalExitButton = document.getElementById("modalExitButton");
   var endModal = document.getElementById("endModal");
   var endResult = document.getElementById("endResult");
+  var endKicker = document.getElementById("endKicker");
+  var matchMeta = document.getElementById("matchMeta");
   var rulesTitle = document.getElementById("rulesTitle");
   var rulesDetailsButton = document.getElementById("rulesDetailsButton");
   var rulesModal = document.getElementById("rulesModal");
@@ -227,6 +231,16 @@
     return Number(radioValue(seatCountInputs, "3")) === 4 ? 4 : 3;
   }
 
+  function selectedStartingCoins() {
+    var value = Number(radioValue(startingCoinsInputs, "400"));
+    return [200, 400, 800].includes(value) ? value : 400;
+  }
+
+  function selectedStakeMultiplier() {
+    var value = Number(radioValue(stakeMultiplierInputs, "1"));
+    return [1, 2, 5].includes(value) ? value : 1;
+  }
+
   function getQuery() {
     return new URLSearchParams(window.location.search);
   }
@@ -274,7 +288,9 @@
       room: String(room || "").toUpperCase(),
       server: normalizeServerUrl(server),
       variant: selectedVariant(),
-      seatCount: selectedSeatCount()
+      seatCount: selectedSeatCount(),
+      startingCoins: selectedStartingCoins(),
+      stakeMultiplier: selectedStakeMultiplier()
     });
   }
 
@@ -304,7 +320,13 @@
       room: String(payload.room || payload.r || "").toUpperCase(),
       server: normalizeServerUrl(payload.server || payload.s || ""),
       variant: payload.variant || payload.v || selectedVariant(),
-      seatCount: Number(payload.seatCount || payload.n || selectedSeatCount()) === 4 ? 4 : 3
+      seatCount: Number(payload.seatCount || payload.n || selectedSeatCount()) === 4 ? 4 : 3,
+      startingCoins: [200, 400, 800].includes(Number(payload.startingCoins || payload.c))
+        ? Number(payload.startingCoins || payload.c)
+        : selectedStartingCoins(),
+      stakeMultiplier: [1, 2, 5].includes(Number(payload.stakeMultiplier || payload.m))
+        ? Number(payload.stakeMultiplier || payload.m)
+        : selectedStakeMultiplier()
     };
   }
 
@@ -329,6 +351,12 @@
     }
     if (invite.seatCount) {
       setRadioValue(seatCountInputs, invite.seatCount);
+    }
+    if (invite.startingCoins) {
+      setRadioValue(startingCoinsInputs, invite.startingCoins);
+    }
+    if (invite.stakeMultiplier) {
+      setRadioValue(stakeMultiplierInputs, invite.stakeMultiplier);
     }
     inviteInput.value = String(value || "").trim();
     updatePlatformGuide();
@@ -389,6 +417,8 @@
       : savedServer || defaultServerUrl());
     setRadioValue(variantInputs, query.get("variant") || profile.variant || "sichuan");
     setRadioValue(seatCountInputs, query.get("seatCount") || profile.seatCount || 3);
+    setRadioValue(startingCoinsInputs, query.get("startingCoins") || profile.startingCoins || 400);
+    setRadioValue(stakeMultiplierInputs, query.get("stakeMultiplier") || profile.stakeMultiplier || 1);
     inviteInput.value = query.get("invite") || "";
     updatePlatformGuide();
     if (isGithubPagesHost()) {
@@ -419,7 +449,9 @@
         room: roomInput.value.trim().toUpperCase() || randomRoomCode(),
         server: normalizeServerUrl(serverInput.value),
         variant: selectedVariant(),
-        seatCount: selectedSeatCount()
+        seatCount: selectedSeatCount(),
+        startingCoins: selectedStartingCoins(),
+        stakeMultiplier: selectedStakeMultiplier()
       };
     } catch (error) {
       setNotice(error.message);
@@ -472,7 +504,9 @@
         room: profile.room,
         clientId: state.clientId,
         variant: profile.variant,
-        seatCount: profile.seatCount
+        seatCount: profile.seatCount,
+        startingCoins: profile.startingCoins,
+        stakeMultiplier: profile.stakeMultiplier
       });
     });
 
@@ -1583,54 +1617,210 @@
     return (number > 0 ? "+" : "") + number;
   }
 
+  function coinBalance(item) {
+    if (!item) {
+      return 0;
+    }
+    if (item.balance !== undefined) {
+      return Number(item.balance || 0);
+    }
+    if (item.coins !== undefined) {
+      return Number(item.coins || 0);
+    }
+    if (item.total !== undefined) {
+      return Number(item.total || 0);
+    }
+    return Number(item.score || 0);
+  }
+
+  function deltaTone(value) {
+    var number = Number(value || 0);
+    return number > 0 ? "positive" : (number < 0 ? "negative" : "neutral");
+  }
+
+  function appendText(parent, tagName, className, text) {
+    var element = document.createElement(tagName);
+    if (className) {
+      element.className = className;
+    }
+    element.textContent = text;
+    parent.appendChild(element);
+    return element;
+  }
+
   function renderEndResult(view) {
     var scoreResult = view.scoreResult || null;
+    var config = view.config || {};
+    var multiplier = Number((scoreResult && scoreResult.multiplier) || config.stakeMultiplier || 1);
+    var startingCoins = Number((scoreResult && scoreResult.startingCoins) || config.startingCoins || 0);
+    var history = Array.isArray(view.roundHistory) ? view.roundHistory.slice() : [];
+    var playersBySeat = {};
     endResult.textContent = "";
-
-    var title = document.createElement("p");
-    title.className = "end-result-title";
-    title.textContent = view.result || "本局结束";
-    endResult.appendChild(title);
+    (view.players || []).forEach(function (player) {
+      playersBySeat[player.seat] = player;
+    });
+    endKicker.textContent = "第 " + view.round + " 局结算";
 
     if (!scoreResult) {
+      appendText(endResult, "p", "settlement-empty", view.result || "本局结束");
       return;
     }
 
+    if (history.length === 0) {
+      history.push({
+        round: view.round,
+        result: view.result,
+        deltas: scoreResult.deltas || []
+      });
+    }
+    matchMeta.textContent = "已打 " + history.length + " 局 · 初始 " + startingCoins + " 币 · " + multiplier + "× 底注";
+
+    var outcome = document.createElement("section");
+    outcome.className = "settlement-outcome";
+    appendText(outcome, "span", "settlement-section-label", "本局结果");
+    appendText(outcome, "h3", "settlement-result-title", view.result || "本局结束");
+
     if (scoreResult.winSummaries && scoreResult.winSummaries.length > 0) {
       var wins = document.createElement("div");
-      wins.className = "score-detail-list";
+      wins.className = "winner-summary-list";
       scoreResult.winSummaries.forEach(function (summary) {
-        var line = document.createElement("p");
-        line.textContent = summary.playerName + "：" + summary.items.join("，") + " => 每家/点炮者 " + summary.points + " 分";
-        wins.appendChild(line);
+        var winner = document.createElement("article");
+        var copy = document.createElement("div");
+        var payout = document.createElement("div");
+        winner.className = "winner-summary";
+        appendText(copy, "strong", "winner-name", summary.playerName);
+        appendText(copy, "span", "winner-patterns", (summary.items || []).join(" · "));
+        payout.className = "winner-payout-box";
+        appendText(payout, "b", "winner-payout", "+" + Number(summary.coinsPerPayer || summary.points * multiplier || 0) + " 币");
+        appendText(payout, "small", "winner-payout-label", "每家 / 点炮者");
+        winner.append(copy, payout);
+        wins.appendChild(winner);
       });
-      endResult.appendChild(wins);
+      outcome.appendChild(wins);
+    } else {
+      appendText(outcome, "p", "settlement-draw-note", "本局无人胡牌，已发生的杠分仍会计入余额。");
     }
+    endResult.appendChild(outcome);
 
-    var deltas = document.createElement("div");
-    deltas.className = "score-deltas";
-    (scoreResult.deltas || []).forEach(function (item) {
-      var chip = document.createElement("span");
-      chip.className = "score-chip";
-      chip.dataset.positive = Number(item.delta || 0) >= 0 ? "true" : "false";
-      chip.textContent = item.name + " " + formatDelta(item.delta) + " / 总 " + item.total;
-      deltas.appendChild(chip);
+    var balanceSection = document.createElement("section");
+    var balanceHeading = document.createElement("div");
+    var balances = document.createElement("div");
+    balanceSection.className = "settlement-balance-section";
+    balanceHeading.className = "settlement-section-heading";
+    appendText(balanceHeading, "h3", "", "本局输赢");
+    appendText(balanceHeading, "span", "", "余额自动带入下一局");
+    balanceSection.appendChild(balanceHeading);
+    balances.className = "settlement-balances";
+    (scoreResult.deltas || []).slice().sort(function (a, b) {
+      return Number(b.delta || 0) - Number(a.delta || 0) || Number(a.seat || 0) - Number(b.seat || 0);
+    }).forEach(function (item) {
+      var player = playersBySeat[item.seat] || {};
+      var card = document.createElement("article");
+      var cardTop = document.createElement("div");
+      var seat = document.createElement("span");
+      var identity = document.createElement("div");
+      var change = document.createElement("div");
+      var balance = document.createElement("div");
+      card.className = "settlement-player-card";
+      card.dataset.tone = deltaTone(item.delta);
+      cardTop.className = "settlement-player-top";
+      seat.className = "settlement-seat";
+      seat.textContent = String(Number(item.seat || 0) + 1);
+      appendText(identity, "strong", "settlement-player-name", item.name + (player.isSelf ? "（我）" : ""));
+      appendText(identity, "span", "settlement-player-kind", player.bot ? "牌搭子" : "玩家");
+      cardTop.append(seat, identity);
+      change.className = "settlement-change";
+      appendText(change, "strong", "", formatDelta(item.delta));
+      appendText(change, "span", "", "本局币");
+      balance.className = "settlement-balance";
+      appendText(balance, "span", "", "当前余额");
+      appendText(balance, "strong", "", coinBalance(item) + " 币");
+      card.append(cardTop, change, balance);
+      balances.appendChild(card);
     });
-    endResult.appendChild(deltas);
+    balanceSection.appendChild(balances);
+    endResult.appendChild(balanceSection);
 
+    var transfers = document.createElement("details");
+    var summaryLabel = document.createElement("summary");
+    var summaryCopy = document.createElement("span");
+    var transferList = document.createElement("div");
+    transfers.className = "settlement-transfers";
+    transfers.open = true;
+    appendText(summaryCopy, "strong", "", "本局币账流水");
+    appendText(summaryCopy, "small", "", (scoreResult.transfers || []).length + " 笔 · 基础分 × " + multiplier + " 倍底注");
+    summaryLabel.appendChild(summaryCopy);
+    transfers.appendChild(summaryLabel);
+    transferList.className = "settlement-transfer-list";
     if (scoreResult.transfers && scoreResult.transfers.length > 0) {
-      var transfers = document.createElement("details");
-      transfers.className = "score-transfers";
-      var summaryLabel = document.createElement("summary");
-      summaryLabel.textContent = "计分明细";
-      transfers.appendChild(summaryLabel);
       scoreResult.transfers.forEach(function (transfer) {
-        var row = document.createElement("p");
-        row.textContent = transfer.fromName + " -> " + transfer.toName + "：" + transfer.points + " 分（" + transfer.reason + "）";
-        transfers.appendChild(row);
+        var row = document.createElement("div");
+        var direction = document.createElement("div");
+        var reason = document.createElement("div");
+        var amount = document.createElement("div");
+        row.className = "settlement-transfer-row";
+        direction.className = "settlement-transfer-direction";
+        appendText(direction, "span", "payer", transfer.fromName);
+        appendText(direction, "b", "transfer-arrow", "→");
+        appendText(direction, "span", "receiver", transfer.toName);
+        reason.className = "settlement-transfer-reason";
+        appendText(reason, "strong", "", transfer.reason || "牌局结算");
+        appendText(reason, "small", "", Number(transfer.basePoints || transfer.points || 0) + " 分 × " + Number(transfer.multiplier || multiplier) + " 倍");
+        amount.className = "settlement-transfer-amount";
+        amount.textContent = "+" + Number(transfer.coins || transfer.points || 0) + " 币";
+        row.append(direction, reason, amount);
+        transferList.appendChild(row);
       });
-      endResult.appendChild(transfers);
+    } else {
+      appendText(transferList, "p", "settlement-transfer-empty", "本局没有发生币的转移。");
     }
+    transfers.appendChild(transferList);
+    endResult.appendChild(transfers);
+
+    var ledger = document.createElement("section");
+    var ledgerHeading = document.createElement("div");
+    var ledgerScroll = document.createElement("div");
+    var table = document.createElement("table");
+    var head = document.createElement("thead");
+    var headRow = document.createElement("tr");
+    var body = document.createElement("tbody");
+    var orderedPlayers = (view.players || []).slice().sort(function (a, b) {
+      return a.seat - b.seat;
+    });
+    ledger.className = "match-ledger";
+    ledgerHeading.className = "settlement-section-heading";
+    appendText(ledgerHeading, "h3", "", "本场累计账本");
+    appendText(ledgerHeading, "span", "", "最近 " + history.length + " 局");
+    ledger.appendChild(ledgerHeading);
+    ledgerScroll.className = "match-ledger-scroll";
+    appendText(headRow, "th", "match-ledger-round-heading", "局数");
+    orderedPlayers.forEach(function (player) {
+      appendText(headRow, "th", "", player.name + (player.isSelf ? "（我）" : ""));
+    });
+    head.appendChild(headRow);
+    table.appendChild(head);
+    history.slice().reverse().forEach(function (round) {
+      var row = document.createElement("tr");
+      var roundCell = document.createElement("th");
+      appendText(roundCell, "strong", "", "第 " + round.round + " 局");
+      appendText(roundCell, "small", "", round.result || "已结算");
+      row.appendChild(roundCell);
+      orderedPlayers.forEach(function (player) {
+        var item = (round.deltas || []).find(function (delta) {
+          return delta.seat === player.seat;
+        }) || { delta: 0, total: coinBalance(player) };
+        var cell = document.createElement("td");
+        cell.dataset.tone = deltaTone(item.delta);
+        appendText(cell, "strong", "", formatDelta(item.delta));
+        appendText(cell, "small", "", coinBalance(item) + " 币");
+        row.appendChild(cell);
+      });
+      body.appendChild(row);
+    });
+    table.appendChild(body);
+    ledgerScroll.appendChild(table);
+    ledger.appendChild(ledgerScroll);
+    endResult.appendChild(ledger);
   }
 
   function claimShortLabel(action) {
@@ -1679,12 +1869,12 @@
       } else {
         status.textContent = player.connected ? (player.ready ? "已准备" : "未准备") : "离线";
       }
-      status.textContent += " · 总分 " + Number(player.score || 0);
+      status.textContent += " · 余额 " + coinBalance(player) + " 币";
       text.append(name, status);
 
       var count = document.createElement("div");
       count.className = "player-state";
-      count.textContent = view.phase === "ended" ? formatDelta(player.roundDelta) : player.handCount + " 张";
+      count.textContent = view.phase === "ended" ? formatDelta(player.roundDelta) + " 币" : player.handCount + " 张";
 
       item.append(dot, text, count);
       playerList.appendChild(item);
@@ -2068,6 +2258,7 @@
     state.endDialogRound = view.round;
     renderEndResult(view);
     modalNewRoundButton.disabled = !view.canStart;
+    modalNewRoundButton.textContent = "下一局 · 第 " + (Number(view.round || 0) + 1) + " 局";
     endModal.hidden = false;
   }
 
@@ -2122,9 +2313,16 @@
       activeNameInput.value = view.player.name || nameInput.value;
     }
     if (view.config) {
-      roomConfigLabel.textContent = view.config.variantLabel + " · " + view.config.seatCount + "人局";
+      roomConfigLabel.textContent = [
+        view.config.variantLabel,
+        view.config.seatCount + "人局",
+        (view.config.startingCoins || selectedStartingCoins()) + "币",
+        (view.config.stakeMultiplier || selectedStakeMultiplier()) + "×"
+      ].join(" · ");
       setRadioValue(variantInputs, view.config.variant);
       setRadioValue(seatCountInputs, view.config.seatCount);
+      setRadioValue(startingCoinsInputs, view.config.startingCoins || selectedStartingCoins());
+      setRadioValue(stakeMultiplierInputs, view.config.stakeMultiplier || selectedStakeMultiplier());
     }
     clearInvalidSelection(view);
     readyButton.textContent = view.player.ready ? "取消准备" : "准备";
@@ -2165,7 +2363,7 @@
     input.addEventListener("input", updatePlatformGuide);
   });
 
-  variantInputs.concat(seatCountInputs).forEach(function (input) {
+  variantInputs.concat(seatCountInputs, startingCoinsInputs, stakeMultiplierInputs).forEach(function (input) {
     input.addEventListener("change", updatePlatformGuide);
   });
 

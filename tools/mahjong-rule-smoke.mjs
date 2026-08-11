@@ -26,15 +26,19 @@ function hand(types) {
   return types.map(tile);
 }
 
-function makePlayingRoom(code = "TEST") {
-  const room = mahjongTestHooks.makeRoom(code, { variant: "dongbei", seatCount: 3 });
+function makePlayingRoom(code = "TEST", options = {}) {
+  const room = mahjongTestHooks.makeRoom(code, {
+    variant: "dongbei",
+    seatCount: 3,
+    ...options
+  });
   room.phase = "playing";
   room.round = 1;
   room.currentSeat = 0;
   room.players = [
-    mahjongTestHooks.makePlayer("p0", "玩家一", 0),
-    mahjongTestHooks.makePlayer("p1", "玩家二", 1),
-    mahjongTestHooks.makePlayer("p2", "玩家三", 2)
+    mahjongTestHooks.makePlayer("p0", "玩家一", 0, false, room.config.startingCoins),
+    mahjongTestHooks.makePlayer("p1", "玩家二", 1, false, room.config.startingCoins),
+    mahjongTestHooks.makePlayer("p2", "玩家三", 2, false, room.config.startingCoins)
   ];
   room.players.forEach((player) => {
     player.connected = true;
@@ -264,6 +268,29 @@ withFixedDice(() => {
   assert.equal(room.players[1].roundDelta, -2);
   assert.equal(room.players[2].roundDelta, -2);
   console.log("PASS round settlement scores self draw");
+}
+
+{
+  const room = makePlayingRoom("COINS1", { startingCoins: 200, stakeMultiplier: 5 });
+  const player = room.players[0];
+  player.hand = hand([0, 1, 2, 9, 10, 11, 18, 19, 20, 24, 25, 26, 27, 27]);
+  mahjongTestHooks.settleWin(room, [player], null, null);
+  assert.equal(room.config.startingCoins, 200);
+  assert.equal(room.scoreResult.multiplier, 5);
+  assert.equal(player.roundDelta, 20, "base self-draw points are converted by the room multiplier");
+  assert.equal(player.score, 220);
+  assert.equal(room.players[1].score, 190);
+  assert.equal(room.players[2].score, 190);
+  assert.equal(room.players.reduce((total, item) => total + item.score, 0), 600, "coin settlement stays zero-sum");
+  assert.equal(room.scoreResult.transfers[0].basePoints, 2);
+  assert.equal(room.scoreResult.transfers[0].coins, 10);
+  assert.equal(room.roundHistory.length, 1);
+  assert.equal(room.roundHistory[0].deltas[0].balance, 220);
+  assert.equal(mahjongTestHooks.startRound(room), true);
+  assert.equal(room.round, 2);
+  assert.equal(room.roundHistory.length, 1, "starting the next hand preserves the match ledger");
+  assert.equal(room.players[0].score, 220, "starting the next hand preserves coin balances");
+  console.log("PASS coin multiplier settlement and multi-round ledger");
 }
 
 {
