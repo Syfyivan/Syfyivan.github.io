@@ -12561,6 +12561,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+                noteExamTutorGuaranteeReply();
                 noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年春尾婚灯');
                 log.push(['先把三年春尾婚信与清明灯药分开：铜钱-60、家族+1、体魄+1、婚事口风缓一线。第三举业年春尾先把婚信回条、清明灯药、塾门回帖门包和入夏前锅火拆开，这层“书路还续不续到伏夏”和“婚事还能不能再缓”的尾账终于没再只贴着通用香纸与扇药一起发硬。', 'good']);
@@ -12935,6 +12936,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+                noteExamTutorGuaranteeReply();
                 noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年秋中婚保');
                 log.push(['先把三年秋中婚话回签与保结回帖分开：铜钱-70、家族+1、体魄+1、婚事口风缓一线。第三举业年秋中先把婚话回签、保结回帖、寒热药包与递话脚费拆开，这层“还冲不冲秋场”和“婚期还能不能再拖”终于没再只贴着资格链一起发硬。', 'good']);
@@ -12982,6 +12984,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+                noteExamTutorGuaranteeReply();
                 noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年冬头婚帖');
                 log.push(['先把三年冬头婚期回札与来春回场帖样分开：铜钱-70、家族+1、供读压力-1、婚事口风缓一线。第三举业年冬头先把婚期回札、旧馆回音、来春回场帖样和灯油门包拆开，这层“还要不要把书路再续到来春”和“婚期还能不能再拖”终于没再一起贴着年关锅火发硬。', 'good']);
@@ -13326,6 +13329,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+                noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '婚话先分');
                 log.push([delayUpperName + '：铜钱-' + delayUpperCost + '、家族+1' + delayUpperBodyText + '。你在这一季刚起头就先把婚话、婚期或兄房置办和盘缠馆账分开记了；若里头带着夹衣、护嗓这层换季护身钱，如今也一并落进衣药与将养账。婚事口风没再一上来就和供读钱、护身钱硬挤在同一处。', 'good']);
               } else {
@@ -13340,6 +13344,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+                noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '婚事回话已分');
                 log.push([delaySplitName + '：铜钱-' + delaySplitCost + '、家族+1' + delaySplitBodyText + '。你把婚事回话、兄房置办或婚期口风和这一旬纸墨盘缠先分开记了，婚事这口风没再继续和供读钱硬挤在同一处。', 'good']);
               } else {
@@ -22922,15 +22927,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('春尾纸样') >= 0; })) log.push(['这一任当户你又把熟号回签、孩子纸样、递话脚费和夏前样纸门包压进了春分书下旬；商路中年春尾终于也把“旧商路回话未净、孩子来春读写已先要钱”这层家内细账，压回了同一年里。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('问水脚') >= 0; })) log.push(['这一任当户你不只会“催旧账”，还一旬旬去摸水脚、行栈与熟号门路；市场摩擦终于也被写进了这一年的细账里。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏家书') >= 0; })) log.push(['这一任当户你又把伏夏家书脚费、布药纸包和锅火凉热压进了夏催账上旬；人在外头、家里要续的那口气，终于不再只由通用损耗一笔带过。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏回签') >= 0; })) log.push(['这一任当户你又把熟号回签、孩子纸样和递话门包压进了夏催账上旬；商路中年伏夏刚起头时，就开始把“旧商路仍在回话、家里读写后手先来追钱”的细账摊回同一年。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏帖册') >= 0; })) log.push(['这一任当户你还把柜帖回签、差票门包和里书帖样压进了伏夏上旬；商路这条路到了中年，连门上制度碎账也开始和暑天锅火、熟号回话一起同旬抢钱。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏样纸') >= 0; })) log.push(['这一任当户你连伏夏样纸、柜边包纸和学生家回话小门包都先拆进了夏催账中旬；商路这一年不只在大路数上有账，连柜边那层细碎纸签也开始单独咬住现钱。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏行饭') >= 0; })) log.push(['这一任当户你连伏夏行饭、柜边回话与家里锅火都压进了夏催账中旬；暑天里那层“人在外头、家里也要过”的摩擦终于不再只由通用损耗代写。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏回帖') >= 0; }) || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('伏夏供读回帖') >= 0; })) log.push(['这一任当户你又把柜边回帖、孩子纸样与递话脚费压进了夏催账中旬；商路中年终于连“旧账未回、家里读写后手却先来追钱”的那层细账，也开始像农路那样被压回同一年里。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋头回签') >= 0; })) log.push(['这一任当户你又把秋头回签、牙帖、回钱脚单和递话脚费拆进了秋定租上旬；秋钱还没真正落袋之前，最细的那层回签门包也已经先被写回这一房。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋头回钱拆开') >= 0; })) log.push(['这一任当户你把一口真回钱提前压进了秋头，当场拆作供读、药包和家里后手；商路中年秋市刚起时，就不再只剩“钱快回了”，而是连这口回钱先救谁都已经写进同一年。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋中回签') >= 0; })) log.push(['这一任当户你又把熟号回签、租路饭钱、递话脚费和锅火后手压进了秋定租中旬；商路秋中终于不再只剩“秋路回钱拆账”，连秋钱未落手时回乡与家用先来追钱的那层细耗也开始同旬见光。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋中夹衣') >= 0; })) log.push(['这一任当户你又把孩子夹衣、回乡药包和锅火后手压进了秋定租中旬；秋凉刚起时，连换季这层家内小耗也开始和回钱脚路一起同旬抢钱。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋中回钱拆开') >= 0; })) log.push(['这一任当户你又把一口真回钱前推到秋中，当场拆作供读、差票与递话后手；商路秋里这层“银已回手却立刻被几本账争夺”的冲突，终于不再主要拖到秋尾冬里才现形。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('夏尾账脚拆开') >= 0; }) || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋尾催单纸包') >= 0; })) log.push(['这一任当户你连夏尾回话脚费、秋尾催单纸包这种末尾细账都主动拆开了；商路这一年不再只是“季中有事”，连季尾也在持续咬人。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋尾门包') >= 0; })) log.push(['这一任当户你又把秋尾回话脚费、差票门包和递话小礼压回了秋定租下旬；秋钱将回未回时，连最细的门包后手也开始同年见光。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬中纸样') >= 0; })) log.push(['这一任当户你又把冬中纸样炭笔、柜边回帖和守岁锅火压进了冬应役中旬；商路这条路终于也把孩子纸样与年下回帖这层家内细耗，和制度帖册一起摊回了同一年。', 'good']);
+        if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('冬中帖册') >= 0; })) log.push(['这一任当户你还把里书抄册、来春牙帖、脚夫回签和熟号递话压进了冬应役中旬；商路年关中段终于不再只翻总账，也开始把“今冬应役未了、明春认牙先来”的制度碎账摊回同一年。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('秋尾抄簿') >= 0; })) log.push(['这一任当户你还把租帖回批、回签抄簿、递话脚费和供读纸包压回了秋定租下旬；商路这一年到了秋尾，连“哪张回批先抄进账”这层制度次序也不再等到冬里才现形。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('夏尾客签') >= 0; })) log.push(['这一任当户你又把夏尾客签回话、秋前样纸和递话门包压回了伏夏最后一旬；秋路还没开，秋前那层最细的样纸与客签后手已经先写进了同一年里。', 'good']);
         if ((S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('年关客礼') >= 0; }) || (S.本年户季务 || []).some(function (tag) { return String(tag).indexOf('客礼已分') >= 0; })) log.push(['这一任当户连年关熟号薄礼、脚夫脚费与明春水脚都被拆开记了；“门路要不要养”不再只停在一句设定里。', 'good']);
