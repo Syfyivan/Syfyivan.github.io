@@ -23,7 +23,7 @@ categories: [晨读]
 - 飞书输入覆盖 `Codex 技术交流话题群` 与 `Claude Code闲聊群`。Codex 群有 4 条顶层消息、11 条线程回复（其中 1 条已撤回）；Claude 群有 1 条《Claude 日报》卡片。按“日报”“Codex”“Cloud”“Claude”复查，只有 Claude 群的日报卡片能被识别，没有单独的《Codex 日报》或 Cloud 日报。
 - Codex 群当天的主要讨论是额度重置、故障体感、5x 升级 20x 和账单报销。它们是群友在窗口内报告的体验或询问，不是套餐规则、服务端状态或官方公告；本文只把它们作为“用户为什么需要可解释状态”的群内观察。
 - Claude 日报卡片列出 3 条可追溯 X 原帖：[Claude 账号的价格线索](https://x.com/claudeai/status/2086891169217122586)、[Boris Cherny 关于提示注入防护的帖子](https://x.com/bcherny/status/2086520950259118464)、[ClaudeDevs 关于 Auto mode 的帖子](https://x.com/ClaudeDevs/status/2086844755770757531)。本轮 X 页面可以打开，但正文没有稳定展开，因此只确认“日报引用了这些链接”，不把转述中的全部产品细节写成事实。
-- X 另做了 4 类当天检索：[AI / Agent / Codex / Claude Code](https://x.com/search?q=%28AI%20OR%20agent%20OR%20Codex%20OR%20%22Claude%20Code%22%29%20since%3A2026-08-10%20until%3A2026-08-12&src=typed_query&f=live)、[前端 / JavaScript](https://x.com/search?q=%28React%20OR%20JavaScript%20OR%20frontend%29%20since%3A2026-08-10%20until%3A2026-08-12&src=typed_query&f=live)、[服务端 / API](https://x.com/search?q=%28backend%20OR%20server%20OR%20API%29%20since%3A2026-08-10%20until%3A2026-08-12&src=typed_query&f=live)、[iOS / Android / client](https://x.com/search?q=%28iOS%20OR%20Android%20OR%20client%20OR%20mobile%29%20since%3A2026-08-10%20until%3A2026-08-12&src=typed_query&f=live)。检索页能访问，但没有稳定展开、且足以独立核验的当天单帖，所以不把搜索摘要写成新闻。
+- X 另做了 4 类当天检索：[AI / Agent / Codex / Claude Code](https://x.com/search?q=%28AI%20OR%20agent%20OR%20Codex%20OR%20%22Claude%20Code%22%29%20since%3A2026-08-11%20until%3A2026-08-12&src=typed_query&f=live)、[前端 / JavaScript](https://x.com/search?q=%28React%20OR%20JavaScript%20OR%20frontend%29%20since%3A2026-08-11%20until%3A2026-08-12&src=typed_query&f=live)、[服务端 / API](https://x.com/search?q=%28backend%20OR%20server%20OR%20API%29%20since%3A2026-08-11%20until%3A2026-08-12&src=typed_query&f=live)、[iOS / Android / client](https://x.com/search?q=%28iOS%20OR%20Android%20OR%20client%20OR%20mobile%29%20since%3A2026-08-11%20until%3A2026-08-12&src=typed_query&f=live)。检索页能访问，但没有稳定展开、且足以独立核验的当天单帖，所以不把搜索摘要写成新闻。
 - 可直接核验的公开页面包括 [Anthropic 关于 Claude Fable 5 与 Mythos 5 的公告](https://www.anthropic.com/news/claude-fable-5-mythos-5)、[Claude Code 官方 v2.1.227 release](https://github.com/anthropics/claude-code/releases/tag/v2.1.227) 和 [Claude Code 权限模式文档](https://code.claude.com/docs/en/permission-modes)。日报中“Claude Sonnet 5”及 Riemann 研究的具体说法，在本轮没有回到对应的一手页面，因此列为待核验线索；不能与上述公开页面混为一谈。
 
 ## AI 观察
@@ -81,7 +81,7 @@ Codex 群里“重置了”“只剩 6%”“故障率变多”的说法也适�
 3. 对 Claude Code v2.1.227 做回归：过期登录会话的订阅档位提示、GitHub hosted runner 上非写权限用户的 Bash 行为，以及 `/tui` 恢复到首条消息之前的边界。
 4. 为长任务补齐阶段事件：启动、上下文压缩、权限等待、工具执行、失败重试、最终验证；不要用一个 `success` 覆盖整个生命周期。
 5. 对 Codex 群内额度与故障体验做账号/版本/网络维度的最小复现，分别记录客户端显示、服务端请求结果和公开状态页，不把“群内多人感觉”直接升级成故障率结论。
-6. 继续观察 [当天 AI X 检索页](https://x.com/search?q=%28AI%20OR%20agent%20OR%20Codex%20OR%20%22Claude%20Code%22%29%20since%3A2026-08-10%20until%3A2026-08-12&src=typed_query&f=live) 以及前端、服务端、客户端三个检索入口；只有能回到作者、正文、时间和上下文时，才把 X 线索升级为事实。
+6. 继续观察 [当天 AI X 检索页](https://x.com/search?q=%28AI%20OR%20agent%20OR%20Codex%20OR%20%22Claude%20Code%22%29%20since%3A2026-08-11%20until%3A2026-08-12&src=typed_query&f=live) 以及前端、服务端、客户端三个检索入口；只有能回到作者、正文、时间和上下文时，才把 X 线索升级为事实。
 
 ## 边界与不确定性
 
