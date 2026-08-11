@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
-  <title id="title">72天青甘完整核心 + 西部主线均衡版路线图</title>
+  <title id="title">70天青甘完整核心 + 西部主线双司机均衡版路线图</title>
   <desc id="desc">北京出发，经张掖丹霞、青海湖、茶卡、德令哈、大柴旦、敦煌、哈密、北疆、喀什、阿里、拉萨、林芝、梅里、丽江、亚丁、成都、西安返回北京的近似地理方位路线图。</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
@@ -22,7 +22,7 @@
   <rect width="1600" height="980" rx="32" fill="url(#bg)"/>
   <rect x="36" y="36" width="1528" height="908" rx="28" fill="#fff" filter="url(#shadow)"/>
 
-  <text x="86" y="96" class="title">72天青甘完整核心 + 西部主线均衡版路线图</text>
+  <text x="86" y="96" class="title">70天青甘完整核心 + 西部主线双司机均衡版路线图</text>
   <text x="86" y="130" class="meta">当前版本改成更接近真实方位关系的示意图：重点看路线相对位置，不看精确公里测绘</text>
 
   <!-- faint china-like silhouette -->

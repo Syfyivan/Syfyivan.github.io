@@ -15,7 +15,7 @@
     .browser{min-height:0;display:grid;grid-template-rows:auto 1fr}.tabs{display:grid;grid-template-columns:1fr 1fr;padding:10px 18px 8px;gap:8px}.tab{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:800;color:var(--muted);cursor:pointer}.tab.active{background:var(--accent-soft);color:var(--accent);border-color:#efbea9}.list-panel{overflow:auto;padding:0 12px 18px}.list-panel[hidden]{display:none}.list{display:flex;flex-direction:column;gap:7px}.list-btn{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 11px;cursor:pointer;transition:.18s}.list-btn:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(60,45,34,.08)}.list-btn.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(199,91,57,.12)}.list-title{font-size:13px;font-weight:800;line-height:1.4;display:flex;align-items:flex-start;gap:7px}.idx,.poi-dot{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:900}.list-meta{font-size:11px;color:var(--muted);line-height:1.45;margin-top:5px;padding-left:29px}.empty{padding:24px 10px;text-align:center;color:var(--muted);font-size:13px}
     .viewer{position:relative;min-width:0;height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:16px;gap:12px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.topbar h2{font-size:21px;margin:0}.topbar p{margin:4px 0 0;font-size:12px;color:var(--muted)}.stats{display:flex;gap:7px;flex-wrap:wrap}.stat{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:700;color:var(--muted)}
     .map-shell{position:relative;min-height:0;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#edf4f8 0%,#f8f5ef 100%);box-shadow:var(--shadow)}#mapSvg{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none;user-select:none}#mapSvg.dragging{cursor:grabbing}.offline-controls{position:absolute;z-index:4;right:14px;top:14px;display:grid;gap:7px}.offline-controls button{width:38px;height:38px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.94);box-shadow:0 5px 14px rgba(0,0,0,.10);font-size:18px;font-weight:900;cursor:pointer;color:var(--ink)}.map-hint{position:absolute;left:14px;bottom:14px;z-index:2;background:rgba(38,35,32,.86);color:#fff;border-radius:10px;padding:8px 10px;font-size:11px;pointer-events:none;backdrop-filter:blur(8px)}
-    .china{fill:#fbfaf7;stroke:#cfc7bd;stroke-width:1.3;vector-effect:non-scaling-stroke}.geo-grid{stroke:#dbe2e5;stroke-width:1;stroke-dasharray:5 7;vector-effect:non-scaling-stroke}.grid-label{fill:#8a969c;font-size:11px}.detailed .grid-label{display:none}.route{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:7;opacity:.54;cursor:pointer;vector-effect:non-scaling-stroke}.route:hover{opacity:.9}.route.active{opacity:1;stroke-width:10}.route.dimmed{opacity:.07;stroke-width:4}.route-node-group,.road-label-group,.poi-group{cursor:pointer}.route-node{fill:#1f2937;stroke:#fff;stroke-width:2}.route-node-label{font-size:11px;font-weight:800;fill:#1f2937;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;display:none}.route-node-group:hover .route-node-label,.route-node-group.active .route-node-label{display:block}.road-label{font-size:11px;font-weight:900;fill:#7f3f28;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;display:none}.road-label.active{display:block}.poi-circle{stroke:#fff;stroke-width:2}.poi-short{fill:#fff;font-size:8px;font-weight:900;text-anchor:middle;dominant-baseline:central;pointer-events:none}.poi-label{display:none;font-size:11px;font-weight:800;fill:#27231f;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;pointer-events:none}.poi-group:hover .poi-label,.poi-group.selected .poi-label{display:block}.poi-group.selected .poi-circle{stroke:#1f2937;stroke-width:3}.detail{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 15px;display:grid;grid-template-columns:minmax(180px,.65fr) minmax(240px,1.35fr);gap:16px;align-items:center}.detail h3{margin:0;font-size:15px}.detail p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.55}.detail strong{color:var(--ink)}
+    .china{fill:#fbfaf7;stroke:#cfc7bd;stroke-width:1.3;vector-effect:non-scaling-stroke}.geo-grid{stroke:#dbe2e5;stroke-width:1;stroke-dasharray:5 7;vector-effect:non-scaling-stroke}.grid-label{fill:#8a969c;font-size:11px}.detailed .grid-label{display:none}.route{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:7;opacity:.54;cursor:pointer;vector-effect:non-scaling-stroke}.route:hover{opacity:.9}.route.active{opacity:1;stroke-width:10}.route.dimmed{opacity:.05;stroke-width:4}.day-route{fill:none;stroke:#c75b39;stroke-width:6;stroke-dasharray:10 7;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.day-stop-circle{fill:#c75b39;stroke:#fff;stroke-width:2}.day-stop-text{fill:#fff;font-size:8px;font-weight:900;text-anchor:middle;dominant-baseline:central}.gps-circle{fill:#2563eb;stroke:#fff;stroke-width:3}.route-node-group,.road-label-group,.poi-group{cursor:pointer}.route-node{fill:#1f2937;stroke:#fff;stroke-width:2}.route-node-label{font-size:11px;font-weight:800;fill:#1f2937;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;display:none}.route-node-group:hover .route-node-label,.route-node-group.active .route-node-label{display:block}.road-label{font-size:11px;font-weight:900;fill:#7f3f28;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;display:none}.road-label.active{display:block}.poi-circle{stroke:#fff;stroke-width:2}.poi-short{fill:#fff;font-size:8px;font-weight:900;text-anchor:middle;dominant-baseline:central;pointer-events:none}.poi-label{display:none;font-size:11px;font-weight:800;fill:#27231f;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;pointer-events:none}.poi-group:hover .poi-label,.poi-group.selected .poi-label{display:block}.poi-group.selected .poi-circle{stroke:#1f2937;stroke-width:3}.detail{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 15px;display:grid;grid-template-columns:minmax(180px,.58fr) minmax(260px,1.42fr);gap:16px;align-items:center}.detail h3{margin:0;font-size:15px}.detail p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.55}.detail strong{color:var(--ink)}.detail-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.detail-actions a,.detail-actions button{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:6px 10px;text-decoration:none;font-size:11px;font-weight:800;cursor:pointer}.detail-actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}
     @media(max-width:900px){.app{grid-template-columns:1fr;height:auto;min-height:100vh;overflow:visible}.sidebar{height:auto;max-height:52vh;border-right:0;border-bottom:1px solid var(--line)}.viewer{height:72vh;min-height:620px;padding:10px}.brand{padding:14px}.search-wrap,.layers{padding-left:14px;padding-right:14px}.detail{grid-template-columns:1fr}.map-hint{display:none}.route-node-label{display:none!important}}
   </style>
 </head>
@@ -24,38 +24,40 @@
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-row"><h1>西部大闭环离线路线与地点</h1><span class="mode-badge"><span class="mode-dot"></span>可离线</span></div>
-        <p>真实导航折线与规划地点都在本地文件里。标注保持小图标，悬停或点选后才显示名称，不会遮住路线。</p>
-        <div class="quick-actions"><button id="showAllBtn" class="primary" type="button">查看全程</button><a href="./route-map-amap.html?v=8">切到在线高德</a><a href="./index.html#overview">返回攻略</a></div>
+        <p>主干导航折线、D1—D70路书和全部规划地点都已内置；可离线缩放、拖动、定位和按天筛选。</p>
+        <div class="quick-actions"><button id="showAllBtn" class="primary" type="button">查看全程</button><button id="locateBtn" type="button">定位我</button><a href="./route-map-amap.html?v=9">切到在线高德</a><a href="./route-roadbook.html?v=9">离线路书</a><a href="./index.html#overview">返回攻略</a></div>
       </div>
       <div class="search-wrap"><input id="searchInput" class="search" type="search" placeholder="搜索住宿、景点、补给或路段" aria-label="搜索离线地图地点"></div>
       <div id="layerChips" class="layers" aria-label="地点图层"></div>
       <div class="browser">
-        <div class="tabs"><button class="tab active" data-panel="routes" type="button">路线分段</button><button class="tab" data-panel="places" type="button">地点清单 <span id="poiCount"></span></button></div>
-        <div id="routePanel" class="list-panel"><div id="segmentList" class="list"></div></div>
+        <div class="tabs"><button class="tab active" data-panel="routes" type="button">D1—D70逐日路线</button><button class="tab" data-panel="places" type="button">地点清单 <span id="poiCount"></span></button></div>
+        <div id="routePanel" class="list-panel"><div id="dayList" class="list"></div></div>
         <div id="placePanel" class="list-panel" hidden><div id="poiList" class="list"></div></div>
       </div>
     </aside>
     <main class="viewer">
       <div class="topbar">
         <div><h2 id="pageTitle">全程路线</h2><p id="pageSub">滚轮缩放、按住拖动；点路段或地点会自动聚焦。</p></div>
-        <div class="stats"><span class="stat" id="statSegments"></span><span class="stat" id="statPois"></span><span class="stat" id="offlineStatus">离线数据已内置</span></div>
+        <div class="stats"><span class="stat" id="statDays"></span><span class="stat" id="statPois"></span><span class="stat" id="offlineStatus">离线数据已内置</span></div>
       </div>
       <div class="map-shell" id="mapShell">
         <svg id="mapSvg" viewBox="0 0 1600 980" aria-label="西部大闭环可缩放离线路线图"></svg>
         <div class="offline-controls"><button id="zoomInBtn" type="button" aria-label="放大">＋</button><button id="zoomOutBtn" type="button" aria-label="缩小">−</button><button id="resetBtn" type="button" aria-label="回到全程">⌂</button></div>
         <div class="map-hint">滚轮缩放 · 抓手拖动 · 点图标看名称</div>
       </div>
-      <div class="detail"><div><h3 id="detailTitle">全程路线</h3><p id="detailMeta">20 段真实导航折线</p></div><p id="detailText">离线版不依赖在线底图，但路线折线、道路编号、住宿、景点、吃饭、采购、厕所和救援参考点都能缩放查看。</p></div>
+      <div class="detail"><div><h3 id="detailTitle">全程路线</h3><p id="detailMeta">70天 · 主计划约16,380km</p></div><div><p id="detailText">选择任意一天后会高亮对应主干路段、停靠点和当日风险提示。</p><div id="detailActions" class="detail-actions"></div></div></div>
     </main>
   </div>
   <script src="./assets/route_segments_amap.js"></script>
   <script src="./assets/route_map_pois.js"></script>
+  <script src="./assets/road_trip_days.js"></script>
   <script>
     const ROUTE = window.ROAD_TRIP_ROUTE_DATA;
     const PLACES = window.ROAD_TRIP_POI_DATA;
+    const DAILY = window.ROAD_TRIP_DAY_DATA;
     const categories = PLACES.categories;
     const svg = document.getElementById('mapSvg');
-    const list = document.getElementById('segmentList');
+    const dayList = document.getElementById('dayList');
     const poiList = document.getElementById('poiList');
     const searchInput = document.getElementById('searchInput');
     const layerChips = document.getElementById('layerChips');
@@ -64,6 +66,7 @@
     const detailTitle = document.getElementById('detailTitle');
     const detailMeta = document.getElementById('detailMeta');
     const detailText = document.getElementById('detailText');
+    const detailActions = document.getElementById('detailActions');
     const visibleCategories = new Set(Object.entries(categories).filter(([, value]) => value.defaultVisible).map(([key]) => key));
     const routeEls = new Map();
     const routeNodeEls = new Map();
@@ -73,13 +76,28 @@
     const defaultView = { x: 0, y: 0, w: ROUTE.meta.width, h: ROUTE.meta.height };
     let view = { ...defaultView };
     let activeSegmentId = '';
+    let activeDayId = '';
     let activePoiId = '';
+    let dayRouteGroup = null;
+    let gpsGroup = null;
 
-    document.getElementById('statSegments').textContent = `路线 ${ROUTE.segments.length} 段 · ${totalKm.toFixed(0)} km`;
+    document.getElementById('statDays').textContent = `${DAILY.days.length}天 · ${DAILY.meta.plannedDrivingKm.toLocaleString()}km`;
     document.getElementById('statPois').textContent = `离线地点 ${PLACES.pois.length} 个`;
 
     function escapeHtml(value) {
       return String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    }
+    const formatDate = value => `${Number(value.slice(5, 7))}月${Number(value.slice(8, 10))}日`;
+    const typeColor = type => ({ drive:'#c75b39', mixed:'#b45309', hike:'#059669', rest:'#64748b', local:'#2563eb', service:'#7c3aed' }[type] || '#64748b');
+    function segmentsForDay(day) {
+      if (!day.distanceKm && day.type !== 'local') return [];
+      const dayNumber = day.day;
+      if (dayNumber <= 2) return ['seg-01']; if (dayNumber === 3) return ['seg-02']; if (dayNumber === 4) return ['seg-03','seg-04'];
+      if (dayNumber === 5) return ['seg-05']; if (dayNumber === 6) return ['seg-06']; if (dayNumber === 7) return ['seg-07'];
+      if (dayNumber <= 11) return ['seg-08']; if (dayNumber <= 15) return ['seg-09']; if (dayNumber <= 17) return ['seg-10'];
+      if (dayNumber <= 24) return ['seg-11']; if (dayNumber <= 27) return ['seg-12']; if (dayNumber <= 36) return ['seg-13'];
+      if (dayNumber <= 43) return ['seg-14']; if (dayNumber <= 47) return ['seg-15']; if (dayNumber <= 56) return ['seg-16'];
+      if (dayNumber <= 62) return ['seg-17']; if (dayNumber <= 64) return ['seg-18']; if (dayNumber === 65) return ['seg-19']; return ['seg-20'];
     }
 
     function mk(tag, attrs = {}, parent = svg) {
@@ -222,21 +240,21 @@
       });
     }
 
-    function activateSegmentButton(id) { document.querySelectorAll('.route-btn').forEach(button => button.classList.toggle('active', button.dataset.id === id)); }
+    function activateDayButton(id) { document.querySelectorAll('.day-btn').forEach(button => button.classList.toggle('active', button.dataset.id === id)); }
     function activatePoiButton(id) { document.querySelectorAll('.poi-btn').forEach(button => button.classList.toggle('active', button.dataset.id === id)); }
 
-    function renderSegmentList() {
+    function renderDayList() {
       const query = searchInput.value.trim().toLowerCase();
-      list.innerHTML = '';
-      ROUTE.segments.filter(seg => !query || `${seg.title} ${seg.group} ${(PLACES.segmentNotes[seg.id] || {}).roads || ''}`.toLowerCase().includes(query)).forEach(seg => {
-        const note = PLACES.segmentNotes[seg.id] || {};
+      dayList.innerHTML = '';
+      DAILY.days.filter(day => !query || `${day.id} ${day.date} ${day.title} ${day.roads} ${day.critical}`.toLowerCase().includes(query)).forEach(day => {
         const button = document.createElement('button');
-        button.type = 'button'; button.className = 'list-btn route-btn'; button.dataset.id = seg.id;
-        button.innerHTML = `<div class="list-title"><span class="idx" style="background:${seg.color}">${seg.index}</span><span>${escapeHtml(seg.title)}</span></div><div class="list-meta">${escapeHtml(note.roads || seg.group)} · ${seg.lengthKm} km</div>`;
-        button.addEventListener('click', () => selectSegment(seg.id)); list.appendChild(button);
+        button.type = 'button'; button.className = 'list-btn day-btn'; button.dataset.id = day.id;
+        const km = day.distanceKm ? `约${day.distanceKm}km` : DAILY.typeLabels[day.type];
+        button.innerHTML = `<div class="list-title"><span class="idx" style="background:${typeColor(day.type)}">${day.id}</span><span>${escapeHtml(day.title)}</span></div><div class="list-meta">${formatDate(day.date)} · ${escapeHtml(day.roads)} · ${km}</div>`;
+        button.addEventListener('click', () => selectDay(day.id)); dayList.appendChild(button);
       });
-      if (!list.children.length) list.innerHTML = '<div class="empty">没有匹配的路段</div>';
-      activateSegmentButton(activeSegmentId);
+      if (!dayList.children.length) dayList.innerHTML = '<div class="empty">没有匹配的日期或路线</div>';
+      activateDayButton(activeDayId);
     }
 
     function filteredPois() {
@@ -259,52 +277,88 @@
       activatePoiButton(activePoiId);
     }
 
+    function clearDayRoute() {
+      if (dayRouteGroup) { dayRouteGroup.remove(); dayRouteGroup = null; }
+    }
+
     function showAll() {
-      activeSegmentId = ''; activePoiId = '';
+      activeSegmentId = ''; activeDayId = ''; activePoiId = ''; clearDayRoute();
       routeEls.forEach(element => { element.classList.remove('active', 'dimmed'); });
       document.querySelectorAll('.road-label').forEach(label => label.classList.remove('active'));
       routeNodeEls.forEach(element => element.classList.remove('active'));
       poiEls.forEach(element => element.classList.remove('selected'));
       setView({ ...defaultView });
-      activateSegmentButton(''); activatePoiButton('');
+      activateDayButton(''); activatePoiButton('');
       pageTitle.textContent = '全程路线'; pageSub.textContent = '滚轮缩放、按住拖动；点路段或地点会自动聚焦。';
-      detailTitle.textContent = '全程路线'; detailMeta.textContent = `${ROUTE.segments.length} 段 · 城市间主干约 ${totalKm.toFixed(0)} km`;
-      detailText.textContent = '离线版不依赖在线底图，但真实路线折线、道路编号与全部规划地点均保存在本地。放大后显示更多标签。';
-      window.parent.postMessage({ type: 'route-map-state', mode: 'offline', segment: '' }, '*');
+      detailTitle.textContent = '全程路线'; detailMeta.textContent = `${DAILY.days.length}天 · 主计划约${DAILY.meta.plannedDrivingKm.toLocaleString()}km · 预算里程${DAILY.meta.budgetMileageKm.toLocaleString()}km`;
+      detailText.textContent = '离线版已内置主干导航折线、D1—D70停靠点、住宿、景点、吃饭、采购、厕所与救援参考点。选择某天后只高亮当天相关路线。';
+      detailActions.innerHTML = '<a class="primary" href="./route-roadbook.html?v=9">打开D1—D70离线路书</a>';
+      window.parent.postMessage({ type: 'route-map-state', mode: 'offline', day: 0 }, '*');
     }
 
     function selectSegment(id) {
       const seg = ROUTE.segments.find(item => item.id === id);
       if (!seg) return;
       const note = PLACES.segmentNotes[id] || {};
-      activeSegmentId = id; activePoiId = '';
+      activeSegmentId = id; activeDayId = ''; activePoiId = ''; clearDayRoute();
       routeEls.forEach((element, segId) => { element.classList.toggle('active', segId === id); element.classList.toggle('dimmed', segId !== id); });
       document.querySelectorAll('.road-label').forEach(label => label.classList.toggle('active', label.dataset.id === id));
       routeNodeEls.forEach((element, name) => element.classList.toggle('active', name === seg.from.name || name === seg.to.name));
       poiEls.forEach(element => element.classList.remove('selected'));
       fitBounds(seg.bounds, 55);
-      activateSegmentButton(id); activatePoiButton('');
+      activateDayButton(''); activatePoiButton('');
       pageTitle.textContent = seg.title; pageSub.textContent = `${note.roads || seg.group} · 约 ${seg.lengthKm} km`;
       detailTitle.textContent = seg.title; detailMeta.innerHTML = `<strong>${escapeHtml(note.roads || seg.group)}</strong> · ${seg.lengthKm} km · 路线点 ${seg.displayPointCount}`;
       detailText.textContent = note.note || `第 ${seg.index} 段真实导航折线。`;
+      detailActions.innerHTML = '';
       window.parent.postMessage({ type: 'route-map-state', mode: 'offline', segment: id }, '*');
+    }
+
+    function selectDay(id) {
+      const day = DAILY.days.find(item => item.id === id);
+      if (!day) return;
+      activeDayId = id; activeSegmentId = ''; activePoiId = ''; clearDayRoute();
+      const related = new Set(segmentsForDay(day));
+      routeEls.forEach((element, segId) => { element.classList.toggle('active', related.has(segId)); element.classList.toggle('dimmed', !related.has(segId)); });
+      document.querySelectorAll('.road-label').forEach(label => label.classList.toggle('active', related.has(label.dataset.id)));
+      routeNodeEls.forEach(element => element.classList.remove('active'));
+      poiEls.forEach(element => element.classList.remove('selected'));
+      dayRouteGroup = mk('g', { 'data-day': day.id });
+      const projected = day.points.map(point => project(point.lng, point.lat));
+      if (projected.length > 1) mk('polyline', { points: projected.map(p => `${p.x},${p.y}`).join(' '), class: 'day-route' }, dayRouteGroup);
+      projected.forEach((p, index) => {
+        const group = mk('g', { transform: `translate(${p.x} ${p.y})` }, dayRouteGroup);
+        const symbol = registerScaledSymbol(mk('g', {}, group));
+        mk('circle', { cx: 0, cy: 0, r: 8, class: 'day-stop-circle' }, symbol);
+        const text = mk('text', { x: 0, y: .5, class: 'day-stop-text' }, symbol); text.textContent = index + 1;
+      });
+      const xs = projected.map(p => p.x); const ys = projected.map(p => p.y);
+      fitBounds({ minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) }, projected.length > 1 ? 70 : 100);
+      activateDayButton(id); activatePoiButton('');
+      pageTitle.textContent = `${day.id} · ${day.title}`;
+      pageSub.textContent = `${formatDate(day.date)} · ${DAILY.typeLabels[day.type]} · ${day.distanceKm ? `约${day.distanceKm}km` : day.roads}`;
+      detailTitle.textContent = `${day.id} 当前执行`; detailMeta.innerHTML = `<strong>${escapeHtml(day.roads)}</strong> · ${day.distanceKm ? `计划约${day.distanceKm}km` : DAILY.typeLabels[day.type]}`;
+      detailText.textContent = day.critical; detailActions.innerHTML = `<a class="primary" href="./route-roadbook.html?day=${day.day}">查看当天离线路书</a><button type="button" onclick="window.print()">打印/存PDF</button>`;
+      renderDayList(); renderPoiList(); updateSymbolScale();
+      window.parent.postMessage({ type: 'route-map-state', mode: 'offline', day: day.day }, '*');
     }
 
     function focusPoi(id) {
       const poi = PLACES.pois.find(item => item.id === id);
       if (!poi) return;
       if (!visibleCategories.has(poi.category)) toggleCategory(poi.category, true);
-      activePoiId = id; activeSegmentId = '';
+      activePoiId = id; activeDayId = ''; activeSegmentId = ''; clearDayRoute();
       routeEls.forEach(element => element.classList.remove('active', 'dimmed'));
       document.querySelectorAll('.road-label').forEach(label => label.classList.remove('active'));
       routeNodeEls.forEach(element => element.classList.remove('active'));
       poiEls.forEach((element, poiId) => element.classList.toggle('selected', poiId === id));
       const p = project(poi.lng, poi.lat);
       setView({ x: p.x - 90, y: p.y - 55, w: 180, h: 110 });
-      activateSegmentButton(''); activatePoiButton(id);
+      activateDayButton(''); activatePoiButton(id);
       const category = categories[poi.category];
       pageTitle.textContent = poi.name; pageSub.textContent = `${category.label} · ${poi.area}`;
       detailTitle.textContent = poi.name; detailMeta.textContent = `${category.label} · ${poi.area}`; detailText.textContent = poi.note;
+      detailActions.innerHTML = poi.bookingUrl ? `<a class="primary" target="_blank" rel="noopener" href="${escapeHtml(poi.bookingUrl)}">联网后查房型/实时价</a>` : '';
       window.parent.postMessage({ type: 'route-map-state', mode: 'offline', poi: id }, '*');
     }
 
@@ -341,16 +395,31 @@
     }
     svg.addEventListener('pointerup', endPointer); svg.addEventListener('pointercancel', endPointer);
 
+    function locateMe() {
+      if (!navigator.geolocation) { detailText.textContent = '当前浏览器不支持定位；离线地图与路书仍可使用。'; return; }
+      navigator.geolocation.getCurrentPosition(position => {
+        const p = project(position.coords.longitude, position.coords.latitude);
+        if (gpsGroup) gpsGroup.remove();
+        gpsGroup = mk('g', { transform: `translate(${p.x} ${p.y})` });
+        const symbol = registerScaledSymbol(mk('g', {}, gpsGroup));
+        mk('circle', { cx: 0, cy: 0, r: 9, class: 'gps-circle' }, symbol);
+        setView({ x: p.x - 95, y: p.y - 60, w: 190, h: 120 });
+        pageTitle.textContent = '我的位置'; pageSub.textContent = `定位精度约 ${Math.round(position.coords.accuracy)} 米`;
+        detailTitle.textContent = '离线定位成功'; detailMeta.textContent = `${position.coords.longitude.toFixed(5)}, ${position.coords.latitude.toFixed(5)}`;
+        detailText.textContent = '蓝点是设备当前坐标；离线版不计算实时道路导航，请结合当天路书和道路标志行驶。';
+      }, () => { detailText.textContent = '定位失败，请检查浏览器定位权限。通过 HTTPS 缓存打开时可在无网络环境继续使用设备 GPS。'; }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
+    }
+
     document.getElementById('zoomInBtn').addEventListener('click', () => { const rect = svg.getBoundingClientRect(); zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, .72); });
     document.getElementById('zoomOutBtn').addEventListener('click', () => { const rect = svg.getBoundingClientRect(); zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, 1.38); });
-    document.getElementById('resetBtn').addEventListener('click', showAll); document.getElementById('showAllBtn').addEventListener('click', showAll);
+    document.getElementById('resetBtn').addEventListener('click', showAll); document.getElementById('showAllBtn').addEventListener('click', showAll); document.getElementById('locateBtn').addEventListener('click', locateMe);
     document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(item => item.classList.toggle('active', item === tab)); document.getElementById('routePanel').hidden = tab.dataset.panel !== 'routes'; document.getElementById('placePanel').hidden = tab.dataset.panel !== 'places'; }));
-    searchInput.addEventListener('input', () => { renderSegmentList(); renderPoiList(); });
+    searchInput.addEventListener('input', () => { renderDayList(); renderPoiList(); });
     window.addEventListener('resize', () => setView(view));
     window.addEventListener('message', event => { if (event.data && event.data.type === 'route-map-resize') setView(view); });
 
-    renderLayers(); renderSegmentList(); renderPoiList(); updatePoiVisibility(); showAll();
-    const params = new URLSearchParams(location.search); if (params.get('segment')) selectSegment(params.get('segment')); if (params.get('poi')) focusPoi(params.get('poi'));
+    renderLayers(); renderDayList(); renderPoiList(); updatePoiVisibility(); showAll();
+    const params = new URLSearchParams(location.search); if (params.get('day')) selectDay(`D${Number(params.get('day'))}`); else if (params.get('segment')) selectSegment(params.get('segment')); else if (params.get('poi')) focusPoi(params.get('poi'));
 
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       navigator.serviceWorker.register('./route-map-sw.js').then(() => navigator.serviceWorker.ready).then(() => { document.getElementById('offlineStatus').textContent = '离线缓存已就绪'; }).catch(() => { document.getElementById('offlineStatus').textContent = '本页仍可本地使用'; });

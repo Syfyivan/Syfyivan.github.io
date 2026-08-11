@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026西部大闭环 D1—D70 离线路书</title>
+  <style>
+    :root{--paper:#f5f1ea;--card:#fff;--ink:#282522;--muted:#6e6862;--line:#ded6cc;--accent:#c75b39;--soft:#fff0e9;--green:#0f766e}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif}.wrap{width:min(1080px,calc(100% - 28px));margin:0 auto;padding:26px 0 60px}
+    .hero{background:#282522;color:#fff;border-radius:22px;padding:24px;box-shadow:0 16px 38px rgba(52,40,32,.15)}h1{font-size:clamp(24px,4vw,42px);margin:0 0 8px}.hero p{margin:0;color:#ddd5cd;line-height:1.65}.stats{display:flex;gap:8px;flex-wrap:wrap;margin:17px 0 0}.stat{border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.actions a,.actions button{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:9px 13px;text-decoration:none;font-size:12px;font-weight:800;cursor:pointer}.actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}.filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px}.filter label{font-size:12px;font-weight:800}.filter input{width:80px;border:1px solid var(--line);border-radius:9px;padding:7px 8px}
+    .note{background:#fff9e9;border-left:4px solid #d69e2e;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6;margin:14px 0}.days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.day{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;break-inside:avoid}.day-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.day h2{font-size:16px;line-height:1.45;margin:0}.badge{flex:0 0 auto;border-radius:999px;background:var(--soft);color:var(--accent);padding:5px 8px;font-size:11px;font-weight:900}.meta{color:var(--muted);font-size:12px;line-height:1.6;margin-top:7px}.route{margin:10px 0 0;padding:10px 12px;border-radius:11px;background:#f8f6f2;font-size:12px;line-height:1.7}.route strong{color:var(--green)}.critical{margin:10px 0 0;padding:10px 12px;border-left:3px solid var(--accent);background:#fff8f5;font-size:12px;line-height:1.65}.stay{margin-top:9px;font-size:12px;line-height:1.6}.stay strong{color:#6d28d9}.day-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.day-actions a{border-radius:999px;background:#f1ede7;color:#8b3f28;padding:5px 8px;text-decoration:none;font-size:11px;font-weight:800}.footer{margin-top:20px;color:var(--muted);font-size:12px;line-height:1.7;text-align:center}
+    @media(max-width:760px){.days{grid-template-columns:1fr}.wrap{width:min(100% - 18px,1080px);padding-top:10px}.hero{border-radius:16px;padding:18px}}
+    @media print{body{background:#fff}.wrap{width:100%;padding:0}.hero{box-shadow:none;border-radius:0;background:#fff;color:#000;border-bottom:2px solid #000}.hero p{color:#333}.actions,.filter,.day-actions,.footer{display:none}.days{display:block}.day{page-break-inside:avoid;margin:0 0 9px;border-radius:0;padding:10px}.note{border:1px solid #bbb}.stat{border-color:#777}.critical{background:#fff}.route{background:#fff}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>D1—D70 离线执行路书</h1>
+      <p>2026年9月18日—11月26日 · 4人 / 2位司机轮换 · 逐日道路、停靠点、住宿决定与关键风险。页面与数据会随离线地图一起缓存。</p>
+      <div class="stats"><span class="stat" id="statDays"></span><span class="stat" id="statKm"></span><span class="stat">68晚外地住宿</span><span class="stat">11月25日回北京 · 11月26日还车</span></div>
+    </section>
+    <nav class="actions"><a class="primary" href="./route-map-offline.html?v=9">打开离线地图</a><a href="./route-map-amap.html?v=9">打开在线高德</a><a href="./index.html#overview">返回完整攻略</a><button id="downloadBtn" type="button">下载TXT路书</button><button type="button" onclick="window.print()">打印 / 存为PDF</button></nav>
+    <div class="note"><strong>离线边界：</strong>本页保存的是计划道路、坐标和风险提醒，不冒充实时路况。封路、边防、景区换乘和营业状态必须在有网时复核；无网时以现场标志、交警与景区指令为准。</div>
+    <div class="filter"><label>只看 D</label><input id="fromDay" type="number" min="1" max="70" value="1"><span>到</span><input id="toDay" type="number" min="1" max="70" value="70"><button id="filterBtn" type="button">筛选</button><button id="todayBtn" type="button">按日期定位</button><span id="filterStatus" class="meta"></span></div>
+    <section id="days" class="days"></section>
+    <p class="footer">版本：daily-roadbook-v2 · 数据更新：2026-08-11 · 房价与库存以实际付款页为准。</p>
+  </main>
+  <script src="./assets/route_map_pois.js"></script>
+  <script src="./assets/road_trip_days.js"></script>
+  <script>
+    const DAILY = window.ROAD_TRIP_DAY_DATA;
+    const PLACES = window.ROAD_TRIP_POI_DATA;
+    const stays = new Map(PLACES.pois.filter(poi => poi.category === 'stay').map(poi => [poi.id, poi]));
+    const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    const formatDate = value => `${Number(value.slice(5,7))}月${Number(value.slice(8,10))}日`;
+    const amapNav = point => `https://uri.amap.com/navigation?to=${point.lng},${point.lat},${encodeURIComponent(point.name)}&mode=car&policy=1&src=Syfyivan.road-trip&coordinate=gaode&callnative=1`;
+    document.getElementById('statDays').textContent = `${DAILY.days.length}天`;
+    document.getElementById('statKm').textContent = `主计划${DAILY.meta.plannedDrivingKm.toLocaleString()}km · 预算上限${DAILY.meta.budgetMileageKm.toLocaleString()}km`;
+
+    function render(from = 1, to = DAILY.days.length) {
+      const target = document.getElementById('days'); target.innerHTML = '';
+      const selected = DAILY.days.filter(day => day.day >= from && day.day <= to);
+      selected.forEach(day => {
+        const stay = stays.get(day.stayId); const card = document.createElement('article'); card.className = 'day'; card.id = `D${day.day}`;
+        const stops = day.points.map(point => point.name).join(' → '); const last = day.points[day.points.length - 1];
+        card.innerHTML = `<div class="day-head"><h2>${day.id} · ${escapeHtml(day.title)}</h2><span class="badge">${formatDate(day.date)}</span></div><div class="meta">${escapeHtml(DAILY.typeLabels[day.type])} · ${day.distanceKm ? `计划约 ${day.distanceKm}km · ` : ''}${escapeHtml(day.roads)}</div><div class="route"><strong>停靠顺序：</strong>${escapeHtml(stops)}</div><div class="critical"><strong>当天闸门：</strong>${escapeHtml(day.critical)}</div><div class="stay"><strong>当晚：</strong>${stay ? `${escapeHtml(stay.name)}｜${escapeHtml(stay.note)}` : day.day === 69 ? '回北京家里' : day.day === 70 ? '行程结束' : '不换住宿'}</div><div class="day-actions"><a href="./route-map-offline.html?day=${day.day}">离线地图定位</a><a target="_blank" rel="noopener" href="${amapNav(last)}">联网后高德导航</a>${stay && stay.bookingUrl ? `<a target="_blank" rel="noopener" href="${escapeHtml(stay.bookingUrl)}">住宿房型/实时价</a>` : ''}</div>`;
+        target.appendChild(card);
+      });
+      document.getElementById('filterStatus').textContent = `当前显示 ${selected.length} 天`;
+    }
+
+    function applyFilter() {
+      const from = Math.max(1, Math.min(70, Number(document.getElementById('fromDay').value) || 1));
+      const to = Math.max(from, Math.min(70, Number(document.getElementById('toDay').value) || 70));
+      render(from, to);
+    }
+
+    function downloadRoadbook() {
+      const lines = [`2026西部大闭环 D1—D70 离线执行路书`, `${DAILY.meta.startDate}—${DAILY.meta.endDate}`, `主计划${DAILY.meta.plannedDrivingKm}km；预算里程${DAILY.meta.budgetMileageKm}km`, ''];
+      DAILY.days.forEach(day => { const stay = stays.get(day.stayId); lines.push(`${day.id} ${day.date}｜${day.title}`, `类型/里程：${DAILY.typeLabels[day.type]}${day.distanceKm ? `，约${day.distanceKm}km` : ''}`, `道路：${day.roads}`, `停靠：${day.points.map(point => point.name).join(' → ')}`, `当天闸门：${day.critical}`, `当晚：${stay ? `${stay.name}｜${stay.note}` : day.day === 69 ? '回北京家里' : day.day === 70 ? '行程结束' : '不换住宿'}`, ''); });
+      const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'}); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = '2026西部大闭环-D1-D70-离线路书.txt'; link.click(); URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('filterBtn').addEventListener('click', applyFilter);
+    document.getElementById('downloadBtn').addEventListener('click', downloadRoadbook);
+    document.getElementById('todayBtn').addEventListener('click', () => { const today = new Date(); const key = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`; const day = DAILY.days.find(item => item.date === key); if (!day) { document.getElementById('filterStatus').textContent = '今天不在本次行程日期内'; return; } document.getElementById('fromDay').value = day.day; document.getElementById('toDay').value = day.day; render(day.day, day.day); });
+    const requested = Number(new URLSearchParams(location.search).get('day')); if (requested >= 1 && requested <= 70) { document.getElementById('fromDay').value = requested; document.getElementById('toDay').value = requested; render(requested, requested); } else render();
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./route-map-sw.js').catch(() => {});
+  </script>
+</body>
+</html>

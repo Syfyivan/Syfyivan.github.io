@@ -7,7 +7,7 @@
   var rule = style.getPropertyValue('--rule').trim();
   var bg2 = style.getPropertyValue('--bg2').trim();
 
-  // --- Chart: Days allocation pie (72-day version, 7 segments) ---
+  // --- Chart: Days allocation pie (70-day version, 7 segments) ---
   var el = document.getElementById('chart-days');
   if (el) {
     var chart = echarts.init(el, null, { renderer: 'svg' });
@@ -50,7 +50,7 @@
           { value: 9, name: '新藏线G219→阿里→日喀则' },
           { value: 11, name: '拉萨恢复→林芝→波密→然乌' },
           { value: 12, name: '滇藏线→雨崩→虎跳峡→丽江' },
-          { value: 17, name: '丽江→稻城亚丁→成都→北京' }
+          { value: 15, name: '丽江→稻城亚丁→成都→北京' }
         ]
       }]
     });
