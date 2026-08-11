@@ -867,6 +867,16 @@
     }
     return normalizeRouteAwareStateValue(key, inheritedRouteAwareValue(key, emptyValue), emptyValue);
   }
+  function lifecycleDisplayedInheritanceRole() {
+    return currentInheritanceRole(S || carryOver || null);
+  }
+  function routeAwareValueStillInherited(key, emptyValue) {
+    if (!carryOver) return false;
+    var current = normalizeRouteAwareStateValue(key, S && Object.prototype.hasOwnProperty.call(S, key) ? S[key] : emptyValue, emptyValue);
+    var inherited = normalizeRouteAwareStateValue(key, inheritedRouteAwareValue(key, emptyValue), emptyValue);
+    if (current === emptyValue || inherited === emptyValue) return false;
+    return current === inherited;
+  }
   function snapshotRouteAwareCarryState() {
     return {
       婚配路径: carriedRouteAwareValue('婚配路径', '未定'),
@@ -886,7 +896,7 @@
     };
   }
   function lifecycleInheritanceBridge() {
-    var role = currentInheritanceRole(carryOver || S || null);
+    var role = lifecycleDisplayedInheritanceRole();
     var routeAwareState = snapshotRouteAwareCarryState();
     var visibleMarriagePath = routeAwareState.婚配路径;
     var visibleJointState = routeAwareState.合爨状态;
@@ -959,12 +969,12 @@
     var decayHint = lineageDecayHint(decay);
     if (decayHint) explain.push(decayHint);
     if ((S.委托待收租谷 || 0) > 0) explain.push('账上另有待收委托田租' + S.委托待收租谷 + '石，不能当作已经落袋的存米');
-    if (visibleMarriagePath !== '未定') explain.push((carryOver ? '上一代婚配最后走到“' : '这一代婚配眼下已走到“') + visibleMarriagePath + '”，这层婚配余绪仍挂在这一房旧账里');
-    if (visibleJointState !== '未合爨') explain.push((carryOver ? '上一代留下的“' : '这一房眼下仍带着“') + visibleJointState + '”共账余绪');
-    if (visibleFixedRent !== '未立') explain.push((carryOver ? '上一代立过“' : '这一房已经立下“') + visibleFixedRent + '”，这房对押租与租账次序不算陌生');
-    if (visibleWageIdentity !== '未定') explain.push((carryOver ? '上一代走到“' : '这一代已经走到“') + visibleWageIdentity + '”，留下的旧牙口与外头回身门路仍在');
-    if (visibleApprenticeDest !== '未定') explain.push((carryOver ? '上一代把学徒去向坐到“' : '这一代已把学徒去向坐到“') + visibleApprenticeDest + '”，铺里那层门路没有被悄悄洗掉');
-    if (visibleExamOutcome !== '未定') explain.push((carryOver ? '上一代举业最后停在“' : '这一代举业眼下已停在“') + visibleExamOutcome + '”，这层书路余绪也还压在门前');
+    if (visibleMarriagePath !== '未定') explain.push((routeAwareValueStillInherited('婚配路径', '未定') ? '上一代婚配最后走到“' : '这一代婚配眼下已走到“') + visibleMarriagePath + '”，这层婚配余绪仍挂在这一房旧账里');
+    if (visibleJointState !== '未合爨') explain.push((routeAwareValueStillInherited('合爨状态', '未合爨') ? '上一代留下的“' : '这一房眼下仍带着“') + visibleJointState + '”共账余绪');
+    if (visibleFixedRent !== '未立') explain.push((routeAwareValueStillInherited('定额佃状态', '未立') ? '上一代立过“' : '这一房已经立下“') + visibleFixedRent + '”，这房对押租与租账次序不算陌生');
+    if (visibleWageIdentity !== '未定') explain.push((routeAwareValueStillInherited('雇身份', '未定') ? '上一代走到“' : '这一代已经走到“') + visibleWageIdentity + '”，留下的旧牙口与外头回身门路仍在');
+    if (visibleApprenticeDest !== '未定') explain.push((routeAwareValueStillInherited('学徒去向', '未定') ? '上一代把学徒去向坐到“' : '这一代已把学徒去向坐到“') + visibleApprenticeDest + '”，铺里那层门路没有被悄悄洗掉');
+    if (visibleExamOutcome !== '未定') explain.push((routeAwareValueStillInherited('举业结局', '未定') ? '上一代举业最后停在“' : '这一代举业眼下已停在“') + visibleExamOutcome + '”，这层书路余绪也还压在门前');
     var narrativeExplain = explain.map(function (part) {
       return String(part || '').replace(/^这一房仍按“(.+)”分工$/, '这房眼下仍照“$1”那套旧账分工');
     });
@@ -979,7 +989,7 @@
     opts = opts || {};
     var includeIdentity = opts.includeIdentity !== false;
     var includeLineage = opts.includeLineage !== false;
-    var role = currentInheritanceRole(carryOver || S || null);
+    var role = lifecycleDisplayedInheritanceRole();
     var routeAwareState = snapshotRouteAwareCarryState();
     var visibleMarriagePath = routeAwareState.婚配路径;
     var visibleJointState = routeAwareState.合爨状态;
