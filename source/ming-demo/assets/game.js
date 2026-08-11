@@ -117,8 +117,8 @@
       identity: '民籍·次子待立身',
       publicSummary: '民籍次子、家庭公账白银6两/铜钱2000文/存米8石、薄田12亩、本人无独立现金',
       establishmentLead: '兄将承祖业多数薄田，你这次子分不到够养一家的田。你的路，从来不可能只是“照旧过下去”。',
-      atlasTip: '父快照一：江南民籍次子。沿用现有默认样板，五路与一生闭环都已稳定接通。',
-      switchNote: '默认样板：江南民籍佃农之家次子，路与账都按当前稳定主链运行。',
+      atlasTip: '父快照一：江南民籍次子。家里有薄田、口粮和一点蒙学余绪，但次子分不到足以独立成户的田。',
+      switchNote: '薄田尚能托底，独立家底却很薄；五条路从同一份民籍次子家账起步。',
       event: { t: 'rel', tag: '[父快照]', txt: '这一户是江南民籍佃农之家：薄田、口粮和一点蒙学底子都在，但次子分不到足够立户的田。' },
       patch: {
         年龄: 16, 身份: '民籍·次子待立身', 体魄: 60, 家族: 60,
@@ -139,16 +139,16 @@
       title: '江南军户次子',
       shortTitle: '军户次子',
       identity: '军籍·次子待立身',
-      publicSummary: '军户次子、原籍军装盘缠需由家中真实供给，现已沿立身到养老的年度开账持续落账',
+      publicSummary: '军户次子、原籍军装盘缠需由家中真实供给，并会持续挤压各阶段家账',
       establishmentLead: '这一户不只要过自家锅火，还得为军装、盘缠和原籍差派预留后手。你若不尽早找出路，制度那层外流会先把家账拖薄。',
-      atlasTip: '父快照二：江南军户次子。军户供养是真实流出：军装盘缠、点卯差役、回乡行费都会先从家里账上扣走；因此“回钱能不能真落到家里”会比民籍样板更紧。现已接入立身入口、五路分路、同代生命周期与年度开账；五路军籍独立正文与五路军籍独立多代账本也已全部成册。当前待补已不再是结构缺口，而是继续补厚各路细节并核史料。',
-      switchNote: '第二父快照入口：军户供养压力已接上立身页、五路分路、后续年度开账与对应独立军籍文档；量值仍按设计占位处理，后续主补细节厚度与史料核实。',
+      atlasTip: '父快照二：江南军户次子。军装盘缠、点卯差役与回乡行费都会先从家账扣走；同一条立身路，会因此承受更紧的现金与供养压力。',
+      switchNote: '田、米与现钱更薄，还要给原籍军装盘缠留后手；五条路都会持续承受这层制度外流。',
       event: { t: 'inst', tag: '[军户]', txt: '这一户除锅火外，还得替在卫军丁留军装与盘缠。那不是背景设定，而是会先挤掉家里现钱的一层真外流。' },
       patch: {
         年龄: 16, 身份: '军籍·次子待立身', 体魄: 64, 家族: 56,
         白银: 1, 铜钱: 900, 存米: 2, 田亩: 3,
         识字: false, 技艺: '无',
-        父快照类型: '江南军户次子', 户籍类型: '军籍', 父快照说明: '立身入口、五路分路、后续年度开账与文档补记已接通（设计占位）'
+        父快照类型: '江南军户次子', 户籍类型: '军籍', 父快照说明: '原籍军装盘缠持续挤压家账（玩法量值占位）'
       },
       routeHooks: {
         farm: '留乡守田能先稳住一口口粮，但军装与盘缠这层外流不会自己消失，守田也得先替制度留后手。',
@@ -4356,7 +4356,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'summer' && xun === 1) apply({
-      handledIds: ['m_run', 'm_letter', 'm_mend', 'm_rest', 'm_wharf', 'm_summer_head_packet', 'm_summer_head_home_split', 'm_summer_head_supply_duty', 'm_summer_head_drag', 'm_summer_head_remit_duty', 'm_summer_head_remit_body', 'm_summer_second_route', 'm_summer_second_head_remit', 'm_summer_third_head_remit'],
+      handledIds: ['m_run', 'm_letter', 'm_mend', 'm_rest', 'm_wharf', 'm_summer_head_packet', 'm_summer_head_home_split', 'm_summer_head_supply_duty', 'm_summer_head_drag', 'm_summer_head_remit_duty', 'm_summer_head_remit_drag', 'm_summer_head_remit_body', 'm_summer_second_route', 'm_summer_second_head_remit', 'm_summer_third_head_remit'],
       doneTag: '伏夏茶脚已留',
       doneLog: '〔伏夏茶脚〕这一旬先把行栈茶钱、脚夫点心、家里带话脚费和起脚拖欠口风分开了；伏夏刚开头那层“先落脚、先递话、先顾一口凉药与旧回签”的碎账，没有再悄悄拖到夏中夏尾一起爆。',
       cost: 35,
@@ -4422,7 +4422,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 1) apply({
-      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_mend', 'm_trial_capital', 'm_winter_head_packet', 'm_winter_head_school', 'm_corvee_split', 'm_winter_head_body', 'm_winter_head_remit_duty', 'm_winter_head_drag', 'm_winter_second_head_trial', 'm_winter_head_third_remit'],
+      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_mend', 'm_trial_capital', 'm_winter_head_packet', 'm_winter_head_school', 'm_corvee_split', 'm_winter_head_body', 'm_winter_head_remit_duty', 'm_winter_head_first_remit', 'm_winter_head_drag', 'm_winter_second_head_trial', 'm_winter_head_third_remit'],
       doneTag: '年关路费已分',
       doneLog: '〔年关路费〕这一旬先把灯油、客脚、年礼、冬头拖欠和来春第一程水脚分开记了；钱没变多，却没再因为“只差一点”把清账路数搅混。',
       cost: 60,
@@ -4764,8 +4764,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   }
 
   function toggleFoundingSnapshot(snapshotId) {
-    if (phase !== 'establishment' || generation > 1 || carryOver) return;
+    // 路线一旦结算就冻结父快照，避免先记一条民籍路线账、再把出身改成军籍。
+    if (phase !== 'establishment' || generation > 1 || carryOver || (curStage && curStage.outcome)) return false;
     applyFoundingSnapshot(snapshotId);
+    syncEstablishmentOpeningLedger();
     picks = [];
     resolved = null;
     lifePicks = [];
@@ -4773,6 +4775,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     renderStatus();
     renderLifeStage();
     renderLedger();
+    return true;
   }
 
   function renderStatus() {
@@ -5523,6 +5526,32 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return 底子;
   }
 
+  function establishmentOpeningNote() {
+    var 底子 = routeBaseSummary();
+    var 起步口径 = (S._startMode === 'childhood')
+      ? '幼年既过，成丁立身。'
+      : '从十六成丁起算，先立身分路。';
+    return 起步口径
+      + (generation > 1 ? ('这一代沿上一代真实传承快照起步：田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两。') : '')
+      + (generation <= 1 ? ('当前父快照：' + currentFoundingSnapshot().publicSummary + '。') : '')
+      + (底子.length ? '这些年攒下：' + 底子.join('、') + '。' : '这些年不曾攒下特别的底子，只识些寻常农事。');
+  }
+
+  function syncEstablishmentOpeningLedger() {
+    for (var i = ledger.length - 1; i >= 0; i -= 1) {
+      if (ledger[i].name !== '十六成丁·立身开账') continue;
+      var current = snapshot();
+      ledger[i].solar = curLabel();
+      ledger[i].age = S.年龄;
+      ledger[i].deltas = LK.map(function (x) {
+        return { k: x.k, unit: x.unit, d: 0, val: current[x.k] };
+      });
+      ledger[i].note = establishmentOpeningNote();
+      return true;
+    }
+    return false;
+  }
+
   // 幼年结束 → 十六成丁，先进入立身分叉
   function enterEstablishment() {
     phase = 'establishment';
@@ -5535,14 +5564,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     S.路线 = '未立身';
     picks = []; resolved = null; lifePicks = []; curStage = stageEstablishment();
     tracePhase('enter:establishment');
-    var 底子 = routeBaseSummary();
-    var 起步口径 = (S._startMode === 'childhood')
-      ? '幼年既过，成丁立身。'
-      : '从十六成丁起算，先立身分路。';
-    recordEntry('十六成丁·立身开账', snapshot(), 起步口径 +
-      (generation > 1 ? ('这一代沿上一代真实传承快照起步：田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两。') : '') +
-      (generation <= 1 ? ('当前父快照：' + currentFoundingSnapshot().publicSummary + '。') : '') +
-      (底子.length ? '这些年攒下：' + 底子.join('、') + '。' : '这些年不曾攒下特别的底子，只识些寻常农事。'));
+    recordEntry('十六成丁·立身开账', snapshot(), establishmentOpeningNote());
     renderStatus(); renderLifeStage(); renderLedger();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -5845,7 +5867,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var kind = (phase === 'childhood') ? '幼年阶段' : '人生阶段';
     h += '<div class="season-line phase">◆ ' + kind + ' · ' + st.title + ' ｜ ' + S.年龄 + ' 岁</div>';
     h += '<div class="phase-note">' + st.note + '</div>';
-    if (st.switches && st.switches.length) {
+    if (!st.outcome && st.switches && st.switches.length) {
       h += '<div class="ap-head"><h3>父快照</h3><span class="ap-dots">先定同一份过去，再在同一户里分五路</span></div>';
       h += '<div class="choices">';
       st.switches.forEach(function (sw) {
@@ -6058,7 +6080,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       '路径四 · 徽商式亦贾亦儒：学生意、反哺、供读与未回款都继续落到本代家计。',
       '路径五 · 读书应举：束脩、保结、盘缠、识字转业与家计摩擦都压回同一年。'
     ];
-    var h = '';
+    var h = '<details class="design-notes"><summary><span>这版能走到哪里</span><small>查看设计边界与完整链路</small></summary><div class="design-notes-body">';
     h += '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">🗺 交互图谱入口</span>' +
       '<span class="cb-val">总链路已挂出</span></div>' +
@@ -6081,6 +6103,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       '<span class="cb-title">🧾 五路多代账本卡</span>' +
       '<span class="cb-val">递归重开</span></div>' +
       '<div class="cb-tip">五路都接诸子均分、供养镜像、委托田租，以及独子/次子/旁支等真实承继；上一代留下的田、债与门路会直接改写下一代入口，而不是回滚成白纸。</div></div>';
+    h += '</div></details>';
     return h;
   }
 
@@ -6091,7 +6114,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var founding = currentFoundingSnapshot();
     var startNote = generation > 1
       ? '这一代不再沿用初代那张“固定父快照”，而是直接吃上一代真实死亡结算留下的期初账。五条路仍共享同一个过去，但这个“过去”现在来自真实传承，不再回滚。'
-      : '你要求的是“同一父快照、16岁再分路”。这里不再默认锁死进佃田，而是在同一户、同一年、同一份家底下分叉。现在五条路都接了首版循环：佃田、受雇、学徒、商路、举业。当前父快照为“' + founding.title + '”。';
+      : '十六岁以前，你与五条路共享同一份家底。从这一刻起，耕、雇、学、商、举会分别消耗同一份时间、身体、现钱与人情；当前父快照为“' + founding.title + '”。';
     var startEvents = generation > 1 ? [
       { t: 'rel', tag: '[承继]', txt: '这一代的起点不是白纸：父辈传下多少薄田、多少债、多少门路，都会先落在你身上。' },
       { t: 'rand', tag: '[立身]', txt: inheritedCarryTags(carryOver).length ? ('父辈留下的：' + inheritedCarryTags(carryOver).join('、') + '。这些都不会直接变成现银，却会改写你五条路的入口。') : '这一房只剩薄产，几乎没有额外门路可倚。你的五条路更接近再次白手起家。' }
@@ -6116,19 +6139,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         {
           name: '路径一 · 留乡佃田',
           gain: '直接进入三农年佃田循环（16→18岁）',
-          note: '接下几亩水田，照约缴租、吃自己种出的米。你已经玩过这条路，但现在它是五路之一，而不是默认唯一入口。' + (generation > 1 ? ' ' + routeEntryHook('farm', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('farm')),
+          note: '接下几亩水田，在插秧、收成、佃租、锅火与差役之间分配有限力气；守住一口粮，也要承担歉收与欠租。' + (generation > 1 ? ' ' + routeEntryHook('farm', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('farm')),
           run: function (log) {
             curStage.next = 'farmRoute'; curStage.nextLabel = '下田立身 →'; S.路线 = '留乡佃田';
-            log.push(['你决定留在乡里，先靠佃田吃饭：这一路已接入完整三农年循环。', 'good']);
+            log.push(['你决定留在乡里，先靠佃田吃饭；往后的收成、佃租与差票，都要从这几亩田里周转。', 'good']);
           }
         },
         {
           name: '路径二 · 受雇长工 / 短工',
           gain: '进入三工年受雇循环（16→18岁）',
-          note: '不守这几亩田，去替经营型地主和市镇东家出力挣工食。长工有管饭和年工银，短工日结快但失工频繁；现已拆成“一年四季、每季上中下三旬”的更细年内节奏。' + (generation > 1 ? ' ' + routeEntryHook('wage', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('wage')),
+          note: '不守这几亩田，去替地主和市镇东家出力挣工食。长工有管饭与较稳的年工银，短工现结更快，却要承受失工与欠工钱。' + (generation > 1 ? ' ' + routeEntryHook('wage', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('wage')),
           run: function (log) {
             curStage.next = 'wage'; curStage.nextLabel = '去谋第一年工食 →'; S.路线 = '受雇长工/短工';
-            log.push(['你决定先把工食挣出来：这一路已接入“三工年 × 每季三旬”的细化循环。', 'good']);
+            log.push(['你决定先把工食挣出来；旺季抢工、淡季失工、家里催钱，会在同一年里轮番追上来。', 'good']);
             if (S.识字) log.push(['你略识文字，日后做长工核账、做书手看单都不至吃大亏。', 'good']);
             if (S.技艺 !== '无') log.push(['你有手艺傍身，农闲时可做副业，比纯卖力气多一条退路。', 'good']);
           }
@@ -6136,30 +6159,30 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         {
           name: '路径三 · 入城学徒',
           gain: '进入三学年学徒循环（16→18岁）',
-          note: '先接商铺学徒主干：求师、作保、立据、守店、学货、留店/被辞/退师。条款细节仍为玩法占位，不冒充明代精确契约。' + (generation > 1 ? ' ' + routeEntryHook('apprentice', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('apprentice')),
+          note: '进城求师、找人作保、立据守店，再慢慢学账与认货。能否留店不只看肯不肯吃苦，也看担保、食宿、手艺与铺中人情。' + (generation > 1 ? ' ' + routeEntryHook('apprentice', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('apprentice')),
           run: function (log) {
             curStage.next = 'apprentice'; curStage.nextLabel = '去投第一年学徒 →'; S.路线 = '入城学徒';
-            log.push(['你决定先去城里投师：这一路已接入首版三学年循环。', 'good']);
+            log.push(['你决定先去城里投师；在真正学到手艺以前，作保、食宿与铺中去留都要逐笔过关。', 'good']);
             if (S.识字) log.push(['你略识文字，学记账、认货、抄单会比纯跑腿更快上手。', 'good']);
           }
         },
         {
           name: '路径四 · 徽商式亦贾亦儒',
           gain: '进入三商年学生意循环（16→18岁）',
-          note: '这一路现已拆成“三商年学生意 + 成年后养家/当户/养老继续四季三旬推进”：认货、坐店、跑单、回钱、拖欠、反哺、供读、差役与身家冲突都回到同一年里逐旬落账。' + (generation > 1 ? ' ' + routeEntryHook('merchant', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('merchant')),
+          note: '从认货、坐店和跑单学起，靠熟人说合慢慢接门路。账面上的货与未回款不等于现钱，反哺家里、留试本和供读会争同一笔回钱。' + (generation > 1 ? ' ' + routeEntryHook('merchant', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('merchant')),
           run: function (log) {
             curStage.next = 'merchant'; curStage.nextLabel = '去学生意 →'; S.路线 = '徽商式亦贾亦儒';
-            log.push(['你决定投族叔商号学生意：这一路已接入首版三商年循环。', 'good']);
+            log.push(['你决定投族叔商号学生意；货要变成钱、钱要真正回手，才谈得上试本、贴家与供读。', 'good']);
             if (S.识字) log.push(['你识字，核账抄单会比纯跑腿更值钱。', 'good']);
           }
         },
         {
           name: '路径五 · 读书应举',
           gain: '进入三举业年循环（四季三旬）',
-          note: '这一路现已拆成“春课→夏课→秋试→冬清账”四季、每季三旬：把束脩纸墨、保结资格、盘缠、抄写补贴、家计与身体小账都放回一年里，不再整年一把糊过。' + (generation > 1 ? ' ' + routeEntryHook('civilExam', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('civilExam')),
+          note: '从春课、夏课磨到秋试与冬清账。束脩纸墨、保结资格、盘缠、抄写补贴、家计与身体会同时争时间；久不入场，也可转成塾馆教读。' + (generation > 1 ? ' ' + routeEntryHook('civilExam', carryOver) : '') + (generation > 1 ? '' : ' ' + foundingRouteHook('civilExam')),
           run: function (log) {
             curStage.next = 'civilExam'; curStage.nextLabel = '去走第一年举业 →'; S.路线 = '读书应举';
-            log.push(['你决定先把这一户有限的资源压到读书上：这一路现已按四季三旬推进，不再是一年点一下就结账。', 'good']);
+            log.push(['你决定先走举业；在真正下场以前，纸墨、馆课、保结、盘缠与家里能否续供，缺一层都可能把应试挡在场外。', 'good']);
           }
         }
       ]
@@ -6223,7 +6246,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       // 卖工路也按“三手并行”推进：一手抓工食主线，一手摊家计/市面碎账，再留一手给差役或身子后手。
       // 行动点用不完也可提前结算（不强制“点满”），避免强迫玩家每旬都做完美三选。
       ap: 3, commitLabel: isYearEnd ? '了这一工年 →' : '结这一旬工食细账 →',
-      note: '这一路现已从“全年一点式结算”继续拆成“每季上中下三旬”：上旬先排工路，中旬把家用与市面摊开，下旬再收差役、衣药与旧债。并把“每旬只够做两件事”上调为“三手并行”——让工食、家计与制度/身子后手能在同一年里更真实地抢同一口现钱。仍保持三币种守恒，不写成功分。'
+      note: '卖工一年分三手过账：上旬先排工路，中旬把家用与市面摊开，下旬再收差役、衣药和旧债。每旬只有 3 点，工食、家计与身子后手不可能样样顾全。'
         + (wageCarryHook.note ? (' ' + wageCarryHook.note) : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一工年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + (wagePass === 1 ? '这一旬先把主工路定下来。' : (wagePass === 2 ? '这一旬更像把家里、市面与脚下活路往一处拢。' : '这一旬最像收后账：差役、衣药、旧债与年关后手都不肯再往后拖。')) + ' 你这一旬有 <span class="em">3 个行动点</span>。',
       dossier: function () {
@@ -6533,7 +6556,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         ? (S.学年 < APPRENTICE_YEARS ? '翻到下一学年投师季上旬 →' : '带着这门去向去议亲 →')
         : (xun >= 3 ? ('转入' + nextSeason.name + '上旬 →') : ('转入' + season.name + apprenticeXunLabel(xun + 1) + ' →')),
       ap: 3, commitLabel: isYearEnd ? '了这一学年 →' : '了这一旬学徒 →',
-      note: '学徒路现改成“每学年四季三旬”推进：投师季先跑说合/作保/立据，坐店季熬守店/抄账，行市季把问价、送货、贴家与归省一并压进同一年，年关季再把口粮、差役、衣药与去留结清。保证金、食宿、去留数额仍是玩法占位，不当作明代精确契约。'
+      note: '一个学年分四段走：投师季跑说合、作保与立据，坐店季熬守店和抄账，行市季兼顾问价、送货、贴家与归省，年关季再结口粮、差役、衣药与去留。保证金、食宿和去留数额仍是玩法占位。'
         + (apprenticeCarryHook.note ? (' ' + apprenticeCarryHook.note) : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一学年走到<span class="em">' + season.name + xunLabel + '</span>。' + season.actionLead + '投师不是自动成功；立据不等于学成，学成也不等于准你留下。你这一旬有 <span class="em">3 个行动点</span>，要在说合、守店、学账、奔走、问价、贴家、帮家、备差、衣药与养身之间取舍。',
       dossier: function () {
@@ -6987,7 +7010,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       // 让同一旬里能同时处理“柜上/货路/家计”三头细账（仍受现钱与守恒约束）。
       ap: 3,
       commitLabel: isYearEnd ? '了这一商年 →' : '了这一旬商路 →',
-      note: '商路现改成“春开路→夏坐店→秋试手→冬清账”四季、每季三旬。关键不是多给几次发财判定，而是把认货、问价、跑单、家书、催账、贴家、差役准备、补衣药与旧债都拆回一年里的真实节奏。'
+      note: '一个商年从春开路、夏坐店走到秋试手、冬清账。真正要争的不是一次发财判定，而是认货、问价、跑单、催账、贴家、差役、衣药与旧债怎样分同一笔回钱。'
         + ' 本商年重心是“' + yearProfile.label + '”：' + yearProfile.note
         + (generation > 1 ? ' ' + tradePreview.note : '')
         + (bridge.note ? ' ' + bridge.note : '')
@@ -10015,7 +10038,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         : (isLate ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + examXunLabel(xun + 1) + ' →')),
       ap: 4,
       commitLabel: isYearEnd ? '了这一举业年 →' : '了这一旬举业细账 →',
-      note: '第' + S.举业年 + '举业年重心：' + yearFocus.tag + '。' + yearBudgetLead + ' 举业路现改成“春课→夏课→秋试→冬清账”四季、每季三旬：上旬先定主读法、投塾与供读口风，中旬再磨文章、跑资格、补识字、接誊抄，下旬把应场、回家缓家计、差役钱与衣药后手一笔笔收紧。每旬现在按“四手预算”推进：一手顾课业主线，一手跑塾门/保结，一手拆家计与供读碎账，再留一手给身子、差役或回乡后手；供读口风、婚事口风与身子账的翻动，也会按旬累计，不再只留在年终一句“苦读几年”。塾门未稳时，就算先把束脩、帖样和馆课钱压进去，也只算借馆旁听，不直接当作整年塾馆已坐实；真正下场还得把“识字/题样 → 塾门/读法 → 馆课/评文 → 保结 → 应场”这条链在同一年里真走出来。若家里真要续供，也得显式粜米或另挪口粮来换纸墨盘缠，而不是把存米自动折成现银。如今下场后会在同一年里直接见“过县试 / 过府试 / 落第 / 成生员”的回话；冬里只继续收余账，不再把应试结果整笔拖到年终。跨到下一举业年时，塾门与保结也只保留一层旧门路，不会把“已坐实 / 已通保结”整笔原封带过去。'
+      note: '第' + S.举业年 + '举业年重心：' + yearFocus.tag + '。' + yearBudgetLead + ' 一年从春课、夏课走到秋试、冬清账；每旬 4 点要同时顾课业、塾门与保结、家计与供读、身子或差役。真正下场必须走通“识字/题样 → 塾门/读法 → 馆课/评文 → 保结 → 应场”，缺口未补就只能停在场外；家里续供也要用真实米银换纸墨盘缠。'
         + (examCarryHook.note ? (' ' + examCarryHook.note) : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + xunLabel + '</span>。' + yearFocus.note + ' ' + yearBudgetLead + ' ' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火、婚事口风和身子亏空都在争同一笔钱。') + ' 你这一旬有 <span class="em">4 个行动点</span>，最好别只顾课业本身。',
       dossier: function () {
@@ -14911,7 +14934,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       ap: 3,
       commitLabel: isYearEnd ? '了这一养家年 →' : '了这一旬家计细账 →',
       shock: false,
-      note: '养家阶段现改成“春起→夏长→秋收→冬藏”四季、每季三旬，并把每旬操作厚到 3 手：通常要同时兼顾一手主营生、一手家内或市面细账，再留一手给差役、衣药、旧债或明春后手。仍不评分，只把家计与制度压力摊回同一年。'
+      note: '养家按春起、夏长、秋收、冬藏逐旬过账。每旬 3 点通常只够顾一手主营生、一手家内或市面细账，再留一手给差役、衣药、旧债或明春后手。'
         + (bridge.note ? ' ' + bridge.note : '')
         + (rp.note ? ' ' + rp.note : ''),
       narrative: '你已<span class="em">' + S.年龄 + '岁</span>，这一养家年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead + ' 这一旬你有 <span class="em">3 个行动点</span>，得尽量把主营生、家里细账和制度后手一起摊开；若只顾一头，另一头往往会在同一年里立刻反咬回来。'
@@ -18066,7 +18089,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       nextLabel: isYearEnd ? householdYearEndNextLabel() : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
       ap: 2,
       commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
-      note: '卖工路的当户阶段现也改成“四季三旬”。分家、薄田、旧工账、旧工头的人情、里甲差钱与年关后手，不再一口气糊成“一次 4 点”，而要在同一年里逐旬拆开。'
+      note: '当户以后，分家薄田、旧工账、旧工头人情、里甲差钱与年关后手都要在同一年里逐旬拆开；旺工回钱再快，也不能同时填平每一本账。'
         + (bridge.note ? ' ' + bridge.note : '')
         + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是再做一件“大事”，而是把“先守田、先结工、先托人、先留差钱”里最要紧的那两手先坐实。',
@@ -18837,7 +18860,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       ap: 2,
       shock: false,
       commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
-      note: '留乡佃田的当户阶段现也改成“四季三旬”。分家后的薄田、自耕与租谷、差票与里甲人情、代役现银与年关后手，不再一口气糊成“一次 4 点”，而要在同一年里逐旬拆开。'
+      note: '当户以后，分家薄田、自耕与租谷、差票与里甲人情、代役现银与年关后手都要逐旬拆开；秋里见粮，也不等于年关各账自然结清。'
         + (bridge.note ? ' ' + bridge.note : '')
         + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是“再做一件大事”，而是把田面、租路与差钱里最要紧的那两手先坐实。',
@@ -18868,6 +18891,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             cost: 1,
             eff: '铜钱-55·核账+1·通融+1·家族+1',
             desc: '春分书到了中旬，最怕水口脚费、清明香纸、递话门包和灶下锅火一起挤这口现钱。先把这层春中碎账拆开，分书后的田面与家内后手才不至继续糊成一团。',
+            can: S.铜钱 >= 55,
+            why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
+            once: true
+          });
+        }
+        if (season.id === 'autumn' && xun === 1) {
+          A.push({
+            id: 'h_autumn_head_field',
+            name: '先把秋头看田饭钱与催租脚费分开',
+            cost: 1,
+            eff: '铜钱-55·核账+1·备役+1·家族+1',
+            desc: '秋定租刚起头时，最怕看田饭钱、催租脚费、递话门包和锅火后手一起挤这口现钱。先把这层秋头田脚拆开，农路当户的秋头才不至还只剩“先去看看”一句空话。',
             can: S.铜钱 >= 55,
             why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
             once: true
@@ -18932,6 +18967,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 actionCount += 1;
               } else {
                 log.push(['想在' + stepLabel + '先把春中水口脚费与清明香纸分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_autumn_head_field':
+              if (spendCopper(55)) {
+                S.本年户核账 += 1;
+                S.本年户备役 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('秋头看田脚');
+                log.push(['你在' + stepLabel + '先把看田饭钱、催租脚费和递话门包分开：铜钱-55、核账+1、备役+1、家族+1。农路当户到了秋头，这层“租谷刚要起、差票和脚路却已先追上来”的细账，终于不再只剩一句“先看田去”。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把秋头看田饭钱与催租脚费分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
             case 'h_hire':
@@ -19075,9 +19122,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
 
         // 秋定租上旬：租谷差票与脚路碎费
         if (season.id === 'autumn' && xun === 1) {
-          if (picked.h_hold_field || picked.h_lease_home || picked.h_hire || picked.h_clan || (S.委托营生 === '分得薄田自耕') || (S.委托租谷 || 0) > 0) {
-            pushHouseholdSeasonTag(stepLabel + '租谷差票已坐');
-            log.push(['〔租谷差票〕秋里租谷与差票的脚路与口风这一旬已被你先拆开；薄田没有再被写成“账面上有、脚下却顾不到”。', 'good']);
+          if (picked.h_autumn_head_field || picked.h_hold_field || picked.h_lease_home || picked.h_hire || picked.h_clan || (S.委托营生 === '分得薄田自耕') || (S.委托租谷 || 0) > 0) {
+            pushHouseholdSeasonTag(stepLabel + '秋头田脚已理');
+            log.push(['〔秋头田脚〕看田饭钱、催租脚费、递话门包与秋头锅火这一旬已被你先拆开；农路当户到了秋头，不再只是“租谷快回了”，而是先把脚路和差票后手一起压回了真账。', 'good']);
           } else if (spendCopper(50)) {
             pushHouseholdSeasonTag(stepLabel + '租谷差票');
             log.push(['〔租谷差票〕催租差票、跑脚路与秋里锅火碎支一起要钱：铜钱-50。不是大账，却正是“秋后得先垫的一层脚路”。', 'bad']);
@@ -19237,7 +19284,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       nextLabel: isYearEnd ? householdYearEndNextLabel() : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
       ap: 2,
       commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
-      note: '学徒路的当户阶段现也改成“四季三旬”。铺里旧脚钱、师门门路、分得薄田与差钱后手，不再一口气糊成“一次 4 点”，而要在同一年里逐旬拆开。'
+      note: '当户以后，铺里旧脚钱、师门门路、分得薄田与差钱后手会在四季里轮番追账；旧铺认得你，不等于每一次回话都能换成现钱。'
         + (bridge.note ? ' ' + bridge.note : '')
         + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是“再做一件大事”，而是把铺里旧账、乡里薄田与代应门路里最要紧的那两手先坐实。',
@@ -20203,7 +20250,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       nextLabel: isYearEnd ? householdYearEndNextLabel() : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
       ap: 2,
       commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
-      note: '这任当户不再按“一次 4 点”一口气结掉，而是拆成四季三旬。分家后的薄田、商路旧账、供读后手与应役现银，都要在同一年里分段落账。'
+      note: '商路当户要把分家薄田、旧商账、供读后手与应役现银分段落账。货路、人情与未回款都可能还在，但年关真正能用的只有已经回手的米银。'
         + (bridge.note ? ' ' + bridge.note : '')
         + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是“再做一件大事”，而是把哪笔钱、哪层人情、哪口薄田先落到账上。'
@@ -21917,7 +21964,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       nextLabel: isYearEnd ? householdYearEndNextLabel() : (xun >= 3 ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + householdXunLabel(xun + 1) + ' →')),
       ap: 2,
       commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
-      note: '举业路的当户阶段现也改成“四季三旬”。分书、税则、旧馆账、保结人情、优免路数与分得薄田，不再一口气糊成“一次 4 点”，而要在同一年里逐旬拆开。'
+      note: '举业当户要同时处理分书、税则、旧馆账、保结人情、优免路数与分得薄田。名分只能改变一部分制度摩擦，不能替这房人把每一本账自动结清。'
         + (bridge.note ? ' ' + bridge.note : '')
         + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是“再做一件大事”，而是把名色、馆账、薄田与差钱里最要紧的那两手先坐实。',
@@ -22881,7 +22928,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       ap: 2,
       shock: false,
       commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
-      note: '当户阶段的默认兜底口径也按“四季三旬”推进。分家、旧账、差钱与里甲人情，不再一口气结成“一次 4 点”，而要在同一年里逐旬拆开。〔均分与破家为制度事实，具体银额为占位〕'
+      note: '当户以后，分家、旧账、差钱与里甲人情会在四季里逐旬追上来；眼前补住一处，往往意味着另一处只能缓办。〔均分与破家为制度事实，具体银额为玩法占位〕'
         + (bridge.note ? ' ' + bridge.note : '')
         + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是把当户一次结掉，而是先把旧账、差钱和人情里最要紧的那两手坐实。'
@@ -24930,8 +24977,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       setFoundingSnapshot: function (snapshotId) {
         if (!FOUNDING_SNAPSHOTS[snapshotId]) return false;
         if (phase !== 'establishment' || generation > 1 || carryOver) return false;
-        toggleFoundingSnapshot(snapshotId);
-        return true;
+        return toggleFoundingSnapshot(snapshotId);
       },
       getState: function () { return JSON.parse(JSON.stringify(S)); },
       getPhase: function () { return phase; },
