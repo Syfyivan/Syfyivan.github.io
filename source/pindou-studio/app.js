@@ -57,6 +57,7 @@
     paletteMode: byId('palette-mode'),
     connect: byId('connect-toggle'),
     smooth: byId('smooth-toggle'),
+    skinClean: byId('skin-clean-toggle'),
     generate: byId('generate-button'),
     status: byId('status-message'),
     canvas: byId('preview-canvas'),
@@ -126,7 +127,7 @@
         if (state.image) generatePattern();
       });
     });
-    for (const element of [els.background, els.paletteMode, els.connect, els.smooth]) {
+    for (const element of [els.background, els.paletteMode, els.connect, els.smooth, els.skinClean]) {
       element.addEventListener('change', () => {
         if (state.image) generatePattern();
       });
@@ -213,6 +214,9 @@
       const inputCanvas = route === 'cartoon' ? state.cartoonCanvas : state.sourceCanvas;
       state.cells = quantizeToPattern(inputCanvas, state.grid, state.palette, els.background.value);
       if (els.smooth.checked) smoothConcaveContours(state.cells);
+      const skinCleanup = els.skinClean.checked
+        ? window.PindouPatternUtils.cleanSkinToneNoise(state.cells, colorByCode)
+        : { replaced: 0, components: 0 };
       cleanTinyComponents(state.cells);
       if (els.connect.checked) connectPattern(state.cells);
       state.undoStack = [];
@@ -221,7 +225,10 @@
       setView('preview');
       setReady(true);
       const connectedCopy = state.analysis.components === 1 ? '已经连成一整片' : `仍有 ${state.analysis.components} 个连通块`;
-      setStatus(`完成：${state.analysis.total.toLocaleString('zh-CN')} 颗豆，${connectedCopy}。建议放大检查五官。`);
+      const cleanupCopy = skinCleanup.replaced
+        ? `已合并 ${skinCleanup.replaced} 格零碎肤色阴影，`
+        : '';
+      setStatus(`完成：${state.analysis.total.toLocaleString('zh-CN')} 颗豆，${cleanupCopy}${connectedCopy}。建议放大检查五官。`);
     } catch (error) {
       console.error(error);
       setStatus('生成时遇到问题，请换一张尺寸更小的图片再试。', true);

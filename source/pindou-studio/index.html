@@ -115,6 +115,11 @@ layout: false
             <span><strong>补平轮廓凹口</strong><small>只补齐局部缺口，不粗暴削掉脸颊和下巴</small></span>
           </label>
 
+          <label class="switch-row">
+            <input id="skin-clean-toggle" type="checkbox" checked>
+            <span><strong>净化人脸杂色</strong><small>合并被肤色包围的零碎奶咖阴影，保留成片阴影、五官和衣帽颜色</small></span>
+          </label>
+
           <button class="primary-button" id="generate-button" type="button" disabled>请先上传照片</button>
           <p class="status-message" id="status-message" aria-live="polite">上传后会自动生成第一版。</p>
         </aside>
@@ -182,7 +187,7 @@ layout: false
         <h2>今天这轮对话，最后沉淀成了五条规则</h2>
       </div>
       <ol class="logic-grid">
-        <li><span>01</span><strong>先卡通化，再像素化</strong><p>直接缩小照片会把阴影当五官。先压缩杂色，脸型和人物关系才不会散。</p></li>
+        <li><span>01</span><strong>先卡通化，再像素化</strong><p>直接缩小照片会把阴影当五官。先压缩色阶，再合并肤色区的孤立阴影，脸才不会长出黄绿色斑点。</p></li>
         <li><span>02</span><strong>复杂度让给脸，不让给衣服</strong><p>豆子优先花在眼睛、眉毛、嘴与轮廓；衣服和大片阴影可以主动合并。</p></li>
         <li><span>03</span><strong>四张脸不能复制粘贴</strong><p>开口笑、闭嘴笑、眨眼、亲嘴和微表情要有区别，但都使用完整的小形状。</p></li>
         <li><span>04</span><strong>品牌色号不能编</strong><p>图纸只显示本工具内置并核对过的 MARD 色号，同时给出逐色用量和逐格 CSV。</p></li>
@@ -196,7 +201,7 @@ layout: false
         <h2>这一版能做什么，不能假装什么</h2>
       </div>
       <div class="boundary-copy">
-        <p><strong>已经可以：</strong>照片直转、浏览器卡通化、MARD 色号映射、复杂度控制、手动修五官、自动连体、导出预览/图纸/用量。</p>
+        <p><strong>已经可以：</strong>照片直转、浏览器卡通化、肤色杂点净化、MARD 色号映射、复杂度控制、手动修五官、自动连体、导出预览/图纸/用量。</p>
         <p><strong>暂不冒充：</strong>网页里的卡通化是本地轮廓简化，不是云端生成式模型。以后接入真正 AI 时，会放在安全服务端，不把密钥写进公开博客。</p>
       </div>
     </section>
@@ -207,6 +212,7 @@ layout: false
     <a href="/">返回一凡的博客</a>
   </footer>
 
+  <script src="./pattern-utils.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>

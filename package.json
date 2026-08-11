@@ -10,6 +10,7 @@
     "mahjong:lan": "node tools/mahjong-lan-server.mjs",
     "mahjong:audio": "node tools/generate-mahjong-audio.mjs",
     "painters:server": "node tools/painters-guild-server.mjs",
+    "pindou:logic-test": "node tools/pindou-pattern-utils-smoke.mjs",
     "mahjong:rules-test": "node tools/mahjong-rule-smoke.mjs",
     "visual-server": "node tools/visual-browser-server.mjs"
   },
