@@ -166,6 +166,22 @@
     return FOUNDING_SNAPSHOTS[key] || FOUNDING_SNAPSHOTS[DEFAULT_FOUNDING_SNAPSHOT_ID];
   }
 
+  function inferFoundingSnapshotIdFromCarry(carry) {
+    if (!carry || typeof carry !== 'object') return '';
+    if (carry.父快照ID && FOUNDING_SNAPSHOTS[carry.父快照ID]) return carry.父快照ID;
+    if (carry.父快照类型 === '江南军户次子' || carry.户籍类型 === '军籍') return 'jiangnan_military_second_son';
+    if (carry.父快照类型 === '江南民籍次子' || carry.户籍类型 === '民籍') return DEFAULT_FOUNDING_SNAPSHOT_ID;
+    return '';
+  }
+
+  function currentRegistryLabel() {
+    return (S && S.户籍类型 === '军籍') ? '军籍' : '民籍';
+  }
+
+  function identityWithRegistry(suffix) {
+    return currentRegistryLabel() + '·' + suffix;
+  }
+
   function foundingSnapshotSwitches() {
     if (generation > 1 || carryOver || startMode !== 'establishment') return [];
     return Object.keys(FOUNDING_SNAPSHOTS).map(function (key) {
@@ -198,9 +214,7 @@
   }
 
   function isMilitaryFoundingState() {
-    return generation === 1
-      && !carryOver
-      && !!S
+    return !!S
       && S.父快照类型 === '江南军户次子'
       && S.户籍类型 === '军籍';
   }
@@ -315,12 +329,19 @@
   function initState(carry, opts) {
     opts = opts || {};
     carry = normalizeCarrySnapshot(carry);
+    var carryFoundingSnapshotId = inferFoundingSnapshotIdFromCarry(carry);
+    if (carryFoundingSnapshotId) selectedFoundingSnapshotId = carryFoundingSnapshotId;
     carryOver = carry || null;
     startMode = (opts.start === 'childhood' || opts.start === 'establishment') ? opts.start : startMode;
+    var foundingSeed = currentFoundingSnapshot();
     S = {
       年龄: 1, 身份: '民籍·佃农子(孩提)',
       体魄: 60, 家族: 60,
       白银: 1, 铜钱: 1200, 存米: 3,
+      父快照ID: foundingSeed.id,
+      父快照类型: (foundingSeed.patch || {}).父快照类型 || '江南民籍次子',
+      户籍类型: (foundingSeed.patch || {}).户籍类型 || '民籍',
+      父快照说明: (foundingSeed.patch || {}).父快照说明 || '默认样板',
       秧苗进度: 0, 已插秧: false, 田亩: 4, 租额石: 3, 菜圃进度: 0, 母出工: true, 农年: 1,
       // 幼年字段
       识字: false, 技艺: '无', 兄弟序: 1, 农事历练: 0, 家务历练: 0, 识字进度: 0, 技艺进度: 0,
@@ -375,12 +396,19 @@
       // 但这里仍做兜底：后续若直接把旧 fixture、旧父快照或手工 patch 喂进 initState，
       // 也不能让“承继身份 / 承嗣来路 / 承继定位 / route-aware 状态位”重新掉回旧口径。
       var normalizedCarry = normalizeCarrySnapshot(carry) || carry;
+      var normalizedFoundingSnapshotId = inferFoundingSnapshotIdFromCarry(normalizedCarry);
+      if (normalizedFoundingSnapshotId) selectedFoundingSnapshotId = normalizedFoundingSnapshotId;
+      var carriedFounding = currentFoundingSnapshot();
       S.白银 = Math.max(0, normalizedCarry.白银 || 0);
       S.存米 = Math.max(0, normalizedCarry.存米 || 0);
       S.铜钱 = normalizedCarry.铜钱 != null ? normalizedCarry.铜钱 : 1200;
       S.田亩 = Math.max(0, normalizedCarry.田亩 != null ? normalizedCarry.田亩 : 4);
       S.负债银 = Math.max(0, normalizedCarry.负债银 || 0);
       S.家族 = Math.max(20, Math.min(80, normalizedCarry.家族 == null ? 60 : normalizedCarry.家族));
+      S.父快照ID = normalizedFoundingSnapshotId || carriedFounding.id;
+      S.父快照类型 = normalizeCarryString(normalizedCarry.父快照类型, (carriedFounding.patch || {}).父快照类型 || S.父快照类型);
+      S.户籍类型 = normalizeCarryString(normalizedCarry.户籍类型, (carriedFounding.patch || {}).户籍类型 || S.户籍类型);
+      S.父快照说明 = normalizeCarryString(normalizedCarry.父快照说明, (carriedFounding.patch || {}).父快照说明 || S.父快照说明);
       S.父辈路线 = normalizedCarry.父辈路线 || '未定';
       S.承继身份 = normalizeCarryRole(normalizedCarry);
       S.承嗣来路 = normalizedCarry.承嗣来路 || directHeirLineageTag(S.承继身份);
@@ -573,6 +601,9 @@
   function inheritedCarryTags(carry) {
     if (!carry) return [];
     var tags = [];
+    if ((carry.父快照类型 || '') === '江南军户次子' || (carry.户籍类型 || '') === '军籍') {
+      tags.push('这一房仍带着军户那层原籍军装与盘缠后手');
+    }
     if ((carry.承继定位 || '')) tags.push('这一房眼下的家业内部分工是“' + carry.承继定位 + '”');
     if ((carry.家传手艺 || 0) > 0) tags.push('家里还认得一层手艺门路');
     if ((carry.家传农事 || 0) > 1) tags.push('父辈把看天、看水、守薄田的农事门道也守下来了');
@@ -761,10 +792,16 @@
   function normalizeCarrySnapshot(carry) {
     if (!carry || typeof carry !== 'object') return null;
     var normalized = JSON.parse(JSON.stringify(carry));
+    var foundingSnapshotId = inferFoundingSnapshotIdFromCarry(normalized);
+    var founding = foundingSnapshotId ? FOUNDING_SNAPSHOTS[foundingSnapshotId] : null;
     var role = normalizeCarryRole(normalized);
     normalized.承继身份 = role;
     normalized.承嗣来路 = normalizeCarryLineageSource(normalized.承嗣来路, role);
     normalized.承继定位 = normalizeCarryPosition(normalized.承继定位, role);
+    normalized.父快照ID = normalizeCarryString(foundingSnapshotId || normalized.父快照ID, '');
+    normalized.父快照类型 = normalizeCarryString(normalized.父快照类型, founding ? ((founding.patch || {}).父快照类型 || '') : '');
+    normalized.户籍类型 = normalizeCarryString(normalized.户籍类型, founding ? ((founding.patch || {}).户籍类型 || '') : '');
+    normalized.父快照说明 = normalizeCarryString(normalized.父快照说明, founding ? ((founding.patch || {}).父快照说明 || '') : '');
     normalized.父辈路线 = normalizeParentRouteLabel(normalized.父辈路线);
     normalized.婚配路径 = normalizeRouteAwareStateValue('婚配路径', normalized.婚配路径, '未定');
     normalized.合爨状态 = normalizeRouteAwareStateValue('合爨状态', normalized.合爨状态, '未合爨');
@@ -915,6 +952,9 @@
   function carryRouteAwareSummary(carry) {
     if (!carry) return '无额外承接状态位';
     var tags = [];
+    if ((carry.父快照ID || '')) tags.push('父快照ID=' + carry.父快照ID);
+    if ((carry.父快照类型 || '')) tags.push('父快照类型=' + carry.父快照类型);
+    if ((carry.户籍类型 || '')) tags.push('户籍类型=' + carry.户籍类型);
     if ((carry.父辈路线 || '') && carry.父辈路线 !== '未定') tags.push('父辈路线=' + carry.父辈路线);
     if ((carry.承继身份 || '')) tags.push('承继身份=' + carry.承继身份);
     if ((carry.承嗣来路 || '')) tags.push('承嗣来路=' + carry.承嗣来路);
@@ -3612,7 +3652,7 @@
       S.童试层级 += 1;
       if (S.童试层级 >= 3) {
         S.童试层级 = 3;
-        S.生员身份 = true; S.生员层级 = '生员'; S.优免启用 = true; S.身份 = '民籍·生员';
+        S.生员身份 = true; S.生员层级 = '生员'; S.优免启用 = true; S.身份 = identityWithRegistry('生员');
         S.家族 += 2;
         S.本年应试结果 = '成生员';
         pushExamSeasonTag(stepTag + '当旬入泮');
@@ -5760,6 +5800,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var delegatedEstate = snapshotDelegatedEstateState();
     S._childDied = true;
     S._carry = normalizeCarrySnapshot({
+      父快照ID: selectedFoundingSnapshotId,
+      父快照类型: S.父快照类型,
+      户籍类型: S.户籍类型,
+      父快照说明: S.父快照说明,
       白银: S.白银, 存米: Math.max(0, S.存米), 铜钱: S.铜钱, 田亩: S.田亩, 负债银: Math.max(0, S.负债银 || 0), 家族: Math.max(20, S.家族 - 4),
       父辈路线: S.父辈路线 || '未定',
       承继身份: carriedIdentity,
@@ -5824,7 +5868,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       : '从十六成丁起算，先立身分路。';
     return 起步口径
       + (generation > 1 ? ('这一代沿上一代真实传承快照起步：田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两。') : '')
-      + (generation <= 1 ? ('当前父快照：' + currentFoundingSnapshot().publicSummary + '。') : '')
+      + ((generation <= 1 || ((carryOver || {}).父快照类型 || (carryOver || {}).户籍类型))
+        ? ('当前父快照：' + currentFoundingSnapshot().publicSummary + '。')
+        : '')
       + (底子.length ? '这些年攒下：' + 底子.join('、') + '。' : '这些年不曾攒下特别的底子，只识些寻常农事。');
   }
 
@@ -5848,7 +5894,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     phase = 'establishment';
     if (generation > 1 && carryOver) {
       S.年龄 = 16;
-      S.身份 = '民籍·' + currentInheritanceRole(carryOver) + '待立身';
+      S.身份 = identityWithRegistry(currentInheritanceRole(carryOver) + '待立身');
     } else {
       applyFoundingSnapshot(selectedFoundingSnapshotId);
     }
@@ -5862,7 +5908,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
 
   // 立身走佃田路 → 十六成丁，步入佃田三农年（沿用旬循环）
   function enterFarm() {
-    phase = 'farm'; S.年龄 = 16; S.身份 = '民籍·佃农子'; S.路线 = '留乡佃田'; S.农年 = 1; picks = []; resolved = null; curStage = null;
+    phase = 'farm'; S.年龄 = 16; S.身份 = identityWithRegistry('佃农子'); S.路线 = '留乡佃田'; S.农年 = 1; picks = []; resolved = null; curStage = null;
     var inherited = (S.农年 === 1) ? applyRouteInheritance('farm') : [];
     var farmBefore = snapshot();
     var farmMilitaryNote = settleMilitaryFoundingBurden('farm:' + S.农年, { copper: 60, label: '军户原籍这一农年' });
@@ -5889,7 +5935,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       resetWageYearLedger();
     }
     S.年龄 = 16 + (S.工年 - 1);
-    S.身份 = '民籍·雇工子';
+    S.身份 = identityWithRegistry('雇工子');
     S.路线 = '受雇长工/短工';
     var inherited = (S.工年 === 1) ? applyRouteInheritance('wage') : [];
     picks = []; resolved = null; lifePicks = [];
@@ -5922,7 +5968,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       resetApprenticeYearLedger();
     }
     S.年龄 = 16 + (S.学年 - 1);
-    S.身份 = '民籍·商铺学徒';
+    S.身份 = identityWithRegistry('商铺学徒');
     S.路线 = '入城学徒';
     var inherited = (S.学年 === 1) ? applyRouteInheritance('apprentice') : [];
     picks = []; resolved = null; lifePicks = [];
@@ -5955,7 +6001,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       resetMerchantYearLedger();
     }
     S.年龄 = 16 + (S.商年 - 1);
-    S.身份 = '民籍·随号学生意';
+    S.身份 = identityWithRegistry('随号学生意');
     S.路线 = '徽商式亦贾亦儒';
     var inherited = (S.商年 === 1) ? applyRouteInheritance('merchant') : [];
     picks = []; resolved = null; lifePicks = [];
@@ -5990,7 +6036,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     syncExamXunState(S.举旬 || S.举段 || 1);
     syncExamGuaranteeProgress();
     S.年龄 = 16 + (S.举业年 - 1);
-    S.身份 = S.生员身份 ? '民籍·生员' : '民籍·读书子';
+    S.身份 = S.生员身份 ? identityWithRegistry('生员') : identityWithRegistry('读书子');
     S.路线 = '读书应举';
     refreshExamSupportState();
     var baselineNotes = (S.举业年 === 1) ? applyCivilExamSharedBaseline() : [];
@@ -6380,7 +6426,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     h += '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">🗺 交互图谱入口</span>' +
       '<span class="cb-val">总链路已挂出</span></div>' +
-      '<div class="cb-tip">古代 → 明代 → 江南民籍次子立身的十二个月 → 一生 → 下一代' +
+      '<div class="cb-tip">古代 → 明代 → ' + founding.title + '立身的十二个月 → 一生 → 下一代' +
       '<br>立身 → 成家 → 当户 → 养老 → 死亡与传承 → 下一代重开</div></div>';
     h += '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">🧬 父快照入口</span>' +
@@ -6409,7 +6455,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var inheritanceBridge = lifecycleInheritanceBridge();
     var founding = currentFoundingSnapshot();
     var startNote = generation > 1
-      ? '这一代不再沿用初代那张“固定父快照”，而是直接吃上一代真实死亡结算留下的期初账。五条路仍共享同一个过去，但这个“过去”现在来自真实传承，不再回滚。'
+      ? ('这一代不再沿用初代那张“固定父快照”，而是直接吃上一代真实死亡结算留下的期初账。'
+        + (((carryOver || {}).父快照类型 || (carryOver || {}).户籍类型) ? (' 这一房当前仍沿“' + founding.title + '”这层户籍与制度后手起手。') : '')
+        + ' 五条路仍共享同一个过去，但这个“过去”现在来自真实传承，不再回滚。')
       : '十六岁以前，你与五条路共享同一份家底。从这一刻起，耕、雇、学、商、举会分别消耗同一份时间、身体、现钱与人情；当前父快照为“' + founding.title + '”。';
     var startEvents = generation > 1 ? [
       { t: 'rel', tag: '[承继]', txt: '这一代的起点不是白纸：父辈传下多少薄田、多少债、多少门路，都会先落在你身上。' },
@@ -25578,6 +25626,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         { total: pendingRentEnabled ? pendingRentMi : 0, label: '待收委托田租', unit: '石' }
       ]);
       S._carry = normalizeCarrySnapshot({
+        父快照ID: selectedFoundingSnapshotId,
+        父快照类型: S.父快照类型,
+        户籍类型: S.户籍类型,
+        父快照说明: S.父快照说明,
         白银: shareSilver, 存米: shareMi, 田亩: shareTian, 铜钱: shareCopper, 负债银: shareDebt, 家族: Math.min(80, S.家族), 承继身份: heirIdentity,
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         承继定位: legacyCarry.承继定位, 城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子,
@@ -25607,6 +25659,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var collateralPendingRentEnabled = collateralDelegatedRoute !== '无' && pendingRentMi > 0;
       var collateralCarryDelegatedRoute = (collateralLeaseEnabled || collateralPendingRentEnabled) ? collateralDelegatedRoute : '无';
       S._carry = normalizeCarrySnapshot({
+        父快照ID: selectedFoundingSnapshotId,
+        父快照类型: S.父快照类型,
+        户籍类型: S.户籍类型,
+        父快照说明: S.父快照说明,
         白银: estateSilver, 存米: estateMi, 田亩: estateTian, 铜钱: estateCopper, 负债银: estateDebt, 家族: Math.max(35, Math.min(75, S.家族 - 5)), 承继身份: heirIdentity,
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         承继定位: legacyCarry.承继定位, 城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子,
