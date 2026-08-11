@@ -7654,8 +7654,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               id: 'm_winter_head_third_remit',
               name: '先把三年冬头回钱拆作供读、差票与锅火',
               cost: 1,
-              eff: '白银-1·反哺+1·供读专账+1·供读+1·贴家+1·备役+1·家书+1·家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? '·商信誉+1' : ''),
-              desc: '第三商年冬清账上旬最怕一笔回钱刚落手，供读纸样、差票回话、锅火后手、客脚年礼和递话家书就一起追来。先把这层“三年冬头先收哪几本账”拆开，让供读、贴家、差役与回话都在冬头先见真账，而不再主要拖到冬尾。',
+              eff: '白银-1·反哺+1·供读专账+1·供读+1·贴家+1·备役+1·家书+1·歇养+1·体魄+1·家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? '·商信誉+1' : ''),
+              desc: '第三商年冬清账上旬最怕一笔回钱刚落手，供读纸样、差票回话、锅火后手、药包、客脚年礼和递话家书就一起追来。先把这层“三年冬头先收哪几本账”拆开，让供读、贴家、差役、身子与回话都在冬头先见真账，而不再主要拖到冬尾。',
               can: S.白银 >= 1 && supportCapacity >= 1 && (S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路备役 > 0 || S.本年商路贴家 > 0 || S.本年商路供读 > 0),
               why: S.白银 >= 1
                 ? (supportCapacity >= 1
@@ -9169,10 +9169,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.本年商路贴家 += 1;
                 S.本年商路备役 += 1;
                 S.本年商路家书 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
                 S.家族 += supportProfile.familyGain;
                 if (supportProfile.trustGain > 0) S.商信誉 += supportProfile.trustGain;
                 pushMerchantSeasonTag(season.name + xunLabel + '拆三年冬头回钱');
-                log.push(['先把三年冬头回钱拆作供读、差票与锅火：白银-1、反哺+1、供读专账+1、供读+1、贴家+1、备役+1、家书+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。第三商年冬头这笔真回钱没有再只写成“先贴家”或“等冬尾再分”，而是当场把供读、锅火、差票与家书次序一起压回了这一旬。', 'good']);
+                log.push(['先把三年冬头回钱拆作供读、差票与锅火：白银-1、反哺+1、供读专账+1、供读+1、贴家+1、备役+1、家书+1、歇养+1、体魄+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。第三商年冬头这笔真回钱没有再只写成“先贴家”或“等冬尾再分”，而是当场把供读、锅火、差票、药包与家书次序一起压回了这一旬。', 'good']);
               } else {
                 log.push(['想先把三年冬头回钱拆作供读、差票与锅火，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
               }
