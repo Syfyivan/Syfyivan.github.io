@@ -158,26 +158,23 @@ sup a:hover{text-decoration:underline;}
 }
 </style>
 <style>
-#route-map{width:100%;max-width:900px;margin:20px auto;border-radius:12px;border:2px solid var(--rule);background:#faf8f5;padding:10px;overflow:hidden;}
-#route-map img{width:100%;height:auto;display:block;border-radius:8px;}
 .map-legend{background:white;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.1);font-size:0.82rem;line-height:1.6;margin:0 auto 20px;max-width:500px;}
 .map-legend b{color:var(--accent);}
-.map-launchers{max-width:900px;margin:0 auto 22px;background:#fff;border:1px solid var(--rule);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
-.map-launchers p{margin:0;font-size:0.88rem;color:var(--muted);line-height:1.6;}
-.map-launchers .actions{display:flex;gap:10px;flex-wrap:wrap;}
-.map-launchers a{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid var(--rule);text-decoration:none;color:var(--ink);font-size:0.88rem;font-weight:700;background:#fff;}
-.map-launchers a.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
-.map-preview{max-width:900px;margin:0 auto 24px;background:#fff;border:1px solid var(--rule);border-radius:14px;padding:14px 16px;}
+.map-preview{max-width:1100px;margin:20px auto 24px;background:#fff;border:2px solid var(--rule);border-radius:14px;padding:14px 16px;box-shadow:0 8px 24px rgba(45,42,38,0.08);}
 .map-preview-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
-.map-preview-head p{margin:0;color:var(--muted);font-size:0.88rem;line-height:1.65;}
+.map-preview-head p{flex:1 1 380px;margin:0;color:var(--muted);font-size:0.88rem;line-height:1.65;}
 .map-preview-actions{display:flex;gap:10px;flex-wrap:wrap;}
-.map-preview-actions button{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid var(--rule);background:#fff;color:var(--ink);font-size:0.88rem;font-weight:700;cursor:pointer;}
+.map-preview-actions button,.map-preview-actions a{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid var(--rule);background:#fff;color:var(--ink);font-size:0.88rem;font-weight:700;cursor:pointer;text-decoration:none;}
 .map-preview-actions button.active,.map-preview-actions button.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
 .map-preview-frame{position:relative;border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:#faf8f5;}
-.map-preview-frame iframe{width:100%;height:760px;border:0;display:block;background:#fff;}
+.map-preview-frame iframe{width:100%;height:clamp(600px,72vh,820px);border:0;display:block;background:#fff;}
 .map-preview-frame.map-preview-fullscreen{position:fixed;left:0;right:0;bottom:0;top:var(--map-modal-toolbar-height,62px);z-index:100002;width:100vw;height:auto;border:0;border-radius:0;background:#fff;}
 .map-preview-frame.map-preview-fullscreen iframe{width:100%;height:100%;}
 .map-preview-note{margin-top:10px;color:var(--muted);font-size:0.82rem;line-height:1.6;}
+.static-map-fallback{max-width:900px;margin:12px auto 24px;}
+.static-map-fallback .static-route-map{padding:10px;background:#faf8f5;border:1px solid var(--rule);border-radius:12px;overflow:hidden;}
+.static-map-fallback .static-route-map img{width:100%;height:auto;display:block;border-radius:8px;}
+.static-map-fallback .map-legend{margin:14px auto 0;box-shadow:none;border:1px solid var(--rule);}
 .map-modal{position:fixed;inset:0;z-index:100000;background:#fff;display:none;align-items:center;justify-content:center;padding:0;}
 .map-modal.open{display:flex;}
 .map-modal-inner{width:100vw;height:100vh;background:#fff;border-radius:0;overflow:hidden;display:grid;grid-template-rows:auto 1fr;}
@@ -187,6 +184,12 @@ sup a:hover{text-decoration:underline;}
 .map-modal-toolbar button.active,.map-modal-toolbar button.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
 .map-modal-host{position:relative;width:100%;height:100%;min-height:0;background:#fff;}
 .map-modal-host iframe{width:100%;height:100%;border:0;display:block;background:#fff;}
+@media(max-width:768px){
+  .map-preview{padding:12px;margin-top:16px;}
+  .map-preview-actions{width:100%;}
+  .map-preview-actions button,.map-preview-actions a{flex:1 1 auto;}
+  .map-preview-frame iframe{height:68vh;min-height:560px;}
+}
 /* 粘性章节导航 - 固定在顶部 */
 .section-nav{position:fixed;top:0;left:0;right:0;z-index:99999;background:#faf8f5;border-bottom:2px solid var(--rule);padding:12px 0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;box-shadow:0 2px 12px rgba(0,0,0,0.15);}
 .section-nav .container{max-width:1200px;margin:0 auto;padding:0 20px;}
@@ -464,43 +467,39 @@ sup a:hover{text-decoration:underline;}
   <h2>路线总览</h2>
   <p class="lead">路线逻辑：<strong>从北向南追着秋天走，但把价值更多放在公路、大地风景和沿途地貌本身</strong>。G227、青海湖北岸、G315、北疆秋色公路、独库公路、帕米尔、新藏线G219、阿里荒原、滇藏线和川西高原是主菜；冈仁波齐转山与珠峰大本营已删除，页面不再用“到此一游”任务挤占恢复和天气窗口。</p>
 
-  <div id="route-map">
-    <img src="assets/china_route_geo.svg?v=3" alt="70天青甘完整核心 + 西部主线双司机均衡版中国地图路线图" style="width:100%;height:auto;display:block;border-radius:8px;">
-  </div>
-  <div class="map-legend" style="max-width:500px;margin:-10px auto 20px">
-    <b>路线分段颜色</b><br>
-    <span style="color:#e74c3c">━━━</span> 青甘风景公路段（北京→张掖→G227→青海湖北岸→G315→敦煌→哈密）<br>
-    <span style="color:#e67e22">━━━</span> 北疆段（可可托海→白哈巴/禾木→赛里木湖→伊犁）<br>
-    <span style="color:#d4a017">━━━</span> 独库+南疆帕米尔（库车→喀什→塔县→叶城）<br>
-    <span style="color:#229954">━━━</span> 新藏线+西藏段（G219→阿里→拉萨→林芝）<br>
-    <span style="color:#2980b9">━━━</span> 滇藏线+云南段（然乌→梅里→雨崩→丽江）<br>
-    <span style="color:#8B5E3C">━━━</span> 川西返程段（稻城亚丁→新都桥→成都→西安→北京）<br>
-    <small style="color:var(--muted)">新版改为中国底图路线图：这次有真实中国轮廓，路线按更接近真实方位关系重画。</small>
-  </div>
-
-  <div class="map-launchers">
-    <p><strong>交互路线图</strong> 使用同一套路线与地点数据：在线版叠加真实高德底图，离线版保留真实路线折线、道路编号和规划地点，并支持拖动、滚轮/按钮缩放。首次在线打开后会缓存离线文件。</p>
-    <div class="actions">
-      <a class="primary" href="./route-map-amap.html?v=9">打开在线高德逐日详图</a>
-      <a href="./route-map-offline.html?v=9">打开可缩放离线版</a>
-      <a href="./route-roadbook.html?v=9">打开 / 下载 D1—D70 离线路书</a>
-    </div>
-  </div>
-
-  <div class="map-preview">
+  <div id="route-map" class="map-preview">
     <div class="map-preview-head">
-      <p><strong>主页面交互地图预览</strong>：这里和全屏使用的是<strong>同一个地图实例</strong>。先选路段或地点、再点全屏，当前中心、缩放级别和图层都不会重置；在线/离线版都能继续拖动和放大。</p>
+      <p><strong>这张就是可缩放的主地图</strong>：直接在图内滚轮放大、按住抓手拖动，选择 D1—D70 查看当天道路和住宿、景点、吃饭、采购、厕所及救援点。点全屏后仍是<strong>同一个地图实例</strong>，当前中心、缩放级别和图层不会重置。</p>
       <div class="map-preview-actions">
-        <button id="mapPreviewOnline" class="active" type="button" onclick="switchMapPreview('online')">预览真高德版</button>
-        <button id="mapPreviewOffline" type="button" onclick="switchMapPreview('offline')">预览离线版</button>
+        <button id="mapPreviewOnline" class="active" type="button" onclick="switchMapPreview('online')">在线真高德版</button>
+        <button id="mapPreviewOffline" type="button" onclick="switchMapPreview('offline')">可缩放离线版</button>
+        <a href="./route-roadbook.html?v=9">D1—D70 离线路书</a>
         <button class="primary" type="button" onclick="openMapFullscreen()">全屏看地图</button>
       </div>
     </div>
     <div id="routePreviewHome" class="map-preview-frame">
-      <iframe id="routePreviewFrame" src="./route-map-amap.html?v=9" data-mode="online" title="路线地图预览" loading="lazy"></iframe>
+      <iframe id="routePreviewFrame" src="./route-map-amap.html?v=9" data-mode="online" title="70天自驾路线交互地图" loading="eager"></iframe>
     </div>
     <div class="map-preview-note">地图按20段城市间主干导航绘制，并加入住宿、景点、吃饭区域、采购加油、厕所参考和医疗救援图层。厕所、营业和住宿地址属于规划参考，出发前仍要用实时地图或订单页复核。</div>
   </div>
+
+  <details class="static-map-fallback">
+    <summary>打印备用：查看静态全国路线总览（这张不支持缩放）</summary>
+    <div class="detail-content">
+      <div class="static-route-map">
+        <img src="assets/china_route_geo.svg?v=3" alt="70天青甘完整核心 + 西部主线双司机均衡版中国地图静态路线图">
+      </div>
+      <div class="map-legend">
+        <b>路线分段颜色</b><br>
+        <span style="color:#e74c3c">━━━</span> 青甘风景公路段（北京→张掖→G227→青海湖北岸→G315→敦煌→哈密）<br>
+        <span style="color:#e67e22">━━━</span> 北疆段（可可托海→白哈巴/禾木→赛里木湖→伊犁）<br>
+        <span style="color:#d4a017">━━━</span> 独库+南疆帕米尔（库车→喀什→塔县→叶城）<br>
+        <span style="color:#229954">━━━</span> 新藏线+西藏段（G219→阿里→拉萨→林芝）<br>
+        <span style="color:#2980b9">━━━</span> 滇藏线+云南段（然乌→梅里→雨崩→丽江）<br>
+        <span style="color:#8B5E3C">━━━</span> 川西返程段（稻城亚丁→新都桥→成都→西安→北京）
+      </div>
+    </div>
+  </details>
 
   <div id="routeMapModal" class="map-modal" aria-hidden="true">
     <div class="map-modal-inner">
