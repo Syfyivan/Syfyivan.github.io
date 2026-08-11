@@ -3678,11 +3678,14 @@
     var replies = Math.max(0, Number(S.本年馆保回话次数) || 0);
     var rushed = Math.max(0, Number(S.本年保结次数) || 0);
     var bonus = 0;
-    if (progress >= 1) bonus += attempt.guaranteeBonus;
-    if (progress >= 2) bonus += attempt.guaranteeBonus * 0.75;
-    if (drafts > 0) bonus += Math.min(attempt.guaranteeBonus, drafts * attempt.guaranteeBonus * 0.5);
-    if (replies > 0) bonus += Math.min(attempt.guaranteeBonus * 0.75, replies * attempt.guaranteeBonus * 0.5);
-    if (rushed > 0) bonus += Math.min(attempt.guaranteeBonus * 0.5, rushed * attempt.guaranteeBonus * 0.25);
+    // 资格闸不再只认“有没有硬跑一手保结”，但也不能让弱档与强档场气差距被抹平。
+    // 保链层级先给稳定底分；帖样只说明底稿已熟；真正把场气从“落第”抬到“未冠/进一层”的，
+    // 应该是馆保回话是否已见，以及今年有没有把资格链真跑动起来。
+    if (progress >= 1) bonus += attempt.guaranteeBonus * 0.5;
+    if (progress >= 2) bonus += attempt.guaranteeBonus * 0.5;
+    if (drafts > 0) bonus += Math.min(attempt.guaranteeBonus * 0.5, drafts * attempt.guaranteeBonus * 0.5);
+    if (replies > 0) bonus += Math.min(attempt.guaranteeBonus, replies * attempt.guaranteeBonus);
+    if (rushed > 0) bonus += Math.min(attempt.guaranteeBonus * 0.25, rushed * attempt.guaranteeBonus * 0.25);
     return Math.min(attempt.guaranteeBonus * 3, bonus);
   }
   function examAttemptGuaranteeLabel() {
@@ -13611,6 +13614,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           if (S.本年应试结果 === '成生员') log.push(['〔应试回话〕秋冬当旬已见榜：本年成了生员；冬里只是继续把供读、口粮与门路余账收完。', 'good']);
           else if (S.本年应试结果 === '落第') log.push(['〔应试回话〕本年这回下场的回话已在当旬坐实：落第。年终只继续结供读、口粮与差役后手，不再把落第拖到最后一笔。', 'bad']);
           else if (S.本年应试结果 !== '未下场') log.push(['〔应试回话〕本年这回下场的结果已在当旬坐实：' + S.本年应试结果 + '。冬里按新进度继续收余账。', 'good']);
+        }
+        if (S.本年下场
+          && S.本年应试结果 !== '未下场'
+          && S.本年应试结果 !== '落第'
+          && S.本年应试结果 !== '成生员') {
+          var yearOutcome = examYearOutcomeLabel();
+          if (yearOutcome === '县试未冠' || yearOutcome === '府试未冠') {
+            S.本年应试结果 = yearOutcome;
+          }
         }
 
         if (S.本年投塾次数 > 0) {
