@@ -1024,11 +1024,17 @@
     };
   }
   function snapshotDelegatedEstateState() {
-    var route = String(S && S.委托营生 != null ? S.委托营生 : '').trim() || '无';
+    var route = normalizeCarryString(S && S.委托营生 != null ? S.委托营生 : '', '无');
+    var lease = Math.max(0, Number(S && S.委托租谷 || 0));
+    var pendingRent = Math.max(0, Number(S && S.委托待收租谷 || 0));
+    // 当前态若只剩“待收租谷/委托租谷”却没把委托营生口径写实，
+    // 也必须在快照阶段先补成“出佃收租”，避免幼年接续、死亡结算或手工 patch
+    // 先抓到一份“有租账、无营生”的半套承接状态。
+    if (route === '无' && (lease > 0 || pendingRent > 0)) route = '出佃收租';
     return {
       委托营生: route,
-      委托租谷: Math.max(0, Number(S && S.委托租谷 || 0)),
-      委托待收租谷: Math.max(0, Number(S && S.委托待收租谷 || 0))
+      委托租谷: lease,
+      委托待收租谷: pendingRent
     };
   }
   function lifecycleInheritanceBridge() {
@@ -3665,6 +3671,32 @@
     }
     S.供读状态 = '观望供读';
   }
+  function examAttemptGuaranteeMomentum(attempt) {
+    attempt = attempt || examAttemptProfile(Math.max(0, Math.min(2, Number(S.童试层级) || 0)));
+    var progress = Math.max(0, Math.min(2, Number(S.保结进度) || 0));
+    var drafts = Math.max(0, Number(S.本年保帖底样次数) || 0);
+    var replies = Math.max(0, Number(S.本年馆保回话次数) || 0);
+    var rushed = Math.max(0, Number(S.本年保结次数) || 0);
+    var bonus = 0;
+    if (progress >= 1) bonus += attempt.guaranteeBonus;
+    if (progress >= 2) bonus += attempt.guaranteeBonus * 0.75;
+    if (drafts > 0) bonus += Math.min(attempt.guaranteeBonus, drafts * attempt.guaranteeBonus * 0.5);
+    if (replies > 0) bonus += Math.min(attempt.guaranteeBonus * 0.75, replies * attempt.guaranteeBonus * 0.5);
+    if (rushed > 0) bonus += Math.min(attempt.guaranteeBonus * 0.5, rushed * attempt.guaranteeBonus * 0.25);
+    return Math.min(attempt.guaranteeBonus * 3, bonus);
+  }
+  function examAttemptGuaranteeLabel() {
+    var progress = Math.max(0, Math.min(2, Number(S.保结进度) || 0));
+    var drafts = Math.max(0, Number(S.本年保帖底样次数) || 0);
+    var replies = Math.max(0, Number(S.本年馆保回话次数) || 0);
+    if (progress <= 0 && drafts <= 0 && replies <= 0) return '资格底样未稳';
+    var parts = [];
+    if (drafts > 0) parts.push('帖样已熟');
+    if (progress >= 1) parts.push('保链已起');
+    if (progress >= 2) parts.push('资格已通');
+    if (replies > 0) parts.push('馆保回话已见');
+    return parts.join('、');
+  }
   function resolveExamAttempt(log, stepTag) {
     if (!S.本年下场 || S.本年应试结果 !== '未下场') return false;
     var gapCode = examAttemptStructuralGapCode();
@@ -3682,6 +3714,8 @@
     var replyTag = examAttemptReplyTag(levelBefore);
     var targetLabel = attempt.label;
     var burden = examAttemptBurdenProfile();
+    var guaranteeMomentum = examAttemptGuaranteeMomentum(attempt);
+    var guaranteeLabel = examAttemptGuaranteeLabel();
     var literacyBonus = S.识字
       ? Math.min(attempt.literacyBonusCap, Math.max(0, (S.识字进度 || 0) - 2) * attempt.literacyBonusStep)
       : 0;
@@ -3690,7 +3724,7 @@
       + (S.读书方式 === '塾馆' ? attempt.tutorBonus : 0)
       + (S.读书方式 === '社学寄读' ? attempt.schoolBonus : 0)
       + Math.min(0.08, S.本年评文次数 * attempt.essayBonus)
-      + (S.本年保结次数 > 0 ? attempt.guaranteeBonus : 0)
+      + guaranteeMomentum
       + literacyBonus;
     if ((S.举业年 || 1) <= 1) chance -= 0.06;
     else if ((S.举业年 || 1) === 2) chance -= 0.02;
@@ -3712,6 +3746,7 @@
         S.本年应试结果 = examTierLabel(S.童试层级, false);
         pushExamSeasonTag(stepTag + '当旬回话');
         log.push(['〔' + replyTag + '〕这一旬下场、这一旬就见了回话：' + S.本年应试结果 + '。只是眼下刚过的是' + targetLabel + '，后头还得再过' + examAttemptTargetLabel(S.童试层级, false) + '；举业有进，但供读、纸墨和家里口粮的后账仍得在这一年里继续配平。'
+          + (guaranteeLabel !== '资格底样未稳' ? (' 这一回也把“' + guaranteeLabel + '”直接算进了场气，不再只认“今年有没有硬跑一手保结”。') : '')
           + (burden.label !== '场气尚稳' ? (' 这一回话已经把“' + burden.label + '”直接算进场里，不再把这些压力当成场外白噪声。') : ''), 'good']);
       }
       refreshExamSupportState();
@@ -3724,6 +3759,7 @@
     S.本年应试结果 = '落第';
     pushExamSeasonTag(stepTag + '当旬落第');
     log.push(['〔' + replyTag + '〕这一旬下了场，也在这一旬见了回话：' + targetLabel + '落第。盘缠、纸墨和保结人情都已先花出去，家里对再供多久也会更迟疑；县试、府试、院试也不会因为前面已花过几年钱就自动往后顺。'
+      + (guaranteeLabel !== '资格底样未稳' ? (' 这一回你并非只拿着一句“保结已办”，而是把“' + guaranteeLabel + '”也一并带进场里；可见资格细账铺得更真，并不等于就能把回话写死。') : '')
       + (burden.label !== '场气尚稳' ? (' 这一回真正压场的还有“' + burden.label + '”，如今会和文章、保结一道吃掉回话，不再等到年末才补一句“其实很累”。') : ''), 'bad']);
     refreshExamSupportState();
     return false;
