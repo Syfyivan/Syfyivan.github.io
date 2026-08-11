@@ -103,7 +103,7 @@
 
   window.ROAD_TRIP_DAY_DATA = {
     meta: {
-      version: 'daily-roadbook-v2', updatedAt: '2026-08-11', startDate: '2026-09-18', endDate: '2026-11-26',
+      version: 'daily-roadbook-v3', updatedAt: '2026-08-11', startDate: '2026-09-18', endDate: '2026-11-26',
       plannedDrivingKm: days.reduce((sum, day) => sum + day.distanceKm, 0), budgetMileageKm: 18000,
       note: '逐日里程含已明确的市内、雨崩/虎跳峡接驳和取车里程；实时导航可能因封路、绕行和停车点变化而调整。'
     },

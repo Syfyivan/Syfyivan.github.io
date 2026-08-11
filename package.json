@@ -13,6 +13,7 @@
     "pindou:logic-test": "node tools/pindou-pattern-utils-smoke.mjs",
     "pindou:ai-test": "node tools/pindou-ai-worker-smoke.mjs",
     "mahjong:rules-test": "node tools/mahjong-rule-smoke.mjs",
+    "road-trip:page-test": "node tools/road-trip-page-smoke.mjs",
     "visual-server": "node tools/visual-browser-server.mjs"
   },
   "hexo": {

@@ -92,11 +92,6 @@ tbody tr:hover{background:var(--accent-light);}
 .segment-badge{background:var(--accent);color:#fff;font-family:'Lora',Georgia,serif;font-weight:700;font-size:1.1rem;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .segment-title{font-family:'Lora',Georgia,serif;font-size:1.25rem;font-weight:700;line-height:1.3;}
 .segment-meta{font-size:0.83rem;color:var(--muted);margin-top:3px;}
-.diagram{margin:22px 0;background:var(--bg2);border:1px solid var(--rule);border-radius:10px;padding:18px;overflow-x:auto;}
-.diagram .mermaid{text-align:center;font-size:13px;}
-.diagram figcaption{font-size:0.78rem;color:var(--muted);text-align:center;margin-top:9px;}
-.chart-figure{margin:22px 0;background:var(--bg2);border:1px solid var(--rule);border-radius:10px;padding:18px;}
-.chart-figure figcaption{font-weight:700;font-size:0.9rem;margin-bottom:9px;}
 .checklist{list-style:none;padding:0;}
 .checklist li{padding:6px 0 6px 24px;position:relative;border-bottom:1px dashed var(--rule);font-size:0.9rem;}
 .checklist li::before{content:'✓';position:absolute;left:0;color:var(--accent2);font-weight:700;}
@@ -115,15 +110,38 @@ tbody tr:hover{background:var(--accent-light);}
 .toc a{color:var(--ink);text-decoration:none;border-bottom:1px solid transparent;transition:border-color 0.2s;}
 .toc a:hover{border-bottom-color:var(--accent);color:var(--accent);}
 .toc .toc-days{color:var(--muted);font-size:0.8rem;margin-left:5px;}
-.timeline{position:relative;margin:20px 0;padding-left:26px;}
-.timeline::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:2px;background:var(--rule);}
-.tl-item{position:relative;margin-bottom:14px;}
-.tl-item::before{content:'';position:absolute;left:-22px;top:6px;width:11px;height:11px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);}
-.tl-item.tl-ok::before{background:var(--accent2);}
-.tl-item.tl-warn::before{background:var(--warn);}
-.tl-item.tl-danger::before{background:var(--danger);}
-.tl-date{font-weight:700;font-size:0.88rem;}
-.tl-text{font-size:0.85rem;color:var(--muted);margin-top:2px;}
+.roadbook-intro{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:18px;}
+.roadbook-intro-copy{flex:1 1 520px;}
+.roadbook-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;}
+.roadbook-actions a,.roadbook-actions button{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid var(--rule);background:#fff;color:var(--ink);font:inherit;font-size:0.86rem;font-weight:700;text-decoration:none;cursor:pointer;}
+.roadbook-actions a.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+details.roadbook-segment{margin:12px 0;background:transparent;border:1px solid var(--rule);border-radius:14px;overflow:hidden;scroll-margin-top:86px;}
+details.roadbook-segment>summary.segment-header{margin:0;padding:16px 18px;background:var(--bg2);align-items:center;border:0;}
+details.roadbook-segment>summary.segment-header::before{margin-right:2px;}
+details.roadbook-segment[open]>summary.segment-header{background:var(--accent-light);border-bottom:1px solid var(--rule);}
+.segment-summary-copy{display:block;min-width:0;}
+.segment-title,.segment-meta{display:block;}
+details.roadbook-segment>.segment{margin:0;border:0;border-radius:0;background:#fff;padding:20px 24px 24px;}
+.day-execution-list{display:grid;gap:7px;margin-top:10px;}
+.day-execution{background:#f8f6f2;border-left:3px solid var(--accent2);border-radius:7px;padding:9px 11px;font-size:0.82rem;line-height:1.6;color:var(--muted);}
+.day-execution strong{color:var(--ink);}
+.day-execution a{display:inline-block;margin-top:4px;color:var(--accent);font-weight:700;text-decoration:none;}
+.day-meal-line{margin-top:7px;padding-top:7px;border-top:1px dashed var(--rule);color:var(--ink);}
+.meal-mode{display:inline-flex;align-items:center;border-radius:999px;padding:2px 8px;margin-right:5px;font-size:0.72rem;font-weight:800;white-space:nowrap;}
+.meal-mode.restaurant{background:#fff0e9;color:#a33d20;}
+.meal-mode.cook{background:#e8f5ee;color:#176a48;}
+.meal-mode.lodging,.meal-mode.nearby{background:#f1ede7;color:#65584c;}
+.meal-mode.home{background:#ede9fe;color:#6d28d9;}
+details.roadbook-appendix{margin:16px 0 0;background:#fff;}
+details.roadbook-appendix>summary{background:var(--bg2);}
+.roadbook-appendix-body{padding:0 18px 18px;}
+.roadbook-appendix-body .two-col{margin-bottom:0;}
+.meal-mode-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0;}
+.meal-mode-card{border:1px solid var(--rule);border-radius:12px;padding:16px;background:#fff;}
+.meal-mode-card strong{display:block;font-family:'Lora',Georgia,serif;font-size:1.6rem;color:var(--accent);margin:5px 0 3px;}
+.meal-mode-card p{margin:0;color:var(--muted);font-size:0.84rem;line-height:1.6;}
+.food-anchor-list{columns:2;column-gap:28px;margin:0;padding-left:20px;}
+.food-anchor-list li{break-inside:avoid;margin:0 0 8px;line-height:1.65;}
 .diff{color:var(--accent);letter-spacing:2px;}
 footer{background:var(--ink);color:rgba(255,255,255,0.7);padding:40px 0 26px;margin-top:36px;}
 footer h2{color:#fff;font-size:1.15rem;margin-bottom:16px;}
@@ -149,7 +167,17 @@ sup a:hover{text-decoration:underline;}
 @media(max-width:768px){
   .stats-grid{grid-template-columns:repeat(2,1fr);gap:16px;}
   .two-col{grid-template-columns:1fr;}
+  .meal-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .food-anchor-list{columns:1;}
   .segment{padding:18px;}
+  .roadbook-actions{width:100%;}
+  .roadbook-actions a,.roadbook-actions button{flex:1 1 auto;}
+  details.roadbook-segment>summary.segment-header{padding:13px 12px;gap:9px;}
+  details.roadbook-segment>.segment{padding:14px 12px 16px;}
+  .segment-badge{width:34px;height:34px;font-size:0.95rem;}
+  .segment-title{font-size:1rem;}
+  .segment-meta{font-size:0.76rem;line-height:1.45;}
+  .day-card{padding:13px 12px;}
   .hero{height:55vh;min-height:380px;}
   .hero-content{bottom:30px;}
   section{padding:32px 0;}
@@ -208,7 +236,8 @@ sup a:hover{text-decoration:underline;}
       <a href="#key-points" class="active">出发时间</a>
       <a href="#rental">租车与预算</a>
       <a href="#overview">路线总览</a>
-      <a href="#seg1">每日行程</a>
+      <a href="#roadbook">逐日路书</a>
+      <a href="#food-plan">吃饭安排</a>
       <a href="#hiking">徒步</a>
       <a href="#stay-matrix">住宿与下单</a>
       <a href="#handbook">压缩手册</a>
@@ -232,7 +261,7 @@ sup a:hover{text-decoration:underline;}
     <div class="container">
       <div class="hero-eyebrow">Self-Drive Expedition · 2026 Sept 18 → Nov 28</div>
         <h1>从北京出发自驾大环线：详细攻略 + 折叠式压缩手册</h1>
-      <p class="hero-sub">4人硬派四驱SUV · 70天主计划约16,380km（租车按18,000km预算）· 2位司机轮换 · 当前执行预算约12.93万 · 神州租车坦克300北京取还无异地费 · 已取消冈仁波齐转山和珠峰大本营 · 多晚城市优先整套两/三居民宿，偏远与高原节点住两间酒店房 · 所有价格以付款页为准</p>
+      <p class="hero-sub">4人硬派四驱SUV · 70天主计划约16,380km（租车按18,000km预算）· 2位司机轮换 · 当前执行预算约14.03万 · 神州租车坦克300北京取还无异地费 · 已取消冈仁波齐转山和珠峰大本营 · 多晚城市优先整套两/三居民宿，偏远与高原节点住两间酒店房 · 所有价格以付款页为准</p>
     </div>
   </div>
 </div>
@@ -244,7 +273,7 @@ sup a:hover{text-decoration:underline;}
       <div class="alert-icon">⚠️</div>
       <div class="alert-body">
         <h3>重要说明：攻略持续完善中，所有信息请以实际预订/出发前最新情况为准</h3>
-        <p><strong>路线</strong>：北京→张掖→G227祁连→青海湖北岸→G315柴达木→敦煌→哈密→新疆（北疆+南疆）→新藏线G219→西藏（阿里+日喀则+拉萨+林芝）→滇藏线→云南（雨崩+虎跳峡+丽江）→川西（稻城亚丁+新都桥）→成都→西安→太原→北京，全程大环线，北京取车北京还车，零异地还车费。<strong>冈仁波齐转山和珠峰大本营已从默认执行版彻底移除</strong>，原本约5天改为狮泉河恢复、拉萨保养、林芝/波密天气缓冲，不再为了两个高规则高风险点压缩整条线。<strong>租车</strong>：神州租车直接租<strong>坦克300四驱</strong>（约500-600元/天，长租有折扣）。<strong>出发前务必电话确认租车公司是否允许走新藏线G219进阿里，买全额保险</strong>。</p>
+        <p>页面里的路线、里程、住宿和预算都是<strong>当前执行版</strong>；真正出发前只需重新核验四类动态信息：租车合同是否允许进入阿里、独库和高原道路是否开放、住宿订单是否仍有效、天气是否触发降级方案。正文不再在这里重复整条路线。</p>
       </div>
     </div>
   </div>
@@ -266,7 +295,7 @@ sup a:hover{text-decoration:underline;}
         <div class="stat-label">常规高速日控制值（长转场除外）</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">约3.23<span style="font-size:1rem">万元/人</span></div>
+        <div class="stat-value">约3.51<span style="font-size:1rem">万元/人</span></div>
         <div class="stat-label">当前 4 人执行预算</div>
       </div>
     </div>
@@ -280,37 +309,6 @@ sup a:hover{text-decoration:underline;}
   <div class="section-num">Key Decisions</div>
   <h2>关键决策：为什么改成“青甘完整核心 + 西部主线均衡版”</h2>
   <p class="lead">新版判断不再把青甘当成“顺路经过”，而是把它作为整条西部大闭环的第一道主菜：①<mark class="ok">青甘完整核心必须保留：张掖丹霞、G227祁连、青海湖北岸、茶卡一线、德令哈/大柴旦、G315、敦煌</mark>；②<mark class="ok">新疆、西藏、云南、川西保留最不可替代的主线体验，但城市景点和高规则门票点继续收缩</mark>；③<mark class="ok">这版追求的不是“去过多少地方”，而是每一段都挑最有意义、最漂亮、最值的</mark>。</p>
-
-  <div class="timeline">
-    <div class="tl-item tl-ok">
-      <div class="tl-date">9月18日出发：先压高速，再完整吃青甘核心</div>
-      <div class="tl-text">D1北京→巴彦淖尔（820km，全程高速，早7点出发下午5点到），D2巴彦淖尔→张掖（650km），从D2傍晚开始正式进入青甘主菜段。</div>
-    </div>
-    <div class="tl-item tl-warn">
-      <div class="tl-date">9月20-24日：张掖丹霞 + G227祁连 + 青海湖 + 茶卡 + 柴达木 + 敦煌</div>
-      <div class="tl-text">这4-5天不再只是青甘前菜，而是认真走一遍青甘完整核心：张掖丹霞、祁连、青海湖北岸、茶卡、德令哈、大柴旦、G315、敦煌，一个都不再轻轻带过。</div>
-    </div>
-    <div class="tl-item tl-ok">
-      <div class="tl-date">9月28日-10月1日：喀纳斯/禾木金秋前期</div>
-      <div class="tl-text">9月28日进喀纳斯（D11），9月29日三湾徒步到禾木（D12），9月30日禾木美丽峰（D13），10月1日离开（D14）。此时金秋前期人少住宿便宜，叶子已开始大面积金黄。</div>
-    </div>
-    <div class="tl-item tl-danger">
-      <div class="tl-date">10月4日：独库公路南段（封路前约一周）</div>
-      <div class="tl-text">2025年封路时间为10月10日20时<sup><a href="#cite-s1">[2]</a></sup>。D17（10月4日）走独库南段，比封路提前约一周，风险可控但仍需关注实时封路公告（如遇封路则走G218经库尔勒绕行）。</div>
-    </div>
-    <div class="tl-item tl-danger">
-      <div class="tl-date">10月11-20日：新藏线G219与阿里，取消两项高风险任务</div>
-      <div class="tl-text">保留新藏线、狮泉河、札达和日喀则交通主线；不做冈仁波齐转山，不绕珠峰大本营，争取10月20日到拉萨，把后续时间留作高原恢复和天气缓冲。</div>
-    </div>
-    <div class="tl-item tl-ok">
-      <div class="tl-date">11月：滇藏线+云南旱季徒步天堂</div>
-      <div class="tl-text">虎跳峡、雨崩、梅里雪山11月天高云淡，看到日照金山概率70%+<sup><a href="#cite-s5">[6]</a></sup>。</div>
-    </div>
-    <div class="tl-item tl-ok">
-      <div class="tl-date">11月下旬：川西秋色+成都西安美食收尾</div>
-      <div class="tl-text">稻城亚丁11月可能已入冬但雪山壮美，成都火锅+西安肉夹馍完美收官。</div>
-    </div>
-  </div>
 
   <div class="callout green">
     <div class="callout-title">70天双司机均衡版的核心优势</div>
@@ -473,12 +471,11 @@ sup a:hover{text-decoration:underline;}
       <div class="map-preview-actions">
         <button id="mapPreviewOnline" class="active" type="button" onclick="switchMapPreview('online')">在线真高德版</button>
         <button id="mapPreviewOffline" type="button" onclick="switchMapPreview('offline')">可缩放离线版</button>
-        <a href="./route-roadbook.html?v=9">D1—D70 离线路书</a>
         <button class="primary" type="button" onclick="openMapFullscreen()">全屏看地图</button>
       </div>
     </div>
     <div id="routePreviewHome" class="map-preview-frame">
-      <iframe id="routePreviewFrame" src="./route-map-amap.html?v=9" data-mode="online" title="70天自驾路线交互地图" loading="eager"></iframe>
+      <iframe id="routePreviewFrame" src="./route-map-amap.html?v=10" data-mode="online" title="70天自驾路线交互地图" loading="eager"></iframe>
     </div>
     <div class="map-preview-note">地图按20段城市间主干导航绘制，并加入住宿、景点、吃饭区域、采购加油、厕所参考和医疗救援图层。厕所、营业和住宿地址属于规划参考，出发前仍要用实时地图或订单页复核。</div>
   </div>
@@ -517,37 +514,8 @@ sup a:hover{text-decoration:underline;}
     </div>
   </div>
 
-  <div class="diagram">
-    <pre class="mermaid">
-flowchart LR
-    A[北京] --> B[张掖·G227祁连]
-    B --> C[青海湖北岸·德令哈]
-    C --> D[G315柴达木·敦煌]
-    D --> E[哈密·入疆]
-    E --> F[白哈巴/禾木或喀纳斯]
-    F --> G[赛里木湖·伊宁·独库]
-    G --> H[库车·喀什·帕米尔·塔县]
-    H --> I[G219新藏线·阿里·札达]
-    I --> J[萨嘎·日喀则·拉萨]
-    J --> K[林芝·然乌湖]
-    K --> L[G318+G214滇藏线·梅里雪山]
-    L --> M[雨崩徒步·虎跳峡·丽江]
-    M --> N[稻城亚丁·新都桥]
-    N --> O[成都·火锅·休整]
-    O --> P[西安·肉夹馍]
-    P --> Q[太原·北京<br>到家还车 ✅]
-
-    style A fill:#C75B39,color:#fff,stroke:none
-    style Q fill:#4A7C59,color:#fff,stroke:none
-    style H fill:#D4880F,color:#fff,stroke:none
-    style J fill:#8B5E3C,color:#fff,stroke:none
-    style K fill:#8B5E3C,color:#fff,stroke:none
-    </pre>
-    <figcaption>图：70天双司机安全版路线流向。冈仁波齐和珠峰任务已移除，保留新藏线与阿里主线；逐日主计划约16,380km，租车按18,000km留预算，北京取车北京还车。</figcaption>
-  </div>
-
   <div class="toc">
-    <h3>行程目录（共7段 · 70天 · 主计划约16,380km）</h3>
+    <h3>接下来怎么看：逐日路书目录（7段 · 70天 · 主计划约16,380km）</h3>
     <ol>
       <li><a href="#seg1">北京→张掖丹霞→G227祁连→青海湖北岸→茶卡→德令哈→大柴旦/G315→敦煌→哈密（7天）</a><span class="toc-days">D1-D7 · 约3550km · 青甘完整核心主菜</span></li>
       <li><a href="#seg2">东疆草原公路→北疆边境秋色→伊犁→独库公路（10天）</a><span class="toc-days">D8-D17 · 约2990km · 从北疆景区深刷里回收时间，给青甘完整主菜让位</span></li>
@@ -560,26 +528,31 @@ flowchart LR
   </div>
 </section>
 
-<!-- Time chart -->
-<section id="time-chart">
-  <div class="section-num">Time Allocation</div>
-  <h2>时间分配</h2>
-  <figure class="chart-figure">
-    <figcaption>各段行程天数占比（共70天）</figcaption>
-    <div id="chart-days" style="width:100%;min-height:360px"></div>
-  </figure>
-</section>
-
-<!-- Segment 1: Beijing - Zhangye - G227 - Qinghai - G315 - Dunhuang - Hami (D1-D7) -->
-<section id="seg1">
-  <div class="segment">
-    <div class="segment-header">
-      <div class="segment-badge">1</div>
-      <div>
-        <div class="segment-title">北京 → 张掖丹霞 → G227祁连 → 青海湖北岸 → 茶卡 → 德令哈 → 大柴旦/G315 → 敦煌 → 哈密</div>
-        <div class="segment-meta">D1-D7（9月18-24日）· 约3,550km · 高速+国道风景公路 · 日均507km · 这7天就是完整青甘核心段，不再只是入疆前菜</div>
-      </div>
+<!-- Detailed roadbook -->
+<section id="roadbook">
+  <div class="roadbook-intro">
+    <div class="roadbook-intro-copy">
+      <div class="section-num">Daily Roadbook</div>
+      <h2>D1—D70 逐日执行路书</h2>
+      <p class="lead">这里是全页唯一的逐日正文。先按 7 个路段折叠，需要哪一段就展开哪一段；每天保留路线、里程、看点、执行闸门和当晚住宿。独立页面只承担断网、打印和下载，不再与正文重复竞争。</p>
     </div>
+    <div class="roadbook-actions">
+      <a class="primary" href="./route-roadbook.html?v=10">离线 / 打印 / 下载版</a>
+      <button type="button" onclick="setRoadbookSections(true)">展开全部路段</button>
+      <button type="button" onclick="setRoadbookSections(false)">全部收起</button>
+    </div>
+  </div>
+
+  <!-- Segment 1: Beijing - Zhangye - G227 - Qinghai - G315 - Dunhuang - Hami (D1-D7) -->
+  <details id="seg1" class="roadbook-segment" open>
+    <summary class="segment-header">
+      <span class="segment-badge">1</span>
+      <span class="segment-summary-copy">
+        <span class="segment-title">北京 → 张掖丹霞 → G227祁连 → 青海湖北岸 → 茶卡 → 德令哈 → 大柴旦/G315 → 敦煌 → 哈密</span>
+        <span class="segment-meta">D1-D7（9月18-24日）· 约3,550km · 高速+国道风景公路 · 日均507km · 完整青甘核心段</span>
+      </span>
+    </summary>
+    <div class="segment">
     <p>新版把青甘真正写成主线，不再只是抽几条路出来意思一下。默认执行版要认真吃掉 <strong>张掖丹霞、G227祁连山、青海湖北岸、茶卡一线、德令哈/大柴旦、G315、敦煌</strong> 这一整串起伏，这才更像你说的“专门走一下青甘”。</p>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D1（9月18日）</span><span class="day-route">北京 → 巴彦淖尔（临河区）<span class="day-km">约820km</span></span></div>
@@ -647,18 +620,18 @@ flowchart LR
       </div>
     </details>
   </div>
-</section>
+</details>
 
 <!-- Segment 2: Eastern Xinjiang grassland roads + Northern Xinjiang core autumn + Duku (D8-D17) -->
-<section id="seg2">
+<details id="seg2" class="roadbook-segment">
+  <summary class="segment-header">
+    <span class="segment-badge">2</span>
+    <span class="segment-summary-copy">
+      <span class="segment-title">东疆草原公路 → 北疆边境秋色 → 伊犁赛里木湖 → 独库公路南段</span>
+      <span class="segment-meta">D8-D17（9月25日-10月4日）· 约2,990km · 草原公路+边境秋色+独库 · 日均299km</span>
+    </span>
+  </summary>
   <div class="segment">
-    <div class="segment-header">
-      <div class="segment-badge">2</div>
-      <div>
-        <div class="segment-title">东疆草原公路 → 北疆边境秋色 → 伊犁赛里木湖 → 独库公路南段</div>
-        <div class="segment-meta">D8-D17（9月25日-10月4日）· 约2,990km · 草原公路+边境秋色+独库 · 日均299km</div>
-      </div>
-    </div>
     <div class="callout danger">
       <div class="callout-title">本段原则：保留最值钱的公路与免费秋色，不迷信景区完成度</div>
       <p>9月28日-10月1日在北疆的默认执行是：白哈巴 + 禾木这条线保留，喀纳斯主湖和更多收费打卡点不深刷。这样既能抓到最值钱的村落秋色，又不会把耐心耗在人流和换乘上。D17（10月4日）走独库南段，比典型封路时间（10月10日前后）提前约一周，<strong>需密切关注实时封路公告</strong>。如果遇降雪封路则走G218经库尔勒绕行多400km。</p>
@@ -753,18 +726,18 @@ flowchart LR
       </div>
     </details>
   </div>
-</section>
+</details>
 
 <!-- Segment 3: Southern Xinjiang - Kuqa-Aksu-Kashgar-Pamir (D18-D23) -->
-<section id="seg3">
+<details id="seg3" class="roadbook-segment">
+  <summary class="segment-header">
+    <span class="segment-badge">3</span>
+    <span class="segment-summary-copy">
+      <span class="segment-title">南疆库车 → 阿克苏 → 喀什 → 帕米尔高原塔县</span>
+      <span class="segment-meta">D18-D23（10月5-10日）· 约1,470km · 高速+中巴公路 · 日均245km</span>
+    </span>
+  </summary>
   <div class="segment">
-    <div class="segment-header">
-      <div class="segment-badge">3</div>
-      <div>
-        <div class="segment-title">南疆库车 → 阿克苏 → 喀什 → 帕米尔高原塔县</div>
-        <div class="segment-meta">D18-D23（10月5-10日）· 约1,470km · 高速+中巴公路 · 日均245km</div>
-      </div>
-    </div>
     <p>从独库公路终点库车开始南疆之旅，经温宿大峡谷、阿克苏到丝路重镇喀什，上帕米尔高原走中巴友谊公路到塔什库尔干（塔县），看白沙湖、喀拉库勒湖、慕士塔格峰、盘龙古道。最后返回喀什，为新藏线做物资准备。</p>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D18（10月5日）</span><span class="day-route">库车游览<span class="day-km">约50km</span></span></div>
@@ -826,18 +799,18 @@ flowchart LR
       </div>
     </details>
   </div>
-</section>
+</details>
 
 <!-- Segment 4: G219 Xinjiang-Tibet + Ali + Shigatse (D24-D32) -->
-<section id="seg4">
+<details id="seg4" class="roadbook-segment">
+  <summary class="segment-header">
+    <span class="segment-badge">4</span>
+    <span class="segment-summary-copy">
+      <span class="segment-title">新藏线G219 → 阿里 → 日喀则</span>
+      <span class="segment-meta">D24-D32（10月11-19日）· 约2,750km · 最高海拔5380m · 狮泉河恢复1天</span>
+    </span>
+  </summary>
   <div class="segment">
-    <div class="segment-header">
-      <div class="segment-badge">4</div>
-      <div>
-        <div class="segment-title">新藏线G219 → 阿里 → 日喀则</div>
-        <div class="segment-meta">D24-D32（10月11-19日）· 约2,750km · 最高海拔5380m · 狮泉河恢复1天</div>
-      </div>
-    </div>
     <div class="callout danger">
       <div class="callout-title">全程风险最高的驾驶段，完成主线比完成景点重要</div>
       <p>新藏线10月中下旬可能遇降雪，携带防滑链、每天关注天气。高反是最大敌人，<strong>不在5000m+海拔过夜</strong>；出现症状就停止继续上升，若在同海拔休息后仍加重，或出现步态不稳、意识异常、静息呼吸困难，立即下撤并寻求医疗救助<sup><a href="#cite-m1">[10]</a></sup>。</p>
@@ -911,18 +884,18 @@ flowchart LR
       </div>
     </details>
   </div>
-</section>
+</details>
 
 <!-- Segment 5: Shigatse-Lhasa-Nyingchi-Bomi-Ranwu (D33-D43) -->
-<section id="seg5">
+<details id="seg5" class="roadbook-segment">
+  <summary class="segment-header">
+    <span class="segment-badge">5</span>
+    <span class="segment-summary-copy">
+      <span class="segment-title">日喀则 → 拉萨 → 林芝 → 波密 → 然乌</span>
+      <span class="segment-meta">D33-D43（10月20-30日）· 约1,190km · 3个恢复/天气缓冲日</span>
+    </span>
+  </summary>
   <div class="segment">
-    <div class="segment-header">
-      <div class="segment-badge">5</div>
-      <div>
-        <div class="segment-title">日喀则 → 拉萨 → 林芝 → 波密 → 然乌</div>
-        <div class="segment-meta">D33-D43（10月20-30日）· 约1,190km · 3个恢复/天气缓冲日</div>
-      </div>
-    </div>
     <p>10月20日先到拉萨，把高原段最重要的车辆保养、洗衣和身体恢复做完；随后降到林芝、波密更舒服的海拔，用两个弹性日吸收降雪、封路、身体状态和前段延误。下游滇藏线仍从D44开始，原有总日期不变。</p>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D33（10月20日）</span><span class="day-route">日喀则 → 拉萨<span class="day-km">约270km</span></span></div>
@@ -988,18 +961,18 @@ flowchart LR
       </div>
     </details>
   </div>
-</section>
+</details>
 
 <!-- Segment 6: Yunnan-Tibet + Yubeng + Tiger Leaping Gorge + Lijiang (D44-D55) -->
-<section id="seg6">
+<details id="seg6" class="roadbook-segment">
+  <summary class="segment-header">
+    <span class="segment-badge">6</span>
+    <span class="segment-summary-copy">
+      <span class="segment-title">滇藏线 → 梅里雪山 → 雨崩徒步 → 虎跳峡 → 丽江</span>
+      <span class="segment-meta">D44-D55（10月31日-11月11日）· 约1,290km · 山路为主 · 日均108km+徒步</span>
+    </span>
+  </summary>
   <div class="segment">
-    <div class="segment-header">
-      <div class="segment-badge">6</div>
-      <div>
-        <div class="segment-title">滇藏线 → 梅里雪山 → 雨崩徒步 → 虎跳峡 → 丽江</div>
-        <div class="segment-meta">D44-D55（10月31日-11月11日）· 约1,290km · 山路为主 · 日均108km+徒步</div>
-      </div>
-    </div>
     <div class="callout">
       <div class="callout-title">为什么不走丙察察？</div>
       <p>11月丙察察三座高海拔垭口（益秀拉4706m等）已积雪严重，风险高<sup><a href="#cite-s9">[10]</a></sup>。<strong>G318+G214滇藏线是最成熟的出藏路线，全年通车</strong>，全程柏油铺装，11月不封山，经过然乌湖、怒江72拐、梅里雪山，风景一流。</p>
@@ -1097,18 +1070,18 @@ flowchart LR
       </div>
     </details>
   </div>
-</section>
+</details>
 
 <!-- Segment 7: Lijiang rest - Daocheng Yading - Chengdu - Xi'an - Taiyuan - Beijing (D56-D70) -->
-<section id="seg7">
+<details id="seg7" class="roadbook-segment">
+  <summary class="segment-header">
+    <span class="segment-badge">7</span>
+    <span class="segment-summary-copy">
+      <span class="segment-title">丽江休整 → 稻城亚丁 → 新都桥 → 成都 → 西安 → 太原 → 北京</span>
+      <span class="segment-meta">D56-D70（11月12-26日）· 约3,140km · 川西景观+双司机高速返程 · 日均209km</span>
+    </span>
+  </summary>
   <div class="segment">
-    <div class="segment-header">
-      <div class="segment-badge">7</div>
-      <div>
-        <div class="segment-title">丽江休整 → 稻城亚丁 → 新都桥 → 成都 → 西安 → 太原 → 北京</div>
-        <div class="segment-meta">D56-D70（11月12-26日）· 约3,140km · 川西景观+双司机高速返程 · 日均209km</div>
-      </div>
-    </div>
     <p>丽江休整后驱车走滇川通道到川西稻城亚丁看三神山，经理塘、新都桥、康定到成都，在成都完成保养与恢复，然后走G5京昆高速经西安、太原回北京。最后这15天依旧是“风景在路上 + 城市恢复站”的组合；双司机只用于收紧低海拔重复休整，不压缩高原适应、徒步恢复和天气机动日。</p>
     <div class="day-card">
       <div class="day-card-header"><span class="day-num">D56（11月12日）</span><span class="day-route">丽江休整</span></div>
@@ -1237,12 +1210,12 @@ flowchart LR
       </div>
     </details>
   </div>
-</section>
+</details>
 
-<!-- Daily Rhythm -->
-<section id="daily-rhythm">
-  <div class="section-num">Daily Rhythm</div>
-  <h2>每日执行节奏</h2>
+<!-- Roadbook appendix: daily rhythm -->
+<details id="daily-rhythm" class="roadbook-appendix">
+  <summary>路书附录 A｜不同类型的日子，几点出发、怎么吃、何时休息</summary>
+  <div class="roadbook-appendix-body">
   <p class="lead">这部分不是再重复路线，而是把<strong>每天大致该几点出发、午饭在哪种节点解决、哪些天必须早睡、哪些天适合洗澡洗衣补给</strong>写清楚，避免到了路上临场乱。</p>
   <div class="table-wrap">
     <table>
@@ -1264,12 +1237,13 @@ flowchart LR
     <div class="callout-title">哪些天最适合洗澡洗衣补给</div>
     <p>优先放在：喀什、狮泉河、拉萨、林芝、波密、香格里拉、丽江、成都、西安。新藏线高海拔驾驶日与巴嘎乡交通夜宿不把“洗个舒服澡”当刚需。</p>
   </div>
-</section>
+  </div>
+</details>
 
-<!-- Key Day Playbook -->
-<section id="key-days">
-  <div class="section-num">Key Days</div>
-  <h2>关键天执行版说明</h2>
+<!-- Roadbook appendix: key days -->
+<details id="key-days" class="roadbook-appendix">
+  <summary>路书附录 B｜只展开真正会牵动后续节奏的关键天</summary>
+  <div class="roadbook-appendix-body">
   <p class="lead">不是每一天都需要这么细，但下面这些天一旦节奏乱掉，就会连锁影响后面几天。这里直接写成“当天怎么跑”。</p>
   <div class="two-col">
     <div class="col-card">
@@ -1353,6 +1327,70 @@ flowchart LR
         <li><strong>执行纪律</strong>：收尾阶段最怕“快结束了就松了”，越接近回京越要避免疲劳驾驶</li>
       </ul>
     </div>
+  </div>
+  </div>
+</details>
+</section>
+
+<!-- Food plan -->
+<section id="food-plan">
+  <div class="section-num">Food Rhythm</div>
+  <h2>70 天吃饭安排：该进店就进店，厨房只在真正合适的晚上用</h2>
+  <p class="lead">结论是：<strong>不要坚持“多数晚餐自己做”</strong>。当前 49 个住宿区域里，只有敦煌、丽江、成都、西安共 7 晚明确有厨房；大多数是一晚酒店、偏远客栈或徒步住宿，不能默认在房间开火。更舒服的执行方式是：早餐与长途午餐多由自己掌控，晚餐保证热食；有代表性的城市进店吃，真正有厨房且不疲劳的恢复日再做饭。</p>
+
+  <div class="meal-mode-grid">
+    <div class="meal-mode-card"><span class="meal-mode restaurant">目的地进店</span><strong>30 天</strong><p>把地方特色和完整营养放在到达早、选择多的城市；具体安排已经写进对应 D 日路书。</p></div>
+    <div class="meal-mode-card"><span class="meal-mode lodging">住宿 / 就近热餐</span><strong>35 天</strong><p>偏远、高海拔、徒步和晚到节点只求全熟热饭，不跨城、不排队、不拿零食顶晚餐。</p></div>
+    <div class="meal-mode-card"><span class="meal-mode cook">厨房自炊</span><strong>3 晚</strong><p>D56 丽江、D64 成都、D66 西安；都有明确厨房，也都是能从容采购和收拾的恢复日。</p></div>
+    <div class="meal-mode-card"><span class="meal-mode home">回家吃饭</span><strong>2 天</strong><p>D69 回北京、D70 还车日回归正常饮食，不再加“毕业旅行收官大餐”的任务。</p></div>
+  </div>
+
+  <div class="callout green">
+    <div class="callout-title">这样安排不会“自己做饭反而吃不好”</div>
+    <p><strong>每天至少守住四件事：</strong>一份主食、一份明确蛋白质、至少两种蔬菜水果、奶/蛋/豆制品中的一种。早餐默认用酒店早餐或自行搭配“奶/酸奶 + 鸡蛋 + 燕麦/面包 + 水果”；长途午餐提前装好，不把饼干、能量棒当完整一餐。食物种类尽量覆盖谷薯、蔬果、肉蛋奶豆，而不是连续几天只吃泡面和肉。<sup><a href="#cite-f2">[12]</a></sup></p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>一天里的时段</th><th>默认怎么吃</th><th>什么时候进店</th><th>执行底线</th></tr></thead>
+      <tbody>
+        <tr><td><strong>早餐</strong></td><td>酒店早餐或前夜采购的奶、蛋、燕麦/面包和水果</td><td>休整日可以出门吃当地早餐；长途日不为早餐排队</td><td>司机不能空腹出发，咖啡不能代替水和主食</td></tr>
+        <tr><td><strong>长途午餐</strong><br>16 个 400km+ 日</td><td>服务区/县城快餐 + 车上完整备用餐</td><td>正好经过可靠县城且不影响白天收车时</td><td>少油、不过饱，两位司机都不碰酒</td></tr>
+        <tr><td><strong>徒步 / 接驳午餐</strong><br>12 天</td><td>饭团/三明治、鸡蛋或肉类、坚果、水果和水</td><td>住宿点能提前做热早餐或途中有可靠热食就补一份</td><td>能量棒只是加餐，不是午饭</td></tr>
+        <tr><td><strong>晚餐</strong></td><td>按每个 D 日标注的“进店 / 住宿热餐 / 自炊”执行</td><td>到达不晚、城市选择多、第二天不需要超早出发时</td><td>热、熟、有主食和蔬菜；晚到就近吃，不追店</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <details open>
+    <summary>30 个进店窗口怎么分布（其余每天看逐日路书）</summary>
+    <div class="detail-content">
+      <ol class="food-anchor-list">
+        <li><strong>青甘入疆 D1 / D2 / D4 / D6 / D7：</strong>河套焖面、张掖牛羊肉、德令哈炕锅、敦煌驴肉黄面、哈密抓饭。</li>
+        <li><strong>新疆 D8 / D10 / D14—D20 / D22—D23：</strong>木垒热菜、布尔津鱼、伊犁与南疆特色；D23 改成清淡全熟的 G219 前正餐。</li>
+        <li><strong>新藏线 D28 / D32：</strong>狮泉河恢复餐、日喀则完整热餐；偏远节点不寻找“特色馆子”。</li>
+        <li><strong>拉萨—波密 D33 / D36 / D38 / D39：</strong>藏面甜茶、本地热菜，鲁朗石锅鸡放在白天，不为晚餐夜驾。</li>
+        <li><strong>滇藏—丽江 D45 / D46 / D51 / D52 / D55：</strong>汤锅、充分煮熟的菌类、纳西菜；雨崩出山后安排正式恢复餐。</li>
+        <li><strong>川西返程 D63 / D67 / D68：</strong>成都火锅视抵达时间降级，平遥与石家庄都只在步行范围内吃。</li>
+      </ol>
+    </div>
+  </details>
+
+  <details>
+    <summary>3 晚真正开火：买什么、做什么</summary>
+    <div class="detail-content">
+      <ul>
+        <li><strong>D56 丽江：</strong>采购鸡蛋、豆腐/豆制品、两种叶菜、番茄、肉类和米面，做一荤两素加主食。</li>
+        <li><strong>D64 成都：</strong>连续川味后做清淡家常菜，优先番茄蛋、清炒蔬菜、蒸/煮肉类和米饭。</li>
+        <li><strong>D66 西安：</strong>午餐在外尝小吃，晚餐回民宿做一荤两素；只买当晚能吃完的量，不把生鲜带上返京车程。</li>
+      </ul>
+      <p><strong>敦煌公寓也有厨房但不安排做饭：</strong>D6 是 430km 转场后的单晚住宿，进店吃当地菜比采购、洗切、收拾更值。丽江、成都、西安的另一晚则专门留给当地餐馆，厨房是恢复工具，不是住宿费已经付了就必须使用。</p>
+    </div>
+  </details>
+
+  <div class="callout warn">
+    <div class="callout-title">高原与偏远段的吃饭纪律</div>
+    <p>每次重新上到高海拔后的前 48 小时不饮酒，G219 / 阿里段默认全程不饮酒；食物优先选择<strong>完全煮熟、热着上桌</strong>的菜，卫生条件不确定时不吃生食、半熟蛋肉和放温了的熟食。<sup><a href="#cite-f1">[11]</a></sup><sup><a href="#cite-m1">[10]</a></sup> 这不是为了“养生打卡”，而是避免肠胃问题和酒精把高原适应、睡眠与驾驶状态一起拖垮。</p>
   </div>
 </section>
 
@@ -1631,7 +1669,7 @@ flowchart LR
   <details>
     <summary>📌 05｜预算一眼版</summary>
     <div class="detail-content">
-      <p>68 晚外地住宿已经全部落到 49 个住宿区域和唯一首选，最后 1 晚回北京家里。未来日期的动态房价统一回到付款页核验，不把旧候选或搜索摘要价格冒充成交价；其余夜晚仍按 2 间酒店或 1 套整租的真实住法留足弹性，住宿执行预算维持 38,000 元。全程 4 人总预算约 129,300 元，人均约 32,325 元。</p>
+      <p>68 晚外地住宿已经全部落到 49 个住宿区域和唯一首选，最后 1 晚回北京家里。未来日期的动态房价统一回到付款页核验，不把旧候选或搜索摘要价格冒充成交价；其余夜晚仍按 2 间酒店或 1 套整租的真实住法留足弹性，住宿执行预算维持 38,000 元。餐饮预算已按“目的地进店 + 偏远热餐 + 3 晚自炊”提高到 26,000 元，全程 4 人总预算约 140,300 元，人均约 35,075 元。</p>
     </div>
   </details>
 </section>
@@ -1648,8 +1686,8 @@ flowchart LR
 
   <!-- 4人版 (default/active) -->
   <div id="budget-p4">
-  <h3>4人同行·坦克300硬派四驱·双司机安全版（70天大环线，当前执行预算约12.93万）</h3>
-  <p style="font-size:0.88rem;color:var(--muted);margin:4px 0 14px">9月18日出发→11月25日回到北京、11月26日还车，共70天（71天含提前1天取车）· 69晚优先整套两居/三居民宿、酒店按 2 间计算 · 神州租车坦克300四驱 · 北京取车北京还车无异地费 · 仅压缩成都和西安各1个重复休整日，高原与天气缓冲保留 · 人均约32,325元</p>
+  <h3>4人同行·坦克300硬派四驱·双司机安全版（70天大环线，当前执行预算约14.03万）</h3>
+  <p style="font-size:0.88rem;color:var(--muted);margin:4px 0 14px">9月18日出发→11月25日回到北京、11月26日还车，共70天（71天含提前1天取车）· 69晚优先整套两居/三居民宿、酒店按 2 间计算 · 神州租车坦克300四驱 · 北京取车北京还车无异地费 · 仅压缩成都和西安各1个重复休整日，高原与天气缓冲保留 · 人均约35,075元</p>
 
   <div class="callout" style="margin-bottom:14px">
       <p><strong>4人默认最优执行版（70天）</strong>：路线主骨架已定为北京→张掖→G227祁连→青海湖北岸→G315柴达木→敦煌→哈密→新疆→新藏线G219→西藏→滇藏线→川西→成都→西安→北京。正文继续保留详细解释；如果临出发前只想看结论，请直接看后面的“折叠式压缩手册”。</p>
@@ -1665,7 +1703,7 @@ flowchart LR
         <tr><td><strong>油费</strong></td><td>14,500</td><td>3,625</td><td>逐日主计划16,380km，按18,000km预算上限留绕行、怠速和市内补给余量；坦克300综合油耗与海拔会影响实际金额</td></tr>
         <tr><td><strong>过路费（ETC）</strong></td><td>3,500</td><td>875</td><td>北京→新疆高速+川西→成都→西安→北京高速，约3500元；独库/新藏/滇藏/G318国道无过路费</td></tr>
         <tr><td><strong>住宿（69晚，民宿优先 / 酒店 2 间）</strong></td><td>38,000</td><td>9,500</td><td>68晚外地住宿均已选唯一首选，N69回北京家里为0元；未来日期按付款页动态核价，不用单间起价假装团队总价</td></tr>
-        <tr><td><strong>餐饮</strong></td><td>15,000</td><td>3,750</td><td>约35-45天具备自炊条件；做饭日按约40元/人/天，并为新疆、成都、西安等特色餐和无厨房节点保留外食预算</td></tr>
+        <tr><td><strong>餐饮</strong></td><td>26,000</td><td>6,500</td><td>约93元/人/天：30个目的地进店窗口、35个住宿/就近热餐日、3晚明确厨房自炊、2天回家；同时覆盖早餐、长途路餐、水果和奶蛋豆</td></tr>
         <tr><td><strong>门票+区间车（按默认执行版）</strong></td><td>4,000</td><td>1,000</td><td>已删除冈仁波齐、珠峰及相关区间车；只给喀纳斯/禾木、雨崩、亚丁等保留项目留预算</td></tr>
         <tr><td><strong>公共装备</strong></td><td>4,000</td><td>1,000</td><td>厨具/工具/安全装备/舒适装备约4,000元</td></tr>
         <tr><td><strong>防滑链+高原医疗准备</strong></td><td>1,900</td><td>475</td><td>防滑链、出发前医疗咨询、遵医嘱药品与适合偏远路段的供氧/急救准备；最终按实际方案核价</td></tr>
@@ -1673,7 +1711,7 @@ flowchart LR
         <tr><td><strong>旅行保险</strong></td><td>1,600</td><td>400</td><td>含高反救援的户外险400/人×4</td></tr>
         <tr><td><strong>徒步应急</strong></td><td>800</td><td>200</td><td>4人骑马备用</td></tr>
         <tr><td><strong>机动/应急</strong></td><td>5,000</td><td>1,250</td><td>覆盖旺季住宿涨价、车辆小修、滞留等</td></tr>
-        <tr style="background:var(--accent2-light)"><td><strong>合计</strong></td><td><strong>约129,300元</strong></td><td><strong>约32,325元/人</strong></td><td>按当前已经选定的住宿结构执行；房价未锁定前保留 5,000 元机动费，不再展示容易误导的低位理想预算</td></tr>
+        <tr style="background:var(--accent2-light)"><td><strong>合计</strong></td><td><strong>约140,300元</strong></td><td><strong>约35,075元/人</strong></td><td>按当前住宿和“该进店就进店”的餐饮结构执行；房价未锁定前保留 5,000 元机动费，不再用低餐标假装能吃好</td></tr>
       </tbody>
     </table>
   </div>
@@ -1689,26 +1727,6 @@ flowchart LR
     </ul>
   </div>
   </div><!-- /budget-p4 -->
-</section>
-
-<!-- Booking Reminders -->
-<section id="booking">
-  <div class="section-num">Booking</div>
-  <h2>默认取消项（已锁定）</h2>
-  <p class="lead">这两项已从日期、路线、住宿、预算、装备和预约清单中同步删除。现场不再临时加回，避免把已经释放的恢复窗口重新挤掉。</p>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>取消项</th><th>执行状态</th><th>释放资源</th><th>替代安排</th></tr></thead>
-      <tbody>
-        <tr><td><strong>冈仁波齐转山</strong></td><td>不订票、不订塔尔钦住宿、不准备帐篷夜</td><td>约3天高海拔徒步与对应费用</td><td>狮泉河恢复、札达公路景观和沿线安全转场</td></tr>
-        <tr><td><strong>珠峰大本营</strong></td><td>不绕定日、不订巴松村住宿、不买门票/区间车</td><td>约2天绕行与高海拔住宿</td><td>日喀则补给、拉萨保养、林芝和波密天气缓冲</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="callout warn" style="margin-top:18px">
-    <div class="callout-title">现场决策纪律</div>
-    <p>如果途中提前到达，也优先保留休息、保养和天气窗口；任何人不得以“来都来了”为理由临时恢复这两项。想新增支线，必须同时说明要删掉哪一天，并经过全员同意。</p>
-  </div>
 </section>
 
 <!-- Execution Checklist -->
@@ -2008,11 +2026,11 @@ flowchart LR
 <section id="comfort">
   <div class="container">
   <div class="section-num">Comfort First</div>
-  <h2>舒适版专属攻略：不赶路 · 4人整套民宿 · 吃好点 · 不硬撑</h2>
+  <h2>舒适版原则：不赶路 · 民宿优先酒店保底 · 吃好点 · 不硬撑</h2>
 
   <div class="callout" style="border-left:4px solid #2e7d32;margin-bottom:24px">
     <div class="callout-title" style="color:#2e7d32">🌿 免费大地风景优先原则（4人同行）</div>
-    <p style="margin:8px 0"><strong>不赶路：</strong>每天开车不超过8小时，下午4-5点就到住宿点，不摸黑不开夜车；<strong>4人整套民宿：</strong>优先订两居室/三居室整套民宿（有客厅有厨房能做饭聊天）；<strong>风景在路上：</strong>优先免费大地风景和景观公路，不为“名气大、票贵、人多”的景区牺牲节奏；<strong>不硬撑：</strong>高反了就休息，累了就停车。</p>
+    <p style="margin:8px 0"><strong>不赶路：</strong>每天开车不超过8小时，下午4-5点就到住宿点，不摸黑不开夜车；<strong>住宿讲真实条件：</strong>多晚城市优先两居/三居整套民宿，普通一晚县城和偏远节点用两间酒店/客栈保睡眠，只有订单明确有厨房才安排开火；<strong>风景在路上：</strong>优先免费大地风景和景观公路，不为“名气大、票贵、人多”的景区牺牲节奏；<strong>不硬撑：</strong>高反了就休息，累了就停车。</p>
   </div>
 
   <h3>🏔️ 高反应对（不硬撑版）</h3>
@@ -2036,22 +2054,6 @@ flowchart LR
     </div>
   </div>
 
-  <h3 style="margin-top:28px">🍜 沿途美食概览</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>地区</th><th>必吃特色</th><th>参考人均</th></tr></thead>
-      <tbody>
-        <tr><td>张掖/青甘前段</td><td>河套焖面、羊肉烧麦、青稞饼、手抓肉、炕锅羊肉</td><td>60-100元</td></tr>
-        <tr><td>甘肃（敦煌/嘉峪关）</td><td>驴肉黄面、胡杨焖饼、兰州牛肉面、靖远羊羔肉、杏皮水</td><td>50-80元</td></tr>
-        <tr><td>新疆（全疆）</td><td>手抓饭、烤包子、大盘鸡、烤串、椒麻鸡、手抓肉、馕、酸奶、卡瓦斯、赛里木湖高白鲑</td><td>60-100元</td></tr>
-        <tr><td>西藏（拉萨/日喀则/阿里）</td><td>藏式甜茶、酥油茶、牦牛肉火锅、藏面、青稞酒、鲁朗石锅鸡</td><td>80-150元</td></tr>
-        <tr><td>云南（香格里拉/丽江）</td><td>野生菌火锅、腊排骨、纳西烤鱼、过桥米线、汽锅鸡、鲜花饼、云南小粒咖啡</td><td>60-120元</td></tr>
-        <tr><td>四川（稻城/成都）</td><td>牦牛肉汤锅、成都火锅、串串香、担担面、龙抄手、兔头、夫妻肺片</td><td>60-150元</td></tr>
-        <tr><td>陕西（西安）</td><td>肉夹馍、羊肉泡馍、biangbiang面、凉皮、甑糕、胡辣汤</td><td>40-80元</td></tr>
-        <tr><td>山西（平遥/太原）</td><td>平遥牛肉、碗托、莜面栲栳栳、刀削面</td><td>40-70元</td></tr>
-      </tbody>
-    </table>
-  </div>
   </div>
 </section>
 
@@ -2070,41 +2072,22 @@ flowchart LR
         <li id="cite-s7"><span class="src-title">今日头条，《自驾G219新藏线2500公里实测》（2025年6月隧道通车后）</span><span class="src-url">说明：路况改善属经验信息，出发前请复核最新施工与天气公告</span></li>
         <li id="cite-s9"><span class="src-title">今日头条/搜狐，《丙察察11月大雪封山不建议通行》</span><span class="src-url">说明：本行程已不走丙察察，此条仅保留作路线取舍依据</span></li>
         <li id="cite-m1"><span class="src-title">美国疾病控制与预防中心（CDC），《High-Altitude Travel and Altitude Illness》</span><a class="src-url" href="https://www.cdc.gov/yellow-book/hcp/environmental-hazards-risks/high-altitude-travel-and-altitude-illness.html" target="_blank" rel="noopener">高原病预防、识别与下撤原则</a></li>
+        <li id="cite-f1"><span class="src-title">美国疾病控制与预防中心（CDC），《Food and Water Precautions for Travelers》</span><a class="src-url" href="https://www.cdc.gov/yellow-book/hcp/preparing-international-travelers/food-and-water-precautions-for-travelers.html" target="_blank" rel="noopener">旅行途中优先全熟、热着上桌的食物及食品安全原则</a></li>
+        <li id="cite-f2"><span class="src-title">福建省卫生健康委员会，《中国居民膳食指南（2022）》核心推荐</span><a class="src-url" href="https://wjw.fj.gov.cn/ztzl/jkjy/jkzgxd/202206/t20220615_5930367.htm" target="_blank" rel="noopener">谷薯、蔬果、肉蛋奶豆等食物多样化建议</a></li>
       </ol>
     </div>
     <div class="disclaimer">
       <p><strong>免责声明</strong>：本攻略基于2025-2026年公开网络资料整理。公路封闭时间（特别是独库公路）每年根据天气略有不同，租车进藏许可务必提前电话确认并留存证据。10月底新藏线和11月川西天气变化剧烈，请根据实时天气和路况灵活调整行程。购买含紧急救援和高原反应的旅行保险。本攻略仅供参考，不对实际出行中的任何意外承担责任。</p>
-      <p style="margin-top:12px">Generated by Trae Work · 2026年8月 · 北京→张掖→G227→青海湖北岸→G315→新疆→西藏→滇藏→川西→成都→西安→北京70天双司机安全版自驾攻略（主计划约16,380km、预算里程18,000km）· 神州坦克300北京取还 · 当前4人执行预算人均约3.23万 · 安全第一不开夜车 · 风景在路上</p>
+      <p style="margin-top:12px">Generated by Trae Work · 2026年8月 · 北京→张掖→G227→青海湖北岸→G315→新疆→西藏→滇藏→川西→成都→西安→北京70天双司机安全版自驾攻略（主计划约16,380km、预算里程18,000km）· 神州坦克300北京取还 · 当前4人执行预算人均约3.51万 · 安全第一不开夜车 · 风景在路上</p>
     </div>
   </div>
 </footer>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
-<script>
-mermaid.initialize({
-  startOnLoad: false,
-  theme: 'neutral',
-  securityLevel: 'loose',
-  themeVariables: {
-    primaryColor: '#F5EDE6',
-    primaryBorderColor: '#C75B39',
-    primaryTextColor: '#2D2A26',
-    lineColor: '#6B6560',
-    secondaryColor: '#EDF3EE',
-    tertiaryColor: '#FAF8F5'
-  },
-  flowchart: { curve: 'basis', padding: 16 }
-});
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() { mermaid.run(); });
-} else {
-  mermaid.run();
-}
-</script>
-<script src="assets/charts.js"></script>
+<script src="assets/route_map_pois.js"></script>
+<script src="assets/road_trip_days.js"></script>
+<script src="assets/road_trip_meals.js"></script>
 <script>
 function switchBudget(ver) {
   // Only 4-person version in this plan, function kept for compatibility
@@ -2115,8 +2098,76 @@ function switchPacking(tab) {
   // Compatibility function
 }
 
+function setRoadbookSections(open) {
+  document.querySelectorAll('details.roadbook-segment').forEach(function(section) {
+    section.open = open;
+  });
+}
+
+function revealRoadbookHash() {
+  if (!location.hash) return;
+  var target = document.querySelector(location.hash);
+  if (target && target.matches('details.roadbook-segment, details.roadbook-appendix')) target.open = true;
+}
+
+function enhanceRoadbookDays() {
+  var daily = window.ROAD_TRIP_DAY_DATA;
+  var places = window.ROAD_TRIP_POI_DATA;
+  var food = window.ROAD_TRIP_MEAL_DATA;
+  if (!daily || !places || !food) return;
+  var days = new Map(daily.days.map(function(day) { return [day.day, day]; }));
+  var stays = new Map(places.pois.filter(function(poi) { return poi.category === 'stay'; }).map(function(poi) { return [poi.id, poi]; }));
+  var meals = new Map(food.meals.map(function(meal) { return [meal.day, meal]; }));
+
+  document.querySelectorAll('.roadbook-segment .day-card').forEach(function(card) {
+    if (card.querySelector('.day-execution-list')) return;
+    var label = card.querySelector('.day-num');
+    var match = label && label.textContent.match(/D(\d+)(?:-D?(\d+))?/);
+    if (!match) return;
+    var from = Number(match[1]);
+    var to = Number(match[2] || match[1]);
+    var list = document.createElement('div');
+    list.className = 'day-execution-list';
+
+    for (var number = from; number <= to; number += 1) {
+      var day = days.get(number);
+      if (!day) continue;
+      var stay = stays.get(day.stayId);
+      var meal = meals.get(number);
+      var night = stay ? stay.name + '｜' + stay.note : number === 69 ? '回北京家里' : number === 70 ? '行程结束' : '不换住宿';
+      var row = document.createElement('div');
+      row.className = 'day-execution';
+      var title = document.createElement('strong');
+      title.textContent = day.id + ' 执行闸门：';
+      row.appendChild(title);
+      row.appendChild(document.createTextNode(day.critical + '　当晚：' + night));
+      if (meal) {
+        var mealLine = document.createElement('div');
+        mealLine.className = 'day-meal-line';
+        var mealBadge = document.createElement('span');
+        mealBadge.className = 'meal-mode ' + meal.dinner.mode;
+        mealBadge.textContent = meal.dinner.label;
+        mealLine.appendChild(mealBadge);
+        mealLine.appendChild(document.createTextNode('午餐：' + meal.lunch + '　晚餐：' + meal.dinner.plan));
+        row.appendChild(mealLine);
+      }
+      var link = document.createElement('a');
+      link.href = './route-map-offline.html?day=' + number;
+      link.textContent = '在离线地图定位 ' + day.id;
+      row.appendChild(document.createElement('br'));
+      row.appendChild(link);
+      list.appendChild(row);
+    }
+    card.appendChild(list);
+  });
+}
+
+enhanceRoadbookDays();
+revealRoadbookHash();
+window.addEventListener('hashchange', revealRoadbookHash);
+
 function getMapPage(mode) {
-  return mode === 'offline' ? './route-map-offline.html?v=9' : './route-map-amap.html?v=9';
+  return mode === 'offline' ? './route-map-offline.html?v=10' : './route-map-amap.html?v=10';
 }
 function notifyMapResize() {
   var frame = document.getElementById('routePreviewFrame');
