@@ -31,12 +31,16 @@
   var STORAGE_KEY = "lanMahjongProfile";
   var BROWSER_GAME_SERVER = "browser://local";
   var PUBLIC_GAME_SERVER = "wss://124-221-36-36.anyip.dev:8443/mahjong/ws";
-  var AUDIO_VERSION = "20260810-audio-1";
+  var AUDIO_VERSION = "20260811-audio-2";
   var AUDIO_FILES = {
     select: "tile-select.mp3",
+    draw: "tile-draw.mp3",
     discard: "tile-discard.mp3",
     turn: "turn.mp3",
     claim: "claim.mp3",
+    chow: "chow.mp3",
+    pong: "pong.mp3",
+    kong: "kong.mp3",
     bao: "bao.mp3",
     end: "round-end.mp3"
   };
@@ -117,6 +121,8 @@
     audioContext: null,
     audioBuffers: {},
     audioLoads: {},
+    audioElements: {},
+    activeSounds: [],
     musicElement: null,
     musicWanted: false,
     soundEnabled: localStorage.getItem(STORAGE_KEY + ".sound") !== "off",
@@ -1239,6 +1245,7 @@
       playTone("select");
     } else {
       pauseBackgroundMusic(false);
+      stopSoundEffects();
     }
   }
 
@@ -1311,11 +1318,55 @@
       });
   }
 
+  function soundVolume(kind) {
+    return {
+      select: 0.72,
+      draw: 0.86,
+      discard: 0.92,
+      turn: 0.76,
+      claim: 0.78,
+      chow: 0.88,
+      pong: 0.9,
+      kong: 0.9,
+      bao: 0.82,
+      end: 0.78
+    }[kind] || 0.82;
+  }
+
+  function getSoundElement(kind) {
+    if (!AUDIO_FILES[kind]) {
+      return null;
+    }
+    if (!state.audioElements[kind]) {
+      state.audioElements[kind] = new Audio(audioUrl(AUDIO_FILES[kind]));
+      state.audioElements[kind].preload = "auto";
+      state.audioElements[kind].volume = soundVolume(kind);
+      state.audioElements[kind].setAttribute("playsinline", "");
+      state.audioElements[kind].load();
+    }
+    return state.audioElements[kind];
+  }
+
   function prepareAudio(context) {
     Object.keys(AUDIO_FILES).forEach(function (kind) {
-      loadSound(kind, context);
+      getSoundElement(kind);
+      if (context && window.location.protocol !== "file:") {
+        loadSound(kind, context);
+      }
     });
     getMusicElement();
+  }
+
+  function stopSoundEffects() {
+    Object.values(state.audioElements).concat(state.activeSounds).forEach(function (sound) {
+      sound.pause();
+      try {
+        sound.currentTime = 0;
+      } catch (error) {
+        // Ignore media that has not finished loading metadata.
+      }
+    });
+    state.activeSounds = [];
   }
 
   function unlockAudio() {
@@ -1338,17 +1389,6 @@
     return state.audioContext;
   }
 
-  function tonePattern(kind) {
-    return {
-      turn: [660, 880],
-      claim: [520, 660, 780],
-      bao: [760, 1040],
-      end: [420, 330],
-      select: [620],
-      discard: [360]
-    }[kind] || [560];
-  }
-
   function playSample(kind, context) {
     var buffer = state.audioBuffers[kind];
     var source;
@@ -1359,40 +1399,56 @@
     source = context.createBufferSource();
     gain = context.createGain();
     source.buffer = buffer;
-    gain.gain.value = kind === "bao" || kind === "end" ? 0.9 : 1;
+    gain.gain.value = soundVolume(kind);
     source.connect(gain);
     gain.connect(context.destination);
     source.start();
     return true;
   }
 
-  function playSynthTone(kind, context) {
-    var notes = tonePattern(kind);
-    if (!notes.length) {
-      return;
+  function playMediaSample(kind) {
+    var template = getSoundElement(kind);
+    var sound;
+    var playback;
+    if (!template) {
+      return false;
     }
-    notes.forEach(function (frequency, index) {
-      var start = context.currentTime + index * 0.065;
-      var oscillator = context.createOscillator();
-      var gain = context.createGain();
-      oscillator.type = kind === "discard" ? "triangle" : "sine";
-      oscillator.frequency.setValueAtTime(frequency, start);
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(kind === "turn" || kind === "bao" ? 0.085 : 0.055, start + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.13);
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-      oscillator.start(start);
-      oscillator.stop(start + 0.15);
-    });
+    sound = template.paused ? template : template.cloneNode(true);
+    sound.volume = soundVolume(kind);
+    try {
+      sound.currentTime = 0;
+    } catch (error) {
+      // Seeking can fail during the first local-file load; playback still works.
+    }
+    if (sound !== template) {
+      state.activeSounds.push(sound);
+      sound.addEventListener("ended", function () {
+        state.activeSounds = state.activeSounds.filter(function (active) {
+          return active !== sound;
+        });
+      }, { once: true });
+    }
+    playback = sound.play();
+    if (playback && typeof playback.catch === "function") {
+      playback.catch(function () {
+        // Keep silence if media playback is blocked; never fall back to synthetic beeps.
+        state.activeSounds = state.activeSounds.filter(function (active) {
+          return active !== sound;
+        });
+      });
+    }
+    return true;
   }
 
   function playTone(kind) {
-    var context = unlockAudio();
-    if (!context || playSample(kind, context)) {
+    if (!state.soundEnabled) {
       return;
     }
-    playSynthTone(kind, context);
+    var context = unlockAudio();
+    if (context && playSample(kind, context)) {
+      return;
+    }
+    playMediaSample(kind);
   }
 
   function pulseElement(element, className) {
@@ -1427,14 +1483,19 @@
     var claimActions = Array.isArray(view.claimActions) ? view.claimActions : [];
     var discardHistory = Array.isArray(view.discardHistory) ? view.discardHistory : [];
     var newestDiscard = discardHistory[discardHistory.length - 1];
+    var meldEntries = (view.players || []).flatMap(function (player) {
+      return (player.melds || []).map(function (meld, index) {
+        return {
+          key: [player.seat, index, meld.kind, (meld.tiles || []).join(",")].join(":"),
+          kind: String(meld.kind || "")
+        };
+      });
+    });
+    var previousMeldKeys = state.lastSignals.meldKeys || [];
+    var newMeld = meldEntries.find(function (entry) {
+      return !previousMeldKeys.includes(entry.key);
+    });
     var selfTurn = Boolean(view.canDraw || view.canDiscard);
-    var turnSignal = [
-      view.phase,
-      view.round,
-      view.turnSeat,
-      view.canDraw ? "draw" : "",
-      view.canDiscard ? "discard" : ""
-    ].join(":");
     var claimSignal = claimActions.map(function (action) {
       return action.id;
     }).join("|");
@@ -1448,10 +1509,18 @@
     gamePanel.classList.toggle("has-claim", claimActions.length > 0);
     gamePanel.classList.toggle("can-peek-bao", Boolean(view.canPeekBao));
 
-    if (selfTurn && state.lastSignals.turn !== turnSignal) {
+    if (selfTurn && !state.lastSignals.selfTurn) {
       playTone("turn");
       pulseElement(gamePanel, "attention-pulse");
       pulseElement(soundButton, "sound-pulse");
+    }
+    if (
+      view.phase === "playing" &&
+      state.lastSignals.round === view.round &&
+      typeof state.lastSignals.wallCount === "number" &&
+      view.wallCount < state.lastSignals.wallCount
+    ) {
+      playTone("draw");
     }
     if (claimSignal && state.lastSignals.claim !== claimSignal) {
       playTone("claim");
@@ -1460,8 +1529,14 @@
     if (discardSignal && state.lastSignals.discard !== discardSignal) {
       playTone("discard");
     }
+    if (newMeld && state.lastSignals.round === view.round) {
+      if (newMeld.kind.includes("kong")) {
+        playTone("kong");
+      } else if (["chow", "pong"].includes(newMeld.kind)) {
+        playTone(newMeld.kind);
+      }
+    }
     if (baoSignal && state.lastSignals.bao !== baoSignal) {
-      playTone("bao");
       pulseElement(actionRow, "attention-pulse");
     }
     if (endSignal && state.lastSignals.end !== endSignal) {
@@ -1469,9 +1544,14 @@
     }
 
     state.lastSignals = {
-      turn: turnSignal,
+      round: view.round,
+      wallCount: view.wallCount,
+      selfTurn: selfTurn,
       claim: claimSignal,
       discard: discardSignal,
+      meldKeys: meldEntries.map(function (entry) {
+        return entry.key;
+      }),
       bao: baoSignal,
       end: endSignal
     };
@@ -1570,12 +1650,6 @@
     button.textContent = label;
     button.addEventListener("click", function (event) {
       unlockAudio();
-      if (kind === "draw") {
-        playTone("select");
-      }
-      if (["chow", "pong", "kong"].includes(kind)) {
-        playTone("claim");
-      }
       onClick(event);
     });
     return button;
@@ -2015,6 +2089,7 @@
     state.lastSignals = {};
     state.musicWanted = false;
     pauseBackgroundMusic(true);
+    stopSoundEffects();
     stopFullGuide();
     hideEndModal();
     hideRulesModal();
