@@ -26,11 +26,11 @@ layout: false
   <main>
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">PERLER PATTERN STUDIO · 本地处理</p>
+        <p class="eyebrow">PERLER PATTERN STUDIO · 本地制图 · 可选 AI 人像</p>
         <h1>照片先变得可爱，<br><em>再变成能拼的图纸。</em></h1>
         <p class="hero-lead">不是把整张照片粗暴缩成马赛克。先压缩杂色、保住脸型与轮廓，再用真实 MARD 色号生成图纸；眼睛、嘴和眼镜还可以最后单独修。</p>
         <div class="hero-points" aria-label="产品特点">
-          <span>照片直转</span><span>卡通化后再转</span><span>五官修整</span><span>连体加固</span>
+          <span>AI 人物卡通化</span><span>照片直转</span><span>五官修整</span><span>连体加固</span>
         </div>
       </div>
       <div class="hero-art" aria-hidden="true">
@@ -46,14 +46,14 @@ layout: false
 
     <section class="privacy-note" role="note">
       <span aria-hidden="true">◎</span>
-      <div><strong>照片不会离开你的设备</strong><small>第一版所有转换都在当前浏览器完成，不上传服务器，也不需要账号或密钥。</small></div>
+      <div><strong id="privacy-title">本地路线不会上传照片</strong><small id="privacy-copy">只有主动选择 AI 人物卡通化时，压缩后的照片才会发送给云端 AI；制图、改色和导出仍在浏览器完成。</small></div>
     </section>
 
     <section class="maker" aria-labelledby="maker-title">
       <div class="section-heading">
         <p class="eyebrow">START HERE</p>
         <h2 id="maker-title">制作一张自己的拼豆图纸</h2>
-        <p>先上传照片，再选择“卡通化后转图纸”或“照片直接转图纸”。所有参数都可以反复调整。</p>
+        <p>人物优先选择 AI 卡通化；物品或简单背景也可以使用免费本地路线。AI 只生成一次，之后调整格数、颜色和图纸不会重复收费。</p>
       </div>
 
       <div class="maker-grid">
@@ -67,15 +67,30 @@ layout: false
 
           <fieldset class="route-picker">
             <legend>1 · 选择生成路线</legend>
-            <label class="route-option active">
-              <input type="radio" name="route" value="cartoon" checked>
-              <span><strong>卡通化后转图纸</strong><small>平滑杂色、压缩色阶、突出轮廓，适合人物合照</small></span>
+            <label class="route-option ai-route active" id="ai-route-option">
+              <input id="ai-route" type="radio" name="route" value="ai" checked>
+              <span><strong>AI 人物卡通化 <em>人物推荐</em></strong><small id="ai-route-copy">先保住人数、脸型、五官和人物差异，再转成拼豆图纸</small></span>
+            </label>
+            <label class="route-option">
+              <input id="local-route" type="radio" name="route" value="cartoon">
+              <span><strong>本地简化后转图纸</strong><small>完全免费且不上传，适合单人、物品和已经卡通化的图片</small></span>
             </label>
             <label class="route-option">
               <input type="radio" name="route" value="direct">
-              <span><strong>照片直接转图纸</strong><small>保留更多原图明暗，只建议物品、宠物和简单背景；多人合照请选上面的卡通路线</small></span>
+              <span><strong>照片直接转图纸</strong><small>保留更多原图明暗，只建议物品、宠物和简单背景</small></span>
             </label>
           </fieldset>
+
+          <section class="ai-settings" id="ai-settings" aria-label="AI 人物卡通化设置">
+            <label for="ai-access-code">私人访问口令
+              <input id="ai-access-code" type="password" autocomplete="off" placeholder="输入你为网站设置的口令">
+            </label>
+            <label for="ai-notes">人物补充说明 <span>可选</span>
+              <textarea id="ai-notes" maxlength="300" rows="3" placeholder="例如：照片里是两个女生、两个男生；穿黑衣服的是女生"></textarea>
+            </label>
+            <p>每次点击“重新生成 AI 卡通图”才会产生一次 AI 费用；改变格数、颜色和修图不会重复调用。</p>
+            <button id="ai-regenerate" class="secondary-button" type="button" disabled>重新生成 AI 卡通图</button>
+          </section>
 
           <div class="control-group">
             <div class="control-title"><span>2 · 控制复杂度</span><output id="grid-output">100 × 100</output></div>
@@ -85,7 +100,7 @@ layout: false
           </div>
 
           <div class="control-group">
-            <label class="control-title" for="outline-strength"><span>3 · 卡通轮廓强度</span><output id="outline-output">适中</output></label>
+            <label class="control-title" for="outline-strength"><span>3 · 本地简化强度</span><output id="outline-output">适中</output></label>
             <input id="outline-strength" type="range" min="0" max="2" step="1" value="1">
             <div class="range-labels" aria-hidden="true"><span>柔和</span><span>适中</span><span>清晰</span></div>
           </div>
@@ -131,7 +146,8 @@ layout: false
           <div class="preview-toolbar">
             <div class="view-tabs" role="tablist" aria-label="预览方式">
               <button type="button" data-view="source" role="tab">原图</button>
-              <button type="button" data-view="cartoon" role="tab">卡通图</button>
+              <button type="button" data-view="cartoon" role="tab">本地简化图</button>
+              <button type="button" data-view="ai" id="ai-view-tab" role="tab" hidden>AI 卡通图</button>
               <button type="button" data-view="preview" role="tab" class="active">拼豆预览</button>
               <button type="button" data-view="chart" role="tab">格子图</button>
               <button type="button" data-view="connectivity" role="tab">连体检查</button>
@@ -204,8 +220,8 @@ layout: false
         <h2>这一版能做什么，不能假装什么</h2>
       </div>
       <div class="boundary-copy">
-        <p><strong>已经可以：</strong>照片直转、浏览器卡通化、肤色杂点净化、MARD 色号映射、复杂度控制、手动修五官、自动连体、导出预览/图纸/用量。</p>
-        <p><strong>暂不冒充：</strong>网页里的卡通化是本地轮廓简化，不是云端生成式模型。以后接入真正 AI 时，会放在安全服务端，不把密钥写进公开博客。</p>
+        <p><strong>已经可以：</strong>选择性调用云端 AI 生成人物卡通图，也可以完全在本地直转；后续 MARD 色号映射、复杂度控制、手动修五官、自动连体和导出都不再调用 AI。</p>
+        <p><strong>仍需检查：</strong>AI 偶尔会认错人数或配饰，拼豆缩图也可能损失表情。请先看 AI 卡通图，再看拼豆预览；不满意时补充人物说明并仅重做一次 AI 图。</p>
       </div>
     </section>
   </main>
@@ -215,6 +231,7 @@ layout: false
     <a href="/">返回一凡的博客</a>
   </footer>
 
+  <script src="./config.js"></script>
   <script src="./mard-221.js"></script>
   <script src="./pattern-utils.js"></script>
   <script src="./app.js"></script>

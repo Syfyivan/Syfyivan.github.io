@@ -30,12 +30,17 @@
     '细节版：优先保住多人五官，豆子数量也会明显增加。',
   ];
   const OUTLINE_COPY = ['柔和', '适中', '清晰'];
+  const AI_ENDPOINT = String(window.PindouAiConfig?.endpoint || '').trim().replace(/\/$/, '');
+  const LOCAL_VIEWS = new Set(['source', 'cartoon', 'ai']);
 
   const state = {
     image: null,
     fileName: 'pindou-pattern',
     sourceCanvas: document.createElement('canvas'),
     cartoonCanvas: document.createElement('canvas'),
+    aiCanvas: document.createElement('canvas'),
+    aiReady: false,
+    aiRemaining: null,
     cells: [],
     grid: 100,
     palette: PORTRAIT_PALETTE,
@@ -80,17 +85,45 @@
     downloadChart: byId('download-chart'),
     downloadGrid: byId('download-grid'),
     downloadCounts: byId('download-counts'),
+    aiRoute: byId('ai-route'),
+    localRoute: byId('local-route'),
+    aiRouteOption: byId('ai-route-option'),
+    aiRouteCopy: byId('ai-route-copy'),
+    aiSettings: byId('ai-settings'),
+    aiAccessCode: byId('ai-access-code'),
+    aiNotes: byId('ai-notes'),
+    aiRegenerate: byId('ai-regenerate'),
+    aiViewTab: byId('ai-view-tab'),
+    privacyTitle: byId('privacy-title'),
+    privacyCopy: byId('privacy-copy'),
   };
 
   setup();
 
   function setup() {
+    setupAiRoute();
     renderPalette();
     bindUpload();
     bindControls();
     bindEditor();
     updateRangeLabels();
     renderEmptyBoard();
+  }
+
+  function setupAiRoute() {
+    try {
+      els.aiAccessCode.value = sessionStorage.getItem('pindou-ai-access-code') || '';
+    } catch {
+      // 隐私模式可能禁用 sessionStorage，不影响本次使用。
+    }
+    if (!AI_ENDPOINT) {
+      els.aiRoute.disabled = true;
+      els.aiRouteOption.classList.add('unavailable');
+      els.aiRouteCopy.textContent = '云端接口尚未配置；当前请先使用下面两种免费本地路线';
+      els.localRoute.checked = true;
+      els.aiRoute.checked = false;
+    }
+    refreshRouteUi();
   }
 
   function bindUpload() {
@@ -124,16 +157,17 @@
   function bindControls() {
     els.gridSize.addEventListener('input', updateRangeLabels);
     els.outline.addEventListener('input', updateRangeLabels);
-    els.generate.addEventListener('click', generatePattern);
+    els.generate.addEventListener('click', () => generatePattern({ allowAiCall: true }));
+    els.aiRegenerate.addEventListener('click', () => generatePattern({ allowAiCall: true, forceAi: true }));
     document.querySelectorAll('input[name="route"]').forEach((input) => {
       input.addEventListener('change', () => {
-        document.querySelectorAll('.route-option').forEach((label) => label.classList.toggle('active', label.contains(input) && input.checked));
-        if (state.image) generatePattern();
+        refreshRouteUi();
+        if (state.image) generatePattern({ allowAiCall: false });
       });
     });
     for (const element of [els.background, els.paletteMode, els.connect, els.smooth, els.skinClean]) {
       element.addEventListener('change', () => {
-        if (state.image) generatePattern();
+        if (state.image) generatePattern({ allowAiCall: false });
       });
     }
     els.zoom.addEventListener('click', () => {
@@ -148,6 +182,38 @@
     els.downloadChart.addEventListener('click', exportChart);
     els.downloadGrid.addEventListener('click', exportGridCsv);
     els.downloadCounts.addEventListener('click', exportCountsCsv);
+  }
+
+  function refreshRouteUi() {
+    const route = checkedValue('route');
+    document.querySelectorAll('.route-option').forEach((label) => {
+      const input = label.querySelector('input[name="route"]');
+      label.classList.toggle('active', Boolean(input?.checked));
+    });
+    els.aiSettings.classList.toggle('visible', route === 'ai');
+    if (route === 'ai') {
+      els.privacyTitle.textContent = 'AI 路线会上传一份压缩照片';
+      els.privacyCopy.textContent = '照片只在你明确生成 AI 人物图时发送；访问口令只保留到本次浏览器会话，OpenAI 密钥不会出现在博客代码里。';
+    } else {
+      els.privacyTitle.textContent = '当前路线完全在本地处理';
+      els.privacyCopy.textContent = '照片不会离开你的设备，也不会调用 AI；制图、改色和导出全部在当前浏览器完成。';
+    }
+    updateGenerateButton();
+  }
+
+  function updateGenerateButton() {
+    if (!state.image) {
+      els.generate.disabled = true;
+      els.generate.textContent = '请先上传照片';
+      els.aiRegenerate.disabled = true;
+      return;
+    }
+    els.generate.disabled = state.busy;
+    const route = checkedValue('route');
+    els.generate.textContent = route === 'ai' && !state.aiReady
+      ? '生成 AI 人物图并制图'
+      : '重新生成图纸';
+    els.aiRegenerate.disabled = state.busy || !AI_ENDPOINT;
   }
 
   function bindEditor() {
@@ -166,7 +232,7 @@
           glasses: '点击鼻梁中心，放置两圈边对边连续的白色眼镜。',
         };
         els.editorTip.textContent = tips[state.tool];
-        if (!['source', 'cartoon'].includes(state.view)) setView('chart');
+        if (!LOCAL_VIEWS.has(state.view)) setView('chart');
       });
     });
     els.canvas.addEventListener('pointerdown', editAtPointer);
@@ -185,14 +251,26 @@
       image.src = url;
       await image.decode();
       state.image = image;
+      state.aiReady = false;
+      state.aiRemaining = null;
+      state.cells = [];
+      state.analysis = null;
+      state.undoStack = [];
+      els.aiViewTab.hidden = true;
+      els.aiRegenerate.disabled = true;
       state.fileName = safeFileName(file.name.replace(/\.[^.]+$/, '')) || 'pindou-pattern';
       els.uploadTitle.textContent = file.name;
       els.uploadCopy.textContent = `${image.naturalWidth} × ${image.naturalHeight} · 点击可重新选择`;
       els.generate.disabled = false;
-      els.generate.textContent = '重新生成图纸';
+      updateGenerateButton();
       els.canvasShell.classList.remove('empty');
+      drawSourceCanvas();
+      drawCartoonCanvas(Number(els.outline.value));
+      setReady(false);
+      resetStats();
+      renderCurrentView();
       setStatus('照片读取完成，正在生成第一版…');
-      await generatePattern();
+      await generatePattern({ allowAiCall: false });
     } catch (error) {
       console.error(error);
       setStatus('这张图片没有读取成功，请换一张或先另存为 JPG。', true);
@@ -201,20 +279,40 @@
     }
   }
 
-  async function generatePattern() {
+  async function generatePattern(options = {}) {
     if (!state.image || state.busy) return;
+    const route = checkedValue('route');
+    if (route === 'ai' && !AI_ENDPOINT) {
+      setStatus('AI 云端接口尚未配置，请先使用免费本地路线。', true);
+      return;
+    }
+    if (route === 'ai' && !state.aiReady && !options.allowAiCall) {
+      setStatus('照片已经准备好。输入私人访问口令后，点击“生成 AI 人物图并制图”；这一步会调用一次 AI。');
+      updateGenerateButton();
+      return;
+    }
+    if (route === 'ai' && !state.aiReady && !els.aiAccessCode.value.trim()) {
+      setStatus('请先输入私人访问口令，再生成 AI 人物图。', true);
+      els.aiAccessCode.focus();
+      return;
+    }
     state.busy = true;
     els.generate.disabled = true;
-    els.generate.textContent = '正在整理轮廓…';
-    setStatus('先简化颜色与轮廓，再映射 MARD 色号。');
+    els.aiRegenerate.disabled = true;
+    els.generate.textContent = route === 'ai' && (!state.aiReady || options.forceAi) ? 'AI 正在整理人物…' : '正在整理轮廓…';
+    setStatus(route === 'ai' && (!state.aiReady || options.forceAi)
+      ? '正在保留人数、脸型、五官和人物差异；请稍等。'
+      : '正在映射 MARD 色号。');
     await nextFrame();
     try {
-      const route = checkedValue('route');
       const outlineStrength = Number(els.outline.value);
       state.grid = GRID_OPTIONS[Number(els.gridSize.value)];
       drawSourceCanvas();
       drawCartoonCanvas(outlineStrength);
-      const inputCanvas = route === 'cartoon' ? state.cartoonCanvas : state.sourceCanvas;
+      if (route === 'ai') await ensureAiCartoon(Boolean(options.forceAi));
+      const inputCanvas = route === 'ai'
+        ? state.aiCanvas
+        : route === 'cartoon' ? state.cartoonCanvas : state.sourceCanvas;
       const paletteMode = els.paletteMode.value;
       if (paletteMode === 'portrait13') {
         state.palette = PORTRAIT_PALETTE;
@@ -243,17 +341,102 @@
         ? '使用旧版人像 13 色限制'
         : `已从 221 色库自动挑选最多 ${paletteMode} 色`;
       const routeCopy = route === 'direct' && state.grid < 100
-        ? ' 照片直转的低格数不适合多人脸；合照请切到“卡通化后转图纸”并用 100 格以上。'
-        : '';
-      setStatus(`完成：${state.analysis.total.toLocaleString('zh-CN')} 颗豆，${colorCopy}，${cleanupCopy}${connectedCopy}。${routeCopy || '建议放大检查五官。'}`);
+        ? ' 照片直转的低格数不适合多人脸；人物请切到 AI 路线并用 100 格以上。'
+        : route === 'ai' && state.aiRemaining !== null
+          ? ` 今日还可调用 AI ${state.aiRemaining} 次。`
+          : '';
+      setStatus(`完成：${state.analysis.total.toLocaleString('zh-CN')} 颗豆，${colorCopy}，${cleanupCopy}${connectedCopy}。${routeCopy || '建议先检查脸型与五官，再下载图纸。'}`);
     } catch (error) {
       console.error(error);
-      setStatus('生成时遇到问题，请换一张尺寸更小的图片再试。', true);
+      setStatus(error.userMessage || '生成时遇到问题，请换一张尺寸更小的图片再试。', true);
     } finally {
       state.busy = false;
       els.generate.disabled = false;
-      els.generate.textContent = '重新生成图纸';
+      els.aiRegenerate.disabled = !(AI_ENDPOINT && state.image);
+      updateGenerateButton();
     }
+  }
+
+  async function ensureAiCartoon(force) {
+    if (state.aiReady && !force) return;
+    const accessCode = els.aiAccessCode.value.trim();
+    if (!accessCode) throw userError('请先输入私人访问口令。');
+
+    const upload = await createAiUpload();
+    const form = new FormData();
+    form.append('image', upload, `${state.fileName || 'portrait'}.jpg`);
+    form.append('notes', els.aiNotes.value.trim());
+
+    let response;
+    try {
+      response = await fetch(`${AI_ENDPOINT}/v1/cartoonize`, {
+        method: 'POST',
+        headers: { 'X-Pindou-Access-Code': accessCode },
+        body: form,
+      });
+    } catch {
+      throw userError('暂时连接不到 AI 服务，请稍后再试。');
+    }
+    let payload = {};
+    try { payload = await response.json(); } catch { /* 使用下面的通用错误 */ }
+    if (!response.ok) throw userError(aiErrorMessage(response.status, payload.error));
+    if (!payload.imageBase64) throw userError('AI 没有返回图片，请稍后再试。');
+
+    const generated = await loadDataImage(`data:${payload.mimeType || 'image/jpeg'};base64,${payload.imageBase64}`);
+    const size = 512;
+    state.aiCanvas.width = size;
+    state.aiCanvas.height = size;
+    const ctx = state.aiCanvas.getContext('2d', { willReadFrequently: true });
+    ctx.fillStyle = '#f7f3ec';
+    ctx.fillRect(0, 0, size, size);
+    drawImageContain(ctx, generated, size, size);
+    state.aiReady = true;
+    state.aiRemaining = Number.isFinite(payload.remaining) ? payload.remaining : null;
+    els.aiViewTab.hidden = false;
+    try { sessionStorage.setItem('pindou-ai-access-code', accessCode); } catch { /* 本次仍可使用 */ }
+  }
+
+  async function createAiUpload() {
+    const longest = Math.max(state.image.naturalWidth, state.image.naturalHeight);
+    const scale = Math.min(1, 1024 / longest);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(state.image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(state.image.naturalHeight * scale));
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(state.image, 0, 0, canvas.width, canvas.height);
+    const blob = await canvasToBlob(canvas, 'image/jpeg', .86);
+    if (!blob || blob.size > 3 * 1024 * 1024) throw userError('压缩后的照片仍然太大，请先把图片缩小后再试。');
+    return blob;
+  }
+
+  function loadDataImage(src) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(userError('AI 图片读取失败，请重新生成。'));
+      image.src = src;
+    });
+  }
+
+  function canvasToBlob(canvas, type, quality) {
+    return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+  }
+
+  function aiErrorMessage(status, message) {
+    if (status === 401) return '私人访问口令不正确。';
+    if (status === 413) return '照片太大，请先缩小后再试。';
+    if (status === 429) return '今天设置的 AI 次数已经用完，或模型暂时繁忙。';
+    if (status === 503) return 'AI 服务还没有完成密钥配置。';
+    return message ? `AI 生成人物图失败：${message}` : 'AI 生成人物图失败，请稍后再试。';
+  }
+
+  function userError(message) {
+    const error = new Error(message);
+    error.userMessage = message;
+    return error;
   }
 
   function drawSourceCanvas() {
@@ -310,7 +493,7 @@
     const pixels = ctx.getImageData(0, 0, grid, grid).data;
     const backgrounds = estimateCornerColors(pixels, grid);
     const cells = Array.from({ length: grid }, () => Array(grid).fill(null));
-    const tolerance = checkedValue('route') === 'cartoon' ? 37 : 31;
+    const tolerance = checkedValue('route') === 'direct' ? 31 : 37;
     for (let y = 0; y < grid; y += 1) {
       for (let x = 0; x < grid; x += 1) {
         const index = (y * grid + x) * 4;
@@ -334,7 +517,7 @@
     ctx.drawImage(canvas, 0, 0, grid, grid);
     const pixels = ctx.getImageData(0, 0, grid, grid).data;
     const backgrounds = estimateCornerColors(pixels, grid);
-    const tolerance = route === 'cartoon' ? 37 : 31;
+    const tolerance = route === 'direct' ? 31 : 37;
     const samples = [];
     for (let index = 0; index < pixels.length; index += 4) {
       if (pixels[index + 3] < 128) continue;
@@ -415,11 +598,18 @@
     if (!state.image) return renderEmptyBoard();
     const ctx = els.canvas.getContext('2d');
     ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
-    if (state.view === 'source' || state.view === 'cartoon') {
+    if (LOCAL_VIEWS.has(state.view)) {
       ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(state.view === 'source' ? state.sourceCanvas : state.cartoonCanvas, 0, 0, els.canvas.width, els.canvas.height);
+      const canvas = state.view === 'source'
+        ? state.sourceCanvas
+        : state.view === 'ai' && state.aiReady ? state.aiCanvas : state.cartoonCanvas;
+      ctx.drawImage(canvas, 0, 0, els.canvas.width, els.canvas.height);
       els.canvas.style.cursor = 'default';
       return;
+    }
+    if (!state.cells.length) {
+      els.canvas.style.cursor = 'default';
+      return renderEmptyBoard();
     }
     els.canvas.style.cursor = 'crosshair';
     drawPatternCanvas(ctx, els.canvas.width, state.view);
@@ -471,7 +661,7 @@
   }
 
   function editAtPointer(event) {
-    if (!state.cells.length || ['source', 'cartoon'].includes(state.view)) return;
+    if (!state.cells.length || LOCAL_VIEWS.has(state.view)) return;
     const rect = els.canvas.getBoundingClientRect();
     const x = Math.min(state.grid - 1, Math.max(0, Math.floor((event.clientX - rect.left) / rect.width * state.grid)));
     const y = Math.min(state.grid - 1, Math.max(0, Math.floor((event.clientY - rect.top) / rect.height * state.grid)));
@@ -567,6 +757,11 @@
     els.statColors.textContent = counts.size;
     els.statComponents.textContent = components.length;
     els.statComponents.style.color = components.length === 1 ? '#527563' : '#a94135';
+  }
+
+  function resetStats() {
+    for (const element of [els.statGrid, els.statBeads, els.statColors, els.statComponents]) element.textContent = '—';
+    els.statComponents.style.color = '';
   }
 
   function renderPalette() {

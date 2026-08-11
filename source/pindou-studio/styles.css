@@ -21,9 +21,10 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; background: var(--paper); color: var(--ink); }
-button, input, select { font: inherit; }
+button, input, select, textarea { font: inherit; }
 button, select, label, input[type="range"] { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, a:focus-visible, label:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid rgba(216, 102, 84, .35); outline-offset: 3px; }
+button:focus-visible, a:focus-visible, label:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid rgba(216, 102, 84, .35); outline-offset: 3px; }
+[hidden] { display: none !important; }
 a { color: inherit; }
 
 .site-header {
@@ -114,6 +115,19 @@ legend, .control-title { width: 100%; margin-bottom: 10px; display: flex; justif
 .route-option span, .route-option strong, .route-option small { display: block; }
 .route-option strong { font-size: 13px; }
 .route-option small { margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.route-option strong em { margin-left: 5px; padding: 2px 6px; border-radius: 999px; background: var(--coral); color: #fff; font-size: 9px; font-style: normal; vertical-align: 1px; }
+.route-option.unavailable { opacity: .58; cursor: not-allowed; }
+.route-option.unavailable input { cursor: not-allowed; }
+.ai-settings { display: none; margin-top: 10px; padding: 14px; border: 1px solid rgba(216, 102, 84, .28); border-radius: 13px; background: #fff7f1; }
+.ai-settings.visible { display: block; }
+.ai-settings label { display: block; color: #4d4640; font-size: 11px; font-weight: 780; }
+.ai-settings label + label { margin-top: 10px; }
+.ai-settings label span { color: var(--muted); font-size: 9px; font-weight: 600; }
+.ai-settings input, .ai-settings textarea { width: 100%; margin-top: 6px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink); font-size: 11px; resize: vertical; }
+.ai-settings > p { margin: 9px 1px 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
+.secondary-button { width: 100%; margin-top: 10px; padding: 10px; border: 1px solid var(--coral); border-radius: 10px; background: #fff; color: var(--coral-dark); font-size: 11px; font-weight: 800; cursor: pointer; }
+.secondary-button:hover:not(:disabled) { background: #fff0e8; }
+.secondary-button:disabled { opacity: .46; cursor: not-allowed; }
 .control-group { margin-top: 21px; }
 .control-title output { color: var(--coral-dark); }
 input[type="range"] { width: 100%; accent-color: var(--coral); cursor: pointer; }

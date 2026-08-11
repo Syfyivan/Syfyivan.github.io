@@ -7,3 +7,4 @@ public/
 .deploy*/
 _multiconfig.yml
 source/road-trip-2026/assets/amap-config.local.js
+services/pindou-ai-worker/wrangler.jsonc
