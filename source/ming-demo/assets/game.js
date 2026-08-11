@@ -815,6 +815,44 @@
       旧门路衰减: S.旧门路衰减
     };
   }
+  function syncCurrentRouteAwareState() {
+    if (!S) {
+      return {
+        婚配路径: '未定',
+        合爨状态: '未合爨',
+        定额佃状态: '未立',
+        雇身份: '未定',
+        学徒去向: '未定',
+        举业结局: '未定',
+        委托营生: '无',
+        委托租谷: 0,
+        委托待收租谷: 0
+      };
+    }
+    S.婚配路径 = normalizeRouteAwareStateValue('婚配路径', S.婚配路径, '未定');
+    S.合爨状态 = normalizeRouteAwareStateValue('合爨状态', S.合爨状态, '未合爨');
+    S.定额佃状态 = normalizeRouteAwareStateValue('定额佃状态', S.定额佃状态, '未立');
+    S.雇身份 = normalizeRouteAwareStateValue('雇身份', S.雇身份, '未定');
+    S.学徒去向 = normalizeRouteAwareStateValue('学徒去向', S.学徒去向, '未定');
+    S.举业结局 = normalizeRouteAwareStateValue('举业结局', S.举业结局, '未定');
+    S.委托营生 = normalizeCarryString(S.委托营生, '无');
+    S.委托租谷 = Math.max(0, Number(S.委托租谷 || 0));
+    S.委托待收租谷 = Math.max(0, Number(S.委托待收租谷 || 0));
+    if (S.委托营生 === '无' && (S.委托租谷 > 0 || S.委托待收租谷 > 0)) {
+      S.委托营生 = '出佃收租';
+    }
+    return {
+      婚配路径: S.婚配路径,
+      合爨状态: S.合爨状态,
+      定额佃状态: S.定额佃状态,
+      雇身份: S.雇身份,
+      学徒去向: S.学徒去向,
+      举业结局: S.举业结局,
+      委托营生: S.委托营生,
+      委托租谷: S.委托租谷,
+      委托待收租谷: S.委托待收租谷
+    };
+  }
   function inheritedRoleBirthLead(carry) {
     var role = currentInheritanceRole(carry);
     if (role === '旁支继子') return '你如今以旁支继子续这一房香火，全赖父母养育。';
@@ -925,6 +963,7 @@
     };
   }
   function lifecycleInheritanceBridge() {
+    syncCurrentRouteAwareState();
     var role = lifecycleDisplayedInheritanceRole();
     var routeAwareState = snapshotRouteAwareCarryState();
     var visibleMarriagePath = routeAwareState.婚配路径;
@@ -3000,7 +3039,7 @@
     hardship: 'clan'
   });
     if (season.id === 'autumn' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_autumn_open_packet', 'e_year2_autumn_focus', 'e_year3_autumn_focus']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_autumn_open_packet', 'e_year1_autumn_focus', 'e_year2_autumn_focus', 'e_year3_autumn_focus']),
       doneTag: '秋前盘缠已理',
       doneLog: '〔秋前盘缠〕这一旬先把应试盘缠、拜帖小礼与家里秋收锅火分开了；秋试刚起头时最容易被一句“先把书读下去”盖过去的那层临场后手，没有再混成一团。',
       cost: 40,
@@ -3011,7 +3050,7 @@
       hardship: 'clan'
     });
     if (season.id === 'autumn' && xun === 1) apply({
-      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_autumn_open_packet', 'e_autumn_open_cloth', 'e_year2_autumn_focus', 'e_year3_autumn_focus']),
+      handledIds: examSupportHandledIds(['e_enroll', 'e_tutor', 'e_half', 'e_literacy', 'e_home', 'e_rest', 'e_autumn_open_packet', 'e_autumn_open_cloth', 'e_year1_autumn_focus', 'e_year2_autumn_focus', 'e_year3_autumn_focus']),
       doneTag: '秋头夹衣已分',
       doneLog: '〔秋头夹衣〕这一旬先把夹衣、试鞋草履、递话脚费和秋凉锅火分开了；秋试上旬不再只剩“先凑盘缠”，连保结未稳时最先追上门的换季小耗也被压回了这一旬。',
       cost: 55,
@@ -3023,7 +3062,7 @@
       hardship: 'body'
     });
     if (season.id === 'autumn' && xun === 2) apply({
-      handledIds: examSupportHandledIds(['e_guarantee', 'e_copy', 'e_home', 'e_autumn_packet', 'e_autumn_cough', 'e_year1_autumn_focus', 'e_year2_autumn_mid_focus', 'e_year3_autumn_mid_focus']),
+      handledIds: examSupportHandledIds(['e_guarantee', 'e_copy', 'e_home', 'e_autumn_packet', 'e_autumn_cough', 'e_year1_autumn_mid_focus', 'e_year2_autumn_mid_focus', 'e_year3_autumn_mid_focus']),
       doneTag: '秋后纸墨已拆',
       doneLog: '〔秋后纸墨〕这一旬先把保结薄礼、学生家回话脚费和润笔纸墨拆开了；秋试前最容易把“还能不能再往前推一口气”磨薄的那层碎耗，没有继续滚大。',
       cost: 45,
@@ -3184,7 +3223,7 @@
       'e_year1_summer_mid_focus', 'e_year2_summer_mid_focus', 'e_year3_summer_mid_focus',
       'e_year1_summer_tail_focus', 'e_year2_summer_tail_focus', 'e_year3_summer_tail_focus',
       'e_year1_autumn_focus', 'e_year2_autumn_focus', 'e_year3_autumn_focus',
-      'e_year2_autumn_mid_focus', 'e_year3_autumn_mid_focus',
+      'e_year1_autumn_mid_focus', 'e_year2_autumn_mid_focus', 'e_year3_autumn_mid_focus',
       'e_year1_autumn_tail_focus', 'e_year2_autumn_tail_focus', 'e_year3_autumn_tail_focus',
       'e_winter_open_packet', 'e_winter_mid_packet', 'e_winter_debt_note', 'e_winter_packet', 'e_winter_tail_note',
       'e_year1_winter_focus', 'e_year2_winter_focus', 'e_year3_winter_focus',
@@ -3210,7 +3249,7 @@
       'e_home', 'e_fail_talk',
       'e_summer_cough', 'e_autumn_cough', 'e_winter_cough',
       'e_year1_autumn_focus', 'e_year2_autumn_focus', 'e_year3_autumn_focus',
-      'e_year2_autumn_mid_focus', 'e_year3_autumn_mid_focus',
+      'e_year1_autumn_mid_focus', 'e_year2_autumn_mid_focus', 'e_year3_autumn_mid_focus',
       'e_year1_autumn_tail_focus', 'e_year2_autumn_tail_focus', 'e_year3_autumn_tail_focus',
       'e_year1_winter_focus', 'e_year2_winter_focus', 'e_year3_winter_focus',
       'e_year1_winter_mid_focus', 'e_year2_winter_mid_focus', 'e_year3_winter_mid_focus',
@@ -24401,6 +24440,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     }
     var life = currentLifeProfile();
     var currentInheritance = syncCurrentInheritanceState();
+    syncCurrentRouteAwareState();
     function shareByOrdinal(total, count, ordinal) {
       var scale = shareUnitScale(total);
       var whole = Math.max(0, Math.round((Number(total) || 0) * scale));
@@ -24504,6 +24544,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       }
       if (isWageRouteState() && (S.婚配路径 === '先应差·外出佣工' || S.雇身份 === '外出佣工' || (legacy.城里门路 || 0) > 0)) {
         parts.push('年轻时先应差、后外出佣工攒下的旧牙口与城里熟识，也继续写进这房后来可续的门路');
+      }
+      if ((S.学徒去向 || '未定') !== '未定') {
+        parts.push(
+          (S.学徒去向 === '留店伙计' || S.学徒去向 === '店铺做工' || S.学徒去向 === '随行商')
+            ? ('年轻时在铺里坐到“' + S.学徒去向 + '”那层去路，并没有在成家养老后悄悄洗掉，临了仍算这房后来可续的城里门路')
+            : ('年轻时那回学徒最后走到“' + S.学徒去向 + '”，这一层在铺里见过世面的旧路数，临了仍留在这房门前')
+        );
+      }
+      if ((S.举业结局 || '未定') !== '未定') {
+        parts.push(
+          (S.举业结局 === '塾馆教读' || S.举业结局 === '屡试未第' || S.举业结局 === '生员止步')
+            ? ('书路最后停在“' + S.举业结局 + '”，这并不直接折成现银，却仍作为这房往后教读、识字与体面的退路留在下一代门前')
+            : ('这一房举业最后停在“' + S.举业结局 + '”，那层名分与书路余绪并没有随本人身故直接抹平')
+        );
       }
       if ((legacy.供读底子 || 0) > 0) {
         parts.push((S.商路供读银 || 0) > 0
