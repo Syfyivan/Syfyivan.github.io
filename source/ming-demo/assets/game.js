@@ -24444,6 +24444,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             a.why = !(season.id === 'winter' && xun === 3) ? '这一旬不便先拆冬尾馆信账' : (S.铜钱 >= 50 ? '' : '铜钱不足50文');
             a.once = true;
           }
+          if (a.can === false && typeof a.why === 'string' && a.why.indexOf('这一旬不便') === 0) return;
           A.push(a);
         });
 
