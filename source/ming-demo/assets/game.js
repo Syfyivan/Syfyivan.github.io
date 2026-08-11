@@ -768,6 +768,13 @@
   function syncCurrentInheritanceState() {
     var current = currentInheritanceStateSnapshot();
     var normalized = normalizeCarrySnapshot(current) || current;
+    // 只有“当前态手工 patch 出显式旁支继子、但来路还没带上任何旁支标签”时，
+    // 才把运行时展示收敛成“旁支过继”。真正来自 carry 的多代链要保留历史标签，
+    // 否则会把“本支独子承继 / 弟妹接续”等历史来源在重开入口里洗掉。
+    if (!carryOver && String(current.承继身份 || '').trim() === '旁支继子' && !isCollateralCarry(current)) {
+      normalized.承嗣来路 = directHeirLineageTag('旁支继子');
+      normalized.承继定位 = defaultInheritancePosition('旁支继子');
+    }
     S.承继身份 = normalized.承继身份 || normalizeCarryRole(normalized);
     S.承嗣来路 = normalized.承嗣来路 || directHeirLineageTag(S.承继身份);
     S.承继定位 = normalized.承继定位 || defaultInheritancePosition(S.承继身份);
@@ -24150,7 +24157,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       // 若先把直系标签写进去，再补“旁支续承”，死亡页会短暂出现
       // “旁支过继 · 本支独子承继 · 旁支续承”这类历史链倒挂，
       // 造成 death 页文案与 restartWithHeir 前后看到的承嗣来路不一致。
-      if (S.子数 > 0 && currentInheritance.承继身份 === '旁支继子') nextVia = composeLineageSource(nextVia, '旁支续承');
+      // 这一房只要本代本身是从旁支续来的，哪怕当前显式身份已经写成“独子/次子”，
+      // 也仍然要先补一层“旁支续承”，再接上本代生出的直系子嗣。
+      if (S.子数 > 0 && isCollateralCarry(currentInheritance)) nextVia = composeLineageSource(nextVia, '旁支续承');
       nextVia = composeLineageSource(nextVia, nextDirectTag);
       var legacy = {
         父辈路线: S.路线 || '未定',
