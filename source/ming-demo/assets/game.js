@@ -768,11 +768,27 @@
   function syncCurrentInheritanceState() {
     var current = currentInheritanceStateSnapshot();
     var normalized = normalizeCarrySnapshot(current) || current;
+    var tokens = lineageTokens(current.承嗣来路 || '');
+    var viaRole = inheritanceRoleFromLineage(current.承嗣来路);
+    var explicitRole = String(current.承继身份 || '').trim();
+    var hasDirectTag = tokens.some(function (token) {
+      return token === '本支独子承继' || token === '本支长子承继' || token === '本支次子承继';
+    });
     // 只有“当前态手工 patch 出显式旁支继子、但来路还没带上任何旁支标签”时，
     // 才把运行时展示收敛成“旁支过继”。真正来自 carry 的多代链要保留历史标签，
     // 否则会把“本支独子承继 / 弟妹接续”等历史来源在重开入口里洗掉。
     if (!carryOver && String(current.承继身份 || '').trim() === '旁支继子' && !isCollateralCarry(current)) {
       normalized.承嗣来路 = directHeirLineageTag('旁支继子');
+      normalized.承继定位 = defaultInheritancePosition('旁支继子');
+    }
+    // 当前运行中的状态若已写成 `本支次子承继·旁支过继` 这类“直系标签在前、旁支落点在后”的链，
+    // 说明这一手已经真实转成旁支；这里只纠正当前态，不反向改写旧 carry 的通用归一化规则。
+    if (viaRole === '旁支继子'
+      && explicitRole !== '旁支继子'
+      && hasDirectTag
+      && isCollateralCarry(current)) {
+      normalized.承继身份 = '旁支继子';
+      normalized.承嗣来路 = String(current.承嗣来路 || '').trim() || directHeirLineageTag('旁支继子');
       normalized.承继定位 = defaultInheritancePosition('旁支继子');
     }
     S.承继身份 = normalized.承继身份 || normalizeCarryRole(normalized);
@@ -4329,7 +4345,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 2) apply({
-      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_clear_packet', 'm_debt_split', 'm_winter_family_split', 'm_winter_mid_body', 'm_winter_mid_supply_duty', 'm_winter_second_mid_trial', 'm_winter_mid_remit_school', 'm_winter_mid_third_remit'],
+      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_clear_packet', 'm_debt_split', 'm_winter_family_split', 'm_winter_mid_body', 'm_winter_mid_supply_duty', 'm_winter_second_mid_trial', 'm_winter_second_mid_remit', 'm_winter_mid_remit_school', 'm_winter_mid_third_remit'],
       doneTag: '清账回话已压',
       doneLog: '〔清账回话〕这一旬先把回话脚费、清账门包、药包、来春样纸定钱和给熟号递话的小礼分开了；冬里第二程不再只剩“催账”，而是真把清账的人情碎费与身子后手一起摊回这一旬。',
       cost: 45,
@@ -21688,6 +21704,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           why: S.铜钱 >= 65 ? '' : '铜钱不足65文',
           once: true
         });
+        if (season.id === 'summer' && xun === 2) A.push({
+          id: 'h_summer_school_packet',
+          name: hasSchoolChildren ? '先把伏夏课纸与孩子凉药分开' : '先把伏夏课纸后手分开',
+          cost: 1,
+          eff: hasSchoolChildren ? '铜钱-60·供读+1·通融+1·体魄+1·家族+1' : '（眼下无子女，不必另留伏夏课纸）',
+          desc: hasSchoolChildren
+            ? '夏催账到了中旬，最怕孩子伏夏课纸、炭笔潮纸、凉药门包与学生家回签、锅火小耗一起压上来。先把这层家里读写后手拆开，举业路夏里才不至只顾保结与馆账，连下一口供读和暑热身子账也压回了同一年。'
+            : '眼下这一房还没有需要续伏夏课纸的孩子，这层家里读写后手暂时还落不到真账里。',
+          can: hasSchoolChildren && S.铜钱 >= 60 && (S.本年户供读 || 0) < 1,
+          why: !hasSchoolChildren ? '眼下尚无需要续伏夏课纸的孩子'
+            : ((S.本年户供读 || 0) < 1 ? (S.铜钱 >= 60 ? '' : '铜钱不足60文') : '这一年已先留过一手供读后手'),
+          once: true
+        });
         if (season.id === 'summer' && xun === 3) A.push({
           id: 'h_summer_tail_packet',
           name: '先把夏尾馆信与秋前纸样分开',
@@ -21968,6 +21997,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想在' + stepLabel + '先把保结薄礼与租帖脚费分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_summer_school_packet':
+              if (hasSchoolChildren && spendCopper(60)) {
+                S.本年户供读 += 1;
+                S.本年户通融 += 1;
+                S.体魄 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('伏夏课纸');
+                log.push(['你在' + stepLabel + '先把孩子伏夏课纸、炭笔潮纸、凉药门包与学生家回签、锅火小耗分开：铜钱-60、供读后手+1、通融+1、体魄+1、家族+1。举业路夏催账中旬这层“保结门路还在追钱，家里下一口读写与暑热小耗也已压上来”的细账，总算先被你压回了这一旬。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把伏夏课纸与孩子凉药分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_summer_tail_packet':
               if (spendCopper(55)) {
                 S.本年户催账 += 1;
@@ -22235,7 +22277,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             hardship: 'clan'
           },
           summer: {
-            handledIds: ['h_copy_mid', 'h_exempt', 'h_rest', 'h_literate', 'h_clan', 'h_side', 'h_exam_split', 'h_summer_packet', 'h_summer_soup', 'h_summer_surety'],
+            handledIds: ['h_copy_mid', 'h_exempt', 'h_rest', 'h_literate', 'h_clan', 'h_side', 'h_exam_split', 'h_summer_packet', 'h_summer_soup', 'h_summer_surety', 'h_summer_school_packet'],
             doneTag: '伏夏小耗已顾',
             doneLog: '〔伏夏小耗〕这一旬先把纸墨、凉药、馆账、保结薄礼和家里锅火顾住了；识字底子没有再被伏夏杂耗一点点磨空。',
             cost: 60,
