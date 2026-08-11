@@ -4704,7 +4704,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'autumn' && xun === 1) apply({
-      handledIds: ['m_market', 'm_run', 'm_goods', 'm_collect', 'm_trial_capital', 'm_autumn_receipt', 'm_autumn_supply_split', 'm_autumn_head_goods_route', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_head_remit_body', 'm_autumn_second_head_trial', 'm_autumn_second_head_remit', 'm_autumn_third_head_return', 'm_autumn_third_head_split'],
+      handledIds: ['m_market', 'm_run', 'm_goods', 'm_collect', 'm_trial_capital', 'm_autumn_receipt', 'm_autumn_supply_split', 'm_autumn_head_goods_route', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_head_remit_body', 'm_autumn_second_head_trial', 'm_autumn_second_head_split', 'm_autumn_second_head_remit', 'm_autumn_third_head_return', 'm_autumn_third_head_split'],
       doneTag: '秋市碎费已拆',
       doneLog: '〔秋市碎费〕这一旬先把样货、牙行照面和秋路脚费拆开了；样货茶钱、牙行照面和秋路脚费一起要钱，若不先分开，最容易把本年试手前的商路判断搅浑。',
       cost: 50,
@@ -4748,7 +4748,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 2) apply({
-      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_clear_packet', 'm_debt_split', 'm_winter_mid_counter_note', 'm_winter_family_split', 'm_winter_mid_body', 'm_winter_mid_supply_duty', 'm_winter_mid_first_remit', 'm_winter_second_mid_trial', 'm_winter_second_mid_remit', 'm_winter_mid_remit_school', 'm_winter_mid_remit_drag_duty', 'm_winter_mid_third_remit'],
+      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_clear_packet', 'm_debt_split', 'm_winter_mid_counter_note', 'm_winter_family_split', 'm_winter_mid_body', 'm_winter_mid_supply_duty', 'm_winter_mid_first_remit', 'm_winter_second_mid_trial', 'm_winter_second_mid_remit', 'm_winter_mid_remit_school', 'm_winter_mid_remit_drag_duty', 'm_winter_mid_third_remit', 'm_winter_mid_third_split'],
       doneTag: '清账回话已压',
       doneLog: '〔清账回话〕这一旬先把回话脚费、清账门包、药包、来春样纸定钱和给熟号递话的小礼分开了；冬里第二程不再只剩“催账”，而是真把清账的人情碎费与身子后手一起摊回这一旬。',
       cost: 45,
@@ -7865,6 +7865,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               once: true
             });
             A.push({
+              id: 'm_autumn_second_head_split',
+              name: '先把二年秋头试本与拖欠回签分开',
+              cost: 1,
+              eff: '铜钱-85·议本+1·催账+1·拖欠+1·家书+1·商信誉+1',
+              desc: '第二商年秋试手一起头，不只牙帖回签要压，试本回话、旧拖欠回签、回客门包和回乡脚费也会同旬追钱。先把这层“试本还没定，旧账已先追”的肩位拆开，让二年秋头就把议本、催账与拖欠写回同一年里。',
+              can: S.铜钱 >= 85 && (S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路议本 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0),
+              why: S.铜钱 >= 85
+                ? ((S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路议本 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0) ? '' : '需先有试本、拖欠或回签后手可拆')
+                : '铜钱不足85文',
+              once: true
+            });
+            A.push({
               id: 'm_autumn_second_head_remit',
               name: '先把二年秋头回钱拆作试本与供读',
               cost: 1,
@@ -8389,6 +8401,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 : '白银不足1两',
               once: true
             });
+            A.push({
+              id: 'm_winter_mid_third_split',
+              name: '先把三年冬中供读拖账与柜边回帖分开',
+              cost: 1,
+              eff: '铜钱-100·坐店+1·核账+1·供读+1·催账+1·拖欠+1·家书+1·家族+1·商信誉+1',
+              desc: '第三商年冬里第二程不该只剩“回钱怎么分”。柜边回帖、供读纸包、旧拖欠口风、递话小礼和家里催问也会同旬咬钱。先把这层柜边、供读与拖欠回签拆开，让三年冬中除了白银分流，也把坐店抄帖与催账真写回同一年。',
+              can: S.铜钱 >= 100 && (S.本年商路供读 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0 || S.本年商路坐店 > 0 || S.本年商路核账 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0),
+              why: S.铜钱 >= 100
+                ? ((S.本年商路供读 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0 || S.本年商路坐店 > 0 || S.本年商路核账 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0) ? '' : '需先有供读、拖欠、柜边回帖或回钱后手可拆')
+                : '铜钱不足100文',
+              once: true
+            });
           }
         }
         if (season.id === 'winter' && xun === 3) {
@@ -8526,7 +8550,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               : ['m_summer_tail_remit_school', 'm_summer_tail_duty', 'm_summer_tail_school']);
         } else if (season.id === 'autumn' && xun === 1) {
           preferredOrder = S.商年 === 2
-            ? ['m_autumn_second_head_remit', 'm_autumn_second_head_trial', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_supply_split']
+            ? ['m_autumn_second_head_remit', 'm_autumn_second_head_split', 'm_autumn_second_head_trial', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_supply_split']
             : (S.商年 === 3
               ? ['m_autumn_third_head_return', 'm_autumn_third_head_split', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_supply_split']
               : ['m_autumn_head_remit_body', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_head_goods_route', 'm_autumn_supply_split', 'm_autumn_receipt']);
@@ -8552,7 +8576,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           preferredOrder = S.商年 === 2
             ? ['m_winter_second_mid_remit', 'm_winter_second_mid_trial', 'm_winter_mid_remit_drag_duty', 'm_winter_mid_supply_duty', 'm_winter_mid_counter_note']
             : (S.商年 === 3
-              ? ['m_winter_mid_third_remit', 'm_winter_mid_remit_drag_duty', 'm_winter_mid_supply_duty', 'm_winter_mid_counter_note', 'm_winter_mid_body']
+              ? ['m_winter_mid_third_remit', 'm_winter_mid_third_split', 'm_winter_mid_remit_drag_duty', 'm_winter_mid_supply_duty', 'm_winter_mid_counter_note', 'm_winter_mid_body']
               : ['m_winter_mid_first_remit', 'm_winter_mid_remit_drag_duty', 'm_winter_mid_remit_school', 'm_winter_mid_supply_duty', 'm_winter_mid_counter_note', 'm_winter_family_split', 'm_winter_mid_body']);
         } else if (season.id === 'winter' && xun === 3) {
           preferredOrder = S.商年 === 2
@@ -9434,6 +9458,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把二年秋头试本与牙帖回签分开：铜钱-75、问价+1、议本+1、跑单+1、家书+1、商信誉+1。第二商年秋头这层试本回话、牙帖回签、回钱脚单和递话门包先被压回了这一旬，问价、议本与跑单终于不必再只等秋中才一起见真账。', 'good']);
               } else {
                 log.push(['想先把二年秋头试本与牙帖回签分开，但这旬铜钱已先紧，只得让试本回话、牙帖回签和回钱脚单继续一起追这口现钱。', 'bad']);
+              }
+              break;
+            case 'm_autumn_second_head_split':
+              if (spendCopper(85)) {
+                S.本年商路议本 += 1;
+                S.本年商路催账 += 1;
+                S.本年商路拖欠 += 1;
+                S.本年商路家书 += 1;
+                S.商信誉 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆二年秋头试拖');
+                log.push(['先把二年秋头试本与拖欠回签分开：铜钱-85、议本+1、催账+1、拖欠+1、家书+1、商信誉+1。第二商年秋头这层试本回话、旧拖欠回签、回客门包和回乡脚费先被压回了这一旬，秋路刚开时，试本与旧账不再只靠通用秋头动作顺带露面。', 'good']);
+              } else {
+                log.push(['想先把二年秋头试本与拖欠回签分开，但这旬铜钱已先紧，只得让试本回话、旧拖欠回签和回客门包继续一起追这口现钱。', 'bad']);
               }
               break;
             case 'm_autumn_second_head_remit':
@@ -10336,6 +10373,23 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把三年冬中回钱拆作供读、拖欠与药包：白银-1、反哺+1、供读专账+1、供读+1、催账+1、拖欠+1、家书+1、歇养+1、体魄+1、贴家+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。第三商年冬中这笔真回钱没有再只写成“冬尾再收口”，而是当场把供读、拖欠、药包、家书与锅火次序一起压回了冬里第二程。', 'good']);
               } else {
                 log.push(['想先把三年冬中回钱拆作供读、拖欠与药包，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
+              }
+              break;
+            case 'm_winter_mid_third_split':
+              if (spendCopper(100)) {
+                S.本年商路坐店 += 1;
+                S.本年商路核账 += 1;
+                S.本年商路供读 += 1;
+                S.本年商路催账 += 1;
+                S.本年商路拖欠 += 1;
+                S.本年商路家书 += 1;
+                S.家族 += 1;
+                S.商信誉 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                pushMerchantSeasonTag(season.name + xunLabel + '拆三年冬中柜拖');
+                log.push(['先把三年冬中供读拖账与柜边回帖分开：铜钱-100、坐店+1、核账+1、供读+1、催账+1、拖欠+1、家书+1、家族+1、商信誉+1。第三商年冬中这层柜边回帖、供读纸包、旧拖欠口风和递话小礼先被压回了这一旬，冬里第二程不再只有白银去向，也把柜边坐账与家内供读一并写成真账。', 'good']);
+              } else {
+                log.push(['想先把三年冬中供读拖账与柜边回帖分开，但这旬铜钱已先被别处吃住，只得让柜边回帖、供读纸包和拖欠回签继续一起追这口现钱。', 'bad']);
               }
               break;
             case 'm_winter_tail':
