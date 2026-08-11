@@ -10977,30 +10977,30 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.家族 += 1;
                 S.本年延婚牵扯 += 1;
                 pushExamSeasonTag(stepTag + '保结底样');
-                log.push([
-                  (examYear >= 2
-                    ? (season.id === 'spring'
-                      ? '先抄保结帖样与履历草单'
-                      : '先把保结履历与廪保口风理开')
-                    : (season.id === 'spring'
-                      ? '先在春头认保帖底样'
-                      : '先在夏头抄履历草单'))
-                    + '：铜钱-' + guaranteePrepCost + '、保帖底样+1、家族+1。'
-                    + (examYear >= 2
-                      ? (season.id === 'spring'
-                        ? '履历草单、帖样与递话口风先在春中坐住，秋里真跑保结时就不再像从零起手。'
-                        : '伏夏先把履历、帖样和廪保口风理顺，秋里真跑保结时不再只靠临门一脚。')
-                      : (season.id === 'spring'
-                        ? ('题样、姓名排行、里甲履历与递话门包先在春头认熟，秋里真递帖样时就不再连底稿都要从头补。'
-                          + (!upperPrepWasLiterate && S.识字
-                            ? ' 这一旬也把识字底子推到开蒙，不再只是认个轮廓。'
-                            : ' 这层底稿也顺手把识字底子往前磨了一旬。'))
-                        : ('伏夏先把履历草单、保帖称呼和递话口风理顺，秋里真跑资格时就不再连名字排行和帖样细账也一起临门发硬。'
-                          + (!upperPrepWasLiterate && S.识字
-                            ? ' 这一旬也把识字底子推到开蒙，履历草单终于不再只是照着描。'
-                            : ' 这层履历底稿也顺手把识字底子往前磨了一旬。'))),
-                  'good'
-                ]);
+                var guaranteePrepNarrative = (examYear >= 2
+                  ? (season.id === 'spring'
+                    ? '先抄保结帖样与履历草单'
+                    : '先把保结履历与廪保口风理开')
+                  : (season.id === 'spring'
+                    ? '先在春头认保帖底样'
+                    : '先在夏头抄履历草单'))
+                  + '：铜钱-' + guaranteePrepCost + '、保帖底样+1、家族+1。';
+                if (examYear >= 2) {
+                  guaranteePrepNarrative += season.id === 'spring'
+                    ? '履历草单、帖样与递话口风先在春中坐住，秋里真跑保结时就不再像从零起手。'
+                    : '伏夏先把履历、帖样和廪保口风理顺，秋里真跑保结时不再只靠临门一脚。';
+                } else if (season.id === 'spring') {
+                  guaranteePrepNarrative += '题样、姓名排行、里甲履历与递话门包先在春头认熟，秋里真递帖样时就不再连底稿都要从头补。';
+                  guaranteePrepNarrative += !upperPrepWasLiterate && S.识字
+                    ? ' 这一旬也把识字底子推到开蒙，不再只是认个轮廓。'
+                    : ' 这层底稿也顺手把识字底子往前磨了一旬。';
+                } else {
+                  guaranteePrepNarrative += '伏夏先把履历草单、保帖称呼和递话口风理顺，秋里真跑资格时就不再连名字排行和帖样细账也一起临门发硬。';
+                  guaranteePrepNarrative += !upperPrepWasLiterate && S.识字
+                    ? ' 这一旬也把识字底子推到开蒙，履历草单终于不再只是照着描。'
+                    : ' 这层履历底稿也顺手把识字底子往前磨了一旬。';
+                }
+                log.push([guaranteePrepNarrative, 'good']);
               } else {
                 log.push([
                   (examYear >= 2
