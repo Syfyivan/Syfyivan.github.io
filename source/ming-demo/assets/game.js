@@ -20429,6 +20429,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             once: true
           });
           A.push({
+            id: 'h_autumn_head_remit',
+            name: '先把秋头回钱拆作供读与药包',
+            cost: 1,
+            eff: '白银-1·反哺+1·供读专账+1·供读+1·通融+1·体魄+1·家族+2',
+            desc: '秋定租刚起头时，最怕刚催回一点真回钱，供读纸包、归乡药包、递话脚费和锅火后手就先一起扑上来。先把这口秋头回银拆开，不让“秋钱回了”转头又只剩一句空话。',
+            can: S.白银 >= 1,
+            why: S.白银 >= 1 ? '' : '白银不足1两',
+            once: true
+          });
+          A.push({
             id: 'h_autumn_head_cloth_merchant',
             name: '先把秋头回签与孩子夹衣分开',
             cost: 1,
@@ -20957,6 +20967,21 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 actionCount += 1;
               } else {
                 log.push(['想在' + stepLabel + '先把秋头回签与牙帖脚费分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_autumn_head_remit':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.商路供读银 += 1;
+                S.本年户供读 += 1;
+                S.本年户通融 += 1;
+                S.家族 += 2;
+                S.体魄 += 1;
+                pushHouseholdSeasonTag('秋头回钱拆开');
+                log.push(['你在' + stepLabel + '先把秋头回钱拆作供读与药包：白银-1、累计反哺+1、供读专账+1、供读+1、通融+1、体魄+1、家族+2。秋钱刚回手时，这一房没再把供读纸包、归乡药包、递话脚费和锅火后手一并糊到秋中秋尾，而是当场先把去向压回了秋头。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把秋头回钱拆作供读与药包，但这一旬白银已被别处占住，只得暂缓。', 'bad']);
               }
               break;
             case 'h_autumn_head_cloth_merchant':
