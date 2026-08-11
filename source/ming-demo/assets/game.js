@@ -25910,11 +25910,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     function attenuateLegacy(legacy, steps) {
       var n = Math.max(0, steps || 0);
       if (!n) return legacy;
-      ['家传书香', '城里门路', '商路门路', '家传手艺', '家传农事', '亦贾亦儒底子', '供读底子'].forEach(function (k) {
+      ['家传书香', '城里门路', '商路门路', '家传手艺', '家传农事', '亦贾亦儒底子'].forEach(function (k) {
         legacy[k] = Math.max(0, (legacy[k] || 0) - n);
       });
       if (legacy.商路门路 <= 0 || legacy.家传书香 <= 0) legacy.亦贾亦儒底子 = 0;
-      if (legacy.供读底子 > 0 && legacy.亦贾亦儒底子 <= 0 && legacy.家传书香 <= 0) legacy.供读底子 = Math.max(0, legacy.供读底子 - 1);
+      // 供读底子代表这一房已经另划出来的“供读老规矩”，不是旁支续承时自动风化掉的即时门路。
+      // 旁支衰减会让旧门路、书香与亦贾亦儒分工变薄，但不该把这条供读专账暗线直接洗回 0；
+      // 否则 death → restartWithHeir 会出现当前态仍写“供读底子=1层”，真正 carry 却掉成 0 的假闭环。
       return legacy;
     }
     function nextGenLegacy() {
