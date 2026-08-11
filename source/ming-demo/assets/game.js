@@ -12948,6 +12948,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.本年将养次数 += 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+                noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '二年秋头婚门');
                 log.push(['先把二年秋头保帖门路与婚话试鞋分开：铜钱-60、保帖底样+1、体魄+1、供读压力-1、婚事口风缓一线。第二举业年秋头先把保帖门路、婚话试鞋和递话脚费拆开，这层“春夏攒下的底稿到底接不接得成资格”和“家里已在问婚事还拖不拖”的细账终于没再只混在通用盘缠里。', 'good']);
               } else {
