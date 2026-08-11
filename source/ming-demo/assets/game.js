@@ -11683,6 +11683,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           || (S.本年应场受阻次数 || 0) > 0
           || S.供读状态 === '已断供'
         )) preferredOrder.push('e_fail_tutor_bridge');
+        var upperSeasonDelayPriority = xun === 1
+          && (season.id === 'autumn' || season.id === 'winter')
+          && (
+            examYear >= 2
+            || (S.本年延婚牵扯 || 0) > 0
+            || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive())
+            || (S.供读压力 || 0) >= 2
+          );
+        if (upperSeasonDelayPriority) preferredOrder.push('e_delay_upper');
         var supportIds = xun === 1
           ? ['e_family_cash', 'e_family_grain', 'e_mother_help', 'e_brother_help', 'e_home']
           : (xun === 2
@@ -24800,7 +24809,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (S.商路供读银 >= 1 && spendCopper(60)) {
                 S.家族 += 1; S.体魄 += 1;
                 pushElderSeasonTag(stepLabel + '·伏夏供读');
-                log.push(['先把伏夏炭笔纸样与捎布脚费分开：铜钱-60、家族+1、体魄+1。孙辈炭笔纸样、捎布脚费、凉药门包和家里茶汤先被拆开，商路晚景这层“门路、锅火与供读余绪一起要钱”的细账终于也落回了这一旬。', 'good']);
+                log.push(['〔伏夏供读〕先把伏夏炭笔纸样与捎布脚费分开：铜钱-60、家族+1、体魄+1。孙辈炭笔纸样、捎布脚费、凉药门包和家里茶汤先被拆开，商路晚景这层“门路、锅火与供读余绪一起要钱”的细账终于也落回了这一旬。', 'good']);
               } else if (S.商路供读银 >= 1) log.push(['想先把伏夏炭笔纸样与捎布脚费分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_route_summer_packet_old':
@@ -24856,7 +24865,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (S.商路供读银 >= 1 && spendCopper(55)) {
                 S.家族 += 1; S.体魄 += 1;
                 pushElderSeasonTag(stepLabel + '·秋中供读');
-                log.push(['先把秋中回签与孙辈纸包分开：铜钱-55、家族+1、体魄+1。熟号回签、孙辈来春纸包、租路饭钱和递话脚费先被拆开，商路晚景这层“秋账未净、供读后手先来”的细账终于没有再一路滚进冬里。', 'good']);
+                log.push(['〔秋中供读〕先把秋中回签与孙辈纸包分开：铜钱-55、家族+1、体魄+1。熟号回签、孙辈来春纸包、租路饭钱和递话脚费先被拆开，商路晚景这层“秋账未净、供读后手先来”的细账终于没有再一路滚进冬里。', 'good']);
               } else if (S.商路供读银 >= 1) log.push(['想先把秋中回签与孙辈纸包分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_route_autumn_tail_old':
