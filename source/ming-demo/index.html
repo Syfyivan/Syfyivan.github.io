@@ -4,7 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>明·江南一生 · 文字版 Demo v2</title>
+<meta name="description" content="明代江南普通人的文字人生模拟：从五路立身走到成家、当户、养老、死亡传承与下一代重开。">
+<meta name="theme-color" content="#241a12">
+<title>明·江南一生 · 文字原型</title>
 <style>
   @font-face{ font-family:'Pixel'; src:url('./assets/fonts/PixelifySans-Medium.ttf') format('truetype'); font-weight:400 700; }
   @font-face{ font-family:'Mono'; src:url('./assets/fonts/DMMono-Regular.ttf') format('truetype'); font-weight:400; }
@@ -32,6 +34,7 @@
   header .spacer{ flex:1; }
   header button{ font-family:var(--font); cursor:pointer; color:var(--ink); background:var(--bg3); border:1px solid var(--rule); border-radius:6px; padding:.25rem .7rem; font-size:.78rem; }
   header button:hover{ border-color:var(--accent); color:var(--accent); }
+  button:focus-visible,summary:focus-visible{ outline:2px solid var(--info); outline-offset:2px; }
 
   /* 状态栏 */
   .status{ display:flex; gap:.5rem; flex-wrap:wrap; padding:.6rem 0; }
@@ -67,7 +70,13 @@
   .cb-tip{ font-size:.72rem; color:var(--muted); }
 
   .main{ display:grid; grid-template-columns:1fr 320px; gap:16px; padding:.4rem 0 2rem; flex:1; }
-  @media(max-width:820px){ .main{ grid-template-columns:1fr; } }
+  @media(max-width:820px){
+    .main{ grid-template-columns:1fr; }
+    .topbar{ margin:0 -14px; padding:0 14px; }
+    .status{ flex-wrap:nowrap; overflow-x:auto; scrollbar-width:thin; padding-bottom:.7rem; }
+    .chip{ flex:0 0 auto; }
+    aside{ position:static; max-height:none; }
+  }
 
   /* 叙事区 */
   .stage{ background:var(--bg2); border:1px solid var(--rule); border-radius:10px; padding:1rem 1.1rem; }
@@ -123,6 +132,30 @@
   .choice .ch-prob{ color:var(--info); }
   .choice .ch-desc{ font-family:var(--font); font-size:.76rem; color:var(--muted); }
 
+  /* 父快照是立身前置条件，不沿用浏览器默认按钮样式。 */
+  .switch-choice{ text-align:left; font-family:var(--font); cursor:pointer; color:var(--ink); background:var(--bg3); border:1px solid var(--rule); border-left:3px solid var(--info); border-radius:0 8px 8px 0; padding:.6rem .8rem; transition:.12s; display:flex; flex-direction:column; gap:.2rem; }
+  .switch-choice:hover:not(:disabled){ border-color:var(--info); transform:translateX(2px); }
+  .switch-choice:disabled{ cursor:default; opacity:1; background:rgba(95,176,201,.1); border-color:var(--info); }
+  .switch-choice .ch-name{ font-size:.92rem; color:var(--info); }
+  .switch-choice .ch-line{ font-size:.76rem; color:var(--muted); }
+
+  /* 设计与验收信息保留可查，但不再压住玩家的第一步选择。 */
+  .design-notes{ margin:.7rem 0; border:1px solid var(--rule); border-radius:8px; background:rgba(36,26,18,.45); }
+  .design-notes summary{ cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:baseline; gap:.7rem; padding:.55rem .7rem; color:var(--accent); }
+  .design-notes summary::-webkit-details-marker{ display:none; }
+  .design-notes summary::before{ content:'＋'; font-family:var(--mono); color:var(--info); }
+  .design-notes[open] summary::before{ content:'－'; }
+  .design-notes summary span{ flex:1; font-size:.86rem; }
+  .design-notes summary small{ color:var(--muted); font-size:.68rem; }
+  .design-notes-body{ padding:0 .65rem .05rem; }
+  @media(max-width:520px){
+    header{ align-items:flex-start; }
+    header .sub{ flex-basis:100%; order:3; }
+    header button{ min-height:34px; }
+    .stage{ padding:.85rem .8rem; }
+    .design-notes summary small{ display:none; }
+  }
+
   /* 侧栏流水账 */
   aside{ background:var(--bg2); border:1px solid var(--rule); border-radius:10px; padding:.8rem; align-self:start; position:sticky; top:118px; max-height:calc(100vh - 130px); overflow:auto; }
   aside .lg-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.5rem; }
@@ -144,13 +177,15 @@
 </style>
 </head>
 <body>
+<noscript>这个文字 Demo 需要启用 JavaScript 才能记账与推进人生。</noscript>
 <div class="wrap">
   <div class="topbar">
     <header>
       <h1>明·江南一生</h1>
-      <span class="sub">文字版 Demo v2 · 佃田一季 → 成家 → 当户 → 养老 → 传承 · 全点数标注</span>
+      <span class="sub">文字原型 · 从同一户出发，走完一生，让账与选择传给下一代</span>
       <span class="spacer"></span>
-      <button id="btn-restart">重开一生</button>
+      <button id="btn-restart">重开（16岁起）</button>
+      <button id="btn-restart-birth">从出生跑起</button>
     </header>
 
     <div class="status" id="status"></div>
@@ -161,7 +196,7 @@
     <aside id="ledger"></aside>
   </div>
 
-  <footer>逐人资源守恒 · 看天吃饭 · 一切产出看投入看运气 &nbsp;|&nbsp; 数值为玩法占位，非史实精确值 <span class="credi">[需核原书]</span></footer>
+  <footer>每年以“四季 × 上中下三个代表旬位”压缩呈现 &nbsp;|&nbsp; 数值为玩法占位，非史实精确值 <span class="credi">[需核原书]</span></footer>
 </div>
 
 <script src="assets/game.js"></script>
