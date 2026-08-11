@@ -4330,7 +4330,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 3) apply({
-      handledIds: ['m_reserve', 'm_collect', 'm_mend', 'm_letter', 'm_book', 'm_winter_tail', 'm_winter_tail_school', 'm_winter_tail_home_body', 'm_winter_tail_supply_duty', 'm_winter_drag_split', 'm_winter_body_split', 'm_winter_tail_remit_drag', 'm_winter_second_settle', 'm_winter_third_settle'],
+      handledIds: ['m_reserve', 'm_collect', 'm_mend', 'm_letter', 'm_book', 'm_winter_tail', 'm_winter_tail_school', 'm_winter_tail_home_body', 'm_winter_tail_supply_duty', 'm_winter_drag_split', 'm_winter_body_split', 'm_winter_tail_first_remit', 'm_winter_tail_remit_drag', 'm_winter_second_settle', 'm_winter_third_settle'],
       doneTag: '年下客礼已分',
       doneLog: '〔年下客礼〕这一旬先把守岁炭钱、客脚薄礼与来春样纸定钱分开了；冬清账的最后一程不再被年下这层碎账悄悄搅乱。',
       cost: 50,
@@ -7664,6 +7664,22 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_winter_tail_supply_duty', name: '先把冬尾供读差票与药包分开', cost: 1, eff: '铜钱-90·催账+1·家书+1·供读+1·备役+1·歇养+1·体魄+1·家族+1', desc: '冬清账最后一旬最怕年下回签还没坐实，供读纸包、差票回话、年下药包和递话脚费却一起追钱。先把这层冬尾供差身账拆开，年关收口时，供读、差役、身子和家里那口锅火就不至继续抢同一口现钱。', can: S.铜钱 >= 90, why: S.铜钱 >= 90 ? '' : '铜钱不足90文', once: true });
           A.push({ id: 'm_winter_drag_split', name: '先把年下拖欠与差票回话分开', cost: 1, eff: '铜钱-80·催账+1·备役+1·家书+1·家族+1', desc: '冬清账最后一旬最怕年下拖欠、差票回话、递话门包和锅火后手一起追钱。先把这层冬尾拖欠拆开，不让旧账未回、差役已到和家里催信继续一股脑挤在同一口现钱上。', can: S.铜钱 >= 80, why: S.铜钱 >= 80 ? '' : '铜钱不足80文', once: true });
           A.push({ id: 'm_winter_body_split', name: '先把年下药包与拖欠回签分开', cost: 1, eff: '铜钱-85·催账+1·家书+1·体魄+1·商信誉+1', desc: '冬清账最后一旬最怕年下药包、拖欠回签、递话脚费和锅火后手一起磨人。先把这层冬尾身账拆开，旧账、家里催信和自己这副身子才不至继续挤在同一口现钱上。', can: S.铜钱 >= 85, why: S.铜钱 >= 85 ? '' : '铜钱不足85文', once: true });
+          if (S.商年 === 1) {
+            A.push({
+              id: 'm_winter_tail_first_remit',
+              name: '先把首年冬尾回钱拆作供读、药包与锅火',
+              cost: 1,
+              eff: '白银-1·反哺+1·供读专账+1·供读+1·贴家+1·家书+1·歇养+1·体魄+1·家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? '·商信誉+1' : ''),
+              desc: '第一商年冬清账最后一旬最怕一笔年下回钱刚落手，供读纸包、药包、锅火后手和家书催问就一起追来。先把这层“首年冬尾真回钱先稳哪几本账”拆开，让首年也能在年关前把供读、药包、锅火与家书当年分账，而不再主要靠通用冬尾动作含混收口。',
+              can: S.白银 >= 1 && supportCapacity >= 1 && (S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路供读 > 0 || S.本年商路贴家 > 0 || S.本年商路家书 > 0 || S.本年商路歇养 > 0),
+              why: S.白银 >= 1
+                ? (supportCapacity >= 1
+                  ? ((S.累计回钱银 > 0 || S.未回款银 > 0 || S.本年商路供读 > 0 || S.本年商路贴家 > 0 || S.本年商路家书 > 0 || S.本年商路歇养 > 0) ? '' : '需先有回钱、供读、贴家、家书或药包后手可拆')
+                  : '眼下还没有可拆去向的商路回账或浮账')
+                : '白银不足1两',
+              once: true
+            });
+          }
           if (S.商年 === 2) {
             A.push({
               id: 'm_winter_second_settle',
@@ -9277,6 +9293,25 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把年下药包与拖欠回签分开：铜钱-85、催账+1、家书+1、体魄+1、商信誉+1。冬尾这层药包、拖欠回签、递话脚费和锅火后手先被压回了这一旬，旧账、家里催信和自己这副身子不再继续抢同一口现钱。', 'good']);
               } else {
                 log.push(['想先把年下药包与拖欠回签分开，但这旬铜钱已先被别处吃住，只得让药包、拖欠回签和锅火后手继续一起逼人。', 'bad']);
+              }
+              break;
+            case 'm_winter_tail_first_remit':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.本年商路反哺银 += 1;
+                S.商路供读银 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                S.本年商路供读 += 1;
+                S.本年商路贴家 += 1;
+                S.本年商路家书 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.家族 += supportProfile.familyGain;
+                if (supportProfile.trustGain > 0) S.商信誉 += supportProfile.trustGain;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆首年冬尾回钱');
+                log.push(['先把首年冬尾回钱拆作供读、药包与锅火：白银-1、反哺+1、供读专账+1、供读+1、贴家+1、家书+1、歇养+1、体魄+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。第一商年冬尾这笔真回钱不再只被含混写成“贴回家”或“先顶着”，而是当场把供读、药包、锅火与家书都压回了这一旬。', 'good']);
+              } else {
+                log.push(['想先把首年冬尾回钱拆作供读、药包与锅火，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
               }
               break;
             case 'm_winter_second_settle':
