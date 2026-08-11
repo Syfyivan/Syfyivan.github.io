@@ -9993,6 +9993,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             });
           } else if (season.id === 'autumn') {
             A.push({ id: 'e_autumn_open_packet', name: '先把秋前盘缠与拜帖小礼分开', cost: 1, eff: '铜钱-50·家族+1', desc: '秋试上旬最怕应试盘缠、拜帖小礼和家里秋收锅火一起追钱。先把这层临场前的后手拆开，保结与应场才不至先被现钱卡死。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
+            if (examYear === 1) {
+              A.push({
+                id: 'e_year1_autumn_focus',
+                name: '先把首年秋头保帖底样与婚话夹衣分开',
+                cost: 1,
+                eff: '铜钱-60·保帖底样+1·家族+1·体魄+1·将养+1',
+                desc: '首年秋头最怕保帖底样、婚话回声、夹衣试鞋和递话脚费一起追钱。先把这层“夏里刚把读法坐住、秋里保结和拖婚却已一齐压上来”的肩账拆开，首年秋头就不再只剩通用盘缠与换季小耗。',
+                can: S.铜钱 >= 60,
+                why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
+                once: true
+              });
+            }
             if (examYear === 2) {
               A.push({
                 id: 'e_year2_autumn_focus',
@@ -10028,6 +10040,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               once: true
             });
           } else if (season.id === 'winter') {
+            if (examYear === 1) {
+              A.push({
+                id: 'e_year1_winter_focus',
+                name: '先把首年冬头回榜口风与来春帖样分开',
+                cost: 1,
+                eff: '铜钱-65·文章火候+1·家族+1·供读压力-1',
+                desc: '首年冬头最怕秋里回榜口风、旧馆回札、来春帖样与灯油门包一起追钱。先把这层“今年到底撞没撞场、来春这条书路还续不续”拆开，首年冬头就不再只靠通用年关纸墨和馆信撑住。',
+                can: S.铜钱 >= 65,
+                why: S.铜钱 >= 65 ? '' : '铜钱不足65文',
+                once: true
+              });
+            }
             if (examYear === 2) {
               A.push({
                 id: 'e_year2_winter_focus',
@@ -10228,18 +10252,6 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               });
             }
           } else if (season.id === 'autumn') {
-            if (examYear === 1) {
-              A.push({
-                id: 'e_year1_autumn_focus',
-                name: '先把首年秋头保帖底样与婚话夹衣分开',
-                cost: 1,
-                eff: '铜钱-60·保帖底样+1·家族+1·体魄+1·将养+1',
-                desc: '首年秋头最怕保帖底样、婚话回声、夹衣试鞋和递话脚费一起追钱。先把这层“夏里刚把读法坐住、秋里保结和拖婚却已一齐压上来”的肩账拆开，首年秋头就不再只剩通用盘缠与换季小耗。',
-                can: S.铜钱 >= 60,
-                why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
-                once: true
-              });
-            }
             if (examYear === 2) {
               A.push({
                 id: 'e_year2_autumn_mid_focus',
@@ -10276,18 +10288,6 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               once: true
             });
           } else if (season.id === 'winter') {
-            if (examYear === 1) {
-              A.push({
-                id: 'e_year1_winter_focus',
-                name: '先把首年冬头回榜口风与来春帖样分开',
-                cost: 1,
-                eff: '铜钱-65·文章火候+1·家族+1·供读压力-1',
-                desc: '首年冬头最怕秋里回榜口风、旧馆回札、来春帖样与灯油门包一起追钱。先把这层“今年到底撞没撞场、来春这条书路还续不续”拆开，首年冬头就不再只靠通用年关纸墨和馆信撑住。',
-                can: S.铜钱 >= 65,
-                why: S.铜钱 >= 65 ? '' : '铜钱不足65文',
-                once: true
-              });
-            }
             A.push({ id: 'e_winter_mid_packet', name: '先把冬中灯炭与旧馆回话脚费分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬清账中旬最怕灯炭、旧馆回话脚费和来春样纸一起追钱。先把这层续门路的钱拆开，冬里就不至一边熬身子一边把来春口风熬断。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
             A.push({
               id: 'e_winter_cough',
@@ -11289,6 +11289,26 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把伏夏凉药与草鞋脚费分开：铜钱-55、体魄+1、家族+1。凉药、草鞋脚费和递话门包先被拆开，伏夏中旬这层“评文和誊抄刚起、身子已先吃紧”的小耗不再继续往后滚。', 'good']);
               } else {
                 log.push(['想先把伏夏凉药与草鞋脚费拆开，但这一旬铜钱已先被别处占住，只得让暑热和灯下久坐继续一起磨身子。', 'bad']);
+              }
+              break;
+            case 'e_year1_summer_mid_focus':
+              if (spendCopper(55)) {
+                noteExamOutlay(55, { buckets: { 本年纸墨支出文: 30, 本年零耗支出文: 25 } });
+                var yearOneSummerMidWasLiterate = !!S.识字;
+                S.识字进度 = Math.min(4, (S.识字进度 || 0) + 1);
+                S.本年识字旬数 += 1;
+                S.文章火候 += 1;
+                S.家族 += 1;
+                didStudy = true;
+                var yearOneSummerMidBecameLiterate = (!S.识字 && S.识字进度 >= 2);
+                if (yearOneSummerMidBecameLiterate) S.识字 = true;
+                pushExamSeasonTag(stepTag + '首年夏中识样');
+                log.push(['先把首年夏中识字题样与伏夏馆批分开：铜钱-55、识字进度+1、文章火候+1、家族+1。首年伏夏中旬先把识字题样、伏夏馆批、潮纸脚费和塾馆茶汤拆开，这层“开蒙底子到底稳没稳、塾门回话能不能真接成夏里的馆课”的细账终于没再只混在通用潮纸和凉药里。'
+                  + (yearOneSummerMidBecameLiterate
+                    ? ' 这一旬也把底子推到了开蒙识字。'
+                    : (yearOneSummerMidWasLiterate ? ' 识字底子更稳，后头题样、馆批和履历底稿才不像空口。' : ' 虽还未满开蒙，但已不再只是囫囵认题。')), 'good']);
+              } else {
+                log.push(['想先把首年夏中识字题样与伏夏馆批拆开，但这一旬铜钱已先被别处占住，只得让首年夏中这层题样、馆批与潮纸茶汤继续贴着同一口现钱追钱。', 'bad']);
               }
               break;
             case 'e_summer_open_packet':
