@@ -746,6 +746,11 @@
     if (raw === '路径五 · 读书应举' || raw === '读书应举') return '读书应举';
     return raw;
   }
+  function syncCurrentParentRouteState() {
+    if (!S) return '未定';
+    S.父辈路线 = normalizeParentRouteLabel(S.父辈路线 || '未定');
+    return S.父辈路线;
+  }
   function normalizeRouteAwareStateValue(key, value, emptyValue) {
     var s = normalizeCarryString(value, emptyValue);
     if (s === emptyValue) return emptyValue;
@@ -1027,6 +1032,7 @@
     };
   }
   function lifecycleInheritanceBridge() {
+    var parentRoute = syncCurrentParentRouteState();
     syncCurrentRouteAwareState();
     var role = lifecycleDisplayedInheritanceRole();
     var routeAwareState = snapshotRouteAwareCarryState();
@@ -1038,7 +1044,7 @@
     var visibleExamOutcome = routeAwareState.举业结局;
     var inherited = generation > 1
       || !!carryOver
-      || (S.父辈路线 || '') !== '未定'
+      || parentRoute !== '未定'
       || role !== '次子'
       || (S.承嗣来路 || '') !== '本支次子承继'
       || (S.承继定位 || '') !== '本房次子另起一手'
@@ -1060,7 +1066,7 @@
       || ((S.委托营生 || '无') !== '无' && ((S.委托租谷 || 0) > 0 || (S.委托待收租谷 || 0) > 0));
     if (!inherited) return { note: '', narrative: '', dossier: '', event: null };
     var parts = ['承继身份=' + role];
-    if ((S.父辈路线 || '') && S.父辈路线 !== '未定') parts.push('父辈路线=' + S.父辈路线);
+    if (parentRoute !== '未定') parts.push('父辈路线=' + parentRoute);
     if (S.承继定位) parts.push('承继定位=' + S.承继定位);
     if (S.承嗣来路) parts.push('承嗣来路=' + S.承嗣来路);
     if ((S.负债银 || 0) > 0) parts.push('负债银=' + S.负债银 + '两');
@@ -1083,7 +1089,7 @@
     if (visibleApprenticeDest !== '未定') parts.push('学徒去向=' + visibleApprenticeDest);
     if (visibleExamOutcome !== '未定') parts.push('举业结局=' + visibleExamOutcome);
     var explain = [];
-    if ((S.父辈路线 || '') && S.父辈路线 !== '未定') explain.push('父辈这一手走的是“' + S.父辈路线 + '”');
+    if (parentRoute !== '未定') explain.push('父辈这一手走的是“' + parentRoute + '”');
     if (role !== '次子') explain.push('这一手眼下是以“' + role + '”续承上一代结清后的账');
     if (S.承继定位) explain.push('这一房仍按“' + S.承继定位 + '”分工');
     if ((S.家传书香 || 0) > 1) explain.push('屋里旧书、师承和识字底子还算扎实');
@@ -1119,6 +1125,7 @@
   }
   function lifecycleStageCarryDossier(opts) {
     opts = opts || {};
+    var parentRoute = syncCurrentParentRouteState();
     var includeIdentity = opts.includeIdentity !== false;
     var includeLineage = opts.includeLineage !== false;
     var role = lifecycleDisplayedInheritanceRole();
@@ -1131,7 +1138,7 @@
     var visibleExamOutcome = routeAwareState.举业结局;
     var parts = [];
     if (includeIdentity) parts.push('承继身份=' + role);
-    if ((S.父辈路线 || '') && S.父辈路线 !== '未定') parts.push('父辈路线=' + S.父辈路线);
+    if (parentRoute !== '未定') parts.push('父辈路线=' + parentRoute);
     if (includeLineage && S.承嗣来路) parts.push('承嗣来路=' + S.承嗣来路);
     if (S.承继定位) parts.push('承继定位=' + S.承继定位);
     if ((S.负债银 || 0) > 0) parts.push('旧债' + S.负债银 + '两');
