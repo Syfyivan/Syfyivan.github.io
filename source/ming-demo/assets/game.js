@@ -5815,7 +5815,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       户籍类型: S.户籍类型,
       父快照说明: S.父快照说明,
       白银: S.白银, 存米: Math.max(0, S.存米), 铜钱: S.铜钱, 田亩: S.田亩, 负债银: Math.max(0, S.负债银 || 0), 家族: Math.max(20, S.家族 - 4),
-      父辈路线: S.父辈路线 || '未定',
+      父辈路线: normalizeParentRouteLabel(S.父辈路线 || '未定'),
       承继身份: carriedIdentity,
       承嗣来路: via,
       承继定位: currentInheritance.承继定位 || defaultInheritancePosition(carriedIdentity),
@@ -6140,6 +6140,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     // 承嗣来路、承继定位与 route-aware / 委托账状态做一次当前态归一化，避免阶段首页先渲出半套旧称呼，
     // 再靠各阶段内部兜底晚一步纠正，形成“相位刚切入时文案短暂掉线”的假闭环。
     if (p === 'marriage' || p === 'family' || p === 'household' || p === 'elder' || p === 'death') {
+      syncCurrentParentRouteState();
       syncCurrentInheritanceState();
       syncCurrentRouteAwareState();
     }
@@ -7353,6 +7354,35 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var seasonalCounts = '本年坐店=' + S.本年商路坐店 + '｜跑单=' + S.本年商路跑单 + '｜认货=' + S.本年商路认货 + '｜问价=' + S.本年商路问价 + '｜核账=' + S.本年商路核账 + '｜催账=' + S.本年商路催账 + '｜贴家=' + S.本年商路贴家 + '｜家书=' + S.本年商路家书 + '｜议本=' + S.本年商路议本 + '｜试贩=' + S.本年商路试贩 + '｜回钱银=' + S.本年商路回钱银 + '｜反哺银=' + S.本年商路反哺银 + '｜拖欠=' + S.本年商路拖欠 + '｜供读=' + S.本年商路供读 + '｜身乏=' + S.本年商路身乏 + '｜龃龉=' + S.本年商路龃龉 + '｜役扰=' + S.本年商路役扰;
     var bridge = lifecycleInheritanceBridge();
     var merchantCarryHook = (S.商年 === 1 && season.id === 'spring' && xun === 1) ? routeStageInheritanceHook('merchant') : { note: '', dossier: '' };
+    var inheritedMerchantSupportBias = S.商年 === 1
+      && (((S.承继定位 || '').indexOf('次子候读') >= 0) || (S.供读底子 || 0) > 0 || (S.亦贾亦儒底子 || 0) > 0);
+    function merchantInheritedSupportPriorityIds() {
+      if (!inheritedMerchantSupportBias) return [];
+      if (season.id === 'spring' && xun === 1) return ['m_spring_school_split', 'm_spring_head_body', 'm_spring_head_duty', 'm_spring_head_packet'];
+      if (season.id === 'spring' && xun === 2) return ['m_spring_mid_school', 'm_spring_home_split', 'm_spring_mid_body', 'm_packet'];
+      if (season.id === 'spring' && xun === 3) return ['m_spring_tail_supply', 'm_spring_tail_body', 'm_spring_tail_split', 'm_spring_tail_goods'];
+      if (season.id === 'summer' && xun === 1) return ['m_summer_head_home_split', 'm_summer_head_remit_duty', 'm_summer_head_remit_drag', 'm_summer_head_supply_duty', 'm_summer_head_remit_body'];
+      if (season.id === 'summer' && xun === 2) return ['m_summer_mid_reply_school', 'm_summer_mid_remit_drag', 'm_summer_conflict', 'm_summer_mid_drag'];
+      if (season.id === 'summer' && xun === 3) return ['m_summer_tail_remit_school', 'm_summer_tail_school', 'm_summer_tail_duty'];
+      if (season.id === 'autumn' && xun === 1) return ['m_autumn_supply_split', 'm_autumn_head_remit_body', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_receipt'];
+      if (season.id === 'autumn' && xun === 2) return ['m_autumn_mid_school', 'm_autumn_mid_remit_drag', 'm_autumn_mid_body', 'm_autumn_mid_drag'];
+      if (season.id === 'autumn' && xun === 3) return ['m_support_school', 'm_autumn_tail_remit_duty', 'm_autumn_tail_drag_school', 'm_support', 'm_autumn_tail_body'];
+      if (season.id === 'winter' && xun === 1) return ['m_winter_head_first_remit', 'm_winter_head_school', 'm_winter_head_counter_note', 'm_winter_head_remit_duty', 'm_winter_head_body', 'm_winter_head_drag'];
+      if (season.id === 'winter' && xun === 2) return ['m_winter_mid_first_remit', 'm_winter_mid_remit_school', 'm_winter_family_split', 'm_winter_mid_remit_drag_duty', 'm_winter_mid_supply_duty', 'm_winter_mid_body'];
+      if (season.id === 'winter' && xun === 3) return ['m_winter_tail_first_remit', 'm_winter_tail_supply_duty', 'm_winter_tail_home_body', 'm_winter_tail_remit_drag', 'm_winter_body_split'];
+      return [];
+    }
+    function prependPreferredOrder(boost, base) {
+      var merged = [];
+      var seen = {};
+      (boost || []).concat(base || []).forEach(function (id) {
+        if (id && !seen[id]) {
+          seen[id] = true;
+          merged.push(id);
+        }
+      });
+      return merged;
+    }
     return {
       title: '徽商学生意 · 第' + S.商年 + '商年·' + season.name + '·' + xunLabel,
       label: '商路第' + S.商年 + '年·' + season.name + '·' + xunLabel,
@@ -8476,6 +8506,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               ? ['m_winter_third_settle', 'm_winter_third_tail_split', 'm_winter_tail_supply_duty', 'm_winter_tail_counter_note', 'm_winter_drag_split', 'm_winter_body_split']
               : ['m_winter_tail_first_remit', 'm_winter_tail_remit_drag', 'm_winter_tail_supply_duty', 'm_winter_tail_counter_note', 'm_winter_tail_home_body', 'm_winter_drag_split', 'm_winter_body_split']);
         }
+        if (inheritedMerchantSupportBias) preferredOrder = prependPreferredOrder(merchantInheritedSupportPriorityIds(), preferredOrder);
         if (preferredOrder.length) {
           var preferredRank = {};
           var baseOrder = {};
