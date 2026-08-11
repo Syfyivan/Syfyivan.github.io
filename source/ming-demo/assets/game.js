@@ -141,8 +141,8 @@
       identity: '军籍·次子待立身',
       publicSummary: '军户次子、原籍军装盘缠需由家中真实供给，现已沿立身到养老的年度开账持续落账',
       establishmentLead: '这一户不只要过自家锅火，还得为军装、盘缠和原籍差派预留后手。你若不尽早找出路，制度那层外流会先把家账拖薄。',
-      atlasTip: '父快照二：江南军户次子。现已接入立身入口、五路分路、同代生命周期与年度开账，也已补到五路专档与多代账本的军户补记；当前缺口只剩尚未扩成与民籍同篇幅的独立第二套全量样板。',
-      switchNote: '第二父快照入口：军户供养压力现已接上立身页、五路分路、后续年度开账与相关文档补记，量值仍按设计占位处理。',
+      atlasTip: '父快照二：江南军户次子。军户供养是真实流出：军装盘缠、点卯差役、回乡行费都会先从家里账上扣走；因此“回钱能不能真落到家里”会比民籍样板更紧。现已接入立身入口、五路分路、同代生命周期与年度开账；五路军籍独立正文与五路军籍独立多代账本也已全部成册。当前待补已不再是结构缺口，而是继续补厚各路细节并核史料。',
+      switchNote: '第二父快照入口：军户供养压力已接上立身页、五路分路、后续年度开账与对应独立军籍文档；量值仍按设计占位处理，后续主补细节厚度与史料核实。',
       event: { t: 'inst', tag: '[军户]', txt: '这一户除锅火外，还得替在卫军丁留军装与盘缠。那不是背景设定，而是会先挤掉家里现钱的一层真外流。' },
       patch: {
         年龄: 16, 身份: '军籍·次子待立身', 体魄: 64, 家族: 56,
@@ -337,7 +337,7 @@
       本年商路坐店: 0, 本年商路跑单: 0, 本年商路认货: 0, 本年商路问价: 0, 本年商路核账: 0, 本年商路催账: 0, 本年商路贴家: 0, 本年商路归乡: 0, 本年商路家书: 0, 本年商路试贩: 0, 本年商路议本: 0, 本年商路备役: 0, 本年商路歇养: 0, 本年商路拖欠: 0, 本年商路供读: 0, 本年商路回钱银: 0, 本年商路反哺银: 0, 本年商路身乏: 0, 本年商路龃龉: 0, 本年商路役扰: 0, 本年商路季务: [],
       // 科举路径字段
       // `举旬` 为当前主字段；`举段` 作为兼容镜像保留，避免旧快照/旧回放直接失效。
-      举业年: 1, 举季: 1, 举旬: 1, 举段: 1, 读书方式: '未定', 投塾进度: 0, 童试层级: 0, 保结进度: 0, 文章火候: 0,
+      举业年: 1, 举季: 1, 举旬: 1, 举段: 1, 读书方式: '未定', 投塾进度: 0, 童试层级: 0, 保结进度: 0, 保结履历已具: false, 保结互结已具: false, 保结具结已具: false, 保结廪保已具: false, 保结资格审查已过: false, 文章火候: 0,
       供读状态: '家中供读', 供读压力: 0, 读书成本档: 0, 本年下场: false, 本年应试结果: '未下场', 本年应场受阻次数: 0,
       生员身份: false, 生员层级: '无', 优免启用: false, 举业结局: '未定', 识字转业值: 0, _advanceExamYear: false, _advanceExamSeason: false,
       本年馆课次数: 0, 本年半读次数: 0, 本年寄读次数: 0, 本年投塾次数: 0, 本年识字旬数: 0, 本年评文次数: 0, 本年保结次数: 0, 本年保帖底样次数: 0, 本年誊抄次数: 0, 本年归家次数: 0, 本年备役次数: 0, 本年将养次数: 0, 本年供读缓冲已用: 0, 本年举业季务: [],
@@ -488,6 +488,7 @@
     if (S.优免启用 && !S.生员身份) v.push('未成生员却启用优免');
     if (S.童试层级 < 0 || S.童试层级 > 3) v.push('童试层级越界(' + S.童试层级 + ')');
     if (S.保结进度 < 0 || S.保结进度 > 2) v.push('保结进度越界(' + S.保结进度 + ')');
+    if (S.保结资格审查已过 && !(S.保结履历已具 && S.保结互结已具 && S.保结具结已具 && S.保结廪保已具)) v.push('保结审查先于资格链');
     if ((S.本年家中供读公账文 || 0) > (S.本年公账贴补文 || 0)) v.push('公账供读已用超过明拨公账');
     if ((S.本年母纺供读已用文 || 0) > (S.本年母纺贴补文 || 0)) v.push('母纺供读已用超过母纺贴补');
     if ((S.本年兄婚供读已用文 || 0) > (S.本年兄婚让读文 || 0)) v.push('兄婚供读已用超过兄婚让读');
@@ -2125,6 +2126,75 @@
     if ((progress || 0) >= 1) return '已递帖样';
     return '未递保结';
   }
+  function examGuaranteeChainState() {
+    var progress = Math.max(0, Math.min(2, Number(S.保结进度) || 0));
+    return {
+      draft: !!(S.保结履历已具 || (S.本年保帖底样次数 || 0) > 0 || progress >= 1),
+      mutual: !!(S.保结互结已具 || progress >= 2),
+      bond: !!(S.保结具结已具 || progress >= 2),
+      sponsor: !!(S.保结廪保已具 || progress >= 2),
+      review: !!(S.保结资格审查已过 || progress >= 2)
+    };
+  }
+  function syncExamGuaranteeProgress() {
+    var chain = examGuaranteeChainState();
+    S.保结履历已具 = chain.draft;
+    S.保结互结已具 = chain.mutual;
+    S.保结具结已具 = chain.bond;
+    S.保结廪保已具 = chain.sponsor;
+    S.保结资格审查已过 = chain.review;
+    if (chain.draft && chain.mutual && chain.bond && chain.sponsor && chain.review) S.保结进度 = 2;
+    else if (chain.draft) S.保结进度 = 1;
+    else S.保结进度 = 0;
+    return chain;
+  }
+  function setExamGuaranteeProgress(progress) {
+    var level = Math.max(0, Math.min(2, Number(progress) || 0));
+    S.保结履历已具 = level >= 1;
+    S.保结互结已具 = level >= 2;
+    S.保结具结已具 = level >= 2;
+    S.保结廪保已具 = level >= 2;
+    S.保结资格审查已过 = level >= 2;
+    S.保结进度 = level;
+    return syncExamGuaranteeProgress();
+  }
+  function examGuaranteePendingLabel() {
+    var chain = examGuaranteeChainState();
+    if (!chain.draft) return '待履历帖样';
+    if (!(chain.mutual && chain.bond)) return '待互结具结';
+    if (!(chain.sponsor && chain.review)) return '待廪保审查';
+    return '资格链已全';
+  }
+  function examGuaranteeDetailLabel() {
+    var chain = examGuaranteeChainState();
+    return '履历' + (chain.draft ? '已具' : '未理')
+      + '·互结' + (chain.mutual ? '已齐' : '未齐')
+      + '·具结' + (chain.bond ? '已具' : '未具')
+      + '·廪保' + (chain.sponsor ? '已点头' : '未点头')
+      + '·审查' + (chain.review ? '已过' : '未过');
+  }
+  function advanceExamGuaranteeChain() {
+    var chain = syncExamGuaranteeProgress();
+    if (!chain.draft) {
+      S.保结履历已具 = true;
+      syncExamGuaranteeProgress();
+      return 'draft';
+    }
+    if (!(chain.mutual && chain.bond)) {
+      S.保结互结已具 = true;
+      S.保结具结已具 = true;
+      syncExamGuaranteeProgress();
+      return 'network';
+    }
+    if (!(chain.sponsor && chain.review)) {
+      S.保结廪保已具 = true;
+      S.保结资格审查已过 = true;
+      syncExamGuaranteeProgress();
+      return 'approval';
+    }
+    syncExamGuaranteeProgress();
+    return 'done';
+  }
   function examEnrollmentLabel(progress) {
     if ((progress || 0) >= 2) return '塾门坐实';
     if ((progress || 0) >= 1) return '已递塾帖';
@@ -2336,7 +2406,7 @@
   function examAttemptStructuralGapLabel(code) {
     if (code === 'studyMode') return '塾门或半读读法未坐稳';
     if (code === 'guaranteeDraft') return examGuaranteeLegacyDraftCarry() ? '旧年保帖底样还在，但今年未重理履历草单' : '保帖底样与履历草单未理出来';
-    if (code === 'guaranteePass') return '保结未通';
+    if (code === 'guaranteePass') return '保结未通（' + examGuaranteePendingLabel() + '）';
     if (code === 'supportCut') return '家中已断供';
     if (code === 'studyCount') return '馆课或半读未坐稳两旬';
     if (code === 'article') return '文章火候未磨到可下场';
@@ -2345,7 +2415,7 @@
   function examAttemptStructuralGapPrompt(code) {
     if (code === 'studyMode') return '先把塾门或半读读法坐稳';
     if (code === 'guaranteeDraft') return examGuaranteeLegacyDraftCarry() ? '旧年底样只算门路记忆，还得先把今年的保帖底样与履历草单重理出来' : '先把保帖底样与履历草单理出来';
-    if (code === 'guaranteePass') return '保结未通';
+    if (code === 'guaranteePass') return '保结未通（' + examGuaranteePendingLabel() + '）';
     if (code === 'supportCut') return '家中已断供';
     if (code === 'studyCount') return '先把馆课或半读坐稳两旬';
     if (code === 'article') return '先把文章火候磨到可下场';
@@ -3255,7 +3325,7 @@
       articleSoftened = nextArticle < oldArticle;
     }
     S.投塾进度 = nextEnroll;
-    S.保结进度 = nextGuarantee;
+    setExamGuaranteeProgress(nextGuarantee);
     S.文章火候 = nextArticle;
     if (log && (nextEnroll !== oldEnroll || nextGuarantee !== oldGuarantee || articleSoftened)) {
       var carryParts = [];
@@ -4587,6 +4657,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += '<span class="chip">童试层级 <b>' + examTierLabel(S.童试层级, S.生员身份) + '</b></span>';
       h += '<span class="chip">本次应场 <b>' + examAttemptWindowLabel() + '</b></span>';
       h += '<span class="chip">保结 <b>' + examGuaranteeLabel(S.保结进度) + '</b></span>';
+      h += '<span class="chip">资格细账 <b>' + examGuaranteePendingLabel() + '</b></span>';
       h += '<span class="chip">文章 <b>' + (S.文章火候 || 0) + '</b></span>';
       h += '<span class="chip">应试 <b>' + examAttemptResultLabel(S.本年应试结果, S.本年应场受阻次数) + '</b></span>';
       h += '<span class="chip">供读 <b>' + examSupportStateDetail() + '</b></span>';
@@ -5445,6 +5516,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       resetExamYearLedger();
     }
     syncExamXunState(S.举旬 || S.举段 || 1);
+    syncExamGuaranteeProgress();
     S.年龄 = 16 + (S.举业年 - 1);
     S.身份 = S.生员身份 ? '民籍·生员' : '民籍·读书子';
     S.路线 = '读书应举';
@@ -9594,7 +9666,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         + (examCarryHook.note ? (' ' + examCarryHook.note) : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + xunLabel + '</span>。' + yearFocus.note + ' ' + yearBudgetLead + ' ' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火、婚事口风和身子亏空都在争同一笔钱。') + ' 你这一旬有 <span class="em">4 个行动点</span>，最好别只顾课业本身。',
       dossier: function () {
-          return lifeDossier(yearFocus.dossier + '｜当前举程=' + season.name + '·' + xunLabel + '｜投塾=' + examEnrollmentLabel(S.投塾进度) + '｜举链=' + examChainStageLabel() + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜本次应场=' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜文章火候=' + S.文章火候 + '｜识字底子=' + examLiteracyFoundationLabel() + '｜供读状态=' + examSupportStateDetail() + '｜婚事口风=' + examDelayStatusLabel() + '｜三年婚事承压=' + examLifetimeDelayLabel() + '｜身耗=' + examBodyStatusLabel() + '｜本年应试=' + examAttemptResultLabel(S.本年应试结果, S.本年应场受阻次数) + '｜本年投塾=' + S.本年投塾次数 + '｜识字旬=' + S.本年识字旬数 + '｜馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保帖底样=' + (S.本年保帖底样次数 || 0) + '旬｜保结奔走=' + S.本年保结次数 + '｜应场受阻=' + (S.本年应场受阻次数 || 0) + '回｜誊抄=' + S.本年誊抄次数 + '｜归家缓家=' + S.本年归家次数 + '回/' + S.本年家中贴补米 + '石｜公账贴补=' + (S.本年公账贴补次 || 0) + '回/' + (S.本年公账贴补文 || 0) + '文（已落' + (S.本年家中供读公账文 || 0) + '）｜母纺贴补=' + (S.本年母纺贴补次 || 0) + '回/' + (S.本年母纺贴补文 || 0) + '文（已落' + (S.本年母纺供读已用文 || 0) + '）｜兄婚让读=' + (S.本年兄婚让读次 || 0) + '回/' + (S.本年兄婚让读文 || 0) + '文（已落' + (S.本年兄婚供读已用文 || 0) + '）｜婚事让开=' + (S.本年婚事让开次数 || 0) + '旬｜供读转折=' + (S.本年供读转折旬数 || 0) + '旬｜婚事转折=' + (S.本年婚事转折旬数 || 0) + '旬｜身耗转折=' + (S.本年身耗转折旬数 || 0) + '旬｜家中供读=' + S.本年家中供读次 + '回/' + S.本年家中供读文 + '文/' + S.本年家中供读米 + '石（公账已落' + (S.本年家中供读公账文 || 0) + '｜旧现钱已落' + (S.本年现钱供读已用文 || 0) + '｜硬银已落' + (S.本年硬银供读已用两 || 0) + '两｜粜米已落' + (S.本年粜米供读已用文 || 0) + '｜母纺已落' + (S.本年母纺供读已用文 || 0) + '｜兄让已落' + (S.本年兄婚供读已用文 || 0) + '｜债补' + (S.本年举业债补供读两 || 0) + '两）｜笔墨自筹=' + (S.本年举业自筹文 || 0) + '文（已落' + (S.本年举业自筹已用文 || 0) + '）' + ((S.本年举业自筹缓压 || 0) > 0 ? ('｜笔墨已缓供读' + (S.本年举业自筹缓压 || 0) + '线') : '') + ((S.本年供读缓冲已用 || 0) > 0 ? ('｜家内续读缓冲已用' + (S.本年供读缓冲已用 || 0) + '次') : '') + '｜已落举业支出=' + S.本年已落举业支出文 + '文｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜盘缠=' + S.本年盘缠支出文 + '文｜零耗=' + S.本年零耗支出文 + '文｜衣药=' + S.本年衣药支出文 + '文｜役扰=' + (S.本年役扰支出文 || 0) + '文' + ((S.本年役扰已结 || false) ? '｜役钱已见光' : '') + '｜债息=' + (S.本年债息增银 || 0) + '两' + ((S.本年债息已结 || false) ? '｜债息已滚' : '') + '｜落第=' + S.本年落第次数 + '｜延婚牵扯=' + S.本年延婚牵扯 + '｜身子亏空=' + S.本年身子亏空 + '｜累计投塾=' + (S.举业累计投塾次数 || 0) + '｜累计识字=' + (S.举业累计识字旬数 || 0) + '｜累计保帖底样=' + (S.举业累计保帖底样次数 || 0) + '｜累计保结=' + (S.举业累计保结次数 || 0) + '｜累计应场受阻=' + (S.举业累计应场受阻次数 || 0) + '｜累计落第=' + (S.举业累计落第次数 || 0) + '｜累计延婚=' + (S.举业累计延婚牵扯 || 0) + '｜累计让开婚事=' + (S.举业累计婚事让开次数 || 0) + '｜累计身耗=' + (S.举业累计身子亏空 || 0) + (S.生员身份 ? '｜已是生员' : '') + '。'
+          return lifeDossier(yearFocus.dossier + '｜当前举程=' + season.name + '·' + xunLabel + '｜投塾=' + examEnrollmentLabel(S.投塾进度) + '｜举链=' + examChainStageLabel() + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜本次应场=' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜资格细账=' + examGuaranteeDetailLabel() + '｜文章火候=' + S.文章火候 + '｜识字底子=' + examLiteracyFoundationLabel() + '｜供读状态=' + examSupportStateDetail() + '｜婚事口风=' + examDelayStatusLabel() + '｜三年婚事承压=' + examLifetimeDelayLabel() + '｜身耗=' + examBodyStatusLabel() + '｜本年应试=' + examAttemptResultLabel(S.本年应试结果, S.本年应场受阻次数) + '｜本年投塾=' + S.本年投塾次数 + '｜识字旬=' + S.本年识字旬数 + '｜馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保帖底样=' + (S.本年保帖底样次数 || 0) + '旬｜保结奔走=' + S.本年保结次数 + '｜应场受阻=' + (S.本年应场受阻次数 || 0) + '回｜誊抄=' + S.本年誊抄次数 + '｜归家缓家=' + S.本年归家次数 + '回/' + S.本年家中贴补米 + '石｜公账贴补=' + (S.本年公账贴补次 || 0) + '回/' + (S.本年公账贴补文 || 0) + '文（已落' + (S.本年家中供读公账文 || 0) + '）｜母纺贴补=' + (S.本年母纺贴补次 || 0) + '回/' + (S.本年母纺贴补文 || 0) + '文（已落' + (S.本年母纺供读已用文 || 0) + '）｜兄婚让读=' + (S.本年兄婚让读次 || 0) + '回/' + (S.本年兄婚让读文 || 0) + '文（已落' + (S.本年兄婚供读已用文 || 0) + '）｜婚事让开=' + (S.本年婚事让开次数 || 0) + '旬｜供读转折=' + (S.本年供读转折旬数 || 0) + '旬｜婚事转折=' + (S.本年婚事转折旬数 || 0) + '旬｜身耗转折=' + (S.本年身耗转折旬数 || 0) + '旬｜家中供读=' + S.本年家中供读次 + '回/' + S.本年家中供读文 + '文/' + S.本年家中供读米 + '石（公账已落' + (S.本年家中供读公账文 || 0) + '｜旧现钱已落' + (S.本年现钱供读已用文 || 0) + '｜硬银已落' + (S.本年硬银供读已用两 || 0) + '两｜粜米已落' + (S.本年粜米供读已用文 || 0) + '｜母纺已落' + (S.本年母纺供读已用文 || 0) + '｜兄让已落' + (S.本年兄婚供读已用文 || 0) + '｜债补' + (S.本年举业债补供读两 || 0) + '两）｜笔墨自筹=' + (S.本年举业自筹文 || 0) + '文（已落' + (S.本年举业自筹已用文 || 0) + '）' + ((S.本年举业自筹缓压 || 0) > 0 ? ('｜笔墨已缓供读' + (S.本年举业自筹缓压 || 0) + '线') : '') + ((S.本年供读缓冲已用 || 0) > 0 ? ('｜家内续读缓冲已用' + (S.本年供读缓冲已用 || 0) + '次') : '') + '｜已落举业支出=' + S.本年已落举业支出文 + '文｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜盘缠=' + S.本年盘缠支出文 + '文｜零耗=' + S.本年零耗支出文 + '文｜衣药=' + S.本年衣药支出文 + '文｜役扰=' + (S.本年役扰支出文 || 0) + '文' + ((S.本年役扰已结 || false) ? '｜役钱已见光' : '') + '｜债息=' + (S.本年债息增银 || 0) + '两' + ((S.本年债息已结 || false) ? '｜债息已滚' : '') + '｜落第=' + S.本年落第次数 + '｜延婚牵扯=' + S.本年延婚牵扯 + '｜身子亏空=' + S.本年身子亏空 + '｜累计投塾=' + (S.举业累计投塾次数 || 0) + '｜累计识字=' + (S.举业累计识字旬数 || 0) + '｜累计保帖底样=' + (S.举业累计保帖底样次数 || 0) + '｜累计保结=' + (S.举业累计保结次数 || 0) + '｜累计应场受阻=' + (S.举业累计应场受阻次数 || 0) + '｜累计落第=' + (S.举业累计落第次数 || 0) + '｜累计延婚=' + (S.举业累计延婚牵扯 || 0) + '｜累计让开婚事=' + (S.举业累计婚事让开次数 || 0) + '｜累计身耗=' + (S.举业累计身子亏空 || 0) + (S.生员身份 ? '｜已是生员' : '') + '。'
           + (examCarryHook.dossier ? ('｜' + examCarryHook.dossier) : ''));
       },
       events: [
@@ -10652,6 +10724,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (spendCopper(guaranteePrepCost)) {
                 noteExamOutlay(guaranteePrepCost, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 15, 本年零耗支出文: Math.max(0, guaranteePrepCost - 35) } });
                 S.本年保帖底样次数 += 1;
+                S.保结履历已具 = true;
+                syncExamGuaranteeProgress();
                 S.家族 += 1;
                 S.本年延婚牵扯 += 1;
                 pushExamSeasonTag(stepTag + '保结底样');
@@ -10850,7 +10924,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               var guaranteeGateOk = examGuaranteeGateScore() >= examGuaranteeGateTarget();
               S.本年保结次数 += 1; S.本年保结支出文 += 80; S.本年延婚牵扯 += 1;
               if (guaranteeGateOk) {
-                S.保结进度 = Math.min(2, guaranteeBefore + 1);
+                var guaranteeAdvance = advanceExamGuaranteeChain();
+                var guaranteeAdvanceText = '';
+                if (guaranteeAdvance === 'network') {
+                  guaranteeAdvanceText = '。这一旬先把互结与具结接成线，履历底样不再只是纸上记号；但廪保口风和资格审查还得秋冬再跑一手。';
+                } else if (guaranteeAdvance === 'approval' || S.保结进度 >= 2) {
+                  guaranteeAdvanceText = '。到这一步，廪保终于肯点头，资格审查也见了光，报名链条才算真正走通。';
+                } else {
+                  guaranteeAdvanceText = '。这一旬只先把帖样、履历与廪保口风递到位，离“保结已通”还差后一步。';
+                }
                 pushExamSeasonTag(stepTag + '保结');
                 log.push([
                   ((guaranteeBefore <= 0)
@@ -10858,9 +10940,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                     : (season.id === 'autumn' ? '赶在秋里通保结' : '奔走廪保通保结'))
                     + '：保结进度推进到“' + examGuaranteeLabel(S.保结进度) + '”'
                     + guaranteePay.text
-                    + (S.保结进度 >= 2
-                      ? '。到这一步，廪保与报名链条才算真正走通。'
-                      : '。这一旬只先把帖样、履历与廪保口风递到位，离“保结已通”还差后一步。'),
+                    + guaranteeAdvanceText,
                   'good'
                 ]);
               } else {
@@ -10873,7 +10953,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                     : (season.id === 'autumn' ? '赶在秋里通保结' : '奔走廪保通保结'))
                     + '：帖样、薄礼与脚费先支了'
                     + guaranteePay.text
-                    + '，廪保和互结这一旬却还没肯把口风放实；保结进度未动、家族-1、供读压力+1。资格链条不是你肯花钱就会立刻点头。',
+                    + '，可眼下还卡在“' + examGuaranteePendingLabel() + '”；这一旬口风仍没放实，保结进度未动、家族-1、供读压力+1。资格链条不是你肯花钱就会立刻点头。',
                   'bad'
                 ]);
               }
