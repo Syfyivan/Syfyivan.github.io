@@ -1066,6 +1066,7 @@
       || ((S.委托营生 || '无') !== '无' && ((S.委托租谷 || 0) > 0 || (S.委托待收租谷 || 0) > 0));
     if (!inherited) return { note: '', narrative: '', dossier: '', event: null };
     var parts = ['承继身份=' + role];
+    if ((carryOver || {}).父快照类型) parts.push('父快照类型=' + carryOver.父快照类型);
     if (parentRoute !== '未定') parts.push('父辈路线=' + parentRoute);
     if (S.承继定位) parts.push('承继定位=' + S.承继定位);
     if (S.承嗣来路) parts.push('承嗣来路=' + S.承嗣来路);
@@ -1138,6 +1139,7 @@
     var visibleExamOutcome = routeAwareState.举业结局;
     var parts = [];
     if (includeIdentity) parts.push('承继身份=' + role);
+    if ((carryOver || {}).父快照类型) parts.push('父快照类型=' + carryOver.父快照类型);
     if (parentRoute !== '未定') parts.push('父辈路线=' + parentRoute);
     if (includeLineage && S.承嗣来路) parts.push('承嗣来路=' + S.承嗣来路);
     if (S.承继定位) parts.push('承继定位=' + S.承继定位);
@@ -1234,6 +1236,14 @@
       if ((carry.承继定位 || '').indexOf('次子候读') >= 0) hints.push('家里原本就把你这一手留作先读的一房，长兄那边续号回钱更像你背后的暗底');
       if ((carry.承继定位 || '').indexOf('次子续读') >= 0) hints.push('长兄先守着户里那摊日常，你这一手本就被家里留作续读，起手少一层“先回去扛家计”的拉扯');
       if ((carry.举业结局 || '') && (carry.举业结局 || '') !== '未定') hints.push('上一代已经把举业走到“' + carry.举业结局 + '”，你更知道书路会把一家人拖到哪一步');
+    }
+    if (routeKey !== 'farm') {
+      if ((carry.定额佃状态 || '') === '已立定额佃' || (carry.婚配路径 || '') === '暂不婚·改定额佃') {
+        hints.push('上一代留下的“定额佃”旧约还在，这一房再走别路时也更知道押租与定额租账该怎么排次序');
+      }
+      if ((carry.合爨状态 || '') === '随兄合户' || (carry.合爨状态 || '') === '已析爨') {
+        hints.push('上一代先“合爨”再析爨那层共账余绪还在，哪怕重走别路，也知道分账时该先拆哪几口账');
+      }
     }
     if ((carry.负债银 || 0) > 0) hints.push('只是这一房还背着旧债' + carry.负债银 + '两，起手无论走哪条路都得先想着别让旧账再滚大');
     if ((carry.委托营生 || '') && carry.委托营生 !== '无') hints.push('上一代留下的薄产仍按“' + carry.委托营生 + '”托着走，不能把这层旧安排当作凭空消掉');
@@ -5873,6 +5883,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
 
   function establishmentOpeningNote() {
     var 底子 = routeBaseSummary();
+    var 承继桥接 = (generation > 1 && carryOver) ? lifecycleInheritanceBridge() : null;
     var 起步口径 = (S._startMode === 'childhood')
       ? '幼年既过，成丁立身。'
       : '从十六成丁起算，先立身分路。';
@@ -5881,6 +5892,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       + ((generation <= 1 || ((carryOver || {}).父快照类型 || (carryOver || {}).户籍类型))
         ? ('当前父快照：' + currentFoundingSnapshot().publicSummary + '。')
         : '')
+      + ((承继桥接 && 承继桥接.dossier) ? ('承继旧账：' + 承继桥接.dossier + '。') : '')
+      + ((承继桥接 && 承继桥接.note) ? 承继桥接.note : '')
       + (底子.length ? '这些年攒下：' + 底子.join('、') + '。' : '这些年不曾攒下特别的底子，只识些寻常农事。');
   }
 
@@ -11000,8 +11013,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               once: true
             });
           }
+          var lateUpperGuaranteeRefresh = !S.生员身份
+            && examYear >= 3
+            && (season.id === 'spring' || season.id === 'summer')
+            && (S.保结进度 || 0) >= 1
+            && (S.保结进度 || 0) < 2
+            && examStudyTrackReady();
           var upperGuaranteePrepReady = !S.生员身份
-            && !examGuaranteeDraftReady()
+            && (!examGuaranteeDraftReady() || lateUpperGuaranteeRefresh)
             && (season.id === 'spring' || season.id === 'summer')
             && (examYear >= 2
               ? examStudyTrackReady()
@@ -12046,13 +12065,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 ? ['e_summer_tail_packet', 'e_mend', 'e_rest']
                 : (season.id === 'winter' ? ['e_winter_tail_cure', 'e_mend', 'e_rest'] : ['e_mend', 'e_rest']))));
         var gapCode = examAttemptStructuralGapCode();
+        var supportPriorityActive = (S.供读压力 || 0) >= 2 || (S.本年家中续供次 || 0) <= 0 || (S.本年供读转折旬数 || 0) > 0;
+        var lateWarmSeasonSupportFirst = warmSeasonDelayPriority
+          && examYear >= 3
+          && supportPriorityActive;
+        if (lateWarmSeasonSupportFirst) {
+          preferredOrder = preferredOrder.concat(supportIds);
+        }
         if (gapCode === 'studyMode') preferredOrder = preferredOrder.concat(['e_enroll', 'e_school', 'e_literacy']);
         else if (gapCode === 'guaranteeDraft') preferredOrder = preferredOrder.concat(['e_guarantee_prep', 'e_literacy']);
         else if (gapCode === 'guaranteePass') preferredOrder = preferredOrder.concat(['e_guarantee']);
         else if (gapCode === 'studyCount' || gapCode === 'article') preferredOrder = preferredOrder.concat(['e_essay', 'e_copy']);
         else if (gapCode === 'supportCut') preferredOrder = preferredOrder.concat(['e_copy', 'e_fail_tutor_bridge']);
         else if (gapCode === 'bodySpent') preferredOrder = preferredOrder.concat(bodyIds);
-        if ((S.供读压力 || 0) >= 2 || (S.本年家中续供次 || 0) <= 0 || (S.本年供读转折旬数 || 0) > 0) {
+        if (supportPriorityActive && !lateWarmSeasonSupportFirst) {
           preferredOrder = preferredOrder.concat(supportIds);
         }
         if (((S.本年延婚牵扯 || 0) > 0) || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive()) || ((S.供读压力 || 0) >= 2)) {
