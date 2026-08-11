@@ -24814,12 +24814,25 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             a.why = !(season.id === 'winter' && xun === 3) ? '这一旬不便先拆冬尾馆信账' : (S.铜钱 >= 50 ? '' : '铜钱不足50文');
             a.once = true;
           }
-          if (a.can === false && typeof a.why === 'string' && a.why.indexOf('这一旬不便') === 0) return;
-          A.push(a);
+          // 只把当前季节/旬次真正相关的路线动作摆到玩家面前。
+          // 缺钱等当下门槛仍保留为置灰提示；纯粹属于别的季节、别的旬次，
+          // 或本年已经做完的动作不再堆满整页。
+          var hiddenOutsideCadence = a.can === false && (
+            String(a.why || '').indexOf('这一旬') === 0
+            || String(a.why || '').indexOf('这一季') === 0
+            || String(a.why || '').indexOf('本年已') === 0
+          );
+          if (!hiddenOutsideCadence) A.push(a);
         });
 
         A.push({ id: 'e_rest', name: '静养含饴', cost: 1, eff: '体魄+4·家族+2', desc: '不再劳作，含饴弄孙，安养身心。', can: true });
-        return A;
+        return A.filter(function (a) {
+          if (a.can !== false) return true;
+          var why = String(a.why || '');
+          return why.indexOf('这一旬') !== 0
+            && why.indexOf('这一季') !== 0
+            && why.indexOf('本年已') !== 0;
+        });
       },
       settle: function (log) {
         var stepLabel = season.name + '·' + xunLabel;
