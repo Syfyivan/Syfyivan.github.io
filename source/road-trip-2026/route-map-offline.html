@@ -163,7 +163,7 @@
       pageTitle.textContent = '全程路线';
       pageSub.textContent = '点击左侧分段后，地图会自动聚焦到那一段。';
       detailTitle.textContent = '全程路线';
-      detailText.textContent = `已显示全部 ${DATA.segments.length} 段路线，总计约 ${DATA.segments.reduce((s, seg) => s + seg.lengthKm, 0).toFixed(0)} km。`;
+      detailText.textContent = `已显示全部 ${DATA.segments.length} 段城市间主干导航，合计约 ${DATA.segments.reduce((s, seg) => s + seg.lengthKm, 0).toFixed(0)} km；页面总里程18,000-19,000 km还包含景区支线、城市内移动和天气绕行。`;
       activateButton('');
     }
 
