@@ -7963,6 +7963,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 : '白银不足1两',
               once: true
             });
+            A.push({
+              id: 'm_autumn_second_mid_split',
+              name: '先把二年秋中试本供读与回客药包分开',
+              cost: 1,
+              eff: '铜钱-90·议本+1·供读+1·家书+1·歇养+1·体魄+1·家族+1·商信誉+1',
+              desc: '第二商年秋试手中旬不该只剩“真回钱怎么分”。试本回话、供读纸包、回客药包、递话脚费和锅火催问也会同旬咬钱。先把这层“二年秋中试本、供读与身家后手并行”的肩位拆开，让试本、供读、家书和身子不再主要靠通用秋中动作托底，而在秋中同旬先见真账。',
+              can: S.铜钱 >= 90 && (S.本年商路议本 > 0 || S.商路供读银 > 0 || S.本年商路供读 > 0 || S.本年商路贴家 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0),
+              why: S.铜钱 >= 90
+                ? ((S.本年商路议本 > 0 || S.商路供读银 > 0 || S.本年商路供读 > 0 || S.本年商路贴家 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0) ? '' : '需先有试本、供读、贴家、拖欠或回钱后手可拆')
+                : '铜钱不足90文',
+              once: true
+            });
           }
           if (S.商年 === 3) {
             A.push({
@@ -8556,7 +8568,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               : ['m_autumn_head_remit_body', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_head_goods_route', 'm_autumn_supply_split', 'm_autumn_receipt']);
         } else if (season.id === 'autumn' && xun === 2) {
           preferredOrder = S.商年 === 2
-            ? ['m_autumn_second_mid_remit', 'm_autumn_second_trial', 'm_autumn_mid_school', 'm_autumn_mid_body']
+            ? ['m_autumn_second_mid_remit', 'm_autumn_second_mid_split', 'm_autumn_second_trial', 'm_autumn_mid_school', 'm_autumn_mid_body']
             : (S.商年 === 3
               ? ['m_autumn_third_return', 'm_autumn_third_mid_split', 'm_autumn_mid_school', 'm_autumn_mid_body', 'm_autumn_mid_drag']
               : ['m_autumn_mid_remit_drag', 'm_autumn_mid_school', 'm_autumn_mid_body', 'm_autumn_mid_counter_drag', 'm_autumn_mid_drag', 'm_autumn_mid_bundle']);
@@ -9654,6 +9666,22 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把二年秋中回钱拆作试本、供读与拖欠：白银-1、反哺+1、供读专账+1、供读+1、议本+1、催账+1、拖欠+1、贴家+1、家书+1、家族+' + supportProfile.familyGain + (supportProfile.trustGain > 0 ? ('、商信誉+' + supportProfile.trustGain) : '') + '。第二商年秋中这笔真回钱没有再只等秋尾和冬里才分出去向，而是当场把试本、供读、拖欠与贴家次序一起压回了这一旬。', 'good']);
               } else {
                 log.push(['想先把二年秋中回钱拆作试本、供读与拖欠，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
+              }
+              break;
+            case 'm_autumn_second_mid_split':
+              if (spendCopper(90)) {
+                S.本年商路议本 += 1;
+                S.本年商路供读 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                S.本年商路家书 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.家族 += 1;
+                S.商信誉 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆二年秋中供身');
+                log.push(['先把二年秋中试本供读与回客药包分开：铜钱-90、议本+1、供读+1、家书+1、体魄+1、家族+1、商信誉+1。第二商年秋中这层试本回话、供读纸包、回客药包、递话脚费和锅火催问先被压回了这一旬，试本、供读、家书与身子终于不再只靠通用秋中动作托底。', 'good']);
+              } else {
+                log.push(['想先把二年秋中试本供读与回客药包分开，但这旬铜钱已先被别处吃住，只得让试本回话、供读纸包和药包后手继续一起追这口现钱。', 'bad']);
               }
               break;
             case 'm_autumn_third_return':
