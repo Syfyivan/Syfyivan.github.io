@@ -4345,7 +4345,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 2) apply({
-      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_clear_packet', 'm_debt_split', 'm_winter_family_split', 'm_winter_mid_body', 'm_winter_mid_supply_duty', 'm_winter_second_mid_trial', 'm_winter_second_mid_remit', 'm_winter_mid_remit_school', 'm_winter_mid_third_remit'],
+      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_clear_packet', 'm_debt_split', 'm_winter_family_split', 'm_winter_mid_body', 'm_winter_mid_supply_duty', 'm_winter_second_mid_trial', 'm_winter_second_mid_remit', 'm_winter_mid_remit_school', 'm_winter_mid_remit_drag_duty', 'm_winter_mid_third_remit'],
       doneTag: '清账回话已压',
       doneLog: '〔清账回话〕这一旬先把回话脚费、清账门包、药包、来春样纸定钱和给熟号递话的小礼分开了；冬里第二程不再只剩“催账”，而是真把清账的人情碎费与身子后手一起摊回这一旬。',
       cost: 45,
@@ -7666,6 +7666,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               : '白银不足1两',
             once: true
           });
+          A.push({
+            id: 'm_winter_mid_remit_drag_duty',
+            name: '先把冬中回钱拆作拖欠、差票与锅火',
+            cost: 1,
+            eff: '白银-1·反哺+1·贴家+1·催账+1·拖欠+1·备役+1·家书+1·家族+' + homeRemitProfile.familyGain,
+            desc: '冬里第二程最怕一笔回钱刚落手，旧拖欠回签、差票回话、锅火后手、递话小礼和家里催问就一起追来。先把这层冬中回钱去向拆开，让首个商年的回钱不只顾供读或药包，也能在同一年里把拖欠、差役与锅火次序压回这一旬。',
+            can: S.白银 >= 1 && supportCapacity >= 1 && (S.未回款银 > 0 || S.本年商路催账 > 0 || S.本年商路备役 > 0 || S.本年商路贴家 > 0),
+            why: S.白银 >= 1
+              ? (supportCapacity >= 1
+                ? ((S.未回款银 > 0 || S.本年商路催账 > 0 || S.本年商路备役 > 0 || S.本年商路贴家 > 0) ? '' : '需先有拖欠、差票、贴家或回钱后手可拆')
+                : '眼下还没有可拆去向的商路回账或浮账')
+              : '白银不足1两',
+            once: true
+          });
           if (S.商年 === 3) {
             A.push({
               id: 'm_winter_mid_third_remit',
@@ -9219,6 +9233,22 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把冬中回钱拆作供读与药包，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
               }
               break;
+            case 'm_winter_mid_remit_drag_duty':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.本年商路反哺银 += 1;
+                S.本年商路贴家 += 1;
+                S.本年商路催账 += 1;
+                S.本年商路拖欠 += 1;
+                S.本年商路备役 += 1;
+                S.本年商路家书 += 1;
+                S.家族 += homeRemitProfile.familyGain;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆冬中回钱拖差');
+                log.push(['先把冬中回钱拆作拖欠、差票与锅火：白银-1、反哺+1、贴家+1、催账+1、拖欠+1、备役+1、家书+1、家族+' + homeRemitProfile.familyGain + '。冬中这笔真回钱没有再只顾供读或药包，而是当场把旧拖欠、差票、锅火和家书次序一起压回了这一旬。', 'good']);
+              } else {
+                log.push(['想先把冬中回钱拆作拖欠、差票与锅火，但这一旬现银已先被别处占住，只得暂缓，免得把白银记成负数。', 'bad']);
+              }
+              break;
             case 'm_winter_mid_third_remit':
               if (spendSilver(1)) {
                 S.累计反哺银 += 1;
@@ -10091,7 +10121,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 id: 'e_year1_autumn_focus',
                 name: '先把首年秋头保帖底样与婚话夹衣分开',
                 cost: 1,
-                eff: '铜钱-60·保帖底样+1·家族+1·体魄+1·将养+1',
+                eff: '铜钱-60·保帖底样+1·家族+1·体魄+1·将养+1·缓婚事口风',
                 desc: '首年秋头最怕保帖底样、婚话回声、夹衣试鞋和递话脚费一起追钱。先把这层“夏里刚把读法坐住、秋里保结和拖婚却已一齐压上来”的肩账拆开，首年秋头就不再只剩通用盘缠与换季小耗。',
                 can: S.铜钱 >= 60,
                 why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
@@ -11529,8 +11559,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.体魄 += 1;
                 S.本年将养次数 += 1;
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
+                if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
+                S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
                 pushExamSeasonTag(stepTag + '首年秋头婚保');
-                log.push(['先把首年秋头保帖底样与婚话夹衣分开：铜钱-60、保帖底样+1、家族+1、体魄+1。首年秋头先把保帖底样、婚话回声、夹衣试鞋和递话脚费拆开，这层“夏里刚把读法坐住、秋里保结和拖婚却已一齐压上来”的肩账终于没再只混在通用盘缠里。', 'good']);
+                log.push(['先把首年秋头保帖底样与婚话夹衣分开：铜钱-60、保帖底样+1、家族+1、体魄+1、婚事口风缓一线。首年秋头先把保帖底样、婚话回声、夹衣试鞋和递话脚费拆开，这层“夏里刚把读法坐住、秋里保结和拖婚却已一齐压上来”的肩账终于没再只混在通用盘缠里。', 'good']);
               } else {
                 log.push(['想先把首年秋头保帖底样与婚话夹衣拆开，但这一旬铜钱已先被别处占住，只得让首年秋头这层保帖、婚话与夹衣继续贴着同一口现钱发硬。', 'bad']);
               }
