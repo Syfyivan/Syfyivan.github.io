@@ -481,8 +481,8 @@ sup a:hover{text-decoration:underline;}
   <div class="map-launchers">
     <p><strong>交互路线图</strong> 使用同一套路线与地点数据：在线版叠加真实高德底图，离线版保留真实路线折线、道路编号和规划地点，并支持拖动、滚轮/按钮缩放。首次在线打开后会缓存离线文件。</p>
     <div class="actions">
-      <a class="primary" href="./route-map-amap.html?v=6">打开在线高德详图</a>
-      <a href="./route-map-offline.html?v=6">打开可缩放离线版</a>
+      <a class="primary" href="./route-map-amap.html?v=7">打开在线高德详图</a>
+      <a href="./route-map-offline.html?v=7">打开可缩放离线版</a>
     </div>
   </div>
 
@@ -496,7 +496,7 @@ sup a:hover{text-decoration:underline;}
       </div>
     </div>
     <div id="routePreviewHome" class="map-preview-frame">
-      <iframe id="routePreviewFrame" src="./route-map-amap.html?v=6" data-mode="online" title="路线地图预览" loading="lazy"></iframe>
+      <iframe id="routePreviewFrame" src="./route-map-amap.html?v=7" data-mode="online" title="路线地图预览" loading="lazy"></iframe>
     </div>
     <div class="map-preview-note">地图按20段城市间主干导航绘制，并加入住宿、景点、吃饭区域、采购加油、厕所参考和医疗救援图层。厕所、营业和住宿地址属于规划参考，出发前仍要用实时地图或订单页复核。</div>
   </div>
@@ -1433,14 +1433,14 @@ flowchart LR
   <p class="lead">住宿口径现在按你们 4 个人的真实住法重做：<strong>优先 1 套整租两居/三居民宿，有可以实际开火的厨房；找不到合适民宿时，酒店固定订 2 间、每间 2 人</strong>。价格统一看 4 人一晚总价和整段总价，不再拿单间“起价”冒充团队成本。</p>
   <div class="callout green">
     <div class="callout-title">4 人住宿的固定筛选顺序</div>
-    <p><strong>第一层：</strong>整套房源、2/3 间独立卧室、4 成人、厨房允许做饭、至少基础锅具与冰箱；<strong>第二层：</strong>洗衣机、免费停车、热水稳定、可免费取消；<strong>第三层：</strong>没有合格民宿时改订 2 间酒店房。只有禾木/白哈巴、巴嘎、雨崩、日瓦等稀缺或高海拔节点允许把厨房降级，优先位置、供暖/供氧、晚到接待和睡眠安全。</p>
+    <p><strong>第一层：</strong>整套房源、2/3 间独立卧室、4 成人、厨房允许做饭、至少基础锅具与冰箱；<strong>第二层：</strong>洗衣机、免费停车、热水稳定、可免费取消；<strong>第三层：</strong>没有合格民宿时改订 2 间酒店房。只有喀纳斯/禾木、巴嘎、雨崩、日瓦等稀缺或高海拔节点允许把厨房降级，优先位置、供暖/供氧、晚到接待和睡眠安全。</p>
   </div>
   <div class="table-wrap">
     <table>
       <thead><tr><th>路段</th><th>优先住哪里</th><th>低海拔/更稳替代</th><th>订房优先级</th><th>选择标准</th></tr></thead>
       <tbody>
         <tr><td><strong>张掖 / 敦煌</strong></td><td>县城中心或主干道附近</td><td>一晚过渡，不为厨房牺牲停车和晚到入住</td><td>中</td><td>先找两居整租；不合格就订 2 间可退酒店房</td></tr>
-        <tr><td><strong>喀纳斯 / 禾木 / 白哈巴</strong></td><td>景区换乘节点附近或村内步行方便点</td><td>贾登峪只作路况/房态兜底，不能假装成村内住宿</td><td>高</td><td>位置和连续库存第一；厨房降级，少搬行李、供暖和早起效率优先</td></tr>
+        <tr><td><strong>喀纳斯 / 禾木</strong></td><td>按当天行程住村内步行方便点</td><td>贾登峪只作路况/房态兜底，不能假装成村内住宿</td><td>高</td><td>9月28日行程终点是喀纳斯村，不再用白哈巴房源替代；位置、供暖和连续库存优先</td></tr>
         <tr><td><strong>喀什 / 塔县</strong></td><td>喀什住古城外交通方便区域；塔县住县城中心</td><td>塔县优先选有供暖/电热毯/供氧条件</td><td>中</td><td>喀什连住优先两居厨房；塔县一晚直接用 2 间酒店房</td></tr>
         <tr><td><strong>新藏线沿线</strong></td><td>叶城、三十里营房、多玛、狮泉河、札达按县城/镇中心住</td><td>高反明显时优先往低一点、条件更稳的点退</td><td>高</td><td>不追求风景房，只追求能睡、能热、能停、能起早</td></tr>
         <tr><td><strong>巴嘎乡交通夜宿</strong></td><td>G219主通道附近、能确认接待的住宿</td><td>房态不稳就提前改到沿线成熟交通住宿点</td><td>高</td><td>只作转场夜宿；供暖、供氧、停车和晚到接待优先</td></tr>
@@ -1454,7 +1454,7 @@ flowchart LR
   </div>
   <div class="callout warn">
     <div class="callout-title">哪些住宿要优先提前锁</div>
-    <p>喀纳斯 / 禾木 / 白哈巴、巴嘎乡交通夜宿、雨崩村内、虎跳峡中途点、日瓦镇（亚丁门口）优先级最高。珠峰段已删除，不再为巴松村/定日锁房。</p>
+    <p>喀纳斯村 / 禾木村、巴嘎乡交通夜宿、雨崩上村与下村、虎跳峡 Halfway 与 Tina's、日瓦镇（亚丁门口）优先级最高。珠峰段已删除，不再为巴松村/定日锁房。</p>
   </div>
   <div class="callout">
     <div class="callout-title">平台怎么分工</div>
@@ -1465,96 +1465,117 @@ flowchart LR
 <!-- Stay Matrix -->
 <section id="stay-matrix">
   <div class="section-num">Stay Matrix</div>
-  <h2>12 个关键节点最终住宿决定表</h2>
-  <p class="lead">需要提前锁定的 12 个节点，每站只保留一个综合最优解：先满足<strong>4 人住法、路线位置和安全恢复</strong>，再比较厨房、取消条件和团队总价。价格为 <strong>2026 年 8 月 11 日登录携程、按真实入住日和 4 成人查询</strong>的快照；<strong>“已定首选”表示攻略里的最终选择，不代表已经付款锁房</strong>。备选和淘汰项全部收进下方折叠区，其余普通转场夜按临近日期的同一标准订房。</p>
+  <h2>71 晚完整住宿决定表</h2>
+  <p class="lead">这次不再只列 12 个关键点。全程是<strong>70 晚外地住宿 + 最后 1 晚回北京家里</strong>，共 49 个外地住宿区域、50 个外地订单段（喀什拆成两段）。下面按 N1—N71 连续编号，每一晚都有明确去处；每站只保留一个综合首选。<strong>“已选”代表攻略已经决定住这里，不代表已经付款</strong>。</p>
+  <div class="callout green">
+    <div class="callout-title">已经修正的三处路线冲突</div>
+    <p><strong>N11 改住喀纳斯村</strong>，不再拿白哈巴房源代替；<strong>雨崩拆成上村 2 晚 + 下村 1 晚</strong>，跟冰湖、神瀑动线一致；<strong>日瓦改为 3 晚</strong>，11 月 17 日退房，不再漏掉亚丁第二天后的恢复夜。</p>
+  </div>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>节点</th><th>最终决定</th><th>4 人住法</th><th>当前团队总价</th><th>为什么选它</th></tr></thead>
+      <thead><tr><th>夜序 / 区域</th><th>入住—离店</th><th>最终决定</th><th>4 人住法</th><th>价格状态</th><th>选择特点</th></tr></thead>
       <tbody>
-        <tr><td><strong>张掖</strong><br>9月19日</td><td><span class="tag ok">已定首选</span><br><strong>张掖景珑国际酒店</strong></td><td>2 间酒店房<br>每间 2 人</td><td><strong>¥1,196 / 晚</strong><br>¥598/间 × 2</td><td>只住一晚，独立房间、稳定入住和第二天早起比厨房更重要</td></tr>
-        <tr><td><strong>敦煌</strong><br>9月23日</td><td><span class="tag ok">已定首选</span><br><strong>敦煌归宿家民宿·清阑两室一厅</strong></td><td>1 套两室一厅<br>4 人整住</td><td><strong>¥364 / 晚</strong><br>免费取消</td><td>结构完全匹配 4 人，价格明显低于两间酒店；露台和私家花园适合休整</td></tr>
-        <tr><td><strong>白哈巴</strong><br>9月28日</td><td><span class="tag ok">已定首选</span><br><strong>松漫 Alpine Lodge｜度假民宿</strong></td><td>1 套两卧家庭房<br>2 张双人床</td><td><strong>¥3,227 / 晚</strong><br>含早，可免费取消</td><td>游客中心约 1 分钟，两间独立卧室；地暖、24 小时热水、供氧和停车把景区稀缺夜宿一次解决</td></tr>
-        <tr><td><strong>禾木</strong><br>9月29日-10月1日</td><td><span class="tag ok">已定首选</span><br><strong>禾木美丽峰阿依波木屋</strong></td><td>2 间客房<br>每间 2 人</td><td><strong>¥2,948 / 晚</strong><br>两晚约 ¥5,896</td><td>当前可订房里距禾木中心约 1.3km；宁可两间房，也不拿贾登峪或 20km 外房源假装村内住宿</td></tr>
-        <tr><td><strong>喀什</strong><br>10月7日、9-11日</td><td><span class="tag ok">已定首选</span><br><strong>速8·悦酒店（古城景区高台民居店）</strong></td><td>2 间酒店房<br>每间 2 人</td><td><strong>约 ¥386 / 晚</strong><br>三晚约 ¥1,158</td><td>古城附近、含早餐、免费取消；两居厨房无连续库存后，这是价格和动线最稳的统一住法</td></tr>
-        <tr><td><strong>巴嘎交通夜宿</strong><br>10月17日</td><td><span class="tag ok">已定首选</span><br><strong>维度仕有氧酒店</strong></td><td>2 间酒店房<br>每间 2 人</td><td><strong>¥776 / 晚</strong><br>¥388/间 × 2</td><td>24 小时弥散供氧，适合高海拔转场恢复；下单前只需电话确认晚到接待和停车</td></tr>
-        <tr><td><strong>日喀则</strong><br>10月19日</td><td><span class="tag ok">已定首选</span><br><strong>至格酒店（日喀则藏隆广场店）</strong></td><td>2 间酒店房<br>每间 2 人</td><td><strong>¥468 / 晚</strong><br>¥234/间 × 2</td><td>免费取消、弥散供氧、智能客控和零压床垫，适合作为拉萨前的恢复夜</td></tr>
-        <tr><td><strong>拉萨</strong><br>10月20-24日</td><td><span class="tag ok">已定首选</span><br><strong>如家酒店·neo（大昭寺八廓街店）</strong></td><td>2 间酒店房<br>每间 2 人</td><td><strong>¥350 / 晚</strong><br>四晚约 ¥1,400</td><td>八廓街动线、供氧和加湿器更适合连续恢复；比高价供氧酒店四晚省约 ¥2,448</td></tr>
-        <tr><td><strong>雨崩上村</strong><br>11月3-6日</td><td><span class="tag ok">已定首选</span><br><strong>德钦雨崩山语民宿</strong></td><td>2 间双床房<br>每间 2 人</td><td><strong>¥870 / 晚</strong><br>三晚约 ¥2,610</td><td>距上村核心不到 100m，方便冰湖方向出发；房量足够两间，位置、评分和价格比极端低价或高价房更均衡</td></tr>
-        <tr><td><strong>日瓦 / 香格里拉镇</strong><br>11月14-16日</td><td><span class="tag ok">已定首选</span><br><strong>念想酒店（香格里拉镇稻城亚丁景区店）</strong></td><td>2 间供氧双床房<br>每间 2 人</td><td><strong>¥472 / 晚</strong><br>两晚约 ¥944</td><td>镇中心、距亚丁广场约 89m；供氧、暖气、热水、免费停车兼顾低海拔恢复与次日进景区</td></tr>
-        <tr><td><strong>成都</strong><br>11月19-22日</td><td><span class="tag ok">已定首选</span><br><strong>玖境 ZEN9·设计师双卧套房</strong></td><td>1 套双卧公寓<br>4 人整住</td><td><strong>¥415 / 晚</strong><br>三晚约 ¥1,245</td><td>春熙路/太古里动线，双卧、厨房、洗衣机和免费取消齐全，适合集中做饭洗衣</td></tr>
-        <tr><td><strong>西安</strong><br>11月22-25日</td><td><span class="tag ok">已定首选</span><br><strong>珍爱·温馨 Life 民宿家庭两居室</strong></td><td>1 套两居民宿<br>4 人整住</td><td><strong>¥308 / 晚</strong><br>三晚约 ¥924</td><td>明确两居和厨卫齐备；虽然离钟楼更远，但把“4 人能住、能做饭”放在网红地段之前</td></tr>
+        <tr style="background:var(--accent2-light)"><td colspan="6"><strong>西北进疆 · N1—N10</strong></td></tr>
+        <tr><td><strong>N1 巴彦淖尔</strong></td><td>9/18—9/19<br>1晚</td><td><span class="tag ok">已选</span> 锦颐优选酒店（临河维多利摩尔城店）</td><td>酒店 2 间</td><td><strong>约 ¥418</strong><br>¥209/间起 × 2，付款页复核</td><td>携程当日直接返回可订，4.8 分、免费取消；首个转场夜优先稳定停车和早出发</td></tr>
+        <tr><td><strong>N2 张掖</strong></td><td>9/19—9/20<br>1晚</td><td><span class="tag ok">已选</span> 张掖景珑国际酒店</td><td>酒店 2 间</td><td><strong>约 ¥1,196</strong><br>¥598/间 × 2</td><td>一晚过渡，独立房间、稳定入住和次日早起优先于厨房</td></tr>
+        <tr><td><strong>N3 刚察</strong></td><td>9/20—9/21<br>1晚</td><td><span class="tag ok">已选</span> 刚察永和国际酒店</td><td>酒店 2 间</td><td>付款页核 2 间含税总价</td><td>青海湖北岸主线内，县城成熟、停车和热水比临湖景观房更稳</td></tr>
+        <tr><td><strong>N4 德令哈</strong></td><td>9/21—9/22<br>1晚</td><td><span class="tag ok">已选</span> 德令哈丽呈尚品酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>4.7 分候选，城市补给方便，进入柴达木前把睡眠和洗澡做好</td></tr>
+        <tr><td><strong>N5 大柴旦</strong></td><td>9/22—9/23<br>1晚</td><td><span class="tag ok">已选</span> 大柴旦丽呈翠星酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>4.8 分、靠镇内补给；偏远路段不拿模糊“公寓”标签冒充两居</td></tr>
+        <tr><td><strong>N6 敦煌</strong></td><td>9/23—9/24<br>1晚</td><td><span class="tag ok">已选</span> 归宿家·清阑两室一厅</td><td>整套两居 1 套</td><td><strong>约 ¥364</strong><br>厨房开火规则待房东书面确认</td><td>两室一厅、4 人整住，结构和价格都优于两间酒店；适合做饭休整</td></tr>
+        <tr><td><strong>N7 哈密</strong></td><td>9/24—9/25<br>1晚</td><td><span class="tag ok">已选</span> 哈密希尔顿欢朋酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>东疆长距离转场后用标准化酒店恢复，早餐和停车便于次日早走</td></tr>
+        <tr><td><strong>N8 木垒</strong></td><td>9/25—9/26<br>1晚</td><td><span class="tag ok">已选</span> 木垒鸿福大酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>把原来的“木垒/奇台二选一”落到木垒，第二天去可可托海动线更顺</td></tr>
+        <tr><td><strong>N9 可可托海</strong></td><td>9/26—9/27<br>1晚</td><td><span class="tag ok">已选</span> 全季酒店（可可托海文化西路店）</td><td>酒店 2 间</td><td>付款页核价</td><td>4.8 分、镇内位置明确，避免景区外模糊民宿影响次日行程</td></tr>
+        <tr><td><strong>N10 布尔津</strong></td><td>9/27—9/28<br>1晚</td><td><span class="tag ok">已选</span> 布尔津白桦林锦润酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>4.8 分，进喀纳斯前最后一个成熟补给县城，方便补油和采购</td></tr>
+
+        <tr style="background:var(--accent2-light)"><td colspan="6"><strong>北疆与南疆 · N11—N23</strong></td></tr>
+        <tr><td><strong>N11 喀纳斯村</strong></td><td>9/28—9/29<br>1晚</td><td><span class="tag ok">第一批锁房</span> 喀纳斯云杉庄园（老村店）</td><td>村内客房 2 间</td><td>付款页核价</td><td>真正位于喀纳斯老村，和 D11 行程终点一致；白哈巴松漫因路线不一致淘汰</td></tr>
+        <tr><td><strong>N12—N13 禾木村</strong></td><td>9/29—10/1<br>2晚</td><td><span class="tag ok">第一批锁房</span> 禾木美丽峰阿依波木屋</td><td>村内客房 2 间</td><td><strong>两晚约 ¥5,896</strong></td><td>村内连续库存优先；宁可两间房，也不拿贾登峪或 20km 外房源代替</td></tr>
+        <tr><td><strong>N14 乌尔禾</strong></td><td>10/1—10/2<br>1晚</td><td><span class="tag ok">已选</span> 克拉玛依乌尔禾檀程酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>魔鬼城附近成熟住宿，国庆夜优先停车、热水与可取消</td></tr>
+        <tr><td><strong>N15 伊宁</strong></td><td>10/2—10/3<br>1晚</td><td><span class="tag ok">已选</span> 伊宁绿发逸衡酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>4.8 分，城市餐饮补给方便，为独库路段做恢复</td></tr>
+        <tr><td><strong>N16 特克斯</strong></td><td>10/3—10/4<br>1晚</td><td><span class="tag ok">已选</span> 全季酒店（特克斯太极坛店）</td><td>酒店 2 间</td><td>付款页核价</td><td>镇中心动线清楚，一晚过渡不为厨房牺牲停车与早出发</td></tr>
+        <tr><td><strong>N17—N18 库车</strong></td><td>10/4—10/6<br>2晚</td><td><span class="tag ok">已选</span> 库车饭店 A 座</td><td>酒店 2 间</td><td>付款页核两晚总价</td><td>老牌成熟酒店，连续两晚便于独库后休整；未找到可确认厨房的整套两居库存</td></tr>
+        <tr><td><strong>N19 阿克苏</strong></td><td>10/6—10/7<br>1晚</td><td><span class="tag ok">已选</span> 阿克苏老街河南东路亚朵酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>4.8 分，靠成熟城区，南疆长距离转场后睡眠质量优先</td></tr>
+        <tr><td><strong>N20 喀什</strong></td><td>10/7—10/8<br>1晚</td><td><span class="tag ok">已选</span> 速8·悦酒店（古城景区高台民居店）</td><td>酒店 2 间</td><td><strong>两段三晚合计约 ¥1,158</strong></td><td>古城附近、含早、可取消；用同一家承接塔县前后两段，减少重新选房</td></tr>
+        <tr><td><strong>N21 塔什库尔干</strong></td><td>10/8—10/9<br>1晚</td><td><span class="tag ok">已选</span> 塔什库尔干万达美华酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>4.8 分，县城内保暖、热水与高海拔恢复条件更稳定</td></tr>
+        <tr><td><strong>N22—N23 喀什</strong></td><td>10/9—10/11<br>2晚</td><td><span class="tag ok">已选</span> 速8·悦酒店（同一家，另下一张订单）</td><td>酒店 2 间</td><td>已计入上方三晚总价</td><td>塔县返回后继续住同一家，集中完成 G219 大采购</td></tr>
+
+        <tr style="background:var(--accent2-light)"><td colspan="6"><strong>新藏线与拉萨 · N24—N36</strong></td></tr>
+        <tr><td><strong>N24 叶城</strong></td><td>10/11—10/12<br>1晚</td><td><span class="tag ok">已选</span> 锦江都城酒店（叶城零公里店）</td><td>酒店 2 间</td><td>付款页核价</td><td>紧邻 G219 零公里出发逻辑，最后一晚成熟酒店便于车辆与物资复核</td></tr>
+        <tr><td><strong>N25 三十里营房</strong></td><td>10/12—10/13<br>1晚</td><td><span class="tag ok">第一批确认</span> 三十里营房季高酒店</td><td>客房 2 间</td><td>电话 + 付款页核价</td><td>偏远高海拔节点只看供暖、热水、停车和晚到接待，不追装修</td></tr>
+        <tr><td><strong>N26 多玛乡</strong></td><td>10/13—10/14<br>1晚</td><td><span class="tag ok">第一批确认</span> 多玛千里汀泊驿站</td><td>客房 2 间</td><td>电话确认房态与供暖</td><td>当地可定位的成熟驿站候选；必须提前确认 4 人床位和晚到接待</td></tr>
+        <tr><td><strong>N27—N28 狮泉河</strong></td><td>10/14—10/16<br>2晚</td><td><span class="tag ok">已选</span> 狮泉河希尔曼酒店（建设大街店）</td><td>酒店 2 间</td><td>付款页核两晚总价</td><td>4.8 分，连续两晚完成高海拔恢复、补给和车辆检查</td></tr>
+        <tr><td><strong>N29 札达</strong></td><td>10/16—10/17<br>1晚</td><td><span class="tag ok">已选</span> 汉庭酒店（札达土林店）</td><td>酒店 2 间</td><td>付款页核价</td><td>县城标准化住宿，土林行程后不再额外折返</td></tr>
+        <tr><td><strong>N30 巴嘎交通夜宿</strong></td><td>10/17—10/18<br>1晚</td><td><span class="tag ok">第一批确认</span> 维度仕有氧酒店</td><td>供氧房 2 间</td><td><strong>约 ¥776</strong><br>电话确认晚到与停车</td><td>只做 G219 交通夜宿，24 小时供氧与睡眠安全优先；不恢复冈仁波齐任务</td></tr>
+        <tr><td><strong>N31 萨嘎</strong></td><td>10/18—10/19<br>1晚</td><td><span class="tag ok">已选</span> 萨嘎欧冠精品酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>县城主通道内的稳定落点；若延误则在仲巴提前收车，不夜驾赶房</td></tr>
+        <tr><td><strong>N32 日喀则</strong></td><td>10/19—10/20<br>1晚</td><td><span class="tag ok">已选</span> 至格酒店（日喀则藏隆广场店）</td><td>供氧房 2 间</td><td><strong>约 ¥468</strong></td><td>弥散供氧、零压床垫和可取消，适合作为拉萨前恢复夜</td></tr>
+        <tr><td><strong>N33—N36 拉萨</strong></td><td>10/20—10/24<br>4晚</td><td><span class="tag ok">已选</span> 如家酒店·neo（大昭寺八廓街店）</td><td>供氧房 2 间</td><td><strong>四晚约 ¥1,400</strong></td><td>八廓街动线、供氧与加湿器兼顾连续恢复；高反阶段不强求民宿厨房</td></tr>
+
+        <tr style="background:var(--accent2-light)"><td colspan="6"><strong>藏东与滇藏线 · N37—N46</strong></td></tr>
+        <tr><td><strong>N37—N38 林芝</strong></td><td>10/24—10/26<br>2晚</td><td><span class="tag ok">已选</span> 林芝悦皇冠度假酒店</td><td>酒店 2 间</td><td>付款页核两晚总价</td><td>低海拔恢复段优先停车、热水和连续库存；两居民宿未核到可开火整套房</td></tr>
+        <tr><td><strong>N39—N40 波密</strong></td><td>10/26—10/28<br>2晚</td><td><span class="tag ok">已选</span> 全季酒店（波密县店）</td><td>酒店 2 间</td><td>付款页核两晚总价</td><td>成熟县城连住，适合洗衣、补给和等天气；不为景观民宿牺牲恢复</td></tr>
+        <tr><td><strong>N41—N42 然乌镇</strong></td><td>10/28—10/30<br>2晚</td><td><span class="tag ok">已选</span> 然乌蓝湖驿站</td><td>客房 2 间</td><td>付款页核两晚总价</td><td>比低评分“富氧噱头房”更均衡，靠然乌湖主线；供暖与热水提前确认</td></tr>
+        <tr><td><strong>N43 八宿</strong></td><td>10/30—10/31<br>1晚</td><td><span class="tag ok">已选</span> 全季酒店（昌都八宿县店）</td><td>酒店 2 间</td><td>付款页核价</td><td>4.8 分标准化住宿，和然乌镇房源分开，避免地点混淆</td></tr>
+        <tr><td><strong>N44 左贡</strong></td><td>10/31—11/1<br>1晚</td><td><span class="tag ok">已选</span> 左贡维尔纳国际酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>县城主线内，长距离山路后优先停车、热水和睡眠</td></tr>
+        <tr><td><strong>N45 芒康</strong></td><td>11/1—11/2<br>1晚</td><td><span class="tag ok">已选</span> 芒康康愿假日酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>选择芒康县城而不是如美镇远端房源，和当天行程终点一致</td></tr>
+        <tr><td><strong>N46 飞来寺</strong></td><td>11/2—11/3<br>1晚</td><td><span class="tag ok">第一批锁房</span> 德钦飞来寺梅里往事酒店</td><td>客房 2 间</td><td>付款页核价</td><td>4.8 分，靠日照金山观景动线；第二天去西当更顺</td></tr>
+
+        <tr style="background:var(--accent2-light)"><td colspan="6"><strong>云南徒步与川西 · N47—N62</strong></td></tr>
+        <tr><td><strong>N47—N48 雨崩上村</strong></td><td>11/3—11/5<br>2晚</td><td><span class="tag ok">第一批锁房</span> 德钦雨崩山语民宿</td><td>双床房 2 间</td><td><strong>两晚约 ¥1,740</strong></td><td>上村核心附近，适合冰湖方向出发；只住两晚，不再错误覆盖下村夜</td></tr>
+        <tr><td><strong>N49 雨崩下村</strong></td><td>11/5—11/6<br>1晚</td><td><span class="tag ok">第一批锁房</span> 雨崩也宿雪山观景民宿</td><td>客房 2 间</td><td>付款页核价</td><td>下村位置匹配神瀑与次日尼农出口，避免徒步结束后再爬回上村</td></tr>
+        <tr><td><strong>N50—N52 香格里拉</strong></td><td>11/6—11/9<br>3晚</td><td><span class="tag ok">已选</span> 卓越逸墅 EaseVilla·全屋供氧度假美宿</td><td>民宿客房 2 间</td><td>付款页核三晚总价</td><td>4.9 分、全屋供氧，雨崩后连续恢复；未确认整套两居厨房前按两间客房下单</td></tr>
+        <tr><td><strong>N53 虎跳峡 Halfway</strong></td><td>11/9—11/10<br>1晚</td><td><span class="tag ok">第一批电话锁</span> Halfway 中途客栈</td><td>客房 2 间</td><td>电话 / 微信确认</td><td>高路徒步真正中点，位置不可由桥头或丽江酒店替代</td></tr>
+        <tr><td><strong>N54 虎跳峡下段</strong></td><td>11/10—11/11<br>1晚</td><td><span class="tag ok">第一批电话锁</span> Tina's Guesthouse（中峡国际青年旅舍）</td><td>客房 2 间</td><td>电话 / 微信确认</td><td>第二天高路出口与峡谷下段落点，补上原计划缺失的第 2 个虎跳峡住宿夜</td></tr>
+        <tr><td><strong>N55—N56 丽江</strong></td><td>11/11—11/13<br>2晚</td><td><span class="tag ok">已选</span> 古城两居精品民宿（五一街文明巷分店）</td><td>整套两居 1 套</td><td>付款页核价；厨房书面确认</td><td>两居结构明确、靠古城整补；确认可开火后再付不可退订单</td></tr>
+        <tr><td><strong>N57 乡城</strong></td><td>11/13—11/14<br>1晚</td><td><span class="tag ok">已选</span> 乡城非梵古堡花园酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>4.9 分，转入亚丁前的稳定县城落点</td></tr>
+        <tr><td><strong>N58—N60 日瓦 / 香格里拉镇</strong></td><td>11/14—11/17<br>3晚</td><td><span class="tag ok">第一批锁房</span> 念想酒店（稻城亚丁景区店）</td><td>供氧双床房 2 间</td><td><strong>前两晚快照约 ¥944</strong><br>第 3 晚付款页复核</td><td>镇中心、靠亚丁游客中心，低处睡、白天进景区；已补齐 11/16 晚</td></tr>
+        <tr><td><strong>N61 理塘</strong></td><td>11/17—11/18<br>1晚</td><td><span class="tag ok">已选</span> 理塘雅砻酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>选择县城中心而不是格聂方向远端高分房，避免偏离返程主线</td></tr>
+        <tr><td><strong>N62 新都桥</strong></td><td>11/18—11/19<br>1晚</td><td><span class="tag ok">已选</span> 康定新都桥 318 国道亚朵酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>4.8 分，G318 主线内，川西最后一个高海拔恢复夜</td></tr>
+
+        <tr style="background:var(--accent2-light)"><td colspan="6"><strong>城市休整与返京 · N63—N71</strong></td></tr>
+        <tr><td><strong>N63—N65 成都</strong></td><td>11/19—11/22<br>3晚</td><td><span class="tag ok">已选</span> 玖境 ZEN9·设计师双卧套房</td><td>整套双卧 1 套</td><td><strong>三晚约 ¥1,245</strong></td><td>双卧、厨房、洗衣机齐全，三晚集中做饭洗衣并恢复</td></tr>
+        <tr><td><strong>N66—N68 西安</strong></td><td>11/22—11/25<br>3晚</td><td><span class="tag ok">已选</span> 珍爱·温馨 Life 家庭两居室</td><td>整套两居 1 套</td><td><strong>三晚约 ¥924</strong></td><td>两居厨卫明确；厨房硬需求优先于钟楼网红地段</td></tr>
+        <tr><td><strong>N69 平遥</strong></td><td>11/25—11/26<br>1晚</td><td><span class="tag ok">已选</span> 平遥一得客栈</td><td>客栈房 2 间</td><td>付款页核价</td><td>4.9 分、古城住宿体验好；一晚不强求厨房</td></tr>
+        <tr><td><strong>N70 石家庄</strong></td><td>11/26—11/27<br>1晚</td><td><span class="tag ok">已选</span> 石家庄站万豪万枫酒店</td><td>酒店 2 间</td><td>付款页核价</td><td>靠返京主线与车站片区，最后一个外地夜优先标准化休息和停车</td></tr>
+        <tr><td><strong>N71 北京</strong></td><td>11/27—11/28<br>1晚</td><td><span class="tag ok">回家</span> 自家住宿</td><td>无需订房</td><td><strong>¥0</strong></td><td>完成北京取车、北京还车闭环；不再多算一晚酒店</td></tr>
       </tbody>
     </table>
   </div>
   <details>
-    <summary>📌 备选与淘汰原因（平时折叠）</summary>
+    <summary>📌 淘汰项与原因（平时折叠）</summary>
     <div class="detail-content">
       <ul>
-        <li><strong>张掖：</strong>¥460 的厨房 LOFT 不是两居，4 人隐私不合格；过渡夜直接选景珑两间酒店房。</li>
-        <li><strong>敦煌：</strong>清阑已经满足两室一厅；不再为了酒店标准化放弃整住和低价，厨房开火规则留到下单确认。</li>
-        <li><strong>白哈巴：</strong>北吉星没有返回可订价；普通双床两间约 ¥4,734，反而比松漫一套两卧家庭房贵约 ¥1,507。</li>
-        <li><strong>禾木：</strong>醉美禾木已售罄，严格两居厨房匹配为 0；贾登峪和约 20km 外房源全部淘汰，避免每天折返。</li>
-        <li><strong>喀什：</strong>两套厨房民宿均无连续库存；最终统一住速8·悦，减少 10 月 7 日和 9-11 日分段换酒店。</li>
-        <li><strong>拉萨：</strong>季枫供氧酒店约 ¥962/晚、四晚约 ¥3,848；如家·neo 供氧能力够用，四晚约 ¥1,400，性价比明显更高。</li>
-        <li><strong>雨崩：</strong>觉色酥油茶只剩 1 间，不够 4 人；遇见梅里评分偏低；帕萨雨崩目前不接受预订且卫生/噪音评价分化；高价雪山房不值得牺牲团队预算。</li>
-        <li><strong>日瓦：</strong>亚丁扎西空墅位于高海拔亚丁村，不是镇内恢复点，已淘汰；念想酒店更符合“低处睡、白天进景区”。</li>
-        <li><strong>成都：</strong>听澜小筑更便宜但位置偏；三晚恢复期选春熙路附近玖境，做饭、洗衣和逛吃效率更高。</li>
-        <li><strong>西安：</strong>萤火虫双卧套房约 ¥261/晚、位置和停车更好，但没有明确可做饭；本次按你们的厨房硬需求选珍爱·温馨 Life。</li>
+        <li><strong>喀纳斯：</strong>白哈巴松漫 Alpine Lodge 的房型本身不错，但 9 月 28 日行程终点写的是喀纳斯村；为房源改路线会增加换乘和搬行李，已淘汰。</li>
+        <li><strong>禾木：</strong>贾登峪及约 20km 外房源全部淘汰；村内两居厨房没有可靠连续库存，改为美丽峰阿依波木屋两间。</li>
+        <li><strong>城市过渡夜：</strong>只带“公寓”“LOFT”“家庭房”标签但没有两间可关门卧室、没有明确可开火厨房的，均不能按合格民宿计算，直接落到两间酒店房。</li>
+        <li><strong>高海拔节点：</strong>新藏线、拉萨、日瓦优先供暖、供氧、热水、停车和晚到接待；即使有民宿，也不为厨房牺牲恢复条件。</li>
+        <li><strong>雨崩：</strong>上村客栈不能覆盖下村夜；现在按冰湖住上村、神瀑后住下村拆开。只剩 1 间或评分/卫生风险明显的候选均淘汰。</li>
+        <li><strong>虎跳峡：</strong>桥头酒店和丽江酒店不能替代徒步中段住宿；最终固定 Halfway + Tina's 两晚。</li>
+        <li><strong>成都 / 西安：</strong>没有明确厨房或位置明显偏离的便宜公寓淘汰，保留两套已核到双卧与做饭条件的整租。</li>
       </ul>
     </div>
   </details>
   <details>
-    <summary>📌 下单前只需确认这些信息（平时折叠）</summary>
+    <summary>📌 下单顺序与唯一复核清单（平时折叠）</summary>
     <div class="detail-content">
+      <p><strong>第一批：</strong>喀纳斯、禾木、三十里营房、多玛、巴嘎、飞来寺、雨崩上下村、Halfway、Tina's、日瓦。<strong>第二批：</strong>国庆新疆段和所有连续住 2 晚以上的城市。<strong>第三批：</strong>普通一晚县城酒店。</p>
       <ul>
         <li><strong>所有订单：</strong>4 位成人、入住/离店日期、最终含税价、免费取消截止时间和最晚入住时间。</li>
-        <li><strong>民宿：</strong>确认是整套而非合住、两间能关门的卧室、允许开火，锅具/刀具/餐具和冰箱可用。</li>
-        <li><strong>自驾节点：</strong>停车位是否免费、是否需要提前报车牌、晚到后能否正常办理入住。</li>
-        <li><strong>高海拔节点：</strong>供氧方式、供暖开启时间、热水是否 24 小时；身体状态异常时不因不可退房费硬扛。</li>
-        <li><strong>稀缺房优先顺序：</strong>先白哈巴和禾木，再雨崩、巴嘎和日瓦；城市房等临近且免费取消政策清楚时再锁。</li>
+        <li><strong>民宿：</strong>整套而非合住、两间能关门的卧室、允许开火、锅具/刀具/餐具/冰箱可用；房东回复截图留存。</li>
+        <li><strong>酒店：</strong>必须按 2 间计算团队总价；“均 ¥X 起”仍通常是每间房价，不是 4 人总价。</li>
+        <li><strong>自驾：</strong>停车是否免费、是否报车牌、晚到能否入住；高海拔再确认供氧、供暖和 24 小时热水。</li>
       </ul>
     </div>
   </details>
-</section>
-
-<!-- Booking Sheet -->
-<section id="booking-sheet">
-  <div class="section-num">Booking Sheet</div>
-  <h2>最终住宿执行表</h2>
-  <p class="lead">住宿名称已经填定，后续只做一件事：按优先级下单，并在付款页更新价格和取消时间。价格口径仍是<strong>民宿 1 套或酒店 2 间的 4 人实际应付总价</strong>。</p>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>节点</th><th>入住日期</th><th>已经决定住哪里</th><th>当前 4 人总价</th><th>执行状态</th></tr></thead>
-      <tbody>
-        <tr><td><strong>张掖</strong></td><td>9月19日</td><td>张掖景珑国际酒店｜2 间</td><td>¥1,196</td><td><span class="tag drive">待下单</span></td></tr>
-        <tr><td><strong>敦煌</strong></td><td>9月23日</td><td>归宿家·清阑两室一厅｜1 套</td><td>¥364</td><td><span class="tag drive">待下单并确认厨房</span></td></tr>
-        <tr><td><strong>白哈巴</strong></td><td>9月28日</td><td>松漫 Alpine Lodge 两卧家庭房｜1 套</td><td>¥3,227</td><td><span class="tag drive">第一批锁房</span></td></tr>
-        <tr><td><strong>禾木</strong></td><td>9月29日-10月1日</td><td>禾木美丽峰阿依波木屋｜2 间</td><td>两晚约 ¥5,896</td><td><span class="tag drive">第一批锁房</span></td></tr>
-        <tr><td><strong>喀什</strong></td><td>10月7日、9-11日</td><td>速8·悦酒店（古城景区高台民居店）｜2 间</td><td>三晚约 ¥1,158</td><td><span class="tag drive">分两张订单</span></td></tr>
-        <tr><td><strong>巴嘎交通夜宿</strong></td><td>10月17日</td><td>维度仕有氧酒店｜2 间</td><td>¥776</td><td><span class="tag drive">电话确认后下单</span></td></tr>
-        <tr><td><strong>日喀则</strong></td><td>10月19日</td><td>至格酒店（日喀则藏隆广场店）｜2 间</td><td>¥468</td><td><span class="tag drive">待下单</span></td></tr>
-        <tr><td><strong>拉萨</strong></td><td>10月20-24日</td><td>如家酒店·neo（大昭寺八廓街店）｜2 间</td><td>四晚约 ¥1,400</td><td><span class="tag drive">待下单并确认停车</span></td></tr>
-        <tr><td><strong>雨崩上村</strong></td><td>11月3-6日</td><td>德钦雨崩山语民宿｜2 间双床</td><td>三晚约 ¥2,610</td><td><span class="tag drive">第一批锁房</span></td></tr>
-        <tr><td><strong>日瓦 / 香格里拉镇</strong></td><td>11月14-16日</td><td>念想酒店（稻城亚丁景区店）｜2 间</td><td>两晚约 ¥944</td><td><span class="tag drive">第一批锁房</span></td></tr>
-        <tr><td><strong>成都</strong></td><td>11月19-22日</td><td>玖境 ZEN9·设计师双卧套房｜1 套</td><td>三晚约 ¥1,245</td><td><span class="tag drive">待下单并确认停车</span></td></tr>
-        <tr><td><strong>西安</strong></td><td>11月22-25日</td><td>珍爱·温馨 Life 家庭两居室｜1 套</td><td>三晚约 ¥924</td><td><span class="tag drive">待下单并确认厨具</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="callout warn">
-    <div class="callout-title">填表时只认真实信息</div>
-    <p>最后下单前给民宿房东发同一套问题：<strong>4 位成人是否可住、是不是整套、是否有 2 间可关门的卧室、能否开火、锅具餐具是否齐、停车是否免费、最晚几点入住</strong>。平台客服或房东回复要截图留存；“两室一厅”“LOFT”“有厨房”三个标签都不能单独证明满足条件。</p>
-  </div>
 </section>
 
 <!-- Price Verification -->
 <section id="price-snapshot">
   <div class="section-num">Price Check</div>
   <h2>平台比价与核价口径</h2>
-  <p class="lead">本轮已经用登录态把携程基准价跑通，主表的住宿不再因为多开平台而反复摇摆。临付款只做<strong>同一房源、同一房型、同一取消条件</strong>的复核：民宿重点看途家 / 美团，酒店重点看去哪儿 / 飞猪；查询条件固定为真实日期、4 成人、人民币。</p>
+  <p class="lead">本轮已经用登录态完成携程候选实体与部分指定日期价格快照，49 个外地住宿区域都已选出唯一首选，不再因为多开平台反复摇摆。临付款只做<strong>同一房源、同一房型、同一取消条件</strong>的复核：民宿重点看途家 / 美团，酒店重点看去哪儿 / 飞猪；查询条件固定为真实日期、4 成人、人民币。</p>
   <div class="callout warn">
     <div class="callout-title">先纠正一个最容易超预算的误读</div>
-    <p>携程酒店列表在“2 间、4 成人”条件下显示的“均 ¥X 起”仍是<strong>每间房均价</strong>。例如张掖景珑国际酒店不是 4 人 ¥598，而是 ¥598/间，2 间合计约 ¥1,196/晚。上面的住宿总表已经全部按这个口径换算。</p>
+    <p>携程酒店列表在“2 间、4 成人”条件下显示的“均 ¥X 起”仍是<strong>每间房均价</strong>。例如张掖景珑国际酒店不是 4 人 ¥598，而是 ¥598/间，2 间合计约 ¥1,196/晚。总表里凡是写出金额的酒店都已按 2 间换算；没有返回可靠指定日期总价的节点明确写“付款页核价”，不会编一个数字填满。</p>
   </div>
   <div class="callout green">
     <div class="callout-title">最终换平台规则</div>
@@ -1564,7 +1585,7 @@ flowchart LR
     <table>
       <thead><tr><th>平台</th><th>主要用途</th><th>统一比较字段</th><th>本轮边界</th></tr></thead>
       <tbody>
-        <tr><td><strong>携程</strong></td><td>登录会员价基准；偏远节点库存和供氧酒店</td><td>1 套民宿或 2 间酒店、4 成人、含税/早餐/取消条件</td><td>已完成首轮指定日期快照；远期价格不等于锁价</td></tr>
+        <tr><td><strong>携程</strong></td><td>登录会员价基准；偏远节点库存和供氧酒店</td><td>1 套民宿或 2 间酒店、4 成人、含税/早餐/取消条件</td><td>已完成候选实体核对和部分指定日期快照；没有可靠返回的价格不写死</td></tr>
         <tr><td><strong>途家</strong></td><td>整套两居/三居、厨房、洗衣机和房屋结构</td><td>房费 + 清洁费 + 服务费后的 1 套总价</td><td>官网当前主要导向 App / 小程序，需手机端逐店复核</td></tr>
         <tr><td><strong>美团民宿</strong></td><td>城市民宿补充库存与本地优惠</td><td>同一套房、同一取消条件、停车与做饭规则</td><td>价格与房东规则以登录后的订单页为准</td></tr>
         <tr><td><strong>去哪儿 / 飞猪</strong></td><td>酒店备选比价</td><td>2 间房的含税总价，不比较单间裸价</td><td>只在携程候选确定后复核，避免把不同房型混在一起</td></tr>
@@ -1605,13 +1626,13 @@ flowchart LR
   <details>
     <summary>📌 04｜住宿锁房顺序</summary>
     <div class="detail-content">
-      <p>先锁：白哈巴/禾木、巴嘎乡交通夜宿、雨崩、日瓦。后锁：张掖、敦煌、日喀则、拉萨、成都、西安。默认优先可退、可停车、能洗澡睡稳的房，不追景观噱头。</p>
+      <p>先锁：喀纳斯/禾木、三十里营房/多玛/巴嘎、飞来寺、雨崩上下村、Halfway/Tina's、日瓦。再锁：国庆新疆段和连续住 2 晚以上的城市。最后锁：普通一晚县城酒店。默认优先可退、可停车、能洗澡睡稳的房。</p>
     </div>
   </details>
   <details>
     <summary>📌 05｜预算一眼版</summary>
     <div class="detail-content">
-      <p>当前 12 个已定住宿节点共 25 晚，价格快照合计约 20,208 元；其余 46 晚按团队平均约 387 元/晚预留后，住宿执行预算定为 38,000 元。全程 4 人总预算约 130,300 元，人均约 32,575 元。</p>
+      <p>70 晚外地住宿已经全部落到 49 个住宿区域和唯一首选，最后 1 晚回北京家里。已可靠核到金额的 24 晚快照约 16,529 元，其余夜晚仍按 2 间酒店或 1 套整租的真实住法留足弹性，住宿执行预算维持 38,000 元。全程 4 人总预算约 130,300 元，人均约 32,575 元。</p>
     </div>
   </details>
 </section>
@@ -1644,7 +1665,7 @@ flowchart LR
         <tr><td><strong>租车（73天含全险，提前1天取车）</strong></td><td>42,000</td><td>10,500</td><td>神州坦克300四驱约500元/天+全险约75元/天≈575元/天×73天≈42,000元；正规大平台、车源足、全国能修、理赔省心</td></tr>
         <tr><td><strong>油费</strong></td><td>14,500</td><td>3,625</td><td>按18000-19000km上沿留预算；坦克300综合油耗、海拔、怠速和绕行都会影响实际金额</td></tr>
         <tr><td><strong>过路费（ETC）</strong></td><td>3,500</td><td>875</td><td>北京→新疆高速+川西→成都→西安→北京高速，约3500元；独库/新藏/滇藏/G318国道无过路费</td></tr>
-        <tr><td><strong>住宿（71晚，民宿优先 / 酒店 2 间）</strong></td><td>38,000</td><td>9,500</td><td>已定的 12 个关键节点共 25 晚约 20,208 元；剩余 46 晚按 4 人团队平均约 387 元/晚预留，不再用单间起价低估成本</td></tr>
+        <tr><td><strong>住宿（71晚，民宿优先 / 酒店 2 间）</strong></td><td>38,000</td><td>9,500</td><td>70晚外地住宿均已选唯一首选，N71回北京家里为0元；已核金额的24晚快照约16,529元，其余按真实住法留预算，不用单间起价假装团队总价</td></tr>
         <tr><td><strong>餐饮</strong></td><td>15,000</td><td>3,750</td><td>约35-45天具备自炊条件；做饭日按约40元/人/天，并为新疆、成都、西安等特色餐和无厨房节点保留外食预算</td></tr>
         <tr><td><strong>门票+区间车（按默认执行版）</strong></td><td>4,000</td><td>1,000</td><td>已删除冈仁波齐、珠峰及相关区间车；只给喀纳斯/禾木、雨崩、亚丁等保留项目留预算</td></tr>
         <tr><td><strong>公共装备</strong></td><td>4,000</td><td>1,000</td><td>厨具/工具/安全装备/舒适装备约4,000元</td></tr>
@@ -1735,7 +1756,7 @@ flowchart LR
       <tbody>
         <tr><td><strong>租车</strong></td><td>坦克300车源、全险、是否允许进新疆/阿里、是否有限里</td><td>北京9月17日取车、11月28日还车；客服工号已记录；验车视频已拍</td></tr>
         <tr><td><strong>证件</strong></td><td>身份证、驾驶证、行驶证、边防证</td><td>边防证至少覆盖喀什塔县、阿里、日喀则</td></tr>
-        <tr><td><strong>住宿</strong></td><td>张掖、白哈巴/禾木、巴嘎乡、日喀则、拉萨、雨崩、日瓦、成都、西安</td><td>关键节点已锁，可免费取消时间已记清</td></tr>
+        <tr><td><strong>住宿</strong></td><td>喀纳斯/禾木、新藏线偏远点、雨崩上下村、虎跳峡两晚、日瓦及连续住宿城市</td><td>49个外地住宿区域都已下单，可免费取消时间已记清</td></tr>
         <tr><td><strong>路线</strong></td><td>G227、G315、独库、新藏线、川西路况</td><td>只看默认主线，不临时新增支线或景区任务</td></tr>
         <tr><td><strong>预约</strong></td><td>喀纳斯/禾木、雨崩、亚丁等保留项目</td><td>取消项不建提醒、不锁票、不订景区住宿</td></tr>
         <tr><td><strong>徒步</strong></td><td>雨崩、虎跳峡、亚丁开放情况与天气</td><td>一旦天气差或状态差，直接按降级方案执行</td></tr>
@@ -1830,7 +1851,7 @@ flowchart LR
   <h2>床车参考（本方案以住店为主，此节仅供参考）</h2>
   <div class="callout warn">
     <div class="callout-title">本方案住宿策略</div>
-    <p>72天全程住店（民宿/宾馆），<strong>不安排床车过夜</strong>。原因：①新藏线高海拔4500m+睡车极度危险；②在成都、西安等多晚城市，当前两居厨房民宿快照约308-415元/晚，通常比开2间同地段酒店更适合4人生活；③72天行程每天住店休息好，安全舒适最重要。禾木、白哈巴、雨崩和高原交通夜宿不套用城市民宿价格，床车仅用于午休/应急临时休息，不用于过夜。</p>
+    <p>72天全程住店（民宿/宾馆），<strong>不安排床车过夜</strong>。原因：①新藏线高海拔4500m+睡车极度危险；②在成都、西安等多晚城市，当前两居厨房民宿快照约308-415元/晚，通常比开2间同地段酒店更适合4人生活；③72天行程每天住店休息好，安全舒适最重要。喀纳斯、禾木、雨崩和高原交通夜宿不套用城市民宿价格，床车仅用于午休/应急临时休息，不用于过夜。</p>
   </div>
   <p>如部分路段想体验驻车露营（低海拔景区停车场如赛里木湖、纳帕海等），可带4人帐篷（约300-500元）偶尔露营，但新藏线/高海拔地区严禁睡车/睡帐篷。</p>
 </section>
@@ -2096,7 +2117,7 @@ function switchPacking(tab) {
 }
 
 function getMapPage(mode) {
-  return mode === 'offline' ? './route-map-offline.html?v=6' : './route-map-amap.html?v=6';
+  return mode === 'offline' ? './route-map-offline.html?v=7' : './route-map-amap.html?v=7';
 }
 function notifyMapResize() {
   var frame = document.getElementById('routePreviewFrame');
