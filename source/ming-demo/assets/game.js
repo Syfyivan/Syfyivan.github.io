@@ -2275,6 +2275,20 @@
     var i = Math.max(1, Math.min(3, index || 1)) - 1;
     return XUN[i];
   }
+  function sortActionsByPreferredOrder(actions, preferredOrder) {
+    if (!Array.isArray(actions) || !Array.isArray(preferredOrder) || !preferredOrder.length) return actions;
+    var preferredRank = {};
+    var baseOrder = {};
+    preferredOrder.forEach(function (id, idx) { preferredRank[id] = idx; });
+    actions.forEach(function (action, idx) { baseOrder[action.id] = idx; });
+    actions.sort(function (a, b) {
+      var aRank = Object.prototype.hasOwnProperty.call(preferredRank, a.id) ? preferredRank[a.id] : 999;
+      var bRank = Object.prototype.hasOwnProperty.call(preferredRank, b.id) ? preferredRank[b.id] : 999;
+      if (aRank !== bRank) return aRank - bRank;
+      return baseOrder[a.id] - baseOrder[b.id];
+    });
+    return actions;
+  }
   function pushMerchantSeasonTag(tag) {
     if (!tag) return;
     if (!S.本年商路季务) S.本年商路季务 = [];
@@ -8676,18 +8690,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               : ['m_winter_tail_first_remit', 'm_winter_tail_remit_drag', 'm_winter_tail_supply_duty', 'm_winter_tail_counter_note', 'm_winter_tail_home_body', 'm_winter_drag_split', 'm_winter_body_split']);
         }
         if (inheritedMerchantSupportBias) preferredOrder = prependPreferredOrder(merchantInheritedSupportPriorityIds(), preferredOrder);
-        if (preferredOrder.length) {
-          var preferredRank = {};
-          var baseOrder = {};
-          preferredOrder.forEach(function (id, idx) { preferredRank[id] = idx; });
-          A.forEach(function (action, idx) { baseOrder[action.id] = idx; });
-          A.sort(function (a, b) {
-            var aRank = Object.prototype.hasOwnProperty.call(preferredRank, a.id) ? preferredRank[a.id] : 999;
-            var bRank = Object.prototype.hasOwnProperty.call(preferredRank, b.id) ? preferredRank[b.id] : 999;
-            if (aRank !== bRank) return aRank - bRank;
-            return baseOrder[a.id] - baseOrder[b.id];
-          });
-        }
+        sortActionsByPreferredOrder(A, preferredOrder);
         return A;
       },
       settle: function (log) {
@@ -22011,6 +22014,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           });
         }
         A.push({ id: 'h_rest', name: '将养身子', cost: 1, eff: '体魄+5', desc: '中年这口身子就是账本的一部分，别把应役前先熬垮。', can: true });
+        var preferredOrder = [];
+        if (season.id === 'spring' && xun === 1) preferredOrder = ['h_spring_head_reply', 'h_spring_packet', 'h_literate', 'h_wharf'];
+        else if (season.id === 'spring' && xun === 2) preferredOrder = ['h_spring_reply', 'h_spring_incense', 'h_spring_deed', 'h_trust_field'];
+        else if (season.id === 'spring' && xun === 3) preferredOrder = ['h_spring_tail_reply', 'h_spring_tail_incense', 'h_spring_split', 'h_collect'];
+        else if (season.id === 'summer' && xun === 1) preferredOrder = ['h_summer_head_register', 'h_summer_head_reply', 'h_summer_home_packet', 'h_summer_cool'];
+        else if (season.id === 'summer' && xun === 2) preferredOrder = ['h_summer_mid_reply', 'h_summer_market', 'h_summer_packet', 'h_school_fund'];
+        else if (season.id === 'summer' && xun === 3) preferredOrder = ['h_summer_guest_sign', 'h_summer_tail', 'h_side'];
+        else if (season.id === 'autumn' && xun === 1) preferredOrder = ['h_autumn_head_remit', 'h_autumn_head_cloth_merchant', 'h_autumn_sign', 'h_autumn_receipt', 'h_school_fund'];
+        else if (season.id === 'autumn' && xun === 2) preferredOrder = ['h_autumn_mid_remit', 'h_autumn_mid_cloth', 'h_autumn_mid_reply', 'h_autumn_split', 'h_school_fund'];
+        else if (season.id === 'autumn' && xun === 3) preferredOrder = ['h_autumn_tail_remit', 'h_autumn_reply', 'h_autumn_register', 'h_autumn_tail', 'h_pay'];
+        else if (season.id === 'winter' && xun === 1) preferredOrder = ['h_winter_medicine', 'h_winter_gift', 'h_wharf', 'h_pay'];
+        else if (season.id === 'winter' && xun === 2) preferredOrder = ['h_winter_register', 'h_winter_school_packet', 'h_winter_clear', 'h_winter_route_split', 'h_pay'];
+        else if (season.id === 'winter' && xun === 3) preferredOrder = ['h_winter_post', 'h_winter_register_tail', 'h_winter_tail', 'h_winter_sample', 'h_winter_coal', 'h_pay'];
+        sortActionsByPreferredOrder(A, preferredOrder);
         return A;
       },
       settle: function (log) {
@@ -25170,13 +25187,31 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         });
 
         A.push({ id: 'e_rest', name: '静养含饴', cost: 1, eff: '体魄+4·家族+2', desc: '不再劳作，含饴弄孙，安养身心。', can: true });
-        return A.filter(function (a) {
+        var visibleActions = A.filter(function (a) {
           if (a.can !== false) return true;
           var why = String(a.why || '');
           return why.indexOf('这一旬') !== 0
             && why.indexOf('这一季') !== 0
             && why.indexOf('本年已') !== 0;
         });
+        var isMerchantRoute = S.路线.indexOf('徽商') === 0 || S.商历练 > 0 || S.累计回钱银 > 0 || S.累计反哺银 > 0 || S.未回款银 > 0;
+        if (isMerchantRoute) {
+          var elderPreferredOrder = [];
+          if (season.id === 'spring' && xun === 1) elderPreferredOrder = ['e_negotiate', 'e_route_spring_head_body_old', 'e_route_spring_head_old', 'e_route_price_old'];
+          else if (season.id === 'spring' && xun === 2) elderPreferredOrder = ['e_route_spring_reply_old', 'e_route_price_old', 'e_collect_old'];
+          else if (season.id === 'spring' && xun === 3) elderPreferredOrder = ['e_route_spring_packet_old', 'e_rest'];
+          else if (season.id === 'summer' && xun === 1) elderPreferredOrder = ['e_route_summer_head_school_old', 'e_route_summer_note_old', 'e_route_bundle_old', 'e_rest'];
+          else if (season.id === 'summer' && xun === 2) elderPreferredOrder = ['e_route_summer_school_old', 'e_route_summer_wharf_old', 'e_route_bundle_old', 'e_rest'];
+          else if (season.id === 'summer' && xun === 3) elderPreferredOrder = ['e_route_summer_tail_drag_old', 'e_route_summer_packet_old', 'e_rest'];
+          else if (season.id === 'autumn' && xun === 1) elderPreferredOrder = ['e_route_autumn_head_school_old', 'e_route_autumn_note_old', 'e_route_receipt_old', 'e_rent'];
+          else if (season.id === 'autumn' && xun === 2) elderPreferredOrder = ['e_collect_old', 'e_route_autumn_remit_old', 'e_route_autumn_school_old', 'e_route_autumn_mid_old', 'e_rent'];
+          else if (season.id === 'autumn' && xun === 3) elderPreferredOrder = ['e_route_autumn_tail_drag_old', 'e_route_autumn_tail_school_old', 'e_route_autumn_tail_old', 'e_rest'];
+          else if (season.id === 'winter' && xun === 1) elderPreferredOrder = ['e_route_winter_medicine_old', 'e_sell', 'e_route_guest_old', 'e_rest'];
+          else if (season.id === 'winter' && xun === 2) elderPreferredOrder = ['e_route_winter_school_old', 'e_route_winter_reply_old', 'e_route_guest_old', 'e_rest'];
+          else if (season.id === 'winter' && xun === 3) elderPreferredOrder = ['e_route_winter_school_tail_old', 'e_route_return_old', 'e_route_winter_tail_old', 'e_route_wharf_old', 'e_rest'];
+          sortActionsByPreferredOrder(visibleActions, elderPreferredOrder);
+        }
+        return visibleActions;
       },
       settle: function (log) {
         var stepLabel = season.name + '·' + xunLabel;
