@@ -600,8 +600,21 @@
     if (decay <= 0 && isCollateralCarry(carry)) decay = 1;
     return decay;
   }
+  function runtimeInheritanceDecaySeed() {
+    if (!S) return 0;
+    return lineageDecayLevel({
+      承继身份: S.承继身份,
+      承嗣来路: S.承嗣来路,
+      承继定位: S.承继定位,
+      旧门路衰减: S.旧门路衰减
+    });
+  }
   function currentLineageDecayLevel() {
-    return Math.max(lineageDecayLevel(carryOver || null), Math.max(0, Math.floor(Number(S.旧门路衰减 || 0))));
+    return Math.max(
+      lineageDecayLevel(carryOver || null),
+      runtimeInheritanceDecaySeed(),
+      Math.max(0, Math.floor(Number(S && S.旧门路衰减 || 0)))
+    );
   }
   function lineageDecayHint(level) {
     level = Math.max(0, Math.floor(level || 0));
@@ -2177,8 +2190,12 @@
     return XUN[i];
   }
   function examGuaranteeLabel(progress) {
-    if ((progress || 0) >= 2) return '保结已通';
-    if ((progress || 0) >= 1) return '已递帖样';
+    var chain = examGuaranteeChainState();
+    if (chain.review && chain.sponsor && chain.bond && chain.mutual) return '保结已通';
+    if (chain.sponsor) return '廪保已点头';
+    if (chain.bond) return '具结已具';
+    if (chain.mutual) return '互结已齐';
+    if (chain.draft || (progress || 0) >= 1) return '已递帖样';
     return '未递保结';
   }
   function examGuaranteeChainState() {
@@ -2200,8 +2217,8 @@
     S.保结廪保已具 = chain.sponsor;
     S.保结资格审查已过 = chain.review;
     if (chain.mutual && chain.bond && chain.sponsor && chain.review) S.保结进度 = 2;
-    else if (chain.mutual && chain.bond) S.保结进度 = Math.max(progress, 1);
-    else S.保结进度 = progress >= 1 ? 1 : 0;
+    else if (chain.draft) S.保结进度 = 1;
+    else S.保结进度 = 0;
     return chain;
   }
   function setExamGuaranteeProgress(progress) {
@@ -2217,8 +2234,10 @@
   function examGuaranteePendingLabel() {
     var chain = examGuaranteeChainState();
     if (!chain.draft) return '待履历帖样';
-    if (!(chain.mutual && chain.bond)) return '待互结具结';
-    if (!(chain.sponsor && chain.review)) return '待廪保审查';
+    if (!chain.mutual) return '待互结';
+    if (!chain.bond) return '待具结';
+    if (!chain.sponsor) return '待廪保';
+    if (!chain.review) return '待审查';
     return '资格链已全';
   }
   function examGuaranteeDetailLabel() {
@@ -2236,20 +2255,48 @@
       syncExamGuaranteeProgress();
       return 'draft';
     }
-    if (!(chain.mutual && chain.bond)) {
+    if (!chain.mutual) {
       S.保结互结已具 = true;
+      syncExamGuaranteeProgress();
+      return 'mutual';
+    }
+    if (!chain.bond) {
       S.保结具结已具 = true;
       syncExamGuaranteeProgress();
-      return 'network';
+      return 'bond';
     }
-    if (!(chain.sponsor && chain.review)) {
+    if (!chain.sponsor) {
       S.保结廪保已具 = true;
+      syncExamGuaranteeProgress();
+      return 'sponsor';
+    }
+    if (!chain.review) {
       S.保结资格审查已过 = true;
       syncExamGuaranteeProgress();
-      return 'approval';
+      return 'review';
     }
     syncExamGuaranteeProgress();
     return 'done';
+  }
+
+  function examGuaranteeActionName(seasonId) {
+    var pending = examGuaranteePendingLabel();
+    if (pending === '待履历帖样') return '先递保结帖样';
+    if (pending === '待互结') return seasonId === 'autumn' ? '先把秋里互结人头凑齐' : '先补互结人头';
+    if (pending === '待具结') return seasonId === 'autumn' ? '先把秋里具结文书补齐' : '先补具结文书';
+    if (pending === '待廪保') return seasonId === 'autumn' ? '赶在秋里奔走廪保' : '奔走廪保口风';
+    if (pending === '待审查') return seasonId === 'autumn' ? '赶在秋里过资格审查' : '补过资格审查';
+    return seasonId === 'autumn' ? '赶在秋里通保结' : '奔走廪保通保结';
+  }
+
+  function examGuaranteeActionDesc() {
+    var pending = examGuaranteePendingLabel();
+    if (pending === '待履历帖样') return '资格不通，本年就算想下场也不成。先把帖样、履历与廪保口风递到位，别把“已递帖样”省成一句话。若连春夏先理过的保帖底样都没有，秋冬这一旬就还谈不上真跑保结；就算底样先有了、读法也坐实了，廪保也未必立刻放话。';
+    if (pending === '待互结') return '帖样和履历已起头，这一旬得真把互结人头凑齐。没有同场互结，后头具结与廪保都只是空话；脚费先花出去，回话却未必当旬就落。';
+    if (pending === '待具结') return '互结已有人头，这一旬要把具结文书真补齐。资格链不是只要“有人肯说合”就算过半，具结没落纸，后头廪保与审查一样接不上。';
+    if (pending === '待廪保') return '互结与具结都已坐住，这一旬才轮到真跑廪保口风。廪保不点头，报名链条还只是半截；人情脚费先支了，回话也仍可能拖着。';
+    if (pending === '待审查') return '廪保口风已松，这一旬还得把资格审查真正过明。临门这一签不过，就还不能算“保结已通”，也不配把秋冬场当成当然能下。';
+    return '资格链已齐，这一旬若再奔走，也只是补旧门路，不会额外再涨一层保结。';
   }
   function examEnrollmentLabel(progress) {
     if ((progress || 0) >= 2) return '塾门坐实';
@@ -10291,14 +10338,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
           A.push({
             id: 'e_guarantee',
-            name: (S.保结进度 || 0) <= 0
-              ? '先递保结帖样'
-              : (season.id === 'autumn' ? '赶在秋里通保结' : '奔走廪保通保结'),
+            name: examGuaranteeActionName(season.id),
             cost: 1,
-            eff: '尝试推进保结进度·保结脚费先支80文·未点头则只落人情脚费',
-            desc: (S.保结进度 || 0) <= 0
-              ? '资格不通，本年就算想下场也不成。先把帖样、履历与廪保口风递到位，别把“已递帖样”省成一句话。若连春夏先理过的保帖底样都没有，秋冬这一旬就还谈不上真跑保结；就算底样先有了、读法也坐实了，廪保也未必立刻放话。'
-              : '资格不通，本年就算想下场也不成。帖样既已递过，这一旬再把廪保、互结与报名链条真正走通，才配说“保结已通”；人情脚费先花出去，回话却还可能拖着。',
+            eff: '尝试逐层推进保结资格链·保结脚费先支80文·未点头则只落人情脚费',
+            desc: examGuaranteeActionDesc(),
             can: !S.生员身份 && S.保结进度 < 2 && (season.id === 'autumn' || season.id === 'winter') && examStudyTrackReady() && examGuaranteeWindowReady() && examGuaranteeDraftReady(),
             why: examGuaranteeBlockedWhy(season.id),
             once: true
@@ -11343,22 +11386,25 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               var guaranteePay = settleExamAdvanceCost(80);
               var guaranteeBefore = S.保结进度 || 0;
               var guaranteeGateOk = examGuaranteeGateScore() >= examGuaranteeGateTarget();
+              var guaranteeActionName = examGuaranteeActionName(season.id);
               S.本年保结次数 += 1; S.本年保结支出文 += 80; S.本年延婚牵扯 += 1;
               if (guaranteeGateOk) {
                 var guaranteeAdvance = advanceExamGuaranteeChain();
                 var guaranteeAdvanceText = '';
-                if (guaranteeAdvance === 'network') {
-                  guaranteeAdvanceText = '。这一旬先把互结与具结接成线，履历底样不再只是纸上记号；但廪保口风和资格审查还得秋冬再跑一手。';
-                } else if (guaranteeAdvance === 'approval' || S.保结进度 >= 2) {
-                  guaranteeAdvanceText = '。到这一步，廪保终于肯点头，资格审查也见了光，报名链条才算真正走通。';
+                if (guaranteeAdvance === 'mutual') {
+                  guaranteeAdvanceText = '。这一旬先把互结人头凑齐，履历底样不再只是纸上记号；具结、廪保和资格审查还都在后头。';
+                } else if (guaranteeAdvance === 'bond') {
+                  guaranteeAdvanceText = '。这一旬先把具结文书补成，资格链才算从“有人肯说合”走到“有人肯具名”；廪保和资格审查还得再跑。';
+                } else if (guaranteeAdvance === 'sponsor') {
+                  guaranteeAdvanceText = '。这一旬先换来廪保点头，报名门路终于不是空口；但资格审查还差临门一签。';
+                } else if (guaranteeAdvance === 'review' || S.保结进度 >= 2) {
+                  guaranteeAdvanceText = '。到这一步，资格审查也见了光，报名链条才算真正走通。';
                 } else {
-                  guaranteeAdvanceText = '。这一旬只先把帖样、履历与廪保口风递到位，离“保结已通”还差后一步。';
+                  guaranteeAdvanceText = '。这一旬只先把帖样、履历与底稿递到位，离“保结已通”还差后头几层真资格。';
                 }
                 pushExamSeasonTag(stepTag + '保结');
                 log.push([
-                  ((guaranteeBefore <= 0)
-                    ? '先递保结帖样'
-                    : (season.id === 'autumn' ? '赶在秋里通保结' : '奔走廪保通保结'))
+                  guaranteeActionName
                     + '：保结进度推进到“' + examGuaranteeLabel(S.保结进度) + '”'
                     + guaranteePay.text
                     + guaranteeAdvanceText,
@@ -11369,12 +11415,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.供读压力 += 1;
                 pushExamSeasonTag(stepTag + '保结回话未定');
                 log.push([
-                  ((guaranteeBefore <= 0)
-                    ? '先递保结帖样'
-                    : (season.id === 'autumn' ? '赶在秋里通保结' : '奔走廪保通保结'))
+                  guaranteeActionName
                     + '：帖样、薄礼与脚费先支了'
                     + guaranteePay.text
-                    + '，廪保和互结这一旬却还没肯把口风放实，眼下还卡在“' + examGuaranteePendingLabel() + '”；保结进度未动、家族-1、供读压力+1。资格链条不是你肯花钱就会立刻点头。',
+                    + '，这一旬却还没肯把口风放实，眼下还卡在“' + examGuaranteePendingLabel() + '”；保结进度未动、家族-1、供读压力+1。资格链条不是你肯花钱就会立刻点头。',
                   'bad'
                 ]);
               }
