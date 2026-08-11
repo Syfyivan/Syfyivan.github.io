@@ -690,6 +690,11 @@
   function normalizeRouteAwareStateValue(key, value, emptyValue) {
     var s = normalizeCarryString(value, emptyValue);
     if (s === emptyValue) return emptyValue;
+    if (key === '婚配路径') {
+      if (s === '定额佃缓婚') return '暂不婚·改定额佃';
+      if (s === '合爨随兄·缓立小家') return '合爨随兄';
+      return s;
+    }
     if (key === '定额佃状态') {
       if (s === '已立' || s === '立定额佃') return '已立定额佃';
       return s;
@@ -4090,7 +4095,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       }
     }
     if (season.id === 'spring' && xun === 1) apply({
-      handledIds: ['m_shop', 'm_goods', 'm_market', 'm_letter', 'm_spring_head_packet', 'm_spring_school_split', 'm_spring_head_duty', 'm_spring_head_body', 'm_spring_second_head_route', 'm_spring_third_head_remit'],
+      handledIds: ['m_shop', 'm_goods', 'm_market', 'm_letter', 'm_spring_head_packet', 'm_spring_school_split', 'm_spring_head_duty', 'm_spring_head_body', 'm_spring_second_head_route', 'm_spring_second_head_remit', 'm_spring_third_head_remit'],
       doneTag: '开路碎费已理',
       doneLog: '〔开路碎费〕这一旬先把头程脚费、样纸、门包、归乡药包和柜上零碎认清了；春开路没有再被“刚起头的小钱和身家后手”悄悄咬薄。',
       cost: 35,
@@ -4101,7 +4106,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'spring' && xun === 2) apply({
-      handledIds: ['m_book', 'm_market', 'm_letter', 'm_packet', 'm_spring_home_split', 'm_spring_mid_school', 'm_spring_mid_body', 'm_spring_second_mid_trial', 'm_spring_third_mid_remit'],
+      handledIds: ['m_book', 'm_market', 'm_letter', 'm_packet', 'm_spring_home_split', 'm_spring_mid_school', 'm_spring_mid_body', 'm_spring_second_mid_trial', 'm_spring_second_mid_remit', 'm_spring_third_mid_remit'],
       doneTag: '开路回话已压',
       doneLog: '〔开路回话〕这一旬先把样价抄单、回话脚费、柜边包纸与春中药包拆开了；春里第二程不再只剩“继续学生意”，而是真把人情回话、家里锅火和身子后手一起压回同一年里。',
       cost: 30,
@@ -4112,7 +4117,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'spring' && xun === 3) apply({
-      handledIds: ['m_letter', 'm_home', 'm_reserve', 'm_market', 'm_spring_tail_split', 'm_spring_tail_goods', 'm_spring_tail_supply', 'm_spring_tail_body', 'm_spring_second_dispatch', 'm_spring_third_tail_remit'],
+      handledIds: ['m_letter', 'm_home', 'm_reserve', 'm_market', 'm_spring_tail_split', 'm_spring_tail_goods', 'm_spring_tail_supply', 'm_spring_tail_body', 'm_spring_second_dispatch', 'm_spring_second_tail_remit', 'm_spring_third_tail_remit'],
       doneTag: '春尾脚费已留',
       doneLog: '〔春尾脚费〕这一旬先把回乡带话脚费、柜边包纸、归乡药包和递话门包分开了；春开路收尾不再只剩一句“过了春再说”，连身子与家里催问也被压回同一年里。',
       cost: 30,
@@ -4134,7 +4139,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'body'
     });
     if (season.id === 'summer' && xun === 2) apply({
-      handledIds: ['m_shop', 'm_book', 'm_mend', 'm_rest', 'm_letter', 'm_summer_bundle', 'm_summer_conflict', 'm_summer_mid_reply_school', 'm_summer_mid_drag', 'm_summer_mid_remit_drag', 'm_summer_second_mid_remit', 'm_summer_third_remit'],
+      handledIds: ['m_shop', 'm_book', 'm_mend', 'm_rest', 'm_letter', 'm_summer_bundle', 'm_summer_conflict', 'm_summer_mid_reply_school', 'm_summer_mid_drag', 'm_summer_mid_remit_drag', 'm_summer_second_mid_trial', 'm_summer_second_mid_remit', 'm_summer_third_remit'],
       doneTag: '伏夏零耗已顾',
       doneLog: '〔伏夏零耗〕这一旬先把茶汤、草鞋、汗药、柜边回帖、孩子纸样和号里脚钱顾住了；热里这层细碎磨损没有再顺着柜上、货路、供读与身子一起滚大。',
       cost: 40,
@@ -4156,7 +4161,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'autumn' && xun === 1) apply({
-      handledIds: ['m_market', 'm_run', 'm_goods', 'm_collect', 'm_trial_capital', 'm_autumn_receipt', 'm_autumn_supply_split', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_head_remit_body', 'm_autumn_second_head_trial', 'm_autumn_second_head_remit'],
+      handledIds: ['m_market', 'm_run', 'm_goods', 'm_collect', 'm_trial_capital', 'm_autumn_receipt', 'm_autumn_supply_split', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_head_remit_body', 'm_autumn_second_head_trial', 'm_autumn_second_head_remit', 'm_autumn_third_head_return'],
       doneTag: '秋市碎费已拆',
       doneLog: '〔秋市碎费〕这一旬先把样货、牙行照面和秋路脚费拆开了；看着只是小钱，却没再把本年试手前的商路判断搅浑。',
       cost: 50,
@@ -4200,7 +4205,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'winter' && xun === 2) apply({
-      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_clear_packet', 'm_debt_split', 'm_winter_family_split', 'm_winter_mid_body', 'm_winter_mid_supply_duty', 'm_winter_mid_remit_school', 'm_winter_mid_third_remit'],
+      handledIds: ['m_collect', 'm_book', 'm_letter', 'm_reserve', 'm_clear_packet', 'm_debt_split', 'm_winter_family_split', 'm_winter_mid_body', 'm_winter_mid_supply_duty', 'm_winter_second_mid_trial', 'm_winter_mid_remit_school', 'm_winter_mid_third_remit'],
       doneTag: '清账回话已压',
       doneLog: '〔清账回话〕这一旬先把回话脚费、清账门包、药包、来春样纸定钱和给熟号递话的小礼分开了；冬里第二程不再只剩“催账”，而是真把清账的人情碎费与身子后手一起摊回这一旬。',
       cost: 45,
