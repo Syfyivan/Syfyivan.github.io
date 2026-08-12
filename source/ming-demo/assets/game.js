@@ -5155,8 +5155,21 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       .trim();
   }
 
+  function plainStoryText(text) {
+    return plainActionWords(text)
+      .replace(/[“"]?三百千[”"]?底子/g, '识字底子')
+      .replace(/[“"]?三百千[”"]?/g, '常用启蒙读物')
+      .replace(/谁真肯家里出钱供你读书/g, '家里谁肯继续出钱供你读书')
+      .replace(/私塾回话/g, '私塾答复')
+      .replace(/供读/g, '家里出钱供你读书')
+      .replace(/坐实/g, '确定下来')
+      .replace(/口风/g, '态度')
+      .replace(/见账/g, '真正发生')
+      .replace(/身耗/g, '身体损耗');
+  }
+
   function sceneLead(html) {
-    var text = stagePlainText(html);
+    var text = plainStoryText(stagePlainText(html));
     if (text.length <= 92) return text;
     var cut = -1;
     for (var i = 42; i < Math.min(text.length, 92); i++) {
@@ -5175,7 +5188,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var plain = stagePlainText(narrativeHtml);
     var h = '<div class="story-card"><div class="story-label">眼下</div>';
     if (plain.length <= 92) {
-      h += '<div class="story-lead">' + narrativeHtml + '</div>';
+      h += '<div class="story-lead">' + escapeHtml(plainStoryText(plain)) + '</div>';
     } else {
       h += '<div class="story-lead">' + escapeHtml(sceneLead(narrativeHtml)) + '</div>';
       h += '<details class="story-more"><summary>读完整处境</summary><div class="narr">' + narrativeHtml + '</div></details>';
@@ -5199,6 +5212,54 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     }
     h += '</div>';
     return h;
+  }
+
+  function publicBodyLabel(value) {
+    var body = Number(value) || 0;
+    if (body >= 70) return '精神很好';
+    if (body >= 52) return '还撑得住';
+    if (body >= 38) return '已有疲态';
+    return '需要休养';
+  }
+
+  function publicFamilyLabel(value) {
+    var family = Number(value) || 0;
+    if (family >= 70) return '彼此照应';
+    if (family >= 52) return '尚算安稳';
+    if (family >= 38) return '有些紧张';
+    return '非常吃紧';
+  }
+
+  function publicExamProgressLabel() {
+    if (S.生员身份) return '已经考中秀才';
+    if (S.本年应试结果 && S.本年应试结果 !== '未下场') return examAttemptResultLabel(S.本年应试结果, S.本年应场受阻次数);
+    if ((S.保结进度 || 0) >= 2) return '报名准备基本齐全';
+    if ((S.文章火候 || 0) >= 3) return '正在准备报名应试';
+    if ((S.投塾进度 || 0) > 0) return '已经开始跟老师读书';
+    if (S.识字) return '已有识字底子';
+    return '先从识字开始';
+  }
+
+  function publicStatusDetails() {
+    var items = [];
+    function add(label, value, cls) {
+      if (value === undefined || value === null || value === '') return;
+      items.push('<span class="chip' + (cls ? (' ' + cls) : '') + '">' + label + ' <b>' + value + '</b></span>');
+    }
+    add('身份', escapeHtml(S.身份 || '未定'));
+    add('田产', (S.田亩 || 0) + '亩');
+    add('家里关系', publicFamilyLabel(S.家族));
+    if (S.负债银 > 0) add('欠债', S.负债银 + '两', 'debt');
+    if (S.妻室 || S.子数 || S.女数) {
+      add('家室', (S.妻室 ? '已成家' : '未成家') + ' · ' + (S.子数 || 0) + '男' + (S.女数 || 0) + '女');
+    }
+    if (phase === 'civilExam') add('读书进展', publicExamProgressLabel());
+    else if (phase === 'merchant') add('生意进展', escapeHtml(S.商身份 || '刚入行'));
+    else if (phase === 'apprentice') add('学艺进展', escapeHtml(S.学徒阶段 || '刚入门'));
+    else if (phase === 'wage') add('做工处境', escapeHtml(S.雇身份 || '找活谋生'));
+    else if (phase === 'farm') add('庄稼', growthInfo().label || '尚未开种');
+    else if (phase === 'establishment') add('识字', S.识字 ? '认得常用字' : '尚未识字');
+    return items;
   }
 
   function renderStatus() {
@@ -5310,11 +5371,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     core += '<span class="chip">第 <b>' + generation + '</b> 代 · <b>' + S.年龄 + '</b> 岁</span>';
     core += '<span class="chip">' + curLabel() + '</span>';
     core += '<span class="chip">' + escapeHtml(routeLabel || '尚未立身') + '</span>';
-    core += '<span class="chip hp">体魄 <b>' + S.体魄 + '</b></span>';
+    core += '<span class="chip hp">身体 <b>' + publicBodyLabel(S.体魄) + '</b></span>';
     core += '<span class="chip coin">银 <b>' + S.白银 + '</b> · 钱 <b>' + S.铜钱 + '</b> · 米 <b>' + S.存米 + '</b></span>';
-    var detailCount = (h.match(/class="chip/g) || []).length;
+    var publicDetails = publicStatusDetails();
     $('status').innerHTML = '<div class="status-core">' + core + '</div>' +
-      '<details class="status-more"><summary>更多状态 · ' + detailCount + ' 项</summary><div class="status-full">' + h + '</div></details>';
+      '<details class="status-more"><summary>重要情况 · ' + publicDetails.length + ' 项</summary><div class="status-full">' + publicDetails.join('') + '</div></details>' +
+      '<template class="status-debug">' + h + '</template>';
   }
 
   function spent() { return picks.reduce(function (a, p) { return a + p.cost; }, 0); }
@@ -5349,25 +5411,37 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       return;
     }
 
-    h += '<div class="ap-head"><h3>' + (isHarvest ? '收割旬 · 分配行动点' : '这一旬 · 分配行动点') + '</h3>' +
-      '<span class="ap-dots">剩余 <b>' + remainAP() + '</b> / ' + AP_PER_XUN + ' 点</span></div>';
-    h += '<div class="actions">';
-    availableActions().forEach(function (a) {
+    h += '<div class="ap-head"><h3>' + (isHarvest ? '收割旬 · 先做什么？' : '这一旬 · 先做什么？') + '</h3>' +
+      '<span class="ap-dots">可用精力 <b>' + remainAP() + '</b> / ' + AP_PER_XUN + '</span></div>';
+    var farmActions = availableActions();
+    var farmPrimary = farmActions.slice(0, 3);
+    var farmExtra = farmActions.slice(3);
+    function renderFarmCard(a, primary) {
       var picked = picks.filter(function (p) { return p.id === a.id; }).length;
       var disabled = !a.can || a.cost > remainAP() || (picked > 0 && isOnce(a.id));
-      h += '<button class="act" data-id="' + a.id + '"' + (disabled ? ' disabled' : '') + '>' +
-        '<span class="a-top"><span class="a-name">' + a.name + '</span>' +
-        '<span class="a-cost">' + a.cost + '点' + (a.money ? ' -' + a.money + '文' : '') + '</span></span>' +
-        '<span class="a-eff">▸ ' + a.eff + '</span>' +
-        '<span class="a-desc">' + a.desc + (a.can ? '' : '（' + (a.why || '不可选') + '）') + '</span>' +
+      return '<button class="act' + (primary ? ' act-primary' : '') + '" data-id="' + a.id + '" data-source-name="' + actionSourceNameAttr(a.name) + '" data-source-desc="' + actionSourceNameAttr(a.desc) + '"' + (disabled ? ' disabled' : '') + '>' +
+        '<span class="a-role">' + (primary ? '眼下要紧' : actionKind(a)) + '</span>' +
+        '<span class="a-top"><span class="a-name">' + plainActionName(a.name, a.id) + '</span>' +
+        '<span class="a-cost">花 ' + a.cost + ' 点精力</span></span>' +
+        '<span class="a-eff">结果：' + plainActionEffect(a.eff) + '</span>' +
+        '<span class="a-link">' + actionConnectionText(a, primary) + '</span>' +
+        (!a.can ? '<span class="a-blocked">暂时不能选：' + plainBlockedReason(a.why || '条件未满足') + '</span>' : '') +
         (picked ? '<span class="a-picked">已选 ×' + picked + '</span>' : '') +
         '</button>';
-    });
+    }
+    h += '<div class="action-group-head"><strong>眼下最要紧</strong><span>先看这三项就够了</span></div>';
+    h += '<div class="actions primary-actions">';
+    farmPrimary.forEach(function (a) { h += renderFarmCard(a, true); });
     h += '</div>';
+    if (farmExtra.length) {
+      h += '<details class="more-actions"><summary><strong>其他安排</strong><span>按需展开</span></summary><div class="actions more-actions-body">';
+      farmExtra.forEach(function (a) { h += renderFarmCard(a, false); });
+      h += '</div></details>';
+    }
 
     h += '<div class="commit">';
     h += '<button id="btn-commit"' + (picks.length ? '' : ' disabled') + '>结算这一旬（旬末看天）</button>';
-    h += '<span class="hint">' + (picks.length ? ('已排：' + picks.map(function (p) { return p.name; }).join('、')) : '点上面的动作来安排这一旬。剩余行动点用不完也可提前结算。') + '</span>';
+    h += '<span class="hint">' + (picks.length ? ('已选：' + picks.map(function (p) { return plainActionName(p.name, p.id); }).join('、')) : '选好这一旬最想做的事；精力用不完也可以继续。') + '</span>';
     h += '</div>';
 
     $('stage').innerHTML = h;
@@ -5536,9 +5610,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
 
     var rh = '<div class="resolve"><h4>旬末结算 · ' + curLabel() + ' · 天气' + curWeather.k + '</h4>';
     if (!log.length) rh += '<div class="line">这一旬无所作为，光阴空过。</div>';
-    log.forEach(function (l) { rh += '<div class="line ' + l[1] + '">· ' + l[0] + '</div>'; });
+    log.forEach(function (l) { rh += '<div class="line ' + l[1] + '">· ' + plainActionEffect(l[0]) + '<template class="log-debug">' + l[0] + '</template></div>'; });
     var after = snapshot();
-    rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">守恒：铜钱 ' + before.铜钱 + '→' + after.铜钱 + ' ｜ 存米 ' + before.存米 + '→' + after.存米 + ' ｜ 体魄 ' + before.体魄 + '→' + after.体魄 + '</div>';
+    rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">这一旬过后：铜钱 ' + before.铜钱 + '→' + after.铜钱 + ' ｜ 存米 ' + before.存米 + '→' + after.存米 + ' ｜ 身体 ' + publicBodyLabel(before.体魄) + '→' + publicBodyLabel(after.体魄) + '<template class="log-debug">体魄 ' + before.体魄 + '→' + after.体魄 + '</template></div>';
     rh += '</div>';
     resolved = rh;
     renderStage(); renderLedger(); renderStatus();
@@ -5633,7 +5707,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var after = snapshot();
     var moreYear = (S.农年 < FARM_YEARS);
     var rh = '<div class="resolve"><h4>第 ' + S.农年 + ' 农年 · 年终结账（照约强制）</h4>';
-    log.forEach(function (l) { rh += '<div class="line ' + (l[1] === 'warn' ? 'good' : l[1]) + '">· ' + l[0] + '</div>'; });
+    log.forEach(function (l) { rh += '<div class="line ' + (l[1] === 'warn' ? 'good' : l[1]) + '">· ' + plainActionEffect(l[0]) + '<template class="log-debug">' + l[0] + '</template></div>'; });
     rh += '<div class="line" style="margin-top:.4rem">· ' + comment + '</div>';
     rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">守恒：白银 ' + before.白银 + '→' + after.白银 + ' ｜ 铜钱 ' + before.铜钱 + '→' + after.铜钱 + ' ｜ 存米 ' + before.存米 + '→' + after.存米 + (S.负债银 > 0 ? ' ｜ 负债 ' + S.负债银 + '两' : '') + '</div>';
     rh += '</div>';
@@ -5732,25 +5806,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     renderChildhood();
   }
 
-  // 成长档案条：识字/技艺/历练进度可视化
+  // 成长阶段也只展示孩子能感受到的变化；具体累计次数仍由后台保存。
   function childDossier() {
-    var rows = [
-      { label: '识字开蒙', cur: S.识字 ? 2 : S.识字进度, max: 2, done: S.识字, doneTxt: '已识字', cls: 'g-ok' },
-      { label: '手艺傍身', cur: S.技艺 !== '无' ? 2 : S.技艺进度, max: 2, done: S.技艺 !== '无', doneTxt: '已学成', cls: 'g-good' },
-      { label: '农事历练', cur: Math.min(6, S.农事历练), max: 6, done: false, cls: 'g-thin' },
-      { label: '家务历练', cur: Math.min(6, S.家务历练), max: 6, done: false, cls: 'g-thin' }
-    ];
-    var h = '<details class="dossier"><summary>成长档案 · 这些年攒下的底子</summary><div class="dossier-body">' +
-      '<div class="crop-bar g-ok"><div class="cb-head"><span class="cb-title">🧒 成长档案 · 这些年攒下的底子</span>' +
-      '<span class="cb-val">体魄 ' + S.体魄 + '</span></div>';
-    rows.forEach(function (r) {
-      var pct = Math.round(r.cur / r.max * 100);
-      h += '<div style="margin:.25rem 0"><div class="cb-head" style="font-size:.85em"><span>' + r.label + '</span>' +
-        '<span class="cb-val">' + (r.done ? r.doneTxt : (r.cur + '/' + r.max)) + '</span></div>' +
-        '<div class="cb-track"><i style="width:' + pct + '%"></i></div></div>';
-    });
-    h += '</div></div></details>';
-    return h;
+    var literacy = S.识字 ? '已经认得常用字' : ((S.识字进度 || 0) > 0 ? '正在学认字' : '还没开始认字');
+    var craft = S.技艺 !== '无' ? '已经学会一门手艺' : ((S.技艺进度 || 0) > 0 ? '正在跟人学手艺' : '还没有手艺');
+    var field = (S.农事历练 || 0) >= 3 ? '田里的活已经熟悉' : ((S.农事历练 || 0) > 0 ? '跟着大人做过农活' : '还不熟悉农活');
+    var home = (S.家务历练 || 0) >= 3 ? '家里的活已经能担起来' : ((S.家务历练 || 0) > 0 ? '开始帮家里做事' : '还少有家务经验');
+    return '<details class="dossier"><summary>这些年学会了什么</summary><div class="dossier-body">' +
+      '<div class="crop-bar g-ok"><div class="cb-head"><span class="cb-title">成长经历</span>' +
+      '<span class="cb-val">身体' + publicBodyLabel(S.体魄) + '</span></div>' +
+      '<div class="cb-tip">' + [literacy, craft, field, home].join(' ｜ ') + '</div></div></div></details>' +
+      '<template class="dossier-debug">识字进度=' + (S.识字进度 || 0) + '/2｜技艺进度=' + (S.技艺进度 || 0) + '/2｜农事历练=' + (S.农事历练 || 0) + '/6｜家务历练=' + (S.家务历练 || 0) + '/6｜体魄=' + S.体魄 + '</template>';
   }
 
   function renderChildhood() {
@@ -5783,24 +5849,36 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       return;
     }
 
-    h += '<div class="ap-head"><h3>' + (isLast ? '这一轮（段末）· 分配行动点' : '这一轮 · 分配行动点') + '</h3>' +
-      '<span class="ap-dots">剩余 <b>' + childRemainAP() + '</b> / ' + CHILD_AP + ' 点</span></div>';
-    h += '<div class="actions">';
-    childActions().forEach(function (a) {
+    h += '<div class="ap-head"><h3>' + (isLast ? '长大以前，这一轮先做什么？' : '这一轮先做什么？') + '</h3>' +
+      '<span class="ap-dots">可用精力 <b>' + childRemainAP() + '</b> / ' + CHILD_AP + '</span></div>';
+    var childhoodActions = childActions();
+    var childhoodPrimary = childhoodActions.slice(0, 3);
+    var childhoodExtra = childhoodActions.slice(3);
+    function renderChildCard(a, primary) {
       var picked = childPicks.filter(function (p) { return p.id === a.id; }).length;
       var disabled = !a.can || a.cost > childRemainAP() || (picked > 0 && a.once);
-      h += '<button class="act" data-id="' + a.id + '"' + (disabled ? ' disabled' : '') + '>' +
-        '<span class="a-top"><span class="a-name">' + a.name + '</span>' +
-        '<span class="a-cost">' + a.cost + '点' + (a.money ? ' -' + a.money + '文' : '') + '</span></span>' +
-        '<span class="a-eff">▸ ' + a.eff + '</span>' +
-        '<span class="a-desc">' + a.desc + (a.can ? '' : '（' + (a.why || '不可选') + '）') + '</span>' +
+      return '<button class="act' + (primary ? ' act-primary' : '') + '" data-id="' + a.id + '" data-source-name="' + actionSourceNameAttr(a.name) + '" data-source-desc="' + actionSourceNameAttr(a.desc) + '"' + (disabled ? ' disabled' : '') + '>' +
+        '<span class="a-role">' + (primary ? '眼下要紧' : actionKind(a)) + '</span>' +
+        '<span class="a-top"><span class="a-name">' + plainActionName(a.name, a.id) + '</span>' +
+        '<span class="a-cost">花 ' + a.cost + ' 点精力</span></span>' +
+        '<span class="a-eff">结果：' + plainActionEffect(a.eff) + '</span>' +
+        '<span class="a-link">' + actionConnectionText(a, primary) + '</span>' +
+        (!a.can ? '<span class="a-blocked">暂时不能选：' + plainBlockedReason(a.why || '条件未满足') + '</span>' : '') +
         (picked ? '<span class="a-picked">已选 ×' + picked + '</span>' : '') +
         '</button>';
-    });
+    }
+    h += '<div class="action-group-head"><strong>眼下最要紧</strong><span>先看这三项就够了</span></div>';
+    h += '<div class="actions primary-actions">';
+    childhoodPrimary.forEach(function (a) { h += renderChildCard(a, true); });
     h += '</div>';
+    if (childhoodExtra.length) {
+      h += '<details class="more-actions"><summary><strong>其他安排</strong><span>按需展开</span></summary><div class="actions more-actions-body">';
+      childhoodExtra.forEach(function (a) { h += renderChildCard(a, false); });
+      h += '</div></details>';
+    }
     h += '<div class="commit">';
     h += '<button id="btn-ccommit"' + (childPicks.length ? '' : ' disabled') + '>' + (isLast ? '结算这一轮并结家计账 →' : '结算这一轮 →') + '</button>';
-    h += '<span class="hint">' + (childPicks.length ? ('已排：' + childPicks.map(function (p) { return p.name; }).join('、')) : '点上面的活计来安排这一轮。行动点用不完也可提前结算。') + '</span>';
+    h += '<span class="hint">' + (childPicks.length ? ('已选：' + childPicks.map(function (p) { return plainActionName(p.name, p.id); }).join('、')) : '选好这一轮最想做的事；精力用不完也可以继续。') + '</span>';
     h += '</div>';
 
     $('stage').innerHTML = h;
@@ -5852,9 +5930,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
 
     var rh = '<div class="resolve"><h4>结算 · ' + st.name + '（' + st.age + '岁）· 第 ' + (childRound + 1) + '/' + st.rounds + ' 轮</h4>';
     if (!log.length) rh += '<div class="line">这一轮无所作为，光阴空过。</div>';
-    log.forEach(function (l) { rh += '<div class="line ' + l[1] + '">· ' + l[0] + '</div>'; });
+    log.forEach(function (l) { rh += '<div class="line ' + l[1] + '">· ' + plainActionEffect(l[0]) + '<template class="log-debug">' + l[0] + '</template></div>'; });
     var after = snapshot();
-    rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">守恒：铜钱 ' + before.铜钱 + '→' + after.铜钱 + ' ｜ 存米 ' + before.存米 + '→' + after.存米 + ' ｜ 体魄 ' + before.体魄 + '→' + after.体魄 + '</div>';
+    rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">这一轮过后：铜钱 ' + before.铜钱 + '→' + after.铜钱 + ' ｜ 存米 ' + before.存米 + '→' + after.存米 + ' ｜ 身体 ' + publicBodyLabel(before.体魄) + '→' + publicBodyLabel(after.体魄) + '<template class="log-debug">体魄 ' + before.体魄 + '→' + after.体魄 + '</template></div>';
     rh += '</div>';
     childResolved = rh;
     renderChildhood(); renderLedger(); renderStatus();
@@ -6220,7 +6298,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     recordEntry(st.title + '：' + (lifePicks.length ? lifePicks.map(function (p) { return p.name; }).join('、') : '未作安排'), before, '');
     var rh = '<div class="resolve"><h4>结算 · ' + st.title + '（' + S.年龄 + '岁）</h4>';
     if (!log.length) rh += '<div class="line">这一程未作特别安排。</div>';
-    log.forEach(function (l) { rh += '<div class="line ' + l[1] + '">· ' + l[0] + '</div>'; });
+    log.forEach(function (l) { rh += '<div class="line ' + l[1] + '">· ' + plainActionEffect(l[0]) + '<template class="log-debug">' + l[0] + '</template></div>'; });
     var after = snapshot();
     rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">守恒：白银 ' + before.白银 + '→' + after.白银 + ' ｜ 铜钱 ' + before.铜钱 + '→' + after.铜钱 + ' ｜ 存米 ' + before.存米 + '→' + after.存米 + '</div>';
     rh += '</div>';
@@ -6316,16 +6394,56 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
 
   // 选项层只讲“现在为什么做、做完接到哪里”；史料风的细账仍留在结算与账本里。
   // 这样不会丢掉模拟深度，也不要求玩家先学会一套明代文书词才能做决定。
+  function plainActionWords(text) {
+    return String(text || '')
+      .replace(/保结保帖样?|保结帖样/g, '报名担保文书')
+      .replace(/保结帖/g, '报名担保文书')
+      .replace(/保帖底样/g, '报名文书底稿')
+      .replace(/保结/g, '报名担保')
+      .replace(/保帖/g, '担保文书')
+      .replace(/帖样/g, '文书样本')
+      .replace(/履历草单/g, '经历草稿')
+      .replace(/馆批|回批/g, '老师回话')
+      .replace(/塾门/g, '私塾')
+      .replace(/馆课/g, '跟老师读书')
+      .replace(/馆札|馆帖/g, '老师回信')
+      .replace(/题样/g, '识字题目')
+      .replace(/回札|回签|回帖/g, '回信')
+      .replace(/束脩/g, '学费')
+      .replace(/盘缠/g, '路费')
+      .replace(/水脚|脚路|脚单|脚费/g, '路费')
+      .replace(/门包/g, '打点钱')
+      .replace(/锅火/g, '家用')
+      .replace(/差钱口风|差票|差帖/g, '差役开销')
+      .replace(/纸样|样纸/g, '文书纸张')
+      .replace(/柜签/g, '商号回信')
+      .replace(/牙帖/g, '行商文书')
+      .replace(/熟号/g, '老主顾')
+      .replace(/香纸/g, '祭扫花销')
+      .replace(/炭笔/g, '笔墨')
+      .replace(/护嗓/g, '嗓子药')
+      .replace(/塾师/g, '老师')
+      .replace(/投塾进度/g, '读书去处')
+      .replace(/纳银代役/g, '花钱免役')
+      .replace(/里役/g, '差役')
+      .replace(/名色/g, '秀才身份')
+      .replace(/阄书/g, '分家文书')
+      .replace(/成算/g, '商量结果')
+      .replace(/评文/g, '批改文章')
+      .replace(/下场|应场/g, '参加考试')
+      .replace(/入泮/g, '考中秀才');
+  }
+
   function plainActionName(name, id) {
     if (id === 'e_literacy') return '再练一旬识字和认题';
     if (id === 'e_guarantee') return '正式找人担保报名';
     if (id === 'e_guarantee_prep') return '先准备报名担保文书';
     if (/^e_year\d_/.test(id || '')) {
-      if (/婚/.test(name)) return '先把婚事和读书的钱分开';
-      if (/识字/.test(name)) return '先把识字练习和老师回话的钱分开';
-      if (/供读|家中/.test(name)) return '先把老师回话和家里供书的钱分开';
-      if (/保结|保帖|履历/.test(name)) return '先把报名文书和跑腿的钱分开';
-      return '先把这一旬的读书杂费分开';
+      if (/婚/.test(name)) return '给婚事和读书分别留钱';
+      if (/识字/.test(name)) return '给练字和请教老师留钱';
+      if (/供读|家中/.test(name)) return '先留好家里的读书钱';
+      if (/保结|保帖|履历/.test(name)) return '先留好报名文书和跑腿钱';
+      return '先留好这旬的读书杂费';
     }
     var exact = {
       '请塾师评文改卷': '请老师批改文章',
@@ -6338,34 +6456,56 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       '歇息养身': '休息养身'
     };
     if (exact[name]) return exact[name];
-    return String(name || '')
-      .replace(/保结保帖样?|保结帖样/g, '报名担保文书')
-      .replace(/评文/g, '批改文章')
-      .replace(/保结/g, '报名担保')
-      .replace(/保帖/g, '担保文书')
-      .replace(/帖样/g, '文书样本')
-      .replace(/履历草单/g, '经历草稿')
-      .replace(/馆批|回批/g, '老师回话')
-      .replace(/塾门/g, '私塾')
-      .replace(/馆课/g, '塾馆功课')
-      .replace(/题样/g, '识字题目')
-      .replace(/回札|回签/g, '回信')
-      .replace(/束脩/g, '学费')
-      .replace(/脚费/g, '跑腿钱')
-      .replace(/盘缠/g, '路费')
-      .replace(/下场|应场/g, '参加考试')
-      .replace(/入泮/g, '考中秀才');
+    var readable = plainActionWords(name);
+    var split = readable.match(/^先把(.+?)(?:分开|拆开|理开)$/);
+    if (split) return '预留好：' + split[1].replace(/与/g, '和');
+    return readable;
+  }
+
+  function publicDeltaText(label, direction, amount, unit) {
+    label = plainActionWords(label);
+    if (/铜钱|白银|存米|田亩|负债/.test(label)) return label + direction + amount + (unit || '');
+    if (/成本档/.test(label)) return direction === '+' ? '家里读书负担加重' : '家里读书负担减轻';
+    if (/供读压力/.test(label)) return direction === '+' ? '家里供书更吃紧' : '家里供书压力减轻';
+    if (/体魄|身子/.test(label)) return direction === '+' ? '身体有所恢复' : '身体会更疲惫';
+    if (/家族|人情|信誉|信任|声望/.test(label)) return direction === '+' ? '人情关系更稳' : '人情关系受损';
+    if (/文章|识字|认货|核账|问价|授艺|技艺|历练|转业/.test(label)) return direction === '+' ? '相关本领更熟练' : '相关本领有所生疏';
+    if (/报名|文书|投塾|举链|进度|准备/.test(label)) return direction === '+' ? '主线准备更进一步' : '主线准备有所退后';
+    if (/将养|歇养|衣药/.test(label)) return direction === '+' ? '照料身体更周全' : '身体照料有所欠缺';
+    if (/家书|贴家|供读|家计|回款/.test(label)) return direction === '+' ? '家中安排更稳' : '家中安排更吃紧';
+    if (/风险/.test(label)) return direction === '-' ? '风险降低' : '风险升高';
+    return '会影响后面的机会';
   }
 
   function plainActionEffect(eff) {
-    return String(eff || '')
-      .replace(/文章火候/g, '文章水平')
-      .replace(/保帖底样/g, '报名文书底稿')
-      .replace(/保结/g, '报名担保')
-      .replace(/识字转业值/g, '抄写谋生底子')
-      .replace(/供读压力/g, '家里供书压力')
-      .replace(/将养/g, '养身准备')
-      .replace(/缓婚事口风/g, '缓一缓婚事');
+    var readable = plainActionWords(eff)
+      .replace(/缓婚事口风/g, '婚事压力缓一缓')
+      .replace(/风险降/g, '风险降低')
+      .replace(/家族\+/g, '人情关系更稳')
+      .replace(/家族-/g, '人情关系受损')
+      .replace(/核账\/备役更实/g, '账目和差役准备更稳');
+    readable = readable.replace(/([\u4e00-\u9fa5A-Za-z]+)([+-])(\d+)(文|两|石|亩|%|线|次|旬)?/g, function (_, label, direction, amount, unit) {
+      return publicDeltaText(label, direction, amount, unit);
+    });
+    return readable
+      .replace(/\(满\d+[^)]*\)/g, '（练熟后会更稳）')
+      .replace(/(?:会影响后面的机会)(?:·会影响后面的机会)+/g, '会影响后面的机会')
+      .replace(/(?:相关本领更熟练)(?:·相关本领更熟练)+/g, '相关本领更熟练');
+  }
+
+  function publicProbabilityLabel(probability) {
+    var n = Number(String(probability || '').replace(/[^0-9.]/g, ''));
+    if (!n) return '结果存在变数';
+    if (n >= 70) return '成功把握较大';
+    if (n >= 45) return '有一定把握';
+    return '风险较高';
+  }
+
+  function plainBlockedReason(reason) {
+    return plainActionWords(reason)
+      .replace(/文章火候/g, '文章准备')
+      .replace(/识字转业值/g, '笔墨活经验')
+      .replace(/成本档/g, '读书花销');
   }
 
   function actionKind(a) {
@@ -6388,7 +6528,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       if (id === 'e_guarantee') return '前后关系：已有文书底稿 → 找人正式担保 → 才能报名考试。';
       if (id === 'e_copy') return '岔路：换现钱并积累抄写谋生的后路；不直接取得考试资格。';
       if (id === 'e_rest' || id === 'e_mend') return '保底：先保住身体；不直接推进读书主线。';
-      if (/^e_year\d_/.test(id)) return '承接本年细账：先拆开眼前冲突，避免读书进度被家计打断。';
+      if (/^e_year\d_/.test(id)) return '这是一笔必要的小安排，做好后不容易因为家里的开销中断读书。';
       if (actionKind(a) === '养身') return '保底：这一步保身体，不直接推进考试资格。';
       if (actionKind(a) === '挣钱') return '岔路：这一步先解决现钱，不直接推进考试资格。';
     }
@@ -6421,11 +6561,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return '<button class="act' + (isPrimary ? ' act-primary' : '') + '" data-id="' + a.id + '" data-source-name="' + actionSourceNameAttr(a.name) + '" data-source-desc="' + actionSourceNameAttr(a.desc) + '"' + (disabled ? ' disabled' : '') + '>' +
       '<span class="a-role">' + role + '</span>' +
       '<span class="a-top"><span class="a-name">' + plainActionName(a.name, a.id) + '</span>' +
-      '<span class="a-cost">' + a.cost + '点</span></span>' +
-      '<span class="a-eff">▸ ' + plainActionEffect(a.eff) + '</span>' +
-      (a.prob ? '<span class="a-eff" style="color:var(--info)">概率 ' + a.prob + '</span>' : '') +
+      '<span class="a-cost">花 ' + a.cost + ' 点精力</span></span>' +
+      '<span class="a-eff">结果：' + plainActionEffect(a.eff) + '</span>' +
+      (a.prob ? '<span class="a-eff" style="color:var(--info)">' + publicProbabilityLabel(a.prob) + '</span>' : '') +
       '<span class="a-link">' + actionConnectionText(a, isPrimary) + '</span>' +
-      (a.can === false ? '<span class="a-blocked">暂时不能选：' + (a.why || '条件未满足') + '</span>' : '') +
+      (a.can === false ? '<span class="a-blocked">暂时不能选：' + plainBlockedReason(a.why || '条件未满足') + '</span>' : '') +
       (picked ? '<span class="a-picked">已选 ×' + picked + '</span>' : '') +
       '</button>';
   }
@@ -6463,18 +6603,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     // ── 多维行动点循环（成家/当户/养老已升级为此模式）──
     if (st.actions) {
       if (st.dossier) h += st.dossier();
-      h += '<div class="ap-head"><h3>' + st.prompt + '</h3>' +
-        '<span class="ap-dots">剩余 <b>' + lifeRemainAP() + '</b> / ' + lifeAP() + ' 点</span></div>';
+      var publicPrompt = String(st.prompt || '').replace(/（分配\s*\d+\s*点）/g, '').replace(/分配行动点/g, '安排这一程');
+      h += '<div class="ap-head"><h3>' + publicPrompt + '</h3>' +
+        '<span class="ap-dots">可用精力 <b>' + lifeRemainAP() + '</b> / ' + lifeAP() + '</span></div>';
       var actionList = lifeActions();
       var primaryActions = actionList.slice(0, Math.min(3, actionList.length));
       var extraActions = actionList.slice(primaryActions.length);
       var extraPicked = extraActions.some(function (a) {
         return lifePicks.some(function (p) { return p.id === a.id; });
-      });
-      var extraKinds = [];
-      extraActions.forEach(function (a) {
-        var kindLabel = actionKind(a);
-        if (extraKinds.indexOf(kindLabel) < 0) extraKinds.push(kindLabel);
       });
       h += '<div class="choice-guide"><strong>' + decisionGuideText() + '</strong>' +
         '<span>你之前的选择会改变门槛和排序；下面 ' + primaryActions.length + ' 项是按当前进度排出的关键步骤。</span></div>';
@@ -6484,14 +6620,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += '</div>';
       if (extraActions.length) {
         h += '<details class="more-actions"' + (extraPicked ? ' open' : '') + '>' +
-          '<summary><strong>其他安排</strong><span>' + extraActions.length + '项' + (extraKinds.length ? (' · ' + extraKinds.join(' / ')) : '') + '</span></summary>' +
+          '<summary><strong>其他安排</strong><span>按需展开</span></summary>' +
           '<div class="actions more-actions-body">';
         extraActions.forEach(function (a) { h += renderLifeActionCard(a, false); });
         h += '</div></details>';
       }
       h += '<div class="commit">';
       h += '<button id="btn-lcommit">' + (st.commitLabel || '定夺这一程 →') + '</button>';
-      h += '<span class="hint">' + (lifePicks.length ? ('已排：' + lifePicks.map(function (p) { return p.name; }).join('、')) : '点上面的安排来定夺这一程；行动点用不完也可提前结算。') + '</span>';
+      h += '<span class="hint">' + (lifePicks.length ? ('已选：' + lifePicks.map(function (p) { return plainActionName(p.name, p.id); }).join('、')) : '选好这一程最想做的事；精力用不完也可以继续。') + '</span>';
       h += '</div>';
       $('stage').innerHTML = h;
       return;
@@ -6501,12 +6637,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     h += '<div class="choices">';
     st.choices.forEach(function (c, i) {
       var dis = c.can === false;
-      h += '<button class="choice" data-i="' + i + '"' + (dis ? ' disabled' : '') + '>';
-      h += '<span class="ch-name">' + c.name + (dis ? '（' + (c.why || '不可选') + '）' : '') + '</span>';
-      if (c.cost) h += '<span class="ch-line ch-cost">花费：' + c.cost + '</span>';
-      if (c.gain) h += '<span class="ch-line ch-gain">获得：' + c.gain + '</span>';
-      if (c.prob) h += '<span class="ch-line ch-prob">概率：' + c.prob + '</span>';
-      if (c.note) h += '<span class="ch-line ch-desc">' + c.note + '</span>';
+      h += '<button class="choice" data-i="' + i + '" data-source-name="' + actionSourceNameAttr(c.name) + '"' + (dis ? ' disabled' : '') + '>';
+      h += '<span class="ch-name">' + plainActionName(c.name, '') + (dis ? '（' + plainBlockedReason(c.why || '暂时还做不到') + '）' : '') + '</span>';
+      if (c.cost) h += '<span class="ch-line ch-cost">需要：' + plainActionEffect(c.cost) + '</span>';
+      if (c.gain) h += '<span class="ch-line ch-gain">结果：' + plainActionEffect(c.gain) + '</span>';
+      if (c.prob) h += '<span class="ch-line ch-prob">' + publicProbabilityLabel(c.prob) + '</span>';
+      if (c.note) h += '<span class="ch-line ch-desc">' + plainActionWords(c.note) + '</span>';
+      h += '<template class="choice-debug">' + (c.cost || '') + '｜' + (c.gain || '') + '｜' + (c.prob || '') + '｜' + (c.note || '') + '</template>';
       h += '</button>';
     });
     h += '</div>';
@@ -6523,7 +6660,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     clampAttr('体魄'); clampAttr('家族');
     recordEntry(st.title + '：' + c.name, before, '');
     var rh = '<div class="resolve"><h4>结算 · ' + st.title + '（' + S.年龄 + '岁）</h4>';
-    log.forEach(function (l) { rh += '<div class="line ' + l[1] + '">· ' + l[0] + '</div>'; });
+    log.forEach(function (l) { rh += '<div class="line ' + l[1] + '">· ' + plainActionEffect(l[0]) + '<template class="log-debug">' + l[0] + '</template></div>'; });
     var after = snapshot();
     rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">守恒：白银 ' + before.白银 + '→' + after.白银 + ' ｜ 铜钱 ' + before.铜钱 + '→' + after.铜钱 + ' ｜ 存米 ' + before.存米 + '→' + after.存米 + '</div>';
     rh += '</div>';
@@ -6608,28 +6745,42 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return s.k;
   }
 
-  // 人生阶段"共享状态账"面板：把幼年至今攒下的底子显性摆出来，让玩家看清路径依赖
+  // 路径依赖继续由完整状态账计算；玩家只看得见能理解的经历，不看内部计数器与门槛分。
   function lifeDossier(extra) {
     var tags = [];
-    tags.push(S.识字 ? '识字·已启蒙' : '识字·无');
-    tags.push(S.技艺 !== '无' ? '手艺·傍身' : '手艺·无');
-    tags.push('农事历练 ' + S.农事历练);
-    if (S.雇工历练) tags.push('雇工历练 ' + S.雇工历练);
-    if (S.学徒历练) tags.push('学徒历练 ' + S.学徒历练);
-    if (S.商历练) tags.push('商路历练 ' + S.商历练);
-    if (S.文章火候) tags.push('文章火候 ' + S.文章火候);
+    var debugTags = [];
+    debugTags.push(S.识字 ? '识字·已启蒙' : '识字·无');
+    debugTags.push(S.技艺 !== '无' ? '手艺·傍身' : '手艺·无');
+    debugTags.push('农事历练 ' + S.农事历练);
+    if (S.雇工历练) debugTags.push('雇工历练 ' + S.雇工历练);
+    if (S.学徒历练) debugTags.push('学徒历练 ' + S.学徒历练);
+    if (S.商历练) debugTags.push('商路历练 ' + S.商历练);
+    if (S.文章火候) debugTags.push('文章火候 ' + S.文章火候);
     if (S.委托营生 !== '无') {
-      var rentTag = S.委托租谷 > 0 ? '·年租谷+' + S.委托租谷 : '';
-      if ((S.委托待收租谷 || 0) > 0) rentTag += '·待收租谷' + S.委托待收租谷;
-      tags.push('分家后' + S.委托营生 + rentTag);
+      var debugRentTag = S.委托租谷 > 0 ? '·年租谷+' + S.委托租谷 : '';
+      if ((S.委托待收租谷 || 0) > 0) debugRentTag += '·待收租谷' + S.委托待收租谷;
+      debugTags.push('分家后' + S.委托营生 + debugRentTag);
     }
-    if (S.商路供读银 > 0) tags.push('供读专账 ' + S.商路供读银 + '两');
-    tags.push('家族声望 ' + S.家族);
-    var h = '<details class="dossier"><summary>人物底子与家计细账</summary><div class="dossier-body">' +
+    if (S.商路供读银 > 0) debugTags.push('供读专账 ' + S.商路供读银 + '两');
+    debugTags.push('家族声望 ' + S.家族);
+    tags.push(S.识字 ? '认得常用字' : '还不识字');
+    if (S.技艺 !== '无') tags.push('有一门手艺傍身');
+    if (S.农事历练) tags.push('做过农活');
+    if (S.雇工历练) tags.push('在外做过工');
+    if (S.学徒历练) tags.push('进铺学过手艺');
+    if (S.商历练) tags.push('跑过生意');
+    if (S.文章火候) tags.push('认真读过书、练过文章');
+    if (S.委托营生 !== '无') {
+      tags.push('分家后仍有一份' + S.委托营生);
+    }
+    if (S.商路供读银 > 0) tags.push('家里留过读书钱');
+    tags.push('家里关系' + publicFamilyLabel(S.家族));
+    var h = '<details class="dossier"><summary>一路留下的经历</summary><div class="dossier-body">' +
       '<div class="crop-bar g-ok"><div class="cb-head">' +
-      '<span class="cb-title">📇 共享状态账 · 这本账一路带到底</span>' +
-      '<span class="cb-val">体魄 ' + S.体魄 + '</span></div>' +
-      '<div class="cb-tip">' + tags.join(' ｜ ') + (extra ? ('<br>' + extra) : '') + '</div></div></div></details>';
+      '<span class="cb-title">这些经历会影响后面的机会</span>' +
+      '<span class="cb-val">身体' + publicBodyLabel(S.体魄) + '</span></div>' +
+      '<div class="cb-tip">' + tags.join(' ｜ ') + '</div></div></div></details>' +
+      '<template class="dossier-debug">' + debugTags.join(' ｜ ') + (extra ? ('<br>' + extra) : '') + '</template>';
     return h;
   }
 

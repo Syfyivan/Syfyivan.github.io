@@ -30396,8 +30396,26 @@ function runProgressiveDisclosureUiRegression() {
   });
   examHarness.api.enterPhase('civilExam');
   const focusedExamStage = normalizeHtml(examHarness.elements.get('stage').innerHTML);
+  const playerStatusHtml = statusHtml.replace(/<template class="status-debug">[\s\S]*?<\/template>/, '');
   const primaryExamBlock = focusedExamStage.match(/<div class="actions primary-actions">([\s\S]*?)<\/div>/);
   const primaryExamActionCount = primaryExamBlock ? (primaryExamBlock[1].match(/class="act act-primary"/g) || []).length : 0;
+  const visibleExamEffects = (focusedExamStage.match(/<span class="a-eff"[^>]*>[\s\S]*?<\/span>/g) || []).join(' ');
+  const visibleExamNames = (focusedExamStage.match(/<span class="a-name">[\s\S]*?<\/span>/g) || []).join(' ');
+  examHarness.api.pickAction('e_essay');
+  examHarness.api.commit();
+  const resolvedExamStage = normalizeHtml(examHarness.elements.get('stage').innerHTML);
+  const playerResolvedExamStage = resolvedExamStage
+    .replace(/<template class="log-debug">[\s\S]*?<\/template>/g, '')
+    .replace(/<template class="dossier-debug">[\s\S]*?<\/template>/g, '');
+  const childHarness = createHarness();
+  childHarness.api.restartFromBirth();
+  const childStageHtml = normalizeHtml(childHarness.elements.get('stage').innerHTML);
+  const visibleChildEffects = (childStageHtml.match(/<span class="a-eff"[^>]*>[\s\S]*?<\/span>/g) || []).join(' ');
+  const farmHarness = createHarness();
+  chooseRoute(farmHarness.api, '路径一 · 留乡佃田');
+  farmHarness.api.next();
+  const farmStageHtml = normalizeHtml(farmHarness.elements.get('stage').innerHTML);
+  const visibleFarmEffects = (farmStageHtml.match(/<span class="a-eff"[^>]*>[\s\S]*?<\/span>/g) || []).join(' ');
 
   return {
     coreChipCount,
@@ -30410,8 +30428,10 @@ function runProgressiveDisclosureUiRegression() {
     ok: coreChipCount === 5
       && statusHtml.includes('<details class="status-more">')
       && !statusHtml.includes('<details class="status-more" open')
-      && statusHtml.includes('更多状态')
-      && statusHtml.includes('父快照')
+      && statusHtml.includes('重要情况')
+      && !playerStatusHtml.includes('轨迹')
+      && !playerStatusHtml.includes('资格细账')
+      && !playerStatusHtml.includes('已落支出')
       && stageHtml.includes('<div class="story-card">')
       && stageHtml.includes('<details class="story-more">')
       && stageHtml.includes('<details class="context-note">')
@@ -30431,9 +30451,27 @@ function runProgressiveDisclosureUiRegression() {
       && focusedExamStage.includes('你之前的选择会改变门槛和排序')
       && focusedExamStage.includes('<details class="more-actions">')
       && !focusedExamStage.includes('<details class="more-actions" open')
-      && focusedExamStage.includes('先把识字练习和老师回话的钱分开')
+      && focusedExamStage.includes('给练字和请教老师留钱')
       && focusedExamStage.includes('先准备报名担保文书')
       && focusedExamStage.includes('再练一旬识字和认题')
+      && focusedExamStage.includes('花 1 点精力')
+      && visibleExamEffects.includes('结果：')
+      && !visibleExamEffects.includes('成本档')
+      && !visibleExamEffects.includes('识字转业值')
+      && !visibleExamEffects.includes('文章火候')
+      && !visibleExamNames.includes('分开')
+      && !playerResolvedExamStage.includes('成本档')
+      && !playerResolvedExamStage.includes('识字转业值')
+      && !playerResolvedExamStage.includes('文章火候+')
+      && (childStageHtml.match(/class="act act-primary"/g) || []).length <= 3
+      && childStageHtml.includes('<details class="more-actions">')
+      && !visibleChildEffects.includes('历练+')
+      && !visibleChildEffects.includes('体魄+')
+      && (farmStageHtml.match(/class="act act-primary"/g) || []).length <= 3
+      && farmStageHtml.includes('<details class="more-actions">')
+      && !visibleFarmEffects.includes('体魄+')
+      && focusedExamStage.includes('一路留下的经历')
+      && !focusedExamStage.includes('共享状态账 · 这本账一路带到底')
       && !focusedExamStage.includes('担担保')
       && focusedExamStage.includes('前后关系：先备好报名文书 → 秋里才能正式找人担保')
       && focusedExamStage.includes('其他安排')
