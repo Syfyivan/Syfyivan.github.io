@@ -158,6 +158,13 @@
   .resolve{background:#f8f0df;border:1px solid rgba(174,91,43,.35);border-radius:14px;padding:.85rem .95rem;margin-top:14px;font-size:.82rem;}
   .resolve h4{color:var(--accent);font-size:.84rem;margin-bottom:.4rem;}.resolve .line{font-size:.76rem;margin:.18rem 0;color:var(--muted);}
   .resolve .good{color:var(--accent2);}.resolve .bad{color:var(--danger);}
+  .exam-result-card{display:grid;gap:7px;margin:10px 0 12px;padding:16px 17px;border:1px solid var(--rule);border-left:5px solid var(--info);border-radius:13px;background:var(--paper2);}
+  .exam-result-card.success{border-left-color:var(--accent2);background:#f1f7ee}.exam-result-card.fail,.exam-result-card.blocked{border-left-color:var(--danger);background:#fff1ea}
+  .result-kicker{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;color:var(--muted)}.result-title{font-family:var(--serif);font-size:1.16rem;color:var(--ink)}
+  .result-plain,.result-reason,.result-next{margin:0;line-height:1.58}.result-plain{font-weight:700;color:var(--ink)}.result-reason{color:#7b3e31}.result-next{color:var(--accent2)}
+  .resolve-details{margin-top:10px;border-top:1px solid rgba(174,91,43,.22);padding-top:9px}.resolve-details>summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;color:var(--accent)}
+  .resolve-details>summary::-webkit-details-marker{display:none}.resolve-details>summary::before{content:'＋';font-family:var(--mono)}.resolve-details[open]>summary::before{content:'－'}
+  .resolve-details>summary span{margin-left:auto;font-family:var(--mono);font-size:.66rem;color:var(--muted)}.resolve-details-body{padding-top:8px}.resolve .balance-line{margin-top:.4rem;color:var(--muted)}
 
   /* 流水账离开首屏，作为一个可展开的次级面板。 */
   aside{align-self:stretch;}

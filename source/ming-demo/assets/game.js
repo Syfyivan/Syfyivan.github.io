@@ -6299,11 +6299,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (st.shock !== false) rollShock(log); // 外部冲击：外生于玩家选择，一程一掷
     clampAttr('体魄'); clampAttr('家族');
     recordEntry(st.title + '：' + (lifePicks.length ? lifePicks.map(function (p) { return p.name; }).join('、') : '未作安排'), before, '');
+    var after = snapshot();
+    var balanceLine = '守恒：白银 ' + before.白银 + '→' + after.白银 + ' ｜ 铜钱 ' + before.铜钱 + '→' + after.铜钱 + ' ｜ 存米 ' + before.存米 + '→' + after.存米;
     var rh = '<div class="resolve"><h4>结算 · ' + st.title + '（' + S.年龄 + '岁）</h4>';
+    var outcomeSummary = st.outcomeSummary ? st.outcomeSummary(log) : '';
+    if (outcomeSummary) {
+      rh += outcomeSummary;
+      rh += '<details class="resolve-details"><summary><strong>查看本年详细账目</strong><span>共 ' + log.length + ' 条</span></summary><div class="resolve-details-body">';
+    }
     if (!log.length) rh += '<div class="line">这一程未作特别安排。</div>';
     log.forEach(function (l) { rh += '<div class="line ' + l[1] + '">· ' + plainActionEffect(l[0]) + '<template class="log-debug">' + l[0] + '</template></div>'; });
-    var after = snapshot();
-    rh += '<div class="line" style="margin-top:.4rem;color:var(--muted)">守恒：白银 ' + before.白银 + '→' + after.白银 + ' ｜ 铜钱 ' + before.铜钱 + '→' + after.铜钱 + ' ｜ 存米 ' + before.存米 + '→' + after.存米 + '</div>';
+    rh += '<div class="line balance-line">' + balanceLine + '</div>';
+    if (outcomeSummary) rh += '</div></details>';
     rh += '</div>';
     st.outcome = rh;
     renderStatus(); renderLifeStage(); renderLedger();
@@ -6500,6 +6507,85 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (n >= 70) return '成功把握较大';
     if (n >= 45) return '有一定把握';
     return '风险较高';
+  }
+
+  function examYearBlockedGap(log) {
+    var blockedLine = (log || []).map(function (entry) { return String(entry && entry[0] || ''); }).filter(function (text) {
+      return text.indexOf('〔应场受阻〕') >= 0;
+    })[0] || '';
+    var match = blockedLine.match(/缺口仍卡在[“"]([^”"]+)[”"]/);
+    return match ? match[1] : '';
+  }
+
+  function examYearGapPlayerText(gap) {
+    gap = String(gap || '');
+    if (gap.indexOf('旧年保帖底样') >= 0) return '今年没有重新整理报名担保材料；去年的底稿不能直接沿用';
+    if (gap.indexOf('保帖底样') >= 0 || gap.indexOf('履历草单') >= 0) return '今年没有准备好报名担保材料';
+    if (gap.indexOf('保结未通') >= 0) return '报名担保手续还没有办完';
+    if (gap.indexOf('塾门') >= 0 || gap.indexOf('半读读法') >= 0) return '读书去处和学习方式还没有稳定下来';
+    if (gap.indexOf('断供') >= 0) return '家里已经无力继续承担这一年的读书开销';
+    if (gap.indexOf('伤根气') >= 0) return '身体已经撑不住继续进场考试';
+    if (gap.indexOf('馆课') >= 0 || gap.indexOf('半读') >= 0) return '这一年的正式学习还没有达到两旬';
+    if (gap.indexOf('文章火候') >= 0) return '文章还没有准备到能够进场的程度';
+    return plainActionWords(gap || '报名资格没有办齐');
+  }
+
+  function examYearGapNextStep(gap) {
+    gap = String(gap || '');
+    if (gap.indexOf('旧年保帖底样') >= 0 || gap.indexOf('保帖底样') >= 0 || gap.indexOf('履历草单') >= 0) return '下一年春天先重新整理报名文书和个人经历，秋天再把担保手续办完';
+    if (gap.indexOf('保结未通') >= 0) return '下一年先把报名担保手续办完，再决定是否进场';
+    if (gap.indexOf('塾门') >= 0 || gap.indexOf('半读读法') >= 0) return '下一年先稳定读书去处，再继续准备考试';
+    if (gap.indexOf('断供') >= 0) return '先解决读书钱和家中供养，再考虑继续应试';
+    if (gap.indexOf('伤根气') >= 0) return '先休养身体，等能支撑长途奔走后再应试';
+    if (gap.indexOf('馆课') >= 0 || gap.indexOf('半读') >= 0) return '下一年先完成至少两旬正式学习';
+    if (gap.indexOf('文章火候') >= 0) return '下一年先继续读书和改文章，再去报名';
+    return '下一年先补齐报名资格，再决定是否进场';
+  }
+
+  function renderExamYearOutcomeSummary(log) {
+    var result = String(S.本年应试结果 || '未下场');
+    var blockedGap = examYearBlockedGap(log);
+    var target = examAttemptTargetLabel(S.童试层级, S.生员身份);
+    var tone = 'neutral';
+    var title = '本年没有参加考试';
+    var plainResult = '这一年没有产生考中或落榜结果。';
+    var reason = '你没有正式进场考试。';
+    var next = '下一年先确认报名资格和准备进度，再决定是否应试。';
+
+    if (result === '成生员' || S.生员身份) {
+      tone = 'success';
+      title = '考中生员（秀才）';
+      plainResult = '你已经通过院试，正式取得生员身份。';
+      reason = '县试、府试和院试三关都已经走完。';
+      next = '接下来会以生员身份继续人生，不必再重复童试。';
+    } else if (result === '落第') {
+      tone = 'fail';
+      title = '参加了考试，但没有考中';
+      plainResult = '你正式进了考场，这次结果是落榜。';
+      reason = '考试已经结算为落第，不是报名受阻。';
+      next = S.举业年 < EXAM_YEARS ? '下一年可以补强文章、资格和身体后再考。' : '三年举业已经结束，接下来会带着这次落榜和家计旧账进入议亲。';
+    } else if (result !== '未下场') {
+      tone = 'success';
+      var passed = result.replace(/已过$/, '');
+      title = '通过' + passed;
+      plainResult = '你已经正式参加并通过' + passed + '，但还没有考成秀才。';
+      reason = '童试分县试、府试、院试三关，这次只通过了其中一关。';
+      next = S.生员身份 ? '接下来会以生员身份继续人生。' : '下一关是' + target + '，要重新准备当年的报名材料和考试开销。';
+    } else if ((S.本年应场受阻次数 || 0) > 0 || blockedGap) {
+      tone = 'blocked';
+      title = '未能入场（不是落榜）';
+      plainResult = '你没有正式参加' + target + '，所以既不是考中，也不是落榜。';
+      reason = examYearGapPlayerText(blockedGap);
+      next = examYearGapNextStep(blockedGap);
+    }
+
+    return '<div class="exam-result-card ' + tone + '">' +
+      '<span class="result-kicker">本年结果</span>' +
+      '<strong class="result-title">' + title + '</strong>' +
+      '<p class="result-plain">' + plainResult + '</p>' +
+      '<p class="result-reason"><b>原因：</b>' + reason + '</p>' +
+      '<p class="result-next"><b>下一步：</b>' + next + '</p>' +
+      '</div>';
   }
 
   function plainBlockedReason(reason) {
@@ -11435,6 +11521,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         : (isLate ? ('转入' + nextSeason.name + '·上旬 →') : ('转入' + season.name + '·' + examXunLabel(xun + 1) + ' →')),
       ap: 4,
       commitLabel: isYearEnd ? '了这一举业年 →' : '了这一旬举业细账 →',
+      outcomeSummary: isYearEnd ? renderExamYearOutcomeSummary : null,
       note: '第' + S.举业年 + '举业年重心：' + yearFocus.tag + '。' + yearBudgetLead + ' 一年从春课、夏课走到秋试、冬清账；每旬 4 点要同时顾课业、塾门与保结、家计与供读、身子或差役。真正下场必须走通“识字/题样 → 塾门/读法 → 馆课/评文 → 保结 → 应场”，缺口未补就只能停在场外；家里续供也要用真实米银换纸墨盘缠。'
         + (examCarryHook.note ? (' ' + examCarryHook.note) : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + xunLabel + '</span>。' + yearFocus.note + ' ' + yearBudgetLead + ' ' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火、婚事口风和身子亏空都在争同一笔钱。') + examPulseLead + ' 你这一旬有 <span class="em">4 个行动点</span>，最好别只顾课业本身。',

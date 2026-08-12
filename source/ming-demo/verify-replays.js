@@ -27398,6 +27398,9 @@ function runExamAttemptBlockedStateRegression() {
       && examAction.can === true
       && statusBefore.includes('场外受阻×1')
       && !resolveStage.includes('〔应场受阻〕')
+      && resolveStage.includes('<strong class="result-title">通过县试</strong>')
+      && resolveStage.includes('你已经正式参加并通过县试，但还没有考成秀才')
+      && resolveStage.includes('下一关是府试')
       && postState.本年应试结果 !== '未下场'
       && postState.本年应试结果 !== '落第'
       && postState.本年应场受阻次数 === 1
@@ -27429,7 +27432,7 @@ function runExamAttemptDraftBlockedRegression() {
     保结进度: 2,
     本年保结次数: 1,
     本年保帖底样次数: 0,
-    举业累计保帖底样次数: 0,
+    举业累计保帖底样次数: 1,
     本年下场: false,
     本年应试结果: '未下场',
     本年应场受阻次数: 0,
@@ -27463,10 +27466,17 @@ function runExamAttemptDraftBlockedRegression() {
     },
     ok: !!examAction
       && examAction.can === true
-      && String(examAction.why || '').includes('先把保帖底样与履历草单理出来')
+      && String(examAction.why || '').includes('旧年底样只算门路记忆')
       && stageBefore.includes('冬清账')
       && resolveStage.includes('〔应场受阻〕')
-      && resolveStage.includes('保帖底样与履历草单未理出来')
+      && resolveStage.includes('旧年保帖底样还在，但今年未重理履历草单')
+      && resolveStage.includes('<strong class="result-title">未能入场（不是落榜）</strong>')
+      && resolveStage.includes('你没有正式参加县试，所以既不是考中，也不是落榜')
+      && resolveStage.includes('原因：</b>今年没有重新整理报名担保材料；去年的底稿不能直接沿用')
+      && resolveStage.includes('下一步：</b>下一年春天先重新整理报名文书和个人经历，秋天再把担保手续办完')
+      && resolveStage.includes('<details class="resolve-details">')
+      && !resolveStage.includes('<details class="resolve-details" open')
+      && resolveStage.includes('查看本年详细账目')
       && postState.本年下场 === false
       && postState.本年应试结果 === '未下场'
       && postState.本年应场受阻次数 === 1
