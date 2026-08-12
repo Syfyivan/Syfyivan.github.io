@@ -35,7 +35,7 @@ function createElement(id) {
   };
 }
 
-function createHarness() {
+function createHarness(options = {}) {
   const elements = new Map();
   const ensure = (id) => {
     if (!elements.has(id)) elements.set(id, createElement(id));
@@ -90,6 +90,9 @@ function createHarness() {
   vm.createContext(sandbox);
   vm.runInContext(fs.readFileSync(GAME_PATH, 'utf8'), sandbox, { filename: GAME_PATH });
   if (!window.__MING_TEST_API) throw new Error('未暴露 __MING_TEST_API');
+  if (!options.preserveInitial && typeof window.__MING_TEST_API.restartAt16 === 'function') {
+    window.__MING_TEST_API.restartAt16();
+  }
   return { api: window.__MING_TEST_API, elements, window };
 }
 
@@ -5830,7 +5833,9 @@ function runApprenticeSeasonalDensityRegression() {
   const { api, elements, window } = createHarness();
   api.setRandomSeed(2727);
   chooseRoute(api, '路径三 · 入城学徒');
-  api.patchState({ 识字: true, 铜钱: 360, 白银: 1, 存米: 2, 家族: 64 });
+  // 这项旧回归专门验证各季细账都能落地，不负责测试贫困兜底；给足周转钱，
+  // 避免外部冲击先吃掉脚钱后，把“动作密度”误判成路线规则缺失。
+  api.patchState({ 识字: true, 铜钱: 5000, 白银: 1, 存米: 2, 家族: 64 });
   api.enterPhase('apprentice');
   api.setRandomSequence(new Array(40).fill(0.2));
 
@@ -30725,9 +30730,17 @@ function runProgressiveDisclosureUiRegression() {
     statusHtml,
     stageHtml,
     ledgerHtml,
+    debugChecks: {
+      lockedConditionVisible: lockedExamStage.includes('<b>解锁条件：</b>今年父账已经支援 3 次；进入下一举业年后可再申请'),
+      noMoneyConditionVisible: noMoneyStage.includes('<b>解锁条件：</b>需要至少 50 文铜钱；当前只有 0 文'),
+      childHasMore: childStageHtml.includes('<details class="more-actions">'),
+      farmHasMore: farmStageHtml.includes('<details class="more-actions">'),
+      selectionInitialGroup: selectionInitial.includes('本旬读书方式 · 3选一'),
+      selectionUndo: !selectionAfterUndo.includes('<div class="pick-tray">') && picksAfterUndo.length === 0,
+      publicResolvedClean: !playerResolvedExamStage.includes('成本档') && !playerResolvedExamStage.includes('识字转业值') && !playerResolvedExamStage.includes('文章火候+')
+    },
     ok: coreChipCount === 5
-      && statusHtml.includes('<details class="status-more">')
-      && !statusHtml.includes('<details class="status-more" open')
+      && statusHtml.includes('<details class="status-more" open>')
       && statusHtml.includes('重要情况')
       && !playerStatusHtml.includes('轨迹')
       && !playerStatusHtml.includes('资格细账')
@@ -30809,6 +30822,136 @@ function runProgressiveDisclosureUiRegression() {
   };
 }
 
+function runPlayerFeedbackClosureRegression() {
+  const initialHarness = createHarness({ preserveInitial: true });
+  const indexHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const initialPhase = initialHarness.api.getPhase();
+  const initialStage = normalizeHtml(initialHarness.elements.get('stage').innerHTML);
+
+  const establishmentHarness = createHarness();
+  establishmentHarness.api.enterPhase('establishment');
+  const establishmentStage = normalizeHtml(establishmentHarness.elements.get('stage').innerHTML);
+
+  const apprenticeHarness = createHarness();
+  chooseRoute(apprenticeHarness.api, '路径三 · 入城学徒');
+  apprenticeHarness.api.patchState({
+    学年: 2,
+    学季: 1,
+    学旬: 1,
+    学徒合同: '已立据',
+    学徒阶段: '学徒',
+    学徒保人: true,
+    铜钱: 0,
+    白银: 0,
+    存米: 0,
+    体魄: 48,
+    家族: 58
+  });
+  apprenticeHarness.api.enterPhase('apprentice');
+  const apprenticeVisible = apprenticeHarness.api.getPlayerFacingActions();
+  const apprenticeVisibleIds = apprenticeVisible.map((action) => action.id);
+  const apprenticeStage = normalizeHtml(apprenticeHarness.elements.get('stage').innerHTML);
+  const apprenticeStatus = normalizeHtml(apprenticeHarness.elements.get('status').innerHTML);
+  const publicApprenticeStatus = apprenticeStatus.replace(/<template class="status-debug">[\s\S]*?<\/template>/, '');
+
+  apprenticeHarness.api.pickAction('a_drudge');
+  apprenticeHarness.api.pickAction('a_learn');
+  apprenticeHarness.api.pickAction('a_learn');
+  apprenticeHarness.api.pickAction('a_run');
+  const apprenticePicks = apprenticeHarness.api.getSelectedActions();
+  apprenticeHarness.api.setRandomSequence([0.99]);
+  apprenticeHarness.api.commit();
+  const apprenticeAfter = apprenticeHarness.api.getState();
+  const apprenticeOutcome = normalizeHtml(apprenticeHarness.elements.get('stage').innerHTML);
+  const apprenticePublicOutcome = apprenticeOutcome.replace(/<template class="log-debug">[\s\S]*?<\/template>/g, '');
+
+  const marriageHarness = createHarness();
+  chooseRoute(marriageHarness.api, '路径三 · 入城学徒');
+  marriageHarness.api.patchState({
+    年龄: 24,
+    议旬: 1,
+    学徒合同: '已立据',
+    学徒阶段: '留店伙计',
+    学徒去向: '留店伙计',
+    学徒授艺度: 2,
+    铜钱: 0,
+    白银: 0,
+    存米: 0,
+    妻室: false,
+    婚配路径: '未定'
+  });
+  marriageHarness.api.enterPhase('marriage');
+  const marriageVisible = marriageHarness.api.getPlayerFacingActions();
+  const marriageVisibleIds = marriageVisible.map((action) => action.id);
+  const marriageStage = normalizeHtml(marriageHarness.elements.get('stage').innerHTML);
+  marriageHarness.api.pickAction('m_independent');
+  marriageHarness.api.commit();
+  marriageHarness.api.next();
+  const adultStage = normalizeHtml(marriageHarness.elements.get('stage').innerHTML);
+  const adultState = marriageHarness.api.getState();
+
+  const checks = {
+    newLifeStartsAtBirth: initialPhase === 'childhood'
+      && initialStage.includes('出生')
+      && indexHtml.includes('id="btn-restart">从出生开始新人生</button>')
+      && indexHtml.includes('id="btn-restart-birth">直接从16岁立身</button>'),
+    householdSamplesExplained: establishmentStage.includes('出生家庭样本')
+      && establishmentStage.includes('不是你一生只有两种身份')
+      && establishmentStage.includes('五条立身道路'),
+    importantStatusPersistent: apprenticeStatus.includes('<details class="status-more" open>')
+      && publicApprenticeStatus.includes('出生户籍')
+      && publicApprenticeStatus.includes('会什么')
+      && publicApprenticeStatus.includes('投师手续')
+      && publicApprenticeStatus.includes('生计来源')
+      && !publicApprenticeStatus.includes('授艺度')
+      && !publicApprenticeStatus.includes('学徒历练'),
+    apprenticeshipGateExplained: apprenticeStage.includes('投师手续')
+      && apprenticeStage.includes('中人说合')
+      && apprenticeStage.includes('请人作保')
+      && apprenticeStage.includes('立下投师字据')
+      && apprenticeStage.includes('手续已办齐')
+      && !apprenticeStage.includes('需要先完成这项安排的前置准备'),
+    completedStepsDoNotBlockFront: !apprenticeVisibleIds.includes('a_seek')
+      && !apprenticeVisibleIds.includes('a_bond')
+      && !apprenticeVisibleIds.includes('a_sign'),
+    noMoneyStillHasChoices: apprenticeVisibleIds.includes('a_rest')
+      && apprenticeVisibleIds.includes('a_home')
+      && apprenticeVisibleIds.some((id) => ['a_drudge', 'a_learn', 'a_run', 'a_market', 'a_book'].includes(id)),
+    apprenticeWorkPays: apprenticePicks.filter((pick) => pick.id === 'a_learn').length === 1
+      && apprenticeAfter.铜钱 > 0
+      && apprenticeAfter.本年学徒食宿旬数 > 0
+      && apprenticeAfter.本年学徒工食钱 > 0
+      && (apprenticePublicOutcome.match(/随师认货记账/g) || []).length === 1,
+    marriageIsOptional: marriageVisibleIds.includes('m_livelihood')
+      && marriageVisibleIds.includes('m_independent')
+      && marriageStage.includes('议亲不是唯一主线')
+      && marriageHarness.api.getPhase() === 'family'
+      && adultState.妻室 === false
+      && adultState.婚配路径 === '暂不成婚·继续营生'
+      && adultStage.includes('成年生活')
+      && adultStage.includes('没有成婚，也仍然可以继续营生、照顾原家和经营自己的人生'),
+    noInvariantLeak: (initialHarness.window.__INV || []).length === 0
+      && (establishmentHarness.window.__INV || []).length === 0
+      && (apprenticeHarness.window.__INV || []).length === 0
+      && (marriageHarness.window.__INV || []).length === 0
+  };
+
+  return {
+    initialPhase,
+    apprenticeVisibleIds,
+    apprenticePicks,
+    apprenticeEconomy: {
+      copper: apprenticeAfter.铜钱,
+      boardXun: apprenticeAfter.本年学徒食宿旬数,
+      workCopper: apprenticeAfter.本年学徒工食钱,
+      outcomeMentions: (apprenticePublicOutcome.match(/随师认货记账/g) || []).length
+    },
+    marriageVisibleIds,
+    checks,
+    ok: Object.values(checks).every(Boolean)
+  };
+}
+
 function runPlayerExperienceContractRegression() {
   function playOneLife(routeName) {
     const { api, window } = createHarness();
@@ -30820,7 +30963,9 @@ function runPlayerExperienceContractRegression() {
       const actions = api.getPlayerFacingActions();
       maxVisible = Math.max(maxVisible, actions.length);
       if (actions.length) {
-        const picked = actions.find((action) => action.can);
+        const picked = (api.getPhase() === 'marriage'
+          ? actions.find((action) => action.id === 'm_independent' && action.can)
+          : null) || actions.find((action) => action.can);
         if (picked) api.pickAction(picked.id);
         api.commit();
         api.playerNext();
@@ -39789,6 +39934,7 @@ const TEST_BUILDERS = {
   examMixedReplyCounterRegression: runExamMixedReplyCounterRegression,
   examStatusVisibilityRegression: runExamStatusVisibilityRegression,
   progressiveDisclosureUiRegression: runProgressiveDisclosureUiRegression,
+  playerFeedbackClosureRegression: runPlayerFeedbackClosureRegression,
   playerExperienceContractRegression: runPlayerExperienceContractRegression,
   examYearFocusRegression: runExamYearFocusRegression,
   examYearSpecificChoiceRegression: runExamYearSpecificChoiceRegression,
@@ -40138,6 +40284,7 @@ const TEST_SUITES = {
   // 6) “次子承余数 / 绝嗣旁支承旧债 / 待收委托田租 / 真实承继身份”这组 death → restartWithHeir → 重选路线深回放，也要并回默认闭环。
   'current-workflow-closure': [
     'progressiveDisclosureUiRegression',
+    'playerFeedbackClosureRegression',
     'playerExperienceContractRegression',
     'examRegistrationPlayerFlowRegression',
     'foundingSnapshotLockRegression',
@@ -40281,6 +40428,7 @@ const TEST_SUITES = {
   docs: ['designDocClosureRegression', 'repositoryDeliveryRegression'],
   required: [
     'progressiveDisclosureUiRegression',
+    'playerFeedbackClosureRegression',
     'playerExperienceContractRegression',
     'foundingSnapshotLockRegression',
     'militaryFoundingRouteRegression',
@@ -40549,6 +40697,7 @@ function main() {
     }, null, 2));
   }
   if (failures.length) {
+    if (!selection.compact) console.log(JSON.stringify(summary, null, 2));
     throw new Error(`验证失败：${failures.join(', ')}`);
   }
   if (!selection.compact) console.log(JSON.stringify(summary, null, 2));

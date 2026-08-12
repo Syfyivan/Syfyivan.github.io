@@ -50,11 +50,11 @@
   .status-core{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;}
   .status-core .chip{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:var(--paper);box-shadow:0 5px 16px rgba(67,48,30,.05);}
   .status-more{margin-top:8px;}
-  .status-more>summary{list-style:none;width:max-content;color:var(--muted);font-size:.72rem;padding:.2rem .15rem;}
+  .status-more>summary{list-style:none;width:max-content;color:var(--muted);font-size:.72rem;padding:.2rem .15rem;pointer-events:none;cursor:default;}
   .status-more>summary::-webkit-details-marker{display:none;}
-  .status-more>summary::after{content:'＋';margin-left:.35rem;color:var(--accent);}
-  .status-more[open]>summary::after{content:'－';}
+  .status-more>summary::after{content:'（常驻）';margin-left:.35rem;color:var(--accent);}
   .status-full{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0 2px;max-height:220px;overflow:auto;}
+  .founding-explain{margin:.15rem 0 .85rem;padding:.7rem .85rem;border-left:3px solid var(--accent);background:var(--accent-soft);color:var(--muted);font-size:.86rem;line-height:1.65;}
   .chip{font-family:var(--mono);font-size:.74rem;background:var(--paper2);border:1px solid var(--rule);border-radius:10px;padding:.42rem .58rem;}
   .chip b{color:var(--accent);font-weight:600;}
   .chip.hp b{color:var(--accent2);}
@@ -218,8 +218,8 @@
       <h1>明·江南一生</h1>
       <span class="sub">从同一户出发，走完一生</span>
       <span class="spacer"></span>
-      <button id="btn-restart">新人生</button>
-      <button id="btn-restart-birth">从出生开始</button>
+      <button id="btn-restart">从出生开始新人生</button>
+      <button id="btn-restart-birth">直接从16岁立身</button>
     </header>
 
     <div class="status" id="status"></div>
@@ -233,6 +233,6 @@
   <footer>每年以“四季 × 上中下三个代表旬位”压缩呈现 &nbsp;|&nbsp; 数值为玩法占位，非史实精确值 <span class="credi">[需核原书]</span></footer>
 </div>
 
-<script src="assets/game.js?v=20260812-exam-flow-1"></script>
+<script src="assets/game.js?v=20260812-life-feedback-1"></script>
 </body>
 </html>
