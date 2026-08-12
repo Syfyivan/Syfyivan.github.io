@@ -114,6 +114,19 @@
   .choice-guide{display:flex;flex-direction:column;gap:3px;padding:12px 14px;margin-bottom:12px;border-left:3px solid var(--accent);border-radius:0 12px 12px 0;background:var(--accent-soft);}
   .choice-guide strong{font-family:var(--serif);font-size:.9rem;color:var(--ink);font-weight:700;}
   .choice-guide span{font-size:.72rem;color:var(--muted);}
+  .exam-gate{margin:14px 0 16px;padding:15px 16px;border:1px solid rgba(174,91,43,.28);border-radius:14px;background:#fffaf1;box-shadow:0 6px 16px rgba(67,48,30,.04);}
+  .exam-gate.complete{border-color:rgba(82,125,60,.35);background:#f1f7ee;}
+  .exam-gate-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:11px;}
+  .exam-gate-head>div{display:flex;flex-direction:column;gap:2px;}.exam-gate-head strong{font-family:var(--serif);font-size:1rem;color:var(--ink);}
+  .exam-gate-kicker{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;color:var(--accent);}
+  .gate-count{font-family:var(--mono);font-size:.7rem;color:var(--accent);white-space:nowrap;background:var(--accent-soft);border-radius:999px;padding:.2rem .55rem;}
+  .exam-gate-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 10px;}
+  .gate-step{display:flex;gap:8px;align-items:flex-start;padding:8px 9px;border:1px dashed var(--rule);border-radius:10px;background:#faf6ef;color:#796d61;}
+  .gate-step.done{border-style:solid;border-color:rgba(82,125,60,.24);background:#f1f7ee;color:#456637;}
+  .gate-mark{flex:0 0 auto;font-family:var(--mono);font-size:.85rem;line-height:1.2;color:var(--danger);}.gate-step.done .gate-mark{color:var(--accent2);}
+  .gate-step>span:last-child{display:flex;min-width:0;flex-direction:column;gap:2px;}.gate-step b{font-size:.76rem;color:inherit;}.gate-step small{font-size:.66rem;line-height:1.45;color:var(--muted);}
+  .gate-next{margin:11px 0 0;padding:9px 11px;border-left:3px solid var(--accent);border-radius:0 9px 9px 0;background:var(--accent-soft);font-size:.76rem;line-height:1.55;color:var(--ink);}.gate-next b{color:var(--accent);margin-right:3px;}
+  .gate-rule{margin:7px 1px 0;font-size:.67rem;line-height:1.5;color:var(--muted);}
   .action-group-head{display:flex;align-items:baseline;gap:10px;margin:12px 0 8px;}
   .action-group-head strong{font-family:var(--serif);font-size:.92rem;color:var(--accent);}
   .action-group-head span{font-size:.7rem;color:var(--muted);}
@@ -135,6 +148,7 @@
   .act .a-link{font-size:.72rem;line-height:1.48;color:#685b4e;}
   .act .a-blocked,.choice .a-blocked{display:block;margin:3px 0 2px;padding:7px 9px;border-left:3px solid var(--danger);border-radius:0 8px 8px 0;background:#fff1ea;font-size:.7rem;line-height:1.5;color:#8f3f2d;}
   .act .a-blocked b,.choice .a-blocked b{font-family:var(--mono);font-size:.64rem;letter-spacing:.03em;margin-right:3px;}
+  .act .a-warning{display:block;margin:3px 0 2px;padding:8px 9px;border-left:3px solid var(--danger);border-radius:0 8px 8px 0;background:#fff1ea;font-size:.7rem;line-height:1.5;color:#8f3f2d;}.act .a-warning b{font-family:var(--mono);font-size:.64rem;letter-spacing:.03em;margin-right:3px;}
   .act .a-picked{font-family:var(--mono);font-size:.7rem;color:var(--accent2);}
   .more-actions{margin-top:12px;border:1px solid var(--rule);border-radius:13px;background:rgba(255,253,248,.66);overflow:hidden;}
   .more-actions>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;color:var(--ink);}
@@ -183,7 +197,7 @@
   @media(max-width:760px){
     .wrap{padding:0 14px}.topbar{margin:0 -14px;padding:0 14px}header{min-height:62px;gap:8px}header .sub{display:none}
     header button{padding:.38rem .62rem;font-size:.72rem}.status-core{display:flex;overflow-x:auto;scrollbar-width:none}.status-core::-webkit-scrollbar{display:none}
-    .status-core .chip{flex:0 0 auto}.main{padding-top:18px}.stage{padding:20px;border-radius:18px}.actions,.choices{grid-template-columns:1fr}
+    .status-core .chip{flex:0 0 auto}.main{padding-top:18px}.stage{padding:20px;border-radius:18px}.actions,.choices,.exam-gate-list{grid-template-columns:1fr}
     .story-card{padding:17px 18px}.story-lead{font-size:1.06rem}.ledger-balance{display:none}.commit{align-items:stretch}.commit button{width:100%}.commit .hint{text-align:center}
   }
   @media(max-width:430px){

@@ -6448,6 +6448,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (id === 'e_literacy') return '再练一旬识字和认题';
     if (id === 'e_guarantee') return '正式找人担保报名';
     if (id === 'e_guarantee_prep') return '先准备报名担保文书';
+    if (id === 'e_exam') {
+      return examAttemptStructuralGapCode()
+        ? '资格未齐，仍尝试赶考'
+        : ('参加' + examAttemptTargetLabel(S.童试层级, S.生员身份));
+    }
     if (/^e_year\d_/.test(id || '')) {
       if (/婚/.test(name)) return '给婚事和读书分别留钱';
       if (/识字/.test(name)) return '给练字和请教老师留钱';
@@ -6542,6 +6547,91 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return '下一年先补齐报名资格，再决定是否进场';
   }
 
+  function examStudyModeQualified() {
+    return (S.投塾进度 || 0) >= 1
+      || S.读书方式 === '半耕半读'
+      || S.读书方式 === '社学寄读';
+  }
+
+  function examEntryQualificationSteps() {
+    return [
+      {
+        name: '读书去处已定',
+        detail: '进入私塾，或选择半耕半读、社学寄读',
+        done: examStudyModeQualified()
+      },
+      {
+        name: '今年的报名材料已整理',
+        detail: '春课或夏课选“先准备报名担保文书”',
+        done: examGuaranteeDraftReady()
+      },
+      {
+        name: '报名担保手续已办完',
+        detail: '秋试或冬清账中旬选“正式找人担保报名”',
+        done: (S.保结进度 || 0) >= 2
+      },
+      {
+        name: '课业已达到进场要求',
+        detail: '今年至少正式学习两旬，并把文章准备到能应试',
+        done: examActiveStudyCount() >= 2 && examArticleReady()
+      },
+      {
+        name: '家里和身体还撑得住',
+        detail: '今年没有断供，身体也没有严重透支',
+        done: S.供读状态 !== '已断供' && !examAttemptBurdenProfile().severeBlock
+      }
+    ];
+  }
+
+  function examEntryNextStepText() {
+    var code = examAttemptStructuralGapCode();
+    var season = examSeasonInfo(S.举季 || 1);
+    var xun = currentExamXun();
+    if (!code) {
+      if ((season.id === 'autumn' || season.id === 'winter') && xun >= 3) {
+        return '资格已齐；现在可以选“参加' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '”。';
+      }
+      return '资格已齐；到秋试或冬清账下旬，再选“参加' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '”。';
+    }
+    if (code === 'studyMode') return '选“进私塾读书”、“半耕半读”或“社学寄读”，先把读书去处定下来。';
+    if (code === 'guaranteeDraft') {
+      if (season.id === 'autumn' || season.id === 'winter') {
+        return '今年已错过春夏准备材料的时间，本年不能正式入场。下一年春课或夏课先选“先准备报名担保文书”。';
+      }
+      return '在本年春课或夏课选“先准备报名担保文书”。';
+    }
+    if (code === 'guaranteePass') {
+      if (season.id === 'winter' && xun >= 3) {
+        return '今年已错过正式担保的时间。下一年要从准备当年报名材料重新办起。';
+      }
+      if (season.id === 'autumn' && xun >= 3) {
+        return '本年还有一次机会：到冬清账中旬选“正式找人担保报名”。';
+      }
+      return '到秋试或冬清账中旬，选“正式找人担保报名”。';
+    }
+    if (code === 'supportCut') return '今年已经断供，本年不能报名。下一年先留好读书钱，再重新办当年材料。';
+    if (code === 'bodySpent') return '先选“休息养身”或补衣求药，把身体恢复到能赶考。';
+    if (code === 'studyCount') return '继续跟老师读书或请老师批改文章，直到今年累计至少两旬正式学习。';
+    if (code === 'article') return '选“请老师批改文章”，先把文章准备到能应试。';
+    return '先补齐报名清单中标出的未完成项。';
+  }
+
+  function renderExamEntryGuide() {
+    if (S.生员身份) {
+      return '<section class="exam-gate complete"><div class="exam-gate-head"><div><span class="exam-gate-kicker">报名资格</span><strong>已考中秀才</strong></div><span class="gate-count">已完成</span></div></section>';
+    }
+    var steps = examEntryQualificationSteps();
+    var doneCount = steps.filter(function (step) { return step.done; }).length;
+    var html = '<section class="exam-gate"><div class="exam-gate-head"><div><span class="exam-gate-kicker">报名资格进度</span><strong>参加' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '前要办齐</strong></div><span class="gate-count">当前 ' + doneCount + '/' + steps.length + '</span></div>';
+    html += '<div class="exam-gate-list">';
+    steps.forEach(function (step) {
+      html += '<div class="gate-step' + (step.done ? ' done' : '') + '"><span class="gate-mark">' + (step.done ? '✓' : '○') + '</span><span><b>' + step.name + '</b><small>' + step.detail + '</small></span></div>';
+    });
+    html += '</div><p class="gate-next"><b>现在先做：</b>' + examEntryNextStepText() + '</p>';
+    html += '<p class="gate-rule">注意：报名材料每个举业年都要重新整理，去年的底稿不能直接沿用。</p></section>';
+    return html;
+  }
+
   function renderExamYearOutcomeSummary(log) {
     var result = String(S.本年应试结果 || '未下场');
     var blockedGap = examYearBlockedGap(log);
@@ -6633,6 +6723,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     return '<span class="a-blocked"><b>解锁条件：</b>' + text + '</span>';
   }
 
+  function actionWarningText(a) {
+    if (phase !== 'civilExam' || !a || a.id !== 'e_exam') return '';
+    var gapCode = examAttemptStructuralGapCode();
+    if (!gapCode) return '';
+    var season = examSeasonInfo(S.举季 || 1);
+    var plan = examAttemptProfile(S.童试层级);
+    var outlay = season.id === 'winter' ? plan.winterOutlay : plan.autumnOutlay;
+    return '当前还缺：' + examYearGapPlayerText(examAttemptStructuralGapLabel(gapCode)) + '。现在选择会先承担约 ' + outlay + ' 文路费和文书开销，但只能到场外，不能正式参加考试。';
+  }
+
+  function renderActionWarning(text) {
+    return text ? '<span class="a-warning"><b>风险提示：</b>' + text + '</span>' : '';
+  }
+
   function actionKind(a) {
     var key = ((a && a.id) || '') + '·' + ((a && a.name) || '');
     if (/essay|literacy|enroll|school|guarantee|exam|study|识字|读书|文章|报名|考试|保结/.test(key)) return '主线';
@@ -6651,6 +6755,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       if (id === 'e_essay') return '接上一步：读书去处已定；这一步提高文章水平，为报名考试做准备。';
       if (id === 'e_guarantee_prep') return '前后关系：先备好报名文书 → 秋里才能正式找人担保。';
       if (id === 'e_guarantee') return '前后关系：已有文书底稿 → 找人正式担保 → 才能报名考试。';
+      if (id === 'e_exam') {
+        return examAttemptStructuralGapCode()
+          ? '风险选择：这一步不会补齐资格，只是在资格不齐时仍去赶考。'
+          : '报名资格已齐，这一步会正式进入' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '。';
+      }
       if (id === 'e_copy') return '岔路：换现钱并积累抄写谋生的后路；不直接取得考试资格。';
       if (id === 'e_rest' || id === 'e_mend') return '保底：先保住身体；不直接推进读书主线。';
       if (/^e_year\d_/.test(id)) return '这是一笔必要的小安排，做好后不容易因为家里的开销中断读书。';
@@ -6689,6 +6798,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       '<span class="a-top"><span class="a-name">' + plainActionName(a.name, a.id) + '</span>' +
       '<span class="a-cost">花 ' + a.cost + ' 点精力</span></span>' +
       renderBlockedCondition(blockedText) +
+      renderActionWarning(actionWarningText(a)) +
       '<span class="a-eff">结果：' + plainActionEffect(a.eff) + '</span>' +
       (a.prob ? '<span class="a-eff" style="color:var(--info)">' + publicProbabilityLabel(a.prob) + '</span>' : '') +
       '<span class="a-link">' + actionConnectionText(a, isPrimary) + '</span>' +
@@ -6729,6 +6839,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     // ── 多维行动点循环（成家/当户/养老已升级为此模式）──
     if (st.actions) {
       if (st.dossier) h += st.dossier();
+      if (st.guidance) h += st.guidance();
       var publicPrompt = String(st.prompt || '').replace(/（分配\s*\d+\s*点）/g, '').replace(/分配行动点/g, '安排这一程');
       h += '<div class="ap-head"><h3>' + publicPrompt + '</h3>' +
         '<span class="ap-dots">可用精力 <b>' + lifeRemainAP() + '</b> / ' + lifeAP() + '</span></div>';
@@ -11522,6 +11633,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       ap: 4,
       commitLabel: isYearEnd ? '了这一举业年 →' : '了这一旬举业细账 →',
       outcomeSummary: isYearEnd ? renderExamYearOutcomeSummary : null,
+      guidance: renderExamEntryGuide,
       note: '第' + S.举业年 + '举业年重心：' + yearFocus.tag + '。' + yearBudgetLead + ' 一年从春课、夏课走到秋试、冬清账；每旬 4 点要同时顾课业、塾门与保结、家计与供读、身子或差役。真正下场必须走通“识字/题样 → 塾门/读法 → 馆课/评文 → 保结 → 应场”，缺口未补就只能停在场外；家里续供也要用真实米银换纸墨盘缠。'
         + (examCarryHook.note ? (' ' + examCarryHook.note) : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + xunLabel + '</span>。' + yearFocus.note + ' ' + yearBudgetLead + ' ' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火、婚事口风和身子亏空都在争同一笔钱。') + examPulseLead + ' 你这一旬有 <span class="em">4 个行动点</span>，最好别只顾课业本身。',

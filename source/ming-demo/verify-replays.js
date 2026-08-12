@@ -27375,6 +27375,7 @@ function runExamAttemptBlockedStateRegression() {
   });
   api.setRandomSequence([0.01, 0.01, 0.01, 0.01]);
   api.enterPhase('civilExam');
+  const stageBefore = normalizeHtml(elements.get('stage').innerHTML);
   const statusBefore = normalizeHtml(elements.get('status').innerHTML);
   const examAction = availableMap(api).get('e_exam');
   pickByPlan(api, ['e_exam']);
@@ -27384,6 +27385,7 @@ function runExamAttemptBlockedStateRegression() {
   const postState = clone(api.getState());
 
   return {
+    stageBefore,
     before: statusBefore,
     action: examAction ? { can: examAction.can, why: examAction.why } : null,
     resolve: resolveStage,
@@ -27396,6 +27398,11 @@ function runExamAttemptBlockedStateRegression() {
     },
     ok: !!examAction
       && examAction.can === true
+      && stageBefore.includes('报名资格进度')
+      && stageBefore.includes('当前 5/5')
+      && stageBefore.includes('资格已齐；现在可以选“参加县试”')
+      && stageBefore.includes('<span class="a-name">参加县试</span>')
+      && !stageBefore.includes('但只能到场外，不能正式参加考试')
       && statusBefore.includes('场外受阻×1')
       && !resolveStage.includes('〔应场受阻〕')
       && resolveStage.includes('<strong class="result-title">通过县试</strong>')
@@ -27468,6 +27475,14 @@ function runExamAttemptDraftBlockedRegression() {
       && examAction.can === true
       && String(examAction.why || '').includes('旧年底样只算门路记忆')
       && stageBefore.includes('冬清账')
+      && stageBefore.includes('参加县试前要办齐')
+      && stageBefore.includes('今年的报名材料已整理')
+      && stageBefore.includes('当前 4/5')
+      && stageBefore.includes('报名材料每个举业年都要重新整理')
+      && stageBefore.includes('今年已错过春夏准备材料的时间')
+      && stageBefore.includes('<span class="a-name">资格未齐，仍尝试赶考</span>')
+      && stageBefore.includes('现在选择会先承担约 240 文路费和文书开销')
+      && stageBefore.includes('但只能到场外，不能正式参加考试')
       && resolveStage.includes('〔应场受阻〕')
       && resolveStage.includes('旧年保帖底样还在，但今年未重理履历草单')
       && resolveStage.includes('<strong class="result-title">未能入场（不是落榜）</strong>')
@@ -30493,6 +30508,15 @@ function runProgressiveDisclosureUiRegression() {
       && !focusedElderActions.includes('e_route_autumn_school_old')
       && !focusedElderActions.includes('e_route_winter_school_old')
       && primaryExamActionCount === 3
+      && focusedExamStage.includes('<section class="exam-gate">')
+      && focusedExamStage.includes('报名资格进度')
+      && focusedExamStage.includes('参加县试前要办齐')
+      && focusedExamStage.includes('读书去处已定')
+      && focusedExamStage.includes('今年的报名材料已整理')
+      && focusedExamStage.includes('报名担保手续已办完')
+      && focusedExamStage.includes('课业已达到进场要求')
+      && focusedExamStage.includes('家里和身体还撑得住')
+      && focusedExamStage.includes('现在先做：')
       && focusedExamStage.includes('<div class="choice-guide">')
       && focusedExamStage.includes('你之前的选择会改变门槛和排序')
       && focusedExamStage.includes('<details class="more-actions">')
