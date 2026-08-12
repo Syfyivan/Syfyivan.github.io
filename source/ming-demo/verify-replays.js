@@ -13169,7 +13169,7 @@ function runFamilyAdultRhythmRegression() {
     phaseTrace: phaseTrace.map((step) => `${step.phase}@${step.age}`).join(' → '),
     ok: stageSpringUpper.includes('春起')
       && stageSpringUpper.includes('上旬')
-      && stageSpringUpper.includes('3 个行动点')
+      && stageSpringUpper.includes('只要定本季主方向')
       && stageSpringMid.includes('春起')
       && stageSpringMid.includes('中旬')
       && stageSpringLower.includes('春起')
@@ -30337,7 +30337,8 @@ function runExamStatusVisibilityRegression() {
       && initialStatus.includes('已落支出 <b>0</b>文')
       && (initialStage.includes('一年从春课、夏课走到秋试、冬清账')
         || initialStage.includes('春课、夏课走到秋试、冬清账'))
-      && initialStage.includes('每旬 4 点要同时顾课业、塾门与保结、家计与供读、身子或差役')
+      && initialStage.includes('玩家每季定一次主方向')
+      && initialStage.includes('其余旬位仍由账本结算课业、塾门与保结、家计与供读、身子或差役')
       && (
         initialStage.includes('这一年目前还没把细账真正压到账上')
         || initialStage.includes('这一年目前已先碰到：<span class="em">尚无</span>')
@@ -30544,13 +30545,13 @@ function runProgressiveDisclosureUiRegression() {
       && focusedExamStage.includes('家里和身体还撑得住')
       && focusedExamStage.includes('现在先做：')
       && focusedExamStage.includes('<div class="choice-guide">')
-      && focusedExamStage.includes('这些是本旬的安排，不用把整年一次选完')
+      && focusedExamStage.includes('这一季只需要亲自决定一次')
+      && focusedExamStage.includes('本页最多显示 6 个真正有取舍的方向')
       && focusedExamStage.includes('互斥项会标明几选一')
       && focusedExamStage.includes('<details class="more-actions">')
       && !focusedExamStage.includes('<details class="more-actions" open')
       && focusedExamStage.includes('<details class="action-category">')
       && focusedExamStage.includes('按目的展开')
-      && focusedExamStage.includes('给练字和请教老师留钱')
       && focusedExamStage.includes('先准备报名担保文书')
       && focusedExamStage.includes('再练一旬识字和认题')
       && focusedExamStage.includes('花 1 点精力')
@@ -30570,9 +30571,7 @@ function runProgressiveDisclosureUiRegression() {
       && farmStageHtml.includes('<details class="more-actions">')
       && !visibleFarmEffects.includes('体魄+')
       && lockedExamStage.includes('<b>解锁条件：</b>今年父账已经支援 3 次；进入下一举业年后可再申请')
-      && lockedExamStage.includes('<b>解锁条件：</b>今年已经向母亲求助 2 次；进入下一举业年后可再请求')
-      && lockedExamStage.includes('<b>解锁条件：</b>今年兄长已经让过一次婚事钱；进入下一举业年后才可再商量')
-      && noMoneyStage.includes('<b>解锁条件：</b>需要至少 45 文铜钱；当前只有 0 文')
+      && noMoneyStage.includes('<b>解锁条件：</b>需要至少 50 文铜钱；当前只有 0 文')
       && !noMoneyStage.includes('解锁条件：条件未满足')
       && focusedExamStage.includes('一路留下的经历')
       && !focusedExamStage.includes('共享状态账 · 这本账一路带到底')
@@ -30595,6 +30594,127 @@ function runProgressiveDisclosureUiRegression() {
       && (lockedExamHarness.window.__INV || []).length === 0
       && (noMoneyHarness.window.__INV || []).length === 0
       && (selectionHarness.window.__INV || []).length === 0
+  };
+}
+
+function runPlayerExperienceContractRegression() {
+  function playOneLife(routeName) {
+    const { api, window } = createHarness();
+    chooseRoute(api, routeName);
+    let decisions = 0;
+    let maxVisible = 0;
+    let guard = 0;
+    while (api.getPhase() !== 'death' && guard < 60) {
+      const actions = api.getPlayerFacingActions();
+      maxVisible = Math.max(maxVisible, actions.length);
+      if (actions.length) {
+        const picked = actions.find((action) => action.can);
+        if (picked) api.pickAction(picked.id);
+        api.commit();
+        api.playerNext();
+        decisions += 1;
+      } else {
+        const choice = api.getChoices().find((item) => item.can);
+        if (choice) api.choose(choice.id);
+        api.playerNext();
+        decisions += 1;
+      }
+      guard += 1;
+    }
+    return {
+      phase: api.getPhase(),
+      decisions,
+      maxVisible,
+      ledgerCount: api.getLedger().length,
+      inv: (window.__INV || []).slice()
+    };
+  }
+
+  const merchantHarness = createHarness();
+  chooseRoute(merchantHarness.api, '路径四 · 徽商式亦贾亦儒');
+  merchantHarness.api.patchState({
+    商年: 2,
+    商季: 4,
+    商段: 1,
+    铜钱: 20000,
+    白银: 30,
+    存米: 20,
+    体魄: 80,
+    家族: 80,
+    识字: true
+  });
+  merchantHarness.api.enterPhase('merchant');
+  const merchantVisible = merchantHarness.api.getPlayerFacingActions();
+
+  const studyHarness = createHarness();
+  chooseRoute(studyHarness.api, '路径五 · 读书应举');
+  studyHarness.api.patchState({
+    识字: true,
+    识字进度: 3,
+    铜钱: 900,
+    存米: 4,
+    举业年: 1,
+    举季: 1,
+    举旬: 1,
+    举段: 1,
+    投塾进度: 0,
+    读书方式: '未定',
+    供读状态: '尚可供读'
+  });
+  studyHarness.api.enterPhase('civilExam');
+  const initialStudyHtml = normalizeHtml(studyHarness.elements.get('stage').innerHTML);
+  const primaryBlock = initialStudyHtml.match(/<div class="actions primary-actions">([\s\S]*?)<\/div>/);
+  const primaryIds = primaryBlock ? Array.from(primaryBlock[1].matchAll(/data-id="([^"]+)"/g)).map((match) => match[1]) : [];
+  studyHarness.api.pickAction('e_half');
+  const pendingHtml = normalizeHtml(studyHarness.elements.get('stage').innerHTML);
+
+  const lateWindowHarness = createHarness();
+  chooseRoute(lateWindowHarness.api, '路径五 · 读书应举');
+  lateWindowHarness.api.patchState({
+    识字: true,
+    识字进度: 3,
+    铜钱: 900,
+    举业年: 1,
+    举季: 3,
+    举旬: 2,
+    举段: 2,
+    投塾进度: 0,
+    读书方式: '未定',
+    供读状态: '尚可供读'
+  });
+  lateWindowHarness.api.enterPhase('civilExam');
+  const lateWindowHtml = normalizeHtml(lateWindowHarness.elements.get('stage').innerHTML);
+
+  const lives = [
+    '路径一 · 留乡佃田',
+    '路径二 · 受雇长工 / 短工',
+    '路径三 · 入城学徒',
+    '路径四 · 徽商式亦贾亦儒',
+    '路径五 · 读书应举'
+  ].map(playOneLife);
+
+  const checks = {
+    merchantChoiceCap: merchantVisible.length <= 6,
+    merchantNoLedgerButtons: merchantVisible.every((action) => !/^(先把|把.+(?:分开|拆开|拆作|理开))/.test(action.name)),
+    studyModesLead: ['e_tutor', 'e_half', 'e_school'].every((id) => primaryIds.includes(id)),
+    pendingGuideSync: pendingHtml.includes('本旬已选，待结算')
+      && pendingHtml.includes('本旬已经选了读书去处')
+      && pendingHtml.includes('结算前仍可撤销'),
+    lateWindowHonest: lateWindowHtml.includes('本旬已经错过决定读书方式的时间')
+      && lateWindowHtml.includes('到下一季上旬'),
+    allLivesClose: lives.every((life) => life.phase === 'death'),
+    decisionBudget: lives.every((life) => life.decisions >= 20 && life.decisions <= 36),
+    choiceBudget: lives.every((life) => life.maxVisible <= 6),
+    ledgerPreserved: lives.every((life) => life.ledgerCount > life.decisions),
+    noInvariantLeak: lives.every((life) => life.inv.length === 0)
+  };
+
+  return {
+    merchantVisible: merchantVisible.map((action) => action.name),
+    primaryIds,
+    lives,
+    checks,
+    ok: Object.values(checks).every(Boolean)
   };
 }
 
@@ -39456,6 +39576,7 @@ const TEST_BUILDERS = {
   examMixedReplyCounterRegression: runExamMixedReplyCounterRegression,
   examStatusVisibilityRegression: runExamStatusVisibilityRegression,
   progressiveDisclosureUiRegression: runProgressiveDisclosureUiRegression,
+  playerExperienceContractRegression: runPlayerExperienceContractRegression,
   examYearFocusRegression: runExamYearFocusRegression,
   examYearSpecificChoiceRegression: runExamYearSpecificChoiceRegression,
   examYearSpecificActionOrderRegression: runExamYearSpecificActionOrderRegression,
@@ -39803,6 +39924,7 @@ const TEST_SUITES = {
   // 6) “次子承余数 / 绝嗣旁支承旧债 / 待收委托田租 / 真实承继身份”这组 death → restartWithHeir → 重选路线深回放，也要并回默认闭环。
   'current-workflow-closure': [
     'progressiveDisclosureUiRegression',
+    'playerExperienceContractRegression',
     'foundingSnapshotLockRegression',
     'militaryFoundingRouteRegression',
     'militaryFoundingLifecycleRegression',
@@ -39944,6 +40066,7 @@ const TEST_SUITES = {
   docs: ['designDocClosureRegression', 'repositoryDeliveryRegression'],
   required: [
     'progressiveDisclosureUiRegression',
+    'playerExperienceContractRegression',
     'foundingSnapshotLockRegression',
     'militaryFoundingRouteRegression',
     'militaryFoundingLifecycleRegression',

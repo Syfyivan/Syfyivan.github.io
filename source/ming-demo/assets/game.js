@@ -97,6 +97,10 @@
   var _yearEndNext = null;   // 年终结账面板之后要去的地方：'newyear' | 'marriage'
   var phase;                 // 'childhood' | 'establishment' | 'farm' | 'wage' | 'apprentice' | 'merchant' | 'civilExam' | 'marriage' | 'household' | 'elder' | 'death'
   var generation = 0;        // 第几代
+  // 玩家只在每季的代表旬作一次主决定；中、下旬仍由原引擎逐笔结算，
+  // 但不再要求玩家把每一笔灯油、脚费和回话都点成按钮。
+  // 低层回放 API 仍保留逐旬推进，便于验证完整账本。
+  var playerSeasonPolicies = {};
   var carryOver = null;      // 上一代传下的期初结余
   var curStage = null;       // 当前人生阶段卡（非农事时）
   var childStage = 0;        // 幼年第几段（0..CHILD_STAGE_N-1）
@@ -332,6 +336,7 @@
     var carryFoundingSnapshotId = inferFoundingSnapshotIdFromCarry(carry);
     if (carryFoundingSnapshotId) selectedFoundingSnapshotId = carryFoundingSnapshotId;
     carryOver = carry || null;
+    playerSeasonPolicies = {};
     startMode = (opts.start === 'childhood' || opts.start === 'establishment') ? opts.start : startMode;
     var foundingSeed = currentFoundingSnapshot();
     S = {
@@ -5120,11 +5125,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       }
       switch (t.id) {
         case 'btn-commit': commitXun(); break;
-        case 'btn-next': nextXun(); break;
+        case 'btn-next': playerNextFarmRound(); break;
         case 'btn-ccommit': commitChildRound(); break;
         case 'btn-cnext': nextChildRound(); break;
         case 'btn-lcommit': commitLifeRound(); break;
-        case 'btn-pnext': handlePNext(); break;
+        case 'btn-pnext': playerNextLifeRound(); break;
       }
     });
   }
@@ -5133,6 +5138,138 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (phase === 'childhood') { nextChildRound(); return; }
     var st = curStage; if (!st) return;
     if (st.next === null) restartWithHeir('establishment'); else enterPhase(st.next);
+  }
+
+  function lifeRhythmPosition() {
+    if (phase === 'wage') return { season: S.工季 || 1, xun: S.工段 || 1, year: S.工年 || 1 };
+    if (phase === 'apprentice') return { season: S.学季 || 1, xun: S.学旬 || 1, year: S.学年 || 1 };
+    if (phase === 'merchant') return { season: S.商季 || 1, xun: S.商段 || 1, year: S.商年 || 1 };
+    if (phase === 'civilExam') return { season: S.举季 || 1, xun: currentExamXun(), year: S.举业年 || 1 };
+    if (phase === 'family') return { season: S.家季 || 1, xun: S.家旬 || 1, year: S.家年 || 1 };
+    if (phase === 'household') return { season: S.户季 || 1, xun: S.户旬 || 1, year: S.户年 || 1 };
+    if (phase === 'elder') return { season: S.老季 || 1, xun: S.老旬 || 1, year: 1 };
+    return null;
+  }
+
+  function compactLifePhase() {
+    return ['wage', 'apprentice', 'merchant', 'civilExam', 'family', 'household', 'elder'].indexOf(phase) >= 0;
+  }
+
+  function isLifePlayerBeat() {
+    var pos = lifeRhythmPosition();
+    if (!pos) return true;
+    // 把玩家停在真正需要判断的旬位：应试留给秋冬下旬，试贩留给秋中，
+    // 学徒年关去留留给冬尾；其他季节以季初定方向。
+    if (phase === 'civilExam') return pos.xun === ((pos.season >= 3) ? 3 : 1);
+    if (phase === 'merchant') return pos.xun === (pos.season === 3 ? 2 : (pos.season === 4 ? 3 : 1));
+    if (phase === 'apprentice' && pos.season === 4) return pos.xun === 3;
+    return pos.xun === 1;
+  }
+
+  function selectedPolicy(selected) {
+    var counts = {};
+    (selected || []).forEach(function (pick) {
+      var action = lifeActions().filter(function (item) { return item.id === pick.id; })[0] || pick;
+      var kind = actionKind(action);
+      counts[kind] = (counts[kind] || 0) + 1;
+    });
+    var order = ['主线', '挣钱', '顾家', '养身', '准备', '其他'];
+    order.sort(function (a, b) { return (counts[b] || 0) - (counts[a] || 0); });
+    return counts[order[0]] ? order[0] : '主线';
+  }
+
+  function rememberCurrentSeasonPolicy() {
+    var pos = lifeRhythmPosition();
+    if (!pos) return '主线';
+    var policy = selectedPolicy(lifePicks);
+    playerSeasonPolicies[phase + ':' + pos.season] = policy;
+    return policy;
+  }
+
+  function currentSeasonPolicy(fallback) {
+    var pos = lifeRhythmPosition();
+    return pos ? (playerSeasonPolicies[phase + ':' + pos.season] || fallback || '主线') : (fallback || '主线');
+  }
+
+  function selectRoutineLifeActions(policy) {
+    var candidates = lifeActions().filter(function (action) {
+      if (action.can === false || action.can === 0) return false;
+      if (phase === 'civilExam' && action.id === 'e_exam' && examAttemptStructuralGapCode()) return false;
+      return true;
+    });
+    candidates.sort(function (a, b) {
+      var aPolicy = actionKind(a) === policy ? 0 : 1;
+      var bPolicy = actionKind(b) === policy ? 0 : 1;
+      if (aPolicy !== bPolicy) return aPolicy - bPolicy;
+      var aRoutine = isRoutineLedgerAction(a) ? 1 : 0;
+      var bRoutine = isRoutineLedgerAction(b) ? 1 : 0;
+      return aRoutine - bRoutine;
+    });
+    for (var i = 0; i < candidates.length && lifePicks.length < 2; i += 1) {
+      var action = candidates[i];
+      if (action.cost > lifeRemainAP()) continue;
+      var group = lifeActionChoiceGroup(action);
+      if (group && selectedLifeChoiceGroupPick(group, action.id)) continue;
+      if ((group || action.once) && lifePicks.some(function (pick) { return pick.id === action.id; })) continue;
+      lifePicks.push({ id: action.id, name: action.name, cost: action.cost });
+    }
+  }
+
+  function autoSettleLifeRound(policy) {
+    lifePicks = [];
+    selectRoutineLifeActions(currentSeasonPolicy(policy));
+    commitLifeRound();
+    handlePNext();
+  }
+
+  function playerNextLifeRound() {
+    var policy = rememberCurrentSeasonPolicy();
+    handlePNext();
+    var guard = 0;
+    while (compactLifePhase() && guard < 420) {
+      var pos = lifeRhythmPosition();
+      var hiddenLifecycleYear = (phase === 'family' || phase === 'household') && pos && pos.year > 1;
+      if (!hiddenLifecycleYear && isLifePlayerBeat()) break;
+      autoSettleLifeRound(policy);
+      guard += 1;
+    }
+  }
+
+  function farmPolicy() {
+    if (!picks.length) return '主线';
+    var first = availableActions().filter(function (action) { return action.id === picks[0].id; })[0] || picks[0];
+    return actionKind(first);
+  }
+
+  function isFarmPlayerBeat() {
+    return xunIndex === 0 || xunIndex === 3 || xunIndex === HARVEST_XUN || xunIndex === 9;
+  }
+
+  function autoSettleFarmRound(policy) {
+    picks = [];
+    var actions = availableActions().filter(function (action) { return action.can && action.cost <= AP_PER_XUN; });
+    actions.sort(function (a, b) {
+      var aPolicy = actionKind(a) === policy ? 0 : 1;
+      var bPolicy = actionKind(b) === policy ? 0 : 1;
+      return aPolicy - bPolicy;
+    });
+    for (var i = 0; i < actions.length && picks.length < 2; i += 1) {
+      var action = actions[i];
+      if (action.cost > remainAP() || (isOnce(action.id) && picks.some(function (pick) { return pick.id === action.id; }))) continue;
+      picks.push({ id: action.id, name: action.name, cost: action.cost, money: action.money || 0 });
+    }
+    commitXun();
+    nextXun();
+  }
+
+  function playerNextFarmRound() {
+    var policy = farmPolicy();
+    nextXun();
+    var guard = 0;
+    while (phase === 'farm' && !_yearEndNext && !isFarmPlayerBeat() && guard < 16) {
+      autoSettleFarmRound(policy);
+      guard += 1;
+    }
   }
 
   function toggleFoundingSnapshot(snapshotId) {
@@ -5418,7 +5555,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
 
     h += '<div class="ap-head"><h3>' + (isHarvest ? '收割旬 · 先做什么？' : '这一旬 · 先做什么？') + '</h3>' +
       '<span class="ap-dots">可用精力 <b>' + remainAP() + '</b> / ' + AP_PER_XUN + '</span></div>';
-    var farmActions = availableActions();
+    h += '<div class="choice-guide"><strong>这一季只需要亲自决定一次。</strong>' +
+      '<span>系统会按你的方向处理本季其余日常，并把天气、农活和小账写进人生账本；本页最多显示 6 个真正有取舍的方向。</span></div>';
+    var allFarmActions = availableActions();
+    var farmActions = playerFacingActions(allFarmActions, 6);
     var farmPrimary = farmActions.slice(0, 3);
     var farmExtra = farmActions.slice(3);
     function renderFarmCard(a, primary) {
@@ -5445,6 +5585,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += renderExtraActionGroups(farmExtra, renderFarmCard, picks);
       h += '</details>';
     }
+    h += renderHiddenActionCatalog(allFarmActions, farmActions);
 
     h += renderPickedTray(picks, 'farm');
     h += '<div class="commit">';
@@ -6316,6 +6457,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (phase === 'civilExam' && ['e_tutor', 'e_half', 'e_school'].indexOf(id) >= 0) {
       return { id: 'exam-study-mode', label: '本旬读书方式', size: 3 };
     }
+    if (phase === 'wage' && ['w_long', 'w_short', 'w_out'].indexOf(id) >= 0) {
+      return { id: 'wage-work-mode', label: '本旬主要做工方式', size: 3 };
+    }
     return null;
   }
   function selectedLifeChoiceGroupPick(group, exceptId) {
@@ -6613,31 +6757,40 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   }
 
   function examEntryQualificationSteps() {
+    var pendingIds = lifePicks.map(function (pick) { return pick.id; });
+    function pending(ids) {
+      return ids.some(function (id) { return pendingIds.indexOf(id) >= 0; });
+    }
     return [
       {
         name: '读书去处已定',
         detail: '进入私塾，或选择半耕半读、社学寄读',
-        done: examStudyModeQualified()
+        done: examStudyModeQualified(),
+        pending: pending(['e_enroll', 'e_tutor', 'e_half', 'e_school'])
       },
       {
         name: '今年的报名材料已整理',
         detail: '春课或夏课选“先准备报名担保文书”',
-        done: examGuaranteeDraftReady()
+        done: examGuaranteeDraftReady(),
+        pending: pending(['e_guarantee_prep'])
       },
       {
         name: '报名担保手续已办完',
         detail: '秋试或冬清账中旬选“正式找人担保报名”',
-        done: (S.保结进度 || 0) >= 2
+        done: (S.保结进度 || 0) >= 2,
+        pending: pending(['e_guarantee'])
       },
       {
         name: '课业已达到进场要求',
         detail: '今年至少正式学习两旬，并把文章准备到能应试',
-        done: examActiveStudyCount() >= 2 && examArticleReady()
+        done: examActiveStudyCount() >= 2 && examArticleReady(),
+        pending: pending(['e_tutor', 'e_half', 'e_school', 'e_essay'])
       },
       {
         name: '家里和身体还撑得住',
         detail: '今年没有断供，身体也没有严重透支',
-        done: S.供读状态 !== '已断供' && !examAttemptBurdenProfile().severeBlock
+        done: S.供读状态 !== '已断供' && !examAttemptBurdenProfile().severeBlock,
+        pending: pending(['e_rest', 'e_mend'])
       }
     ];
   }
@@ -6652,26 +6805,50 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       }
       return '资格已齐；到秋试或冬清账下旬，再选“参加' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '”。';
     }
-    if (code === 'studyMode') return '选“进私塾读书”、“半耕半读”或“社学寄读”，先把读书去处定下来。';
+    if (code === 'studyMode') {
+      if (lifePicks.some(function (pick) { return ['e_enroll', 'e_tutor', 'e_half', 'e_school'].indexOf(pick.id) >= 0; })) {
+        return '本旬已经选了读书去处；结算后清单才会正式更新，结算前仍可撤销。';
+      }
+      if (xun !== 1) return '本旬已经错过决定读书方式的时间；到下一季上旬再从私塾、半耕半读或社学寄读中选一种。';
+      return '从“进私塾读书”、“半耕半读”或“社学寄读”中选一种，先把读书去处定下来。';
+    }
     if (code === 'guaranteeDraft') {
-      if (season.id === 'autumn' || season.id === 'winter') {
+      if (lifePicks.some(function (pick) { return pick.id === 'e_guarantee_prep'; })) {
+        return '本旬已经选择整理报名材料；结算后会写入今年的资格进度。';
+      }
+      if (season.id === 'autumn' || season.id === 'winter' || (season.id === 'summer' && xun >= 3)) {
         return '今年已错过春夏准备材料的时间，本年不能正式入场。下一年春课或夏课先选“先准备报名担保文书”。';
       }
-      return '在本年春课或夏课选“先准备报名担保文书”。';
+      if (xun === 1) return '到本季中旬选“先准备报名担保文书”。';
+      if (xun === 2) return '本旬选“先准备报名担保文书”。';
+      return '春课中旬已经错过；到夏课中旬再整理今年的报名材料。';
     }
     if (code === 'guaranteePass') {
+      if (lifePicks.some(function (pick) { return pick.id === 'e_guarantee'; })) {
+        return '本旬已经选择正式找人担保；结算后才知道手续是否办成。';
+      }
       if (season.id === 'winter' && xun >= 3) {
         return '今年已错过正式担保的时间。下一年要从准备当年报名材料重新办起。';
       }
       if (season.id === 'autumn' && xun >= 3) {
         return '本年还有一次机会：到冬清账中旬选“正式找人担保报名”。';
       }
-      return '到秋试或冬清账中旬，选“正式找人担保报名”。';
+      if ((season.id === 'autumn' || season.id === 'winter') && xun === 2) return '本旬选“正式找人担保报名”。';
+      if ((season.id === 'autumn' || season.id === 'winter') && xun === 1) return '到本季中旬选“正式找人担保报名”。';
+      return '到秋试中旬，选“正式找人担保报名”。';
     }
     if (code === 'supportCut') return '今年已经断供，本年不能报名。下一年先留好读书钱，再重新办当年材料。';
     if (code === 'bodySpent') return '先选“休息养身”或补衣求药，把身体恢复到能赶考。';
-    if (code === 'studyCount') return '继续跟老师读书或请老师批改文章，直到今年累计至少两旬正式学习。';
-    if (code === 'article') return '选“请老师批改文章”，先把文章准备到能应试。';
+    if (code === 'studyCount') {
+      if (lifePicks.some(function (pick) { return ['e_tutor', 'e_half', 'e_school', 'e_essay'].indexOf(pick.id) >= 0; })) return '本旬已选课业安排；结算后会更新正式学习次数。';
+      if (xun === 1) return '本旬从三种读书方式中选一种；本季中、下旬还可以请老师批改文章。';
+      return '本旬继续请老师批改文章，直到今年累计至少两旬正式学习。';
+    }
+    if (code === 'article') {
+      if (lifePicks.some(function (pick) { return pick.id === 'e_essay'; })) return '本旬已经选择请老师批改文章；结算后会更新文章准备。';
+      if (xun === 1) return '到本季中旬或下旬选“请老师批改文章”。';
+      return '本旬选“请老师批改文章”，先把文章准备到能应试。';
+    }
     return '先补齐报名清单中标出的未完成项。';
   }
 
@@ -6681,12 +6858,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     }
     var steps = examEntryQualificationSteps();
     var doneCount = steps.filter(function (step) { return step.done; }).length;
+    var pendingCount = steps.filter(function (step) { return !step.done && step.pending; }).length;
     var html = '<section class="exam-gate"><div class="exam-gate-head"><div><span class="exam-gate-kicker">报名资格进度</span><strong>参加' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '前要办齐</strong></div><span class="gate-count">当前 ' + doneCount + '/' + steps.length + '</span></div>';
     html += '<div class="exam-gate-list">';
     steps.forEach(function (step) {
-      html += '<div class="gate-step' + (step.done ? ' done' : '') + '"><span class="gate-mark">' + (step.done ? '✓' : '○') + '</span><span><b>' + step.name + '</b><small>' + step.detail + '</small></span></div>';
+      html += '<div class="gate-step' + (step.done ? ' done' : (step.pending ? ' pending' : '')) + '"><span class="gate-mark">' + (step.done ? '✓' : (step.pending ? '…' : '○')) + '</span><span><b>' + step.name + '</b><small>' + step.detail + (step.pending && !step.done ? '（本旬已选，待结算）' : '') + '</small></span></div>';
     });
     html += '</div><p class="gate-next"><b>现在先做：</b>' + examEntryNextStepText() + '</p>';
+    if (pendingCount) html += '<p class="gate-rule">本旬有 ' + pendingCount + ' 项待结算；结算前撤销，清单也会恢复。</p>';
     html += '<p class="gate-rule">注意：报名材料每个举业年都要重新整理，去年的底稿不能直接沿用。</p></section>';
     return html;
   }
@@ -6804,6 +6983,73 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (/home|family|mother|brother|grain|marriage|回家|家计|供读|贴家|婚/.test(key)) return '顾家';
     if (/packet|split|note|reply|prep|准备|脚费|跑腿|灯油|帖|回话|担保/.test(key)) return '准备';
     return '其他';
+  }
+
+  function isRoutineLedgerAction(a) {
+    if (!a) return false;
+    var id = a.id || '';
+    var name = String(a.name || '');
+    var strategic = [
+      'e_literacy', 'e_enroll', 'e_tutor', 'e_half', 'e_school', 'e_essay',
+      'e_guarantee_prep', 'e_guarantee', 'e_exam', 'e_copy', 'e_home', 'e_rest', 'e_mend',
+      'w_long', 'w_short', 'w_out', 'w_skill', 'w_book', 'w_home', 'w_rest',
+      'a_seek', 'a_bond', 'a_sign', 'a_drudge', 'a_learn', 'a_run', 'a_book', 'a_market', 'a_home', 'a_rest',
+      'm_shop', 'm_goods', 'm_market', 'm_wharf', 'm_run', 'm_try', 'm_book', 'm_collect', 'm_home', 'm_rest'
+    ];
+    if (strategic.indexOf(id) >= 0) return false;
+    // 这类按钮的本质是账本明细，不是人生方向。它们仍留在引擎和回放里，
+    // 但不再占据玩家的选择清单。
+    return /^e_year\d_/.test(id)
+      || /^先把/.test(name)
+      || /^把.+(?:分开|拆开|拆作|理开)/.test(name)
+      || /^先留(?!一角差役钱)/.test(name)
+      || /^先备.+(?:脚费|门包|样纸|纸墨|灯油|薄礼)/.test(name);
+  }
+
+  function playerFacingActions(actions, limit) {
+    var max = Math.max(3, limit || 6);
+    var source = (actions || []).filter(function (action) { return !isRoutineLedgerAction(action); });
+    var visible = [];
+    function add(action) {
+      if (!action || visible.some(function (item) { return item.id === action.id; }) || visible.length >= max) return;
+      visible.push(action);
+    }
+    // 排序前列由阶段规则决定，先保留真正的当前主线。
+    source.slice(0, 3).forEach(add);
+    // 季初若提供成组互斥选择，整组必须一起出现；不能只露出其中一个，
+    // 让玩家看不出“改选会替换原方案”。
+    if (phase === 'civilExam' && currentExamXun() === 1) {
+      source.filter(function (action) {
+        var group = lifeActionChoiceGroup(action);
+        return group && group.id === 'exam-study-mode';
+      }).forEach(add);
+    }
+    if (phase === 'civilExam' && currentExamXun() === 3) {
+      add(source.filter(function (action) { return action.id === 'e_exam'; })[0]);
+    }
+    if (phase === 'wage') {
+      source.filter(function (action) {
+        var group = lifeActionChoiceGroup(action);
+        return group && group.id === 'wage-work-mode';
+      }).forEach(add);
+    }
+    // 余位优先给不同目的，避免六个按钮全是同一种细分做法。
+    ['主线', '准备', '挣钱', '顾家', '养身', '其他'].forEach(function (kind) {
+      add(source.filter(function (action) { return actionKind(action) === kind; })[0]);
+    });
+    source.forEach(add);
+    return visible;
+  }
+
+  function renderHiddenActionCatalog(allActions, visibleActions) {
+    var visibleIds = (visibleActions || []).map(function (action) { return action.id; });
+    var hidden = (allActions || []).filter(function (action) { return visibleIds.indexOf(action.id) < 0; });
+    if (!hidden.length) return '';
+    // 仅供回放校验确认底层动作仍存在；template 不会出现在玩家页面或可访问选择树里。
+    return '<template class="action-catalog-debug">' + hidden.map(function (action) {
+      return '<i data-id="' + actionSourceNameAttr(action.id) + '" data-action-name="' + actionSourceNameAttr(action.name) + '">' +
+        escapeHtml(action.name || '') + '｜' + escapeHtml(action.eff || '') + '｜' + escapeHtml(action.desc || '') + '</i>';
+    }).join('') + '</template>';
   }
 
   function renderPickedTray(selected, mode) {
@@ -6958,14 +7204,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var publicPrompt = String(st.prompt || '').replace(/（分配\s*\d+\s*点）/g, '').replace(/分配行动点/g, '安排这一程');
       h += '<div class="ap-head"><h3>' + publicPrompt + '</h3>' +
         '<span class="ap-dots">可用精力 <b>' + lifeRemainAP() + '</b> / ' + lifeAP() + '</span></div>';
-      var actionList = lifeActions();
+      var allLifeActions = lifeActions();
+      var actionList = playerFacingActions(allLifeActions, 6);
       var primaryActions = actionList.slice(0, Math.min(3, actionList.length));
       var extraActions = actionList.slice(primaryActions.length);
       var extraPicked = extraActions.some(function (a) {
         return lifePicks.some(function (p) { return p.id === a.id; });
       });
       h += '<div class="choice-guide"><strong>' + decisionGuideText() + '</strong>' +
-        '<span>这些是本旬的安排，不用把整年一次选完。下面 ' + primaryActions.length + ' 项是当前关键步骤；不冲突的项目可以组合，互斥项会标明几选一。</span></div>';
+        '<span>这一季只需要亲自决定一次。系统会按你的方向处理本季其余日常，并把小账写入人生账本；本页最多显示 6 个真正有取舍的方向，互斥项会标明几选一。</span></div>';
       h += '<div class="action-group-head"><strong>这一步最关键</strong><span>先看这里就够了</span></div>';
       h += '<div class="actions primary-actions">';
       primaryActions.forEach(function (a) { h += renderLifeActionCard(a, true); });
@@ -6976,6 +7223,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         h += renderExtraActionGroups(extraActions, renderLifeActionCard, lifePicks);
         h += '</details>';
       }
+      h += renderHiddenActionCatalog(allLifeActions, actionList);
       h += renderPickedTray(lifePicks, 'life');
       h += '<div class="commit">';
       h += '<button id="btn-lcommit">' + (st.commitLabel || '定夺这一程 →') + '</button>';
@@ -7177,7 +7425,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     h += '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">📚 生命周期延伸卡</span>' +
       '<span class="cb-val">单代闭环</span></div>' +
-      '<div class="cb-tip">成年后不再只是按年一笔结算；五条路都继续拆到四季三旬，把家计、制度、身体与门路碎账压回同一年。' +
+      '<div class="cb-tip">底层仍按四季三旬结算，但玩家每季只定一次主方向；家计、制度、身体与门路小账由系统记入同一本人生账本。' +
       '<br>保持守恒、不变量与史料诚实：不写成功分、排名或最优路线。</div></div>';
     h += '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">🧾 五路多代账本卡</span>' +
@@ -7330,7 +7578,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       ap: 3, commitLabel: isYearEnd ? '了这一工年 →' : '结这一旬工食细账 →',
       note: '卖工一年分三手过账：上旬先排工路，中旬把家用与市面摊开，下旬再收差役、衣药和旧债。每旬只有 3 点，工食、家计与身子后手不可能样样顾全。'
         + (wageCarryHook.note ? (' ' + wageCarryHook.note) : ''),
-      narrative: '你已<span class="em">' + age + '岁</span>，这一工年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + (wagePass === 1 ? '这一旬先把主工路定下来。' : (wagePass === 2 ? '这一旬更像把家里、市面与脚下活路往一处拢。' : '这一旬最像收后账：差役、衣药、旧债与年关后手都不肯再往后拖。')) + ' 你这一旬有 <span class="em">3 个行动点</span>。',
+      narrative: '你已<span class="em">' + age + '岁</span>，这一工年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + (wagePass === 1 ? '这一旬先把主工路定下来。' : (wagePass === 2 ? '这一旬更像把家里、市面与脚下活路往一处拢。' : '这一旬最像收后账：差役、衣药、旧债与年关后手都不肯再往后拖。')) + ' 这次只要定本季主方向；同季其余日常会照这个方向过账。',
       dossier: function () {
         var seasonTags = (S.本年季务 && S.本年季务.length) ? S.本年季务.join('、') : '尚未坐实';
         return lifeDossier('当前工季=' + season.name + '·' + xunLabel + '｜本年雇约=' + S.本年雇约 + '｜本年工食银=' + S.本年工食银 + '两｜本年工食钱=' + S.本年工食钱 + '文｜口粮减免=' + S.本年口粮减免 + '石｜' + wageCounts + '｜已坐实=' + seasonTags + '。'
@@ -7640,7 +7888,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       ap: 3, commitLabel: isYearEnd ? '了这一学年 →' : '了这一旬学徒 →',
       note: '一个学年分四段走：投师季跑说合、作保与立据，坐店季熬守店和抄账，行市季兼顾问价、送货、贴家与归省，年关季再结口粮、差役、衣药与去留。保证金、食宿和去留数额仍是玩法占位。'
         + (apprenticeCarryHook.note ? (' ' + apprenticeCarryHook.note) : ''),
-      narrative: '你已<span class="em">' + age + '岁</span>，这一学年走到<span class="em">' + season.name + xunLabel + '</span>。' + season.actionLead + '投师不是自动成功；立据不等于学成，学成也不等于准你留下。你这一旬有 <span class="em">3 个行动点</span>，要在说合、守店、学账、奔走、问价、贴家、帮家、备差、衣药与养身之间取舍。',
+      narrative: '你已<span class="em">' + age + '岁</span>，这一学年走到<span class="em">' + season.name + xunLabel + '</span>。' + season.actionLead + '投师不是自动成功；立据不等于学成，学成也不等于准你留下。这次只要在学艺、挣钱、顾家和养身之间定本季主方向。',
       dossier: function () {
         return lifeDossier('立据≠学成≠出师；师傅收不收、留不留、准不准你转伙计，都是分开判的。当前：合同=' + S.学徒合同 + '｜阶段=' + S.学徒阶段 + '｜授艺度=' + S.学徒授艺度 + '｜信任=' + S.学徒信任 + '｜' + seasonalCounts + '。'
           + (apprenticeCarryHook.dossier ? ('｜' + apprenticeCarryHook.dossier) : ''));
@@ -8132,7 +8380,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         + (((S.承继定位 || '').indexOf('长兄续商') >= 0)
           ? ' 只是这一手并不是平白承了长兄的旧号，多半还得挨着旧路数、在旁边另起一支，认人认账与回钱节奏都会因此改写。'
           : '')
-        + ' 你这一旬有 <span class="em">3 个行动点</span>。',
+        + ' 这次只要定本季主方向；同季其余小账会自动进入人生账本。',
       dossier: function () {
         var seasonTags = (S.本年商路季务 && S.本年商路季务.length) ? S.本年商路季务.join('、') : '尚未坐实';
         return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜商年画像=' + yearProfile.dossier + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜可调度回家商账=' + supportCapacity + '两（贴家/供读共用）｜试本口风=' + (S.本年商路议本 > 0 ? '已坐实' : '未坐实') + '｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。'
@@ -11749,9 +11997,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       commitLabel: isYearEnd ? '了这一举业年 →' : '了这一旬举业细账 →',
       outcomeSummary: isYearEnd ? renderExamYearOutcomeSummary : null,
       guidance: renderExamEntryGuide,
-      note: '第' + S.举业年 + '举业年重心：' + yearFocus.tag + '。' + yearBudgetLead + ' 一年从春课、夏课走到秋试、冬清账；每旬 4 点要同时顾课业、塾门与保结、家计与供读、身子或差役。真正下场必须走通“识字/题样 → 塾门/读法 → 馆课/评文 → 保结 → 应场”，缺口未补就只能停在场外；家里续供也要用真实米银换纸墨盘缠。'
+      note: '第' + S.举业年 + '举业年重心：' + yearFocus.tag + '。' + yearBudgetLead + ' 一年从春课、夏课走到秋试、冬清账；玩家每季定一次主方向，其余旬位仍由账本结算课业、塾门与保结、家计与供读、身子或差役。真正下场必须走通“识字/题样 → 塾门/读法 → 馆课/评文 → 保结 → 应场”，缺口未补就只能停在场外；家里续供也要用真实米银换纸墨盘缠。'
         + (examCarryHook.note ? (' ' + examCarryHook.note) : ''),
-      narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + xunLabel + '</span>。' + yearFocus.note + ' ' + yearBudgetLead + ' ' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火、婚事口风和身子亏空都在争同一笔钱。') + examPulseLead + ' 你这一旬有 <span class="em">4 个行动点</span>，最好别只顾课业本身。',
+      narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + xunLabel + '</span>。' + yearFocus.note + ' ' + yearBudgetLead + ' ' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火、婚事口风和身子亏空都在争同一笔钱。') + examPulseLead + ' 这次只要定本季主方向；结算前可撤销，结算后才正式入账。',
       dossier: function () {
           return lifeDossier(yearFocus.dossier + '｜当前举程=' + season.name + '·' + xunLabel + '｜投塾=' + examEnrollmentLabel(S.投塾进度) + '｜举链=' + examChainStageLabel() + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜本次应场=' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜资格细账=' + examGuaranteeDetailLabel() + '｜文章火候=' + S.文章火候 + '｜识字底子=' + examLiteracyFoundationLabel() + '｜供读状态=' + examSupportStateDetail() + '｜婚事口风=' + examDelayStatusLabel() + '｜三年婚事承压=' + examLifetimeDelayLabel() + '｜身耗=' + examBodyStatusLabel() + '｜本年举务=' + examVisibleSeasonalLedgerCount() + '｜举务脉络=' + examVisibleSeasonalLedgerTrail() + '｜本年应试=' + examAttemptResultLabel(S.本年应试结果, S.本年应场受阻次数) + '｜本年投塾=' + S.本年投塾次数 + '｜识字旬=' + S.本年识字旬数 + '｜馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保帖底样=' + (S.本年保帖底样次数 || 0) + '旬｜保结奔走=' + S.本年保结次数 + '｜应场受阻=' + (S.本年应场受阻次数 || 0) + '回｜誊抄=' + S.本年誊抄次数 + '｜归家缓家=' + S.本年归家次数 + '回/' + S.本年家中贴补米 + '石｜公账贴补=' + (S.本年公账贴补次 || 0) + '回/' + (S.本年公账贴补文 || 0) + '文（已落' + (S.本年家中供读公账文 || 0) + '）｜母纺贴补=' + (S.本年母纺贴补次 || 0) + '回/' + (S.本年母纺贴补文 || 0) + '文（已落' + (S.本年母纺供读已用文 || 0) + '）｜兄婚让读=' + (S.本年兄婚让读次 || 0) + '回/' + (S.本年兄婚让读文 || 0) + '文（已落' + (S.本年兄婚供读已用文 || 0) + '）｜婚事让开=' + (S.本年婚事让开次数 || 0) + '旬｜供读转折=' + (S.本年供读转折旬数 || 0) + '旬｜婚事转折=' + (S.本年婚事转折旬数 || 0) + '旬｜身耗转折=' + (S.本年身耗转折旬数 || 0) + '旬｜家中供读=' + S.本年家中供读次 + '回/' + S.本年家中供读文 + '文/' + S.本年家中供读米 + '石（公账已落' + (S.本年家中供读公账文 || 0) + '｜旧现钱已落' + (S.本年现钱供读已用文 || 0) + '｜硬银已落' + (S.本年硬银供读已用两 || 0) + '两｜粜米已落' + (S.本年粜米供读已用文 || 0) + '｜母纺已落' + (S.本年母纺供读已用文 || 0) + '｜兄让已落' + (S.本年兄婚供读已用文 || 0) + '｜债补' + (S.本年举业债补供读两 || 0) + '两）｜家中续供回话=' + (S.本年家中续供次 || 0) + '旬｜馆保回话=' + (S.本年馆保回话次数 || 0) + '旬｜婚话回札=' + (S.本年婚话回札次数 || 0) + '旬｜回榜口风=' + (S.本年回榜口风次数 || 0) + '旬｜笔墨自筹=' + (S.本年举业自筹文 || 0) + '文（已落' + (S.本年举业自筹已用文 || 0) + '）' + ((S.本年举业自筹缓压 || 0) > 0 ? ('｜笔墨已缓供读' + (S.本年举业自筹缓压 || 0) + '线') : '') + ((S.本年供读缓冲已用 || 0) > 0 ? ('｜家内续读缓冲已用' + (S.本年供读缓冲已用 || 0) + '次') : '') + '｜已落举业支出=' + S.本年已落举业支出文 + '文｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜盘缠=' + S.本年盘缠支出文 + '文｜零耗=' + S.本年零耗支出文 + '文｜衣药=' + S.本年衣药支出文 + '文｜役扰=' + (S.本年役扰支出文 || 0) + '文' + ((S.本年役扰已结 || false) ? '｜役钱已见光' : '') + '｜债息=' + (S.本年债息增银 || 0) + '两' + ((S.本年债息已结 || false) ? '｜债息已滚' : '') + '｜落第=' + S.本年落第次数 + '｜延婚牵扯=' + S.本年延婚牵扯 + '｜身子亏空=' + S.本年身子亏空 + '｜累计投塾=' + (S.举业累计投塾次数 || 0) + '｜累计识字=' + (S.举业累计识字旬数 || 0) + '｜累计保帖底样=' + (S.举业累计保帖底样次数 || 0) + '｜累计馆保回话=' + (S.举业累计馆保回话次数 || 0) + '｜累计婚话回札=' + (S.举业累计婚话回札次数 || 0) + '｜累计保结=' + (S.举业累计保结次数 || 0) + '｜累计应场受阻=' + (S.举业累计应场受阻次数 || 0) + '｜累计落第=' + (S.举业累计落第次数 || 0) + '｜累计延婚=' + (S.举业累计延婚牵扯 || 0) + '｜累计让开婚事=' + (S.举业累计婚事让开次数 || 0) + '｜累计身耗=' + (S.举业累计身子亏空 || 0) + (S.生员身份 ? '｜已是生员' : '') + '。'
           + (examCarryHook.dossier ? ('｜' + examCarryHook.dossier) : ''));
@@ -12903,7 +13151,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (lateWarmSeasonSupportFirst) {
           preferredOrder = preferredOrder.concat(supportIds);
         }
-        if (gapCode === 'studyMode') preferredOrder = preferredOrder.concat(['e_enroll', 'e_school', 'e_literacy']);
+        if (gapCode === 'studyMode') preferredOrder = ['e_tutor', 'e_half', 'e_school', 'e_enroll', 'e_literacy'].concat(preferredOrder);
         else if (gapCode === 'guaranteeDraft') preferredOrder = preferredOrder.concat(['e_guarantee_prep', 'e_literacy']);
         else if (gapCode === 'guaranteePass') preferredOrder = preferredOrder.concat(['e_guarantee']);
         else if (gapCode === 'studyCount' || gapCode === 'article') preferredOrder = preferredOrder.concat(['e_essay', 'e_copy']);
@@ -16836,7 +17084,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       note: '养家按春起、夏长、秋收、冬藏逐旬过账。每旬 3 点通常只够顾一手主营生、一手家内或市面细账，再留一手给差役、衣药、旧债或明春后手。'
         + (bridge.note ? ' ' + bridge.note : '')
         + (rp.note ? ' ' + rp.note : ''),
-      narrative: '你已<span class="em">' + S.年龄 + '岁</span>，这一养家年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead + ' 这一旬你有 <span class="em">3 个行动点</span>，得尽量把主营生、家里细账和制度后手一起摊开；若只顾一头，另一头往往会在同一年里立刻反咬回来。'
+      narrative: '你已<span class="em">' + S.年龄 + '岁</span>，这一养家年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead + ' 这次只要定本季主方向；主营生、家里细账和制度后手仍会在账本里一起发生。'
         + (bridge.narrative ? (' ' + bridge.narrative) : ''),
       dossier: function () {
         return lifeDossier('家年=' + year + '｜家程=' + season.name + '·' + xunLabel + '｜米价=' + (priceHigh ? '高' : '低') + '｜本年做活=' + (S.本年家做活 || 0) + '｜粜米=' + (S.本年家粜米 || 0) + '｜问价=' + (S.本年家问价 || 0) + '｜贴家=' + (S.本年家贴家 || 0) + '｜催账=' + (S.本年家催账 || 0) + '｜备役=' + (S.本年家备役 || 0) + '｜修缮=' + (S.本年家修缮 || 0) + '｜通融=' + (S.本年家通融 || 0) + '｜捎信=' + (S.本年家捎信 || 0) + '｜供读=' + (S.本年家供读 || 0) + '｜人情欠条=' + (S.人情欠条 || 0)
@@ -27106,6 +27354,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (curStage && curStage.choices) return curStage.choices.map(function (c, i) { return { id: i, name: c.name, can: c.can !== false, cost: 0, once: true, why: '', eff: c.gain || '' }; });
         return [];
       },
+      getPlayerFacingActions: function () {
+        var actions = phase === 'farm' ? availableActions() : (curStage && curStage.actions ? lifeActions() : []);
+        return playerFacingActions(actions, 6).map(function (a) {
+          return { id: a.id, name: a.name, can: a.can !== false, cost: a.cost || 0, why: a.why || '', eff: a.eff || '' };
+        });
+      },
       getChoices: function () {
         if (!curStage || !curStage.choices) return [];
         return curStage.choices.map(function (c, i) {
@@ -27149,6 +27403,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (phase === 'childhood') nextChildRound();
         else if (phase === 'farm') nextXun();
         else handlePNext();
+        return true;
+      },
+      playerNext: function () {
+        if (phase === 'farm') playerNextFarmRound();
+        else playerNextLifeRound();
         return true;
       },
       enterPhase: function (p) { enterPhase(p); return true; },
