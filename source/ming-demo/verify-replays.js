@@ -30416,6 +30416,42 @@ function runProgressiveDisclosureUiRegression() {
   farmHarness.api.next();
   const farmStageHtml = normalizeHtml(farmHarness.elements.get('stage').innerHTML);
   const visibleFarmEffects = (farmStageHtml.match(/<span class="a-eff"[^>]*>[\s\S]*?<\/span>/g) || []).join(' ');
+  const lockedExamHarness = createHarness();
+  chooseRoute(lockedExamHarness.api, '路径五 · 读书应举');
+  lockedExamHarness.api.patchState({
+    识字: true,
+    铜钱: 900,
+    存米: 3,
+    家族: 61,
+    举业年: 1,
+    举季: 4,
+    举旬: 1,
+    举段: 1,
+    供读状态: '尚可供读',
+    本年公账贴补次: 3,
+    本年母纺贴补次: 2,
+    本年兄婚让读次: 1
+  });
+  lockedExamHarness.api.enterPhase('civilExam');
+  const lockedExamStage = normalizeHtml(lockedExamHarness.elements.get('stage').innerHTML);
+  const noMoneyHarness = createHarness();
+  chooseRoute(noMoneyHarness.api, '路径五 · 读书应举');
+  noMoneyHarness.api.patchState({
+    识字: true,
+    铜钱: 0,
+    存米: 0,
+    家族: 61,
+    举业年: 1,
+    举季: 1,
+    举旬: 2,
+    举段: 2,
+    投塾进度: 1,
+    读书方式: '塾馆',
+    文章火候: 3,
+    供读状态: '尚可供读'
+  });
+  noMoneyHarness.api.enterPhase('civilExam');
+  const noMoneyStage = normalizeHtml(noMoneyHarness.elements.get('stage').innerHTML);
 
   return {
     coreChipCount,
@@ -30470,6 +30506,11 @@ function runProgressiveDisclosureUiRegression() {
       && (farmStageHtml.match(/class="act act-primary"/g) || []).length <= 3
       && farmStageHtml.includes('<details class="more-actions">')
       && !visibleFarmEffects.includes('体魄+')
+      && lockedExamStage.includes('<b>解锁条件：</b>今年父账已经支援 3 次；进入下一举业年后可再申请')
+      && lockedExamStage.includes('<b>解锁条件：</b>今年已经向母亲求助 2 次；进入下一举业年后可再请求')
+      && lockedExamStage.includes('<b>解锁条件：</b>今年兄长已经让过一次婚事钱；进入下一举业年后才可再商量')
+      && noMoneyStage.includes('<b>解锁条件：</b>需要至少 45 文铜钱；当前只有 0 文')
+      && !noMoneyStage.includes('解锁条件：条件未满足')
       && focusedExamStage.includes('一路留下的经历')
       && !focusedExamStage.includes('共享状态账 · 这本账一路带到底')
       && !focusedExamStage.includes('担担保')
@@ -30478,6 +30519,8 @@ function runProgressiveDisclosureUiRegression() {
       && (window.__INV || []).length === 0
       && (elderHarness.window.__INV || []).length === 0
       && (examHarness.window.__INV || []).length === 0
+      && (lockedExamHarness.window.__INV || []).length === 0
+      && (noMoneyHarness.window.__INV || []).length === 0
   };
 }
 
@@ -35508,7 +35551,7 @@ function runSharedCashContentionRegression() {
         && merchantState.白银 === 0
         && merchantState.商路供读银 === 0
         && afterTry.带本银 === 1
-        && merchantStage.includes('白银不足1两')
+        && merchantStage.includes('<b>解锁条件：</b>需要至少 1 两白银；当前只有 0 两')
         && (merchantWindow.__INV || []).length === 0
     },
     householdCopper: {
@@ -35526,7 +35569,7 @@ function runSharedCashContentionRegression() {
       && merchantState.白银 === 0
       && merchantState.商路供读银 === 0
       && afterTry.带本银 === 1
-      && merchantStage.includes('白银不足1两')
+      && merchantStage.includes('<b>解锁条件：</b>需要至少 1 两白银；当前只有 0 两')
       && householdState.铜钱 === 150
       && householdState.本年户备役 === 1
       && householdState.户旬 === 2

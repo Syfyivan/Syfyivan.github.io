@@ -5160,6 +5160,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       .replace(/[“"]?三百千[”"]?底子/g, '识字底子')
       .replace(/[“"]?三百千[”"]?/g, '常用启蒙读物')
       .replace(/谁真肯家里出钱供你读书/g, '家里谁肯继续出钱供你读书')
+      .replace(/谁真肯供读/g, '家里谁肯继续出钱供你读书')
       .replace(/私塾回话/g, '私塾答复')
       .replace(/供读/g, '家里出钱供你读书')
       .replace(/坐实/g, '确定下来')
@@ -5419,13 +5420,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     function renderFarmCard(a, primary) {
       var picked = picks.filter(function (p) { return p.id === a.id; }).length;
       var disabled = !a.can || a.cost > remainAP() || (picked > 0 && isOnce(a.id));
+      var blockedText = actionBlockedText(a, picked, isOnce(a.id), remainAP());
       return '<button class="act' + (primary ? ' act-primary' : '') + '" data-id="' + a.id + '" data-source-name="' + actionSourceNameAttr(a.name) + '" data-source-desc="' + actionSourceNameAttr(a.desc) + '"' + (disabled ? ' disabled' : '') + '>' +
         '<span class="a-role">' + (primary ? '眼下要紧' : actionKind(a)) + '</span>' +
         '<span class="a-top"><span class="a-name">' + plainActionName(a.name, a.id) + '</span>' +
         '<span class="a-cost">花 ' + a.cost + ' 点精力</span></span>' +
+        renderBlockedCondition(blockedText) +
         '<span class="a-eff">结果：' + plainActionEffect(a.eff) + '</span>' +
         '<span class="a-link">' + actionConnectionText(a, primary) + '</span>' +
-        (!a.can ? '<span class="a-blocked">暂时不能选：' + plainBlockedReason(a.why || '条件未满足') + '</span>' : '') +
         (picked ? '<span class="a-picked">已选 ×' + picked + '</span>' : '') +
         '</button>';
     }
@@ -5857,13 +5859,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     function renderChildCard(a, primary) {
       var picked = childPicks.filter(function (p) { return p.id === a.id; }).length;
       var disabled = !a.can || a.cost > childRemainAP() || (picked > 0 && a.once);
+      var blockedText = actionBlockedText(a, picked, !!a.once, childRemainAP());
       return '<button class="act' + (primary ? ' act-primary' : '') + '" data-id="' + a.id + '" data-source-name="' + actionSourceNameAttr(a.name) + '" data-source-desc="' + actionSourceNameAttr(a.desc) + '"' + (disabled ? ' disabled' : '') + '>' +
         '<span class="a-role">' + (primary ? '眼下要紧' : actionKind(a)) + '</span>' +
         '<span class="a-top"><span class="a-name">' + plainActionName(a.name, a.id) + '</span>' +
         '<span class="a-cost">花 ' + a.cost + ' 点精力</span></span>' +
+        renderBlockedCondition(blockedText) +
         '<span class="a-eff">结果：' + plainActionEffect(a.eff) + '</span>' +
         '<span class="a-link">' + actionConnectionText(a, primary) + '</span>' +
-        (!a.can ? '<span class="a-blocked">暂时不能选：' + plainBlockedReason(a.why || '条件未满足') + '</span>' : '') +
         (picked ? '<span class="a-picked">已选 ×' + picked + '</span>' : '') +
         '</button>';
     }
@@ -6481,8 +6484,6 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var readable = plainActionWords(eff)
       .replace(/缓婚事口风/g, '婚事压力缓一缓')
       .replace(/风险降/g, '风险降低')
-      .replace(/家族\+/g, '人情关系更稳')
-      .replace(/家族-/g, '人情关系受损')
       .replace(/核账\/备役更实/g, '账目和差役准备更稳');
     readable = readable.replace(/([\u4e00-\u9fa5A-Za-z]+)([+-])(\d+)(文|两|石|亩|%|线|次|旬)?/g, function (_, label, direction, amount, unit) {
       return publicDeltaText(label, direction, amount, unit);
@@ -6502,10 +6503,48 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   }
 
   function plainBlockedReason(reason) {
-    return plainActionWords(reason)
+    var source = String(reason || '').trim();
+    var match;
+    if (!source || source === '条件未满足') return '需要先完成这项安排的前置准备';
+    match = source.match(/^铜钱不足(\d+)文$/);
+    if (match) return '需要至少 ' + match[1] + ' 文铜钱；当前只有 ' + (S.铜钱 || 0) + ' 文';
+    match = source.match(/^白银不足(\d+)两$/);
+    if (match) return '需要至少 ' + match[1] + ' 两白银；当前只有 ' + (S.白银 || 0) + ' 两';
+    if (source === '存米不足1石' || source === '无米可卖') return '需要至少 1 石存米；当前只有 ' + (S.存米 || 0) + ' 石';
+    if (source === '本年公账贴补已到3回') return '今年父账已经支援 3 次；进入下一举业年后可再申请';
+    if (source === '本年母纺贴补已到2回') return '今年已经向母亲求助 2 次；进入下一举业年后可再请求';
+    if (source === '本年兄婚让读已用过') return '今年兄长已经让过一次婚事钱；进入下一举业年后才可再商量';
+    if (source === '本年兄婚让读已到2回') return '今年兄长已经让过两次婚事钱；进入下一举业年后才可再商量';
+    if (source === '家中已断供') return '需要家里仍愿意继续供你读书；当前本年已经停止供读';
+    if (source === '尚不识字' || source === '不识字，看不懂账册') return '需要先学会识字';
+    if (source === '尚未立据') return '需要先与师傅立下学徒契约';
+    if (source === '未曾学过手艺') return '需要先拜师学过这门手艺';
+    if (source === '要到第三年') return '需要先走到学徒第三年';
+    if (source === '只在第三年年关结去向') return '需要走到学徒第三年年关';
+    if (source === '眼下已无田面可守') return '需要名下还有可以照料的田地';
+    if (/^授艺度至少要到\d+/.test(source)) return '需要学艺进展达到出师要求';
+    var readable = plainActionWords(source)
       .replace(/文章火候/g, '文章准备')
       .replace(/识字转业值/g, '笔墨活经验')
-      .replace(/成本档/g, '读书花销');
+      .replace(/成本档/g, '读书花销')
+      .replace(/坐实/g, '确定下来')
+      .replace(/本年/g, '今年')
+      .replace(/已到(\d+)回/g, '已经用满 $1 次')
+      .replace(/尚无/g, '还没有');
+    if (/^(先|需要|要到|只在|当前|本轮|今年|还没有|暂无|眼下)/.test(readable)) return readable;
+    return '需要先满足：' + readable;
+  }
+
+  function actionBlockedText(a, picked, once, remaining) {
+    if (a && (a.can === false || a.can === 0)) return plainBlockedReason(a.why || '条件未满足');
+    if (a && a.cost > remaining) return '需要 ' + a.cost + ' 点精力；当前只剩 ' + remaining + ' 点，可取消一个已选安排';
+    if (picked > 0 && once) return '这一旬已经安排过；进入下一旬后可以再选';
+    return '';
+  }
+
+  function renderBlockedCondition(text) {
+    if (!text) return '';
+    return '<span class="a-blocked"><b>解锁条件：</b>' + text + '</span>';
   }
 
   function actionKind(a) {
@@ -6557,15 +6596,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function renderLifeActionCard(a, isPrimary) {
     var picked = lifePicks.filter(function (p) { return p.id === a.id; }).length;
     var disabled = a.can === false || a.cost > lifeRemainAP() || (picked > 0 && a.once);
+    var blockedText = actionBlockedText(a, picked, !!a.once, lifeRemainAP());
     var role = isPrimary ? '当前关键' : actionKind(a);
     return '<button class="act' + (isPrimary ? ' act-primary' : '') + '" data-id="' + a.id + '" data-source-name="' + actionSourceNameAttr(a.name) + '" data-source-desc="' + actionSourceNameAttr(a.desc) + '"' + (disabled ? ' disabled' : '') + '>' +
       '<span class="a-role">' + role + '</span>' +
       '<span class="a-top"><span class="a-name">' + plainActionName(a.name, a.id) + '</span>' +
       '<span class="a-cost">花 ' + a.cost + ' 点精力</span></span>' +
+      renderBlockedCondition(blockedText) +
       '<span class="a-eff">结果：' + plainActionEffect(a.eff) + '</span>' +
       (a.prob ? '<span class="a-eff" style="color:var(--info)">' + publicProbabilityLabel(a.prob) + '</span>' : '') +
       '<span class="a-link">' + actionConnectionText(a, isPrimary) + '</span>' +
-      (a.can === false ? '<span class="a-blocked">暂时不能选：' + plainBlockedReason(a.why || '条件未满足') + '</span>' : '') +
       (picked ? '<span class="a-picked">已选 ×' + picked + '</span>' : '') +
       '</button>';
   }
@@ -6638,7 +6678,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     st.choices.forEach(function (c, i) {
       var dis = c.can === false;
       h += '<button class="choice" data-i="' + i + '" data-source-name="' + actionSourceNameAttr(c.name) + '"' + (dis ? ' disabled' : '') + '>';
-      h += '<span class="ch-name">' + plainActionName(c.name, '') + (dis ? '（' + plainBlockedReason(c.why || '暂时还做不到') + '）' : '') + '</span>';
+      h += '<span class="ch-name">' + plainActionName(c.name, '') + '</span>';
+      if (dis) h += renderBlockedCondition(plainBlockedReason(c.why || '条件未满足'));
       if (c.cost) h += '<span class="ch-line ch-cost">需要：' + plainActionEffect(c.cost) + '</span>';
       if (c.gain) h += '<span class="ch-line ch-gain">结果：' + plainActionEffect(c.gain) + '</span>';
       if (c.prob) h += '<span class="ch-line ch-prob">' + publicProbabilityLabel(c.prob) + '</span>';
