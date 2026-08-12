@@ -30477,6 +30477,32 @@ function runProgressiveDisclosureUiRegression() {
   });
   noMoneyHarness.api.enterPhase('civilExam');
   const noMoneyStage = normalizeHtml(noMoneyHarness.elements.get('stage').innerHTML);
+  const selectionHarness = createHarness();
+  chooseRoute(selectionHarness.api, '路径五 · 读书应举');
+  selectionHarness.api.patchState({
+    识字: true,
+    识字进度: 3,
+    铜钱: 900,
+    存米: 3,
+    家族: 65,
+    举业年: 1,
+    举季: 1,
+    举旬: 1,
+    举段: 1,
+    投塾进度: 1,
+    读书方式: '塾馆',
+    供读状态: '尚可供读'
+  });
+  selectionHarness.api.enterPhase('civilExam');
+  const selectionInitial = normalizeHtml(selectionHarness.elements.get('stage').innerHTML);
+  selectionHarness.api.pickAction('e_tutor');
+  const selectionAfterTutor = normalizeHtml(selectionHarness.elements.get('stage').innerHTML);
+  selectionHarness.api.pickAction('e_half');
+  const selectionAfterReplace = normalizeHtml(selectionHarness.elements.get('stage').innerHTML);
+  const picksAfterReplace = selectionHarness.api.getSelectedActions();
+  selectionHarness.api.removeAction('e_half');
+  const selectionAfterUndo = normalizeHtml(selectionHarness.elements.get('stage').innerHTML);
+  const picksAfterUndo = selectionHarness.api.getSelectedActions();
 
   return {
     coreChipCount,
@@ -30518,9 +30544,12 @@ function runProgressiveDisclosureUiRegression() {
       && focusedExamStage.includes('家里和身体还撑得住')
       && focusedExamStage.includes('现在先做：')
       && focusedExamStage.includes('<div class="choice-guide">')
-      && focusedExamStage.includes('你之前的选择会改变门槛和排序')
+      && focusedExamStage.includes('这些是本旬的安排，不用把整年一次选完')
+      && focusedExamStage.includes('互斥项会标明几选一')
       && focusedExamStage.includes('<details class="more-actions">')
       && !focusedExamStage.includes('<details class="more-actions" open')
+      && focusedExamStage.includes('<details class="action-category">')
+      && focusedExamStage.includes('按目的展开')
       && focusedExamStage.includes('给练字和请教老师留钱')
       && focusedExamStage.includes('先准备报名担保文书')
       && focusedExamStage.includes('再练一旬识字和认题')
@@ -30550,11 +30579,22 @@ function runProgressiveDisclosureUiRegression() {
       && !focusedExamStage.includes('担担保')
       && focusedExamStage.includes('前后关系：先备好报名文书 → 秋里才能正式找人担保')
       && focusedExamStage.includes('其他安排')
+      && selectionInitial.includes('本旬读书方式 · 3选一')
+      && selectionAfterTutor.includes('<div class="pick-tray">')
+      && selectionAfterTutor.includes('结算前都可以撤销')
+      && selectionAfterTutor.includes('先入塾定今年跟老师读书')
+      && selectionAfterReplace.includes('已选安排')
+      && selectionAfterReplace.includes('半耕半读')
+      && picksAfterReplace.length === 1
+      && picksAfterReplace[0].id === 'e_half'
+      && !selectionAfterUndo.includes('<div class="pick-tray">')
+      && picksAfterUndo.length === 0
       && (window.__INV || []).length === 0
       && (elderHarness.window.__INV || []).length === 0
       && (examHarness.window.__INV || []).length === 0
       && (lockedExamHarness.window.__INV || []).length === 0
       && (noMoneyHarness.window.__INV || []).length === 0
+      && (selectionHarness.window.__INV || []).length === 0
   };
 }
 
@@ -32045,7 +32085,7 @@ function runExamStudyBurdenRegression() {
   api.enterPhase('civilExam');
 
   const summerUpperStage = normalizeHtml(elements.get('stage').innerHTML);
-  pickByPlan(api, ['e_tutor', 'e_school']);
+  pickByPlan(api, ['e_tutor', 'e_literacy']);
   api.commit();
   const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
   const postSummerUpper = clone(api.getState());
@@ -32067,19 +32107,20 @@ function runExamStudyBurdenRegression() {
     ok: summerUpperStage.includes('夏课')
       && summerUpperStage.includes('上旬')
       && !resolveSummerUpper.includes('〔家内续读缓冲〕')
-      && resolveSummerUpper.includes('〔灯下透支〕')
+      // 本旬主读法改为三选一后，不再允许同旬同时坐馆与寄读；
+      // 因此这组回放仍会压出供读与婚事负担，但不应再叠出第二层“灯下透支”。
+      && !resolveSummerUpper.includes('〔灯下透支〕')
       && postSummerUpper.供读状态 === '断供边缘'
       && postSummerUpper.供读压力 === 2
-      && postSummerUpper.本年延婚牵扯 >= 3
-      && postSummerUpper.本年身子亏空 >= 2
+      && postSummerUpper.本年延婚牵扯 >= 2
+      && postSummerUpper.本年身子亏空 >= 1
       && postSummerUpper.本年供读缓冲已用 === 0
-      && postSummerUpper.体魄 <= 53
+      && postSummerUpper.体魄 <= 54
       && Array.isArray(postSummerUpper.本年举业季务)
       && postSummerUpper.本年举业季务.some((tag) => String(tag).includes('举业内并账'))
-      && postSummerUpper.本年举业季务.some((tag) => String(tag).includes('灯下透支'))
       && summerMidStatus.includes('断供边缘·压2')
-      && summerMidStatus.includes('婚期越拖越迟')
-      && summerMidStatus.includes('肩眼见亏')
+      && summerMidStatus.includes('已见拖延')
+      && summerMidStatus.includes('灯下微亏')
       && (window.__INV || []).length === 0
   };
 }
@@ -32181,7 +32222,7 @@ function runExamInheritedSupportBufferRegression() {
   api.enterPhase('civilExam');
 
   const summerUpperStage = normalizeHtml(elements.get('stage').innerHTML);
-  pickByPlan(api, ['e_tutor', 'e_school']);
+  pickByPlan(api, ['e_tutor', 'e_literacy']);
   api.commit();
   const resolveSummerUpper = normalizeHtml(elements.get('stage').innerHTML);
   const postSummerUpper = clone(api.getState());
@@ -32201,10 +32242,10 @@ function runExamInheritedSupportBufferRegression() {
     summerMidStatus,
     debugChecks: {
       hasSupportBuffer: resolveSummerUpper.includes('〔家内续读缓冲〕'),
-      hasOverdrawnBody: resolveSummerUpper.includes('〔灯下透支〕'),
+      avoidedDoubleModeOverdraw: !resolveSummerUpper.includes('〔灯下透支〕'),
       pressureHeld: postSummerUpper.供读压力 === 0,
-      delayTwo: postSummerUpper.本年延婚牵扯 === 2,
-      bodyWorn: postSummerUpper.本年身子亏空 >= 2,
+      delayOne: postSummerUpper.本年延婚牵扯 === 1,
+      bodyWorn: postSummerUpper.本年身子亏空 >= 1,
       bufferUsed: postSummerUpper.本年供读缓冲已用 === 1,
       hasSupportTag: Array.isArray(postSummerUpper.本年举业季务)
         && postSummerUpper.本年举业季务.some((tag) => String(tag).includes('家内续读缓冲')),
@@ -32217,10 +32258,10 @@ function runExamInheritedSupportBufferRegression() {
       && summerUpperStage.includes('上旬')
       && resolveSummerUpper.includes('〔家内续读缓冲〕')
       && !resolveSummerUpper.includes('〔举业内并账〕')
-      && resolveSummerUpper.includes('〔灯下透支〕')
+      && !resolveSummerUpper.includes('〔灯下透支〕')
       && postSummerUpper.供读压力 === 0
-      && postSummerUpper.本年延婚牵扯 === 2
-      && postSummerUpper.本年身子亏空 >= 2
+      && postSummerUpper.本年延婚牵扯 === 1
+      && postSummerUpper.本年身子亏空 >= 1
       && postSummerUpper.本年供读缓冲已用 === 1
       && Array.isArray(postSummerUpper.本年举业季务)
       && postSummerUpper.本年举业季务.some((tag) => String(tag).includes('家内续读缓冲'))

@@ -5092,13 +5092,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var t = ev.target;
       while (t && t !== stage) {
         if (t.nodeType === 1) {
-          if (t.classList.contains('act') || t.classList.contains('choice') || t.classList.contains('switch-choice') ||
+          if (t.classList.contains('act') || t.classList.contains('choice') || t.classList.contains('switch-choice') || t.classList.contains('pick-remove') ||
             (t.id && t.id.indexOf('btn-') === 0)) break;
         }
         t = t.parentNode;
       }
       if (!t || t === stage) return;
       if (t.disabled) return;
+      if (t.classList.contains('pick-remove')) {
+        removeSelectedPick(t.getAttribute('data-pick-mode'), t.getAttribute('data-remove-id'));
+        return;
+      }
       if (t.classList.contains('act')) {
         var id = t.getAttribute('data-id');
         if (phase === 'childhood') addChildPick(id);
@@ -5421,7 +5425,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var picked = picks.filter(function (p) { return p.id === a.id; }).length;
       var disabled = !a.can || a.cost > remainAP() || (picked > 0 && isOnce(a.id));
       var blockedText = actionBlockedText(a, picked, isOnce(a.id), remainAP());
-      return '<button class="act' + (primary ? ' act-primary' : '') + '" data-id="' + a.id + '" data-source-name="' + actionSourceNameAttr(a.name) + '" data-source-desc="' + actionSourceNameAttr(a.desc) + '"' + (disabled ? ' disabled' : '') + '>' +
+      return '<button class="act' + (primary ? ' act-primary' : '') + (picked ? ' act-picked' : '') + '" data-id="' + a.id + '" data-source-name="' + actionSourceNameAttr(a.name) + '" data-source-desc="' + actionSourceNameAttr(a.desc) + '"' + (disabled ? ' disabled' : '') + '>' +
         '<span class="a-role">' + (primary ? '眼下要紧' : actionKind(a)) + '</span>' +
         '<span class="a-top"><span class="a-name">' + plainActionName(a.name, a.id) + '</span>' +
         '<span class="a-cost">花 ' + a.cost + ' 点精力</span></span>' +
@@ -5436,11 +5440,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     farmPrimary.forEach(function (a) { h += renderFarmCard(a, true); });
     h += '</div>';
     if (farmExtra.length) {
-      h += '<details class="more-actions"><summary><strong>其他安排</strong><span>按需展开</span></summary><div class="actions more-actions-body">';
-      farmExtra.forEach(function (a) { h += renderFarmCard(a, false); });
-      h += '</div></details>';
+      var farmExtraPicked = farmExtra.some(function (action) { return picks.some(function (pick) { return pick.id === action.id; }); });
+      h += '<details class="more-actions"' + (farmExtraPicked ? ' open' : '') + '><summary><strong>其他安排</strong><span>按目的展开 · ' + farmExtra.length + ' 项</span></summary>';
+      h += renderExtraActionGroups(farmExtra, renderFarmCard, picks);
+      h += '</details>';
     }
 
+    h += renderPickedTray(picks, 'farm');
     h += '<div class="commit">';
     h += '<button id="btn-commit"' + (picks.length ? '' : ' disabled') + '>结算这一旬（旬末看天）</button>';
     h += '<span class="hint">' + (picks.length ? ('已选：' + picks.map(function (p) { return plainActionName(p.name, p.id); }).join('、')) : '选好这一旬最想做的事；精力用不完也可以继续。') + '</span>';
@@ -5466,6 +5472,29 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (isOnce(id) && picks.some(function (p) { return p.id === id; })) return;
     picks.push({ id: a.id, name: a.name, cost: a.cost, money: a.money || 0 });
     renderStage();
+  }
+
+  function removeLastPickById(list, id) {
+    for (var i = list.length - 1; i >= 0; i--) {
+      if (list[i].id === id) {
+        list.splice(i, 1);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function removeSelectedPick(mode, id) {
+    if (!id) return;
+    if (mode === 'farm') {
+      if (removeLastPickById(picks, id)) renderStage();
+      return;
+    }
+    if (mode === 'child') {
+      if (removeLastPickById(childPicks, id)) renderChildhood();
+      return;
+    }
+    if (removeLastPickById(lifePicks, id)) renderLifeStage();
   }
 
   function commitXun() {
@@ -5860,7 +5889,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var picked = childPicks.filter(function (p) { return p.id === a.id; }).length;
       var disabled = !a.can || a.cost > childRemainAP() || (picked > 0 && a.once);
       var blockedText = actionBlockedText(a, picked, !!a.once, childRemainAP());
-      return '<button class="act' + (primary ? ' act-primary' : '') + '" data-id="' + a.id + '" data-source-name="' + actionSourceNameAttr(a.name) + '" data-source-desc="' + actionSourceNameAttr(a.desc) + '"' + (disabled ? ' disabled' : '') + '>' +
+      return '<button class="act' + (primary ? ' act-primary' : '') + (picked ? ' act-picked' : '') + '" data-id="' + a.id + '" data-source-name="' + actionSourceNameAttr(a.name) + '" data-source-desc="' + actionSourceNameAttr(a.desc) + '"' + (disabled ? ' disabled' : '') + '>' +
         '<span class="a-role">' + (primary ? '眼下要紧' : actionKind(a)) + '</span>' +
         '<span class="a-top"><span class="a-name">' + plainActionName(a.name, a.id) + '</span>' +
         '<span class="a-cost">花 ' + a.cost + ' 点精力</span></span>' +
@@ -5875,10 +5904,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     childhoodPrimary.forEach(function (a) { h += renderChildCard(a, true); });
     h += '</div>';
     if (childhoodExtra.length) {
-      h += '<details class="more-actions"><summary><strong>其他安排</strong><span>按需展开</span></summary><div class="actions more-actions-body">';
-      childhoodExtra.forEach(function (a) { h += renderChildCard(a, false); });
-      h += '</div></details>';
+      var childhoodExtraPicked = childhoodExtra.some(function (action) { return childPicks.some(function (pick) { return pick.id === action.id; }); });
+      h += '<details class="more-actions"' + (childhoodExtraPicked ? ' open' : '') + '><summary><strong>其他安排</strong><span>按目的展开 · ' + childhoodExtra.length + ' 项</span></summary>';
+      h += renderExtraActionGroups(childhoodExtra, renderChildCard, childPicks);
+      h += '</details>';
     }
+    h += renderPickedTray(childPicks, 'child');
     h += '<div class="commit">';
     h += '<button id="btn-ccommit"' + (childPicks.length ? '' : ' disabled') + '>' + (isLast ? '结算这一轮并结家计账 →' : '结算这一轮 →') + '</button>';
     h += '<span class="hint">' + (childPicks.length ? ('已选：' + childPicks.map(function (p) { return plainActionName(p.name, p.id); }).join('、')) : '选好这一轮最想做的事；精力用不完也可以继续。') + '</span>';
@@ -6280,10 +6311,38 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function lifeSpent() { return lifePicks.reduce(function (a, p) { return a + p.cost; }, 0); }
   function lifeRemainAP() { return lifeAP() - lifeSpent(); }
   function lifeActions() { return (curStage && curStage.actions) ? curStage.actions() : []; }
+  function lifeActionChoiceGroup(actionOrId) {
+    var id = typeof actionOrId === 'string' ? actionOrId : ((actionOrId && actionOrId.id) || '');
+    if (phase === 'civilExam' && ['e_tutor', 'e_half', 'e_school'].indexOf(id) >= 0) {
+      return { id: 'exam-study-mode', label: '本旬读书方式', size: 3 };
+    }
+    return null;
+  }
+  function selectedLifeChoiceGroupPick(group, exceptId) {
+    if (!group) return null;
+    for (var i = 0; i < lifePicks.length; i++) {
+      var pickedGroup = lifeActionChoiceGroup(lifePicks[i].id);
+      if (pickedGroup && pickedGroup.id === group.id && lifePicks[i].id !== exceptId) return lifePicks[i];
+    }
+    return null;
+  }
+  function removeLifeChoiceGroupPicks(group) {
+    if (!group) return;
+    lifePicks = lifePicks.filter(function (pick) {
+      var pickedGroup = lifeActionChoiceGroup(pick.id);
+      return !pickedGroup || pickedGroup.id !== group.id;
+    });
+  }
   function addLifePick(id) {
     var a = lifeActions().filter(function (x) { return x.id === id; })[0];
-    if (!a || a.can === false || a.cost > lifeRemainAP()) return;
+    if (!a || a.can === false) return;
+    var choiceGroup = lifeActionChoiceGroup(a);
+    var replacement = selectedLifeChoiceGroupPick(choiceGroup, a.id);
+    var reclaimed = replacement ? replacement.cost : 0;
+    if (a.cost > lifeRemainAP() + reclaimed) return;
+    if (choiceGroup && lifePicks.some(function (p) { return p.id === id; })) return;
     if (a.once && lifePicks.some(function (p) { return p.id === id; })) return;
+    if (choiceGroup) removeLifeChoiceGroupPicks(choiceGroup);
     lifePicks.push({ id: a.id, name: a.name, cost: a.cost });
     renderLifeStage();
   }
@@ -6739,12 +6798,63 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
 
   function actionKind(a) {
     var key = ((a && a.id) || '') + '·' + ((a && a.name) || '');
-    if (/essay|literacy|enroll|school|guarantee|exam|study|识字|读书|文章|报名|考试|保结/.test(key)) return '主线';
+    if (/essay|literacy|enroll|school|tutor|half|guarantee|exam|study|识字|读书|文章|报名|考试|保结|塾馆|半耕半读|寄读/.test(key)) return '主线';
     if (/rest|mend|cure|medicine|cough|body|养身|歇息|休息|药|护嗓|补衣|补鞋/.test(key)) return '养身';
     if (/copy|work|wage|sell|earn|抄书|看账|补贴|做工|卖米|赚钱/.test(key)) return '挣钱';
     if (/home|family|mother|brother|grain|marriage|回家|家计|供读|贴家|婚/.test(key)) return '顾家';
     if (/packet|split|note|reply|prep|准备|脚费|跑腿|灯油|帖|回话|担保/.test(key)) return '准备';
     return '其他';
+  }
+
+  function renderPickedTray(selected, mode) {
+    if (!selected || !selected.length) return '';
+    var grouped = [];
+    selected.forEach(function (pick) {
+      var existing = grouped.filter(function (entry) { return entry.id === pick.id; })[0];
+      if (existing) existing.count += 1;
+      else grouped.push({ id: pick.id, name: pick.name, count: 1 });
+    });
+    var html = '<div class="pick-tray"><div class="pick-tray-head"><strong>已选安排</strong><span>结算前都可以撤销</span></div><div class="pick-list">';
+    grouped.forEach(function (pick) {
+      html += '<button class="pick-remove" type="button" data-pick-mode="' + mode + '" data-remove-id="' + actionSourceNameAttr(pick.id) + '">' +
+        '<span>' + plainActionName(pick.name, pick.id) + (pick.count > 1 ? (' ×' + pick.count) : '') + '</span><b>撤销' + (pick.count > 1 ? '一次' : '') + '</b></button>';
+    });
+    return html + '</div></div>';
+  }
+
+  function renderExtraActionGroups(extraActions, renderCard, selected) {
+    var order = ['主线', '准备', '挣钱', '顾家', '养身', '其他'];
+    var buckets = {};
+    extraActions.forEach(function (action) {
+      var kind = actionKind(action);
+      if (!buckets[kind]) buckets[kind] = [];
+      buckets[kind].push(action);
+    });
+    var html = '<div class="more-actions-body grouped-actions">';
+    order.forEach(function (kind) {
+      var actions = buckets[kind] || [];
+      if (!actions.length) return;
+      var hasPicked = actions.some(function (action) {
+        return (selected || []).some(function (pick) { return pick.id === action.id; });
+      });
+      html += '<details class="action-category"' + (hasPicked ? ' open' : '') + '><summary><strong>' + (kind === '主线' ? '主线备选' : kind) + '</strong><span>' + actions.length + ' 项</span></summary><div class="actions">';
+      actions.forEach(function (action) { html += renderCard(action, false); });
+      html += '</div></details>';
+    });
+    return html + '</div>';
+  }
+
+  function lifeActionChoiceRelationText(a) {
+    var group = lifeActionChoiceGroup(a);
+    if (!group) return '';
+    var replacement = selectedLifeChoiceGroupPick(group, a.id);
+    if (lifePicks.some(function (pick) { return pick.id === a.id; })) {
+      return group.label + ' · ' + group.size + '选一 · 当前已选';
+    }
+    if (replacement) {
+      return group.label + ' · ' + group.size + '选一 · 选它会替换“' + plainActionName(replacement.name, replacement.id) + '”';
+    }
+    return group.label + ' · ' + group.size + '选一';
   }
 
   function actionConnectionText(a, isPrimary) {
@@ -6790,14 +6900,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
 
   function renderLifeActionCard(a, isPrimary) {
     var picked = lifePicks.filter(function (p) { return p.id === a.id; }).length;
-    var disabled = a.can === false || a.cost > lifeRemainAP() || (picked > 0 && a.once);
-    var blockedText = actionBlockedText(a, picked, !!a.once, lifeRemainAP());
+    var choiceGroup = lifeActionChoiceGroup(a);
+    var replacement = selectedLifeChoiceGroupPick(choiceGroup, a.id);
+    var availableForChoice = lifeRemainAP() + (replacement ? replacement.cost : 0);
+    var choiceOnce = !!choiceGroup || !!a.once;
+    var disabled = a.can === false || a.cost > availableForChoice || (picked > 0 && choiceOnce);
+    var blockedText = actionBlockedText(a, picked, choiceOnce, availableForChoice);
     var role = isPrimary ? '当前关键' : actionKind(a);
-    return '<button class="act' + (isPrimary ? ' act-primary' : '') + '" data-id="' + a.id + '" data-source-name="' + actionSourceNameAttr(a.name) + '" data-source-desc="' + actionSourceNameAttr(a.desc) + '"' + (disabled ? ' disabled' : '') + '>' +
+    return '<button class="act' + (isPrimary ? ' act-primary' : '') + (picked ? ' act-picked' : '') + '" data-id="' + a.id + '" data-source-name="' + actionSourceNameAttr(a.name) + '" data-source-desc="' + actionSourceNameAttr(a.desc) + '"' + (disabled ? ' disabled' : '') + '>' +
       '<span class="a-role">' + role + '</span>' +
       '<span class="a-top"><span class="a-name">' + plainActionName(a.name, a.id) + '</span>' +
       '<span class="a-cost">花 ' + a.cost + ' 点精力</span></span>' +
       renderBlockedCondition(blockedText) +
+      (lifeActionChoiceRelationText(a) ? '<span class="a-choice-group">' + lifeActionChoiceRelationText(a) + '</span>' : '') +
       renderActionWarning(actionWarningText(a)) +
       '<span class="a-eff">结果：' + plainActionEffect(a.eff) + '</span>' +
       (a.prob ? '<span class="a-eff" style="color:var(--info)">' + publicProbabilityLabel(a.prob) + '</span>' : '') +
@@ -6850,18 +6965,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         return lifePicks.some(function (p) { return p.id === a.id; });
       });
       h += '<div class="choice-guide"><strong>' + decisionGuideText() + '</strong>' +
-        '<span>你之前的选择会改变门槛和排序；下面 ' + primaryActions.length + ' 项是按当前进度排出的关键步骤。</span></div>';
+        '<span>这些是本旬的安排，不用把整年一次选完。下面 ' + primaryActions.length + ' 项是当前关键步骤；不冲突的项目可以组合，互斥项会标明几选一。</span></div>';
       h += '<div class="action-group-head"><strong>这一步最关键</strong><span>先看这里就够了</span></div>';
       h += '<div class="actions primary-actions">';
       primaryActions.forEach(function (a) { h += renderLifeActionCard(a, true); });
       h += '</div>';
       if (extraActions.length) {
         h += '<details class="more-actions"' + (extraPicked ? ' open' : '') + '>' +
-          '<summary><strong>其他安排</strong><span>按需展开</span></summary>' +
-          '<div class="actions more-actions-body">';
-        extraActions.forEach(function (a) { h += renderLifeActionCard(a, false); });
-        h += '</div></details>';
+          '<summary><strong>其他安排</strong><span>按目的展开 · ' + extraActions.length + ' 项</span></summary>';
+        h += renderExtraActionGroups(extraActions, renderLifeActionCard, lifePicks);
+        h += '</details>';
       }
+      h += renderPickedTray(lifePicks, 'life');
       h += '<div class="commit">';
       h += '<button id="btn-lcommit">' + (st.commitLabel || '定夺这一程 →') + '</button>';
       h += '<span class="hint">' + (lifePicks.length ? ('已选：' + lifePicks.map(function (p) { return plainActionName(p.name, p.id); }).join('、')) : '选好这一程最想做的事；精力用不完也可以继续。') + '</span>';
@@ -27013,6 +27128,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         else if (phase === 'farm') addPick(id);
         else addLifePick(id);
         return true;
+      },
+      removeAction: function (id) {
+        if (phase === 'childhood') removeSelectedPick('child', id);
+        else if (phase === 'farm') removeSelectedPick('farm', id);
+        else removeSelectedPick('life', id);
+        return true;
+      },
+      getSelectedActions: function () {
+        var selected = phase === 'childhood' ? childPicks : (phase === 'farm' ? picks : lifePicks);
+        return JSON.parse(JSON.stringify(selected || []));
       },
       commit: function () {
         if (phase === 'childhood') commitChildRound();
