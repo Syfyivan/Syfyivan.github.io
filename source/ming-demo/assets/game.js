@@ -366,7 +366,7 @@
       举业年: 1, 举季: 1, 举旬: 1, 举段: 1, 读书方式: '未定', 投塾进度: 0, 童试层级: 0, 保结进度: 0, 保结履历已具: false, 保结互结已具: false, 保结具结已具: false, 保结廪保已具: false, 保结资格审查已过: false, 文章火候: 0,
       供读状态: '家中供读', 供读压力: 0, 读书成本档: 0, 本年下场: false, 本年应试结果: '未下场', 本年应场受阻次数: 0,
       生员身份: false, 生员层级: '无', 优免启用: false, 举业结局: '未定', 识字转业值: 0, _advanceExamYear: false, _advanceExamSeason: false,
-      本年馆课次数: 0, 本年半读次数: 0, 本年寄读次数: 0, 本年投塾次数: 0, 本年识字旬数: 0, 本年评文次数: 0, 本年保结次数: 0, 本年保帖底样次数: 0, 本年馆保回话次数: 0, 本年婚话回札次数: 0, 本年誊抄次数: 0, 本年归家次数: 0, 本年备役次数: 0, 本年将养次数: 0, 本年供读缓冲已用: 0, 本年举业季务: [],
+      本年馆课次数: 0, 本年半读次数: 0, 本年寄读次数: 0, 本年投塾次数: 0, 本年识字旬数: 0, 本年评文次数: 0, 本年保结次数: 0, 本年保结已办成: false, 本年保帖底样次数: 0, 本年馆保回话次数: 0, 本年婚话回札次数: 0, 本年誊抄次数: 0, 本年归家次数: 0, 本年备役次数: 0, 本年将养次数: 0, 本年供读缓冲已用: 0, 本年举业季务: [],
       本年束脩支出文: 0, 本年纸墨支出文: 0, 本年保结支出文: 0, 本年盘缠支出文: 0, 本年零耗支出文: 0, 本年衣药支出文: 0, 本年役扰支出文: 0, 本年债息增银: 0, 本年役扰已结: false, 本年债息已结: false, 本年已落举业支出文: 0, 本年家中供读次: 0, 本年家中续供次: 0, 本年家中供读文: 0, 本年家中供读公账文: 0, 本年家中供读米: 0, 本年公账贴补次: 0, 本年公账贴补文: 0, 本年粜米供读文: 0, 本年粜米供读已用文: 0, 本年现钱供读已用文: 0, 本年硬银供读已用两: 0, 本年举业债补供读两: 0, 本年举业自筹文: 0, 本年举业自筹已用文: 0, 本年举业自筹缓压: 0, 本年待用公账文: 0, 本年待用米脚文: 0, 本年待用母纺文: 0, 本年待用兄让文: 0, 本年待用自筹文: 0, 本年家中贴补次: 0, 本年家中贴补米: 0, 本年母纺贴补次: 0, 本年母纺贴补文: 0, 本年母纺供读已用文: 0, 本年兄婚让读次: 0, 本年兄婚让读文: 0, 本年兄婚供读已用文: 0, 本年落第次数: 0, 本年回榜口风次数: 0, 本年身子亏空: 0, 本年延婚牵扯: 0, 本年婚事让开次数: 0, 本年供读转折旬数: 0, 本年婚事转折旬数: 0, 本年身耗转折旬数: 0,
       举业累计投塾次数: 0, 举业累计识字旬数: 0, 举业累计保结次数: 0, 举业累计保帖底样次数: 0, 举业累计馆保回话次数: 0, 举业累计婚话回札次数: 0, 举业累计落第次数: 0, 举业累计应场受阻次数: 0, 举业累计身子亏空: 0, 举业累计延婚牵扯: 0, 举业累计婚事让开次数: 0, 举业累计供读转折旬数: 0, 举业累计婚事转折旬数: 0, 举业累计身耗转折旬数: 0, 举业累计家中供读次: 0, 举业累计家中续供次: 0, 举业累计公账贴补次: 0, 举业累计家中供读米: 0, 举业累计母纺贴补次: 0, 举业累计兄婚让读次: 0, 举业累计举业自筹文: 0,
       // 人生链路字段
@@ -2408,37 +2408,6 @@
       + '·廪保' + (chain.sponsor ? '已点头' : '未点头')
       + '·审查' + (chain.review ? '已过' : '未过');
   }
-  function advanceExamGuaranteeChain() {
-    var chain = syncExamGuaranteeProgress();
-    if (!chain.draft) {
-      S.保结履历已具 = true;
-      syncExamGuaranteeProgress();
-      return 'draft';
-    }
-    if (!chain.mutual) {
-      S.保结互结已具 = true;
-      syncExamGuaranteeProgress();
-      return 'mutual';
-    }
-    if (!chain.bond) {
-      S.保结具结已具 = true;
-      syncExamGuaranteeProgress();
-      return 'bond';
-    }
-    if (!chain.sponsor) {
-      S.保结廪保已具 = true;
-      syncExamGuaranteeProgress();
-      return 'sponsor';
-    }
-    if (!chain.review) {
-      S.保结资格审查已过 = true;
-      syncExamGuaranteeProgress();
-      return 'review';
-    }
-    syncExamGuaranteeProgress();
-    return 'done';
-  }
-
   function examGuaranteeActionName(seasonId) {
     var pending = examGuaranteePendingLabel();
     if (pending === '待履历帖样') return '先递保结帖样';
@@ -2450,13 +2419,7 @@
   }
 
   function examGuaranteeActionDesc() {
-    var pending = examGuaranteePendingLabel();
-    if (pending === '待履历帖样') return '资格不通，本年就算想下场也不成。先把帖样、履历与廪保口风递到位，别把“已递帖样”省成一句话。若连春夏先理过的保帖底样都没有，秋冬这一旬就还谈不上真跑保结；就算底样先有了、读法也坐实了，廪保也未必立刻放话。';
-    if (pending === '待互结') return '帖样和履历已起头，这一旬得真把互结人头凑齐。没有同场互结，后头具结与廪保都只是空话；脚费先花出去，回话却未必当旬就落。';
-    if (pending === '待具结') return '互结已有人头，这一旬要把具结文书真补齐。资格链不是只要“有人肯说合”就算过半，具结没落纸，后头廪保与审查一样接不上。';
-    if (pending === '待廪保') return '互结与具结都已坐住，这一旬才轮到真跑廪保口风。廪保不点头，报名链条还只是半截；人情脚费先支了，回话也仍可能拖着。';
-    if (pending === '待审查') return '廪保口风已松，这一旬还得把资格审查真正过明。临门这一签不过，就还不能算“保结已通”，也不配把秋冬场当成当然能下。';
-    return '资格链已齐，这一旬若再奔走，也只是补旧门路，不会额外再涨一层保结。';
+    return '春夏已经整理好当年的报名材料后，秋试或冬清账中旬可以正式找人担保报名。关系、文章和老师回话足够稳时，这一次会把同考人担保、具名文书、生员担保与资格审查一并办成；若担保人没有点头，80文仍会支出，但冬里还有一次补办机会。';
   }
   function examEnrollmentLabel(progress) {
     if ((progress || 0) >= 2) return '塾门坐实';
@@ -2817,6 +2780,31 @@
   function examGuaranteeWindowReady() {
     return true;
   }
+  function examGuaranteeGateScore() {
+    return (S.家族 || 0)
+      + (S.文章火候 || 0) * 6
+      + Math.min(2, S.本年评文次数 || 0) * 4
+      + Math.min(2, S.本年保帖底样次数 || 0) * 4
+      + Math.min(2, S.本年保结次数 || 0) * 3
+      + (S.家传书香 > 0 ? 4 : 0)
+      - (S.供读压力 || 0) * 4;
+  }
+  function examGuaranteeGateTarget() {
+    var base = (S.保结进度 || 0) <= 0 ? 66 : 74;
+    var year = Math.max(1, Math.min(EXAM_YEARS, Number(S.举业年) || 1));
+    if (year <= 1) return base + 8;
+    if (year === 2) return base + 4;
+    return base;
+  }
+  function examGuaranteeReadinessReason() {
+    var reasons = [];
+    if ((S.家族 || 0) < 58) reasons.push('家里与担保人的关系还不够稳');
+    if ((S.文章火候 || 0) < 2 || (S.本年评文次数 || 0) < 1) reasons.push('今年的文章和老师回话还不够扎实');
+    if ((S.本年保帖底样次数 || 0) < 1) reasons.push('今年的报名材料还没有整理好');
+    if ((S.供读压力 || 0) >= 3) reasons.push('家里供书压力太重，担保人仍在观望');
+    if (!reasons.length) reasons.push('现有关系、文章和材料还没让担保人点头');
+    return reasons.join('；');
+  }
   function examAttemptWindowReady() {
     return true;
   }
@@ -2879,7 +2867,7 @@
   function examGuaranteeBlockedWhy(seasonId) {
     if (S.生员身份) return '已是生员';
     if ((S.保结进度 || 0) >= 2) return '本年保结已通';
-    if (!(seasonId === 'autumn' || seasonId === 'winter')) return '通常到秋冬才真跑保结';
+    if (!(seasonId === 'autumn' || seasonId === 'winter')) return '时间未到：请到秋试或冬清账中旬办理；当前有' + (S.铜钱 || 0) + '文，所需80文，钱不是这次禁用的原因';
     if (!examStudyTrackReady()) return '先把塾门或半读读法坐实';
     if (!examArticleReady()) return '先把文章火候磨到能递帖样';
     if (!examGuaranteeDraftReady()) return examGuaranteeLegacyDraftCarry() ? '旧年帖样只算留痕，先把今年的保结帖样与履历草单重理出来' : '先把保结帖样与履历草单理出来';
@@ -3608,6 +3596,7 @@
     S.本年识字旬数 = 0;
     S.本年评文次数 = 0;
     S.本年保结次数 = 0;
+    S.本年保结已办成 = false;
     S.本年馆保回话次数 = 0;
     S.本年婚话回札次数 = 0;
     S.本年誊抄次数 = 0;
@@ -5158,9 +5147,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function isLifePlayerBeat() {
     var pos = lifeRhythmPosition();
     if (!pos) return true;
-    // 把玩家停在真正需要判断的旬位：应试留给秋冬下旬，试贩留给秋中，
-    // 学徒年关去留留给冬尾；其他季节以季初定方向。
-    if (phase === 'civilExam') return pos.xun === ((pos.season >= 3) ? 3 : 1);
+    // 把玩家停在真正需要判断的旬位：举业秋里先亲自办报名担保、再亲自决定是否应试；
+    // 若秋里没办成，冬里再给一次补办与补考机会。其余季节只在季初定方向。
+    if (phase === 'civilExam') {
+      if (pos.season <= 2) return pos.xun === 1;
+      if (pos.xun === 2) return !S.生员身份 && !S.本年下场 && (S.保结进度 || 0) < 2;
+      if (pos.xun === 3) return pos.season === 3 || (!S.生员身份 && !S.本年下场);
+      return false;
+    }
     if (phase === 'merchant') return pos.xun === (pos.season === 3 ? 2 : (pos.season === 4 ? 3 : 1));
     if (phase === 'apprentice' && pos.season === 4) return pos.xun === 3;
     return pos.xun === 1;
@@ -6612,6 +6606,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       .replace(/保结保帖样?|保结帖样/g, '报名担保文书')
       .replace(/保结帖/g, '报名担保文书')
       .replace(/保帖底样/g, '报名文书底稿')
+      .replace(/互结/g, '同考人互相担保')
+      .replace(/具结/g, '具名担保文书')
+      .replace(/廪保/g, '生员担保人')
       .replace(/保结/g, '报名担保')
       .replace(/保帖/g, '担保文书')
       .replace(/帖样/g, '文书样本')
@@ -6905,6 +6902,28 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       plainResult = '你没有正式参加' + target + '，所以既不是考中，也不是落榜。';
       reason = examYearGapPlayerText(blockedGap);
       next = examYearGapNextStep(blockedGap);
+    } else if (S.本年保结已办成 || (S.保结进度 || 0) >= 2) {
+      tone = 'blocked';
+      title = '资格已齐，但没有参加考试';
+      plainResult = '本年的报名材料和担保手续已经办齐，但你没有选择“参加' + target + '”。';
+      reason = '报名成功不等于自动进考场；秋试或冬清账下旬还要亲自选择参加考试。';
+      next = '本年资格到年末失效；下一年要重新整理当年材料、办理担保，再选择参加考试。';
+    } else if ((S.本年保结次数 || 0) > 0) {
+      tone = 'blocked';
+      title = '报名担保没有办成';
+      plainResult = '你今年跑过报名担保，但手续没有真正办完，因此没有取得进场资格。';
+      reason = '当前仍卡在“' + plainActionWords(examGuaranteePendingLabel()) + '”；' + examGuaranteeReadinessReason() + '。';
+      next = S.举业年 < EXAM_YEARS
+        ? '下一年春夏重新整理当年材料，秋试中旬再正式办担保；办成后，紧接着在下旬选择参加考试。'
+        : '三年举业已经结束；这次属于报名未成，不是考试落榜。';
+    } else if (!examGuaranteeDraftReady()) {
+      tone = 'blocked';
+      title = '今年没有完成报名准备';
+      plainResult = '今年没有整理好当年的报名材料，也就没有进入正式担保和考试。';
+      reason = '去年的底稿不能直接当作今年已经报名；春课或夏课中旬需要重新整理。';
+      next = S.举业年 < EXAM_YEARS
+        ? '下一年春课或夏课中旬先选“先准备报名担保文书”。'
+        : '三年举业已经结束；本年没有发生考试结果。';
     }
 
     return '<div class="exam-result-card ' + tone + '">' +
@@ -6945,7 +6964,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       .replace(/本年/g, '今年')
       .replace(/已到(\d+)回/g, '已经用满 $1 次')
       .replace(/尚无/g, '还没有');
-    if (/^(先|需要|要到|只在|当前|本轮|今年|还没有|暂无|眼下)/.test(readable)) return readable;
+    if (/^(先|需要|要到|只在|时间未到|当前|本轮|今年|还没有|暂无|眼下)/.test(readable)) return readable;
     return '需要先满足：' + readable;
   }
 
@@ -6962,7 +6981,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   }
 
   function actionWarningText(a) {
-    if (phase !== 'civilExam' || !a || a.id !== 'e_exam') return '';
+    if (phase !== 'civilExam' || !a) return '';
+    if (a.id === 'e_guarantee') {
+      if (a.can === false || examGuaranteeGateScore() >= examGuaranteeGateTarget()) return '';
+      return '现在办理仍可能失败：' + examGuaranteeReadinessReason() + '。仍可尝试，但80文会先支出；秋里没办成，冬清账中旬还能补办一次。';
+    }
+    if (a.id !== 'e_exam') return '';
     var gapCode = examAttemptStructuralGapCode();
     if (!gapCode) return '';
     var season = examSeasonInfo(S.举季 || 1);
@@ -11967,22 +11991,6 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     function examSchoolGateTarget() {
       return season.id === 'spring' ? 9 : (season.id === 'summer' ? 8 : 7);
     }
-    function examGuaranteeGateScore() {
-      return (S.家族 || 0)
-        + (S.文章火候 || 0) * 6
-        + Math.min(2, S.本年评文次数 || 0) * 4
-        + Math.min(2, S.本年保帖底样次数 || 0) * 4
-        + Math.min(2, S.本年保结次数 || 0) * 3
-        + (S.家传书香 > 0 ? 4 : 0)
-        - (S.供读压力 || 0) * 4;
-    }
-    function examGuaranteeGateTarget() {
-      var base = (S.保结进度 || 0) <= 0 ? 66 : 74;
-      var year = Math.max(1, Math.min(EXAM_YEARS, Number(S.举业年) || 1));
-      if (year <= 1) return base + 8;
-      if (year === 2) return base + 4;
-      return base;
-    }
     var examPulseLead = (S.本年举业季务 || []).length
       ? (' 这一年目前已先碰到：<span class="em">' + examVisibleSeasonalLedgerPulse(4) + '</span>；供读/婚事/身耗转折是 <span class="em">' + examVisibleSignalTurns() + '</span>。')
       : (' 这一年目前已先碰到：<span class="em">尚无</span>；供读/婚事/身耗转折是 <span class="em">' + examVisibleSignalTurns() + '</span>。先补哪一旬，后面的供读、婚话和身子口风就会跟着变。');
@@ -13650,30 +13658,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               break;
             case 'e_guarantee':
               var guaranteePay = settleExamAdvanceCost(80);
-              var guaranteeBefore = S.保结进度 || 0;
               var guaranteeGateOk = examGuaranteeGateScore() >= examGuaranteeGateTarget();
               var guaranteeActionName = examGuaranteeActionName(season.id);
               S.本年保结次数 += 1; S.本年保结支出文 += 80; S.本年延婚牵扯 += 1;
               if (guaranteeGateOk) {
-                var guaranteeAdvance = advanceExamGuaranteeChain();
-                var guaranteeAdvanceText = '';
-                if (guaranteeAdvance === 'mutual') {
-                  guaranteeAdvanceText = '。这一旬先把互结人头凑齐，履历底样不再只是纸上记号；具结、廪保和资格审查还都在后头。';
-                } else if (guaranteeAdvance === 'bond') {
-                  guaranteeAdvanceText = '。这一旬先把具结文书补成，资格链才算从“有人肯说合”走到“有人肯具名”；廪保和资格审查还得再跑。';
-                } else if (guaranteeAdvance === 'sponsor') {
-                  guaranteeAdvanceText = '。这一旬先换来廪保点头，报名门路终于不是空口；但资格审查还差临门一签。';
-                } else if (guaranteeAdvance === 'review' || S.保结进度 >= 2) {
-                  guaranteeAdvanceText = '。到这一步，资格审查也见了光，报名链条才算真正走通。';
-                } else {
-                  guaranteeAdvanceText = '。这一旬只先把帖样、履历与底稿递到位，离“保结已通”还差后头几层真资格。';
-                }
+                setExamGuaranteeProgress(2);
+                S.本年保结已办成 = true;
                 pushExamSeasonTag(stepTag + '保结');
                 log.push([
                   guaranteeActionName
                     + '：保结进度推进到“' + examGuaranteeLabel(S.保结进度) + '”'
                     + guaranteePay.text
-                    + guaranteeAdvanceText,
+                    + '。今年的互结、具结、廪保和资格审查已在这一回正式办理中一并走完；下一旬会明确停下来，由你决定是否参加' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '。',
                   'good'
                 ]);
               } else {
@@ -13684,7 +13680,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                   guaranteeActionName
                     + '：帖样、薄礼与脚费先支了'
                     + guaranteePay.text
-                    + '，这一旬却还没肯把口风放实，眼下还卡在“' + examGuaranteePendingLabel() + '”；保结进度未动、家族-1、供读压力+1。资格链条不是你肯花钱就会立刻点头。',
+                    + '，这一旬担保人仍未点头。原因是：' + examGuaranteeReadinessReason() + '。眼下还卡在“' + examGuaranteePendingLabel() + '”；保结进度未动、家族-1、供读压力+1。秋里没办成，冬清账中旬还能再补办一次。',
                   'bad'
                 ]);
               }
@@ -14670,8 +14666,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if ((S.本年馆课次数 + S.本年半读次数 + S.本年寄读次数 + S.本年评文次数) <= 0) {
           S.家族 -= 2;
           log.push(['这一举业年没真把多少时辰落到课业与文章上，家里难免觉得你只是在拖账（家族-2）。', 'bad']);
-        } else if (S.本年馆课次数 > 0 && S.本年评文次数 > 0 && S.本年保结次数 > 0) {
+        } else if (S.本年馆课次数 > 0 && S.本年评文次数 > 0 && (S.保结进度 || 0) >= 2) {
           log.push(['这一举业年你既稳住了馆课、也磨了文章、还把资格门槛跑通，读书路终于不再像一张“只说要考”的空纸。', 'good']);
+        } else if ((S.本年保结次数 || 0) > 0 && (S.保结进度 || 0) < 2) {
+          log.push(['这一举业年虽跑过报名担保，手续却没有真正办成，目前仍卡在“' + examGuaranteePendingLabel() + '”。跑过不等于办成，更不能写成已经取得考试资格。', 'bad']);
         }
         refreshExamSupportState();
         absorbExamYearIntoLifetime();

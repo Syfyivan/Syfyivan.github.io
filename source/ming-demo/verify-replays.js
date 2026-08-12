@@ -1018,7 +1018,7 @@ function lifecycleRouteAwareProgressionCompatible(routeName, carry, state) {
     const examOutcomeAdvanced = key === '举业结局'
       && routeName === '路径五 · 读书应举'
       && expected === '生员止步'
-      && actual === '塾馆教读';
+      && ['塾馆教读', '成生员'].includes(actual);
     if (!completedInheritedMarriage && !wageIdentityAdvanced && !examOutcomeAdvanced) return false;
   }
   return true;
@@ -26671,7 +26671,7 @@ function runExamGuaranteePrepRegression() {
     识字进度: 2,
     铜钱: 520,
     存米: 2,
-    家族: 44,
+    家族: 70,
     供读状态: '家中供读',
     投塾进度: 2,
     读书方式: '塾馆',
@@ -26742,15 +26742,225 @@ function runExamGuaranteePrepRegression() {
       && String(plainAction.why || '').includes('先把保结帖样与履历草单理出来')
       && plainPost.保结进度 === 0
       && plainStage.includes('保帖底样=0旬')
-      && readyStage.includes('先把秋里互结人头凑齐')
+      && readyStage.includes('正式找人担保报名')
       && readyStage.includes('保帖底样=2旬')
       && !!readyAction
       && readyAction.can === true
-      && (readyResolve.includes('保结进度推进到“互结已齐”') || readyResolve.includes('还没肯把口风放实'))
+      && readyResolve.includes('保结进度推进到“保结已通”')
+      && readyResolve.includes('下一旬会明确停下来')
+      && readyPost.保结进度 === 2
       && readyPost.本年保结次数 >= 1
       && (prepWindow.__INV || []).length === 0
       && (plainWindow.__INV || []).length === 0
       && (readyWindow.__INV || []).length === 0
+  };
+}
+
+function runExamRegistrationPlayerFlowRegression() {
+  const { api: summerApi, elements: summerElements, window: summerWindow } = createHarness();
+  chooseRoute(summerApi, '路径五 · 读书应举');
+  summerApi.patchState({
+    识字: true,
+    识字进度: 3,
+    铜钱: 120,
+    存米: 0,
+    家族: 62,
+    体魄: 60,
+    举业年: 3,
+    举季: 2,
+    举旬: 2,
+    举段: 2,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    文章火候: 3,
+    本年馆课次数: 2,
+    本年评文次数: 1,
+    本年保帖底样次数: 1,
+    保结进度: 0,
+    供读状态: '家中供读',
+    供读压力: 1
+  });
+  summerApi.enterPhase('civilExam');
+  const summerStage = normalizeHtml(summerElements.get('stage').innerHTML);
+  const summerGuarantee = availableMap(summerApi).get('e_guarantee');
+
+  const { api: readyApi, elements: readyElements, window: readyWindow } = createHarness();
+  chooseRoute(readyApi, '路径五 · 读书应举');
+  readyApi.patchState({
+    识字: true,
+    识字进度: 4,
+    铜钱: 600,
+    存米: 2,
+    家族: 72,
+    体魄: 60,
+    举业年: 2,
+    举季: 3,
+    举旬: 2,
+    举段: 2,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    文章火候: 3,
+    本年馆课次数: 2,
+    本年评文次数: 1,
+    本年保帖底样次数: 1,
+    保结进度: 0,
+    供读状态: '家中供读',
+    供读压力: 0
+  });
+  readyApi.enterPhase('civilExam');
+  const readyGuarantee = availableMap(readyApi).get('e_guarantee');
+  pickByPlan(readyApi, ['e_guarantee']);
+  readyApi.commit();
+  const guaranteeResolve = normalizeHtml(readyElements.get('stage').innerHTML);
+  const afterGuarantee = clone(readyApi.getState());
+  readyApi.playerNext();
+  const examStage = normalizeHtml(readyElements.get('stage').innerHTML);
+  const examBeat = clone(readyApi.getState());
+  const examAction = availableMap(readyApi).get('e_exam');
+
+  const { api: failedApi, elements: failedElements, window: failedWindow } = createHarness();
+  chooseRoute(failedApi, '路径五 · 读书应举');
+  failedApi.patchState({
+    识字: true,
+    识字进度: 3,
+    铜钱: 600,
+    存米: 2,
+    家族: 44,
+    体魄: 58,
+    举业年: 2,
+    举季: 3,
+    举旬: 2,
+    举段: 2,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    文章火候: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年保帖底样次数: 1,
+    保结进度: 0,
+    供读状态: '家中供读',
+    供读压力: 1
+  });
+  failedApi.enterPhase('civilExam');
+  pickByPlan(failedApi, ['e_guarantee']);
+  failedApi.commit();
+  const failedResolve = normalizeHtml(failedElements.get('stage').innerHTML);
+  const afterFailure = clone(failedApi.getState());
+
+  const { api: noExamApi, elements: noExamElements, window: noExamWindow } = createHarness();
+  chooseRoute(noExamApi, '路径五 · 读书应举');
+  noExamApi.patchState({
+    识字: true,
+    识字进度: 4,
+    铜钱: 600,
+    存米: 2,
+    家族: 72,
+    体魄: 60,
+    举业年: 2,
+    举季: 4,
+    举旬: 3,
+    举段: 3,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    文章火候: 3,
+    本年馆课次数: 2,
+    本年评文次数: 1,
+    本年保帖底样次数: 1,
+    保结进度: 2,
+    本年保结次数: 1,
+    本年保结已办成: true,
+    本年下场: false,
+    本年应试结果: '未下场',
+    供读状态: '家中供读',
+    供读压力: 0
+  });
+  noExamApi.enterPhase('civilExam');
+  pickByPlan(noExamApi, ['e_rest', 'e_copy']);
+  noExamApi.commit();
+  const noExamResolve = normalizeHtml(noExamElements.get('stage').innerHTML);
+
+  const { api: noGuaranteeApi, elements: noGuaranteeElements, window: noGuaranteeWindow } = createHarness();
+  chooseRoute(noGuaranteeApi, '路径五 · 读书应举');
+  noGuaranteeApi.patchState({
+    识字: true,
+    识字进度: 4,
+    铜钱: 600,
+    存米: 2,
+    家族: 44,
+    体魄: 60,
+    举业年: 2,
+    举季: 4,
+    举旬: 3,
+    举段: 3,
+    投塾进度: 2,
+    读书方式: '塾馆',
+    文章火候: 2,
+    本年馆课次数: 1,
+    本年评文次数: 1,
+    本年保帖底样次数: 1,
+    保结进度: 1,
+    本年保结次数: 1,
+    本年下场: false,
+    本年应试结果: '未下场',
+    供读状态: '家中供读',
+    供读压力: 1
+  });
+  noGuaranteeApi.enterPhase('civilExam');
+  pickByPlan(noGuaranteeApi, ['e_rest', 'e_copy']);
+  noGuaranteeApi.commit();
+  const noGuaranteeResolve = normalizeHtml(noGuaranteeElements.get('stage').innerHTML);
+
+  return {
+    summer: {
+      action: summerGuarantee ? { can: summerGuarantee.can, why: summerGuarantee.why } : null,
+      stage: summerStage
+    },
+    ready: {
+      action: readyGuarantee ? { can: readyGuarantee.can, why: readyGuarantee.why } : null,
+      resolve: guaranteeResolve,
+      afterGuarantee: { 保结进度: afterGuarantee.保结进度, 本年保结次数: afterGuarantee.本年保结次数 },
+      examBeat: { 举季: examBeat.举季, 举旬: examBeat.举旬 },
+      examAction: examAction ? { can: examAction.can, why: examAction.why } : null,
+      examStage
+    },
+    failed: {
+      resolve: failedResolve,
+      state: { 保结进度: afterFailure.保结进度, 本年保结次数: afterFailure.本年保结次数 }
+    },
+    noExamResolve,
+    noGuaranteeResolve,
+    ok: !!summerGuarantee
+      && summerGuarantee.can === false
+      && String(summerGuarantee.why || '').includes('时间未到')
+      && String(summerGuarantee.why || '').includes('当前有120文')
+      && String(summerGuarantee.why || '').includes('所需80文')
+      && String(summerGuarantee.why || '').includes('钱不是这次禁用的原因')
+      && summerStage.includes('请到秋试或冬清账中旬办理')
+      && !!readyGuarantee
+      && readyGuarantee.can === true
+      && afterGuarantee.保结进度 === 2
+      && afterGuarantee.本年保结次数 === 1
+      && guaranteeResolve.includes('资格审查已在这一回正式办理中一并走完')
+      && guaranteeResolve.includes('下一旬会明确停下来')
+      && examBeat.举季 === 3
+      && examBeat.举旬 === 3
+      && !!examAction
+      && examAction.can === true
+      && examStage.includes('参加县试')
+      && afterFailure.保结进度 === 1
+      && afterFailure.本年保结次数 === 1
+      && failedResolve.includes('原因是：家里与担保人的关系还不够稳')
+      && failedResolve.includes('冬清账中旬还能再补办一次')
+      && noExamResolve.includes('资格已齐，但没有参加考试')
+      && noExamResolve.includes('报名成功不等于自动进考场')
+      && noGuaranteeResolve.includes('报名担保没有办成')
+      && noGuaranteeResolve.includes('跑过报名担保，但手续没有真正办完')
+      && !noGuaranteeResolve.includes('资格门槛跑通')
+      && (summerWindow.__INV || []).length === 0
+      && (readyWindow.__INV || []).length === 0
+      && (failedWindow.__INV || []).length === 0
+      && (noExamWindow.__INV || []).length === 0
+      && (noGuaranteeWindow.__INV || []).length === 0
   };
 }
 
@@ -27725,8 +27935,9 @@ function runExamReplyFrictionRegression() {
         家族: guaranteeState.家族,
         供读压力: guaranteeState.供读压力
       },
-      ok: guaranteeStage.includes('先把秋里互结人头凑齐')
-        && guaranteeResolve.includes('这一旬却还没肯把口风放实')
+      ok: guaranteeStage.includes('正式找人担保报名')
+        && guaranteeResolve.includes('这一旬担保人仍未点头')
+        && guaranteeResolve.includes('原因是：家里与担保人的关系还不够稳')
         && guaranteeResolve.includes('保结进度未动')
         && guaranteeState.保结进度 === 1
         && guaranteeState.本年保结次数 === 1
@@ -27741,8 +27952,9 @@ function runExamReplyFrictionRegression() {
       && enrollState.本年投塾次数 === 1
       && enrollState.家族 === 48
       && enrollState.供读压力 === 3
-      && guaranteeStage.includes('先把秋里互结人头凑齐')
-      && guaranteeResolve.includes('这一旬却还没肯把口风放实')
+      && guaranteeStage.includes('正式找人担保报名')
+      && guaranteeResolve.includes('这一旬担保人仍未点头')
+      && guaranteeResolve.includes('原因是：家里与担保人的关系还不够稳')
       && guaranteeResolve.includes('保结进度未动')
       && guaranteeState.保结进度 === 1
       && guaranteeState.本年保结次数 === 1
@@ -39536,6 +39748,7 @@ const TEST_BUILDERS = {
   examUpperBodyShoulderRegression: runExamUpperBodyShoulderRegression,
   examStudyChainRegression: runExamStudyChainRegression,
   examGuaranteePrepRegression: runExamGuaranteePrepRegression,
+  examRegistrationPlayerFlowRegression: runExamRegistrationPlayerFlowRegression,
   examGuaranteeDraftCarryRegression: runExamGuaranteeDraftCarryRegression,
   examAttemptGuaranteeMomentumRegression: runExamAttemptGuaranteeMomentumRegression,
   examTutorSeatGateRegression: runExamTutorSeatGateRegression,
@@ -39706,6 +39919,7 @@ const TEST_SUITES = {
     'examUpperBodyShoulderRegression',
     'examStudyChainRegression',
     'examGuaranteePrepRegression',
+    'examRegistrationPlayerFlowRegression',
     'examGuaranteeDraftCarryRegression',
     'examAttemptGuaranteeMomentumRegression',
     'examTutorSeatGateRegression',
@@ -39925,6 +40139,7 @@ const TEST_SUITES = {
   'current-workflow-closure': [
     'progressiveDisclosureUiRegression',
     'playerExperienceContractRegression',
+    'examRegistrationPlayerFlowRegression',
     'foundingSnapshotLockRegression',
     'militaryFoundingRouteRegression',
     'militaryFoundingLifecycleRegression',
