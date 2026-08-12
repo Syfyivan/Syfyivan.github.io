@@ -22,7 +22,7 @@ categories: [晨读]
 - 核验时点：`2026-08-12 12:00 CST (UTC+8)`。飞书查询窗口为 `2026-08-12 00:00 ~ 12:00`；X 和公开网页按中午前可访问内容核验。
 - 飞书输入覆盖 `Codex 技术交流话题群` 与 `Claude Code闲聊群`。Codex 群在窗口内有 1 条《Codex 攻略日报》卡片，发送时间为 11:20；Claude 群当天没有可检索消息，因此本文不搬运旧的 Claude/Cloud 日报。
 - 群内日报的主线是 [gauntlet-loop](https://github.com/robonuggets/gauntlet-loop)：先选择一个真实、可获取、可并排比较的标杆，再让 builder 交付、独立 critic 盲评并指出最大差距。卡片还推荐了 ManOps 研发智能运营、AgentRecall 会话管理、把 X 文章送入 Codex 知识库等内部攻略；这些是群内日报结论，不等于公开产品公告。
-- 卡片称 `gauntlet-loop` 在 8 月 5 日创建后约 7 天获得约 287 stars 和 35 forks；本轮直接打开 GitHub 仓库时看到 286 stars、35 forks。这里能确认仓库内容和当前页面快照，不能把两个时点的 star 数拼成一个精确增长结论。
+- 卡片称 `gauntlet-loop` 在 8 月 5 日创建后约 7 天获得约 287 stars 和 35 forks；本轮直接打开 GitHub 仓库时看到 287 stars、35 forks。这里能确认仓库内容和当前页面快照，不能把两个时点的 star 数拼成一个精确增长结论。
 - X 做了 4 类当天检索：[AI / Agent / Codex / Claude Code](https://x.com/search?q=%28Codex%20OR%20%22Claude%20Code%22%20OR%20%22AI%20agent%22%29%20since%3A2026-08-11%20until%3A2026-08-13&src=typed_query&f=live)、[前端 / JavaScript](https://x.com/search?q=%28React%20OR%20frontend%20OR%20JavaScript%29%20since%3A2026-08-11%20until%3A2026-08-13&src=typed_query&f=live)、[服务端 / API](https://x.com/search?q=%28backend%20OR%20API%20OR%20server%29%20since%3A2026-08-11%20until%3A2026-08-13&src=typed_query&f=live)、[iOS / Android / client](https://x.com/search?q=%28iOS%20OR%20Android%20OR%20client%29%20since%3A2026-08-11%20until%3A2026-08-13&src=typed_query&f=live)。检索页可访问，但没有稳定展开、足以独立核验的当天单帖正文；所以本文不把 X 搜索摘要或不可复核的转述写成新闻。
 - 公开交叉资料包括 [gauntlet-loop 仓库](https://github.com/robonuggets/gauntlet-loop)、[SkillHEX 论文](https://arxiv.org/abs/2608.05628)、[Chrome 的 agentic web 介绍](https://developer.chrome.com/blog/chrome-at-io26?hl=en) 和 [Android 开发者验证计划](https://android-developers.googleblog.com/2026/06/android-developer-verification.html)。它们用于验证工程方向或补充背景，不冒充 8 月 12 日当天的 X 消息。
 
@@ -80,7 +80,7 @@ Android 开发者验证计划也提醒了客户端/分发侧的另一条边界�
 ## 边界与不确定性
 
 - 飞书群日报是内部群内输入。今天能确认的是卡片内容、发送时间和其列出的链接；卡片对 star 数、热度和“社区正在迁移”的判断不应当直接当作公开统计或行业共识。
-- `gauntlet-loop` GitHub 页面能公开核验仓库的设计、当前 286 stars 和 35 forks；不能仅凭当前页面证明“8 月 5 日创建后 7 天的增长速度”。
+- `gauntlet-loop` GitHub 页面能公开核验仓库的设计、当前 287 stars 和 35 forks；不能仅凭当前页面证明“8 月 5 日创建后 7 天的增长速度”。
 - SkillHEX 是公开论文，能核验论文的提交时间、方法和实验设置；论文结果不等于 `gauntlet-loop` 的效果，也不等于本文读者的 Skill 已经得到提升。
 - 本轮 X 的 4 个日期检索入口未稳定展开可复核的单帖正文，因此没有把任何 X 搜索结果摘要、转述或群内引用升级为当天 X 新闻。公开 Chrome、Android 页面是交叉资料，发布时间早于今天。
 - 前端、服务端和客户端部分是基于群内日报与公开资料做出的工程推论，不是 OpenAI、Anthropic、Google 或 X 的路线图承诺。真正定位仍需要项目代码、账号、版本、设备、网络和可回放事件。
