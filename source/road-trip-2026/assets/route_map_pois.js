@@ -10,7 +10,7 @@
 
   const segmentNotes = {
     'seg-01': { roads: 'G6 / G7 / G30', note: '北京至张掖的高速压缩段；按服务区节奏停车，不为吃饭临时下高速。' },
-    'seg-02': { roads: 'G227', note: '张掖—扁都口—祁连山—青海湖北岸，是青甘公路主菜。' },
+    'seg-02': { roads: 'G227', note: '张掖—扁都口—祁连山—青海湖北岸，是青甘段的核心观景路段。' },
     'seg-03': { roads: '环湖公路 / G109', note: '青海湖北岸经茶卡一线，天气和光线比打卡数量更重要。' },
     'seg-04': { roads: 'G109 / G315 / G3011', note: '茶卡至德令哈，进入柴达木盆地前的恢复段。' },
     'seg-05': { roads: 'G315', note: '德令哈至大柴旦，荒漠路段要提前补油补水。' },
@@ -56,7 +56,7 @@
     { id: 'stay-duoma', category: 'stay', name: '多玛千里汀泊驿站', lng: 80.377, lat: 33.712, area: 'N26 多玛乡', note: '10月13—14日，1晚；客房2间，电话确认4人床位。' },
     { id: 'stay-shiquanhe', category: 'stay', name: '狮泉河希尔曼酒店（建设大街店）', lng: 80.116, lat: 32.504, area: 'N27—N28 狮泉河', note: '10月14—16日，2晚；酒店2间，高海拔恢复与车辆检查。' },
     { id: 'stay-zanda', category: 'stay', name: '汉庭酒店（札达土林店）', lng: 79.810, lat: 31.481, area: 'N29 札达', note: '10月16—17日，1晚；酒店2间。' },
-    { id: 'stay-baga', category: 'stay', name: '普兰川北富氧酒店（冈仁波齐店）', lng: 81.288578, lat: 30.965854, area: 'N30 巴嘎交通夜宿', note: '10月17—18日，1晚；首选全屋地暖与弥散供氧双床房2间，免费停车。替换实际位于霍尔镇的维度仕，确保住宿落点在巴嘎。', bookingUrl: 'https://www.trip.com/hotels/pulan-hotel-detail-76483759/pu-lan-chuan-bei-jiu-dian/' },
+    { id: 'stay-baga', category: 'stay', name: '普兰川北富氧酒店（冈仁波齐店）', lng: 81.288578, lat: 30.965854, area: 'N30 巴嘎交通夜宿', note: '10月17—18日，1晚；首选全屋地暖与弥散供氧双床房2间，免费停车。住宿落点在巴嘎镇内，便于次日 G219 早出发。', bookingUrl: 'https://www.trip.com/hotels/pulan-hotel-detail-76483759/pu-lan-chuan-bei-jiu-dian/' },
     { id: 'stay-saga', category: 'stay', name: '萨嘎欧冠精品酒店', lng: 85.236, lat: 29.328, area: 'N31 萨嘎', note: '10月18—19日，1晚；酒店2间。遇延误优先在仲巴提前收车。' },
     { id: 'stay-shigatse', category: 'stay', name: '至格酒店（日喀则藏隆广场店）', lng: 88.883, lat: 29.258, area: 'N32 日喀则', note: '10月19—20日，1晚；供氧房2间。' },
     { id: 'stay-lhasa', category: 'stay', name: '如家酒店·neo（大昭寺八廓街店）', lng: 91.149, lat: 29.649, area: 'N33—N36 拉萨', note: '10月20—24日，4晚；供氧房2间，连续恢复。' },
@@ -83,13 +83,13 @@
     { id: 'stay-shijiazhuang', category: 'stay', name: '石家庄站万豪万枫酒店', lng: 114.452, lat: 38.020, area: 'N68 石家庄', note: '11月24—25日，1晚；酒店2间，最后一个外地住宿夜。' },
 
     { id: 'scene-danxia', category: 'scenic', name: '张掖七彩丹霞', lng: 100.07, lat: 38.98, area: '张掖', note: 'D2傍晚视到达时间和光线决定；不为日落夜驾。' },
-    { id: 'scene-biandukou', category: 'scenic', name: '扁都口 / G227', lng: 100.92, lat: 38.18, area: '张掖—祁连', note: 'D3青甘公路主菜，正规停车点短停。' },
+    { id: 'scene-biandukou', category: 'scenic', name: '扁都口 / G227', lng: 100.92, lat: 38.18, area: '张掖—祁连', note: 'D3青甘段核心观景路段，正规停车点短停。' },
     { id: 'scene-qilian', category: 'scenic', name: '祁连山草原公路', lng: 100.55, lat: 37.98, area: 'G227', note: 'D3沿途景观段，天气好就多留时间。' },
     { id: 'scene-qinghai', category: 'scenic', name: '青海湖北岸 / 刚察', lng: 100.15, lat: 37.33, area: '青海湖', note: 'D3—D4湖岸景观与住宿节点。' },
     { id: 'scene-chaka', category: 'scenic', name: '茶卡一线', lng: 99.08, lat: 36.78, area: '海西', note: 'D4按天气与光线灵活停留。' },
     { id: 'scene-emerald', category: 'scenic', name: '大柴旦翡翠湖', lng: 95.15, lat: 37.81, area: '大柴旦', note: 'D5盐湖与柴达木地貌。' },
     { id: 'scene-g315', category: 'scenic', name: 'G315 柴达木公路观景段', lng: 94.65, lat: 38.22, area: '柴达木', note: '只在正规停车区停车，禁止在公路中央拍照。' },
-    { id: 'scene-dunhuang', category: 'scenic', name: '敦煌博物馆 / 城市慢走', lng: 94.66, lat: 40.13, area: '敦煌', note: '默认不进莫高窟，保留城市慢走和补给。' },
+    { id: 'scene-dunhuang', category: 'scenic', name: '敦煌博物馆 / 城市慢走', lng: 94.66, lat: 40.13, area: '敦煌', note: '本行程不安排莫高窟，以城市慢走和补给为主。' },
     { id: 'scene-balikun', category: 'scenic', name: '巴里坤草原公路', lng: 92.85, lat: 43.62, area: '哈密', note: 'D8东疆草原与公路景观。' },
     { id: 'scene-keketuohai', category: 'scenic', name: '可可托海', lng: 89.88, lat: 47.20, area: '富蕴', note: 'D10额尔齐斯河大峡谷与神钟山。' },
     { id: 'scene-baihaba', category: 'scenic', name: '白哈巴村', lng: 86.79, lat: 48.68, area: '喀纳斯', note: 'D11边境村落，按当期边防和景区规则执行。' },
@@ -128,7 +128,7 @@
     { id: 'food-yining', category: 'food', name: '伊宁喀赞其餐饮区', lng: 81.32, lat: 43.92, area: '伊宁', note: '手抓饭、烤包子、椒麻鸡、酸奶。' },
     { id: 'food-kuqa', category: 'food', name: '库车老城 / 大馕城周边', lng: 82.97, lat: 41.72, area: '库车', note: '大馕、烤包子、缸子肉集中区域。' },
     { id: 'food-kashgar', category: 'food', name: '喀什古城汗巴扎周边', lng: 75.99, lat: 39.47, area: '喀什', note: '南疆美食集中，采购日也方便补热食。' },
-    { id: 'food-lhasa', category: 'food', name: '八廓街 / 甜茶馆区域', lng: 91.13, lat: 29.65, area: '拉萨', note: '恢复日轻量步行吃饭，不追网红排队。' },
+    { id: 'food-lhasa', category: 'food', name: '八廓街 / 甜茶馆区域', lng: 91.13, lat: 29.65, area: '拉萨', note: '恢复日轻量步行吃饭，优先选择就近、营业稳定的餐馆。' },
     { id: 'food-lijiang', category: 'food', name: '丽江忠义市场周边', lng: 100.23, lat: 26.86, area: '丽江', note: '适合采购食材、吃腊排骨与纳西菜。' },
     { id: 'food-chengdu', category: 'food', name: '春熙路 / 太古里餐饮区', lng: 104.08, lat: 30.66, area: '成都', note: '住宿附近集中吃饭，不为单店跨城排队。' },
     { id: 'food-xian', category: 'food', name: '西安永兴坊 / 城墙内餐饮区', lng: 108.97, lat: 34.27, area: '西安', note: '返程收尾吃饭区域；停车后再步行。' },
@@ -175,11 +175,76 @@
     { id: 'service-riwa', category: 'service', name: '香格里拉镇医疗救援参考', lng: 100.34, lat: 28.56, area: '日瓦', note: '亚丁长线前的状态评估节点；高反明显就停止上升。' }
   ];
 
+  // —— 住宿价格（4人当晚总价区间，元；含项与价格性质）——
+  // party4: 2间房或整套房当晚合计估算区间；nature: 价格性质；includes: 主要含项。
+  // 全部为规划估算或订单页参考区间，出发前须用订单页复核，不代表锁定报价。
+  const STAY_PRICES = {
+    'stay-bayannur': { party4: [280, 420], nature: '规划估算价', includes: '2间房；多为含早或简早' },
+    'stay-zhangye': { party4: [300, 460], nature: '规划估算价', includes: '2间房；市区商务酒店' },
+    'stay-gangcha': { party4: [280, 440], nature: '规划估算价', includes: '2间房；县城酒店' },
+    'stay-delingha': { party4: [280, 420], nature: '规划估算价', includes: '2间房；市区酒店' },
+    'stay-dachaidan': { party4: [300, 480], nature: '规划估算价', includes: '2间房；含免费停车' },
+    'stay-dunhuang': { party4: [380, 620], nature: '订单页参考价', includes: '整套两室一厅一厨；免费停车' },
+    'stay-hami': { party4: [360, 560], nature: '规划估算价', includes: '2间房；连锁品牌多含早' },
+    'stay-mulei': { party4: [260, 420], nature: '规划估算价', includes: '2间房；县城酒店' },
+    'stay-keketuohai': { party4: [340, 520], nature: '规划估算价', includes: '2间房；含免费停车' },
+    'stay-burqin': { party4: [300, 480], nature: '规划估算价', includes: '2间房；进喀纳斯前补给点' },
+    'stay-kanas': { party4: [400, 700], nature: '规划估算价', includes: '村内客房2间；旺季价高需早订' },
+    'stay-hemu': { party4: [400, 680], nature: '规划估算价', includes: '村内木屋2间（住2晚）；含停车' },
+    'stay-urho': { party4: [320, 500], nature: '规划估算价', includes: '2间房；含免费停车' },
+    'stay-yining': { party4: [300, 480], nature: '规划估算价', includes: '2间房；市区酒店' },
+    'stay-tekes': { party4: [320, 500], nature: '规划估算价', includes: '2间房；八卦城中心' },
+    'stay-kuqa': { party4: [280, 440], nature: '规划估算价', includes: '2间房（住2晚）；市区酒店' },
+    'stay-aksu': { party4: [360, 560], nature: '规划估算价', includes: '2间房；连锁品牌多含早' },
+    'stay-kashgar': { party4: [320, 500], nature: '规划估算价', includes: '2间房；古城景区内，共3晚分两单' },
+    'stay-tashkurgan': { party4: [420, 640], nature: '规划估算价', includes: '2间房；优先供暖，高海拔恢复' },
+    'stay-yecheng': { party4: [320, 500], nature: '规划估算价', includes: '2间房；G219出发前落点' },
+    'stay-sanshili': { party4: [360, 560], nature: '规划估算价', includes: '客房2间；偏远、供给有限，电话确认供暖热水' },
+    'stay-duoma': { party4: [320, 520], nature: '规划估算价', includes: '客房2间；高海拔驿站，电话确认床位' },
+    'stay-shiquanhe': { party4: [400, 620], nature: '规划估算价', includes: '2间房（住2晚）；阿里恢复节点' },
+    'stay-zanda': { party4: [340, 520], nature: '规划估算价', includes: '2间房；县城连锁' },
+    'stay-baga': { party4: [480, 760], nature: '订单页参考价', includes: '双床2间；全屋地暖+弥散供氧，免费停车' },
+    'stay-saga': { party4: [360, 560], nature: '规划估算价', includes: '2间房；县城精品酒店' },
+    'stay-shigatse': { party4: [400, 620], nature: '规划估算价', includes: '供氧房2间' },
+    'stay-lhasa': { party4: [360, 560], nature: '规划估算价', includes: '供氧房2间（住4晚）；连续恢复' },
+    'stay-linzhi': { party4: [420, 660], nature: '规划估算价', includes: '2间房（住2晚）；度假酒店，含停车充电' },
+    'stay-bomi': { party4: [360, 560], nature: '规划估算价', includes: '2间房（住2晚）；低海拔恢复' },
+    'stay-ranwu': { party4: [340, 540], nature: '规划估算价', includes: '客房2间（住2晚）；确认供暖热水' },
+    'stay-baxoi': { party4: [340, 520], nature: '规划估算价', includes: '2间房；县城连锁' },
+    'stay-zogang': { party4: [320, 500], nature: '规划估算价', includes: '2间房；县城酒店' },
+    'stay-markam': { party4: [320, 500], nature: '规划估算价', includes: '2间房；县城酒店' },
+    'stay-feilaisi': { party4: [420, 680], nature: '规划估算价', includes: '客房2间；靠日照金山观景动线，观景房价高' },
+    'stay-yubeng-upper': { party4: [400, 640], nature: '规划估算价', includes: '双床2间（住2晚）；村内徒步，物资靠人马运补价偏高' },
+    'stay-yubeng-lower': { party4: [380, 600], nature: '规划估算价', includes: '客房2间；下村，匹配神瀑与尼农动线' },
+    'stay-shangrila': { party4: [460, 720], nature: '规划估算价', includes: '客房2间（住3晚）；全屋供氧民宿' },
+    'stay-halfway': { party4: [300, 500], nature: '规划估算价', includes: '高路徒步中点客房2间；需电话或微信锁房' },
+    'stay-tinas': { party4: [260, 440], nature: '规划估算价', includes: '客房2间；徒步下段青旅' },
+    'stay-lijiang': { party4: [420, 700], nature: '订单页参考价', includes: '整套两卧带厨房；免费停车，可做饭洗衣' },
+    'stay-xiangcheng': { party4: [320, 500], nature: '规划估算价', includes: '2间房；花园酒店' },
+    'stay-riwa': { party4: [420, 680], nature: '规划估算价', includes: '供氧双床房2间（住3晚）；亚丁景区落点' },
+    'stay-litang': { party4: [320, 500], nature: '规划估算价', includes: '2间房；县城中心' },
+    'stay-xinduqiao': { party4: [360, 560], nature: '规划估算价', includes: '2间房；318国道连锁' },
+    'stay-chengdu': { party4: [420, 700], nature: '订单页参考价', includes: '整套双卧；厨房、洗衣机齐全' },
+    'stay-xian': { party4: [380, 640], nature: '订单页参考价', includes: '整套两室一厅；可做饭，停车另收费' },
+    'stay-pingyao': { party4: [300, 480], nature: '规划估算价', includes: '客栈2间；古城内' },
+    'stay-shijiazhuang': { party4: [380, 580], nature: '规划估算价', includes: '2间房；末站前最后外地住宿夜' }
+  };
+  pois.forEach(poi => {
+    if (poi.category !== 'stay') return;
+    const price = STAY_PRICES[poi.id];
+    if (!price) return;
+    poi.priceParty4 = price.party4;
+    poi.priceNature = price.nature;
+    poi.priceIncludes = price.includes;
+    poi.priceUpdatedAt = '2026-08-16';
+  });
+
   window.ROAD_TRIP_POI_DATA = {
     meta: {
-      version: 'route-pois-v3',
-      updatedAt: '2026-08-11',
-      note: '已覆盖49个外地住宿区域；订单地址、价格、营业/开放状态和具体机构必须在出发前用实时地图或订单页复核。'
+      version: 'route-pois-v4',
+      updatedAt: '2026-08-16',
+      note: '已覆盖全部外地住宿区域并补充4人当晚房价区间、含项与价格性质；房价、门票、区间车、油价与营业/开放状态均为估算或参考，出发前须用订单页与实时地图逐项复核。',
+      priceDisclaimer: '以下价格用于行程预算，不代表锁定报价。住宿、门票、区间车、油价和餐饮价格应在预订时及出发前再次核验。'
     },
     categories,
     segmentNotes,

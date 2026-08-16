@@ -3,13 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026西部大闭环 D1—D70 唯一执行路书</title>
+  <title>2026西部大闭环 D1—D70 完整路书</title>
   <style>
     :root{--paper:#f5f1ea;--card:#fff;--ink:#282522;--muted:#6e6862;--line:#ded6cc;--accent:#c75b39;--soft:#fff0e9;--green:#0f766e}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif}.wrap{width:min(1080px,calc(100% - 28px));margin:0 auto;padding:26px 0 60px}
     .hero{background:#282522;color:#fff;border-radius:22px;padding:24px;box-shadow:0 16px 38px rgba(52,40,32,.15)}h1{font-size:clamp(24px,4vw,42px);margin:0 0 8px}.hero p{margin:0;color:#ddd5cd;line-height:1.65}.stats{display:flex;gap:8px;flex-wrap:wrap;margin:17px 0 0}.stat{border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800}
     .actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.actions a,.actions button{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:9px 13px;text-decoration:none;font-size:12px;font-weight:800;cursor:pointer}.actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}.filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px}.filter label{font-size:12px;font-weight:800}.filter input{width:80px;border:1px solid var(--line);border-radius:9px;padding:7px 8px}
     .note{background:#fff9e9;border-left:4px solid #d69e2e;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6;margin:14px 0}.days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}.day{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:0;break-inside:avoid;overflow:hidden}.day-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px;cursor:pointer;list-style:none}.day-head::-webkit-details-marker{display:none}.day-head::after{content:'展开';flex:0 0 auto;color:var(--accent);font-size:11px;font-weight:900;margin-top:4px}.day[open]>.day-head{background:var(--soft);border-bottom:1px solid var(--line)}.day[open]>.day-head::after{content:'收起'}.day-body{padding:0 15px 15px}.day h2{font-size:16px;line-height:1.45;margin:0;flex:1}.badge{flex:0 0 auto;border-radius:999px;background:var(--soft);color:var(--accent);padding:5px 8px;font-size:11px;font-weight:900}.day[open] .badge{background:#fff}.meta{color:var(--muted);font-size:12px;line-height:1.6;margin-top:10px}.route{margin:10px 0 0;padding:10px 12px;border-radius:11px;background:#f8f6f2;font-size:12px;line-height:1.7}.route strong{color:var(--green)}.critical{margin:10px 0 0;padding:10px 12px;border-left:3px solid var(--accent);background:#fff8f5;font-size:12px;line-height:1.65}.stay{margin-top:9px;font-size:12px;line-height:1.6}.stay strong{color:#6d28d9}.meal{margin-top:9px;padding:9px 10px;border-radius:10px;background:#f3f8f5;font-size:12px;line-height:1.65}.meal strong{color:var(--green)}.day-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.day-actions a{border-radius:999px;background:#f1ede7;color:#8b3f28;padding:5px 8px;text-decoration:none;font-size:11px;font-weight:800}.footer{margin-top:20px;color:var(--muted);font-size:12px;line-height:1.7;text-align:center}
+    .day[open]{grid-column:1 / -1}
+    .day-body h3{margin:0 0 6px;font-size:13px}
+    .sec{margin-top:11px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.7}
+    .sec p{margin:4px 0}
+    .sec-route{background:#f8f6f2}.sec-food{background:#f3f8f5}.sec-stay{background:#f6f2fb}.sec-fee{background:#f2f6fb}
+    .sec-budget{background:#fff6ef;border-color:#f0c9b6}.sec-risk{background:#fff8f5;border-left:3px solid var(--accent)}
+    .sec-stay strong{color:#6d28d9}.sec-food strong{color:var(--green)}
+    .lab{color:var(--muted);font-weight:800}
+    .tag{display:inline-block;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:800;margin-left:5px;vertical-align:middle;line-height:1.6;white-space:nowrap}
+    .tag-pp{background:#e7f3ee;color:#0f766e}.tag-p4{background:#fdeadf;color:#b0431f}
+    .tag-est{background:#eee7dd;color:#8a6d3b}.tag-ref{background:#e5eefb;color:#1d4ed8}.tag-official{background:#e6f4ea;color:#166534}
+    .fee-list{margin:4px 0 0;padding-left:18px}.fee-list li{margin:2px 0}
+    .budget-list{margin:2px 0 0;padding:0;list-style:none}
+    .budget-list li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding:2px 0}
+    .budget-list .k{color:var(--muted)}.budget-list .v{font-weight:800}
+    .budget-total{margin-top:7px;padding-top:7px;border-top:2px solid #f0c9b6;display:flex;justify-content:space-between;font-size:13px;font-weight:900;color:var(--accent)}
     @media(max-width:760px){.days{grid-template-columns:1fr}.wrap{width:min(100% - 18px,1080px);padding-top:10px}.hero{border-radius:16px;padding:18px}}
     @media print{body{background:#fff}.wrap{width:100%;padding:0}.hero{box-shadow:none;border-radius:0;background:#fff;color:#000;border-bottom:2px solid #000}.hero p{color:#333}.actions,.filter,.day-actions,.footer{display:none}.days{display:block}.day{page-break-inside:avoid;margin:0 0 9px;border-radius:0;padding:10px}.note{border:1px solid #bbb}.stat{border-color:#777}.critical{background:#fff}.route{background:#fff}}
   </style>
@@ -17,12 +33,13 @@
 <body>
   <main class="wrap">
     <section class="hero">
-      <h1>D1—D70 唯一执行路书</h1>
-      <p>2026年9月18日—11月26日 · 4人 / 2位司机轮换 · 逐日道路、停靠点、住宿、吃饭与关键风险都只在这里维护。页面与数据会随离线地图一起缓存。</p>
+      <h1>D1—D70 完整路书</h1>
+      <p>2026年9月18日—11月26日 · 4人 / 2位司机轮换 · 逐日道路、停靠点、住宿、吃饭与关键风险统一在此维护。页面与数据会随离线地图一起缓存。</p>
       <div class="stats"><span class="stat" id="statDays"></span><span class="stat" id="statKm"></span><span class="stat" id="statMeals"></span><span class="stat">68晚外地住宿</span><span class="stat">11月25日回北京 · 11月26日还车</span></div>
     </section>
     <nav class="actions"><a class="primary" href="./route-map-offline.html?v=11">打开离线地图</a><a href="./route-map-amap.html?v=11">打开在线高德</a><a href="./index.html#roadbook">返回详细攻略</a><button id="expandBtn" type="button">展开全部</button><button id="collapseBtn" type="button">全部收起</button><button id="downloadBtn" type="button">下载TXT路书</button><button type="button" onclick="window.print()">打印 / 存为PDF</button></nav>
     <div class="note"><strong>离线边界：</strong>本页保存的是计划道路、坐标和风险提醒，不冒充实时路况。封路、边防、景区换乘和营业状态必须在有网时复核；无网时以现场标志、交警与景区指令为准。</div>
+    <div class="note" style="background:#fff6ef;border-left-color:var(--accent)"><strong>价格说明：</strong>以下价格用于行程预算，不代表锁定报价。住宿、门票、区间车、油价和餐饮价格应在预订时及出发前再次核验。卡片内标签区分「官方价 / 参考价 / 估算」，餐饮与门票接驳为规划估算区间，住宿价见各订单页实时房价。</div>
     <div class="filter"><label>只看 D</label><input id="fromDay" type="number" min="1" max="70" value="1"><span>到</span><input id="toDay" type="number" min="1" max="70" value="70"><button id="filterBtn" type="button">筛选</button><button id="todayBtn" type="button">按日期定位</button><span id="filterStatus" class="meta"></span></div>
     <section id="days" class="days"></section>
     <p class="footer">版本：daily-roadbook-v4 · 数据更新：2026-08-16 · 房价与库存以实际付款页为准。</p>
@@ -30,26 +47,83 @@
   <script src="./assets/route_map_pois.js"></script>
   <script src="./assets/road_trip_days.js"></script>
   <script src="./assets/road_trip_meals.js"></script>
+  <script src="./assets/road_trip_costs.js"></script>
   <script>
     const DAILY = window.ROAD_TRIP_DAY_DATA;
     const PLACES = window.ROAD_TRIP_POI_DATA;
     const FOOD = window.ROAD_TRIP_MEAL_DATA;
+    const COSTS = window.ROAD_TRIP_COST_DATA;
     const stays = new Map(PLACES.pois.filter(poi => poi.category === 'stay').map(poi => [poi.id, poi]));
     const meals = new Map(FOOD.meals.map(meal => [meal.day, meal]));
+    const costs = new Map((COSTS ? COSTS.items : []).map(item => [item.day, item]));
     const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
     const formatDate = value => `${Number(value.slice(5,7))}月${Number(value.slice(8,10))}日`;
     const amapNav = point => `https://uri.amap.com/navigation?to=${point.lng},${point.lat},${encodeURIComponent(point.name)}&mode=car&policy=1&src=Syfyivan.road-trip&coordinate=gaode&callnative=1`;
+    const yuan = value => `¥${Number(value).toLocaleString()}`;
+    const range = pair => pair && pair[0] === pair[1] ? yuan(pair[0]) : `${yuan(pair[0])}—${yuan(pair[1])}`;
+    const natureTag = nature => nature === '官方固定价' ? '<span class="tag tag-official">官方价</span>' : nature === '订单页参考价' ? '<span class="tag tag-ref">参考价</span>' : '<span class="tag tag-est">估算</span>';
+    const tagPP = pair => `<span class="tag tag-pp">每人 ${range(pair)}</span>`;
+    const tagP4 = pair => `<span class="tag tag-p4">4人 ${range(pair)}</span>`;
     document.getElementById('statDays').textContent = `${DAILY.days.length}天`;
     document.getElementById('statKm').textContent = `主计划${DAILY.meta.plannedDrivingKm.toLocaleString()}km · 预算上限${DAILY.meta.budgetMileageKm.toLocaleString()}km`;
     document.getElementById('statMeals').textContent = `${FOOD.dinnerCounts.restaurant}天目的地进店 · ${FOOD.dinnerCounts.cook}晚自炊`;
+
+    function foodBlock(meal) {
+      if (!meal) return '';
+      const bf = `<p class="meal-row"><span class="lab">早餐：</span>${escapeHtml(meal.breakfast.plan)}${tagPP(meal.breakfast.perPax)}</p>`;
+      const ln = `<p class="meal-row"><span class="lab">午餐：</span>${escapeHtml(meal.lunch.plan)}${tagPP(meal.lunch.perPax)}${meal.lunch.backup ? `<br><span class="lab" style="color:#8a6d3b">备用：</span>${escapeHtml(meal.lunch.backup)}` : ''}</p>`;
+      const dn = `<p class="meal-row"><span class="lab">晚餐 · ${escapeHtml(meal.dinner.label)}：</span>${escapeHtml(meal.dinner.plan)}${tagPP(meal.dinner.perPax)}${tagP4(meal.dinner.party4)}</p>`;
+      const sum = `<p class="meal-row" style="color:var(--muted)">全天餐饮（4人）合计约 ${range(meal.dayTotal4)}<span class="tag tag-est">估算</span></p>`;
+      return `<div class="sec sec-food"><h3>三餐建议</h3>${bf}${ln}${dn}${sum}</div>`;
+    }
+
+    function stayBlock(day, stay) {
+      if (!stay) {
+        const text = day.day === 69 ? '回北京家里' : day.day === 70 ? '行程结束，还车前正常作息' : '不换住宿（连住前一晚）';
+        return `<div class="sec sec-stay"><h3>住宿</h3><p>${text}</p></div>`;
+      }
+      const price = stay.priceParty4 ? `<p><span class="lab">当晚房费（4人）：</span>${range(stay.priceParty4)}${natureTag(stay.priceNature)}${stay.priceUpdatedAt ? `<span class="tag tag-est">更新 ${stay.priceUpdatedAt}</span>` : ''}</p>` : '';
+      const inc = stay.priceIncludes ? `<p><span class="lab">含项：</span>${escapeHtml(stay.priceIncludes)}</p>` : '';
+      return `<div class="sec sec-stay"><h3>住宿</h3><p><strong>${escapeHtml(stay.name)}</strong>｜${escapeHtml(stay.note)}</p>${price}${inc}</div>`;
+    }
+
+    function feeBlock(cost) {
+      if (!cost) return '';
+      const items = [];
+      cost.tickets.forEach(entry => items.push(`<li>${escapeHtml(entry.name)}：${range(entry.party4)} / 4人<span class="tag tag-est">估算</span></li>`));
+      if (cost.permitNote) items.push(`<li>${escapeHtml(cost.permitNote)}</li>`);
+      if (!items.length) items.push('<li>当天无景区门票、区间车或接驳费用。</li>');
+      return `<div class="sec sec-fee"><h3>门票 / 区间车 / 接驳</h3><ul class="fee-list">${items.join('')}</ul></div>`;
+    }
+
+    function budgetBlock(meal, cost, stay) {
+      if (!cost) return '';
+      const rows = [];
+      if (meal) rows.push(`<li><span class="k">餐饮（4人）</span><span class="v">${range(meal.dayTotal4)}</span></li>`);
+      if (stay && stay.priceParty4) rows.push(`<li><span class="k">住宿（4人）</span><span class="v">${range(stay.priceParty4)}</span></li>`);
+      if (cost.ticketTotal && (cost.ticketTotal[0] || cost.ticketTotal[1])) rows.push(`<li><span class="k">门票 / 接驳（4人）</span><span class="v">${range(cost.ticketTotal)}</span></li>`);
+      if (cost.fuelToll && (cost.fuelToll[0] || cost.fuelToll[1])) rows.push(`<li><span class="k">油费 + 高速</span><span class="v">${range(cost.fuelToll)}</span></li>`);
+      const lo = (meal ? meal.dayTotal4[0] : 0) + (stay && stay.priceParty4 ? stay.priceParty4[0] : 0) + (cost.ticketTotal ? cost.ticketTotal[0] : 0) + (cost.fuelToll ? cost.fuelToll[0] : 0);
+      const hi = (meal ? meal.dayTotal4[1] : 0) + (stay && stay.priceParty4 ? stay.priceParty4[1] : 0) + (cost.ticketTotal ? cost.ticketTotal[1] : 0) + (cost.fuelToll ? cost.fuelToll[1] : 0);
+      return `<div class="sec sec-budget"><h3>当天参考支出（不含租车固定费）</h3><ul class="budget-list">${rows.join('')}</ul><div class="budget-total"><span>当天合计</span><span>${range([lo, hi])}</span></div></div>`;
+    }
 
     function render(from = 1, to = DAILY.days.length) {
       const target = document.getElementById('days'); target.innerHTML = '';
       const selected = DAILY.days.filter(day => day.day >= from && day.day <= to);
       selected.forEach(day => {
-        const stay = stays.get(day.stayId); const meal = meals.get(day.day); const card = document.createElement('details'); card.className = 'day'; card.id = `D${day.day}`; card.open = selected.length <= 3;
+        const stay = stays.get(day.stayId); const meal = meals.get(day.day); const cost = costs.get(day.day);
+        const card = document.createElement('details'); card.className = 'day'; card.id = `D${day.day}`; card.open = selected.length <= 3;
         const stops = day.points.map(point => point.name).join(' → '); const last = day.points[day.points.length - 1];
-        card.innerHTML = `<summary class="day-head"><h2>${day.id} · ${escapeHtml(day.title)}</h2><span class="badge">${formatDate(day.date)}</span></summary><div class="day-body"><div class="meta">${escapeHtml(DAILY.typeLabels[day.type])} · ${day.distanceKm ? `计划约 ${day.distanceKm}km · ` : ''}${escapeHtml(day.roads)}</div><div class="route"><strong>停靠顺序：</strong>${escapeHtml(stops)}</div><div class="critical"><strong>当天闸门：</strong>${escapeHtml(day.critical)}</div><div class="stay"><strong>当晚：</strong>${stay ? `${escapeHtml(stay.name)}｜${escapeHtml(stay.note)}` : day.day === 69 ? '回北京家里' : day.day === 70 ? '行程结束' : '不换住宿'}</div>${meal ? `<div class="meal"><strong>午餐：</strong>${escapeHtml(meal.lunch)}<br><strong>${escapeHtml(meal.dinner.label)}：</strong>${escapeHtml(meal.dinner.plan)}</div>` : ''}<div class="day-actions"><a href="./route-map-offline.html?day=${day.day}">离线地图定位</a><a target="_blank" rel="noopener" href="${amapNav(last)}">联网后高德导航</a>${stay && stay.bookingUrl ? `<a target="_blank" rel="noopener" href="${escapeHtml(stay.bookingUrl)}">住宿房型/实时价</a>` : ''}</div></div>`;
+        card.innerHTML = `<summary class="day-head"><h2>${day.id} · ${escapeHtml(day.title)}</h2><span class="badge">${formatDate(day.date)}</span></summary><div class="day-body">`
+          + `<div class="sec sec-route"><h3>路线与时间</h3><p><span class="lab">类型 / 里程：</span>${escapeHtml(DAILY.typeLabels[day.type])}${day.distanceKm ? ` · 计划约 ${day.distanceKm}km` : ''} · ${escapeHtml(day.roads)}</p><p><span class="lab">停靠顺序：</span>${escapeHtml(stops)}</p></div>`
+          + foodBlock(meal)
+          + stayBlock(day, stay)
+          + feeBlock(cost)
+          + budgetBlock(meal, cost, stay)
+          + `<div class="sec sec-risk"><h3>风险与降级</h3><p>${escapeHtml(day.critical)}</p></div>`
+          + `<div class="day-actions"><a href="./route-map-offline.html?day=${day.day}">离线地图定位</a><a target="_blank" rel="noopener" href="${amapNav(last)}">联网后高德导航</a>${stay && stay.bookingUrl ? `<a target="_blank" rel="noopener" href="${escapeHtml(stay.bookingUrl)}">住宿房型/实时价</a>` : ''}</div>`
+          + `</div>`;
         target.appendChild(card);
       });
       document.getElementById('filterStatus').textContent = `当前显示 ${selected.length} 天`;
@@ -62,8 +136,25 @@
     }
 
     function downloadRoadbook() {
-      const lines = [`2026西部大闭环 D1—D70 离线执行路书`, `${DAILY.meta.startDate}—${DAILY.meta.endDate}`, `主计划${DAILY.meta.plannedDrivingKm}km；预算里程${DAILY.meta.budgetMileageKm}km`, ''];
-      DAILY.days.forEach(day => { const stay = stays.get(day.stayId); const meal = meals.get(day.day); lines.push(`${day.id} ${day.date}｜${day.title}`, `类型/里程：${DAILY.typeLabels[day.type]}${day.distanceKm ? `，约${day.distanceKm}km` : ''}`, `道路：${day.roads}`, `停靠：${day.points.map(point => point.name).join(' → ')}`, `当天闸门：${day.critical}`, `当晚：${stay ? `${stay.name}｜${stay.note}` : day.day === 69 ? '回北京家里' : day.day === 70 ? '行程结束' : '不换住宿'}`, meal ? `午餐：${meal.lunch}` : '', meal ? `${meal.dinner.label}：${meal.dinner.plan}` : '', ''); });
+      const money = pair => pair && pair[0] === pair[1] ? `¥${pair[0]}` : `¥${pair[0]}—${pair[1]}`;
+      const lines = [`2026西部大闭环 D1—D70 离线执行路书`, `${DAILY.meta.startDate}—${DAILY.meta.endDate}`, `主计划${DAILY.meta.plannedDrivingKm}km；预算里程${DAILY.meta.budgetMileageKm}km`, `价格均为估算/参考区间，出发前须复核，不代表锁定报价。`, ''];
+      DAILY.days.forEach(day => {
+        const stay = stays.get(day.stayId); const meal = meals.get(day.day); const cost = costs.get(day.day);
+        lines.push(`${day.id} ${day.date}｜${day.title}`, `类型/里程：${DAILY.typeLabels[day.type]}${day.distanceKm ? `，约${day.distanceKm}km` : ''}`, `道路：${day.roads}`, `停靠：${day.points.map(point => point.name).join(' → ')}`);
+        if (meal) {
+          lines.push(`早餐：${meal.breakfast.plan}（每人${money(meal.breakfast.perPax)}）`, `午餐：${meal.lunch.plan}（每人${money(meal.lunch.perPax)}）${meal.lunch.backup ? `｜备用：${meal.lunch.backup}` : ''}`, `晚餐·${meal.dinner.label}：${meal.dinner.plan}（每人${money(meal.dinner.perPax)}／4人${money(meal.dinner.party4)}）`, `餐饮4人合计：${money(meal.dayTotal4)}`);
+        }
+        lines.push(`当晚：${stay ? `${stay.name}｜${stay.note}${stay.priceParty4 ? `（房费4人${money(stay.priceParty4)}·${stay.priceNature}）` : ''}` : day.day === 69 ? '回北京家里' : day.day === 70 ? '行程结束' : '不换住宿'}`);
+        if (cost) {
+          cost.tickets.forEach(entry => lines.push(`门票/接驳：${entry.name}（4人${money(entry.party4)}）`));
+          if (cost.permitNote) lines.push(`证件：${cost.permitNote}`);
+          if (cost.fuelToll && (cost.fuelToll[0] || cost.fuelToll[1])) lines.push(`油费+高速：${money(cost.fuelToll)}`);
+          const lo = (meal ? meal.dayTotal4[0] : 0) + (stay && stay.priceParty4 ? stay.priceParty4[0] : 0) + (cost.ticketTotal ? cost.ticketTotal[0] : 0) + (cost.fuelToll ? cost.fuelToll[0] : 0);
+          const hi = (meal ? meal.dayTotal4[1] : 0) + (stay && stay.priceParty4 ? stay.priceParty4[1] : 0) + (cost.ticketTotal ? cost.ticketTotal[1] : 0) + (cost.fuelToll ? cost.fuelToll[1] : 0);
+          lines.push(`当天参考合计（不含租车固定费）：${money([lo, hi])}`);
+        }
+        lines.push(`风险与降级：${day.critical}`, '');
+      });
       const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'}); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = '2026西部大闭环-D1-D70-执行路书.txt'; link.click(); URL.revokeObjectURL(url);
     }
 
