@@ -12475,7 +12475,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               id: 'e_year3_spring_focus',
               name: '先把三年春头婚话与保帖底样分开',
               cost: 1,
-              eff: '铜钱-50·保帖底样+1·家族+1·缓婚事口风',
+              eff: '铜钱-50·保帖底样+1·家族+1·供读压力-1·缓婚事口风',
               desc: '第三举业年的春头，最怕婚话回札、保帖底样、递话脚费和开春锅火一起追钱。先把这层“还要不要继续供到第三年”和“婚事还能不能再拖”的开年压力拆开，第三年春头就不再只是沿用前两年的通用春账。',
               can: S.铜钱 >= 50,
               why: S.铜钱 >= 50 ? '' : '铜钱不足50文',
@@ -12721,7 +12721,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               id: 'e_year3_spring_mid_focus',
               name: '先把三年春中婚话回签与馆课灯药分开',
               cost: 1,
-              eff: '铜钱-55·体魄+1·家族+1·缓婚事口风',
+              eff: '铜钱-55·体魄+1·家族+1·供读压力-1·缓婚事口风',
               desc: '第三举业年的春中，最怕婚话回签、评文灯油、护嗓药钱与递话脚费一起追钱。先把这层“还要不要继续供到第三年”和“婚期还能不能再缓”拆开，第三年春中就不再只是通用评文账，而会把婚话压力真压回当旬。',
               can: S.铜钱 >= 55,
               why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
@@ -13167,7 +13167,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 id: 'e_year3_spring_tail_focus',
                 name: '先把三年春尾婚信与清明灯药分开',
                 cost: 1,
-                eff: '铜钱-60·家族+1·体魄+1·缓婚事口风',
+                eff: '铜钱-60·家族+1·体魄+1·供读压力-1·缓婚事口风',
                 desc: '第三举业年的春尾，最怕婚信回条、清明灯药、塾门回帖门包和入夏前锅火一起追钱。先把这层“书路还续不续到伏夏”和“婚事还能不能再缓”的尾账拆开，第三年春尾就不再只靠通用香纸和扇药过场。',
                 can: S.铜钱 >= 60,
                 why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
@@ -13760,11 +13760,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(50, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 15, 本年零耗支出文: 15 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
                 noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年春底样');
-                log.push(['先把三年春头婚话与保帖底样分开：铜钱-50、保帖底样+1、家族+1、婚事口风缓一线。第三举业年春头先把婚话回札、保帖底样和递话脚费拆开，这层“还要不要继续供到第三年”和“婚事还能不能再拖”终于没再一起贴着开春锅火发硬。', 'good']);
+                log.push(['先把三年春头婚话与保帖底样分开：铜钱-50、保帖底样+1、家族+1、供读压力-1、婚事口风缓一线。第三举业年春头先把婚话回札、保帖底样和递话脚费拆开，这层“还要不要继续供到第三年”和“婚事还能不能再拖”不只见了文案，也真记成了当年的续供回话。', 'good']);
               } else {
                 log.push(['想先把三年春头婚话与保帖底样拆开，但这一旬铜钱已先被别处占住，只得让第三举业年开春这层婚话回札与底稿细账继续挤着锅火一起追钱。', 'bad']);
               }
@@ -13806,13 +13808,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(55, { buckets: { 本年零耗支出文: 30, 本年衣药支出文: 25 } });
                 S.体魄 += 1;
                 S.家族 += 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 S.本年将养次数 = (S.本年将养次数 || 0) + 1;
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
                 noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年春中婚账');
-                log.push(['先把三年春中婚话回签与馆课灯药分开：铜钱-55、体魄+1、家族+1、婚事口风缓一线。第三举业年春中先把婚话回签、评文灯油、护嗓药钱与递话脚费拆开，这层“还要不要继续供到第三年”和“婚期还能不能再缓”终于在同旬见了账。', 'good']);
+                log.push(['先把三年春中婚话回签与馆课灯药分开：铜钱-55、体魄+1、家族+1、供读压力-1、婚事口风缓一线。第三举业年春中先把婚话回签、评文灯油、护嗓药钱与递话脚费拆开，这层“还要不要继续供到第三年”和“婚期还能不能再缓”终于在同旬见了账，也真落成了续供回话。', 'good']);
               } else {
                 log.push(['想先把三年春中婚话回签与馆课灯药拆开，但这一旬铜钱已先被别处占住，只得让第三举业年春中这层婚话回签与灯药脚费继续贴着评文账一起追钱。', 'bad']);
               }
@@ -13886,6 +13890,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(60, { buckets: { 本年零耗支出文: 30, 本年衣药支出文: 30 } });
                 S.家族 += 1;
                 S.体魄 += 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 S.本年将养次数 = (S.本年将养次数 || 0) + 1;
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
@@ -13893,7 +13899,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamTutorGuaranteeReply();
                 noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年春尾婚灯');
-                log.push(['先把三年春尾婚信与清明灯药分开：铜钱-60、家族+1、体魄+1、婚事口风缓一线。第三举业年春尾先把婚信回条、清明灯药、塾门回帖门包和入夏前锅火拆开，这层“书路还续不续到伏夏”和“婚事还能不能再缓”的尾账终于没再只贴着通用香纸与扇药一起发硬。', 'good']);
+                log.push(['先把三年春尾婚信与清明灯药分开：铜钱-60、家族+1、体魄+1、供读压力-1、婚事口风缓一线。第三举业年春尾先把婚信回条、清明灯药、塾门回帖门包和入夏前锅火拆开，这层“书路还续不续到伏夏”和“婚事还能不能再缓”的尾账不只见光，也真写进了续供回话。', 'good']);
               } else {
                 log.push(['想先把三年春尾婚信与清明灯药拆开，但这一旬铜钱已先被别处占住，只得让第三举业年春尾这层婚信回条与清明灯药继续一起追钱。', 'bad']);
               }
