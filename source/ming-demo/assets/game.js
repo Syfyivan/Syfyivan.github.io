@@ -172,10 +172,30 @@
 
   function inferFoundingSnapshotIdFromCarry(carry) {
     if (!carry || typeof carry !== 'object') return '';
-    if (carry.父快照ID && FOUNDING_SNAPSHOTS[carry.父快照ID]) return carry.父快照ID;
+    var explicitId = (carry.父快照ID && FOUNDING_SNAPSHOTS[carry.父快照ID]) ? carry.父快照ID : '';
+    // 旧快照 / 手工 patch 里最常见的脏态，是“父快照ID 还停在民籍，
+    // 但父快照类型 / 户籍类型 已经改成军籍”。
+    // 这时若继续优先信 `父快照ID`，当前态直切后半生、死亡结算与下一代重开
+    // 都会把军籍一路悄悄写回民籍父快照，形成“类型是军籍、ID 却是民籍”的假闭环。
+    // 因此这里先以显式类型 / 户籍为准，只在两者都缺席时才回退到旧 ID。
     if (carry.父快照类型 === '江南军户次子' || carry.户籍类型 === '军籍') return 'jiangnan_military_second_son';
     if (carry.父快照类型 === '江南民籍次子' || carry.户籍类型 === '民籍') return DEFAULT_FOUNDING_SNAPSHOT_ID;
-    return '';
+    return explicitId;
+  }
+  function syncCurrentFoundingSnapshotState() {
+    if (!S) return currentFoundingSnapshot();
+    var inferredId = inferFoundingSnapshotIdFromCarry(S);
+    if (inferredId && FOUNDING_SNAPSHOTS[inferredId]) selectedFoundingSnapshotId = inferredId;
+    var founding = currentFoundingSnapshot();
+    var foundingPatch = founding.patch || {};
+    if (founding.id) S.父快照ID = founding.id;
+    else S.父快照ID = normalizeCarryString(S.父快照ID, '');
+    if (foundingPatch.父快照类型) S.父快照类型 = foundingPatch.父快照类型;
+    else S.父快照类型 = normalizeCarryString(S.父快照类型, '');
+    if (foundingPatch.户籍类型) S.户籍类型 = foundingPatch.户籍类型;
+    else S.户籍类型 = normalizeCarryString(S.户籍类型, '');
+    S.父快照说明 = normalizeCarryString(S.父快照说明, foundingPatch.父快照说明 || '');
+    return founding;
   }
 
   function currentRegistryLabel() {
@@ -753,6 +773,7 @@
   }
   function syncCurrentParentRouteState() {
     if (!S) return '未定';
+    syncCurrentFoundingSnapshotState();
     S.父辈路线 = normalizeParentRouteLabel(S.父辈路线 || '未定');
     return S.父辈路线;
   }
@@ -7308,7 +7329,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       'w_long', 'w_short', 'w_out', 'w_skill', 'w_book', 'w_home', 'w_rest',
       'a_seek', 'a_bond', 'a_sign', 'a_drudge', 'a_learn', 'a_run', 'a_book', 'a_market', 'a_home', 'a_rest',
       'm_shop', 'm_goods', 'm_market', 'm_wharf', 'm_run', 'm_try', 'm_book', 'm_collect', 'm_home', 'm_rest'
-    ];
+    ].concat(examSupportHandledIds());
     if (strategic.indexOf(id) >= 0) return false;
     if (/^e_year\d_/.test(id)) return false;
     // 这类按钮的本质是账本明细，不是人生方向。它们仍留在引擎和回放里，
@@ -7323,6 +7344,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var max = Math.max(3, limit || 6);
     var source = (actions || []).filter(function (action) { return !isRoutineLedgerAction(action); });
     var visible = [];
+    var examWinterSupportIds = null;
     function add(action) {
       if (!action || visible.some(function (item) { return item.id === action.id; }) || visible.length >= max) return;
       visible.push(action);
@@ -7347,19 +7369,58 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     // 季初若提供成组互斥选择，整组必须一起出现；不能只露出其中一个，
     // 让玩家看不出“改选会替换原方案”。
     if (phase === 'civilExam' && currentExamXun() === 1) {
+      var keepExamWinterSupportVisible = !!S
+        && (S.举业年 || 0) === 2
+        && (S.举季 || 0) === 4
+        && (
+          (S.供读压力 || 0) >= 2
+          || (S.本年家中续供次 || 0) <= 0
+          || (S.本年供读转折旬数 || 0) > 0
+        )
+        && (
+          (S.本年延婚牵扯 || 0) > 0
+          || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive())
+          || (S.供读压力 || 0) >= 2
+        );
       source.filter(function (action) {
         var group = lifeActionChoiceGroup(action);
         return group && group.id === 'exam-study-mode';
-      }).forEach(add);
+      }).forEach(function (action) {
+        if (keepExamWinterSupportVisible) return;
+        add(action);
+      });
+      if (keepExamWinterSupportVisible) {
+        examWinterSupportIds = ['e_family_cash', 'e_family_grain', 'e_mother_help', 'e_brother_help'];
+      }
     }
     if (phase === 'civilExam' && currentExamXun() === 3) {
       add(source.filter(function (action) { return action.id === 'e_exam'; })[0]);
+      if (!!S
+        && (S.举业年 || 0) === 2
+        && (S.举季 || 0) === 4
+        && (
+          (S.供读压力 || 0) >= 2
+          || (S.本年家中续供次 || 0) <= 0
+          || (S.本年供读转折旬数 || 0) > 0
+        )
+        && (
+          (S.本年延婚牵扯 || 0) > 0
+          || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive())
+          || (S.供读压力 || 0) >= 2
+        )) {
+        examWinterSupportIds = ['e_family_cash', 'e_tail_grain', 'e_tail_mother_help', 'e_tail_brother_help'];
+      }
     }
     if (phase === 'wage') {
       source.filter(function (action) {
         var group = lifeActionChoiceGroup(action);
         return group && group.id === 'wage-work-mode';
       }).forEach(add);
+    }
+    if (examWinterSupportIds && visible.length < max) {
+      examWinterSupportIds.forEach(function (id) {
+        add(source.filter(function (action) { return action.id === id; })[0]);
+      });
     }
     // 余位优先给不同目的，避免六个按钮全是同一种细分做法。
     ['主线', '准备', '挣钱', '顾家', '养身', '其他'].forEach(function (kind) {
@@ -12960,7 +13021,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 id: 'e_year2_winter_focus',
                 name: '先把二年冬头保帖回札与婚话帖样分开',
                 cost: 1,
-                eff: '铜钱-65·保帖底样+1·家族+1·供读压力-1·缓婚事口风',
+                eff: '铜钱-65·保帖底样+1·家族+1·供读压力-1·今岁续供回话+1·缓婚事口风',
                 desc: '第二举业年的冬头，最怕旧馆回札、保帖回信、婚话帖样和递话灯油一起追钱。先把这层“今年保结口风还没彻底散掉、明春续帖后手又已先来”和“婚期是不是还要再往后拖”的冬头细账拆开，不让次年的资格底稿只剩一句“再看看”。',
                 can: S.铜钱 >= 65,
                 why: S.铜钱 >= 65 ? '' : '铜钱不足65文',
@@ -13235,7 +13296,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 id: 'e_year2_winter_mid_focus',
                 name: '先把二年冬中保帖回信与婚话灯炭分开',
                 cost: 1,
-                eff: '铜钱-70·保帖底样+1·家族+1·供读压力-1·缓婚事口风',
+                eff: '铜钱-70·保帖底样+1·家族+1·供读压力-1·今岁续供回话+1·缓婚事口风',
                 desc: '第二举业年的冬中，最怕保帖回信、婚话灯炭、递话门包和年关锅火一起追钱。先把这层“今年保结口风还要继续留痕、明春续帖也得提早留后手”和“婚事再拖到来春要不要另给回话”的冬中细账拆开，不让第二年的资格尾账只在年终混成一句“再看看”。',
                 can: S.铜钱 >= 70,
                 why: S.铜钱 >= 70 ? '' : '铜钱不足70文',
@@ -13709,6 +13770,24 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         var focusSeason = season.id;
         var focusSuffix = xun === 1 ? '_focus' : (xun === 2 ? '_mid_focus' : '_tail_focus');
         preferredOrder.push(focusPrefix + '_' + focusSeason + focusSuffix);
+        var supportIds = xun === 1
+          ? ['e_family_cash', 'e_family_grain', 'e_mother_help', 'e_brother_help', 'e_home']
+          : (xun === 2
+            ? ['e_family_cash', 'e_mid_grain', 'e_mid_mother_help', 'e_mid_brother_help', 'e_home']
+            : ['e_family_cash', 'e_tail_grain', 'e_tail_mother_help', 'e_tail_brother_help', 'e_home']);
+        var supportPriorityActive = (S.供读压力 || 0) >= 2 || (S.本年家中续供次 || 0) <= 0 || (S.本年供读转折旬数 || 0) > 0;
+        var yearTwoWinterSupportFirst = examYear === 2
+          && season.id === 'winter'
+          && (xun === 1 || xun === 3)
+          && supportPriorityActive
+          && (
+            (S.本年延婚牵扯 || 0) > 0
+            || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive())
+            || (S.供读压力 || 0) >= 2
+          );
+        if (yearTwoWinterSupportFirst) {
+          preferredOrder = preferredOrder.concat(supportIds);
+        }
         if (examYear >= 3 && season.id === 'winter' && xun === 2 && (
           S.本年应试结果 === '落第'
           || (S.本年应场受阻次数 || 0) > 0
@@ -13741,11 +13820,6 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             || warmSeasonDelayPriority
           );
         if (upperSeasonDelayPriority) preferredOrder.push('e_delay_upper');
-        var supportIds = xun === 1
-          ? ['e_family_cash', 'e_family_grain', 'e_mother_help', 'e_brother_help', 'e_home']
-          : (xun === 2
-            ? ['e_family_cash', 'e_mid_grain', 'e_mid_mother_help', 'e_mid_brother_help', 'e_home']
-            : ['e_family_cash', 'e_tail_grain', 'e_tail_mother_help', 'e_tail_brother_help', 'e_home']);
         var bodyIds = xun === 1
           ? (season.id === 'autumn'
             ? ['e_autumn_open_cloth', 'e_rest']
@@ -13762,11 +13836,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 ? ['e_summer_tail_packet', 'e_mend', 'e_rest']
                 : (season.id === 'winter' ? ['e_winter_tail_cure', 'e_mend', 'e_rest'] : ['e_mend', 'e_rest']))));
         var gapCode = examAttemptStructuralGapCode();
-        var supportPriorityActive = (S.供读压力 || 0) >= 2 || (S.本年家中续供次 || 0) <= 0 || (S.本年供读转折旬数 || 0) > 0;
         var yearThreeSpringShoulderSupportFirst = examYear >= 3
           && season.id === 'spring'
           && xun >= 2
           && supportPriorityActive;
+        var yearThreeSpringGuaranteeShoulder = yearThreeSpringShoulderSupportFirst
+          && xun === 2
+          && gapCode === 'guaranteePass';
         var lateWarmSeasonSupportFirst = warmSeasonDelayPriority
           && examYear >= 3
           && supportPriorityActive;
@@ -13775,6 +13851,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           && (S.负债银 || 0) > 0
           && !S.本年债息已结
           && supportPriorityActive;
+        if (yearThreeSpringGuaranteeShoulder) {
+          preferredOrder.push('e_guarantee');
+        }
         if (yearThreeSpringShoulderSupportFirst) {
           preferredOrder = preferredOrder.concat(supportIds);
         }
@@ -13790,7 +13869,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         else if (gapCode === 'studyCount' || gapCode === 'article') preferredOrder = preferredOrder.concat(['e_essay', 'e_copy']);
         else if (gapCode === 'supportCut') preferredOrder = preferredOrder.concat(['e_copy', 'e_fail_tutor_bridge']);
         else if (gapCode === 'bodySpent') preferredOrder = preferredOrder.concat(bodyIds);
-        if (supportPriorityActive && !yearThreeSpringShoulderSupportFirst && !lateWarmSeasonSupportFirst && !winterDebtSupportFirst) {
+        if (supportPriorityActive && !yearThreeSpringShoulderSupportFirst && !lateWarmSeasonSupportFirst && !winterDebtSupportFirst && !yearTwoWinterSupportFirst) {
           preferredOrder = preferredOrder.concat(supportIds);
         }
         if (((S.本年延婚牵扯 || 0) > 0) || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive()) || ((S.供读压力 || 0) >= 2)) {
@@ -23510,6 +23589,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: S.铜钱 >= 65 ? '' : '铜钱不足65文',
             once: true
           });
+          A.push({
+            id: 'h_summer_head_remit',
+            name: '先把伏夏回钱拆作供读、差帖与凉药',
+            cost: 1,
+            eff: '白银-1·反哺+1·供读专账+1·供读+1·备役+1·通融+1·体魄+1·家族+2',
+            desc: '夏催账刚起头时，最怕刚从熟号催回一点真回钱，供读纸样、差帖门包、凉药脚费和锅火家书就一起扑上来。先把这口伏夏回银拆开，不让这一房整整一季都只是等秋钱，连伏夏起手这旬也能真把供读、差役、身子与锅火压回账上。',
+            can: S.白银 >= 1,
+            why: S.白银 >= 1 ? '' : '白银不足1两',
+            once: true
+          });
         }
         A.push({ id: 'h_hire', name: '雇工顾住田面', cost: 1, eff: '铜钱-300·分家薄田不至空转', desc: '你人在外头，先花钱把薄田顾住，别让“分得了田”变成一年的空账。', can: S.铜钱 >= 300 && (S.本年户备役 || 0) < 3, why: S.铜钱 >= 300 ? '' : '铜钱不足300文', once: true });
         A.push({ id: 'h_side', name: '抽身贴补这一房', cost: 1, eff: side.effect, desc: '当户这一年照样要找现钱。哪怕只是多接一层零活，也是在给差钱和家用添后手。', can: true });
@@ -23738,7 +23827,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (season.id === 'spring' && xun === 1) preferredOrder = ['h_spring_head_reply', 'h_spring_packet', 'h_literate', 'h_wharf'];
         else if (season.id === 'spring' && xun === 2) preferredOrder = ['h_spring_reply', 'h_spring_incense', 'h_spring_deed', 'h_trust_field'];
         else if (season.id === 'spring' && xun === 3) preferredOrder = ['h_spring_tail_reply', 'h_spring_tail_incense', 'h_spring_split', 'h_collect'];
-        else if (season.id === 'summer' && xun === 1) preferredOrder = ['h_summer_head_register', 'h_summer_head_reply', 'h_summer_home_packet', 'h_summer_cool'];
+        else if (season.id === 'summer' && xun === 1) preferredOrder = ['h_summer_head_remit', 'h_summer_head_register', 'h_summer_head_reply', 'h_summer_home_packet', 'h_summer_cool'];
         else if (season.id === 'summer' && xun === 2) preferredOrder = ['h_summer_mid_reply', 'h_summer_market', 'h_summer_packet', 'h_school_fund'];
         else if (season.id === 'summer' && xun === 3) preferredOrder = ['h_summer_guest_sign', 'h_summer_tail', 'h_side'];
         else if (season.id === 'autumn' && xun === 1) preferredOrder = ['h_autumn_head_remit', 'h_autumn_head_cloth_merchant', 'h_autumn_sign', 'h_autumn_receipt', 'h_school_fund'];
@@ -24056,6 +24145,22 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 actionCount += 1;
               } else {
                 log.push(['想在' + stepLabel + '先把伏夏柜帖与差票门包分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'h_summer_head_remit':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.商路供读银 += 1;
+                S.本年户供读 += 1;
+                S.本年户备役 += 1;
+                S.本年户通融 += 1;
+                S.体魄 += 1;
+                S.家族 += 2;
+                pushHouseholdSeasonTag('伏夏回钱拆开');
+                log.push(['你在' + stepLabel + '先把伏夏回钱拆作供读、差帖与凉药：白银-1、累计反哺+1、供读专账+1、供读+1、备役+1、通融+1、体魄+1、家族+2。伏夏刚起头时，这一房没再把真回钱一路拖到秋里才分去向，而是当场先把供读纸样、差帖门包、凉药脚费和锅火家书一起压回了这一旬。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把伏夏回钱拆作供读、差帖与凉药，但这一旬白银已被别处占住，只得暂缓。', 'bad']);
               }
               break;
             case 'h_summer_market':
@@ -24390,7 +24495,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (actionCount === 0) log.push(['这一旬你几乎没把任何实账坐下，当户这一年便更容易在年关前忽然一起撞账。', 'bad']);
         applySeasonalHouseholdFriction(log, stepLabel, season, xun, picked, {
           summer: {
-            handledIds: ['h_collect', 'h_school_fund', 'h_side', 'h_rest', 'h_literate', 'h_clan', 'h_wharf', 'h_summer_tail', 'h_summer_guest_sign', 'h_summer_cool', 'h_summer_home_packet', 'h_summer_head_reply', 'h_summer_market', 'h_summer_packet'],
+            handledIds: ['h_collect', 'h_school_fund', 'h_side', 'h_rest', 'h_literate', 'h_clan', 'h_wharf', 'h_summer_tail', 'h_summer_guest_sign', 'h_summer_cool', 'h_summer_home_packet', 'h_summer_head_reply', 'h_summer_head_remit', 'h_summer_market', 'h_summer_packet'],
             doneTag: '伏夏小耗已顾',
             doneLog: '〔伏夏小耗〕这一旬先把伏夏布药、凉药、水脚与家里零耗顾住了；商路现钱没有再被小耗悄悄磨薄。',
             cost: 60,
@@ -24473,6 +24578,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushHouseholdSeasonTag(stepLabel + '伏夏路药硬顶');
             log.push(['〔伏夏路药〕这一旬连带话脚费和家里凉药都腾挪不开，只得先硬顶过去；伏夏刚起头，熟号与家里替这一房接气的口风就先紧了一线（家族-1）。', 'bad']);
+          }
+        }
+        if (season.id === 'summer' && xun === 1) {
+          if (picked.h_summer_head_remit || picked.h_summer_head_register || picked.h_summer_home_packet || picked.h_wharf || picked.h_collect || picked.h_side) {
+            pushHouseholdSeasonTag(stepLabel + '伏夏回钱已分');
+            log.push(['〔伏夏回钱〕这一旬先把伏夏真回钱、供读纸样、差帖门包、凉药脚费和锅火家书拆开了；夏催账一开头就不再只是问路数、扛暑气，而会当场先把“刚回到手的这口银该先救哪边”压回这一旬。', 'good']);
+          } else if (spendCopper(40)) {
+            pushHouseholdSeasonTag(stepLabel + '伏夏回钱');
+            log.push(['〔伏夏回钱〕伏夏真回钱刚有口风，供读纸样、差帖门包、凉药脚费和锅火家书就一起要钱：铜钱-40。不是另起主线，却正把商路当户伏夏上旬那层“夏里也会有真回钱先被几头抢走”的摩擦重新压回了这一旬。', 'bad']);
+          } else {
+            S.家族 = Math.max(0, S.家族 - 1);
+            pushHouseholdSeasonTag(stepLabel + '伏夏回钱硬顶');
+            log.push(['〔伏夏回钱〕这一旬连递话脚费和凉药脚费都腾挪不开，只得先硬顶过去；伏夏刚起头，这一房夏里先回来的那点银还没分下去，家里和熟号两头口风就先紧了一线（家族-1）。', 'bad']);
           }
         }
         if (season.id === 'summer' && xun === 1) {
@@ -27929,6 +28047,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var life = currentLifeProfile();
     var currentInheritance = syncCurrentInheritanceState();
     syncCurrentRouteAwareState();
+    var currentFounding = syncCurrentFoundingSnapshotState();
     function shareByOrdinal(total, count, ordinal) {
       var scale = shareUnitScale(total);
       var whole = Math.max(0, Math.round((Number(total) || 0) * scale));
@@ -28160,7 +28279,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         { total: pendingRentEnabled ? pendingRentMi : 0, label: '待收委托田租', unit: '石' }
       ]);
       S._carry = normalizeCarrySnapshot({
-        父快照ID: selectedFoundingSnapshotId,
+        父快照ID: currentFounding.id,
         父快照类型: S.父快照类型,
         户籍类型: S.户籍类型,
         父快照说明: S.父快照说明,
@@ -28197,7 +28316,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         ? collateralDelegatedRoute
         : ((collateralLeaseEnabled || collateralPendingRentEnabled) ? collateralDelegatedRoute : '无');
       S._carry = normalizeCarrySnapshot({
-        父快照ID: selectedFoundingSnapshotId,
+        父快照ID: currentFounding.id,
         父快照类型: S.父快照类型,
         户籍类型: S.户籍类型,
         父快照说明: S.父快照说明,
@@ -28383,6 +28502,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       patchState: function (patch) {
         if (!patch || typeof patch !== 'object') return false;
         Object.keys(patch).forEach(function (k) { S[k] = patch[k]; });
+        syncCurrentFoundingSnapshotState();
         clampAttr('体魄'); clampAttr('家族');
         renderStatus(); renderStage(); renderLedger();
         return true;
