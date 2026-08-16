@@ -28016,8 +28016,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             + (S._carry.负债银 > 0 ? ('，并接过旧债' + S._carry.负债银 + '两') : '')
             + '。' + collateralEstateNote + inheritedCarryNote(S._carry)) }
         ,
+        (S._deathRemainderText ? { t: 'life', tag: '[余数落房]', txt: S._deathRemainderText.replace(/。$/, '') + '。' } : null),
         (lifecycleResidue.text ? { t: 'life', tag: '[生命周期残账]', txt: '生命周期残账：' + lifecycleResidue.text + '。' } : null),
-        { t: 'life', tag: '[下一代承接]', txt: '下一代承接：承继身份=' + (S._carry.承继身份 || currentInheritanceRole(S._carry || null)) + '｜承嗣来路=' + (S._carry.承嗣来路 || directHeirLineageTag(currentInheritanceRole(S._carry || null))) + '｜承继定位=' + (S._carry.承继定位 || defaultInheritancePosition(currentInheritanceRole(S._carry || null))) + (S._carry.委托待收租谷 > 0 ? ('｜待收委托田租=' + S._carry.委托待收租谷 + '石') : '') + (S._carry.负债银 > 0 ? ('｜旧债=' + S._carry.负债银 + '两') : '') + '。' },
+        { t: 'life', tag: '[下一代承接]', txt: '下一代承接：承继身份=' + (S._carry.承继身份 || currentInheritanceRole(S._carry || null)) + '｜承嗣来路=' + (S._carry.承嗣来路 || directHeirLineageTag(currentInheritanceRole(S._carry || null))) + '｜承继定位=' + (S._carry.承继定位 || defaultInheritancePosition(currentInheritanceRole(S._carry || null))) + (S._carry.委托待收租谷 > 0 ? ('｜待收委托田租=' + S._carry.委托待收租谷 + '石') : '') + '｜旧债' + (S._carry.负债银 || 0) + '两。' },
         { t: 'life', tag: '[承继校核]', txt: '下一代按钮将写作“' + heirRestartButtonLabel(S._carry || null, sons, heirOrdinal) + '”；承继校核=' + carryRouteAwareSummary(S._carry) + (S._deathRemainderText ? ('｜' + S._deathRemainderText.replace(/。$/, '')) : '') + '。' }
       ].filter(Boolean),
       prompt: '',
