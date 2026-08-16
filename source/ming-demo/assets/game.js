@@ -25970,6 +25970,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         });
         if (isFarmRouteState()) {
           pack.extraActions.push({
+            id: 'e_field_spring_head_old',
+            name: '先把春头守田茶饭与轮养回话分开',
+            cost: 1,
+            eff: '铜钱-45·家族+1·体魄+1',
+            desc: '春安顿刚起头时，最怕守田茶饭、递话回签、灶下盐药和议轮养的门包一起冒头。先把这层春头小钱拆开，后头议轮养与看田脚路才不至继续抢同一口现钱。',
+            can: S.铜钱 >= 45,
+            why: S.铜钱 >= 45 ? '' : '铜钱不足45文',
+            once: true
+          });
+          pack.extraActions.push({
             id: 'e_field_spring_mid_old',
             name: '先把春中水口脚费与清明香纸分开',
             cost: 1,
@@ -25980,6 +25990,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             once: true
           });
           pack.extraActions.push({
+            id: 'e_field_spring_tail_old',
+            name: '先把春尾香纸锅火与夏前草绳分开',
+            cost: 1,
+            eff: '铜钱-55·家族+1·体魄+1',
+            desc: '春尾最怕清明香纸、守田锅火、递话脚费和夏前补草绳一起冒头。先把这层春尾后手拆开，伏夏田头和家里锅火才不必继续挤在同一口钱上。',
+            can: S.铜钱 >= 55,
+            why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
+            once: true
+          });
+          pack.extraActions.push({
             id: 'e_field_summer_old',
             name: '先把伏夏看田饭钱与凉药草帽分开',
             cost: 1,
@@ -25987,6 +26007,26 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             desc: '伏夏中旬最怕看田饭钱、凉药草帽、递话脚费和家里茶汤一起冒头。先把这层田头小账拆开，守田这一口饭才不至还没到秋里就先被暑天和锅火磨薄。',
             can: S.铜钱 >= 55,
             why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
+            once: true
+          });
+          pack.extraActions.push({
+            id: 'e_field_summer_tail_old',
+            name: '先把夏尾补绳脚费与秋前租帖分开',
+            cost: 1,
+            eff: '铜钱-50·家族+1·体魄+1',
+            desc: '伏夏收尾最怕补绳脚费、秋前租帖、递话门包和家里茶汤一起冒头。先把这层夏尾后手拆开，秋里催租和过路脚钱就不必继续挤同一口现钱。',
+            can: S.铜钱 >= 50,
+            why: S.铜钱 >= 50 ? '' : '铜钱不足50文',
+            once: true
+          });
+          pack.extraActions.push({
+            id: 'e_field_autumn_mid_old',
+            name: '先把秋中租谷回签与归仓脚费分开',
+            cost: 1,
+            eff: '铜钱-50·家族+1·体魄+1',
+            desc: '秋中最怕租谷回签、归仓脚费、递话门包和锅火灯油一起追钱。先把这层秋中小账拆开，秋尾催租与过冬口粮才不至继续堵在同一口现钱上。',
+            can: S.铜钱 >= 50,
+            why: S.铜钱 >= 50 ? '' : '铜钱不足50文',
             once: true
           });
           pack.extraActions.push({
@@ -26007,6 +26047,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             desc: '冬中最怕灯炭、来春谷秧、递话脚费和守岁锅火一起冒头。先把这层冬中小账拆开，年下后手与来春田路就不必继续抢同一口过冬钱。',
             can: S.铜钱 >= 50,
             why: S.铜钱 >= 50 ? '' : '铜钱不足50文',
+            once: true
+          });
+          pack.extraActions.push({
+            id: 'e_field_winter_tail_old',
+            name: '先把年下守岁锅火与明春水口脚费分开',
+            cost: 1,
+            eff: '铜钱-55·家族+1·体魄+1',
+            desc: '冬尾最怕守岁锅火、明春水口脚费、递话门包和草绳定钱一起冒头。先把这层年下后手拆开，过冬与来春田路才不必继续抢同一口现钱。',
+            can: S.铜钱 >= 55,
+            why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
             once: true
           });
         }
@@ -26370,13 +26420,33 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             a.can = (season.id === 'spring') && xun === 2 && S.铜钱 >= 50;
             a.why = !(season.id === 'spring' && xun === 2) ? '这一旬不便先拆春中田脚账' : (S.铜钱 >= 50 ? '' : '铜钱不足50文');
             a.once = true;
+          } else if (a.id === 'e_field_spring_head_old') {
+            a.can = (season.id === 'spring') && xun === 1 && S.铜钱 >= 45;
+            a.why = !(season.id === 'spring' && xun === 1) ? '这一旬不便先拆春头田饭账' : (S.铜钱 >= 45 ? '' : '铜钱不足45文');
+            a.once = true;
+          } else if (a.id === 'e_field_spring_tail_old') {
+            a.can = (season.id === 'spring') && xun === 3 && S.铜钱 >= 55;
+            a.why = !(season.id === 'spring' && xun === 3) ? '这一旬不便先拆春尾田后手账' : (S.铜钱 >= 55 ? '' : '铜钱不足55文');
+            a.once = true;
           } else if (a.id === 'e_field_autumn_tail_old') {
             a.can = (season.id === 'autumn') && xun === 3 && S.铜钱 >= 45;
             a.why = !(season.id === 'autumn' && xun === 3) ? '这一旬不便先拆秋尾田脚账' : (S.铜钱 >= 45 ? '' : '铜钱不足45文');
             a.once = true;
+          } else if (a.id === 'e_field_autumn_mid_old') {
+            a.can = (season.id === 'autumn') && xun === 2 && S.铜钱 >= 50;
+            a.why = !(season.id === 'autumn' && xun === 2) ? '这一旬不便先拆秋中归仓账' : (S.铜钱 >= 50 ? '' : '铜钱不足50文');
+            a.once = true;
           } else if (a.id === 'e_field_winter_mid_old') {
             a.can = (season.id === 'winter') && xun === 2 && S.铜钱 >= 50;
             a.why = !(season.id === 'winter' && xun === 2) ? '这一旬不便先拆冬中灯炭账' : (S.铜钱 >= 50 ? '' : '铜钱不足50文');
+            a.once = true;
+          } else if (a.id === 'e_field_summer_tail_old') {
+            a.can = (season.id === 'summer') && xun === 3 && S.铜钱 >= 50;
+            a.why = !(season.id === 'summer' && xun === 3) ? '这一旬不便先拆夏尾田后手账' : (S.铜钱 >= 50 ? '' : '铜钱不足50文');
+            a.once = true;
+          } else if (a.id === 'e_field_winter_tail_old') {
+            a.can = (season.id === 'winter') && xun === 3 && S.铜钱 >= 55;
+            a.why = !(season.id === 'winter' && xun === 3) ? '这一旬不便先拆冬尾田后手账' : (S.铜钱 >= 55 ? '' : '铜钱不足55文');
             a.once = true;
           } else if (a.id === 'e_route_spring_head_old') {
             a.can = (season.id === 'spring') && xun === 1 && S.铜钱 >= 45;
@@ -26636,14 +26706,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           sortActionsByPreferredOrder(visibleActions, elderExamPreferredOrder);
         } else if (isFarmRouteState()) {
           var elderFarmPreferredOrder = [];
-          if (season.id === 'spring' && xun === 1) elderFarmPreferredOrder = ['e_negotiate', 'e_field_keep', 'e_rest'];
+          if (season.id === 'spring' && xun === 1) elderFarmPreferredOrder = ['e_negotiate', 'e_field_spring_head_old', 'e_field_keep', 'e_rest'];
           else if (season.id === 'spring' && xun === 2) elderFarmPreferredOrder = ['e_field_keep', 'e_field_spring_mid_old', 'e_rest'];
+          else if (season.id === 'spring' && xun === 3) elderFarmPreferredOrder = ['e_field_spring_tail_old', 'e_rest'];
           else if (season.id === 'summer' && xun === 1) elderFarmPreferredOrder = ['e_med', 'e_field_keep', 'e_rest'];
           else if (season.id === 'summer' && xun === 2) elderFarmPreferredOrder = ['e_field_summer_old', 'e_field_keep', 'e_rest'];
+          else if (season.id === 'summer' && xun === 3) elderFarmPreferredOrder = ['e_field_summer_tail_old', 'e_rest'];
           else if (season.id === 'autumn' && xun === 1) elderFarmPreferredOrder = ['e_rent', 'e_rest'];
+          else if (season.id === 'autumn' && xun === 2) elderFarmPreferredOrder = ['e_field_autumn_mid_old', 'e_rent', 'e_rest'];
           else if (season.id === 'autumn' && xun === 3) elderFarmPreferredOrder = ['e_field_autumn_tail_old', 'e_rent', 'e_rest'];
           else if (season.id === 'winter' && xun === 1) elderFarmPreferredOrder = ['e_sell', 'e_rest'];
           else if (season.id === 'winter' && xun === 2) elderFarmPreferredOrder = ['e_field_winter_mid_old', 'e_sell', 'e_rest'];
+          else if (season.id === 'winter' && xun === 3) elderFarmPreferredOrder = ['e_field_winter_tail_old', 'e_rest'];
           sortActionsByPreferredOrder(visibleActions, elderFarmPreferredOrder);
         } else if (isWageRouteState()) {
           var elderWagePreferredOrder = [];
@@ -26744,12 +26818,40 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把伏夏看田饭钱与凉药草帽分开：铜钱-55、家族+1、体魄+1。看田饭钱、凉药草帽、递话脚费和家里茶汤终于不再一起挤在伏夏中旬这一口现钱上。', 'good']);
               } else log.push(['想先把伏夏看田饭钱与凉药草帽分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
+            case 'e_field_spring_head_old':
+              if (spendCopper(45)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·春头田饭');
+                log.push(['先把春头守田茶饭与轮养回话分开：铜钱-45、家族+1、体魄+1。守田茶饭、递话回签、灶下盐药和议轮养门包终于不再一起挤在春头这一口现钱上。', 'good']);
+              } else log.push(['想先把春头守田茶饭与轮养回话分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
             case 'e_field_spring_mid_old':
               if (spendCopper(50)) {
                 S.家族 += 1; S.体魄 += 1;
                 pushElderSeasonTag(stepLabel + '·春中田脚');
                 log.push(['先把春中水口脚费与清明香纸分开：铜钱-50、家族+1、体魄+1。看田水口、清明香纸、递话脚费和灶下盐药终于不再一起挤在春中这一口现钱上。', 'good']);
               } else log.push(['想先把春中水口脚费与清明香纸分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_field_spring_tail_old':
+              if (spendCopper(55)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·春尾田后手');
+                log.push(['先把春尾香纸锅火与夏前草绳分开：铜钱-55、家族+1、体魄+1。清明香纸、守田锅火、递话脚费和夏前补草绳终于不再一起挤在春尾这一口现钱上。', 'good']);
+              } else log.push(['想先把春尾香纸锅火与夏前草绳分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_field_summer_tail_old':
+              if (spendCopper(50)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·夏尾田后手');
+                log.push(['先把夏尾补绳脚费与秋前租帖分开：铜钱-50、家族+1、体魄+1。补绳脚费、秋前租帖、递话门包和家里茶汤终于不再一起挤在夏尾这一口现钱上。', 'good']);
+              } else log.push(['想先把夏尾补绳脚费与秋前租帖分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_field_autumn_mid_old':
+              if (spendCopper(50)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·秋中归仓');
+                log.push(['先把秋中租谷回签与归仓脚费分开：铜钱-50、家族+1、体魄+1。租谷回签、归仓脚费、递话门包和锅火灯油终于不再一起挤在秋中这一口现钱上。', 'good']);
+              } else log.push(['想先把秋中租谷回签与归仓脚费分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_field_autumn_tail_old':
               if (spendCopper(45)) {
@@ -26764,6 +26866,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 pushElderSeasonTag(stepLabel + '·冬中灯炭');
                 log.push(['先把冬中灯炭与来春谷秧分开：铜钱-50、家族+1、体魄+1。灯炭、来春谷秧、递话脚费和守岁锅火终于不再一起挤在冬中这一口过冬钱上。', 'good']);
               } else log.push(['想先把冬中灯炭与来春谷秧分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+              break;
+            case 'e_field_winter_tail_old':
+              if (spendCopper(55)) {
+                S.家族 += 1; S.体魄 += 1;
+                pushElderSeasonTag(stepLabel + '·冬尾水口');
+                log.push(['先把年下守岁锅火与明春水口脚费分开：铜钱-55、家族+1、体魄+1。守岁锅火、明春水口脚费、递话门包和草绳定钱终于不再一起挤在冬尾这一口现钱上。', 'good']);
+              } else log.push(['想先把年下守岁锅火与明春水口脚费分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_city':
               if (S.本年养老旧识 <= 0) {
