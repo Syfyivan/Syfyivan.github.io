@@ -2583,6 +2583,16 @@
   function examCurrentSupportSourceSummary() {
     return examSupportSourceSummary(examCurrentSupportSourceCounts(), { includeSelfTurns: true });
   }
+  function examCurrentReplySummary() {
+    return '馆保' + Math.max(0, Number(S.本年馆保回话次数) || 0)
+      + '/婚札' + Math.max(0, Number(S.本年婚话回札次数) || 0);
+  }
+  function examCurrentReplyLabel() {
+    var tutorReplies = Math.max(0, Number(S.本年馆保回话次数) || 0);
+    var marriageReplies = Math.max(0, Number(S.本年婚话回札次数) || 0);
+    if (tutorReplies <= 0 && marriageReplies <= 0) return '未见回签';
+    return examCurrentReplySummary();
+  }
   function examLifetimeSupportSourceSummary() {
     return examSupportSourceSummary(examLifetimeSupportSourceCounts(), {
       lifetime: true,
@@ -5523,6 +5533,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += '<span class="chip">供读 <b>' + examSupportStateDetail() + '</b></span>';
       h += '<span class="chip">年内回话 <b>' + examSupportRenewalLabel() + '</b></span>';
       h += '<span class="chip">供养 <b>' + examVisibleSupportLedger() + '</b></span>';
+      h += '<span class="chip">供读明账 <b>' + examCurrentSupportSourceSummary() + '</b></span>';
+      h += '<span class="chip">回签 <b>' + examCurrentReplyLabel() + '</b></span>';
       h += '<span class="chip">已落支出 <b>' + examVisibleOutlayTotal() + '</b>文</span>';
       h += '<span class="chip">本年举务 <b>' + examVisibleSeasonalLedgerCount() + '</b></span>';
       h += '<span class="chip">最近细账 <b>' + examVisibleLatestSeasonalLedger() + '</b></span>';
