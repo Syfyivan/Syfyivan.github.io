@@ -668,7 +668,7 @@ sup a:hover{text-decoration:underline;}
     <p><strong>N11 住喀纳斯村</strong>，与进景区动线一致；<strong>雨崩住上村 2 晚 + 下村 1 晚</strong>，匹配冰湖、神瀑徒步动线；<strong>日瓦住 3 晚</strong>，11 月 17 日退房，为亚丁徒步后预留一晚恢复。</p>
   </div>
   <div class="table-wrap">
-    <table>
+    <table id="stayTable">
       <thead><tr><th>夜序 / 区域</th><th>入住—离店</th><th>最终决定</th><th>4 人住法</th><th>价格状态</th><th>选择特点</th></tr></thead>
       <tbody>
         <tr style="background:var(--accent2-light)"><td colspan="6"><strong>西北进疆 · N1—N10</strong></td></tr>
@@ -1244,6 +1244,7 @@ sup a:hover{text-decoration:underline;}
 
 </div>
 
+<script src="./assets/route_map_pois.js"></script>
 <script>
 function getMapPage(mode) {
   return mode === 'offline' ? './route-map-offline.html?v=13' : './route-map-amap.html?v=13';
@@ -1342,6 +1343,58 @@ if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
   }
   window.addEventListener('scroll', onScroll, {passive: true});
   onScroll();
+})();
+
+// 住宿总表：用 route_map_pois 数据给酒店名补上“携程2间4人比价 / 房型实时价”直链
+(function() {
+  const data = window.ROAD_TRIP_POI_DATA;
+  const table = document.getElementById('stayTable');
+  if (!data || !table) return;
+  // 建立“夜序号 -> 住宿POI”映射：area 里可能是 N33—N36、N20、N22—N23 等，逐个号登记。
+  const byNight = {};
+  data.pois.forEach(function(poi) {
+    if (poi.category !== 'stay') return;
+    const url = poi.bookingUrl || poi.sourceUrl;
+    if (!url) return;
+    const nums = (poi.area || '').match(/N\s*(\d+)/g) || [];
+    nums.forEach(function(tok) {
+      const n = tok.replace(/\D/g, '');
+      if (n && !byNight[n]) byNight[n] = { url: url, isBooking: !!poi.bookingUrl };
+    });
+  });
+  const rows = table.querySelectorAll('tbody tr');
+  rows.forEach(function(tr) {
+    const cells = tr.querySelectorAll('td');
+    if (cells.length < 6) return; // 跳过分组标题行
+    const label = cells[0].textContent || '';
+    const m = label.match(/N\s*(\d+)/); // 取该行第一个夜序号
+    if (!m) return;
+    const hit = byNight[m[1]];
+    if (!hit) return;
+    const nameCell = cells[2];
+    if (nameCell.querySelector('a')) return; // 已有链接（如 N6/N63/N65）不重复处理
+    // 酒店名是“已选标签”之后的纯文本节点，逐个文本节点找最长的一段作为可点名称。
+    let target = null;
+    nameCell.childNodes.forEach(function(node) {
+      if (node.nodeType === 3 && node.textContent.trim().length > 1) {
+        if (!target || node.textContent.trim().length > target.textContent.trim().length) target = node;
+      }
+    });
+    if (!target) return;
+    const raw = target.textContent;
+    const lead = raw.match(/^\s*/)[0];
+    const name = raw.trim();
+    const a = document.createElement('a');
+    a.href = hit.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = name;
+    a.title = hit.isBooking ? '打开该住宿详情页（含房型与实时价）' : '打开携程“2间·4成人”当日比价页';
+    const frag = document.createDocumentFragment();
+    if (lead) frag.appendChild(document.createTextNode(lead));
+    frag.appendChild(a);
+    nameCell.replaceChild(frag, target);
+  });
 })();
 </script>
 </body>
