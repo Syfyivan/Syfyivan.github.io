@@ -16083,6 +16083,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             why: (S.白银 >= 1 || S.铜钱 >= 200) ? '' : '现钱不够拆作锅火与脚费'
           });
           pack.extraActions.push({
+            id: 'f_route_winter_mid_remit',
+            name: '先把冬中回钱拆作供读、拖欠与炭药',
+            cost: 1,
+            eff: '白银-1·累计反哺+1·贴家+1·供读专账+1·供读+1·衣药+1·催账+1·捎信+1·家族+3',
+            desc: '冬藏中旬最怕一笔回钱刚落手，供读纸包、旧拖欠回签、炭药脚费和递话小礼就一起追来。你先把这口冬中真回钱拆作供读、拖欠与炭药，让年关供读、旧欠与过冬身子都在冬中同旬见光，不再主要拖到冬尾或明春才一起翻账。',
+            can: S.白银 >= 1,
+            why: S.白银 >= 1 ? '' : '白银不足1两'
+          });
+          pack.extraActions.push({
             id: 'f_route_winter_clear',
             name: '先把清账回话与柜边门包分开',
             cost: 1,
@@ -17571,7 +17580,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             if (season.id === 'spring') familyMerchantPreferredOrder = ['f_route_spring_ritual', 'f_route_spring_mid_reply', 'f_route_split', 'f_child', 'f_market', 'f_sell'];
             else if (season.id === 'summer') familyMerchantPreferredOrder = ['f_route_summer_packet', 'f_route_summer_reply', 'f_route_sample', 'f_child', 'f_market', 'f_sell'];
             else if (season.id === 'autumn') familyMerchantPreferredOrder = ['f_route_autumn_mid_remit', 'f_route_autumn_split', 'f_route_autumn_mid_reply', 'f_route_autumn_mid_clothes', 'f_child', 'f_market', 'f_sell'];
-            else if (season.id === 'winter') familyMerchantPreferredOrder = ['f_route_winter_coal', 'f_route_winter_split', 'f_route_winter_clear', 'f_child', 'f_market', 'f_sell'];
+            else if (season.id === 'winter') familyMerchantPreferredOrder = ['f_route_winter_mid_remit', 'f_route_winter_coal', 'f_route_winter_split', 'f_route_winter_clear', 'f_child', 'f_market', 'f_sell'];
           } else {
             if (season.id === 'spring') familyMerchantPreferredOrder = ['f_route_spring_bundle', 'f_route_spring_reply', 'f_route_collect', 'f_duty', 'f_mend', 'f_repay'];
             else if (season.id === 'summer') familyMerchantPreferredOrder = ['f_route_collect', 'f_route_summer_reply', 'f_route_summer_guest', 'f_route_summer_remit_supply', 'f_duty', 'f_mend'];
@@ -18076,6 +18085,22 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['把年关回钱拆作锅火与脚费：铜钱-200、贴家+1、备役+1、捎信+1、家族+1。现钱不厚，也先被你拆作家用与明春脚费的两小口。', 'good']);
               } else {
                 log.push(['想把年关回钱拆作锅火与脚费，但这一旬现钱已先被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
+            case 'f_route_winter_mid_remit':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.商路供读银 += 1;
+                S.家族 += 3;
+                S.本年家贴家 += 1;
+                S.本年家供读 += 1;
+                S.本年家衣药 += 1;
+                S.本年家催账 += 1;
+                S.本年家捎信 += 1;
+                pushFamilySeasonTag(stepTag + '拆冬中回钱');
+                log.push(['先把冬中回钱拆作供读、拖欠与炭药：白银-1、累计反哺+1、贴家+1、供读专账+1、供读+1、衣药+1、催账+1、捎信+1、家族+3。冬中这笔真回钱没有再只留给锅火或脚费，而是当场把供读、旧拖欠、炭药与回话次序一起压回了这一旬。', 'good']);
+              } else {
+                log.push(['想先把冬中回钱拆作供读、拖欠与炭药，但这一旬白银已被别处占住，只得暂缓，免得把年关回钱记成负数。', 'bad']);
               }
               break;
             case 'f_route_winter_clear':
@@ -19195,7 +19220,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
         if (season.id === 'winter' && xun === 2) {
           var lunarHandled = !!(picked.f_kitchen || picked.f_mend || picked.f_rest
-            || picked.f_route_winter_split || picked.f_route_winter_book || picked.f_route_winter_wharf
+            || picked.f_route_winter_split || picked.f_route_winter_mid_remit || picked.f_route_winter_book || picked.f_route_winter_wharf
             || picked.f_route_winter_clear || picked.f_route_winter_coal
             || picked.f_route_shop_book || picked.f_route_wage_winter_book || picked.f_route_wage_winter_register
             || picked.f_route_wage_winter_reply || picked.f_route_wage_winter_gift || picked.f_route_school_winter_book);
@@ -19763,6 +19788,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             S.家族 = Math.max(0, S.家族 - 1);
             pushFamilySeasonTag(stepTag + '薄礼硬顶');
             log.push(['〔熟号薄礼〕这一旬连熟号薄礼与回话脚费都腾挪不开，只得先硬顶过去；旧门路又薄了一线（家族-1）。', 'bad']);
+          }
+        }
+        if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'winter' && xun === 2) {
+          if (picked.f_route_winter_mid_remit) {
+            pushFamilySeasonTag(stepTag + '冬中回钱已分');
+            log.push(['〔冬中回钱〕这一旬先把供读纸包、旧拖欠回签、炭药脚费和递话小礼分开了；商路养家冬中不再只剩炭钱、样纸和清账门包，连一笔真回钱该先救哪边也开始同旬见光。', 'good']);
           }
         }
         if ((route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) && season.id === 'winter' && xun === 2) {
