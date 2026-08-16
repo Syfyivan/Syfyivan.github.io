@@ -36,36 +36,21 @@ assert.deepEqual(
 assert.deepEqual(Array.from(food.meta.kitchenNights), [6, 55, 56, 63, 64, 65, 66], 'only verified-kitchen nights may be treated as cookable');
 assert.ok(food.meta.plannedCookDinners.every(day => food.meta.kitchenNights.includes(day)), 'every cook dinner must have a verified kitchen');
 
-const coveredDays = new Set();
-for (const match of html.matchAll(/<span class="day-num">D(\d+)(?:-D?(\d+))?/g)) {
-  const from = Number(match[1]);
-  const to = Number(match[2] || match[1]);
-  for (let day = from; day <= to; day += 1) coveredDays.add(day);
-}
-assert.deepEqual(
-  Array.from(coveredDays).sort((a, b) => a - b),
-  Array.from({ length: 70 }, (_, index) => index + 1),
-  'the detailed main-page route book must cover D1-D70',
-);
-
-for (let segment = 1; segment <= 7; segment += 1) {
-  assert.match(html, new RegExp(`id="seg${segment}"`), `segment ${segment} must remain addressable`);
-}
 assert.equal((html.match(/id="routePreviewFrame"/g) || []).length, 1, 'overview must use one map iframe');
 assert.match(html, /href="#roadbook">逐日路书<\/a>/, 'top navigation must point to the single route-book section');
 assert.match(html, /href="#food-plan">吃饭安排<\/a>/, 'top navigation must expose the meal plan');
-assert.equal((html.match(/class="roadbook-segment"/g) || []).length, 7, 'all seven route segments must be collapsible');
-assert.equal((html.match(/class="roadbook-segment" open/g) || []).length, 1, 'only the first route segment should open by default');
+assert.equal((html.match(/route-roadbook\.html/g) || []).length, 1, 'the main guide must expose one canonical road-book entry');
+assert.match(html, /href="\.\/route-roadbook\.html\?v=11"/, 'the canonical road-book entry must use the current cache version');
+assert.doesNotMatch(html, /class="day-card"|class="roadbook-segment"|id="seg[1-7]"/, 'the main guide must not embed a second D1-D70 road book');
 assert.doesNotMatch(html, /id="time-chart"|id="booking"|class="timeline"/, 'removed duplicate overview sections must stay removed');
 assert.doesNotMatch(
   html.match(/<div id="route-map"[\s\S]*?<\/div>\s*<details class="static-map-fallback">/)?.[0] || '',
   /route-roadbook\.html/,
   'the map toolbar must not compete with the route-book entry',
 );
-assert.match(html, /assets\/route_map_pois\.js/, 'the main route book must load stay details');
-assert.match(html, /assets\/road_trip_days\.js/, 'the main route book must load daily execution gates');
-assert.match(html, /assets\/road_trip_meals\.js/, 'the main route book must load the D1-D70 meal plan');
+assert.doesNotMatch(html, /assets\/(?:route_map_pois|road_trip_days|road_trip_meals)\.js/, 'the main guide must not load data used only by the canonical road book');
 assert.match(offlineRoadbook, /assets\/road_trip_meals\.js/, 'the offline road book must include meal plans');
+assert.match(offlineRoadbook, /<h1>D1—D70 唯一执行路书<\/h1>/, 'the canonical road book must identify itself as the only full copy');
 assert.doesNotMatch(html, /35-45天具备自炊条件/, 'the page must not claim unverified kitchens');
 assert.match(html, /<td><strong>餐饮<\/strong><\/td><td>26,000<\/td><td>6,500<\/td>/, 'the budget must fund the decided restaurant rhythm');
 assert.match(offlineRoadbook, /document\.createElement\('details'\)/, 'offline route-book days must be collapsible');
@@ -75,4 +60,4 @@ assert.match(offlineRoadbook, /id="collapseBtn"/, 'offline route book must suppo
 const ids = Array.from(html.matchAll(/\sid="([^"]+)"/g), match => match[1]);
 assert.equal(new Set(ids).size, ids.length, 'page IDs must remain unique');
 
-console.log('road-trip page smoke: one map, one foldable D1-D70 route book, 70 meal plans, 7 segments, unique IDs');
+console.log('road-trip page smoke: one map, one canonical D1-D70 route book, 70 meal plans, unique IDs');

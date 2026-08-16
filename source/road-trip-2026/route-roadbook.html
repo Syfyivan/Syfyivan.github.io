@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026西部大闭环 D1—D70 离线路书</title>
+  <title>2026西部大闭环 D1—D70 唯一执行路书</title>
   <style>
     :root{--paper:#f5f1ea;--card:#fff;--ink:#282522;--muted:#6e6862;--line:#ded6cc;--accent:#c75b39;--soft:#fff0e9;--green:#0f766e}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif}.wrap{width:min(1080px,calc(100% - 28px));margin:0 auto;padding:26px 0 60px}
@@ -17,15 +17,15 @@
 <body>
   <main class="wrap">
     <section class="hero">
-      <h1>D1—D70 离线执行路书</h1>
-      <p>2026年9月18日—11月26日 · 4人 / 2位司机轮换 · 逐日道路、停靠点、住宿决定与关键风险。页面与数据会随离线地图一起缓存。</p>
+      <h1>D1—D70 唯一执行路书</h1>
+      <p>2026年9月18日—11月26日 · 4人 / 2位司机轮换 · 逐日道路、停靠点、住宿、吃饭与关键风险都只在这里维护。页面与数据会随离线地图一起缓存。</p>
       <div class="stats"><span class="stat" id="statDays"></span><span class="stat" id="statKm"></span><span class="stat" id="statMeals"></span><span class="stat">68晚外地住宿</span><span class="stat">11月25日回北京 · 11月26日还车</span></div>
     </section>
-    <nav class="actions"><a class="primary" href="./route-map-offline.html?v=10">打开离线地图</a><a href="./route-map-amap.html?v=10">打开在线高德</a><a href="./index.html#roadbook">返回详细路书</a><button id="expandBtn" type="button">展开全部</button><button id="collapseBtn" type="button">全部收起</button><button id="downloadBtn" type="button">下载TXT路书</button><button type="button" onclick="window.print()">打印 / 存为PDF</button></nav>
+    <nav class="actions"><a class="primary" href="./route-map-offline.html?v=11">打开离线地图</a><a href="./route-map-amap.html?v=11">打开在线高德</a><a href="./index.html#roadbook">返回详细攻略</a><button id="expandBtn" type="button">展开全部</button><button id="collapseBtn" type="button">全部收起</button><button id="downloadBtn" type="button">下载TXT路书</button><button type="button" onclick="window.print()">打印 / 存为PDF</button></nav>
     <div class="note"><strong>离线边界：</strong>本页保存的是计划道路、坐标和风险提醒，不冒充实时路况。封路、边防、景区换乘和营业状态必须在有网时复核；无网时以现场标志、交警与景区指令为准。</div>
     <div class="filter"><label>只看 D</label><input id="fromDay" type="number" min="1" max="70" value="1"><span>到</span><input id="toDay" type="number" min="1" max="70" value="70"><button id="filterBtn" type="button">筛选</button><button id="todayBtn" type="button">按日期定位</button><span id="filterStatus" class="meta"></span></div>
     <section id="days" class="days"></section>
-    <p class="footer">版本：daily-roadbook-v3 · 数据更新：2026-08-11 · 房价与库存以实际付款页为准。</p>
+    <p class="footer">版本：daily-roadbook-v4 · 数据更新：2026-08-16 · 房价与库存以实际付款页为准。</p>
   </main>
   <script src="./assets/route_map_pois.js"></script>
   <script src="./assets/road_trip_days.js"></script>
@@ -64,7 +64,7 @@
     function downloadRoadbook() {
       const lines = [`2026西部大闭环 D1—D70 离线执行路书`, `${DAILY.meta.startDate}—${DAILY.meta.endDate}`, `主计划${DAILY.meta.plannedDrivingKm}km；预算里程${DAILY.meta.budgetMileageKm}km`, ''];
       DAILY.days.forEach(day => { const stay = stays.get(day.stayId); const meal = meals.get(day.day); lines.push(`${day.id} ${day.date}｜${day.title}`, `类型/里程：${DAILY.typeLabels[day.type]}${day.distanceKm ? `，约${day.distanceKm}km` : ''}`, `道路：${day.roads}`, `停靠：${day.points.map(point => point.name).join(' → ')}`, `当天闸门：${day.critical}`, `当晚：${stay ? `${stay.name}｜${stay.note}` : day.day === 69 ? '回北京家里' : day.day === 70 ? '行程结束' : '不换住宿'}`, meal ? `午餐：${meal.lunch}` : '', meal ? `${meal.dinner.label}：${meal.dinner.plan}` : '', ''); });
-      const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'}); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = '2026西部大闭环-D1-D70-离线路书.txt'; link.click(); URL.revokeObjectURL(url);
+      const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'}); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = '2026西部大闭环-D1-D70-执行路书.txt'; link.click(); URL.revokeObjectURL(url);
     }
 
     document.getElementById('filterBtn').addEventListener('click', applyFilter);

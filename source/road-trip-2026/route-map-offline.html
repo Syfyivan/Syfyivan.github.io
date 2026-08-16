@@ -25,7 +25,7 @@
       <div class="brand">
         <div class="brand-row"><h1>西部大闭环离线路线与地点</h1><span class="mode-badge"><span class="mode-dot"></span>可离线</span></div>
         <p>主干导航折线、D1—D70路书和全部规划地点都已内置；可离线缩放、拖动、定位和按天筛选。</p>
-        <div class="quick-actions"><button id="showAllBtn" class="primary" type="button">查看全程</button><button id="locateBtn" type="button">定位我</button><a href="./route-map-amap.html?v=10">切到在线高德</a><a href="./route-roadbook.html?v=10">离线路书</a><a href="./index.html#overview">返回攻略</a></div>
+        <div class="quick-actions"><button id="showAllBtn" class="primary" type="button">查看全程</button><button id="locateBtn" type="button">定位我</button><a href="./route-map-amap.html?v=11">切到在线高德</a><a href="./route-roadbook.html?v=11">执行路书</a><a href="./index.html#overview">返回攻略</a></div>
       </div>
       <div class="search-wrap"><input id="searchInput" class="search" type="search" placeholder="搜索住宿、景点、补给或路段" aria-label="搜索离线地图地点"></div>
       <div id="layerChips" class="layers" aria-label="地点图层"></div>
@@ -292,7 +292,7 @@
       pageTitle.textContent = '全程路线'; pageSub.textContent = '滚轮缩放、按住拖动；点路段或地点会自动聚焦。';
       detailTitle.textContent = '全程路线'; detailMeta.textContent = `${DAILY.days.length}天 · 主计划约${DAILY.meta.plannedDrivingKm.toLocaleString()}km · 预算里程${DAILY.meta.budgetMileageKm.toLocaleString()}km`;
       detailText.textContent = '离线版已内置主干导航折线、D1—D70停靠点、住宿、景点、吃饭、采购、厕所与救援参考点。选择某天后只高亮当天相关路线。';
-      detailActions.innerHTML = '<a class="primary" href="./route-roadbook.html?v=10">打开D1—D70离线路书</a>';
+      detailActions.innerHTML = '<a class="primary" href="./route-roadbook.html?v=11">打开D1—D70执行路书</a>';
       window.parent.postMessage({ type: 'route-map-state', mode: 'offline', day: 0 }, '*');
     }
 
@@ -338,7 +338,7 @@
       pageTitle.textContent = `${day.id} · ${day.title}`;
       pageSub.textContent = `${formatDate(day.date)} · ${DAILY.typeLabels[day.type]} · ${day.distanceKm ? `约${day.distanceKm}km` : day.roads}`;
       detailTitle.textContent = `${day.id} 当前执行`; detailMeta.innerHTML = `<strong>${escapeHtml(day.roads)}</strong> · ${day.distanceKm ? `计划约${day.distanceKm}km` : DAILY.typeLabels[day.type]}`;
-      detailText.textContent = day.critical; detailActions.innerHTML = `<a class="primary" href="./route-roadbook.html?day=${day.day}">查看当天离线路书</a><button type="button" onclick="window.print()">打印/存PDF</button>`;
+      detailText.textContent = day.critical; detailActions.innerHTML = `<a class="primary" href="./route-roadbook.html?day=${day.day}">查看当天路书</a><button type="button" onclick="window.print()">打印/存PDF</button>`;
       renderDayList(); renderPoiList(); updateSymbolScale();
       window.parent.postMessage({ type: 'route-map-state', mode: 'offline', day: day.day }, '*');
     }
