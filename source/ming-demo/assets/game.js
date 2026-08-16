@@ -3073,9 +3073,13 @@
     count = Math.max(1, Number(count) || 1);
     S.本年婚话回札次数 = (S.本年婚话回札次数 || 0) + count;
   }
-  function noteExamSupportRenewal(count) {
+  function noteExamSupportRenewal(count, opts) {
     count = Math.max(1, Number(count) || 1);
+    opts = opts || {};
     S.本年家中续供次 = (S.本年家中续供次 || 0) + count;
+    if (opts.countSupportTurn) {
+      S.本年家中供读次 = (S.本年家中供读次 || 0) + count;
+    }
   }
   function noteExamOutlay(amount, opts) {
     amount = Math.max(0, Number(amount) || 0);
@@ -13668,7 +13672,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(45, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 15, 本年零耗支出文: 10 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
-                S.本年家中续供次 = (S.本年家中续供次 || 0) + 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 pushExamSeasonTag(stepTag + '次年馆批');
@@ -13712,7 +13716,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(50, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 15, 本年零耗支出文: 15 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
-                S.本年家中续供次 = (S.本年家中续供次 || 0) + 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 pushExamSeasonTag(stepTag + '二年伏夏底样');
@@ -13788,7 +13792,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (spendCopper(50)) {
                 noteExamOutlay(50, { buckets: { 本年零耗支出文: 30, 本年纸墨支出文: 20 } });
                 S.家族 += 1;
-                S.本年家中续供次 = (S.本年家中续供次 || 0) + 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 pushExamSeasonTag(stepTag + '二年春中续馆');
@@ -13839,7 +13843,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(60, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 20, 本年零耗支出文: 20 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
-                S.本年家中续供次 = (S.本年家中续供次 || 0) + 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 pushExamSeasonTag(stepTag + '二年夏中续供');
@@ -13899,7 +13903,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(50, { buckets: { 本年束脩支出文: 20, 本年纸墨支出文: 15, 本年零耗支出文: 15 } });
                 S.投塾进度 = Math.min(2, (S.投塾进度 || 0) + 1);
                 S.家族 += 1;
-                S.本年家中续供次 = (S.本年家中续供次 || 0) + 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 pushExamSeasonTag(stepTag + '首年春尾塾帖');
@@ -13942,7 +13946,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(55, { buckets: { 本年保结支出文: 20, 本年纸墨支出文: 15, 本年零耗支出文: 20 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
-                S.本年家中续供次 = (S.本年家中续供次 || 0) + 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 pushExamSeasonTag(stepTag + '首年夏尾保帖');
@@ -14202,7 +14206,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(65, { buckets: { 本年保结支出文: 25, 本年纸墨支出文: 20, 本年零耗支出文: 20 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
-                S.本年家中续供次 = (S.本年家中续供次 || 0) + 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
@@ -14219,7 +14223,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(60, { buckets: { 本年保结支出文: 25, 本年纸墨支出文: 20, 本年零耗支出文: 15 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
-                S.本年家中续供次 = (S.本年家中续供次 || 0) + 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 pushExamSeasonTag(stepTag + '首年秋中保帖');
@@ -14263,7 +14267,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(65, { buckets: { 本年零耗支出文: 35, 本年纸墨支出文: 30 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
-                S.本年家中续供次 = (S.本年家中续供次 || 0) + 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
@@ -14281,7 +14285,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.文章火候 += 1;
                 S.家族 += 1;
                 S.本年回榜口风次数 = (S.本年回榜口风次数 || 0) + 1;
-                S.本年家中续供次 = (S.本年家中续供次 || 0) + 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 didStudy = true;
@@ -14457,7 +14461,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(70, { buckets: { 本年零耗支出文: 35, 本年纸墨支出文: 35 } });
                 S.本年保帖底样次数 += 1;
                 S.家族 += 1;
-                S.本年家中续供次 = (S.本年家中续供次 || 0) + 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
@@ -14490,7 +14494,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 noteExamOutlay(60, { buckets: { 本年零耗支出文: 20, 本年纸墨支出文: 20, 本年衣药支出文: 20 } });
                 S.文章火候 += 1;
                 S.家族 += 1;
-                S.本年家中续供次 = (S.本年家中续供次 || 0) + 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 noteExamTutorGuaranteeReply();
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 didStudy = true;
