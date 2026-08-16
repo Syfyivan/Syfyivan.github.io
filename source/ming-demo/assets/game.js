@@ -8526,7 +8526,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       if (season.id === 'summer' && xun === 3) return ['m_summer_tail_remit_school', 'm_summer_tail_school', 'm_summer_tail_duty'];
       if (season.id === 'autumn' && xun === 1) return ['m_autumn_supply_split', 'm_autumn_head_remit_body', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_receipt'];
       if (season.id === 'autumn' && xun === 2) return ['m_autumn_mid_school', 'm_autumn_mid_remit_drag', 'm_autumn_mid_body', 'm_autumn_mid_drag'];
-      if (season.id === 'autumn' && xun === 3) return ['m_support_school', 'm_autumn_tail_remit_duty', 'm_autumn_tail_drag_school', 'm_support', 'm_autumn_tail_body'];
+      if (season.id === 'autumn' && xun === 3) return ['m_support_school', 'm_autumn_tail_remit_duty', 'm_autumn_tail_duty', 'm_autumn_tail_drag_school', 'm_support', 'm_autumn_tail_body'];
       if (season.id === 'winter' && xun === 1) return ['m_winter_head_first_remit', 'm_winter_head_school', 'm_winter_head_counter_note', 'm_winter_head_remit_duty', 'm_winter_head_body', 'm_winter_head_drag'];
       if (season.id === 'winter' && xun === 2) return ['m_winter_mid_first_remit', 'm_winter_mid_remit_school', 'm_winter_family_split', 'm_winter_mid_remit_drag_duty', 'm_winter_mid_supply_duty', 'm_winter_mid_body'];
       if (season.id === 'winter' && xun === 3) return ['m_winter_tail_first_remit', 'm_winter_tail_supply_duty', 'm_winter_tail_home_body', 'm_winter_tail_remit_drag', 'm_winter_body_split'];
@@ -9727,10 +9727,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               : ['m_autumn_mid_remit_drag', 'm_autumn_mid_school', 'm_autumn_mid_body', 'm_autumn_mid_counter_drag', 'm_autumn_mid_drag', 'm_autumn_mid_bundle']);
         } else if (season.id === 'autumn' && xun === 3) {
           preferredOrder = S.商年 === 2
-            ? ['m_autumn_second_tail_remit', 'm_autumn_second_tail_trial', 'm_support_school', 'm_autumn_tail_drag_school']
+            ? ['m_autumn_second_tail_remit', 'm_autumn_second_tail_trial', 'm_autumn_tail_duty', 'm_support_school', 'm_autumn_tail_drag_school']
             : (S.商年 === 3
-              ? ['m_autumn_third_tail_return', 'm_autumn_third_tail_split', 'm_support_school', 'm_autumn_tail_drag_school', 'm_autumn_tail_body']
-              : ['m_autumn_tail_remit_duty', 'm_support_school', 'm_autumn_tail_drag_school', 'm_autumn_tail_body', 'm_support', 'm_supply_split']);
+              ? ['m_autumn_third_tail_return', 'm_autumn_third_tail_split', 'm_autumn_tail_duty', 'm_support_school', 'm_autumn_tail_drag_school', 'm_autumn_tail_body']
+              : ['m_autumn_tail_remit_duty', 'm_autumn_tail_duty', 'm_support_school', 'm_autumn_tail_drag_school', 'm_autumn_tail_body', 'm_support', 'm_supply_split']);
         } else if (season.id === 'winter' && xun === 1) {
           preferredOrder = S.商年 === 2
             ? ['m_winter_second_head_trial', 'm_winter_second_head_supply', 'm_winter_second_head_drag', 'm_winter_head_counter_note', 'm_winter_head_school', 'm_winter_head_body']
