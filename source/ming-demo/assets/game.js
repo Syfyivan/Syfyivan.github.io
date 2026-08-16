@@ -2981,6 +2981,58 @@
       + (S.本年零耗支出文 || 0)
       + (S.本年衣药支出文 || 0);
   }
+  function examCurrentOutlayCounts() {
+    return {
+      tuition: Math.max(0, Number(S.本年束脩支出文) || 0),
+      paper: Math.max(0, Number(S.本年纸墨支出文) || 0),
+      guarantee: Math.max(0, Number(S.本年保结支出文) || 0),
+      travel: Math.max(0, Number(S.本年盘缠支出文) || 0),
+      medicine: Math.max(0, Number(S.本年衣药支出文) || 0),
+      friction: Math.max(0, Number(S.本年零耗支出文) || 0)
+    };
+  }
+  function examLifetimeOutlayCounts() {
+    return {
+      tuition: Math.max(0, Number(S.举业累计束脩支出文) || 0),
+      paper: Math.max(0, Number(S.举业累计纸墨支出文) || 0),
+      guarantee: Math.max(0, Number(S.举业累计保结支出文) || 0),
+      travel: Math.max(0, Number(S.举业累计盘缠支出文) || 0),
+      medicine: Math.max(0, Number(S.举业累计衣药支出文) || 0),
+      friction: Math.max(0, Number(S.举业累计零耗支出文) || 0)
+    };
+  }
+  function examOutlayBucketList(counts) {
+    counts = counts || {};
+    return [
+      { label: '束脩', value: Math.max(0, Number(counts.tuition) || 0) },
+      { label: '纸墨', value: Math.max(0, Number(counts.paper) || 0) },
+      { label: '保结', value: Math.max(0, Number(counts.guarantee) || 0) },
+      { label: '盘缠', value: Math.max(0, Number(counts.travel) || 0) },
+      { label: '衣药', value: Math.max(0, Number(counts.medicine) || 0) },
+      { label: '零耗', value: Math.max(0, Number(counts.friction) || 0) }
+    ];
+  }
+  function examOutlaySummaryFromCounts(counts, opts) {
+    opts = opts || {};
+    var buckets = examOutlayBucketList(counts).filter(function (bucket) { return bucket.value > 0; });
+    var total = buckets.reduce(function (sum, bucket) { return sum + bucket.value; }, 0);
+    if (total <= 0) return '未见支出';
+    return (opts.lead || '今岁已耗') + total + '文（' + buckets.map(function (bucket) {
+      return bucket.label + bucket.value + '文';
+    }).join('、') + '）';
+  }
+  function examCurrentOutlaySummary() {
+    return examOutlaySummaryFromCounts(examCurrentOutlayCounts(), { lead: '今岁已耗' });
+  }
+  function examLifetimeOutlaySummary() {
+    return examOutlaySummaryFromCounts(examLifetimeOutlayCounts(), { lead: '三年共耗' });
+  }
+  function examVisibleOutlayBreakdown() {
+    var buckets = examOutlayBucketList(examCurrentOutlayCounts()).filter(function (bucket) { return bucket.value > 0; });
+    return buckets.length ? buckets.map(function (bucket) {
+      return bucket.label + bucket.value + '文';
+    }).join('·') : '未见拆账';
+  }
   function examVisibleSeasonalLedgerCount() {
     var tags = S.本年举业季务 || [];
     return tags.length > 0 ? ('已见' + tags.length + '旬') : '未起账';
@@ -3852,6 +3904,12 @@
     S.举业累计母纺贴补次 = (S.举业累计母纺贴补次 || 0) + (S.本年母纺贴补次 || 0);
     S.举业累计兄婚让读次 = (S.举业累计兄婚让读次 || 0) + (S.本年兄婚让读次 || 0);
     S.举业累计举业自筹文 = (S.举业累计举业自筹文 || 0) + (S.本年举业自筹文 || 0);
+    S.举业累计束脩支出文 = (S.举业累计束脩支出文 || 0) + (S.本年束脩支出文 || 0);
+    S.举业累计纸墨支出文 = (S.举业累计纸墨支出文 || 0) + (S.本年纸墨支出文 || 0);
+    S.举业累计保结支出文 = (S.举业累计保结支出文 || 0) + (S.本年保结支出文 || 0);
+    S.举业累计盘缠支出文 = (S.举业累计盘缠支出文 || 0) + (S.本年盘缠支出文 || 0);
+    S.举业累计零耗支出文 = (S.举业累计零耗支出文 || 0) + (S.本年零耗支出文 || 0);
+    S.举业累计衣药支出文 = (S.举业累计衣药支出文 || 0) + (S.本年衣药支出文 || 0);
   }
   function softenExamCarryForNextYear(log) {
     if (!S || S.生员身份) return;
@@ -5540,6 +5598,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += '<span class="chip">供读明账 <b>' + examCurrentSupportSourceSummary() + '</b></span>';
       h += '<span class="chip">回签 <b>' + examCurrentReplyLabel() + '</b></span>';
       h += '<span class="chip">已落支出 <b>' + examVisibleOutlayTotal() + '</b>文</span>';
+      h += '<span class="chip">支出拆账 <b>' + examVisibleOutlayBreakdown() + '</b></span>';
       h += '<span class="chip">本年举务 <b>' + examVisibleSeasonalLedgerCount() + '</b></span>';
       h += '<span class="chip">最近细账 <b>' + examVisibleLatestSeasonalLedger() + '</b></span>';
       h += '<span class="chip">举务脉络 <b>' + examVisibleSeasonalLedgerPulse(3) + '</b></span>';
@@ -14974,6 +15033,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (currentSupportSummary !== '未见明账') {
           log.push(['〔供读明账〕' + currentSupportSummary + '。这一年到底是谁在续束脩、纸墨与盘缠，已经在旬内逐笔落了账；以后再说“家里还在供”，就不再是把公账、米脚、母纺、兄婚让读与自筹混成同一团。', 'good']);
         }
+        var currentOutlaySummary = examCurrentOutlaySummary();
+        if (currentOutlaySummary !== '未见支出') {
+          log.push(['〔支出拆账〕' + currentOutlaySummary + '。束脩、纸墨、保结、盘缠、衣药与旬内零耗都已分门落账；以后再说“这一年为了举业花了不少”，就不再只剩一笔模糊总额。', 'good']);
+        }
         if ((S.本年婚事让开次数 || 0) > 0) {
           log.push(['〔婚事回话〕这一年有 ' + (S.本年婚事让开次数 || 0) + ' 旬明着把兄房婚事、议亲回话或婚期口风与纸墨盘缠分开；延婚并没被抹掉，只是不再每一旬都继续和同一口现钱硬顶。', 'good']);
         }
@@ -14993,6 +15056,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         var lifetimeSupportSummary = examLifetimeSupportSourceSummary();
         if (lifetimeSupportSummary !== '未见明账') {
           log.push(['〔三年供读〕' + lifetimeSupportSummary + '。这三年到底靠公账、米脚、母纺、兄婚让读还是自筹把书路拖住，后面议亲、分家与养老都会认这本旧账，不再只剩一句空泛的“家里多年供你读书”。', 'bad']);
+        }
+        var lifetimeOutlaySummary = examLifetimeOutlaySummary();
+        if (lifetimeOutlaySummary !== '未见支出') {
+          log.push(['〔三年耗账〕' + lifetimeOutlaySummary + '。这三年究竟是束脩、纸墨、保结、盘缠、衣药还是旬内零耗一点点把书路往前拖，如今也有了能回看的旧账，不再只剩一句笼统的“多年耗费”。', 'bad']);
         }
 
         clampAttr('体魄'); clampAttr('家族');
