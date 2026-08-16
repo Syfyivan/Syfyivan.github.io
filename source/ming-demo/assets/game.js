@@ -197,6 +197,23 @@
     S.父快照说明 = normalizeCarryString(S.父快照说明, foundingPatch.父快照说明 || '');
     return founding;
   }
+  function currentVisibleFoundingCarryState() {
+    var founding = syncCurrentFoundingSnapshotState();
+    if (!S) {
+      return {
+        父快照ID: founding && founding.id ? founding.id : '',
+        父快照类型: normalizeCarryString(((founding || {}).patch || {}).父快照类型, ''),
+        户籍类型: normalizeCarryString(((founding || {}).patch || {}).户籍类型, ''),
+        父快照说明: normalizeCarryString(((founding || {}).patch || {}).父快照说明, '')
+      };
+    }
+    return {
+      父快照ID: normalizeCarryString(S.父快照ID, ''),
+      父快照类型: normalizeCarryString(S.父快照类型, ''),
+      户籍类型: normalizeCarryString(S.户籍类型, ''),
+      父快照说明: normalizeCarryString(S.父快照说明, '')
+    };
+  }
 
   function currentRegistryLabel() {
     return (S && S.户籍类型 === '军籍') ? '军籍' : '民籍';
@@ -386,9 +403,9 @@
       举业年: 1, 举季: 1, 举旬: 1, 举段: 1, 读书方式: '未定', 投塾进度: 0, 童试层级: 0, 保结进度: 0, 保结履历已具: false, 保结互结已具: false, 保结具结已具: false, 保结廪保已具: false, 保结资格审查已过: false, 文章火候: 0,
       供读状态: '家中供读', 供读压力: 0, 读书成本档: 0, 本年下场: false, 本年应试结果: '未下场', 本年应场受阻次数: 0,
       生员身份: false, 生员层级: '无', 优免启用: false, 举业结局: '未定', 识字转业值: 0, _advanceExamYear: false, _advanceExamSeason: false,
-      本年馆课次数: 0, 本年半读次数: 0, 本年寄读次数: 0, 本年投塾次数: 0, 本年识字旬数: 0, 本年评文次数: 0, 本年保结次数: 0, 本年保结已办成: false, 本年保帖底样次数: 0, 本年馆保回话次数: 0, 本年婚话回札次数: 0, 本年誊抄次数: 0, 本年归家次数: 0, 本年备役次数: 0, 本年将养次数: 0, 本年供读缓冲已用: 0, 本年举业季务: [],
+      本年馆课次数: 0, 本年半读次数: 0, 本年寄读次数: 0, 本年投塾次数: 0, 本年识字旬数: 0, 本年评文次数: 0, 本年保结次数: 0, 本年保结已办成: false, 本年保帖底样次数: 0, 本年馆保回话次数: 0, 本年婚话回札次数: 0, 本年誊抄次数: 0, 本年教读试接次数: 0, 本年归家次数: 0, 本年备役次数: 0, 本年将养次数: 0, 本年供读缓冲已用: 0, 本年举业季务: [],
       本年束脩支出文: 0, 本年纸墨支出文: 0, 本年保结支出文: 0, 本年盘缠支出文: 0, 本年零耗支出文: 0, 本年衣药支出文: 0, 本年役扰支出文: 0, 本年债息增银: 0, 本年役扰已结: false, 本年债息已结: false, 本年已落举业支出文: 0, 本年家中供读次: 0, 本年家中续供次: 0, 本年家中供读文: 0, 本年家中供读公账文: 0, 本年家中供读米: 0, 本年公账贴补次: 0, 本年公账贴补文: 0, 本年粜米供读文: 0, 本年粜米供读已用文: 0, 本年现钱供读已用文: 0, 本年硬银供读已用两: 0, 本年举业债补供读两: 0, 本年举业自筹文: 0, 本年举业自筹已用文: 0, 本年举业自筹缓压: 0, 本年待用公账文: 0, 本年待用米脚文: 0, 本年待用母纺文: 0, 本年待用兄让文: 0, 本年待用自筹文: 0, 本年家中贴补次: 0, 本年家中贴补米: 0, 本年母纺贴补次: 0, 本年母纺贴补文: 0, 本年母纺供读已用文: 0, 本年兄婚让读次: 0, 本年兄婚让读文: 0, 本年兄婚供读已用文: 0, 本年落第次数: 0, 本年回榜口风次数: 0, 本年身子亏空: 0, 本年延婚牵扯: 0, 本年婚事让开次数: 0, 本年供读转折旬数: 0, 本年婚事转折旬数: 0, 本年身耗转折旬数: 0,
-      举业累计投塾次数: 0, 举业累计识字旬数: 0, 举业累计保结次数: 0, 举业累计保帖底样次数: 0, 举业累计馆保回话次数: 0, 举业累计婚话回札次数: 0, 举业累计落第次数: 0, 举业累计应场受阻次数: 0, 举业累计身子亏空: 0, 举业累计延婚牵扯: 0, 举业累计婚事让开次数: 0, 举业累计供读转折旬数: 0, 举业累计婚事转折旬数: 0, 举业累计身耗转折旬数: 0, 举业累计家中供读次: 0, 举业累计家中续供次: 0, 举业累计公账贴补次: 0, 举业累计家中供读米: 0, 举业累计母纺贴补次: 0, 举业累计兄婚让读次: 0, 举业累计举业自筹文: 0,
+      举业累计投塾次数: 0, 举业累计识字旬数: 0, 举业累计保结次数: 0, 举业累计保帖底样次数: 0, 举业累计馆保回话次数: 0, 举业累计婚话回札次数: 0, 举业累计教读试接次数: 0, 举业累计落第次数: 0, 举业累计应场受阻次数: 0, 举业累计身子亏空: 0, 举业累计延婚牵扯: 0, 举业累计婚事让开次数: 0, 举业累计供读转折旬数: 0, 举业累计婚事转折旬数: 0, 举业累计身耗转折旬数: 0, 举业累计家中供读次: 0, 举业累计家中续供次: 0, 举业累计公账贴补次: 0, 举业累计家中供读米: 0, 举业累计母纺贴补次: 0, 举业累计兄婚让读次: 0, 举业累计举业自筹文: 0,
       // 人生链路字段
       妻室: false, 子数: 0, 女数: 0, 负债银: 0, 口食田: 0, 分家: false, 应役: '未役',
       婚配路径: '未定', 合爨状态: '未合爨', 定额佃状态: '未立',
@@ -1085,9 +1102,10 @@
     var parentRoute = syncCurrentParentRouteState();
     syncCurrentRouteAwareState();
     var role = lifecycleDisplayedInheritanceRole();
-    var visibleFoundingSnapshotId = normalizeCarryString((carryOver || {}).父快照ID || (S && S.父快照ID), '');
-    var visibleFoundingSnapshotType = normalizeCarryString((carryOver || {}).父快照类型 || (S && S.父快照类型), '');
-    var visibleHouseholdType = normalizeCarryString((carryOver || {}).户籍类型 || (S && S.户籍类型), '');
+    var visibleFounding = currentVisibleFoundingCarryState();
+    var visibleFoundingSnapshotId = visibleFounding.父快照ID;
+    var visibleFoundingSnapshotType = visibleFounding.父快照类型;
+    var visibleHouseholdType = visibleFounding.户籍类型;
     var routeAwareState = snapshotRouteAwareCarryState();
     var visibleMarriagePath = routeAwareState.婚配路径;
     var visibleJointState = routeAwareState.合爨状态;
@@ -1190,9 +1208,10 @@
     var includeIdentity = opts.includeIdentity !== false;
     var includeLineage = opts.includeLineage !== false;
     var role = lifecycleDisplayedInheritanceRole();
-    var visibleFoundingSnapshotId = normalizeCarryString((carryOver || {}).父快照ID || (S && S.父快照ID), '');
-    var visibleFoundingSnapshotType = normalizeCarryString((carryOver || {}).父快照类型 || (S && S.父快照类型), '');
-    var visibleHouseholdType = normalizeCarryString((carryOver || {}).户籍类型 || (S && S.户籍类型), '');
+    var visibleFounding = currentVisibleFoundingCarryState();
+    var visibleFoundingSnapshotId = visibleFounding.父快照ID;
+    var visibleFoundingSnapshotType = visibleFounding.父快照类型;
+    var visibleHouseholdType = visibleFounding.户籍类型;
     var routeAwareState = snapshotRouteAwareCarryState();
     var visibleMarriagePath = routeAwareState.婚配路径;
     var visibleJointState = routeAwareState.合爨状态;
@@ -2560,7 +2579,60 @@
   }
 
   function examGuaranteeActionDesc() {
-    return '春夏已经整理好当年的报名材料后，秋试或冬清账中旬可以正式找人担保报名。关系、文章和老师回话足够稳时，这一次会把同考人担保、具名文书、生员担保与资格审查一并办成；若担保人没有点头，80文仍会支出，但冬里还有一次补办机会。';
+    return '春夏先把当年的帖样、履历和馆保回话理出来后，秋试或冬清账中旬才能正式找人担保报名。秋里多半先把互结、具结与廪保口风跑起来，冬里还能补廪保与资格审查；若关系、文章和馆保回话都足够稳，秋里也可能一次走通。担保人若仍不点头，80文一样先支出，但冬里还有一次补办机会。';
+  }
+  function examGuaranteeFullPassMargin(seasonId) {
+    var season = String(seasonId || '');
+    if (season !== 'autumn') return 0;
+    var margin = 12;
+    if ((S.举业年 || 1) >= 3) margin -= 2;
+    if ((S.本年馆保回话次数 || 0) > 0) margin -= 2;
+    if ((S.家传书香 || 0) > 0) margin -= 1;
+    return Math.max(6, margin);
+  }
+  function resolveExamGuaranteeAdvance(seasonId) {
+    var score = examGuaranteeGateScore();
+    var target = examGuaranteeGateTarget();
+    if (score < target) return null;
+    var chain = examGuaranteeChainState();
+    var hadPartialBefore = !!(chain.mutual || chain.bond || chain.sponsor || chain.review);
+    var year = Math.max(1, Math.min(EXAM_YEARS, Number(S.举业年) || 1));
+    var margin = score - target;
+    var changes = [];
+    function touch(key, label) {
+      if (!S[key]) {
+        S[key] = true;
+        changes.push(label);
+      }
+    }
+    if (seasonId === 'autumn' && margin < examGuaranteeFullPassMargin(seasonId)) {
+      touch('保结互结已具', '互结');
+      touch('保结具结已具', '具结');
+      if (margin >= 10 || (S.本年馆保回话次数 || 0) > 0 || year >= 3 || (S.家族 || 0) >= 68) {
+        touch('保结廪保已具', '廪保');
+      }
+      syncExamGuaranteeProgress();
+      return {
+        score: score,
+        target: target,
+        margin: margin,
+        full: (S.保结进度 || 0) >= 2,
+        partial: true,
+        changes: changes,
+        pending: examGuaranteePendingLabel()
+      };
+    }
+    setExamGuaranteeProgress(2);
+    return {
+      score: score,
+      target: target,
+      margin: margin,
+      full: true,
+      partial: false,
+      hadPartialBefore: hadPartialBefore,
+      changes: ['互结', '具结', '廪保', '审查'],
+      pending: examGuaranteePendingLabel()
+    };
   }
   function examEnrollmentLabel(progress) {
     if ((progress || 0) >= 2) return '塾门坐实';
@@ -2814,6 +2886,9 @@
   function examLifetimeFallLoad() {
     return Math.max(0, Number(S.举业累计落第次数) || 0) + Math.max(0, Number(S.本年落第次数) || 0);
   }
+  function examTutorBridgeLoad() {
+    return Math.max(0, Number(S.举业累计教读试接次数) || 0) + Math.max(0, Number(S.本年教读试接次数) || 0);
+  }
   function examLifetimeBlockedLoad() {
     return Math.max(0, Number(S.举业累计应场受阻次数) || 0) + Math.max(0, Number(S.本年应场受阻次数) || 0);
   }
@@ -2839,6 +2914,7 @@
     return [
       '累计落第=' + Math.max(0, Number(S.举业累计落第次数) || 0),
       '累计场外=' + examLifetimeBlockedLoad(),
+      '累计教读=' + examTutorBridgeLoad(),
       '累计延婚=' + Math.max(0, Number(S.举业累计延婚牵扯) || 0),
       '累计身耗=' + Math.max(0, Number(S.举业累计身子亏空) || 0),
       '回签=' + examLifetimeReplySummary(),
@@ -2853,10 +2929,12 @@
     var tutorReplies = Math.max(0, Number(S.举业累计馆保回话次数) || 0);
     var marriageReplies = Math.max(0, Number(S.举业累计婚话回札次数) || 0);
     var rumorReplies = Math.max(0, Number(S.举业累计回榜口风次数) || 0);
+    var tutorBridge = examTutorBridgeLoad();
     var signalTotal = Math.max(0, Number(S.举业累计供读转折旬数) || 0)
       + Math.max(0, Number(S.举业累计婚事转折旬数) || 0)
       + Math.max(0, Number(S.举业累计身耗转折旬数) || 0);
     if (blocked > 0) parts.push('场外受阻已累到' + blocked + '回');
+    if (tutorBridge > 0) parts.push('塾馆教读后手已试接' + tutorBridge + '旬');
     if (tutorReplies > 0 || marriageReplies > 0 || rumorReplies > 0) parts.push('馆保/婚话/榜口回签已记成“' + examLifetimeReplySummary() + '”');
     if (signalTotal > 0) parts.push('供读/婚事/身耗翻账也累成“' + examLifetimeSignalSummary() + '”');
     if (supportSummary !== '未见明账') parts.push('供读旧账明到“' + supportSummary + '”');
@@ -2983,7 +3061,9 @@
       - (S.供读压力 || 0) * 4;
   }
   function examGuaranteeGateTarget() {
-    var base = (S.保结进度 || 0) <= 0 ? 66 : 74;
+    var chain = examGuaranteeChainState();
+    var hasFormalGuaranteeProgress = !!(chain.mutual || chain.bond || chain.sponsor || chain.review);
+    var base = hasFormalGuaranteeProgress ? 74 : 66;
     var year = Math.max(1, Math.min(EXAM_YEARS, Number(S.举业年) || 1));
     if (year <= 1) return base + 8;
     if (year === 2) return base + 4;
@@ -3437,8 +3517,10 @@
   }
   function examHasTutorLivelihood() {
     var transfer = Math.max(0, Number(S && S.识字转业值) || 0);
-    if (transfer < 3) return false;
-    return examLifetimeFallLoad() > 0
+    var tutorBridge = examTutorBridgeLoad();
+    if (transfer < 3 && !(tutorBridge > 0 && transfer >= 2)) return false;
+    return tutorBridge > 0
+      || examLifetimeFallLoad() > 0
       || examLifetimeBlockedLoad() > 0
       || examLifetimeWearLoad() >= 3
       || examLifetimeDelayLoad() >= 4
@@ -3853,6 +3935,7 @@
     S.本年馆保回话次数 = 0;
     S.本年婚话回札次数 = 0;
     S.本年誊抄次数 = 0;
+    S.本年教读试接次数 = 0;
     S.本年归家次数 = 0;
     S.本年备役次数 = 0;
     S.本年将养次数 = 0;
@@ -4035,6 +4118,7 @@
     S.举业累计保帖底样次数 = (S.举业累计保帖底样次数 || 0) + (S.本年保帖底样次数 || 0);
     S.举业累计馆保回话次数 = (S.举业累计馆保回话次数 || 0) + (S.本年馆保回话次数 || 0);
     S.举业累计婚话回札次数 = (S.举业累计婚话回札次数 || 0) + (S.本年婚话回札次数 || 0);
+    S.举业累计教读试接次数 = (S.举业累计教读试接次数 || 0) + (S.本年教读试接次数 || 0);
     S.举业累计回榜口风次数 = (S.举业累计回榜口风次数 || 0) + (S.本年回榜口风次数 || 0);
     S.举业累计落第次数 = (S.举业累计落第次数 || 0) + (S.本年落第次数 || 0);
     S.举业累计应场受阻次数 = (S.举业累计应场受阻次数 || 0) + (S.本年应场受阻次数 || 0);
@@ -4792,12 +4876,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   if (isMerchantElder && season.id === 'winter' && xun === 2) apply({
     handledIds: ['e_route_guest_old', 'e_route_winter_reply_old', 'e_route_winter_school_old', 'e_rest'],
     doneTag: '熟号薄礼已留',
-    doneLog: '〔熟号薄礼〕这一旬先把熟号薄礼、脚夫回话、来春样纸定钱、柜边回签门包和孙辈炭笔底银分开了；商路老来最怕“人情还在，供读后手也还在，却没有哪口小钱把它们一并续到明春”，这一层门路与家里读写后手没有在冬里忽然断掉。',
+    doneLog: '〔熟号薄礼〕这一旬先把熟号薄礼、脚夫回话、来春样纸定钱、柜边回签门包和冬中回银分流分开了；商路老来最怕“人情还在，供读旧账和旧拖欠也还在，却没有哪口小钱把它们一并续到明春”，这一层门路、回银分流与家里读写后手没有在冬里忽然断掉。',
     cost: 40,
     costTag: '熟号薄礼',
-    costLog: '〔熟号薄礼〕熟号薄礼、脚夫回话、来春样纸定钱、柜边回签门包和炭笔灯炭底银一起要钱：铜钱-{cost}。不是体面消费，而是让明春第一旬不必重新从冷面求人开始，也不至让晚景供读余绪在冬里被锅火顺手吞掉。',
+    costLog: '〔熟号薄礼〕熟号薄礼、脚夫回话、来春样纸定钱、柜边回签门包和冬中回银分流一起要钱：铜钱-{cost}。不是体面消费，而是让明春第一旬不必重新从冷面求人开始，也不至让晚景供读旧账、旧拖欠与锅火继续混成一句“年下再说”。',
     failTag: '熟号薄礼硬顶',
-    failLog: '〔熟号薄礼〕这一旬连薄礼、样纸定钱、回签门包和炭笔底银都腾挪不开，只得先硬顶过去；熟号、脚夫与家里供读余绪这几层后手一起薄了一线（家族-1）。',
+    failLog: '〔熟号薄礼〕这一旬连薄礼、样纸定钱、回签门包和冬中回银分流都腾挪不开，只得先硬顶过去；熟号、脚夫与家里供读旧账这几层后手一起薄了一线（家族-1）。',
     hardship: 'clan'
   });
   if (isApprenticeElder && season.id === 'winter' && xun === 2) apply({
@@ -4880,12 +4964,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   if (isMerchantElder && season.id === 'winter' && xun === 3) apply({
     handledIds: ['e_route_wharf_old', 'e_route_winter_tail_old', 'e_route_return_old', 'e_route_winter_school_tail_old', 'e_rest'],
     doneTag: '明春水脚已问',
-    doneLog: '〔明春水脚〕这一旬先把来春水脚、归乡船脚、旧账缓催次序、年下回签、供读帖样和给家里回话的口风留住了；人虽然老了，明春却不必再从两眼一抹黑开始，商路晚景收口也终于不再把归乡与家里读写后手全拖到身后账上。',
+    doneLog: '〔明春水脚〕这一旬先把来春水脚、归乡船脚、旧账缓催次序、年下回签、冬尾药包家书和给家里回话的口风留住了；人虽然老了，明春却不必再从两眼一抹黑开始，商路晚景收口也终于不再把归乡、药包家书与家里读写后手全拖到身后账上。',
     cost: 40,
     costTag: '明春水脚',
-    costLog: '〔明春水脚〕来春水脚、归乡船脚、旧账缓催口风、年下回签、供读帖样和回话脚费一起要钱：铜钱-{cost}。不是立刻变现，却正把商路晚景最关键、也最容易被顺手拖烂的那层后手留在今冬。',
+    costLog: '〔明春水脚〕来春水脚、归乡船脚、旧账缓催口风、年下回签、冬尾药包家书和回话脚费一起要钱：铜钱-{cost}。不是立刻变现，却正把商路晚景最关键、也最容易被顺手拖烂的那层后手留在今冬。',
     failTag: '明春水脚硬顶',
-    failLog: '〔明春水脚〕这一旬连回话脚费、年下回签、归乡船脚和来春水脚都腾挪不开，只得先硬顶过去；明春第一程、归乡收口和家里这层口风都更像瞎撞了一层（家族-1）。',
+    failLog: '〔明春水脚〕这一旬连回话脚费、年下回签、归乡船脚和冬尾药包家书都腾挪不开，只得先硬顶过去；明春第一程、归乡收口和家里这层口风都更像瞎撞了一层（家族-1）。',
     hardship: 'clan'
   });
   if (isApprenticeElder && season.id === 'winter' && xun === 3) apply({
@@ -6516,12 +6600,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function establishmentOpeningNote() {
     var 底子 = routeBaseSummary();
     var 承继桥接 = (generation > 1 && carryOver) ? lifecycleInheritanceBridge() : null;
+    var visibleFounding = currentVisibleFoundingCarryState();
     var 起步口径 = (S._startMode === 'childhood')
       ? '幼年既过，成丁立身。'
       : '从十六成丁起算，先立身分路。';
     return 起步口径
       + (generation > 1 ? ('这一代沿上一代真实传承快照起步：田' + S.田亩 + '亩、存米' + S.存米 + '石、白银' + S.白银 + '两。') : '')
-      + ((generation <= 1 || ((carryOver || {}).父快照类型 || (carryOver || {}).户籍类型))
+      + ((generation <= 1 || visibleFounding.父快照类型 || visibleFounding.户籍类型)
         ? ('当前父快照：' + currentFoundingSnapshot().publicSummary + '。')
         : '')
       + ((承继桥接 && 承继桥接.dossier) ? ('承继旧账：' + 承继桥接.dossier + '。') : '')
@@ -7865,9 +7950,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var 底子 = routeBaseSummary();
     var inheritanceBridge = lifecycleInheritanceBridge();
     var founding = currentFoundingSnapshot();
+    var visibleFounding = currentVisibleFoundingCarryState();
     var startNote = generation > 1
       ? ('这一代不再沿用初代那张“固定父快照”，而是直接吃上一代真实死亡结算留下的期初账。'
-        + (((carryOver || {}).父快照类型 || (carryOver || {}).户籍类型) ? (' 这一房当前仍沿“' + founding.title + '”这层户籍与制度后手起手。') : '')
+        + ((visibleFounding.父快照类型 || visibleFounding.户籍类型) ? (' 这一房当前仍沿“' + founding.title + '”这层户籍与制度后手起手。') : '')
         + ' 五条路仍共享同一个过去，但这个“过去”现在来自真实传承，不再回滚。')
       : '这一生已经从出生走到十六岁。这里的两张卡只是当前试玩提供的出生家庭样本，不代表一生只有两种身份；从这一刻起，五条立身道路会分别消耗同一份时间、身体、现钱与人情。当前出生户籍为“' + founding.title + '”。';
     var startEvents = generation > 1 ? [
@@ -13817,7 +13903,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive())
             || (S.供读压力 || 0) >= 2
           );
+        var yearTwoAutumnSupportFirst = examYear === 2
+          && season.id === 'autumn'
+          && supportPriorityActive
+          && (
+            (S.本年延婚牵扯 || 0) > 0
+            || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive())
+            || (S.供读压力 || 0) >= 2
+          );
         if (yearTwoWinterSupportFirst) {
+          preferredOrder = preferredOrder.concat(supportIds);
+        }
+        if (yearTwoAutumnSupportFirst) {
           preferredOrder = preferredOrder.concat(supportIds);
         }
         if (examYear >= 3 && season.id === 'winter' && xun === 2 && (
@@ -13901,7 +13998,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         else if (gapCode === 'studyCount' || gapCode === 'article') preferredOrder = preferredOrder.concat(['e_essay', 'e_copy']);
         else if (gapCode === 'supportCut') preferredOrder = preferredOrder.concat(['e_copy', 'e_fail_tutor_bridge']);
         else if (gapCode === 'bodySpent') preferredOrder = preferredOrder.concat(bodyIds);
-        if (supportPriorityActive && !yearThreeSpringShoulderSupportFirst && !lateWarmSeasonSupportFirst && !winterDebtSupportFirst && !yearTwoWinterSupportFirst) {
+        if (supportPriorityActive && !yearThreeSpringShoulderSupportFirst && !lateWarmSeasonSupportFirst && !winterDebtSupportFirst && !yearTwoWinterSupportFirst && !yearTwoAutumnSupportFirst) {
           preferredOrder = preferredOrder.concat(supportIds);
         }
         if (((S.本年延婚牵扯 || 0) > 0) || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive()) || ((S.供读压力 || 0) >= 2)) {
@@ -14408,21 +14505,36 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               break;
             case 'e_guarantee':
               var guaranteePay = settleExamAdvanceCost(80);
-              var guaranteeGateOk = examGuaranteeGateScore() >= examGuaranteeGateTarget();
               var guaranteeActionName = examGuaranteeActionName(season.id);
+              var guaranteeAdvance = resolveExamGuaranteeAdvance(season.id);
               S.本年保结次数 += 1; S.本年保结支出文 += 80; S.本年延婚牵扯 += 1;
-              if (guaranteeGateOk) {
-                setExamGuaranteeProgress(2);
-                S.本年保结已办成 = true;
-                pushExamSeasonTag(stepTag + '保结');
-                log.push([
-                  guaranteeActionName
-                    + '：保结进度推进到“' + examGuaranteeLabel(S.保结进度) + '”'
-                    + guaranteePay.text
-                    + '。今年的互结、具结、廪保和资格审查已在这一回正式办理中一并走完；下一旬会明确停下来，由你决定是否参加' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '。',
-                  'good'
-                ]);
+              noteExamTutorGuaranteeReply();
+              if (guaranteeAdvance) {
+                S.本年保结已办成 = (S.保结进度 || 0) >= 2;
+                pushExamSeasonTag(stepTag + (guaranteeAdvance.full ? '保结' : '保结半通'));
+                if (!guaranteeAdvance.full) {
+                  log.push([
+                    guaranteeActionName
+                      + '：保结进度先推进到“' + examGuaranteeLabel(S.保结进度) + '”'
+                      + guaranteePay.text
+                      + '。这一回先把' + (guaranteeAdvance.changes.length ? guaranteeAdvance.changes.join('、') : '互结与具结') + '跑了起来，目前还卡在“' + guaranteeAdvance.pending + '”；秋里报名已经递上，但不会替你自动下场，冬清账中旬还能再把余下资格补齐。',
+                    'good'
+                  ]);
+                } else {
+                  log.push([
+                    guaranteeActionName
+                      + '：保结进度推进到“' + examGuaranteeLabel(S.保结进度) + '”'
+                      + guaranteePay.text
+                      + '。'
+                      + ((season.id === 'winter' && guaranteeAdvance.hadPartialBefore)
+                        ? '秋里没走完的廪保与资格审查，这一回也补齐了；资格审查已在这一回正式办理中一并走完。'
+                        : '今年的互结、具结、廪保和资格审查已在这一回正式办理中一并走完。')
+                      + '下一旬会明确停下来，由你决定是否参加' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '。',
+                    'good'
+                  ]);
+                }
               } else {
+                S.本年保结已办成 = false;
                 S.家族 = Math.max(0, S.家族 - 1);
                 S.供读压力 += 1;
                 pushExamSeasonTag(stepTag + '保结回话未定');
@@ -14983,6 +15095,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               S.家族 += 1;
               if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
               S.本年誊抄次数 += 1;
+              S.本年教读试接次数 += 1;
               S.本年延婚牵扯 += 1;
               pushExamSeasonTag(stepTag + '落第后试接教读');
               log.push(['落第后先替塾师誊课带几名蒙童：铜钱+120、识字转业值+2、家族+1、供读压力-1。第三举业年的冬中没有只把落第留成一句“明年再试”，而是先把识字底子换成馆里现钱与一点体面；这120文也记作当年举业自筹，不再和家里续供现钱混成同一口账，让塾馆教读、誊抄契样这条退路在年关里先站住半步。', 'good']);
@@ -15419,6 +15532,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (S.本年落第次数 > 0) {
           log.push(['〔落第〕这一年确曾下场却未进一层；人情、纸墨和盘缠都已先花出去，婚事与家里口风也会跟着更迟疑。', 'bad']);
         }
+        if ((S.本年教读试接次数 || 0) > 0) {
+          log.push(['〔教读后手〕这一年已有 ' + (S.本年教读试接次数 || 0) + ' 旬在冬里先把塾馆教读、誊抄契样和带蒙童的后手试接起来；它不是凭空改写功名，而是把“不中之后如何先活下去”真实写进了当年结局。', 'good']);
+        }
         if ((S.本年应场受阻次数 || 0) > 0) {
           log.push(['〔场外受阻〕这一年有 ' + (S.本年应场受阻次数 || 0) + ' 回明着撞在资格闸上：盘缠、纸样与回话门包可以先花，但识字、文章、塾门和保结链条若没在同一年里接成线，就只算赶到场外，不算已下场。', 'bad']);
         }
@@ -15450,8 +15566,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
         refreshExamSupportState();
         absorbExamYearIntoLifetime();
-        if ((S.举业累计投塾次数 || 0) > 0 || (S.举业累计识字旬数 || 0) > 0 || (S.举业累计保结次数 || 0) > 0 || (S.举业累计保帖底样次数 || 0) > 0 || (S.举业累计馆保回话次数 || 0) > 0 || (S.举业累计婚话回札次数 || 0) > 0 || (S.举业累计回榜口风次数 || 0) > 0 || (S.举业累计落第次数 || 0) > 0 || (S.举业累计应场受阻次数 || 0) > 0 || (S.举业累计延婚牵扯 || 0) > 0 || (S.举业累计婚事让开次数 || 0) > 0 || (S.举业累计身子亏空 || 0) > 0) {
-          log.push(['〔三年累账〕截至这一年，已累计投塾' + (S.举业累计投塾次数 || 0) + '旬、识字' + (S.举业累计识字旬数 || 0) + '旬、跑保结' + (S.举业累计保结次数 || 0) + '旬、馆保回话' + (S.举业累计馆保回话次数 || 0) + '旬、婚话回札' + (S.举业累计婚话回札次数 || 0) + '旬、回榜口风' + (S.举业累计回榜口风次数 || 0) + '旬、场外受阻' + (S.举业累计应场受阻次数 || 0) + '回、落第' + (S.举业累计落第次数 || 0) + '回；婚事牵扯累计' + (S.举业累计延婚牵扯 || 0) + '层、让开婚事累计' + (S.举业累计婚事让开次数 || 0) + '旬、身子亏空累计' + (S.举业累计身子亏空 || 0) + '层。举业的代价不只留在本年，会带着这些累账一起往下一年，或直接带去议亲。', 'bad']);
+        if ((S.举业累计投塾次数 || 0) > 0 || (S.举业累计识字旬数 || 0) > 0 || (S.举业累计保结次数 || 0) > 0 || (S.举业累计保帖底样次数 || 0) > 0 || (S.举业累计馆保回话次数 || 0) > 0 || (S.举业累计婚话回札次数 || 0) > 0 || (S.举业累计回榜口风次数 || 0) > 0 || (S.举业累计教读试接次数 || 0) > 0 || (S.举业累计落第次数 || 0) > 0 || (S.举业累计应场受阻次数 || 0) > 0 || (S.举业累计延婚牵扯 || 0) > 0 || (S.举业累计婚事让开次数 || 0) > 0 || (S.举业累计身子亏空 || 0) > 0) {
+          log.push(['〔三年累账〕截至这一年，已累计投塾' + (S.举业累计投塾次数 || 0) + '旬、识字' + (S.举业累计识字旬数 || 0) + '旬、跑保结' + (S.举业累计保结次数 || 0) + '旬、馆保回话' + (S.举业累计馆保回话次数 || 0) + '旬、婚话回札' + (S.举业累计婚话回札次数 || 0) + '旬、回榜口风' + (S.举业累计回榜口风次数 || 0) + '旬、试接教读' + (S.举业累计教读试接次数 || 0) + '旬、场外受阻' + (S.举业累计应场受阻次数 || 0) + '回、落第' + (S.举业累计落第次数 || 0) + '回；婚事牵扯累计' + (S.举业累计延婚牵扯 || 0) + '层、让开婚事累计' + (S.举业累计婚事让开次数 || 0) + '旬、身子亏空累计' + (S.举业累计身子亏空 || 0) + '层。举业的代价不只留在本年，会带着这些累账一起往下一年，或直接带去议亲。', 'bad']);
         }
         var lifetimeSupportSummary = examLifetimeSupportSourceSummary();
         if (lifetimeSupportSummary !== '未见明账') {
@@ -23762,6 +23878,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
         if (season.id === 'winter' && xun === 2) {
           A.push({
+            id: 'h_winter_mid_remit',
+            name: '先把冬中回钱拆作供读、拖欠与药包',
+            cost: 1,
+            eff: '白银-1·反哺+1·供读专账+1·供读+1·催账+1·备役+1·通融+1·体魄+1·家族+2',
+            desc: '冬应役到了中旬，最怕刚回手的一点真回钱又被供读纸包、旧拖欠回签、药包脚费和差票门包一起扑上来。先把这口冬中回银拆开，不让这一房到了年关还只剩“账快回了”，而是真把供读、拖欠、差役与身子先压回这一旬。',
+            can: S.白银 >= 1,
+            why: S.白银 >= 1 ? '' : '白银不足1两',
+            once: true
+          });
+          A.push({
             id: 'h_winter_route_split',
             name: '先把来春路引拆作回话与供读后手',
             cost: 1,
@@ -23803,6 +23929,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           });
         }
         if (season.id === 'winter' && xun === 3) {
+          A.push({
+            id: 'h_winter_tail_body',
+            name: '先把冬尾药包与供读家书分开',
+            cost: 1,
+            eff: '铜钱-60·供读+1·通融+1·体魄+1·家族+1',
+            desc: '冬应役到了下旬，最怕年下药包、供读家书、递话脚费和来春样纸定钱一起先来要钱。先把这层冬尾身家账拆开，孩子读写、自己的身子和明春后手就不必继续抢同一口过冬钱。',
+            can: S.铜钱 >= 60,
+            why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
+            once: true
+          });
           A.push({
             id: 'h_winter_coal',
             name: '先把炭钱、路引与熟号回话分开',
@@ -23866,8 +24002,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         else if (season.id === 'autumn' && xun === 2) preferredOrder = ['h_autumn_mid_remit', 'h_autumn_mid_cloth', 'h_autumn_mid_reply', 'h_autumn_split', 'h_school_fund'];
         else if (season.id === 'autumn' && xun === 3) preferredOrder = ['h_autumn_tail_remit', 'h_autumn_tail_drag', 'h_autumn_tail_body', 'h_autumn_reply', 'h_autumn_register', 'h_autumn_tail', 'h_pay'];
         else if (season.id === 'winter' && xun === 1) preferredOrder = ['h_winter_medicine', 'h_winter_gift', 'h_wharf', 'h_pay'];
-        else if (season.id === 'winter' && xun === 2) preferredOrder = ['h_winter_register', 'h_winter_school_packet', 'h_winter_clear', 'h_winter_route_split', 'h_pay'];
-        else if (season.id === 'winter' && xun === 3) preferredOrder = ['h_winter_post', 'h_winter_register_tail', 'h_winter_tail', 'h_winter_sample', 'h_winter_coal', 'h_pay'];
+        else if (season.id === 'winter' && xun === 2) preferredOrder = ['h_winter_mid_remit', 'h_winter_register', 'h_winter_school_packet', 'h_winter_clear', 'h_winter_route_split', 'h_pay'];
+        else if (season.id === 'winter' && xun === 3) preferredOrder = ['h_winter_tail_body', 'h_winter_post', 'h_winter_register_tail', 'h_winter_tail', 'h_winter_sample', 'h_winter_coal', 'h_pay'];
         sortActionsByPreferredOrder(A, preferredOrder);
         return A;
       },
@@ -24384,6 +24520,23 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想在' + stepLabel + '先把秋尾回钱拆作供读与锅火，但这一旬白银已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_winter_mid_remit':
+              if (spendSilver(1)) {
+                S.累计反哺银 += 1;
+                S.商路供读银 += 1;
+                S.本年户供读 += 1;
+                S.本年户催账 += 1;
+                S.本年户备役 += 1;
+                S.本年户通融 += 1;
+                S.体魄 += 1;
+                S.家族 += 2;
+                pushHouseholdSeasonTag('冬中回钱拆开');
+                log.push(['你在' + stepLabel + '先把冬中回钱拆作供读、拖欠与药包：白银-1、累计反哺+1、供读专账+1、供读+1、催账+1、备役+1、通融+1、体魄+1、家族+2。冬中这口真回银没有再只写成“年下总会回来”，而是当场把供读纸包、旧拖欠回签、差票门包和药包脚费一起压回了这一旬。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把冬中回钱拆作供读、拖欠与药包，但这一旬白银已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_winter_route_split':
               if (spendCopper(70)) {
                 S.本年户备役 += 1;
@@ -24516,6 +24669,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想在' + stepLabel + '先把年下回签与供读纸包分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
               }
               break;
+            case 'h_winter_tail_body':
+              if (spendCopper(60)) {
+                S.本年户供读 += 1;
+                S.本年户通融 += 1;
+                S.体魄 += 1;
+                S.家族 += 1;
+                pushHouseholdSeasonTag('冬尾药包拆开');
+                log.push(['你在' + stepLabel + '先把冬尾药包与供读家书分开：铜钱-60、供读+1、通融+1、体魄+1、家族+1。年下药包、供读家书、递话脚费和来春样纸定钱没有再一起压在冬尾这一口过冬钱上，身子与家里读写也总算没继续互相抢钱。', 'good']);
+                actionCount += 1;
+              } else {
+                log.push(['想在' + stepLabel + '先把冬尾药包与供读家书分开，但这一旬铜钱已被别处占住，只得暂缓。', 'bad']);
+              }
+              break;
             case 'h_rest':
               S.体魄 += 5;
               log.push(['你在' + stepLabel + '先缓口气，把身子留到冬里应役前：体魄+5。', 'good']);
@@ -24549,7 +24715,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             hardship: 'clan'
           },
           winter: {
-            handledIds: ['h_pay', 'h_collect', 'h_literate', 'h_school_fund', 'h_clan', 'h_side', 'h_rest', 'h_wharf', 'h_winter_route_split', 'h_winter_clear', 'h_winter_register', 'h_winter_school_packet', 'h_winter_gift', 'h_winter_medicine', 'h_winter_sample', 'h_winter_post', 'h_winter_register_tail'],
+            handledIds: ['h_pay', 'h_collect', 'h_literate', 'h_school_fund', 'h_clan', 'h_side', 'h_rest', 'h_wharf', 'h_winter_mid_remit', 'h_winter_route_split', 'h_winter_clear', 'h_winter_register', 'h_winter_school_packet', 'h_winter_gift', 'h_winter_medicine', 'h_winter_sample', 'h_winter_post', 'h_winter_register_tail', 'h_winter_tail_body'],
             doneTag: '年关碎账已分',
             doneLog: '〔年关碎账〕旧账、明春脚路、供读后手与差钱已经先被你分开；年关没再把同一口现银搅成一团。',
             cost: 50,
@@ -24947,7 +25113,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if (season.id === 'winter' && xun === 2) {
-          if (picked.h_winter_route_split || picked.h_pay || picked.h_collect || picked.h_school_fund || picked.h_side || picked.h_rest || picked.h_wharf) {
+          if (picked.h_winter_mid_remit || picked.h_winter_route_split || picked.h_pay || picked.h_collect || picked.h_school_fund || picked.h_side || picked.h_rest || picked.h_wharf) {
             pushHouseholdSeasonTag(stepLabel + '来春路引已留');
             log.push(['〔来春路引〕这一旬先把来春水脚、供读后手、差钱和熟号回话都留住了；冬应役翻总账时，来年第一程也已经先有了落脚。', 'good']);
           } else if (spendCopper(40)) {
@@ -24960,7 +25126,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if (season.id === 'winter' && xun === 2) {
-          if (picked.h_winter_clear || picked.h_winter_school_packet || picked.h_winter_route_split || picked.h_wharf || picked.h_literate || picked.h_collect) {
+          if (picked.h_winter_mid_remit || picked.h_winter_clear || picked.h_winter_school_packet || picked.h_winter_route_split || picked.h_wharf || picked.h_literate || picked.h_collect) {
             pushHouseholdSeasonTag(stepLabel + '冬中回话已理');
             log.push(['〔冬中回话〕这一旬先把旧账回话、脚夫门包和递话小礼理开了；冬应役中段最容易先冒头的那层“账快回、脚费先到”的碎账，没有再悄悄把现钱磨空。', 'good']);
           } else if (spendCopper(40)) {
@@ -24999,7 +25165,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if (season.id === 'winter' && xun === 3) {
-          if (picked.h_winter_sample || picked.h_winter_tail || picked.h_winter_coal || picked.h_wharf || picked.h_school_fund) {
+          if (picked.h_winter_tail_body || picked.h_winter_sample || picked.h_winter_tail || picked.h_winter_coal || picked.h_wharf || picked.h_school_fund) {
             pushHouseholdSeasonTag(stepLabel + '冬尾样纸已留');
             log.push(['〔冬尾样纸〕这一旬先把来春样纸定钱、熟号递话脚费、脚夫回签和锅火次序理开了；冬尾最细的那层样纸后手，也终于没有再等到明春开路时才第一次抢钱。', 'good']);
           } else if (spendCopper(35)) {
@@ -25025,7 +25191,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           }
         }
         if (season.id === 'winter' && xun === 3) {
-          if (picked.h_winter_tail || picked.h_winter_sample || picked.h_winter_coal || picked.h_school_fund || picked.h_wharf) {
+          if (picked.h_winter_tail_body || picked.h_winter_tail || picked.h_winter_sample || picked.h_winter_coal || picked.h_school_fund || picked.h_wharf) {
             pushHouseholdSeasonTag(stepLabel + '年下回签已理');
             log.push(['〔年下回签〕这一旬先把熟号回签、供读纸包、递话脚费和锅火次序分开了；冬尾最细的那层“明春还要续门路、孩子也要接着读”终于不再只剩一句空话。', 'good']);
           } else if (spendCopper(35)) {
@@ -26665,13 +26831,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       pack.extraActions.push({ id: 'e_route_guest_old', name: '先备熟号薄礼与回话脚费', cost: 1, eff: '铜钱-70·家族+1·体魄+1', desc: '年关若把熟号、脚夫和带话人的薄礼一并省掉，明春常常就得从头求人。先把这层小钱记下，门路才不至到冬里忽然断线。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
       pack.extraActions.push({ id: 'e_route_winter_reply_old', name: '先把冬中回话脚费与样纸定钱分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬中最怕熟号回话脚费、脚夫门包、来春样纸定钱和柜边回签门包一起冒头。先把这层回话碎账拆开，年下客礼和明春水脚才不必继续拿同一口现钱四处堵漏。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
       if (S.商路供读银 >= 1) {
-        pack.extraActions.push({ id: 'e_route_winter_school_old', name: '先把冬中供读底银与灯炭炭笔分开', cost: 1, eff: '铜钱-65·家族+1·体魄+1', desc: '冬中最怕孙辈炭笔、来春蒙馆定钱、灯炭药包和熟号回话脚费一起追钱。先把这层供读余绪拆开，商路一路攒下的供读底银就不必在晚景里被锅火和回话先吞掉。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
+        pack.extraActions.push({ id: 'e_route_winter_school_old', name: '先把冬中回钱拆作供读、拖欠与药包', cost: 1, eff: '铜钱-65·家族+1·体魄+1', desc: '冬中最怕商路一路留下的供读底银刚准备落回养老账，孙辈纸包、旧拖欠回签、灯炭药包和熟号回话脚费就一起追钱。先把这口冬中回银拆开，不让供读、拖欠、药包和来春回话继续混成一句“年下再说”。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
       }
       pack.extraActions.push({ id: 'e_route_wharf_old', name: '托熟号问明春水脚', cost: 1, eff: '铜钱-50·家族+1', desc: '趁年关熟号还在，先把哪条水脚肯接、哪笔旧账还可缓一旬摸明。它不立刻变现，却能让来年不至从两眼一抹黑开始。', can: S.铜钱 >= 50, why: S.铜钱 >= 50 ? '' : '铜钱不足50文', once: true });
       pack.extraActions.push({ id: 'e_route_winter_tail_old', name: '先把年下回签与来春样纸分开', cost: 1, eff: '铜钱-55·家族+1·体魄+1', desc: '冬尾最怕年下回签、来春样纸定钱、递话脚费和眼前锅火一起压上来。先把这层冬尾小账拆开，明春第一程和今冬家里口风才不必继续挤在同一口现钱上。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
       pack.extraActions.push({ id: 'e_route_return_old', name: '先把归乡船脚与年下回签分开', cost: 1, eff: '铜钱-70·家族+2·体魄+1', desc: '冬尾若还想赶在身子再坏前回到故里，就得先把归乡船脚、年下回签、递话门包和眼前锅火拆开。先把这层归乡后手坐实，路四收口才不至只剩“人还在外头、账也还在外头”。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
       if (S.商路供读银 >= 1) {
-        pack.extraActions.push({ id: 'e_route_winter_school_tail_old', name: '先把冬尾供读帖样与年下锅火分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬尾最怕孙辈来春帖样、炭笔门包、年下锅火和熟号回签一起冒头。先把这层供读帖样拆开，不让家里读写后手和明春商路门路继续抢同一口过冬钱。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+        pack.extraActions.push({ id: 'e_route_winter_school_tail_old', name: '先把冬尾药包与供读家书分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬尾最怕年下药包、供读家书、来春帖样定钱和熟号回签一起冒头。先把这层冬尾家书药包拆开，不让家里读写后手、身子和明春商路门路继续抢同一口过冬钱。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
       }
     } else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份 || S.优免启用) {
       var elderExamCarryNarrative = examLifecycleCarryNarrative();
@@ -27068,7 +27234,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             a.once = true;
           } else if (a.id === 'e_route_winter_school_old') {
             a.can = (season.id === 'winter') && xun === 2 && S.商路供读银 >= 1 && S.铜钱 >= 65;
-            a.why = !(season.id === 'winter' && xun === 2) ? '这一旬不便先拆冬中供读底银'
+            a.why = !(season.id === 'winter' && xun === 2) ? '这一旬不便先拆冬中回银账'
               : (S.商路供读银 >= 1 ? (S.铜钱 >= 65 ? '' : '铜钱不足65文') : '眼下没有可守的商路供读底银');
             a.once = true;
           } else if (a.id === 'e_route_wharf_old') {
@@ -27087,7 +27253,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             a.once = true;
           } else if (a.id === 'e_route_winter_school_tail_old') {
             a.can = (season.id === 'winter') && xun === 3 && S.商路供读银 >= 1 && S.铜钱 >= 60;
-            a.why = !(season.id === 'winter' && xun === 3) ? '这一旬不便先拆冬尾供读帖样'
+            a.why = !(season.id === 'winter' && xun === 3) ? '这一旬不便先拆冬尾家书药包账'
               : (S.商路供读银 >= 1 ? (S.铜钱 >= 60 ? '' : '铜钱不足60文') : '眼下没有可守的商路供读底银');
             a.once = true;
           } else if (a.id === 'e_write_old') {
@@ -27903,8 +28069,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (S.商路供读银 >= 1 && spendCopper(65)) {
                 S.家族 += 1; S.体魄 += 1;
                 pushElderSeasonTag(stepLabel + '·冬中供读');
-                log.push(['〔冬中供读〕先把冬中供读底银与灯炭炭笔分开：铜钱-65、家族+1、体魄+1。孙辈炭笔、来春蒙馆定钱、灯炭药包和熟号回话脚费终于不再一起挤在冬中这一口现钱上，商路留下的供读底银也没被锅火顺手吞掉。', 'good']);
-              } else if (S.商路供读银 >= 1) log.push(['〔冬中供读〕想先把冬中供读底银与灯炭炭笔分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+                log.push(['〔冬中供读〕先把冬中回钱拆作供读、拖欠与药包：铜钱-65、家族+1、体魄+1。商路留下的供读底银没有再只躺在账上，孙辈纸包、旧拖欠回签、灯炭药包和熟号回话脚费也被一起压回了这一旬。', 'good']);
+              } else if (S.商路供读银 >= 1) log.push(['〔冬中供读〕想先把冬中回钱拆作供读、拖欠与药包，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_route_winter_medicine_old':
               if (spendCopper(65)) {
@@ -27939,8 +28105,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (S.商路供读银 >= 1 && spendCopper(60)) {
                 S.家族 += 1; S.体魄 += 1;
                 pushElderSeasonTag(stepLabel + '·冬尾供读');
-                log.push(['〔冬尾供读〕先把冬尾供读帖样与年下锅火分开：铜钱-60、家族+1、体魄+1。孙辈来春帖样、炭笔门包、年下锅火和熟号回签终于不再一起挤在冬尾这一口过冬钱上，家里读写后手也没再去硬抢明春商路门路。', 'good']);
-              } else if (S.商路供读银 >= 1) log.push(['〔冬尾供读〕想先把冬尾供读帖样与年下锅火分开，但这一旬现钱不够，只得暂缓。', 'bad']);
+                log.push(['〔冬尾供读〕先把冬尾药包与供读家书分开：铜钱-60、家族+1、体魄+1。年下药包、供读家书、来春帖样定钱和熟号回签终于不再一起挤在冬尾这一口过冬钱上，家里读写后手和明春门路也没再硬抢同一口现钱。', 'good']);
+              } else if (S.商路供读银 >= 1) log.push(['〔冬尾供读〕想先把冬尾药包与供读家书分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_shop_gift_old':
               if (S.本年养老节礼 <= 0 && spendCopper(80)) {
@@ -28030,8 +28196,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               && elderTags.some(function (tag) { return String(tag).indexOf('伏夏水脚') >= 0 || String(tag).indexOf('伏夏回签拆开') >= 0; })
               && elderTags.some(function (tag) { return String(tag).indexOf('秋中回签') >= 0; })
               && elderTags.some(function (tag) { return String(tag).indexOf('冬中回话') >= 0; })
-              && elderTags.some(function (tag) { return String(tag).indexOf('年下回签') >= 0; })) {
-              log.push(['这一养老年里，春头样纸、伏夏水脚、秋中回签、冬中回话与冬尾年下回签都已逐旬见光；商路晚景终于不再只剩“旧账在外头”，而是把门路、锅火、租路和来春样纸都压回了同一年。', 'good']);
+              && elderTags.some(function (tag) { return String(tag).indexOf('冬中供读') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('年下回签') >= 0; })
+              && elderTags.some(function (tag) { return String(tag).indexOf('冬尾供读') >= 0; })) {
+              log.push(['这一养老年里，春头样纸、伏夏水脚、秋中回签、冬中回钱分流与冬尾药包家书都已逐旬见光；商路晚景终于不再只剩“旧账在外头”，而是把门路、供读、拖欠、锅火和来春样纸都压回了同一年。', 'good']);
             }
             if ((S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份)
               && elderTags.some(function (tag) { return String(tag).indexOf('春头馆契') >= 0; })
