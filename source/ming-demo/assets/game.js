@@ -1077,7 +1077,7 @@
       || visibleWageIdentity !== '未定'
       || visibleApprenticeDest !== '未定'
       || visibleExamOutcome !== '未定'
-      || ((S.委托营生 || '无') !== '无' && ((S.委托租谷 || 0) > 0 || (S.委托待收租谷 || 0) > 0));
+      || ((S.委托营生 || '无') !== '无');
     if (!inherited) return { note: '', narrative: '', dossier: '', event: null };
     var parts = ['承继身份=' + role];
     if (visibleFoundingSnapshotId) parts.push('父快照ID=' + visibleFoundingSnapshotId);
@@ -1126,6 +1126,8 @@
     var decayHint = lineageDecayHint(decay);
     if (decayHint) explain.push(decayHint);
     if ((S.委托待收租谷 || 0) > 0) explain.push('账上另有待收委托田租' + S.委托待收租谷 + '石，不能当作已经落袋的存米');
+    else if ((S.委托营生 || '无') === '分得薄田自耕') explain.push('上一代临终前已把分得薄田坐成自耕账，这房起手不能再把那几亩田看成一句空名');
+    else if ((S.委托营生 || '无') !== '无') explain.push('上一代临终前已把分得薄田按“' + S.委托营生 + '”托着走，这层田面安排没有被悄悄洗掉');
     if (visibleMarriagePath !== '未定') explain.push((routeAwareValueStillInherited('婚配路径', '未定') ? '上一代婚配最后走到“' : '这一代婚配眼下已走到“') + visibleMarriagePath + '”，这层婚配余绪仍挂在这一房旧账里');
     if (visibleJointState !== '未合爨') explain.push((routeAwareValueStillInherited('合爨状态', '未合爨') ? '上一代留下的“' : '这一房眼下仍带着“') + visibleJointState + '”共账余绪');
     if (visibleFixedRent !== '未立') explain.push((routeAwareValueStillInherited('定额佃状态', '未立') ? '上一代立过“' : '这一房已经立下“') + visibleFixedRent + '”，这房对押租与租账次序不算陌生');
@@ -1269,7 +1271,8 @@
       }
     }
     if ((carry.负债银 || 0) > 0) hints.push('只是这一房还背着旧债' + carry.负债银 + '两，起手无论走哪条路都得先想着别让旧账再滚大');
-    if ((carry.委托营生 || '') && carry.委托营生 !== '无') hints.push('上一代留下的薄产仍按“' + carry.委托营生 + '”托着走，不能把这层旧安排当作凭空消掉');
+    if ((carry.委托营生 || '') === '分得薄田自耕') hints.push('上一代临终前已把分得薄田坐成自耕账，起手就得按那本薄田家计去守');
+    else if ((carry.委托营生 || '') && carry.委托营生 !== '无') hints.push('上一代留下的薄产仍按“' + carry.委托营生 + '”托着走，不能把这层旧安排当作凭空消掉');
     if ((carry.委托租谷 || 0) > 0) hints.push('委托租谷=' + carry.委托租谷 + '石/年这笔旧入项还在跑，起手盘账得把它算在家底里');
     if ((carry.委托待收租谷 || 0) > 0) hints.push('待收委托田租=' + carry.委托待收租谷 + '石还没真正落袋，眼下不能把它当现成存米去花');
     var decayHint = lineageDecayHint(lineageDecayLevel(carry));
@@ -27826,7 +27829,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           ? '商路里另划出来的供读专账，并没有随着本人身故抹平，仍按老规矩压在下一代门前'
           : '这一房前代留下的供读底子，并没有在本代中后段悄悄洗掉，临终时仍按老规矩压在下一代门前');
       }
-      if ((S.委托营生 || '无') !== '无' && ((S.委托租谷 || 0) > 0 || pendingRentMi > 0)) {
+      if ((S.委托营生 || '无') === '分得薄田自耕') {
+        parts.push('这房临终前已把分得薄田坐成自耕账；哪怕下一代重走别路，也不能把这层守田次序洗成一句“名下有田”');
+      } else if ((S.委托营生 || '无') !== '无' && ((S.委托租谷 || 0) > 0 || pendingRentMi > 0)) {
         parts.push('这房临终前留下的委托经营账，也要连着待收租谷一起结清，不能当作已经落袋');
       }
       return {
@@ -27909,13 +27914,17 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var shareCopper = shareByOrdinal(estateCopper, sons, heirOrdinal);
       var shareDebt = shareByOrdinal(estateDebt, sons, heirOrdinal);
       var delegatedRoute = S.委托营生 || '无';
+      var selfFieldEnabled = delegatedRoute === '分得薄田自耕'
+        && shareTian > 0;
       var leaseEnabled = shareTian > 0
         && delegatedRoute !== '无'
         && (S.委托租谷 || 0) > 0;
       var pendingRentEnabled = delegatedRoute !== '无' && pendingRentMi > 0;
       var shareLease = leaseEnabled ? shareByOrdinal(S.委托租谷 || 0, sons, heirOrdinal) : 0;
       var sharePendingRent = pendingRentEnabled ? shareByOrdinal(pendingRentMi, sons, heirOrdinal) : 0;
-      var carryDelegatedRoute = (shareLease > 0 || sharePendingRent > 0) ? delegatedRoute : '无';
+      var carryDelegatedRoute = selfFieldEnabled
+        ? delegatedRoute
+        : ((shareLease > 0 || sharePendingRent > 0) ? delegatedRoute : '无');
       var remainderText = ordinalRemainderSummary(sons, heirOrdinal, [
         { total: estateSilver, label: '白银', unit: '两' },
         { total: estateCopper, label: '铜钱', unit: '文' },
@@ -27953,11 +27962,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     } else {
       collateralEstateNote = '结清丧葬与旧债后，这一房真正还能被过继承走的，只剩白银' + estateSilver + '两、铜钱' + estateCopper + '文、存米' + estateMi + '石、田' + estateTian + '亩' + (pendingRentMi > 0 ? ('，另有账上待结租谷' + pendingRentMi + '石（未取得）') : '') + '。';
       var collateralDelegatedRoute = S.委托营生 || '无';
+      var collateralSelfFieldEnabled = collateralDelegatedRoute === '分得薄田自耕'
+        && estateTian > 0;
       var collateralLeaseEnabled = estateTian > 0
         && collateralDelegatedRoute !== '无'
         && (S.委托租谷 || 0) > 0;
       var collateralPendingRentEnabled = collateralDelegatedRoute !== '无' && pendingRentMi > 0;
-      var collateralCarryDelegatedRoute = (collateralLeaseEnabled || collateralPendingRentEnabled) ? collateralDelegatedRoute : '无';
+      var collateralCarryDelegatedRoute = collateralSelfFieldEnabled
+        ? collateralDelegatedRoute
+        : ((collateralLeaseEnabled || collateralPendingRentEnabled) ? collateralDelegatedRoute : '无');
       S._carry = normalizeCarrySnapshot({
         父快照ID: selectedFoundingSnapshotId,
         父快照类型: S.父快照类型,
