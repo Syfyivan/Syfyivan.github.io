@@ -28002,6 +28002,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       note: '死亡不是失败结算，而是把资源账结清、生成下一代期初快照。绝嗣/破家是真实分支，不评分。',
       narrative: narrative,
       events: [
+        { t: 'life', tag: '[身后结算]', txt: '身后结算 · 享年' + ageRoll + '岁：' + (sons > 0 ? ('遗产品搭均分给 ' + sons + ' 子') : '绝嗣过继') + '，这一页只按真实结清后的遗产、旧债与承继身份落字，不把这一生抹成一句空泛结局。' },
         { t: 'rand', tag: '[丧葬]', txt: '丧葬支出：棺木等白银' + funeral + '两、米1石' + (merchantExtraFuneralCopper > 0 ? ('，另有运柩停厝铜钱' + merchantExtraFuneralCopper + '文') : '') + '，从遗产/诸子分摊账扣除（镜像入出资子账，不凭空消失）。' },
         (isMerchantDeathRoute ? { t: 'rel', tag: '[归处]', txt: merchantDiedOnRoad ? '这一次没能先把归乡船脚坐实，临终时人仍在外头，旧账与运柩停厝要一起结。' : '这一次总算先把归乡船脚与年下回签坐实，临了是在故里收束，不再把人和账都留在客途。' } : null),
         (lifecycleResidue.text ? { t: 'life', tag: '[旧账余绪]', txt: lifecycleResidue.text + '。' } : null),
@@ -28010,11 +28011,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             + (S._carry.委托待收租谷 > 0 ? ('，另有待收委托田租' + S._carry.委托待收租谷 + '石') : '')
             + (S._carry.负债银 > 0 ? ('，并分担旧债' + S._carry.负债银 + '两') : '')
             + '。田不足整分时，这一房也可能暂时分不到整亩，只能带着旧门路再外求。' + inheritedCarryNote(S._carry))
-          : ('无嗣过继：' + inheritanceContinuationClause(S._carry) + '，承进这一房结清后的真实余产，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩'
+          : ('绝嗣过继：旁支承进这一房结清后的真实余产。' + inheritanceContinuationClause(S._carry) + '，分得白银' + S._carry.白银 + '两、铜钱' + S._carry.铜钱 + '文、存米' + S._carry.存米 + '石、田' + S._carry.田亩 + '亩'
             + (S._carry.委托待收租谷 > 0 ? ('，另有待收委托田租' + S._carry.委托待收租谷 + '石') : '')
             + (S._carry.负债银 > 0 ? ('，并接过旧债' + S._carry.负债银 + '两') : '')
             + '。' + collateralEstateNote + inheritedCarryNote(S._carry)) }
         ,
+        (lifecycleResidue.text ? { t: 'life', tag: '[生命周期残账]', txt: '生命周期残账：' + lifecycleResidue.text + '。' } : null),
+        { t: 'life', tag: '[下一代承接]', txt: '下一代承接：承继身份=' + (S._carry.承继身份 || currentInheritanceRole(S._carry || null)) + '｜承嗣来路=' + (S._carry.承嗣来路 || directHeirLineageTag(currentInheritanceRole(S._carry || null))) + '｜承继定位=' + (S._carry.承继定位 || defaultInheritancePosition(currentInheritanceRole(S._carry || null))) + (S._carry.委托待收租谷 > 0 ? ('｜待收委托田租=' + S._carry.委托待收租谷 + '石') : '') + (S._carry.负债银 > 0 ? ('｜旧债=' + S._carry.负债银 + '两') : '') + '。' },
         { t: 'life', tag: '[承继校核]', txt: '下一代按钮将写作“' + heirRestartButtonLabel(S._carry || null, sons, heirOrdinal) + '”；承继校核=' + carryRouteAwareSummary(S._carry) + (S._deathRemainderText ? ('｜' + S._deathRemainderText.replace(/。$/, '')) : '') + '。' }
       ].filter(Boolean),
       prompt: '',
