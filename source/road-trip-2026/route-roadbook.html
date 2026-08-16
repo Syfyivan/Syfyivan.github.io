@@ -37,7 +37,7 @@
       <p>2026年9月18日—11月26日 · 4人 / 2位司机轮换 · 逐日道路、停靠点、住宿、吃饭与关键风险统一在此维护。页面与数据会随离线地图一起缓存。</p>
       <div class="stats"><span class="stat" id="statDays"></span><span class="stat" id="statKm"></span><span class="stat" id="statMeals"></span><span class="stat">68晚外地住宿</span><span class="stat">11月25日回北京 · 11月26日还车</span></div>
     </section>
-    <nav class="actions"><a class="primary" href="./route-map-offline.html?v=11">打开离线地图</a><a href="./route-map-amap.html?v=11">打开在线高德</a><a href="./index.html#roadbook">返回详细攻略</a><button id="expandBtn" type="button">展开全部</button><button id="collapseBtn" type="button">全部收起</button><button id="downloadBtn" type="button">下载TXT路书</button><button type="button" onclick="window.print()">打印 / 存为PDF</button></nav>
+    <nav class="actions"><a class="primary" href="./route-map-offline.html?v=13">打开离线地图</a><a href="./route-map-amap.html?v=13">打开在线高德</a><a href="./index.html#roadbook">返回详细攻略</a><button id="expandBtn" type="button">展开全部</button><button id="collapseBtn" type="button">全部收起</button><button id="downloadBtn" type="button">下载TXT路书</button><button type="button" onclick="window.print()">打印 / 存为PDF</button></nav>
     <div class="note"><strong>离线边界：</strong>本页保存的是计划道路、坐标和风险提醒，不冒充实时路况。封路、边防、景区换乘和营业状态必须在有网时复核；无网时以现场标志、交警与景区指令为准。</div>
     <div class="note" style="background:#fff6ef;border-left-color:var(--accent)"><strong>价格说明：</strong>以下价格用于行程预算，不代表锁定报价。住宿、门票、区间车、油价和餐饮价格应在预订时及出发前再次核验。卡片内标签区分「官方价 / 参考价 / 估算」，餐饮与门票接驳为规划估算区间，住宿价见各订单页实时房价。</div>
     <div class="filter"><label>只看 D</label><input id="fromDay" type="number" min="1" max="70" value="1"><span>到</span><input id="toDay" type="number" min="1" max="70" value="70"><button id="filterBtn" type="button">筛选</button><button id="todayBtn" type="button">按日期定位</button><span id="filterStatus" class="meta"></span></div>
@@ -49,6 +49,24 @@
   <script src="./assets/road_trip_meals.js"></script>
   <script src="./assets/road_trip_costs.js"></script>
   <script>
+    // 自愈守卫：若数据脚本因旧离线缓存未加载，页面会“只剩框架”。
+    // 此时清掉本站缓存并注销旧 Service Worker，然后带时间戳强制刷新一次，
+    // 保证升级版本后不会长期卡在空壳页。每次会话只自动刷新一次，避免死循环。
+    if (!window.ROAD_TRIP_DAY_DATA || !window.ROAD_TRIP_MEAL_DATA || !window.ROAD_TRIP_COST_DATA || !window.ROAD_TRIP_POI_DATA) {
+      const already = sessionStorage.getItem('roadbook-self-heal');
+      const daysEl = document.getElementById('days');
+      if (daysEl) daysEl.innerHTML = '<p style="padding:24px;text-align:center;color:#6e6862;font-weight:800">路书数据正在更新，正在自动刷新…如长时间无变化，请手动强制刷新一次。</p>';
+      if (!already) {
+        sessionStorage.setItem('roadbook-self-heal', '1');
+        Promise.resolve()
+          .then(() => (window.caches ? caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))) : null))
+          .then(() => (navigator.serviceWorker ? navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))) : null))
+          .catch(() => {})
+          .finally(() => { location.replace(location.pathname + '?fresh=' + Date.now()); });
+      }
+      throw new Error('road trip data not loaded; self-healing reload triggered');
+    }
+    sessionStorage.removeItem('roadbook-self-heal');
     const DAILY = window.ROAD_TRIP_DAY_DATA;
     const PLACES = window.ROAD_TRIP_POI_DATA;
     const FOOD = window.ROAD_TRIP_MEAL_DATA;
@@ -59,6 +77,9 @@
     const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
     const formatDate = value => `${Number(value.slice(5,7))}月${Number(value.slice(8,10))}日`;
     const amapNav = point => `https://uri.amap.com/navigation?to=${point.lng},${point.lat},${encodeURIComponent(point.name)}&mode=car&policy=1&src=Syfyivan.road-trip&coordinate=gaode&callnative=1`;
+    // 未预置详情页链接的住宿：给一个可用的携程按名称搜索深链，出发前据此核价下单。
+    const stayBookingLink = stay => stay.bookingUrl || `https://www.trip.com/hotels/list?keyword=${encodeURIComponent(stay.name)}`;
+    const stayBookingLabel = stay => stay.bookingUrl ? '住宿房型/实时价' : '搜同名住宿/比价';
     const yuan = value => `¥${Number(value).toLocaleString()}`;
     const range = pair => pair && pair[0] === pair[1] ? yuan(pair[0]) : `${yuan(pair[0])}—${yuan(pair[1])}`;
     const natureTag = nature => nature === '官方固定价' ? '<span class="tag tag-official">官方价</span>' : nature === '订单页参考价' ? '<span class="tag tag-ref">参考价</span>' : '<span class="tag tag-est">估算</span>';
@@ -122,7 +143,7 @@
           + feeBlock(cost)
           + budgetBlock(meal, cost, stay)
           + `<div class="sec sec-risk"><h3>风险与降级</h3><p>${escapeHtml(day.critical)}</p></div>`
-          + `<div class="day-actions"><a href="./route-map-offline.html?day=${day.day}">离线地图定位</a><a target="_blank" rel="noopener" href="${amapNav(last)}">联网后高德导航</a>${stay && stay.bookingUrl ? `<a target="_blank" rel="noopener" href="${escapeHtml(stay.bookingUrl)}">住宿房型/实时价</a>` : ''}</div>`
+          + `<div class="day-actions"><a href="./route-map-offline.html?day=${day.day}">离线地图定位</a><a target="_blank" rel="noopener" href="${amapNav(last)}">联网后高德导航</a>${stay ? `<a target="_blank" rel="noopener" href="${escapeHtml(stayBookingLink(stay))}">${stayBookingLabel(stay)}</a>` : ''}</div>`
           + `</div>`;
         target.appendChild(card);
       });

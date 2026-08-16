@@ -87,11 +87,15 @@ for (const item of costs.items) {
   assertRange(item.ticketTotal, `D${item.day} ticketTotal`);
 }
 
-// 6. 主攻略页仍然不包含第二套完整日卡，且只指向唯一路书
+// 6. 主攻略页仍然不包含第二套完整日卡；路书作为唯一逐日信息源，正文可多处引用同一份路书
 assert.doesNotMatch(html, /class="day-card"|class="roadbook-segment"|id="seg[1-7]"/, 'the main guide must not embed a second D1-D70 road book');
 assert.equal((html.match(/id="routePreviewFrame"/g) || []).length, 1, 'overview must use exactly one map iframe');
-assert.equal((html.match(/route-roadbook\.html/g) || []).length, 1, 'the main guide must expose one canonical road-book entry');
-assert.match(html, /href="\.\/route-roadbook\.html\?v=11"/, 'the canonical road-book entry must use the current cache version');
+// 只允许一个 HTML 路书文件；正文/地图可以有多个链接，但必须全部指向它，且版本号一致。
+const roadbookRefs = html.match(/route-roadbook\.html(\?v=\d+)?/g) || [];
+assert.ok(roadbookRefs.length >= 1, 'the main guide must link to the canonical road book at least once');
+for (const ref of roadbookRefs) {
+  assert.ok(/route-roadbook\.html\?v=13/.test(ref), `road-book links must use the current cache version (v13), found: ${ref}`);
+}
 
 // 7. 地图与路书链接指向唯一 route-roadbook.html
 assert.match(amapMap, /route-roadbook\.html/, 'the online map must link to the canonical road book');

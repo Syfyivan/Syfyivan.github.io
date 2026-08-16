@@ -192,15 +192,12 @@ sup a:hover{text-decoration:underline;}
       <a href="#key-points" class="active">出发时间</a>
       <a href="#rental">租车与预算</a>
       <a href="#overview">路线总览</a>
-      <a href="#roadbook">逐日路书</a>
-      <a href="#food-plan">吃饭安排</a>
-      <a href="#hiking">徒步</a>
-      <a href="#stay-matrix">住宿与下单</a>
-      <a href="#handbook">压缩手册</a>
-      <a href="#execution">执行清单</a>
-      <a href="#shopping">采购与做功课</a>
-      <a href="#packing">行李</a>
-      <a href="#supply">补给保养</a>
+      <a href="#roadbook">逐日路书（含吃住·价格）</a>
+      <a href="#food-plan">吃饭策略</a>
+      <a href="#hiking">4段徒步</a>
+      <a href="#stay-matrix">住宿总表与下单</a>
+      <a href="#execution">执行与采购</a>
+      <a href="#packing">行李补给</a>
       <a href="#emergency">应急预案</a>
     </div>
   </div>
@@ -431,7 +428,7 @@ sup a:hover{text-decoration:underline;}
       </div>
     </div>
     <div id="routePreviewHome" class="map-preview-frame">
-      <iframe id="routePreviewFrame" src="./route-map-amap.html?v=11" data-mode="online" title="70天自驾路线交互地图" loading="eager"></iframe>
+      <iframe id="routePreviewFrame" src="./route-map-amap.html?v=13" data-mode="online" title="70天自驾路线交互地图" loading="eager"></iframe>
     </div>
     <div class="map-preview-note">地图按20段城市间主干导航绘制，并加入住宿、景点、吃饭区域、采购加油、厕所参考和医疗救援图层。厕所、营业和住宿地址属于规划参考，出发前仍要用实时地图或订单页复核。</div>
   </div>
@@ -478,10 +475,10 @@ sup a:hover{text-decoration:underline;}
     <div class="roadbook-intro-copy">
       <div class="section-num">Daily Roadbook</div>
       <h2>D1—D70 完整路书</h2>
-      <p class="lead">路线、住宿、吃饭和每天的关键闸门统一维护在同一份路书里。打开后可以按天筛选、展开全部、打印、下载 TXT，也支持断网访问。</p>
+      <p class="lead">这是全程唯一的逐日信息源：D1—D70 每天的路线、停靠、三餐建议、住宿、门票/接驳费用、当天参考支出都在这份路书里，并且每晚都带价格区间和可点开的比价/订单链接。打开后可按天筛选、展开全部、打印、下载 TXT，也支持断网访问。下面的“吃饭策略”“住宿总表”只讲全局口径，具体到某一天请直接看路书。</p>
     </div>
     <div class="roadbook-actions">
-      <a class="primary" href="./route-roadbook.html?v=11">打开 D1—D70 完整路书</a>
+      <a class="primary" href="./route-roadbook.html?v=13">打开 D1—D70 完整路书</a>
     </div>
   </div>
   <div class="callout green">
@@ -493,8 +490,8 @@ sup a:hover{text-decoration:underline;}
 <!-- Food plan -->
 <section id="food-plan">
   <div class="section-num">Food Rhythm</div>
-  <h2>70 天吃饭安排：能进店就进店，只有具备厨房的恢复日才自己做饭</h2>
-  <p class="lead">全程 49 个住宿区域中，只有敦煌、丽江、成都、西安共 7 晚明确带厨房，其余多为酒店、偏远客栈或徒步住宿，房间不具备开火条件。因此餐饮安排为：早餐和长途午餐以自己掌控为主，晚餐保证热食；有地方特色的城市坐下来进店吃，具备厨房且行程从容的恢复日再自己做饭。</p>
+  <h2>70 天吃饭安排：能进店就进店，只有安排自炊的恢复日才需要厨房</h2>
+  <p class="lead">全程只安排 <strong>3 晚厨房自炊</strong>（D56 丽江、D64 成都、D66 西安），都是行程从容、能采购和收拾的恢复日。<strong>厨房只在这 3 晚是硬性要求</strong>；其余住宿按位置、价格、供暖/供氧和睡眠质量来选，不必强求带厨房的民宿。餐饮安排为：早餐和长途午餐以自己掌控为主，晚餐保证热食；有地方特色的城市坐下来进店吃。逐日的具体吃法、价格区间都写在 <a href="./route-roadbook.html?v=13">D1—D70 完整路书</a> 里。</p>
 
   <div class="meal-mode-grid">
     <div class="meal-mode-card"><span class="meal-mode restaurant">目的地进店</span><strong>30 天</strong><p>把地方特色和完整营养放在到达早、选择多的城市；具体安排已经写进对应 D 日路书。</p></div>
@@ -550,26 +547,30 @@ sup a:hover{text-decoration:underline;}
     <div class="callout-title">高原与偏远段的吃饭纪律</div>
     <p>每次重新上到高海拔后的前 48 小时不饮酒，G219 / 阿里段默认全程不饮酒；食物优先选择<strong>完全煮熟、热着上桌</strong>的菜，卫生条件不确定时不吃生食、半熟蛋肉和放温了的熟食。<sup><a href="#cite-f1">[11]</a></sup><sup><a href="#cite-m1">[10]</a></sup> 这不是为了“养生打卡”，而是避免肠胃问题和酒精把高原适应、睡眠与驾驶状态一起拖垮。</p>
   </div>
+  <div class="callout">
+    <div class="callout-title">要不要户外野炊 / 烧烤：默认不安排</div>
+    <p>本行程<strong>不把户外明火野炊或烧烤列为计划项</strong>，无需为此额外准备炉具、气罐或炭火。原因很直接：全程大部分路段（新疆草原、青海、阿里、藏区、川西高原林区）都有明确的<strong>防火期与野外用火管制</strong>，草原和林区违规用火可能违法且风险高；行程本身已由“进店 + 住宿热餐 + 3 晚厨房自炊”覆盖，明火野炊边际收益低。<strong>确有兴致时的唯一低风险选择：</strong>在允许烧烤/明火的正规营地或商业烧烤区（如部分景区外围指定烧烤点），使用其提供的设施，遵守现场规定；出发前不需要为此打包任何明火装备，到场按当地规则临时决定即可。若后续你确定想固定安排 1 次，我再把地点、合规确认和采购清单补进对应 D 日路书。</p>
+  </div>
 </section>
 
 <!-- Hiking summary -->
 <section id="hiking">
   <div class="section-num">Hiking Routes</div>
-  <h2>全程徒步路线一览（共6条徒步路线，约9个徒步日）</h2>
+  <h2>全程共 4 段徒步（另含 2 段景区轻栈道）</h2>
   <div class="callout green">
     <div class="callout-title">徒步路线汇总</div>
-    <p>累计徒步约108km，核心徒步为雨崩（3天41km）、虎跳峡高路（2天20km）和稻城亚丁（2天18km）；本行程不安排5648m转山与珠峰半日徒步，体力曲线更适合70天长线。</p>
+    <p>本行程的核心徒步共 <strong>4 段</strong>：<strong>禾木美丽峰（D13，1 天）、雨崩（D48—D50，3 天）、虎跳峡高路（D53—D55，2 天）、稻城亚丁长短线（D59—D60，2 天）</strong>，累计约 94km。另有喀纳斯三湾木栈道、来古冰川方向两段景区轻徒步，视天气与开放情况顺路安排，不计入核心 4 段。本行程不安排 5648m 转山与珠峰半日徒步，体力曲线更适合 70 天长线。</p>
   </div>
   <div class="table-wrap">
     <table>
       <thead><tr><th>徒步路线</th><th>位置</th><th>天数/距离</th><th>最高海拔</th><th>难度</th><th>时间</th></tr></thead>
       <tbody>
-        <tr><td><strong>喀纳斯三湾木栈道</strong></td><td>新疆</td><td>半天/8km</td><td>1400m</td><td><span class="diff">★☆☆☆☆</span></td><td><span class="tag ok">9月29日</span></td></tr>
-        <tr><td><strong>禾木美丽峰</strong></td><td>新疆</td><td>1天/15km</td><td>1800m</td><td><span class="diff">★★☆☆☆</span></td><td><span class="tag ok">9月30日</span></td></tr>
-        <tr><td><strong>来古冰川徒步</strong></td><td>西藏八宿</td><td>半天/6km</td><td>4200m</td><td><span class="diff">★★☆☆☆</span></td><td><span class="tag ok">10月30日</span></td></tr>
-        <tr><td><strong>雨崩冰湖+神瀑+尼农</strong></td><td>云南</td><td>3天/41km</td><td>3800m</td><td><span class="diff">★★★☆☆</span></td><td><span class="tag ok">11月3-6日</span></td></tr>
-        <tr><td><strong>虎跳峡高路</strong></td><td>云南</td><td>2天/20km</td><td>2700m</td><td><span class="diff">★★☆☆☆</span></td><td><span class="tag ok">11月9-10日</span></td></tr>
-        <tr><td><strong>稻城亚丁长线+短线</strong></td><td>四川</td><td>2天/18km</td><td>4600m</td><td><span class="diff">★★★★☆</span></td><td><span class="tag ok">11月15-16日</span></td></tr>
+        <tr><td><strong>禾木美丽峰</strong> <span class="tag ok">核心 1/4</span></td><td>新疆</td><td>1天/15km</td><td>1800m</td><td><span class="diff">★★☆☆☆</span></td><td><span class="tag ok">9月30日</span></td></tr>
+        <tr><td><strong>雨崩冰湖+神瀑+尼农</strong> <span class="tag ok">核心 2/4</span></td><td>云南</td><td>3天/41km</td><td>3800m</td><td><span class="diff">★★★☆☆</span></td><td><span class="tag ok">11月3-6日</span></td></tr>
+        <tr><td><strong>虎跳峡高路</strong> <span class="tag ok">核心 3/4</span></td><td>云南</td><td>2天/20km</td><td>2700m</td><td><span class="diff">★★☆☆☆</span></td><td><span class="tag ok">11月9-10日</span></td></tr>
+        <tr><td><strong>稻城亚丁长线+短线</strong> <span class="tag ok">核心 4/4</span></td><td>四川</td><td>2天/18km</td><td>4600m</td><td><span class="diff">★★★★☆</span></td><td><span class="tag ok">11月15-16日</span></td></tr>
+        <tr><td>喀纳斯三湾木栈道 <span class="tag">景区轻栈道</span></td><td>新疆</td><td>半天/8km</td><td>1400m</td><td><span class="diff">★☆☆☆☆</span></td><td><span class="tag ok">9月29日</span></td></tr>
+        <tr><td>来古冰川方向 <span class="tag">景区轻徒步</span></td><td>西藏八宿</td><td>半天/6km</td><td>4200m</td><td><span class="diff">★★☆☆☆</span></td><td><span class="tag ok">10月30日</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -579,7 +580,7 @@ sup a:hover{text-decoration:underline;}
 <section id="hiking-manual">
   <div class="section-num">Hiking Manual</div>
   <h2>徒步作战手册</h2>
-  <p class="lead">本部分覆盖 3 段核心徒步：<strong>雨崩、虎跳峡、稻城亚丁</strong>。目的是让 4 人出发前能判断“今天是否适合上、上到哪里应该撤、带什么装备最关键”。</p>
+  <p class="lead">本部分覆盖核心 4 段徒步中体力压力最大的 <strong>雨崩、虎跳峡、稻城亚丁</strong> 三段（禾木美丽峰强度低、当天往返，执行要点已并入 D13 路书）。目的是让 4 人出发前能判断“今天是否适合上、上到哪里应该撤、带什么装备最关键”。</p>
   <div class="two-col">
     <div class="col-card">
       <h4>雨崩 3 天</h4>
@@ -625,10 +626,10 @@ sup a:hover{text-decoration:underline;}
 <section id="stay-strategy">
   <div class="section-num">Stay Strategy</div>
   <h2>住宿策略与预订清单</h2>
-  <p class="lead">住宿口径现在按你们 4 个人的真实住法重做：<strong>优先 1 套整租两居/三居民宿，有可以实际开火的厨房；找不到合适民宿时，酒店固定订 2 间、每间 2 人</strong>。价格统一看 4 人一晚总价和整段总价，不再拿单间“起价”冒充团队成本。</p>
+  <p class="lead">住宿口径按你们 4 个人的真实住法来定：<strong>只有 3 个自炊恢复夜（丽江 N55—N56、成都 N63—N64、西安 N65—N66）把“可实际开火的厨房”作为硬性要求</strong>；其余各晚不强求厨房，优先位置、价格、供暖/供氧、停车和睡眠质量——找到合适整租民宿就住整套，否则酒店固定订 2 间、每间 2 人。价格统一看 4 人一晚总价和整段总价，不再拿单间“起价”冒充团队成本。</p>
   <div class="callout green">
     <div class="callout-title">4 人住宿的固定筛选顺序</div>
-    <p><strong>第一层：</strong>整套房源、2/3 间独立卧室、4 成人、厨房允许做饭、至少基础锅具与冰箱；<strong>第二层：</strong>洗衣机、免费停车、热水稳定、可免费取消；<strong>第三层：</strong>没有合格民宿时改订 2 间酒店房。只有喀纳斯/禾木、巴嘎、雨崩、日瓦等稀缺或高海拔节点允许把厨房降级，优先位置、供暖/供氧、晚到接待和睡眠安全。</p>
+    <p><strong>3 个自炊夜（丽江 / 成都 / 西安）：</strong>整套房源、2/3 间独立卧室、厨房允许做饭、至少基础锅具与冰箱，其次才看洗衣机、免费停车、可免费取消。<strong>其余各晚：</strong>厨房不作要求——先看位置是否贴合当天动线、4 人含税总价、供暖/供氧、停车和是否可免费取消；能睡好、能早起、能停车比“有没有厨房”更重要。高海拔与偏远节点（喀纳斯/禾木、巴嘎、雨崩、日瓦等）一律优先供暖/供氧、晚到接待和睡眠安全。</p>
   </div>
   <div class="table-wrap">
     <table>
@@ -1245,7 +1246,7 @@ sup a:hover{text-decoration:underline;}
 
 <script>
 function getMapPage(mode) {
-  return mode === 'offline' ? './route-map-offline.html?v=11' : './route-map-amap.html?v=11';
+  return mode === 'offline' ? './route-map-offline.html?v=13' : './route-map-amap.html?v=13';
 }
 function notifyMapResize() {
   var frame = document.getElementById('routePreviewFrame');

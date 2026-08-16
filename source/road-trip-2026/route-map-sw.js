@@ -1,4 +1,4 @@
-const CACHE_NAME = 'road-trip-2026-map-v12';
+const CACHE_NAME = 'road-trip-2026-map-v13';
 const CORE_PATHS = [
   './',
   './index.html',
@@ -46,6 +46,24 @@ self.addEventListener('fetch', event => {
           return response;
         })
         .catch(() => caches.match(request, { ignoreSearch: true }).then(cached => cached || caches.match('./route-map-offline.html')))
+    );
+    return;
+  }
+
+  // 数据脚本与页面样式：网络优先（network-first）。
+  // 有网时永远拿最新的 .js / .html，避免“改了数据但缓存没升级”导致的空壳/旧内容；
+  // 断网时回退到缓存，保证离线可用。图片等静态资源走下方 stale-while-revalidate。
+  if (/\.(js|html|css)$/i.test(url.pathname)) {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request, { ignoreSearch: true }))
     );
     return;
   }
