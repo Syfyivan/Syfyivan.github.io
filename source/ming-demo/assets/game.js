@@ -1591,6 +1591,27 @@
     var available = received + pending + lockedTrial - remitted;
     return Math.max(0, available);
   }
+  function merchantYearSplitSnapshot() {
+    return {
+      trial: Math.max(0, (S.本年商路议本 || 0) + (S.本年商路试贩 || 0)),
+      home: Math.max(0, S.本年商路贴家 || 0),
+      school: Math.max(0, S.本年商路供读 || 0),
+      duty: Math.max(0, S.本年商路备役 || 0),
+      drag: Math.max(0, S.本年商路拖欠 || 0),
+      body: Math.max(0, S.本年商路歇养 || 0)
+    };
+  }
+  function merchantYearSplitText(snapshot) {
+    var split = snapshot || merchantYearSplitSnapshot();
+    var parts = [];
+    if (split.trial > 0) parts.push('试本肩位' + split.trial + '次');
+    if (split.home > 0) parts.push('锅火/贴家' + split.home + '次');
+    if (split.school > 0) parts.push('供读' + split.school + '次');
+    if (split.duty > 0) parts.push('差役' + split.duty + '次');
+    if (split.drag > 0) parts.push('拖欠' + split.drag + '次');
+    if (split.body > 0) parts.push('药包/歇养' + split.body + '次');
+    return parts.length ? parts.join('｜') : '尚未把回钱与后手去向拆成真账';
+  }
   function childbearingProfile() {
     var life = currentLifeProfile();
     var profile = {
@@ -8575,6 +8596,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       : (season.id === 'summer' ? (isMid ? 90 : 85) : 80);
     literacyCost = Math.max(60, literacyCost + yearProfile.literacyCostAdj);
     var seasonalCounts = '本年坐店=' + S.本年商路坐店 + '｜跑单=' + S.本年商路跑单 + '｜认货=' + S.本年商路认货 + '｜问价=' + S.本年商路问价 + '｜核账=' + S.本年商路核账 + '｜催账=' + S.本年商路催账 + '｜贴家=' + S.本年商路贴家 + '｜家书=' + S.本年商路家书 + '｜议本=' + S.本年商路议本 + '｜试贩=' + S.本年商路试贩 + '｜回钱银=' + S.本年商路回钱银 + '｜反哺银=' + S.本年商路反哺银 + '｜拖欠=' + S.本年商路拖欠 + '｜供读=' + S.本年商路供读 + '｜身乏=' + S.本年商路身乏 + '｜龃龉=' + S.本年商路龃龉 + '｜役扰=' + S.本年商路役扰;
+    var remitSplit = merchantYearSplitSnapshot();
+    var remitSplitText = merchantYearSplitText(remitSplit);
     var bridge = lifecycleInheritanceBridge();
     var merchantCarryHook = (S.商年 === 1 && season.id === 'spring' && xun === 1) ? routeStageInheritanceHook('merchant') : { note: '', dossier: '' };
     var inheritedMerchantSupportBias = S.商年 === 1
@@ -8619,6 +8642,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       commitLabel: isYearEnd ? '了这一商年 →' : '了这一旬商路 →',
       note: '一个商年从春开路、夏坐店走到秋试手、冬清账。真正要争的不是一次发财判定，而是认货、问价、跑单、催账、贴家、差役、衣药与旧债怎样分同一笔回钱。'
         + ' 本商年重心是“' + yearProfile.label + '”：' + yearProfile.note
+        + ' 当前年内分流=' + remitSplitText + '。'
         + (generation > 1 ? ' ' + tradePreview.note : '')
         + (bridge.note ? ' ' + bridge.note : '')
         + (merchantCarryHook.note ? ' ' + merchantCarryHook.note : ''),
@@ -8632,6 +8656,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       dossier: function () {
         var seasonTags = (S.本年商路季务 && S.本年商路季务.length) ? S.本年商路季务.join('、') : '尚未坐实';
         return lifeDossier('本钱≠利润；货卖出但银没回，不算现钱。当前商程=' + season.name + '·' + xunLabel + '｜商年画像=' + yearProfile.dossier + '｜识货进度=' + S.识货进度 + '｜账房进度=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜累计回钱=' + (S.累计回钱银 || 0) + '两｜未回款=' + S.未回款银 + '两｜累计反哺=' + S.累计反哺银 + '两｜可调度回家商账=' + supportCapacity + '两（贴家/供读共用）｜试本口风=' + (S.本年商路议本 > 0 ? '已坐实' : '未坐实') + '｜' + seasonalCounts + '｜本年季务=' + seasonTags + '。'
+          + '｜本年回钱分流=' + remitSplitText + '。'
           + (bridge.dossier ? ('｜' + bridge.dossier) : '')
           + (merchantCarryHook.dossier ? ('｜' + merchantCarryHook.dossier) : ''));
       },
@@ -11998,6 +12023,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (S.本年商路议本 > 0) log.push(['〔议本账〕这一商年你有 ' + S.本年商路议本 + ' 次先把试本口风坐实；“带本”不再像默认能直接动家里银子，而是要先过一层门包、回话与点头。', 'good']);
         if (S.本年商路回钱银 > 0) log.push(['〔回钱账〕这一商年共有 ' + S.本年商路回钱银 + ' 两白银真从外头回到了手里；不是账面上写着“应得”，而是已经落成现银。', 'good']);
         if (S.本年商路反哺银 > 0) log.push(['〔反哺账〕这一商年你有 ' + S.本年商路反哺银 + ' 两白银真从手里划回家中；“亦贾亦儒”的反哺不是死后评语，而是当年就能点清的现银去向。', 'good']);
+        if (remitSplitText.indexOf('尚未把回钱与后手去向拆成真账') < 0) {
+          log.push(['〔回钱分流〕这一商年已把回钱与后手先后拆作：' + remitSplitText + '。同一笔现银先顾哪头，不再只在年终一把带过。', 'good']);
+        }
         if (S.本年商路供读 > 0) {
           log.push(['〔供读链〕这一商年你有 ' + S.本年商路供读 + ' 次先把回钱、纸包或现银往家里供读那条链上压；这层专账不是平白生出来的，是从你本年跑回来的现钱和脚费里硬分出来的。', 'good']);
         }
