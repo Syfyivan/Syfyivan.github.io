@@ -7417,10 +7417,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         return group && group.id === 'wage-work-mode';
       }).forEach(add);
     }
-    if (examWinterSupportIds && visible.length < max) {
+    if (examWinterSupportIds) {
+      var seededVisible = visible.slice();
+      visible = [];
+      add(source[0]);
       examWinterSupportIds.forEach(function (id) {
         add(source.filter(function (action) { return action.id === id; })[0]);
       });
+      seededVisible.forEach(add);
     }
     // 余位优先给不同目的，避免六个按钮全是同一种细分做法。
     ['主线', '准备', '挣钱', '顾家', '养身', '其他'].forEach(function (kind) {
