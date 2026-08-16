@@ -4930,7 +4930,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'spring' && xun === 3) apply({
-      handledIds: ['m_letter', 'm_home', 'm_reserve', 'm_market', 'm_spring_tail_split', 'm_spring_tail_goods', 'm_spring_tail_supply', 'm_spring_tail_body', 'm_spring_first_tail_split', 'm_spring_second_dispatch', 'm_spring_second_tail_remit', 'm_spring_third_tail_remit', 'm_spring_third_tail_split'],
+      handledIds: ['m_letter', 'm_home', 'm_reserve', 'm_market', 'm_spring_tail_split', 'm_spring_tail_goods', 'm_spring_tail_supply', 'm_spring_tail_body', 'm_spring_first_tail_split', 'm_spring_second_dispatch', 'm_spring_second_tail_split', 'm_spring_second_tail_remit', 'm_spring_third_tail_remit', 'm_spring_third_tail_split'],
       doneTag: '春尾脚费已留',
       doneLog: '〔春尾脚费〕这一旬先把回乡带话脚费、柜边包纸、归乡药包和递话门包分开了；春开路收尾不再只剩一句“过了春再说”，连身子与家里催问也被压回同一年里。',
       cost: 30,
@@ -8978,6 +8978,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               once: true
             });
             A.push({
+              id: 'm_spring_second_tail_split',
+              name: '先把二年春尾试本回签与供读家书分开',
+              cost: 1,
+              eff: '铜钱-80·议本+1·供读+1·贴家+1·家书+1·家族+1·商信誉+1',
+              desc: '第二商年春开路收尾这一旬最怕试本回签、供读纸包、家书催问、归乡脚费和锅火小耗一起追钱。先把这层“二年春尾不只要定夏前脚单，也得先给试本、供读与家里回话一个准次序”的肩位拆开，让第二商年的春尾不再只有脚单与真回钱两笔大头，而会把试本、供读、贴家与家书一起压回同一年里。',
+              can: S.铜钱 >= 80 && (S.本年商路议本 > 0 || S.本年商路供读 > 0 || S.本年商路贴家 > 0 || S.本年商路家书 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0),
+              why: S.铜钱 >= 80
+                ? ((S.本年商路议本 > 0 || S.本年商路供读 > 0 || S.本年商路贴家 > 0 || S.本年商路家书 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0) ? '' : '需先有试本、供读、贴家、家书或回钱口风可拆')
+                : '铜钱不足80文',
+              once: true
+            });
+            A.push({
               id: 'm_spring_second_tail_remit',
               name: '先把二年春尾回钱拆作试本与供读',
               cost: 1,
@@ -9957,7 +9969,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               : ['m_spring_first_mid_route', 'm_spring_mid_school', 'm_spring_mid_body', 'm_spring_home_split', 'm_packet']);
         } else if (season.id === 'spring' && xun === 3) {
           preferredOrder = S.商年 === 2
-            ? ['m_spring_second_tail_remit', 'm_spring_second_dispatch']
+            ? ['m_spring_second_tail_remit', 'm_spring_second_tail_split', 'm_spring_second_dispatch']
             : (S.商年 === 3
               ? ['m_spring_third_tail_remit', 'm_spring_third_tail_split']
               : ['m_spring_first_tail_split', 'm_spring_tail_supply', 'm_spring_tail_body', 'm_spring_tail_goods', 'm_spring_tail_split']);
@@ -10368,6 +10380,21 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把二年春尾样单与脚单回话分开：铜钱-70、认货+1、问价+1、跑单+1、家书+1、商信誉+1。第二商年春尾这层样单抄录、旧客脚单、回话门包和归乡脚费先被压回了这一旬，伏夏尚未起脚，二年商路已先把认货、问价和跑单坐成真账。', 'good']);
               } else {
                 log.push(['想先把二年春尾样单与脚单回话分开，但这旬铜钱已先被别处占住，只得让样单抄录、旧客脚单和回话门包继续一起追这口现钱。', 'bad']);
+              }
+              break;
+            case 'm_spring_second_tail_split':
+              if (spendCopper(80)) {
+                S.本年商路议本 += 1;
+                S.本年商路供读 += 1;
+                S.本年商路贴家 += 1;
+                S.本年商路家书 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                S.家族 += 1;
+                S.商信誉 += 1;
+                pushMerchantSeasonTag(season.name + xunLabel + '拆二年春尾试供');
+                log.push(['先把二年春尾试本回签与供读家书分开：铜钱-80、议本+1、供读+1、贴家+1、家书+1、家族+1、商信誉+1。第二商年春尾这层试本回签、供读纸包、家书催问、归乡脚费和锅火小耗先被压回了这一旬，转入伏夏前，试本、供读和家里回话已先互相咬住。', 'good']);
+              } else {
+                log.push(['想先把二年春尾试本回签与供读家书分开，但这旬铜钱已先被别处占住，只得让试本回签、供读纸包和家书催问继续一起追这口现钱。', 'bad']);
               }
               break;
             case 'm_spring_second_tail_remit':
@@ -13736,6 +13763,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 : (season.id === 'winter' ? ['e_winter_tail_cure', 'e_mend', 'e_rest'] : ['e_mend', 'e_rest']))));
         var gapCode = examAttemptStructuralGapCode();
         var supportPriorityActive = (S.供读压力 || 0) >= 2 || (S.本年家中续供次 || 0) <= 0 || (S.本年供读转折旬数 || 0) > 0;
+        var yearThreeSpringShoulderSupportFirst = examYear >= 3
+          && season.id === 'spring'
+          && xun >= 2
+          && supportPriorityActive;
         var lateWarmSeasonSupportFirst = warmSeasonDelayPriority
           && examYear >= 3
           && supportPriorityActive;
@@ -13744,10 +13775,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           && (S.负债银 || 0) > 0
           && !S.本年债息已结
           && supportPriorityActive;
-        if (lateWarmSeasonSupportFirst) {
+        if (yearThreeSpringShoulderSupportFirst) {
           preferredOrder = preferredOrder.concat(supportIds);
         }
-        if (winterDebtSupportFirst && !lateWarmSeasonSupportFirst) {
+        if (lateWarmSeasonSupportFirst && !yearThreeSpringShoulderSupportFirst) {
+          preferredOrder = preferredOrder.concat(supportIds);
+        }
+        if (winterDebtSupportFirst && !lateWarmSeasonSupportFirst && !yearThreeSpringShoulderSupportFirst) {
           preferredOrder = preferredOrder.concat(supportIds);
         }
         if (gapCode === 'studyMode') preferredOrder = ['e_tutor', 'e_half', 'e_school', 'e_enroll', 'e_literacy'].concat(preferredOrder);
@@ -13756,7 +13790,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         else if (gapCode === 'studyCount' || gapCode === 'article') preferredOrder = preferredOrder.concat(['e_essay', 'e_copy']);
         else if (gapCode === 'supportCut') preferredOrder = preferredOrder.concat(['e_copy', 'e_fail_tutor_bridge']);
         else if (gapCode === 'bodySpent') preferredOrder = preferredOrder.concat(bodyIds);
-        if (supportPriorityActive && !lateWarmSeasonSupportFirst && !winterDebtSupportFirst) {
+        if (supportPriorityActive && !yearThreeSpringShoulderSupportFirst && !lateWarmSeasonSupportFirst && !winterDebtSupportFirst) {
           preferredOrder = preferredOrder.concat(supportIds);
         }
         if (((S.本年延婚牵扯 || 0) > 0) || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive()) || ((S.供读压力 || 0) >= 2)) {
