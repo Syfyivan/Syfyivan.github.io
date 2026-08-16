@@ -21013,6 +21013,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (season.id === 'winter' && xun === 3) A.push({ id: 'h_wage_winter_tail', name: '先把年下回签与来春草鞋分开', cost: 1, eff: '铜钱-55·核账+1·备役+1·通融+1·家族+1', desc: '冬尾最怕年下回签、来春草鞋、递话门包和眼前锅火一起压上来。先把这层年下碎账拆开并抄进真账，来春第一程和今冬最后几口家用才不必继续抢同一口现钱。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文' });
         A.push({ id: 'h_side', name: seasonIdx <= 2 ? '抽身贴补这一房' : '再接一口零活补差钱', cost: 1, eff: side.effect, desc: '当户这一年照样得找现钱。哪怕只是多接一层零活，也是在给锅火、田面和差钱添后手。', can: true });
         A.push({ id: 'h_rest', name: '将养身子', cost: 1, eff: '体魄+5', desc: '中年卖工出身，当户这一年若先把身子熬垮，后头再多账面后手也接不住。', can: true });
+        var preferredOrder = [];
+        if (season.id === 'autumn' && xun === 1) preferredOrder = ['h_wage_autumn_packet', 'h_wage_collect', 'h_wage_autumn_note', 'h_proxy_wage', 'h_hold_field'];
+        else if (season.id === 'winter' && xun === 3) preferredOrder = ['h_wage_winter_tail', 'h_wage_collect', 'h_wage_winter_route', 'h_side'];
+        sortActionsByPreferredOrder(A, preferredOrder);
         return A;
       },
       settle: function (log) {
