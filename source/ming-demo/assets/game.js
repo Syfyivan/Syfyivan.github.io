@@ -7118,15 +7118,16 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var strategic = [
       'e_literacy', 'e_enroll', 'e_tutor', 'e_half', 'e_school', 'e_essay',
       'e_guarantee_prep', 'e_guarantee', 'e_exam', 'e_copy', 'e_home', 'e_rest', 'e_mend',
+      'e_delay_upper', 'e_delay_split', 'e_winter_debt_note', 'e_winter_tail_note', 'e_fail_talk', 'e_fail_tutor_bridge',
       'w_long', 'w_short', 'w_out', 'w_skill', 'w_book', 'w_home', 'w_rest',
       'a_seek', 'a_bond', 'a_sign', 'a_drudge', 'a_learn', 'a_run', 'a_book', 'a_market', 'a_home', 'a_rest',
       'm_shop', 'm_goods', 'm_market', 'm_wharf', 'm_run', 'm_try', 'm_book', 'm_collect', 'm_home', 'm_rest'
     ];
     if (strategic.indexOf(id) >= 0) return false;
+    if (/^e_year\d_/.test(id)) return false;
     // 这类按钮的本质是账本明细，不是人生方向。它们仍留在引擎和回放里，
     // 但不再占据玩家的选择清单。
-    return /^e_year\d_/.test(id)
-      || /^先把/.test(name)
+    return /^先把/.test(name)
       || /^把.+(?:分开|拆开|拆作|理开)/.test(name)
       || /^先留(?!一角差役钱)/.test(name)
       || /^先备.+(?:脚费|门包|样纸|纸墨|灯油|薄礼)/.test(name);
