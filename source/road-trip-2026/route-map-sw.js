@@ -1,4 +1,4 @@
-const CACHE_NAME = 'road-trip-2026-map-v11';
+const CACHE_NAME = 'road-trip-2026-map-v12';
 const CORE_PATHS = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const CORE_PATHS = [
   './assets/route_map_pois.js',
   './assets/road_trip_days.js',
   './assets/road_trip_meals.js',
+  './assets/road_trip_costs.js',
   './assets/amap-config.public.js'
 ];
 
@@ -51,14 +52,16 @@ self.addEventListener('fetch', event => {
 
   event.respondWith(
     caches.match(request, { ignoreSearch: true }).then(cached => {
-      if (cached) return cached;
-      return fetch(request).then(response => {
+      const network = fetch(request).then(response => {
         if (response && response.ok) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
         }
         return response;
-      });
+      }).catch(() => cached);
+      // stale-while-revalidate：命中缓存先返回，同时后台拉取最新资源写回缓存，
+      // 避免改了数据文件但缓存版本忘记升级时长期返回旧内容。
+      return cached || network;
     })
   );
 });
