@@ -1645,7 +1645,11 @@
       school: Math.max(0, S.本年商路供读 || 0),
       duty: Math.max(0, S.本年商路备役 || 0),
       drag: Math.max(0, S.本年商路拖欠 || 0),
-      body: Math.max(0, S.本年商路歇养 || 0)
+      body: Math.max(0, S.本年商路歇养 || 0),
+      letters: Math.max(0, S.本年商路家书 || 0),
+      strain: Math.max(0, S.本年商路身乏 || 0),
+      clan: Math.max(0, S.本年商路龃龉 || 0),
+      role: Math.max(0, S.本年商路役扰 || 0)
     };
   }
   function merchantYearSplitText(snapshot) {
@@ -1657,6 +1661,10 @@
     if (split.duty > 0) parts.push('差役' + split.duty + '次');
     if (split.drag > 0) parts.push('拖欠' + split.drag + '次');
     if (split.body > 0) parts.push('药包/歇养' + split.body + '次');
+    if (split.letters > 0) parts.push('家书/回话' + split.letters + '次');
+    if (split.strain > 0) parts.push('身乏' + split.strain + '次');
+    if (split.clan > 0) parts.push('家口龃龉' + split.clan + '次');
+    if (split.role > 0) parts.push('役扰' + split.role + '次');
     return parts.length ? parts.join('｜') : '尚未把回钱与后手去向拆成真账';
   }
   function merchantFamilySplitSnapshot() {
@@ -2724,6 +2732,11 @@
     if (tutorReplies <= 0 && marriageReplies <= 0) return '未见回签';
     return examCurrentReplySummary();
   }
+  function examCurrentRumorLabel() {
+    var rumors = Math.max(0, Number(S.本年回榜口风次数) || 0);
+    if (rumors <= 0) return '未见榜口';
+    return '回榜' + rumors + '旬';
+  }
   function examLifetimeSupportSourceSummary() {
     return examSupportSourceSummary(examLifetimeSupportSourceCounts(), {
       lifetime: true,
@@ -2819,7 +2832,8 @@
   }
   function examLifetimeReplySummary() {
     return '馆保' + Math.max(0, Number(S.举业累计馆保回话次数) || 0)
-      + '/婚札' + Math.max(0, Number(S.举业累计婚话回札次数) || 0);
+      + '/婚札' + Math.max(0, Number(S.举业累计婚话回札次数) || 0)
+      + '/榜口' + Math.max(0, Number(S.举业累计回榜口风次数) || 0);
   }
   function examLifecycleCarryDossierTail() {
     return [
@@ -2838,11 +2852,12 @@
     var supportSummary = examLifetimeSupportSourceSummary();
     var tutorReplies = Math.max(0, Number(S.举业累计馆保回话次数) || 0);
     var marriageReplies = Math.max(0, Number(S.举业累计婚话回札次数) || 0);
+    var rumorReplies = Math.max(0, Number(S.举业累计回榜口风次数) || 0);
     var signalTotal = Math.max(0, Number(S.举业累计供读转折旬数) || 0)
       + Math.max(0, Number(S.举业累计婚事转折旬数) || 0)
       + Math.max(0, Number(S.举业累计身耗转折旬数) || 0);
     if (blocked > 0) parts.push('场外受阻已累到' + blocked + '回');
-    if (tutorReplies > 0 || marriageReplies > 0) parts.push('馆保/婚话回签已记成“' + examLifetimeReplySummary() + '”');
+    if (tutorReplies > 0 || marriageReplies > 0 || rumorReplies > 0) parts.push('馆保/婚话/榜口回签已记成“' + examLifetimeReplySummary() + '”');
     if (signalTotal > 0) parts.push('供读/婚事/身耗翻账也累成“' + examLifetimeSignalSummary() + '”');
     if (supportSummary !== '未见明账') parts.push('供读旧账明到“' + supportSummary + '”');
     return parts.join('；');
@@ -4020,6 +4035,7 @@
     S.举业累计保帖底样次数 = (S.举业累计保帖底样次数 || 0) + (S.本年保帖底样次数 || 0);
     S.举业累计馆保回话次数 = (S.举业累计馆保回话次数 || 0) + (S.本年馆保回话次数 || 0);
     S.举业累计婚话回札次数 = (S.举业累计婚话回札次数 || 0) + (S.本年婚话回札次数 || 0);
+    S.举业累计回榜口风次数 = (S.举业累计回榜口风次数 || 0) + (S.本年回榜口风次数 || 0);
     S.举业累计落第次数 = (S.举业累计落第次数 || 0) + (S.本年落第次数 || 0);
     S.举业累计应场受阻次数 = (S.举业累计应场受阻次数 || 0) + (S.本年应场受阻次数 || 0);
     S.举业累计身子亏空 = (S.举业累计身子亏空 || 0) + (S.本年身子亏空 || 0);
@@ -5729,6 +5745,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += '<span class="chip">供养 <b>' + examVisibleSupportLedger() + '</b></span>';
       h += '<span class="chip">供读明账 <b>' + examCurrentSupportSourceSummary() + '</b></span>';
       h += '<span class="chip">回签 <b>' + examCurrentReplyLabel() + '</b></span>';
+      if ((S.本年回榜口风次数 || 0) > 0) h += '<span class="chip">榜口 <b>' + examCurrentRumorLabel() + '</b></span>';
       h += '<span class="chip">已落支出 <b>' + examVisibleOutlayTotal() + '</b>文</span>';
       h += '<span class="chip">支出拆账 <b>' + examVisibleOutlayBreakdown() + '</b></span>';
       h += '<span class="chip">本年举务 <b>' + examVisibleSeasonalLedgerCount() + '</b></span>';
@@ -7180,6 +7197,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var result = String(S.本年应试结果 || '未下场');
     var blockedGap = examYearBlockedGap(log);
     var target = examAttemptTargetLabel(S.童试层级, S.生员身份);
+    var supportSummary = examCurrentSupportSourceSummary();
+    var replySummary = examCurrentReplyLabel();
+    var signalSummary = examVisibleSignalTurns();
+    var rumorSummary = examCurrentRumorLabel();
+    var summaryParts = [];
     var tone = 'neutral';
     var title = '本年没有参加考试';
     var plainResult = '这一年没有产生考中或落榜结果。';
@@ -7235,12 +7257,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         : '三年举业已经结束；本年没有发生考试结果。';
     }
 
+    if (supportSummary !== '未见明账') summaryParts.push('供读明账=' + supportSummary);
+    if (replySummary !== '未见回签') summaryParts.push('回签=' + replySummary);
+    if ((S.本年回榜口风次数 || 0) > 0) summaryParts.push('榜口=' + rumorSummary);
+    if (signalSummary !== '供0·婚0·身0') summaryParts.push('年内转折=' + signalSummary);
+
     return '<div class="exam-result-card ' + tone + '">' +
       '<span class="result-kicker">本年结果</span>' +
       '<strong class="result-title">' + title + '</strong>' +
       '<p class="result-plain">' + plainResult + '</p>' +
       '<p class="result-reason"><b>原因：</b>' + reason + '</p>' +
       '<p class="result-next"><b>下一步：</b>' + next + '</p>' +
+      (summaryParts.length ? ('<p class="result-ledger"><b>这一年账面：</b>' + summaryParts.join('｜') + '</p>') : '') +
       '</div>';
   }
 
@@ -15422,8 +15450,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         }
         refreshExamSupportState();
         absorbExamYearIntoLifetime();
-        if ((S.举业累计投塾次数 || 0) > 0 || (S.举业累计识字旬数 || 0) > 0 || (S.举业累计保结次数 || 0) > 0 || (S.举业累计保帖底样次数 || 0) > 0 || (S.举业累计馆保回话次数 || 0) > 0 || (S.举业累计婚话回札次数 || 0) > 0 || (S.举业累计落第次数 || 0) > 0 || (S.举业累计应场受阻次数 || 0) > 0 || (S.举业累计延婚牵扯 || 0) > 0 || (S.举业累计婚事让开次数 || 0) > 0 || (S.举业累计身子亏空 || 0) > 0) {
-          log.push(['〔三年累账〕截至这一年，已累计投塾' + (S.举业累计投塾次数 || 0) + '旬、识字' + (S.举业累计识字旬数 || 0) + '旬、跑保结' + (S.举业累计保结次数 || 0) + '旬、馆保回话' + (S.举业累计馆保回话次数 || 0) + '旬、婚话回札' + (S.举业累计婚话回札次数 || 0) + '旬、场外受阻' + (S.举业累计应场受阻次数 || 0) + '回、落第' + (S.举业累计落第次数 || 0) + '回；婚事牵扯累计' + (S.举业累计延婚牵扯 || 0) + '层、让开婚事累计' + (S.举业累计婚事让开次数 || 0) + '旬、身子亏空累计' + (S.举业累计身子亏空 || 0) + '层。举业的代价不只留在本年，会带着这些累账一起往下一年，或直接带去议亲。', 'bad']);
+        if ((S.举业累计投塾次数 || 0) > 0 || (S.举业累计识字旬数 || 0) > 0 || (S.举业累计保结次数 || 0) > 0 || (S.举业累计保帖底样次数 || 0) > 0 || (S.举业累计馆保回话次数 || 0) > 0 || (S.举业累计婚话回札次数 || 0) > 0 || (S.举业累计回榜口风次数 || 0) > 0 || (S.举业累计落第次数 || 0) > 0 || (S.举业累计应场受阻次数 || 0) > 0 || (S.举业累计延婚牵扯 || 0) > 0 || (S.举业累计婚事让开次数 || 0) > 0 || (S.举业累计身子亏空 || 0) > 0) {
+          log.push(['〔三年累账〕截至这一年，已累计投塾' + (S.举业累计投塾次数 || 0) + '旬、识字' + (S.举业累计识字旬数 || 0) + '旬、跑保结' + (S.举业累计保结次数 || 0) + '旬、馆保回话' + (S.举业累计馆保回话次数 || 0) + '旬、婚话回札' + (S.举业累计婚话回札次数 || 0) + '旬、回榜口风' + (S.举业累计回榜口风次数 || 0) + '旬、场外受阻' + (S.举业累计应场受阻次数 || 0) + '回、落第' + (S.举业累计落第次数 || 0) + '回；婚事牵扯累计' + (S.举业累计延婚牵扯 || 0) + '层、让开婚事累计' + (S.举业累计婚事让开次数 || 0) + '旬、身子亏空累计' + (S.举业累计身子亏空 || 0) + '层。举业的代价不只留在本年，会带着这些累账一起往下一年，或直接带去议亲。', 'bad']);
         }
         var lifetimeSupportSummary = examLifetimeSupportSourceSummary();
         if (lifetimeSupportSummary !== '未见明账') {
