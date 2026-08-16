@@ -1612,6 +1612,69 @@
     if (split.body > 0) parts.push('药包/歇养' + split.body + '次');
     return parts.length ? parts.join('｜') : '尚未把回钱与后手去向拆成真账';
   }
+  function merchantFamilySplitSnapshot() {
+    return {
+      home: Math.max(0, S.本年家贴家 || 0),
+      school: Math.max(0, S.本年家供读 || 0),
+      duty: Math.max(0, S.本年家备役 || 0),
+      drag: Math.max(0, (S.本年家催账 || 0) + (S.本年家还债 || 0)),
+      body: Math.max(0, (S.本年家衣药 || 0) + (S.本年家将养 || 0)),
+      letters: Math.max(0, S.本年家捎信 || 0)
+    };
+  }
+  function merchantFamilySplitText(snapshot) {
+    var split = snapshot || merchantFamilySplitSnapshot();
+    var parts = [];
+    if (split.home > 0) parts.push('锅火/贴家' + split.home + '次');
+    if (split.school > 0) parts.push('供读' + split.school + '次');
+    if (split.duty > 0) parts.push('差役' + split.duty + '次');
+    if (split.drag > 0) parts.push('催账/还债' + split.drag + '次');
+    if (split.body > 0) parts.push('衣药/将养' + split.body + '次');
+    if (split.letters > 0) parts.push('家书/递话' + split.letters + '次');
+    return parts.length ? parts.join('｜') : '尚未把家内回钱、催账与衣药后手拆成真账';
+  }
+  function merchantHouseholdSplitSnapshot() {
+    return {
+      audit: Math.max(0, S.本年户核账 || 0),
+      collect: Math.max(0, S.本年户催账 || 0),
+      duty: Math.max(0, S.本年户备役 || 0),
+      trust: Math.max(0, S.本年户通融 || 0),
+      delegate: Math.max(0, S.本年户委托 || 0),
+      school: Math.max(0, S.本年户供读 || 0)
+    };
+  }
+  function merchantHouseholdSplitText(snapshot) {
+    var split = snapshot || merchantHouseholdSplitSnapshot();
+    var parts = [];
+    if (split.audit > 0) parts.push('核账' + split.audit + '次');
+    if (split.collect > 0) parts.push('催账' + split.collect + '次');
+    if (split.duty > 0) parts.push('备役' + split.duty + '次');
+    if (split.trust > 0) parts.push('通融' + split.trust + '次');
+    if (split.delegate > 0) parts.push('委托' + split.delegate + '次');
+    if (split.school > 0) parts.push('供读' + split.school + '次');
+    return parts.length ? parts.join('｜') : '尚未把分书、旧账、委托田面与应役后手拆成真账';
+  }
+  function merchantElderSplitSnapshot() {
+    return {
+      negotiate: Math.max(0, S.本年养老协商 || 0),
+      rent: Math.max(0, S.本年养老收租 || 0),
+      medicine: Math.max(0, S.本年养老医药 || 0),
+      estate: Math.max(0, (S.本年养老守田 || 0) + (S.本年养老卖田 || 0)),
+      ties: Math.max(0, (S.本年养老旧识 || 0) + (S.本年养老铺账 || 0)),
+      returns: Math.max(0, (S.本年养老节礼 || 0) + (S.本年养老归乡 || 0))
+    };
+  }
+  function merchantElderSplitText(snapshot) {
+    var split = snapshot || merchantElderSplitSnapshot();
+    var parts = [];
+    if (split.negotiate > 0) parts.push('轮养协商' + split.negotiate + '次');
+    if (split.rent > 0) parts.push('收租' + split.rent + '次');
+    if (split.medicine > 0) parts.push('医药' + split.medicine + '次');
+    if (split.estate > 0) parts.push('守田/卖田' + split.estate + '次');
+    if (split.ties > 0) parts.push('旧识/铺账' + split.ties + '次');
+    if (split.returns > 0) parts.push('节礼/归乡' + split.returns + '次');
+    return parts.length ? parts.join('｜') : '尚未把轮养、收租、旧识与药包后手拆成真账';
+  }
   function childbearingProfile() {
     var life = currentLifeProfile();
     var profile = {
@@ -16016,8 +16079,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           });
         }
       } else if (route.indexOf('路径四') === 0 || route.indexOf('徽商') === 0) {
-        pack.note = '商路成家后最磨人的，不是“这一程赚没赚”，而是银在路上时家里这一旬怎么过。';
-        pack.dossier = '累计回钱=' + (S.累计回钱银 || 0) + '两｜累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜账房=' + S.账房进度 + '｜信誉=' + S.商信誉;
+        var familyMerchantSplitText = merchantFamilySplitText();
+        pack.note = '商路成家后最磨人的，不是“这一程赚没赚”，而是银在路上时家里这一旬怎么过。 当前年内分流=' + familyMerchantSplitText + '。';
+        pack.dossier = '累计回钱=' + (S.累计回钱银 || 0) + '两｜累计反哺=' + S.累计反哺银 + '两｜未回款=' + S.未回款银 + '两｜商路供读=' + S.商路供读银 + '两｜账房=' + S.账房进度 + '｜信誉=' + S.商信誉 + '｜本年家内分流=' + familyMerchantSplitText;
         pack.event = { t: 'rand', tag: '[商路]', txt: (season.id === 'spring' && xun === 3)
           ? '春起下旬最像把“问来的路数”真拆成家里日用：春路回钱、清明香纸、熟号门包、孩子纸包与锅火后手会在这一旬一起追钱，哪口先拆给哪边都不能再糊成一句“回头再说”。'
           : (season.id === 'autumn' && xun === 2)
@@ -22975,6 +23039,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     } else {
       eventTxt = '冬应役的下旬没有突然掉下来的“结果”。你前头一年有没有先把旧账、水脚、薄田、供读、抄簿回帖与差钱分开，都会在这一旬里一起现形。';
     }
+    var householdMerchantSplitText = merchantHouseholdSplitText();
     return {
       title: '当户 · ' + season.name,
       label: '当户',
@@ -22983,12 +23048,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       ap: 2,
       commitLabel: isYearEnd ? '了这一年当户 →' : '收住这一旬当户账 →',
       note: '商路当户要把分家薄田、旧商账、供读后手与应役现银分段落账。货路、人情与未回款都可能还在，但年关真正能用的只有已经回手的米银。'
+        + ' 当前年内分流=' + householdMerchantSplitText + '。'
         + (bridge.note ? ' ' + bridge.note : '')
         + (hp.note ? ' ' + hp.note : ''),
       narrative: season.actionLead + '你已<span class="em">' + S.年龄 + '岁</span>，正式立户。' + season.note + ' 这一旬不是“再做一件大事”，而是把哪笔钱、哪层人情、哪口薄田先落到账上。'
         + (bridge.narrative ? (' ' + bridge.narrative) : ''),
       dossier: function () {
         return lifeDossier('商路当户拆为四季三旬｜户程=' + stepLabel + '｜未回款=' + (S.未回款银 || 0) + '两｜委托营生=' + S.委托营生 + '｜委托租谷=' + (S.委托租谷 || 0) + '｜商路供读=' + (S.商路供读银 || 0) + '｜应役=' + S.应役 + '｜本年户季务=' + ((S.本年户季务 || []).join(' / ') || '无')
+          + '｜本年户分流=' + householdMerchantSplitText
           + (bridge.dossier ? '｜' + bridge.dossier : '')
           + (hp.dossier ? '｜' + hp.dossier : ''));
       },
@@ -26242,6 +26309,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (bridge.event) events.push(bridge.event);
     if (ep.event) events.push(ep.event);
 
+    var elderMerchantSplitText = merchantElderSplitText();
     return {
       title: '养老·' + season.name + '·' + xunLabel,
       label: '养老',
@@ -26254,13 +26322,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       ap: (season.id === 'winter' ? 3 : 2),
       commitLabel: isSeasonEnd ? '了这一季养老账 →' : '收住这一旬养老账 →',
       note: '功能容量随龄下降，劳作让位于休息医药。奉养是与诸子协商的结果、不是默认义务；口食田与委托田租要靠人去收，旧识照应也要靠钱去维。〔机制事实，标准为占位〕'
+        + ' 当前年内分流=' + elderMerchantSplitText + '。'
         + (bridge.note ? ' ' + bridge.note : '')
         + (ep.note ? ' ' + ep.note : ''),
       narrative: '你已<span class="em">' + S.年龄 + '岁</span>。这一程是<span class="em">' + season.name + '·' + xunLabel + '</span>，这一旬 <span class="em">' + (season.id === 'winter' ? 3 : 2) + ' 个行动点</span>，仍要把奉养、医药、租谷与年关后手一笔笔拆开过。你年轻时走的那条路，此时会变成旧识、旧账、名色和体面。'
         + (bridge.narrative ? (' ' + bridge.narrative) : ''),
       dossier: function () {
         var base = S.子数 > 0 ? ('诸子 ' + S.子数 + ' 人各有小家，奉养多寡要看协商成算。') : '无子可依，奉养这条路走不通，须自筹。';
-        var seasonFoot = '老程=' + season.name + '·' + xunLabel + '｜本年养老季务=' + ((S.本年养老季务 || []).length);
+        var seasonFoot = '老程=' + season.name + '·' + xunLabel + '｜本年养老季务=' + ((S.本年养老季务 || []).length) + '｜本年养老分流=' + elderMerchantSplitText;
         return lifeDossier(joinUniqueDossierParts([base, bridge.dossier, ep.dossier, seasonFoot]));
       },
       events: events,
