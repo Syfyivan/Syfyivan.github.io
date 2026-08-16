@@ -77,12 +77,13 @@
     const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
     const formatDate = value => `${Number(value.slice(5,7))}月${Number(value.slice(8,10))}日`;
     const amapNav = point => `https://uri.amap.com/navigation?to=${point.lng},${point.lat},${encodeURIComponent(point.name)}&mode=car&policy=1&src=Syfyivan.road-trip&coordinate=gaode&callnative=1`;
-    // 未预置详情页链接的住宿：给一个可用的携程按名称搜索深链，出发前据此核价下单。
-    const stayBookingLink = stay => stay.bookingUrl || `https://www.trip.com/hotels/list?keyword=${encodeURIComponent(stay.name)}`;
-    const stayBookingLabel = stay => stay.bookingUrl ? '住宿房型/实时价' : '搜同名住宿/比价';
+    // 住宿链接：优先用已核到的酒店详情页(bookingUrl)，其次用携程“2间4人”当日比价直链(sourceUrl)，
+    // 都没有时回退到携程按名称搜索。出发前据此核价下单。
+    const stayBookingLink = stay => stay.bookingUrl || stay.sourceUrl || `https://www.trip.com/hotels/list?keyword=${encodeURIComponent(stay.name)}`;
+    const stayBookingLabel = stay => stay.bookingUrl ? '住宿房型/实时价' : stay.sourceUrl ? '携程2间4人·比价' : '搜同名住宿/比价';
     const yuan = value => `¥${Number(value).toLocaleString()}`;
     const range = pair => pair && pair[0] === pair[1] ? yuan(pair[0]) : `${yuan(pair[0])}—${yuan(pair[1])}`;
-    const natureTag = nature => nature === '官方固定价' ? '<span class="tag tag-official">官方价</span>' : nature === '订单页参考价' ? '<span class="tag tag-ref">参考价</span>' : '<span class="tag tag-est">估算</span>';
+    const natureTag = nature => nature === '官方固定价' ? '<span class="tag tag-official">官方价</span>' : nature === '携程实时价' ? '<span class="tag tag-ref">携程实时价</span>' : nature === '订单页参考价' ? '<span class="tag tag-ref">参考价</span>' : nature === '参考价·需电话确认' ? '<span class="tag tag-est">参考价·需电话</span>' : '<span class="tag tag-est">估算</span>';
     const tagPP = pair => `<span class="tag tag-pp">每人 ${range(pair)}</span>`;
     const tagP4 = pair => `<span class="tag tag-p4">4人 ${range(pair)}</span>`;
     document.getElementById('statDays').textContent = `${DAILY.days.length}天`;

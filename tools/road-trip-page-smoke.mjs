@@ -73,6 +73,9 @@ for (const day of daily.days) {
   assert.ok(stay, `D${day.day}: stayId "${day.stayId}" not found in POI data`);
   assert.ok(stay.priceParty4, `D${day.day}: stay "${day.stayId}" missing price range`);
   assertRange(stay.priceParty4, `D${day.day} stay.priceParty4`);
+  // 每个外地住宿夜都必须带可点击的下单/比价链接与核价日期
+  assert.ok(stay.bookingUrl || stay.sourceUrl, `D${day.day}: stay "${day.stayId}" missing bookingUrl/sourceUrl`);
+  assert.ok(stay.priceUpdatedAt, `D${day.day}: stay "${day.stayId}" missing priceUpdatedAt`);
 }
 
 // 5. 需要门票/接驳的天都有对应费用，且金额区间合法

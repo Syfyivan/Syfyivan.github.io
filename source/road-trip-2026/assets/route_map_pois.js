@@ -175,68 +175,79 @@
     { id: 'service-riwa', category: 'service', name: '香格里拉镇医疗救援参考', lng: 100.34, lat: 28.56, area: '日瓦', note: '亚丁长线前的状态评估节点；高反明显就停止上升。' }
   ];
 
-  // —— 住宿价格（4人当晚总价区间，元；含项与价格性质）——
-  // party4: 2间房或整套房当晚合计估算区间；nature: 价格性质；includes: 主要含项。
-  // 全部为规划估算或订单页参考区间，出发前须用订单页复核，不代表锁定报价。
+  // —— 住宿价格（4人当晚总价区间，元；房型/性质/核价日/来源直链）——
+  // p: 当晚合计区间（2间可分住或整套房）；n: 价格性质；inc: 房型与含项；
+  // cid/ci/co: 携程城市ID与入住/退房日，用于生成“2间4人”实时比价直链（sourceUrl）。
+  // 房型硬性约束（1女3男）：只订两居/三居整套，或两间可分住的房（2大床 / 1大床+1双床 / 2双床）；
+  // 一律不订单间家庭房，也不订一间双床房塞4人。
+  // 标“携程实时价”的为 2026-08-16 用携程登录态按当日2间4人核到的列表价区间（含常见优惠后）；
+  // 标“参考价·需电话确认”的为偏远点线上库存有限，须电话锁房；出发前均需再次复核，不代表锁定报价。
+  const CHECKED = '2026-08-16';
   const STAY_PRICES = {
-    'stay-bayannur': { party4: [280, 420], nature: '规划估算价', includes: '2间房；多为含早或简早' },
-    'stay-zhangye': { party4: [300, 460], nature: '规划估算价', includes: '2间房；市区商务酒店' },
-    'stay-gangcha': { party4: [280, 440], nature: '规划估算价', includes: '2间房；县城酒店' },
-    'stay-delingha': { party4: [280, 420], nature: '规划估算价', includes: '2间房；市区酒店' },
-    'stay-dachaidan': { party4: [300, 480], nature: '规划估算价', includes: '2间房；含免费停车' },
-    'stay-dunhuang': { party4: [380, 620], nature: '订单页参考价', includes: '整套两室一厅一厨；免费停车' },
-    'stay-hami': { party4: [360, 560], nature: '规划估算价', includes: '2间房；连锁品牌多含早' },
-    'stay-mulei': { party4: [260, 420], nature: '规划估算价', includes: '2间房；县城酒店' },
-    'stay-keketuohai': { party4: [340, 520], nature: '规划估算价', includes: '2间房；含免费停车' },
-    'stay-burqin': { party4: [300, 480], nature: '规划估算价', includes: '2间房；进喀纳斯前补给点' },
-    'stay-kanas': { party4: [400, 700], nature: '规划估算价', includes: '村内客房2间；旺季价高需早订' },
-    'stay-hemu': { party4: [400, 680], nature: '规划估算价', includes: '村内木屋2间（住2晚）；含停车' },
-    'stay-urho': { party4: [320, 500], nature: '规划估算价', includes: '2间房；含免费停车' },
-    'stay-yining': { party4: [300, 480], nature: '规划估算价', includes: '2间房；市区酒店' },
-    'stay-tekes': { party4: [320, 500], nature: '规划估算价', includes: '2间房；八卦城中心' },
-    'stay-kuqa': { party4: [280, 440], nature: '规划估算价', includes: '2间房（住2晚）；市区酒店' },
-    'stay-aksu': { party4: [360, 560], nature: '规划估算价', includes: '2间房；连锁品牌多含早' },
-    'stay-kashgar': { party4: [320, 500], nature: '规划估算价', includes: '2间房；古城景区内，共3晚分两单' },
-    'stay-tashkurgan': { party4: [420, 640], nature: '规划估算价', includes: '2间房；优先供暖，高海拔恢复' },
-    'stay-yecheng': { party4: [320, 500], nature: '规划估算价', includes: '2间房；G219出发前落点' },
-    'stay-sanshili': { party4: [360, 560], nature: '规划估算价', includes: '客房2间；偏远、供给有限，电话确认供暖热水' },
-    'stay-duoma': { party4: [320, 520], nature: '规划估算价', includes: '客房2间；高海拔驿站，电话确认床位' },
-    'stay-shiquanhe': { party4: [400, 620], nature: '规划估算价', includes: '2间房（住2晚）；阿里恢复节点' },
-    'stay-zanda': { party4: [340, 520], nature: '规划估算价', includes: '2间房；县城连锁' },
-    'stay-baga': { party4: [480, 760], nature: '订单页参考价', includes: '双床2间；全屋地暖+弥散供氧，免费停车' },
-    'stay-saga': { party4: [360, 560], nature: '规划估算价', includes: '2间房；县城精品酒店' },
-    'stay-shigatse': { party4: [400, 620], nature: '规划估算价', includes: '供氧房2间' },
-    'stay-lhasa': { party4: [360, 560], nature: '规划估算价', includes: '供氧房2间（住4晚）；连续恢复' },
-    'stay-linzhi': { party4: [420, 660], nature: '规划估算价', includes: '2间房（住2晚）；度假酒店，含停车充电' },
-    'stay-bomi': { party4: [360, 560], nature: '规划估算价', includes: '2间房（住2晚）；低海拔恢复' },
-    'stay-ranwu': { party4: [340, 540], nature: '规划估算价', includes: '客房2间（住2晚）；确认供暖热水' },
-    'stay-baxoi': { party4: [340, 520], nature: '规划估算价', includes: '2间房；县城连锁' },
-    'stay-zogang': { party4: [320, 500], nature: '规划估算价', includes: '2间房；县城酒店' },
-    'stay-markam': { party4: [320, 500], nature: '规划估算价', includes: '2间房；县城酒店' },
-    'stay-feilaisi': { party4: [420, 680], nature: '规划估算价', includes: '客房2间；靠日照金山观景动线，观景房价高' },
-    'stay-yubeng-upper': { party4: [400, 640], nature: '规划估算价', includes: '双床2间（住2晚）；村内徒步，物资靠人马运补价偏高' },
-    'stay-yubeng-lower': { party4: [380, 600], nature: '规划估算价', includes: '客房2间；下村，匹配神瀑与尼农动线' },
-    'stay-shangrila': { party4: [460, 720], nature: '规划估算价', includes: '客房2间（住3晚）；全屋供氧民宿' },
-    'stay-halfway': { party4: [300, 500], nature: '规划估算价', includes: '高路徒步中点客房2间；需电话或微信锁房' },
-    'stay-tinas': { party4: [260, 440], nature: '规划估算价', includes: '客房2间；徒步下段青旅' },
-    'stay-lijiang': { party4: [420, 700], nature: '订单页参考价', includes: '整套两卧带厨房；免费停车，可做饭洗衣' },
-    'stay-xiangcheng': { party4: [320, 500], nature: '规划估算价', includes: '2间房；花园酒店' },
-    'stay-riwa': { party4: [420, 680], nature: '规划估算价', includes: '供氧双床房2间（住3晚）；亚丁景区落点' },
-    'stay-litang': { party4: [320, 500], nature: '规划估算价', includes: '2间房；县城中心' },
-    'stay-xinduqiao': { party4: [360, 560], nature: '规划估算价', includes: '2间房；318国道连锁' },
-    'stay-chengdu': { party4: [420, 700], nature: '订单页参考价', includes: '整套双卧；厨房、洗衣机齐全' },
-    'stay-xian': { party4: [380, 640], nature: '订单页参考价', includes: '整套两室一厅；可做饭，停车另收费' },
-    'stay-pingyao': { party4: [300, 480], nature: '规划估算价', includes: '客栈2间；古城内' },
-    'stay-shijiazhuang': { party4: [380, 580], nature: '规划估算价', includes: '2间房；末站前最后外地住宿夜' }
+    'stay-bayannur':   { p: [300, 400], n: '携程实时价', inc: '2间可分住（2大床/1大床+1双床）；市区连锁多含早', cid: 3887, ci: '2026-09-18', co: '2026-09-19' },
+    'stay-zhangye':    { p: [320, 560], n: '携程实时价', inc: '2间可分住（大床+双床可拼）；市区商务酒店', cid: 663, ci: '2026-09-19', co: '2026-09-20' },
+    'stay-gangcha':    { p: [500, 620], n: '携程实时价', inc: '2间可分住；永和国际等县城酒店，含早', cid: 2538, ci: '2026-09-20', co: '2026-09-21' },
+    'stay-delingha':   { p: [400, 560], n: '携程实时价', inc: '2间可分住；市区连锁', cid: 2542, ci: '2026-09-21', co: '2026-09-22' },
+    'stay-dachaidan':  { p: [400, 620], n: '订单页参考价', inc: '2间可分住；本地房源较少，用海西库存估算', cid: 2542, ci: '2026-09-22', co: '2026-09-23' },
+    'stay-dunhuang':   { p: [320, 620], n: '订单页参考价', inc: '首选102㎡两室一厅一厨整套（4人一套），或2间可分住；免费停车', cid: 11, ci: '2026-09-23', co: '2026-09-24' },
+    'stay-hami':       { p: [420, 560], n: '携程实时价', inc: '2间可分住（2大床/大床+双床）；连锁品牌多含早', cid: 285, ci: '2026-09-24', co: '2026-09-25' },
+    'stay-mulei':      { p: [460, 620], n: '携程实时价', inc: '2间可分住（大床+双床）；县城酒店', cid: 21109, ci: '2026-09-25', co: '2026-09-26' },
+    'stay-keketuohai': { p: [580, 780], n: '携程实时价', inc: '2间可分住；含免费停车', cid: 255, ci: '2026-09-26', co: '2026-09-27' },
+    'stay-burqin':     { p: [600, 760], n: '携程实时价', inc: '2间可分住（大床+双床）；进喀纳斯前补给点', cid: 3327, ci: '2026-09-27', co: '2026-09-28' },
+    'stay-kanas':      { p: [680, 920], n: '携程实时价', inc: '村内客房2间可分住；淡季前价高需早订', cid: 3327, ci: '2026-09-28', co: '2026-09-29' },
+    'stay-hemu':       { p: [800, 1080], n: '携程实时价', inc: '村内木屋2间可分住（住2晚）；含停车，旺季末价高', cid: 3327, ci: '2026-09-29', co: '2026-10-01' },
+    'stay-urho':       { p: [320, 500], n: '规划估算价', inc: '2间可分住；含免费停车（乌尔禾房源少，按克拉玛依估算）', cid: 0, ci: '2026-10-01', co: '2026-10-02' },
+    'stay-yining':     { p: [500, 660], n: '携程实时价', inc: '2间可分住（大床+双床）；市区酒店', cid: 529, ci: '2026-10-02', co: '2026-10-03' },
+    'stay-tekes':      { p: [540, 620], n: '携程实时价', inc: '2间可分住（大床+双床）；八卦城中心', cid: 21712, ci: '2026-10-03', co: '2026-10-04' },
+    'stay-kuqa':       { p: [440, 540], n: '携程实时价', inc: '2间可分住（大床+双床，住2晚）；市区酒店含早', cid: 329, ci: '2026-10-04', co: '2026-10-06' },
+    'stay-aksu':       { p: [400, 620], n: '携程实时价', inc: '2间可分住（大床+双床）；连锁品牌多含早', cid: 173, ci: '2026-10-06', co: '2026-10-07' },
+    'stay-kashgar':    { p: [320, 460], n: '携程实时价', inc: '2间可分住；古城景区内，共3晚分两单', cid: 109, ci: '2026-10-07', co: '2026-10-08' },
+    'stay-tashkurgan': { p: [700, 900], n: '携程实时价', inc: '2间可分住；地暖+供氧，高海拔恢复', cid: 21067, ci: '2026-10-08', co: '2026-10-09' },
+    'stay-yecheng':    { p: [260, 460], n: '携程实时价', inc: '2间可分住（2双床/大床+双床）；G219出发前落点，含早', cid: 21809, ci: '2026-10-11', co: '2026-10-12' },
+    'stay-sanshili':   { p: [360, 560], n: '参考价·需电话确认', inc: '客房2间；偏远、线上库存有限，电话确认供暖热水与晚到', cid: 0, ci: '2026-10-12', co: '2026-10-13' },
+    'stay-duoma':      { p: [320, 520], n: '参考价·需电话确认', inc: '客房2间；高海拔驿站，线上无稳定库存，电话确认4人床位', cid: 0, ci: '2026-10-13', co: '2026-10-14' },
+    'stay-shiquanhe':  { p: [620, 760], n: '携程实时价', inc: '2间可分住（住2晚）；阿里恢复与车检节点', cid: 21068, ci: '2026-10-14', co: '2026-10-16' },
+    'stay-zanda':      { p: [700, 880], n: '携程实时价', inc: '2间可分住（2大床）；县城酒店含早', cid: 21290, ci: '2026-10-16', co: '2026-10-17' },
+    'stay-baga':       { p: [760, 980], n: '订单页参考价', inc: '2间可分住双床；全屋地暖+弥散供氧，免费停车', cid: 73563, ci: '2026-10-17', co: '2026-10-18' },
+    'stay-saga':       { p: [700, 960], n: '携程实时价', inc: '2间可分住（供氧大床+双床）；县城精品酒店', cid: 21549, ci: '2026-10-18', co: '2026-10-19' },
+    'stay-shigatse':   { p: [560, 680], n: '携程实时价', inc: '供氧房2间可分住（大床+双床）', cid: 92, ci: '2026-10-19', co: '2026-10-20' },
+    'stay-lhasa':      { p: [440, 620], n: '携程实时价', inc: '供氧房2间可分住（住4晚）；连续恢复', cid: 41, ci: '2026-10-20', co: '2026-10-24' },
+    'stay-linzhi':     { p: [380, 600], n: '携程实时价', inc: '2间可分住（大床+双床，住2晚）；度假酒店含停车充电', cid: 108, ci: '2026-10-24', co: '2026-10-26' },
+    'stay-bomi':       { p: [520, 760], n: '携程实时价', inc: '2间可分住（大床+双床，住2晚）；低海拔恢复', cid: 21979, ci: '2026-10-26', co: '2026-10-28' },
+    'stay-ranwu':      { p: [460, 620], n: '携程实时价', inc: '供氧客房2间可分住（住2晚）；确认供暖热水', cid: 21120, ci: '2026-10-28', co: '2026-10-30' },
+    'stay-baxoi':      { p: [460, 620], n: '携程实时价', inc: '供氧房2间可分住（大床+双床）；县城连锁', cid: 21120, ci: '2026-10-30', co: '2026-10-31' },
+    'stay-zogang':     { p: [500, 660], n: '携程实时价', inc: '2间可分住（供氧大床+双床）；县城酒店含早', cid: 21163, ci: '2026-10-31', co: '2026-11-01' },
+    'stay-markam':     { p: [380, 520], n: '携程实时价', inc: '2间可分住双床；全屋地暖，县城酒店', cid: 21835, ci: '2026-11-01', co: '2026-11-02' },
+    'stay-feilaisi':   { p: [740, 1080], n: '携程实时价', inc: '2间可分住；地暖+供氧，观景房近日照金山动线价高', cid: 3928, ci: '2026-11-02', co: '2026-11-03' },
+    'stay-yubeng-upper': { p: [740, 1080], n: '携程实时价', inc: '村内2间可分住（住2晚）；物资靠人马运补价偏高', cid: 3928, ci: '2026-11-03', co: '2026-11-05' },
+    'stay-yubeng-lower': { p: [700, 1000], n: '携程实时价', inc: '村内客房2间可分住；下村匹配神瀑与尼农动线', cid: 3928, ci: '2026-11-05', co: '2026-11-06' },
+    'stay-shangrila':  { p: [620, 960], n: '携程实时价', inc: '客房2间可分住（供氧，住3晚）；整套两居未确认前不整租下单', cid: 660, ci: '2026-11-06', co: '2026-11-09' },
+    'stay-halfway':    { p: [600, 900], n: '参考价·需电话确认', inc: '高路徒步中点客房2间；需电话或微信锁房', cid: 660, ci: '2026-11-09', co: '2026-11-10' },
+    'stay-tinas':      { p: [400, 700], n: '参考价·需电话确认', inc: '客房2间；徒步下段客栈/青旅，线上库存有限', cid: 660, ci: '2026-11-10', co: '2026-11-11' },
+    'stay-lijiang':    { p: [360, 700], n: '订单页参考价', inc: '首选171㎡两卧三卫带厨房整套（4人一套），或2间可分住；免费停车', cid: 37, ci: '2026-11-11', co: '2026-11-13' },
+    'stay-xiangcheng': { p: [560, 660], n: '携程实时价', inc: '2间可分住（标间/大床）；花园酒店', cid: 21972, ci: '2026-11-13', co: '2026-11-14' },
+    'stay-riwa':       { p: [400, 680], n: '携程实时价', inc: '供氧2间可分住（大床+双床，住3晚）；亚丁景区落点', cid: 1222, ci: '2026-11-14', co: '2026-11-17' },
+    'stay-litang':     { p: [600, 820], n: '携程实时价', inc: '2间可分住；全屋供氧+地暖，县城中心', cid: 20972, ci: '2026-11-17', co: '2026-11-18' },
+    'stay-xinduqiao':  { p: [540, 760], n: '携程实时价', inc: '供氧2间可分住（大床+双床）；318国道连锁', cid: 4130, ci: '2026-11-18', co: '2026-11-19' },
+    'stay-chengdu':    { p: [420, 700], n: '订单页参考价', inc: '首选90㎡双卧整套（4人一套），厨房洗衣机齐全；或2间可分住', cid: 28, ci: '2026-11-19', co: '2026-11-21' },
+    'stay-xian':       { p: [380, 640], n: '订单页参考价', inc: '首选两室一厅整套（4人一套），可做饭；或2间可分住，停车另收费', cid: 10, ci: '2026-11-21', co: '2026-11-23' },
+    'stay-pingyao':    { p: [500, 620], n: '携程实时价', inc: '客栈2间可分住（大床）；古城内', cid: 104, ci: '2026-11-23', co: '2026-11-24' },
+    'stay-shijiazhuang': { p: [320, 440], n: '携程实时价', inc: '2间可分住（大床+双床）；末站前最后外地住宿夜', cid: 428, ci: '2026-11-24', co: '2026-11-25' }
   };
   pois.forEach(poi => {
     if (poi.category !== 'stay') return;
     const price = STAY_PRICES[poi.id];
     if (!price) return;
-    poi.priceParty4 = price.party4;
-    poi.priceNature = price.nature;
-    poi.priceIncludes = price.includes;
-    poi.priceUpdatedAt = '2026-08-16';
+    poi.priceParty4 = price.p;
+    poi.priceNature = price.n;
+    poi.priceIncludes = price.inc;
+    poi.priceUpdatedAt = CHECKED;
+    // 生成“2间4人”比价直链：有城市ID用携程当日列表页，否则回退同名搜索。
+    if (!poi.sourceUrl) {
+      poi.sourceUrl = price.cid
+        ? `https://hotels.ctrip.com/hotels/list?cityId=${price.cid}&checkin=${price.ci}&checkout=${price.co}&crn=2&adult=4&curr=CNY`
+        : `https://www.trip.com/hotels/list?keyword=${encodeURIComponent(poi.name)}`;
+    }
   });
 
   window.ROAD_TRIP_POI_DATA = {
