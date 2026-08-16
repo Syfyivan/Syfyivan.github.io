@@ -4893,7 +4893,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'spring' && xun === 2) apply({
-      handledIds: ['m_book', 'm_market', 'm_letter', 'm_packet', 'm_spring_home_split', 'm_spring_mid_school', 'm_spring_mid_body', 'm_spring_second_mid_trial', 'm_spring_second_mid_remit', 'm_spring_third_mid_remit', 'm_spring_third_mid_split'],
+      handledIds: ['m_book', 'm_market', 'm_letter', 'm_packet', 'm_spring_home_split', 'm_spring_mid_school', 'm_spring_mid_body', 'm_spring_first_mid_route', 'm_spring_second_mid_trial', 'm_spring_second_mid_remit', 'm_spring_third_mid_remit', 'm_spring_third_mid_split'],
       doneTag: '开路回话已压',
       doneLog: '〔开路回话〕这一旬先把样价抄单、回话脚费、柜边包纸与春中药包拆开了；春里第二程不再只剩“继续学生意”，而是真把人情回话、家里锅火和身子后手一起压回同一年里。',
       cost: 30,
@@ -4904,7 +4904,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'trust'
     });
     if (season.id === 'spring' && xun === 3) apply({
-      handledIds: ['m_letter', 'm_home', 'm_reserve', 'm_market', 'm_spring_tail_split', 'm_spring_tail_goods', 'm_spring_tail_supply', 'm_spring_tail_body', 'm_spring_second_dispatch', 'm_spring_second_tail_remit', 'm_spring_third_tail_remit', 'm_spring_third_tail_split'],
+      handledIds: ['m_letter', 'm_home', 'm_reserve', 'm_market', 'm_spring_tail_split', 'm_spring_tail_goods', 'm_spring_tail_supply', 'm_spring_tail_body', 'm_spring_first_tail_split', 'm_spring_second_dispatch', 'm_spring_second_tail_remit', 'm_spring_third_tail_remit', 'm_spring_third_tail_split'],
       doneTag: '春尾脚费已留',
       doneLog: '〔春尾脚费〕这一旬先把回乡带话脚费、柜边包纸、归乡药包和递话门包分开了；春开路收尾不再只剩一句“过了春再说”，连身子与家里催问也被压回同一年里。',
       cost: 30,
@@ -8835,6 +8835,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_spring_home_split', name: '先把春中回话与家里锅火分开', cost: 1, eff: '铜钱-55·家书+1·家族+1·商信誉+1', desc: '春开路中旬最怕熟号回话、递话门包、家里锅火和样纸小耗一起追钱。先把这层春中家计回话拆开，不让商路刚认到一半，就先被家里那口锅和门面碎费一起磨薄。', can: S.铜钱 >= 55, why: S.铜钱 >= 55 ? '' : '铜钱不足55文', once: true });
           A.push({ id: 'm_spring_mid_school', name: '先把春中孩子纸样与差钱口风分开', cost: 1, eff: '铜钱-60·家书+1·供读+1·备役+1·家族+1', desc: '春开路中旬最怕孩子纸样、差钱口风、递话门包和熟号回话一起追钱。先把这层春中纸样与差钱拆开，不让商路刚认出一点门路，就先被家里读写和年里差役后手一并咬住。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
           A.push({ id: 'm_spring_mid_body', name: '先把春中药包与样价脚费分开', cost: 1, eff: '铜钱-60·家书+1·歇养+1·体魄+1·家族+1', desc: '春开路中旬最怕归乡药包、样价脚费、递话门包和家里锅火一起追钱。先把这层春中药脚拆开，商路刚认出一点门路时，自己的身子和家里那口现钱也不至继续抢同一口。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
+          if (S.商年 === 1) {
+            A.push({
+              id: 'm_spring_first_mid_route',
+              name: '先把首年春中样价与柜边回话分开',
+              cost: 1,
+              eff: '铜钱-65·认货+1·问价+1·核账+1·家书+1·商信誉+1',
+              desc: '首个商年春开路中旬最怕样价抄单、柜边回话、递话脚费、回乡药单和包纸门包一起追钱。先把这层“刚学生意就得先会分清样价、回话和脚路”的春中样价拆开，让认货、问价和核账不再只剩通用动作托底，而在第一商年春中就先压成真账。',
+              can: S.铜钱 >= 65 && (S.识货进度 >= 1 || S.本年商路认货 > 0 || S.本年商路问价 > 0 || S.账房进度 >= 1),
+              why: S.铜钱 >= 65
+                ? ((S.识货进度 >= 1 || S.本年商路认货 > 0 || S.本年商路问价 > 0 || S.账房进度 >= 1) ? '' : '先坐实一点认货、问价或核账底子')
+                : '铜钱不足65文',
+              once: true
+            });
+          }
           if (S.商年 === 2) {
             A.push({
               id: 'm_spring_second_mid_trial',
@@ -8897,6 +8911,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_spring_tail_goods', name: '先把春尾样单与熟号门包分开', cost: 1, eff: '铜钱-60·认货+1·核账+1·商信誉+1', desc: '春开路收尾这一旬，最怕样单抄录、熟号门包、柜边包纸和归乡脚费一起追钱。先把这层春尾样单拆开，伏夏刚坐店时，认货、核账和熟面口风才不至还被春尾这口门包拖着走。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
           A.push({ id: 'm_spring_tail_supply', name: '先把春尾供读纸包与差钱口风分开', cost: 1, eff: '铜钱-60·家书+1·供读+1·备役+1·家族+1', desc: '春开路收尾这一旬，最怕家书回话、供读纸包、差钱口风和柜边包纸一起追钱。先把这层春尾供差去向拆开，夏里刚坐店时，家里那口供读和差役后手就不至继续混成一句“等你回钱”。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
           A.push({ id: 'm_spring_tail_body', name: '先把春尾药包与回签家书分开', cost: 1, eff: '铜钱-65·家书+1·歇养+1·体魄+1·家族+1', desc: '春开路收尾这一旬，最怕归乡药包、回签家书、回乡脚费和锅火后手一起追钱。先把这层春尾药信拆开，夏里刚坐店时，自己的身子和家里催问也不至继续抢同一口现钱。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
+          if (S.商年 === 1) {
+            A.push({
+              id: 'm_spring_first_tail_split',
+              name: '先把首年春尾脚单与供读药包分开',
+              cost: 1,
+              eff: '铜钱-75·跑单+1·家书+1·供读+1·歇养+1·体魄+1·家族+1·商信誉+1',
+              desc: '首个商年春开路收尾这一旬最怕头程脚单、供读纸包、归乡药包、递话脚费和回签门包一起追钱。先把这层“首年春尾就得替夏里脚路、家里供读和自己身子排先后”的脚单拆开，让跑单、家书、供读与药包不再主要等到伏夏才一起见光。',
+              can: S.铜钱 >= 75 && (S.识货进度 >= 1 || S.本年商路认货 > 0 || S.本年商路问价 > 0 || S.商历练 >= 1),
+              why: S.铜钱 >= 75
+                ? ((S.识货进度 >= 1 || S.本年商路认货 > 0 || S.本年商路问价 > 0 || S.商历练 >= 1) ? '' : '先坐实一点认货、问价或商路历练底子')
+                : '铜钱不足75文',
+              once: true
+            });
+          }
           if (S.商年 === 2) {
             A.push({
               id: 'm_spring_second_dispatch',
@@ -9863,13 +9891,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             ? ['m_spring_second_mid_remit', 'm_spring_second_mid_trial']
             : (S.商年 === 3
               ? ['m_spring_third_mid_remit', 'm_spring_third_mid_split']
-              : ['m_spring_mid_school', 'm_spring_mid_body', 'm_spring_home_split', 'm_packet']);
+              : ['m_spring_first_mid_route', 'm_spring_mid_school', 'm_spring_mid_body', 'm_spring_home_split', 'm_packet']);
         } else if (season.id === 'spring' && xun === 3) {
           preferredOrder = S.商年 === 2
             ? ['m_spring_second_tail_remit', 'm_spring_second_dispatch']
             : (S.商年 === 3
               ? ['m_spring_third_tail_remit', 'm_spring_third_tail_split']
-              : ['m_spring_tail_supply', 'm_spring_tail_body', 'm_spring_tail_goods', 'm_spring_tail_split']);
+              : ['m_spring_first_tail_split', 'm_spring_tail_supply', 'm_spring_tail_body', 'm_spring_tail_goods', 'm_spring_tail_split']);
         } else if (season.id === 'summer' && xun === 1) {
           preferredOrder = S.商年 === 2
             ? ['m_summer_second_head_remit', 'm_summer_second_route', 'm_summer_head_supply_duty']
@@ -12625,7 +12653,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               id: 'e_year3_spring_focus',
               name: '先把三年春头婚话与保帖底样分开',
               cost: 1,
-              eff: '铜钱-50·保帖底样+1·家族+1·供读压力-1·缓婚事口风',
+              eff: '铜钱-50·保帖底样+1·家族+1·供读压力-1·今岁续供回话+1·缓婚事口风',
               desc: '第三举业年的春头，最怕婚话回札、保帖底样、递话脚费和开春锅火一起追钱。先把这层“还要不要继续供到第三年”和“婚事还能不能再拖”的开年压力拆开，第三年春头就不再只是沿用前两年的通用春账。',
               can: S.铜钱 >= 50,
               why: S.铜钱 >= 50 ? '' : '铜钱不足50文',
@@ -12637,7 +12665,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               id: 'e_year3_summer_focus',
               name: '先把三年伏夏回场履历与凉药门包分开',
               cost: 1,
-              eff: '铜钱-55·保帖底样+1·体魄+1·家族+1·供读压力-1·缓婚事口风',
+              eff: '铜钱-55·保帖底样+1·体魄+1·家族+1·供读压力-1·今岁续供回话+1·缓婚事口风',
               desc: '第三举业年的伏夏上旬，最怕回场履历、秋前帖样、凉药门包、兄房置办口风和递话脚费一起追钱。先把这层“还冲不冲第三年秋场”与“兄婚钱还要不要继续让给书路”的伏夏后手拆开，让第三年的身子账、续供口风与拖婚压力都在同一年里先见账。',
               can: S.铜钱 >= 55,
               why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
@@ -12759,8 +12787,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 id: 'e_year3_autumn_focus',
                 name: '先把三年回场盘缠与婚话脚费分开',
                 cost: 1,
-                eff: '铜钱-60·家族+1·缓婚事口风',
-                desc: '第三举业年的秋头，最怕“这一年到底还冲不冲”与婚话、试鞋、回场脚费一起追钱。先把回场盘缠和婚话脚费拆开，三年举业的秋头就不再只是通用临场盘缠，而会真把迟婚压力压回当旬。',
+                eff: '铜钱-60·家族+1·供读压力-1·今岁续供回话+1·缓婚事口风',
+                desc: '第三举业年的秋头，最怕“这一年到底还冲不冲”与婚话、试鞋、回场脚费一起追钱。先把回场盘缠、婚话脚费与家里秋头这一口续供回话拆开，三年举业的秋头就不再只是通用临场盘缠，而会真把迟婚与续供压力一起压回当旬。',
                 can: S.铜钱 >= 60,
                 why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
                 once: true
@@ -12806,7 +12834,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 id: 'e_year3_winter_focus',
                 name: '先把三年冬头婚期回札与来春回场帖样分开',
                 cost: 1,
-                eff: '铜钱-70·家族+1·供读压力-1·缓婚事口风',
+                eff: '铜钱-70·家族+1·供读压力-1·今岁续供回话+1·缓婚事口风',
                 desc: '第三举业年的冬头，最怕婚期回札、旧馆回音、来春回场帖样与灯油门包一起追钱。先把这层“还要不要把第三年的书路再续到来春”和“婚期还能不能再拖”的冬头后手拆开，不让婚事与回场口风继续一并贴着年关锅火发硬。',
                 can: S.铜钱 >= 70,
                 why: S.铜钱 >= 70 ? '' : '铜钱不足70文',
@@ -12871,7 +12899,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               id: 'e_year3_spring_mid_focus',
               name: '先把三年春中婚话回签与馆课灯药分开',
               cost: 1,
-              eff: '铜钱-55·体魄+1·家族+1·供读压力-1·缓婚事口风',
+              eff: '铜钱-55·体魄+1·家族+1·供读压力-1·今岁续供回话+1·缓婚事口风',
               desc: '第三举业年的春中，最怕婚话回签、评文灯油、护嗓药钱与递话脚费一起追钱。先把这层“还要不要继续供到第三年”和“婚期还能不能再缓”拆开，第三年春中就不再只是通用评文账，而会把婚话压力真压回当旬。',
               can: S.铜钱 >= 55,
               why: S.铜钱 >= 55 ? '' : '铜钱不足55文',
@@ -13014,8 +13042,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 id: 'e_year3_autumn_mid_focus',
                 name: '先把三年秋中婚话回签与保结回帖分开',
                 cost: 1,
-                eff: '铜钱-70·家族+1·体魄+1·缓婚事口风',
-                desc: '第三举业年的秋中，最怕婚话回签、保结回帖、寒热药包与递话脚费一起追钱。先把这层“还冲不冲第三年秋场”和“婚期还能不能再拖”的秋中压力拆开，不让婚事口风继续只贴着资格链与临场后手发硬。',
+                eff: '铜钱-70·家族+1·体魄+1·供读压力-1·今岁续供回话+1·缓婚事口风',
+                desc: '第三举业年的秋中，最怕婚话回签、保结回帖、寒热药包与递话脚费一起追钱。先把这层“还冲不冲第三年秋场”“婚期还能不能再拖”与“家里秋里这口书钱还续不续”的秋中压力拆开，不让婚事口风继续只贴着资格链与临场后手发硬。',
                 can: S.铜钱 >= 70,
                 why: S.铜钱 >= 70 ? '' : '铜钱不足70文',
                 once: true
@@ -13081,7 +13109,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 id: 'e_year3_winter_mid_focus',
                 name: '先把三年冬中婚期回话与灯炭药包分开',
                 cost: 1,
-                eff: '铜钱-75·家族+1·体魄+1·缓婚事口风',
+                eff: '铜钱-75·家族+1·体魄+1·供读压力-1·今岁续供回话+1·缓婚事口风',
                 desc: '第三举业年的冬中，最怕婚期回话、灯炭药包、递话门包和来春帖样一起追钱。先把这层“书路还续不续到来春”和“婚期还能不能再拖”的冬中压力拆开，不让婚事继续只贴着年关灯油与护身钱发硬。',
                 can: S.铜钱 >= 75,
                 why: S.铜钱 >= 75 ? '' : '铜钱不足75文',
@@ -13317,7 +13345,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 id: 'e_year3_spring_tail_focus',
                 name: '先把三年春尾婚信与清明灯药分开',
                 cost: 1,
-                eff: '铜钱-60·家族+1·体魄+1·供读压力-1·缓婚事口风',
+                eff: '铜钱-60·家族+1·体魄+1·供读压力-1·今岁续供回话+1·缓婚事口风',
                 desc: '第三举业年的春尾，最怕婚信回条、清明灯药、塾门回帖门包和入夏前锅火一起追钱。先把这层“书路还续不续到伏夏”和“婚事还能不能再缓”的尾账拆开，第三年春尾就不再只靠通用香纸和扇药过场。',
                 can: S.铜钱 >= 60,
                 why: S.铜钱 >= 60 ? '' : '铜钱不足60文',
@@ -13413,8 +13441,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 id: 'e_year3_autumn_tail_focus',
                 name: '先把三年秋尾婚话回信与回场簿册分开',
                 cost: 1,
-                eff: '铜钱-70·家族+1·体魄+1·缓婚事口风',
-                desc: '第三举业年的秋尾，最怕婚话回信、回场簿册、试鞋药包与递话脚费一起追钱。先把这层“书路还续不续到冬里”和“婚期还能不能再拖”的秋尾后手拆开，不让婚事继续只贴着临场细账往年关里走。',
+                eff: '铜钱-70·家族+1·体魄+1·供读压力-1·今岁续供回话+1·缓婚事口风',
+                desc: '第三举业年的秋尾，最怕婚话回信、回场簿册、试鞋药包与递话脚费一起追钱。先把这层“书路还续不续到冬里”“婚期还能不能再拖”与“家里秋尾这口书钱还续不续”的后手拆开，不让婚事继续只贴着临场细账往年关里走。',
                 can: S.铜钱 >= 70,
                 why: S.铜钱 >= 70 ? '' : '铜钱不足70文',
                 once: true
@@ -13527,7 +13555,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 id: 'e_year3_winter_tail_focus',
                 name: '先把三年冬尾婚期回信与回场门包分开',
                 cost: 1,
-                eff: '铜钱-80·家族+1·体魄+1·缓婚事口风',
+                eff: '铜钱-80·家族+1·体魄+1·供读压力-1·今岁续供回话+1·缓婚事口风',
                 desc: '第三举业年的冬尾，最怕婚期回信、回场门包、守岁炭药和来春帖样一起追钱。先把这层“书路是否还续到来春”和“婚期还能不能再拖”的最后一口年关后手拆开，不让第三年的婚压只贴着过冬钱一路拖进议亲前。',
                 can: S.铜钱 >= 80,
                 why: S.铜钱 >= 80 ? '' : '铜钱不足80文',
@@ -13929,6 +13957,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.家族 += 1;
                 S.本年将养次数 += 1;
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
@@ -14394,11 +14423,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (spendCopper(60)) {
                 noteExamOutlay(60, { buckets: { 本年零耗支出文: 35, 本年盘缠支出文: 25 } });
                 S.家族 += 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
                 noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年婚盘');
-                log.push(['先把三年回场盘缠与婚话脚费分开：铜钱-60、家族+1、婚事口风缓一线。第三举业年秋头先把回场盘缠、婚话脚费和递话小耗拆开，这层“还要不要再冲一年”和“婚期还能不能再拖”终于在同旬见了账，不再只混在通用临场钱里。', 'good']);
+                log.push(['先把三年回场盘缠与婚话脚费分开：铜钱-60、家族+1、供读压力-1、婚事口风缓一线。第三举业年秋头先把回场盘缠、婚话脚费、递话小耗和家里秋头这口续供回话拆开，这层“还要不要再冲一年”“婚期还能不能再拖”和“家里还肯不肯把秋场这口书钱再续一旬”终于在同旬见了账，不再只混在通用临场钱里。', 'good']);
               } else {
                 log.push(['想先把三年回场盘缠与婚话脚费拆开，但这一旬铜钱已先被别处占住，只得让第三举业年秋头这层回场与婚话继续贴着同一口现钱发硬。', 'bad']);
               }
@@ -14410,12 +14441,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.体魄 += 1;
                 S.本年将养次数 += 1;
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
                 noteExamTutorGuaranteeReply();
                 noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年秋中婚保');
-                log.push(['先把三年秋中婚话回签与保结回帖分开：铜钱-70、家族+1、体魄+1、婚事口风缓一线。第三举业年秋中先把婚话回签、保结回帖、寒热药包与递话脚费拆开，这层“还冲不冲秋场”和“婚期还能不能再拖”终于没再只贴着资格链一起发硬。', 'good']);
+                log.push(['先把三年秋中婚话回签与保结回帖分开：铜钱-70、家族+1、体魄+1、供读压力-1、婚事口风缓一线。第三举业年秋中先把婚话回签、保结回帖、寒热药包、递话脚费和家里秋中这口续供回话拆开，这层“还冲不冲秋场”“婚期还能不能再拖”和“家里还肯不肯把这口书钱续到秋尾”终于没再只贴着资格链一起发硬。', 'good']);
               } else {
                 log.push(['想先把三年秋中婚话回签与保结回帖拆开，但这一旬铜钱已先被别处占住，只得让第三举业年秋中这层婚话与资格回帖继续一起追钱。', 'bad']);
               }
@@ -14457,13 +14490,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (spendCopper(70)) {
                 noteExamOutlay(70, { buckets: { 本年零耗支出文: 45, 本年纸墨支出文: 25 } });
                 S.家族 += 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
                 if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
                 noteExamTutorGuaranteeReply();
                 noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年冬头婚帖');
-                log.push(['先把三年冬头婚期回札与来春回场帖样分开：铜钱-70、家族+1、供读压力-1、婚事口风缓一线。第三举业年冬头先把婚期回札、旧馆回音、来春回场帖样和灯油门包拆开，这层“还要不要把书路再续到来春”和“婚期还能不能再拖”终于没再一起贴着年关锅火发硬。', 'good']);
+                log.push(['先把三年冬头婚期回札与来春回场帖样分开：铜钱-70、家族+1、供读压力-1、婚事口风缓一线。第三举业年冬头先把婚期回札、旧馆回音、来春回场帖样和灯油门包拆开，这层“还要不要把书路再续到来春”和“婚期还能不能再拖”终于没再一起贴着年关锅火发硬；来春这口书路还续不续，也在这一旬真落成了一笔续供回话。', 'good']);
               } else {
                 log.push(['想先把三年冬头婚期回札与来春回场帖样拆开，但这一旬铜钱已先被别处占住，只得让第三举业年冬头这层婚期回话与回场帖样继续贴着同一口年火钱追上来。', 'bad']);
               }
@@ -14525,11 +14559,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.体魄 += 1;
                 S.本年将养次数 += 1;
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
                 noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年秋尾婚簿');
-                log.push(['先把三年秋尾婚话回信与回场簿册分开：铜钱-70、家族+1、体魄+1、婚事口风缓一线。第三举业年秋尾先把婚话回信、回场簿册、试鞋药包与递话脚费拆开，这层“书路还续不续到冬里”和“婚期还能不能再拖”终于没再只贴着临场尾账一起发硬。', 'good']);
+                log.push(['先把三年秋尾婚话回信与回场簿册分开：铜钱-70、家族+1、体魄+1、供读压力-1、婚事口风缓一线。第三举业年秋尾先把婚话回信、回场簿册、试鞋药包、递话脚费和家里秋尾这口续供回话拆开，这层“书路还续不续到冬里”“婚期还能不能再拖”和“家里还肯不肯把年关前这口书钱再撑一旬”终于没再只贴着临场尾账一起发硬。', 'good']);
               } else {
                 log.push(['想先把三年秋尾婚话回信与回场簿册拆开，但这一旬铜钱已先被别处占住，只得让第三举业年秋尾这层婚话回信和回场簿册继续一起追钱。', 'bad']);
               }
@@ -14638,11 +14674,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.体魄 += 1;
                 S.本年将养次数 += 1;
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
                 noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年冬中婚药');
-                log.push(['先把三年冬中婚期回话与灯炭药包分开：铜钱-75、家族+1、体魄+1、婚事口风缓一线。第三举业年冬中先把婚期回话、灯炭药包、递话门包和来春帖样拆开，这层“书路还续不续到来春”和“婚期还能不能再拖”终于没再继续贴着年关灯油与护身钱发硬。', 'good']);
+                log.push(['先把三年冬中婚期回话与灯炭药包分开：铜钱-75、家族+1、体魄+1、供读压力-1、婚事口风缓一线。第三举业年冬中先把婚期回话、灯炭药包、递话门包和来春帖样拆开，这层“书路还续不续到来春”和“婚期还能不能再拖”终于没再继续贴着年关灯油与护身钱发硬；家里肯不肯把这口书钱续过冬中，也不再只留在话头上。', 'good']);
               } else {
                 log.push(['想先把三年冬中婚期回话与灯炭药包拆开，但这一旬铜钱已先被别处占住，只得让第三举业年冬中这层婚期回话和灯炭药包继续一起追钱。', 'bad']);
               }
@@ -14906,11 +14944,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 S.体魄 += 1;
                 S.本年将养次数 += 1;
                 if ((S.本年身子亏空 || 0) > 0) S.本年身子亏空 -= 1;
+                noteExamSupportRenewal(1, { countSupportTurn: true });
+                if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
                 if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
                 S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
                 noteExamMarriageReply();
                 pushExamSeasonTag(stepTag + '三年冬尾婚门');
-                log.push(['先把三年冬尾婚期回信与回场门包分开：铜钱-80、家族+1、体魄+1、婚事口风缓一线。第三举业年冬尾先把婚期回信、回场门包、守岁炭药和来春帖样拆开，这层“书路是否还续到来春”和“婚期还能不能再拖”的最后一口年关后手终于没再一起发硬。', 'good']);
+                log.push(['先把三年冬尾婚期回信与回场门包分开：铜钱-80、家族+1、体魄+1、供读压力-1、婚事口风缓一线。第三举业年冬尾先把婚期回信、回场门包、守岁炭药和来春帖样拆开，这层“书路是否还续到来春”和“婚期还能不能再拖”的最后一口年关后手终于没再一起发硬；这口来春还续不续的回话，如今也会在冬尾单独记进今岁账。', 'good']);
               } else {
                 log.push(['想先把三年冬尾婚期回信与回场门包拆开，但这一旬铜钱已先被别处占住，只得让第三举业年冬尾这层婚期回信和回场门包继续一起追钱。', 'bad']);
               }
