@@ -7782,6 +7782,21 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     if (phase === 'civilExam' && currentExamXun() === 3) {
       add(source.filter(function (action) { return action.id === 'e_exam'; })[0]);
       if (!!S
+        && (S.举业年 || 0) >= 3
+        && (S.举季 || 0) === 4
+        && (
+          (S.本年应试结果 || '') === '落第'
+          || (S.本年应场受阻次数 || 0) > 0
+          || (S.供读状态 || '') === '已断供'
+        )
+        && (
+          (S.供读压力 || 0) >= 2
+          || (S.本年家中续供次 || 0) <= 0
+          || (S.本年供读转折旬数 || 0) > 0
+        )) {
+        examPinnedVisibleIds = ['e_fail_tutor_bridge_tail', 'e_family_cash', 'e_tail_grain', 'e_tail_mother_help', 'e_tail_brother_help'];
+      }
+      if (!!S
         && (S.举业年 || 0) === 2
         && (S.举季 || 0) === 4
         && (
@@ -14449,6 +14464,15 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive())
             || (S.供读压力 || 0) >= 2
           );
+        var yearThreeWinterTailFallbackSupportFirst = examYear >= 3
+          && season.id === 'winter'
+          && xun === 3
+          && supportPriorityActive
+          && (
+            S.本年应试结果 === '落第'
+            || (S.本年应场受阻次数 || 0) > 0
+            || S.供读状态 === '已断供'
+          );
         var yearOneUpperSupportFirst = examYear === 1
           && xun === 1
           && (season.id === 'autumn' || season.id === 'winter')
@@ -14469,6 +14493,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           || (S.本年应场受阻次数 || 0) > 0
           || S.供读状态 === '已断供'
         )) preferredOrder.push('e_fail_tutor_bridge_tail');
+        if (yearThreeWinterTailFallbackSupportFirst) {
+          preferredOrder = preferredOrder.concat(supportIds);
+        }
         if (season.id === 'winter' && xun === 2 && (S.负债银 || 0) > 0 && !S.本年债息已结) {
           preferredOrder.push('e_winter_debt_note');
         }
@@ -14550,9 +14577,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         else if (gapCode === 'guaranteeDraft') preferredOrder = preferredOrder.concat(['e_guarantee_prep', 'e_literacy']);
         else if (gapCode === 'guaranteePass') preferredOrder = preferredOrder.concat(['e_guarantee']);
         else if (gapCode === 'studyCount' || gapCode === 'article') preferredOrder = preferredOrder.concat(['e_essay', 'e_copy']);
-        else if (gapCode === 'supportCut') preferredOrder = preferredOrder.concat(['e_copy', 'e_fail_tutor_bridge']);
+        else if (gapCode === 'supportCut') preferredOrder = preferredOrder.concat([
+          'e_copy',
+          (season.id === 'winter' && xun === 3 ? 'e_fail_tutor_bridge_tail' : 'e_fail_tutor_bridge')
+        ]);
         else if (gapCode === 'bodySpent') preferredOrder = preferredOrder.concat(bodyIds);
-        if (supportPriorityActive && !yearThreeSpringShoulderSupportFirst && !lateWarmSeasonSupportFirst && !winterDebtSupportFirst && !yearTwoWinterSupportFirst && !yearTwoAutumnSupportFirst && !yearOneUpperSupportFirst) {
+        if (supportPriorityActive && !yearThreeSpringShoulderSupportFirst && !lateWarmSeasonSupportFirst && !winterDebtSupportFirst && !yearTwoWinterSupportFirst && !yearTwoAutumnSupportFirst && !yearThreeWinterTailFallbackSupportFirst && !yearOneUpperSupportFirst) {
           preferredOrder = preferredOrder.concat(supportIds);
         }
         if (((S.本年延婚牵扯 || 0) > 0) || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive()) || ((S.供读压力 || 0) >= 2)) {
@@ -28373,7 +28403,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (spendCopper(55)) {
                 S.家族 += 1; S.体魄 += 1;
                 pushElderSeasonTag(stepLabel + '·春头药包');
-                log.push(['先把春头药包与锅火家书分开：铜钱-55、家族+1、体魄+1。归乡药包、锅火家书、递话脚费和样纸门包先被拆开，商路晚景开年第一旬终于也把身子与家里这层小账压回了同一年。', 'good']);
+                log.push(['〔春头药包〕先把春头药包与锅火家书分开：铜钱-55、家族+1、体魄+1。归乡药包、锅火家书、递话脚费和样纸门包先被拆开，商路晚景开年第一旬终于也把身子与家里这层小账压回了同一年。', 'good']);
               } else log.push(['想先把春头药包与锅火家书分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_route_price_old':
@@ -28436,14 +28466,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               if (S.商路供读银 >= 1 && spendCopper(65)) {
                 S.家族 += 1; S.体魄 += 1;
                 pushElderSeasonTag(stepLabel + '·伏夏头供读');
-                log.push(['先把伏夏孙辈纸样与凉药门包分开：铜钱-65、家族+1、体魄+1。孙辈纸样、凉药门包、递话脚费和家里茶汤先被拆开，商路晚景夏头这层“身子、家里读写与旧门路同时追钱”的细账终于也落回了这一旬。', 'good']);
+                log.push(['〔伏夏头供读〕先把伏夏孙辈纸样与凉药门包分开：铜钱-65、家族+1、体魄+1。孙辈纸样、凉药门包、递话脚费和家里茶汤先被拆开，商路晚景夏头这层“身子、家里读写与旧门路同时追钱”的细账终于也落回了这一旬。', 'good']);
               } else if (S.商路供读银 >= 1) log.push(['想先把伏夏孙辈纸样与凉药门包分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_route_summer_tail_drag_old':
               if (spendCopper(65)) {
                 S.家族 += 1; S.体魄 += 1;
                 pushElderSeasonTag(stepLabel + '·夏尾拖账');
-                log.push(['先把夏尾客签与拖欠药包分开：铜钱-65、家族+1、体魄+1。客签回话、旧拖欠口风、过路药包和锅火后手先被拆开，秋路未开前，欠账回话、身子和家里后手也不必继续抢同一口现钱。', 'good']);
+                log.push(['〔夏尾拖账〕先把夏尾客签与拖欠药包分开：铜钱-65、家族+1、体魄+1。客签回话、旧拖欠口风、过路药包和锅火后手先被拆开，秋路未开前，欠账回话、身子和家里后手也不必继续抢同一口现钱。', 'good']);
               } else log.push(['想先把夏尾客签与拖欠药包分开，但这一旬现钱不够，只得暂缓。', 'bad']);
               break;
             case 'e_route_receipt_old':
