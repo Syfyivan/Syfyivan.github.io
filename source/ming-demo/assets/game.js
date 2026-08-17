@@ -8912,6 +8912,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       : (xun === 2
         ? '中旬最像把门路、压货与人情往深里坐实。'
         : '下旬就得把回钱、贴家、药钱与差役准备往账面上收。');
+    var winterRiskHints = [];
+    if (season.id === 'winter' && xun === 2 && !S.本年商路身乏已结 && (S.本年商路跑单 || 0) >= 2 && (S.本年商路歇养 || 0) <= 0) {
+      winterRiskHints.push('你这一年已多次跑单却还没留够歇脚药钱；若这旬继续只顾清账，冬中会先把路耗压回今岁。');
+    }
+    if (season.id === 'winter' && xun === 3 && !S.本年商路家里空等已结 && (S.本年商路家书 || 0) <= 0 && (S.本年商路归乡 || 0) <= 0 && (S.本年商路贴家 || 0) <= 0 && (S.未回款银 || 0) > 0) {
+      winterRiskHints.push('眼下仍有回钱挂在外头；若这旬还不给家里递话或贴回一点现钱，冬尾会把空等和口角直接记回本年。');
+    }
+    var winterRiskNote = winterRiskHints.length ? (' ' + winterRiskHints.join(' ')) : '';
     var shopCopper = season.id === 'summer' ? 150 : (season.id === 'winter' ? 130 : 110);
     if (isMid) shopCopper += 20;
     if (isLate) shopCopper -= 10;
@@ -9013,12 +9021,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       note: '一个商年从春开路、夏坐店走到秋试手、冬清账。真正要争的不是一次发财判定，而是认货、问价、跑单、催账、贴家、差役、衣药与旧债怎样分同一笔回钱。'
         + ' 本商年重心是“' + yearProfile.label + '”：' + yearProfile.note
         + ' 当前年内分流=' + remitSplitText + '。'
+        + winterRiskNote
         + (generation > 1 ? ' ' + tradePreview.note : '')
         + (bridge.note ? ' ' + bridge.note : '')
         + (merchantCarryHook.note ? ' ' + merchantCarryHook.note : ''),
       narrative: '你已<span class="em">' + age + '岁</span>，这一商年走到<span class="em">' + season.name + '·' + xunLabel + '</span>。' + season.actionLead + xunLead
         + ' ' + yearProfile.stageLead
         + (isLate ? '这一旬最像收账：哪笔钱先回、哪笔钱先贴家、差役钱和药钱有没有先留，都开始逼到眼前。' : '这一旬还在铺里、货路和家里之间掂量先后，真正厚的地方是同一年里许多小账一起抢。')
+        + winterRiskNote
         + (((S.承继定位 || '').indexOf('长兄续商') >= 0)
           ? ' 只是这一手并不是平白承了长兄的旧号，多半还得挨着旧路数、在旁边另起一支，认人认账与回钱节奏都会因此改写。'
           : '')
@@ -12546,6 +12556,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           S.本年商路拖欠 += S.未回款银;
           if ((S.本年商路家书 + S.本年商路贴家 + S.本年商路供读) > 0) {
             log.push(['〔拖欠〕本年仍有 ' + S.未回款银 + ' 两在路上，但你至少先用家书、贴家或供读次序把家里解释住了；银未落手，账却已先压在当年。', 'bad']);
+          } else if (S.本年商路家里空等已结) {
+            log.push(['〔拖欠〕本年仍有 ' + S.未回款银 + ' 两挂在外头；冬尾那层空等与口角已先在同年见光，如今只把这笔旧账继续留在本年账上，不再重复加一层家里惩罚。', 'bad']);
           } else {
             S.家族 = Math.max(0, S.家族 - 2);
             S.本年商路龃龉 += 1;
