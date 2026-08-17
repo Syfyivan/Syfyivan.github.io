@@ -5409,11 +5409,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   }
   function applyMerchantSeasonCarry(log, stepLabel, season, xun) {
     if (season.id === 'summer' && xun === 2 && !S.本年商路伏夏身乏已结 && (S.本年商路跑单 || 0) >= 2 && (S.本年商路歇养 || 0) <= 0) {
-      S.体魄 -= 1;
       S.本年商路身乏 += 1;
       S.本年商路伏夏身乏已结 = true;
       pushMerchantSeasonTag(stepLabel + '伏夏中路耗');
-      log.push(['〔伏夏中路耗〕伏夏中旬先把连着两程跑单却没留歇脚凉药的钱耗压回真账：体魄-1、身乏+1。回帖、拖欠、供读和行栈脚费还在同旬追钱时，人的肩背和暑里旧乏已经先见了光，不再只等冬中才一起结。', 'bad']);
+      log.push(['〔伏夏中路耗〕伏夏中旬先把连着两程跑单却没留歇脚凉药的旧乏压回真账：身乏+1。回帖、拖欠、供读和行栈脚费还在同旬追钱时，人的肩背和暑里旧乏已经先见了光，不再只等冬中才一起结。', 'bad']);
     }
     if (season.id === 'autumn' && xun === 2 && !S.本年商路秋里口风已结 && (S.未回款银 || 0) > 0 && ((S.本年商路催账 || 0) > 0 || (S.本年商路拖欠 || 0) > 0) && (S.本年商路家书 || 0) <= 0 && (S.本年商路归乡 || 0) <= 0 && (S.本年商路贴家 || 0) <= 0) {
       S.家族 = Math.max(0, S.家族 - 1);
