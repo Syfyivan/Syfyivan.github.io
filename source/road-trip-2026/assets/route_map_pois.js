@@ -2,7 +2,7 @@
   const categories = {
     stay: { label: '全程住宿', short: '住', color: '#7c3aed', defaultVisible: true },
     scenic: { label: '景点与徒步', short: '景', color: '#059669', defaultVisible: true },
-    food: { label: '吃饭区域', short: '吃', color: '#ea580c', defaultVisible: false },
+    food: { label: '吃饭区域', short: '吃', color: '#ea580c', defaultVisible: true },
     supply: { label: '采购与加油', short: '补', color: '#2563eb', defaultVisible: false },
     toilet: { label: '厕所参考点', short: '厕', color: '#0f766e', defaultVisible: false },
     service: { label: '医疗与救援', short: '医', color: '#dc2626', defaultVisible: false }
