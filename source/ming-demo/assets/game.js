@@ -672,6 +672,8 @@
     else if ((carry.家传书香 || 0) > 0) tags.push('家里还存一点书香与识字底子');
     if ((carry.亦贾亦儒底子 || 0) > 0) tags.push('这一房已隐约有了亦贾亦儒的分工念头');
     if ((carry.供读底子 || 0) > 0) tags.push('家里还留着几手供读专账的老规矩');
+    if ((carry.承继供读旧账 || '')) tags.push('上一代留下的供读旧账“' + carry.承继供读旧账 + '”还压在门前');
+    if ((carry.承继三年锅火 || '')) tags.push('上一代留下的三年锅火“' + carry.承继三年锅火 + '”也还得并着算');
     if ((carry.负债银 || 0) > 0) tags.push('这一房还背着旧债' + carry.负债银 + '两');
     return tags;
   }
@@ -1346,6 +1348,8 @@
     else if ((S.家传农事 || 0) > 0) explain.push('家里还留着一层守薄田的农事底子');
     if ((S.亦贾亦儒底子 || 0) > 0) explain.push('这一房仍带着一点亦贾亦儒的家内分工底子');
     if ((S.供读底子 || 0) > 0) explain.push('上一代划下的供读专账老规矩还在');
+    if ((S.承继供读旧账 || '')) explain.push('上一代留下的供读旧账“' + S.承继供读旧账 + '”还压在门前');
+    if ((S.承继三年锅火 || '')) explain.push('上一代留下的三年锅火“' + S.承继三年锅火 + '”也还得并着算');
     if ((S.负债银 || 0) > 0) explain.push('上一代没还清的旧债还有' + S.负债银 + '两，起手不能装作没发生');
     var decayHint = lineageDecayHint(decay);
     if (decayHint) explain.push(decayHint);
@@ -1403,6 +1407,8 @@
     if ((S.家传农事 || 0) > 0) parts.push('家传农事=' + S.家传农事 + '层');
     if ((S.亦贾亦儒底子 || 0) > 0) parts.push('亦贾亦儒底子=' + S.亦贾亦儒底子 + '层');
     if ((S.供读底子 || 0) > 0) parts.push('供读底子=' + S.供读底子 + '层');
+    if ((S.承继供读旧账 || '')) parts.push('供读旧账=' + S.承继供读旧账);
+    if ((S.承继三年锅火 || '')) parts.push('三年锅火=' + S.承继三年锅火);
     var decay = currentLineageDecayLevel();
     if (decay > 0) parts.push('旧门路衰减=' + decay + '层');
     if ((S.委托营生 || '无') !== '无') parts.push('委托营生=' + S.委托营生);
@@ -1499,6 +1505,8 @@
       }
     }
     if ((carry.负债银 || 0) > 0) hints.push('只是这一房还背着旧债' + carry.负债银 + '两，起手无论走哪条路都得先想着别让旧账再滚大');
+    if ((carry.承继供读旧账 || '')) hints.push('上一代留下的供读旧账=' + carry.承继供读旧账 + '，换路也不能把这本明账洗回一句“从头来过”');
+    if ((carry.承继三年锅火 || '')) hints.push('上一代留下的三年锅火=' + carry.承继三年锅火 + '，多年锅火也不能在下一代门前忽然失声');
     var delegatedHint = delegatedEstateCarryExplanation(carry.委托营生 || '无');
     if (delegatedHint) hints.push(delegatedHint);
     if ((carry.委托租谷 || 0) > 0) hints.push('委托租谷=' + carry.委托租谷 + '石/年这笔旧入项还在跑，起手盘账得把它算在家底里');
@@ -6949,6 +6957,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       亦贾亦儒底子: S.亦贾亦儒底子 || 0,
       供读底子: S.供读底子 || 0,
       旧门路衰减: currentLineageDecayLevel(),
+      承继供读旧账: normalizeCarryString(S.承继供读旧账, ''),
+      承继三年锅火: normalizeCarryString(S.承继三年锅火, ''),
       委托营生: delegatedEstate.委托营生,
       委托租谷: delegatedEstate.委托租谷,
       委托待收租谷: delegatedEstate.委托待收租谷,
@@ -29291,6 +29301,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var nextRole = S.子数 <= 0 ? '旁支继子' : (S.子数 === 1 ? '独子' : '次子');
       var nextDirectTag = directHeirLineageTag(nextRole);
       var nextVia = currentInheritance.承嗣来路 || '';
+      var inheritedSupportLedger = normalizeCarryString(S.承继供读旧账, '');
+      var inheritedFoodLedger = normalizeCarryString(S.承继三年锅火, '');
+      var supportLedgerCarry = inheritedSupportLedger;
+      var foodLedgerCarry = inheritedFoodLedger;
       // 旁支这一房若在本代又生出本支独子/次子，来路顺序必须是
       // “旁支过继 · 旁支续承 · 本支独子/次子承继”。
       // 若先把直系标签写进去，再补“旁支续承”，死亡页会短暂出现
@@ -29314,8 +29328,22 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         家传农事: Math.max(0, Number(S.家传农事 || 0)),
         亦贾亦儒底子: Math.max(0, Number(S.亦贾亦儒底子 || 0)),
         供读底子: Math.max(0, Number(S.供读底子 || 0)),
-        旧门路衰减: currentLineageDecayLevel()
+        旧门路衰减: currentLineageDecayLevel(),
+        承继供读旧账: supportLedgerCarry,
+        承继三年锅火: foodLedgerCarry
       };
+      if (isCivilExamRouteState()
+        || inheritedSupportLedger
+        || inheritedFoodLedger
+        || Math.max(0, Number(S.举业累计家中供读次 || 0)) > 0
+        || Math.max(0, Number(S.举业累计已结口粮石 || 0)) > 0
+        || Math.max(0, Number(S.本年家中供读次 || 0)) > 0
+        || Math.max(0, Number(S.本年举业已结口粮石 || 0)) > 0) {
+        var currentSupportLedger = examLifetimeSupportSourceSummary();
+        var currentFoodLedger = examLifetimeFoodLedgerLabel();
+        if (currentSupportLedger && currentSupportLedger !== '未见明账') legacy.承继供读旧账 = currentSupportLedger;
+        if (currentFoodLedger && currentFoodLedger !== '未见旧锅火') legacy.承继三年锅火 = currentFoodLedger;
+      }
       if (S.技艺 !== '无' || S.雇技进度 >= 2 || S.雇工历练 >= 3) legacy.家传手艺 = Math.max(legacy.家传手艺, 1);
       if (S.学徒去向 === '留店伙计') legacy.城里门路 = Math.max(legacy.城里门路, 2);
       else if (S.学徒去向 === '店铺做工' || S.学徒去向 === '随行商') legacy.城里门路 = Math.max(legacy.城里门路, 1);
@@ -29510,6 +29538,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         承继定位: legacyCarry.承继定位, 城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子,
         旧门路衰减: legacyCarry.旧门路衰减,
+        承继供读旧账: legacyCarry.承继供读旧账,
+        承继三年锅火: legacyCarry.承继三年锅火,
         委托营生: delegatedCarry.委托营生,
         委托租谷: delegatedCarry.委托租谷,
         委托待收租谷: delegatedCarry.委托待收租谷,
@@ -29550,6 +29580,8 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         承继定位: legacyCarry.承继定位, 城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子,
         旧门路衰减: legacyCarry.旧门路衰减,
+        承继供读旧账: legacyCarry.承继供读旧账,
+        承继三年锅火: legacyCarry.承继三年锅火,
         委托营生: collateralDelegatedCarry.委托营生,
         委托租谷: collateralDelegatedCarry.委托租谷,
         委托待收租谷: collateralDelegatedCarry.委托待收租谷,
