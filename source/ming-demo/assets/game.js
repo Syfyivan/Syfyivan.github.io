@@ -999,6 +999,21 @@
       旧门路衰减: S.旧门路衰减
     };
   }
+  function syncCurrentLifecycleCarryState() {
+    if (!S) return null;
+    var founding = syncCurrentFoundingSnapshotState();
+    var parentRoute = syncCurrentParentRouteState();
+    var inheritance = syncCurrentInheritanceState();
+    var routeAware = syncCurrentRouteAwareState();
+    var legacyFloors = syncCurrentLegacyCarryFloors();
+    return {
+      founding: founding,
+      父辈路线: parentRoute,
+      inheritance: inheritance,
+      routeAware: routeAware,
+      legacyFloors: legacyFloors
+    };
+  }
   function syncCurrentRouteAwareState() {
     if (!S) {
       return {
@@ -1199,6 +1214,41 @@
       return '上一代临终前已把分得薄田按“出佃收租”托着走，这层租谷安排没有被悄悄洗掉';
     }
     return '上一代临终前已把分得薄田按“' + normalized + '”托着走，这层田面安排没有被悄悄洗掉';
+  }
+  function inheritedDelegatedEstateCarry(route, land, lease, pendingRent) {
+    var normalized = normalizeCarryString(route, '无');
+    var shareLand = Math.max(0, Number(land || 0));
+    var shareLease = Math.max(0, Number(lease || 0));
+    var sharePendingRent = Math.max(0, Number(pendingRent || 0));
+    if (normalized === '无') {
+      return {
+        委托营生: '无',
+        委托租谷: 0,
+        委托待收租谷: 0
+      };
+    }
+    if (shareLand <= 0) {
+      if (sharePendingRent > 0) {
+        return {
+          委托营生: normalized,
+          委托租谷: 0,
+          委托待收租谷: sharePendingRent
+        };
+      }
+      return {
+        委托营生: '无',
+        委托租谷: 0,
+        委托待收租谷: 0
+      };
+    }
+    // “兄代管薄田 / 书户分得薄田出佃 / 出佃收租”这类经营定位本身就是跨代事实，
+    // 不能因为这一年刚好把应收租谷结清，就在 death → restartWithHeir 间被洗回“无”。
+    // 只要这一房仍实分到田面，这层经营安排就应继续留在下一代入口与五路起手里。
+    return {
+      委托营生: normalized,
+      委托租谷: normalized === '分得薄田自耕' ? 0 : shareLease,
+      委托待收租谷: normalized === '分得薄田自耕' ? 0 : sharePendingRent
+    };
   }
   function lifecycleInheritanceBridge() {
     var parentRoute = syncCurrentParentRouteState();
@@ -1421,7 +1471,7 @@
       if ((carry.家传书香 || 0) > 0) hints.push('识字、文章和保结起步更顺');
       if ((carry.商路门路 || 0) > 0) hints.push('商路旧识更容易替你递条子、垫几步人情');
       if ((carry.亦贾亦儒底子 || 0) > 0) hints.push('家里更知道怎么先供几年书');
-      if ((carry.供读底子 || 0) > 0) hints.push('束脩纸墨前头先有一笔不折现的供读缓冲');
+      if ((carry.供读底子 || 0) > 0) hints.push('束脩纸墨前头先有一笔不折现的供读专账缓冲');
       if ((carry.承继定位 || '').indexOf('次子候读') >= 0) hints.push('家里原本就把你这一手留作先读的一房，长兄那边续号回钱更像你背后的暗底');
       if ((carry.承继定位 || '').indexOf('次子续读') >= 0) hints.push('长兄先守着户里那摊日常，你这一手本就被家里留作续读，起手少一层“先回去扛家计”的拉扯');
       if ((carry.举业结局 || '') && (carry.举业结局 || '') !== '未定') hints.push('上一代已经把举业走到“' + carry.举业结局 + '”，你更知道书路会把一家人拖到哪一步');
@@ -1852,6 +1902,40 @@
     if (split.ties > 0) parts.push('旧识/铺账' + split.ties + '次');
     if (split.returns > 0) parts.push('节礼/归乡' + split.returns + '次');
     return parts.length ? parts.join('｜') : '尚未把轮养、收租、旧识与药包后手拆成真账';
+  }
+  function merchantPressureSignalSnapshot() {
+    return {
+      strain: Math.max(0, Number(S.本年商路身乏) || 0),
+      clan: Math.max(0, Number(S.本年商路龃龉) || 0)
+    };
+  }
+  function noteMerchantPressureSignals(log, stepLabel, beforeSnapshot, season, xun) {
+    if (!log) return;
+    beforeSnapshot = beforeSnapshot || {};
+    season = season || merchantSeasonInfo(S.商季 || 1);
+    xun = Math.max(1, Math.min(3, Number(xun || S.商段 || 1)));
+    if (!season || season.id === 'winter') return;
+    var current = merchantPressureSignalSnapshot();
+    if (current.strain > Math.max(0, Number(beforeSnapshot.strain) || 0)) {
+      pushMerchantSeasonTag(stepLabel + '身子账');
+      if (season.id === 'summer') {
+        log.push(['〔身子账〕这一旬过后，伏夏跑单、茶脚与药钱磨出来的亏空已先记回本年；商路不是只看账回没回，脚底板、肩背和暑里旧乏也会在同旬见账。', 'bad']);
+      } else if (season.id === 'autumn') {
+        log.push(['〔身子账〕这一旬过后，秋路来回、水脚与回客药包磨出来的亏空已先记回本年；银还没全落手前，人的身子先在这一旬把账摊开了。', 'bad']);
+      } else {
+        log.push(['〔身子账〕这一旬过后，春路起脚、递话和门包拖出来的亏空已先记回本年；商路起手也不是只认门面，人的身子同样要在同旬过账。', 'bad']);
+      }
+    }
+    if (current.clan > Math.max(0, Number(beforeSnapshot.clan) || 0)) {
+      pushMerchantSeasonTag(stepLabel + '家里口风');
+      if (season.id === 'summer') {
+        log.push(['〔家里口风〕这一旬过后，外路脚费、家里催问和回钱次序已经先顶出一层口角；商路不是只在年终结算时才和家里碰账。', 'bad']);
+      } else if (season.id === 'autumn') {
+        log.push(['〔家里口风〕这一旬过后，秋里回签、锅火和旧账先把家中口风顶紧了一层；这层龃龉没有再被拖成跨代时才补写的余怨。', 'bad']);
+      } else {
+        log.push(['〔家里口风〕这一旬过后，春里门包、家书和来路后手已经先把家中口风顶出一层火气；商路起手也得把这层家计冲突当场记账。', 'bad']);
+      }
+    }
   }
   function childbearingProfile() {
     var life = currentLifeProfile();
@@ -2685,7 +2769,7 @@
   }
 
   function examGuaranteeActionDesc() {
-    return '春夏先把当年的帖样、履历和馆保回话理出来后，秋试或冬清账中旬才能正式找人担保报名。秋里多半先把互结、具结与廪保口风跑起来，冬里还能补廪保与资格审查；若关系、文章和馆保回话都足够稳，秋里也可能一次走通。担保人若仍不点头，80文一样先支出，但冬里还有一次补办机会。';
+    return '春夏先把当年的帖样、履历和馆保回话理出来后，秋试或冬清账中旬才能正式找人担保报名。秋里常先把互结、具结与廪保口风跑起来，冬里还能补廪保与资格审查；若关系、文章和馆保回话都足够稳，秋里也可能一次走通。担保人若仍不点头，80文一样先支出，但冬里还有一次补办机会。';
   }
   function examGuaranteeFullPassMargin(seasonId) {
     var season = String(seasonId || '');
@@ -3040,10 +3124,10 @@
       + Math.max(0, Number(S.举业累计婚事转折旬数) || 0)
       + Math.max(0, Number(S.举业累计身耗转折旬数) || 0);
     if (blocked > 0) parts.push('场外受阻已累到' + blocked + '回');
-    if (tutorBridge > 0) parts.push('塾馆教读后手已试接' + tutorBridge + '旬');
+    if (tutorBridge > 0) parts.push('落第后试接教读已累到' + tutorBridge + '旬，塾馆教读后手也已试接' + tutorBridge + '旬');
     if (tutorReplies > 0 || marriageReplies > 0 || rumorReplies > 0) parts.push('馆保/婚话/榜口回签已记成“' + examLifetimeReplySummary() + '”');
     if (signalTotal > 0) parts.push('供读/婚事/身耗翻账也累成“' + examLifetimeSignalSummary() + '”');
-    if (supportSummary !== '未见明账') parts.push('供读旧账明到“' + supportSummary + '”');
+    if (supportSummary !== '未见明账') parts.push('供读旧账=' + supportSummary);
     return parts.join('；');
   }
   function examDelayCarryActive() {
@@ -5979,7 +6063,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       h += '<span class="chip">年内回话 <b>' + examSupportRenewalLabel() + '</b></span>';
       h += '<span class="chip">供养 <b>' + examVisibleSupportLedger() + '</b></span>';
       h += '<span class="chip">供读明账 <b>' + examCurrentSupportSourceSummary() + '</b></span>';
+      h += '<span class="chip">供读旧账 <b>' + examLifetimeSupportSourceSummary() + '</b></span>';
       h += '<span class="chip">回签 <b>' + examCurrentReplyLabel() + '</b></span>';
+      if (examTutorBridgeLoad() > 0) h += '<span class="chip">教读后手 <b>已试接' + examTutorBridgeLoad() + '旬</b></span>';
+      if (examLifetimeBlockedLoad() > 0) h += '<span class="chip">场外受阻 <b>' + examLifetimeBlockedLoad() + '回</b></span>';
       if ((S.本年回榜口风次数 || 0) > 0) h += '<span class="chip">榜口 <b>' + examCurrentRumorLabel() + '</b></span>';
       h += '<span class="chip">已落支出 <b>' + examVisibleOutlayTotal() + '</b>文</span>';
       h += '<span class="chip">支出拆账 <b>' + examVisibleOutlayBreakdown() + '</b></span>';
@@ -7058,12 +7145,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     // 因此只要进入 marriage / family / household / elder / death，就先统一把承继身份、
     // 承嗣来路、承继定位与 route-aware / 委托账状态做一次当前态归一化，避免阶段首页先渲出半套旧称呼，
     // 再靠各阶段内部兜底晚一步纠正，形成“相位刚切入时文案短暂掉线”的假闭环。
-    if (p === 'marriage' || p === 'family' || p === 'household' || p === 'elder' || p === 'death') {
-      syncCurrentParentRouteState();
-      syncCurrentInheritanceState();
-      syncCurrentRouteAwareState();
-      syncCurrentLegacyCarryFloors();
-    }
+    if (p === 'marriage' || p === 'family' || p === 'household' || p === 'elder' || p === 'death') syncCurrentLifecycleCarryState();
     if (p === 'farmRoute' || p === 'farm') { enterFarm(); return; }
     else if (p === 'wage') { enterWage(); return; }
     else if (p === 'apprentice') { enterApprentice(); return; }
@@ -8113,7 +8195,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     h += '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">📚 生命周期延伸卡</span>' +
       '<span class="cb-val">单代闭环</span></div>' +
-      '<div class="cb-tip">底层按四季三旬结算；其中举业路已改为逐旬推进，识字、投塾、保结、应试、供读、婚话与身耗都会在当旬拍板，其余路线仍按代表旬停靠。' +
+      '<div class="cb-tip">底层按四季三旬结算；卖工、学徒、商路与举业都已把关键肩部压回旬内，识字、投塾、认货、跑单、回钱、供读、差役与身耗都会在当旬拍板；后半生的养家 / 当户 / 养老也继续按季旬分账。' +
       '<br>保持守恒、不变量与史料诚实：不写成功分、排名或最优路线。</div></div>';
     h += '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">🧾 五路多代账本卡</span>' +
@@ -10504,6 +10586,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       },
       settle: function (log) {
         var picked = {};
+        var merchantPressureBefore = merchantPressureSignalSnapshot();
         lifePicks.forEach(function (p) {
           picked[p.id] = true;
           switch (p.id) {
@@ -12828,6 +12911,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         });
         applySeasonalMerchantFriction(log, season.name + xunLabel, season, xun, picked);
         applyMerchantSeasonCarry(log, season.name + xunLabel, season, xun);
+        noteMerchantPressureSignals(log, season.name + xunLabel, merchantPressureBefore, season, xun);
 
         if (!isYearEnd) {
           curStage.next = 'merchant';
@@ -15554,7 +15638,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               S.本年教读试接次数 += 1;
               S.本年延婚牵扯 += 1;
               pushExamSeasonTag(stepTag + '落第后试接教读');
-              log.push(['落第后先替塾师誊课带几名蒙童：铜钱+120、识字转业值+2、家族+1、供读压力-1。第三举业年的冬中没有只把落第留成一句“明年再试”，而是先把识字底子换成馆里现钱与一点体面；这120文也记作当年举业自筹，不再和家里续供现钱混成同一口账，让塾馆教读、誊抄契样这条退路在年关里先站住半步。', 'good']);
+              log.push(['落第后先替塾师誊课带几名蒙童：铜钱+120、识字转业值+2、家族+1、供读压力-1。第三举业年的冬中没有只把落第留成一句“明年再试”，而是先把识字底子换成馆里现钱与一点体面；这120文也记作当年举业自筹，不再和家里续供现钱混成同一口账，让塾馆教读、誊抄契样这条退路在年关里先站住半步，也把“落第后试接教读”直接写进了当年账。', 'good']);
               break;
             case 'e_fail_tutor_bridge_tail':
               S.铜钱 += 90;
@@ -15566,7 +15650,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               S.本年教读试接次数 += 1;
               S.本年延婚牵扯 += 1;
               pushExamSeasonTag(stepTag + '冬尾补接教读');
-              log.push(['落第后再替塾馆誊课带蒙童：铜钱+90、识字转业值+2、家族+1、供读压力-1。若冬中没能先把教读、誊抄和蒙童活路接上，冬尾这一旬仍能再试一回；第三举业年的退路不再只停在冬中一瞬，而会连着年下锅火、来春帖样与家里续供口风一起继续见账。', 'good']);
+              log.push(['落第后再替塾馆誊课带蒙童：铜钱+90、识字转业值+2、家族+1、供读压力-1。若冬中没能先把教读、誊抄和蒙童活路接上，冬尾这一旬仍可再用识字底子去替塾馆誊课、带蒙童；第三举业年的退路不再只停在冬中一瞬，而会连着年下锅火、来春帖样与家里续供口风一起继续见账。', 'good']);
               break;
             case 'e_spring_tail_packet':
               if (spendCopper(45)) {
@@ -28741,9 +28825,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       return n.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
     }
     var life = currentLifeProfile();
-    var currentInheritance = syncCurrentInheritanceState();
-    syncCurrentRouteAwareState();
-    var currentFounding = syncCurrentFoundingSnapshotState();
+    var lifecycleCarryState = syncCurrentLifecycleCarryState() || {};
+    var currentInheritance = lifecycleCarryState.inheritance || syncCurrentInheritanceState();
+    var currentFounding = lifecycleCarryState.founding || syncCurrentFoundingSnapshotState();
     function shareByOrdinal(total, count, ordinal) {
       var scale = shareUnitScale(total);
       var whole = Math.max(0, Math.round((Number(total) || 0) * scale));
@@ -28874,10 +28958,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         parts.push('这房临终前已把分得薄田坐成自耕账；哪怕下一代重走别路，也不能把这层守田次序洗成一句“名下有田”');
       } else if (delegatedMode === 'sharedManage') {
         parts.push('这房临终前已把分得薄田按“兄代管薄田”托着走；兄房代管能替你挡一层田面奔波，却不能把这层田账洗成已经落袋的现粮');
+        if (pendingRentMi > 0) parts.push('这房临终前留下的委托经营账，也要连着待收租谷一起结清；账上仍有待收委托田租' + pendingRentMi + '石');
       } else if (delegatedMode === 'studyLease') {
         parts.push('这房临终前已把书户分得薄田另立成“书户分得薄田出佃”账；租谷回路与供读旧账都还得并着往下一代门前摆');
+        if (pendingRentMi > 0) parts.push('这房临终前留下的委托经营账，也要连着待收租谷一起结清；账上仍有待收委托田租' + pendingRentMi + '石');
       } else if ((S.委托营生 || '无') !== '无' && ((S.委托租谷 || 0) > 0 || pendingRentMi > 0)) {
-        parts.push('这房临终前留下的委托经营账，也要连着待收租谷一起结清，不能当作已经落袋');
+        parts.push('这房临终前留下的委托经营账，也要连着待收租谷一起结清，不能当作已经落袋' + (pendingRentMi > 0 ? ('；账上仍有待收委托田租' + pendingRentMi + '石') : ''));
       }
       return {
         text: parts.join('；')
@@ -28967,9 +29053,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       var pendingRentEnabled = delegatedRoute !== '无' && pendingRentMi > 0;
       var shareLease = leaseEnabled ? shareByOrdinal(S.委托租谷 || 0, sons, heirOrdinal) : 0;
       var sharePendingRent = pendingRentEnabled ? shareByOrdinal(pendingRentMi, sons, heirOrdinal) : 0;
-      var carryDelegatedRoute = selfFieldEnabled
-        ? delegatedRoute
-        : ((shareLease > 0 || sharePendingRent > 0) ? delegatedRoute : '无');
+      var delegatedCarry = inheritedDelegatedEstateCarry(delegatedRoute, shareTian, shareLease, sharePendingRent);
       var remainderText = ordinalRemainderSummary(sons, heirOrdinal, [
         { total: estateSilver, label: '白银', unit: '两' },
         { total: estateCopper, label: '铜钱', unit: '文' },
@@ -28988,9 +29072,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         承继定位: legacyCarry.承继定位, 城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子,
         旧门路衰减: legacyCarry.旧门路衰减,
-        委托营生: carryDelegatedRoute,
-        委托租谷: shareLease,
-        委托待收租谷: sharePendingRent,
+        委托营生: delegatedCarry.委托营生,
+        委托租谷: delegatedCarry.委托租谷,
+        委托待收租谷: delegatedCarry.委托待收租谷,
         婚配路径: routeAwareCarry.婚配路径,
         合爨状态: routeAwareCarry.合爨状态,
         定额佃状态: routeAwareCarry.定额佃状态,
@@ -29003,7 +29087,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了能传下去的不只是薄田' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '与委托田租' : '') + '，还有一层见过世面的门路。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨不会直接分成银两，却会作为体面与起点留在下一代门前。';
       else deathTag = '你这一辈子的每一分积累与亏空，都成了子孙的期初。';
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。' + (merchantClosureNote ? (merchantClosureNote + ' ') : '') + '丧礼依家礼办讫（棺木等丧葬支出白银' + funeral + '两、米1石' + (merchantExtraFuneralCopper > 0 ? ('，另支运柩停厝铜钱' + merchantExtraFuneralCopper + '文') : '') + '从遗产扣除）' + (pendingRentMi > 0 ? '；另有委托经营账上待结的租谷 ' + pendingRentMi + ' 石（未取得），记作应收，随房分到下一代' : '') + '。遗产按<span class="em">诸子均分</span>传给下一代' + (estateDebt > 0 ? '，未抵清的旧债也随房分担' : '') + (remainderText ? '；' + remainderText.replace(/。$/, '') : '') + '。' + inheritanceContinuationClause(S._carry) + '。' + (lifecycleResidue.text ? lifecycleResidue.text + '。' : '') + '——' + deathTag;
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>。' + (merchantClosureNote ? (merchantClosureNote + ' ') : '') + '丧礼依家礼办讫（棺木等丧葬支出白银' + funeral + '两、米1石' + (merchantExtraFuneralCopper > 0 ? ('，另支运柩停厝铜钱' + merchantExtraFuneralCopper + '文') : '') + '从遗产扣除）' + (pendingRentMi > 0 ? '；另有委托经营账上待结的租谷 ' + pendingRentMi + ' 石（未取得，记作待收委托田租' + pendingRentMi + '石），随房分到下一代' : '') + '。遗产按<span class="em">诸子均分</span>传给下一代' + (estateDebt > 0 ? '，未抵清的旧债也随房分担' : '') + (remainderText ? '；' + remainderText.replace(/。$/, '') : '') + '。' + inheritanceContinuationClause(S._carry) + '。' + (lifecycleResidue.text ? lifecycleResidue.text + '。' : '') + '——' + deathTag;
     } else {
       collateralEstateNote = '结清丧葬与旧债后，这一房真正还能被过继承走的，只剩白银' + estateSilver + '两、铜钱' + estateCopper + '文、存米' + estateMi + '石、田' + estateTian + '亩' + (pendingRentMi > 0 ? ('，另有账上待结租谷' + pendingRentMi + '石（未取得）') : '') + '。';
       var collateralDelegatedRoute = S.委托营生 || '无';
@@ -29013,9 +29097,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         && collateralDelegatedRoute !== '无'
         && (S.委托租谷 || 0) > 0;
       var collateralPendingRentEnabled = collateralDelegatedRoute !== '无' && pendingRentMi > 0;
-      var collateralCarryDelegatedRoute = collateralSelfFieldEnabled
-        ? collateralDelegatedRoute
-        : ((collateralLeaseEnabled || collateralPendingRentEnabled) ? collateralDelegatedRoute : '无');
+      var collateralDelegatedCarry = inheritedDelegatedEstateCarry(
+        collateralDelegatedRoute,
+        estateTian,
+        collateralLeaseEnabled ? Math.max(0, S.委托租谷 || 0) : 0,
+        collateralPendingRentEnabled ? pendingRentMi : 0
+      );
       S._carry = normalizeCarrySnapshot({
         父快照ID: currentFounding.id,
         父快照类型: S.父快照类型,
@@ -29025,9 +29112,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         父辈路线: legacyCarry.父辈路线, 承嗣来路: legacyCarry.承嗣来路, 家传书香: legacyCarry.家传书香,
         承继定位: legacyCarry.承继定位, 城里门路: legacyCarry.城里门路, 商路门路: legacyCarry.商路门路, 家传手艺: legacyCarry.家传手艺, 家传农事: legacyCarry.家传农事, 亦贾亦儒底子: legacyCarry.亦贾亦儒底子, 供读底子: legacyCarry.供读底子,
         旧门路衰减: legacyCarry.旧门路衰减,
-        委托营生: collateralCarryDelegatedRoute,
-        委托租谷: collateralLeaseEnabled ? Math.max(0, S.委托租谷 || 0) : 0,
-        委托待收租谷: collateralPendingRentEnabled ? pendingRentMi : 0,
+        委托营生: collateralDelegatedCarry.委托营生,
+        委托租谷: collateralDelegatedCarry.委托租谷,
+        委托待收租谷: collateralDelegatedCarry.委托待收租谷,
         婚配路径: routeAwareCarry.婚配路径,
         合爨状态: routeAwareCarry.合爨状态,
         定额佃状态: routeAwareCarry.定额佃状态,
@@ -29040,7 +29127,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       else if (S.路线.indexOf('入城学徒') === 0 || S.学徒去向 !== '未定') deathTag = '你这一生把乡里与城里缝到了一起，临了虽绝嗣，城中门路与见识' + ((S.委托租谷 > 0 || pendingRentMi > 0) ? '连同委托田租的薄底子' : '') + '也只剩旁支可续。';
       else if (S.路线.indexOf('读书应举') === 0 || S.举业结局 !== '未定' || S.生员身份) deathTag = '你这一生的名分与笔墨终究未能直接传给亲子，只在旁支门前留下些体面与余绪。';
       else deathTag = '这不是"游戏失败"，而是明代极高绝嗣率下的真实分支。';
-      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>，然膝下无育成之子。' + (merchantClosureNote ? (merchantClosureNote + ' ') : '') + '依明代常俗，触发<span class="em">过继/立嗣</span>：族中侄辈过继承祧，但承的不是一张重置模板，而是这户结清后的真实余产' + (pendingRentMi > 0 ? '、账上待结委托田租（未取得）' : '') + (estateDebt > 0 ? '与未了旧债' : '') + (merchantExtraFuneralCopper > 0 ? ('，另已扣客途运柩停厝铜钱' + merchantExtraFuneralCopper + '文') : '') + '。' + inheritanceContinuationClause(S._carry) + '。' + (lifecycleResidue.text ? lifecycleResidue.text + '。' : '') + '——' + deathTag;
+      narrative = '你走完了这一生，享年 <span class="em">' + ageRoll + ' 岁</span>，然膝下无育成之子。' + (merchantClosureNote ? (merchantClosureNote + ' ') : '') + '依明代常俗，触发<span class="em">过继/立嗣</span>：族中侄辈过继承祧，但承的不是一张重置模板，而是这户结清后的真实余产' + (pendingRentMi > 0 ? ('、账上待结委托田租（未取得，记作待收委托田租' + pendingRentMi + '石）') : '') + (estateDebt > 0 ? '与未了旧债' : '') + (merchantExtraFuneralCopper > 0 ? ('，另已扣客途运柩停厝铜钱' + merchantExtraFuneralCopper + '文') : '') + '。' + inheritanceContinuationClause(S._carry) + '。' + (lifecycleResidue.text ? lifecycleResidue.text + '。' : '') + '——' + deathTag;
     }
     return {
       title: '死亡与传承', label: '传承', next: null, nextLabel: '递归重开 →',
@@ -29211,11 +29298,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       patchState: function (patch) {
         if (!patch || typeof patch !== 'object') return false;
         Object.keys(patch).forEach(function (k) { S[k] = patch[k]; });
-        syncCurrentFoundingSnapshotState();
-        syncCurrentParentRouteState();
-        syncCurrentInheritanceState();
-        syncCurrentRouteAwareState();
-        syncCurrentLegacyCarryFloors();
+        syncCurrentLifecycleCarryState();
         clampAttr('体魄'); clampAttr('家族');
         rebuildCurrentPhaseStageAfterPatch();
         renderStatus(); renderStage(); renderLedger();
