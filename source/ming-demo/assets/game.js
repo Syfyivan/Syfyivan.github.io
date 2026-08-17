@@ -5145,7 +5145,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'clan'
     });
     if (season.id === 'summer' && xun === 1) apply({
-      handledIds: ['m_run', 'm_letter', 'm_mend', 'm_rest', 'm_wharf', 'm_summer_head_packet', 'm_summer_head_home_split', 'm_summer_head_supply_duty', 'm_summer_head_drag', 'm_summer_head_remit_duty', 'm_summer_head_remit_drag', 'm_summer_head_remit_body', 'm_summer_second_route', 'm_summer_second_head_split', 'm_summer_second_head_remit', 'm_summer_third_head_remit', 'm_summer_third_head_split'],
+      handledIds: ['m_run', 'm_letter', 'm_mend', 'm_rest', 'm_wharf', 'm_summer_head_packet', 'm_summer_head_home_split', 'm_summer_head_supply_duty', 'm_summer_head_drag', 'm_summer_head_remit_duty', 'm_summer_head_remit_drag', 'm_summer_head_remit_body', 'm_summer_first_head_split', 'm_summer_second_route', 'm_summer_second_head_split', 'm_summer_second_head_remit', 'm_summer_third_head_remit', 'm_summer_third_head_split'],
       doneTag: '伏夏茶脚已留',
       doneLog: '〔伏夏茶脚〕这一旬先把行栈茶钱、脚夫点心、家里带话脚费和起脚拖欠口风分开了；伏夏刚开头那层“先落脚、先递话、先顾一口凉药与旧回签”的碎账，没有再悄悄拖到夏中夏尾一起爆。',
       cost: 35,
@@ -5156,7 +5156,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'body'
     });
     if (season.id === 'summer' && xun === 2) apply({
-      handledIds: ['m_shop', 'm_book', 'm_mend', 'm_rest', 'm_letter', 'm_summer_bundle', 'm_summer_conflict', 'm_summer_mid_reply_school', 'm_summer_mid_drag', 'm_summer_mid_remit_drag', 'm_summer_second_mid_trial', 'm_summer_second_mid_remit', 'm_summer_third_remit', 'm_summer_third_mid_split'],
+      handledIds: ['m_shop', 'm_book', 'm_mend', 'm_rest', 'm_letter', 'm_summer_bundle', 'm_summer_conflict', 'm_summer_mid_reply_school', 'm_summer_mid_drag', 'm_summer_mid_remit_drag', 'm_summer_first_mid_split', 'm_summer_second_mid_trial', 'm_summer_second_mid_remit', 'm_summer_third_remit', 'm_summer_third_mid_split'],
       doneTag: '伏夏零耗已顾',
       doneLog: '〔伏夏零耗〕这一旬先把茶汤、草鞋、汗药、柜边回帖、孩子纸样和号里脚钱顾住了；热里这层细碎磨损没有再顺着柜上、货路、供读与身子一起滚大。',
       cost: 40,
@@ -5167,7 +5167,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       hardship: 'body'
     });
     if (season.id === 'summer' && xun === 3) apply({
-      handledIds: ['m_shop', 'm_market', 'm_letter', 'm_mend', 'm_counter', 'm_summer_tail_duty', 'm_summer_tail_school', 'm_summer_tail_drag', 'm_summer_tail_remit_school', 'm_summer_second_tail_trial', 'm_summer_second_tail_remit', 'm_summer_third_tail_remit', 'm_summer_third_tail_split'],
+      handledIds: ['m_shop', 'm_market', 'm_letter', 'm_mend', 'm_counter', 'm_summer_tail_duty', 'm_summer_tail_school', 'm_summer_tail_drag', 'm_summer_tail_remit_school', 'm_summer_first_tail_split', 'm_summer_second_tail_trial', 'm_summer_second_tail_remit', 'm_summer_third_tail_remit', 'm_summer_third_tail_split'],
       doneTag: '伏夏柜耗已分',
       doneLog: '〔伏夏柜耗〕这一旬先把柜边包纸、请脚夫的小茶钱、回客话门包、供读纸样、夏尾拖欠和凉药门包分开了；伏夏尾声这层“不大、却天天有”的柜上、家里、旧账与身子摩擦没有再混成一团。',
       cost: 35,
@@ -8985,9 +8985,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       if (season.id === 'spring' && xun === 1) return ['m_spring_school_split', 'm_spring_head_body', 'm_spring_head_duty', 'm_spring_head_packet'];
       if (season.id === 'spring' && xun === 2) return ['m_spring_mid_school', 'm_spring_home_split', 'm_spring_mid_body', 'm_packet'];
       if (season.id === 'spring' && xun === 3) return ['m_spring_tail_supply', 'm_spring_tail_body', 'm_spring_tail_split', 'm_spring_tail_goods'];
-      if (season.id === 'summer' && xun === 1) return ['m_summer_head_home_split', 'm_summer_head_remit_duty', 'm_summer_head_remit_drag', 'm_summer_head_supply_duty', 'm_summer_head_remit_body'];
-      if (season.id === 'summer' && xun === 2) return ['m_summer_mid_reply_school', 'm_summer_mid_remit_drag', 'm_summer_conflict', 'm_summer_mid_drag'];
-      if (season.id === 'summer' && xun === 3) return ['m_summer_tail_remit_school', 'm_summer_tail_school', 'm_summer_tail_duty'];
+      if (season.id === 'summer' && xun === 1) return ['m_summer_head_home_split', 'm_summer_first_head_split', 'm_summer_head_remit_duty', 'm_summer_head_remit_drag', 'm_summer_head_supply_duty', 'm_summer_head_remit_body'];
+      if (season.id === 'summer' && xun === 2) return ['m_summer_first_mid_split', 'm_summer_mid_reply_school', 'm_summer_mid_remit_drag', 'm_summer_conflict', 'm_summer_mid_drag'];
+      if (season.id === 'summer' && xun === 3) return ['m_summer_first_tail_split', 'm_summer_tail_remit_school', 'm_summer_tail_school', 'm_summer_tail_duty'];
       if (season.id === 'autumn' && xun === 1) return ['m_autumn_supply_split', 'm_autumn_head_remit_body', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_receipt'];
       if (season.id === 'autumn' && xun === 2) return ['m_autumn_mid_school', 'm_autumn_mid_remit_drag', 'm_autumn_mid_body', 'm_autumn_mid_drag'];
       if (season.id === 'autumn' && xun === 3) return ['m_support_school', 'm_autumn_tail_remit_duty', 'm_autumn_tail_duty', 'm_autumn_tail_drag_school', 'm_support', 'm_autumn_tail_body'];
@@ -9328,6 +9328,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_summer_head_home_split', name: '先把伏夏凉汤与家里纸样分开', cost: 1, eff: '铜钱-60·家书+1·供读+1·体魄+1·家族+1', desc: '伏夏第一旬最怕凉汤汗巾、家里纸样、递话脚费和柜边小门面一起冒头。先把这层伏夏身家细账拆开，落脚后的身子、家书和供读去向才不至继续挤在同一口现钱上。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
           A.push({ id: 'm_summer_head_supply_duty', name: '先把伏夏差帖与供读纸样分开', cost: 1, eff: '铜钱-65·家书+1·供读+1·备役+1·体魄+1·家族+1', desc: '伏夏第一旬最怕差帖门包、供读纸样、凉汤汗巾和递话脚费一起追钱。先把这层伏夏供差去向拆开，刚落脚时，家里供读、年里的差役后手和自己这副身子才不至继续挤在同一口现钱上。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
           A.push({ id: 'm_summer_head_drag', name: '先把伏夏起脚与回签拖欠分开', cost: 1, eff: '铜钱-70·跑单+1·家书+1·拖欠+1·体魄+1·家族+1', desc: '伏夏第一旬最怕起脚脚费、春尾回签、拖欠口风和锅火家书一起冒头。先把这层起脚拖账拆开，跑单、人情回话和家里那口现钱才不至一起烧在热里。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
+          if (S.商年 === 1) {
+            A.push({
+              id: 'm_summer_first_head_split',
+              name: '先把首年伏夏头柜边回帖与供读纸样分开',
+              cost: 1,
+              eff: '铜钱-80·坐店+1·核账+1·家书+1·供读+1·歇养+1·体魄+1·家族+1·商信誉+1',
+              desc: '首个商年伏夏一起手，最怕柜边回帖、供读纸样、凉汤汗巾、递话脚费和小门面一起追钱。先把这层“头一年还在认柜上规矩，却已得同旬顾住家里读写与自己身子”的肩账拆开，让坐店核账、家书、供读和歇脚药钱在夏头就先各占一口现钱。',
+              can: S.铜钱 >= 80 && (S.识字 || S.账房进度 >= 1 || S.本年商路供读 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0),
+              why: S.铜钱 >= 80
+                ? ((S.识字 || S.账房进度 >= 1 || S.本年商路供读 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0) ? '' : '先坐实一点柜边记账、供读或回帖口风')
+                : '铜钱不足80文',
+              once: true
+            });
+          }
           if (S.商年 === 2) {
             A.push({
               id: 'm_summer_second_route',
@@ -9446,6 +9460,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_summer_conflict', name: '先把伏夏凉药与家里催信分开', cost: 1, eff: '铜钱-60·家书+1·体魄+1·家族+1', desc: '伏夏中旬最怕自己汗药、家里催信、孩子纸样和柜边回帖一起冒头。先把这层热里身家冲突拆开，不让“人先虚、家里先急”继续挤同一口现钱。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
           A.push({ id: 'm_summer_mid_reply_school', name: '先把伏夏回帖与纸样差帖分开', cost: 1, eff: '铜钱-65·家书+1·供读+1·备役+1·体魄+1·家族+1', desc: '伏夏中旬最怕柜边回帖、孩子纸样、差帖回话、汗药凉汤和递话脚费一起追钱。先把这层伏夏回帖与纸差拆开，银还没回手时，家里读写、年里差役和自己这副身子也不至继续抢同一口现钱。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
           A.push({ id: 'm_summer_mid_drag', name: '先把伏夏拖欠与凉药门包分开', cost: 1, eff: '铜钱-70·催账+1·家书+1·拖欠+1·歇养+1·体魄+1·家族+1', desc: '伏夏中旬最怕拖欠口风、凉药门包、柜边回帖和家里催信一起追钱。先把这层伏夏拖账拆开，银还没回手时，拖欠回话、身子与家里那头也不至继续抢同一口现钱。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
+          if (S.商年 === 1) {
+            A.push({
+              id: 'm_summer_first_mid_split',
+              name: '先把首年伏夏中柜边回帖与供读拖账分开',
+              cost: 1,
+              eff: '铜钱-85·坐店+1·核账+1·家书+1·供读+1·催账+1·拖欠+1·歇养+1·体魄+1·家族+1·商信誉+1',
+              desc: '首个商年伏夏中旬，最怕柜边回帖、供读纸样、旧拖欠口风、凉药门包和递话脚费一起追钱。先把这层“头一年盛夏中腰不只靠一笔回钱，更得把回帖、供读、拖欠和药包同旬拆开”的肩位压回账面，让坐店核账、家书和身子都在夏中先见真账。',
+              can: S.铜钱 >= 85 && (S.本年商路供读 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0),
+              why: S.铜钱 >= 85
+                ? ((S.本年商路供读 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0) ? '' : '需先有供读、拖欠、回帖或回钱口风可拆')
+                : '铜钱不足85文',
+              once: true
+            });
+          }
           if (S.商年 === 2) {
             A.push({
               id: 'm_summer_second_mid_trial',
@@ -9844,6 +9872,20 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           A.push({ id: 'm_summer_tail_duty', name: '先把伏夏差票与回客话门包分开', cost: 1, eff: '铜钱-65·备役+1·家书+1·商信誉+1·家族+1', desc: '伏夏尾声最怕差票回话、回客话门包、递话脚费和柜边碎耗一起上来。先把这层夏尾差票拆开，不让商路、家计和年底差役后手还没到秋里就先挤在同一口现钱上。', can: S.铜钱 >= 65, why: S.铜钱 >= 65 ? '' : '铜钱不足65文', once: true });
           A.push({ id: 'm_summer_tail_school', name: '先把伏夏尾供读纸样与凉药门包分开', cost: 1, eff: '铜钱-70·家书+1·供读+1·歇养+1·体魄+1·家族+1', desc: '伏夏尾声最怕供读纸样、凉药门包、回客话脚费和柜边碎耗一起追钱。先把这层夏尾供身账拆开，秋路未开前，家里供读、自己的身子和家书回话就不至继续抢同一口现钱。', can: S.铜钱 >= 70, why: S.铜钱 >= 70 ? '' : '铜钱不足70文', once: true });
           A.push({ id: 'm_summer_tail_drag', name: '先把夏尾拖欠与回客脚费分开', cost: 1, eff: '铜钱-75·催账+1·家书+1·拖欠+1·歇养+1·体魄+1·家族+1', desc: '伏夏尾声最怕旧拖欠、回客脚费、秋前样纸和凉药门包一起追钱。先把这层夏尾拖账拆开，秋路未开前，拖欠回话、家里催信和自己这副身子就不至继续抢同一口现钱。', can: S.铜钱 >= 75, why: S.铜钱 >= 75 ? '' : '铜钱不足75文', once: true });
+          if (S.商年 === 1) {
+            A.push({
+              id: 'm_summer_first_tail_split',
+              name: '先把首年夏尾回客药脚与供读拖账分开',
+              cost: 1,
+              eff: '铜钱-85·跑单+1·家书+1·供读+1·催账+1·拖欠+1·歇养+1·体魄+1·家族+1·商信誉+1',
+              desc: '首个商年伏夏收尾，最怕回客药脚、供读纸样、旧拖欠回话、回客脚费和锅火家书一起追钱。先把这层“头一年夏尾不只等秋路开，还得先把回客、供读、拖账和药脚压回当旬”的肩位拆开，让跑单回话、家里读写、旧账与身子在秋前就先排出次序。',
+              can: S.铜钱 >= 85 && (S.本年商路供读 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0 || S.本年商路歇养 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0),
+              why: S.铜钱 >= 85
+                ? ((S.本年商路供读 > 0 || S.本年商路催账 > 0 || S.本年商路拖欠 > 0 || S.本年商路歇养 > 0 || S.累计回钱银 > 0 || S.未回款银 > 0) ? '' : '需先有供读、拖欠、药脚或回客口风可拆')
+                : '铜钱不足85文',
+              once: true
+            });
+          }
           if (S.商年 === 2) {
             A.push({
               id: 'm_summer_second_tail_trial',
@@ -10268,19 +10310,19 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             ? ['m_summer_second_head_split', 'm_summer_second_head_remit', 'm_summer_second_route', 'm_summer_head_supply_duty']
             : (S.商年 === 3
               ? ['m_summer_third_head_remit', 'm_summer_third_head_split', 'm_summer_head_remit_duty', 'm_summer_head_supply_duty']
-              : ['m_summer_head_remit_drag', 'm_summer_head_remit_duty', 'm_summer_head_remit_body', 'm_summer_head_supply_duty']);
+              : ['m_summer_first_head_split', 'm_summer_head_remit_drag', 'm_summer_head_remit_duty', 'm_summer_head_remit_body', 'm_summer_head_supply_duty', 'm_summer_head_home_split']);
         } else if (season.id === 'summer' && xun === 2) {
           preferredOrder = S.商年 === 2
             ? ['m_summer_second_mid_remit', 'm_summer_second_mid_trial']
             : (S.商年 === 3
               ? ['m_summer_third_remit', 'm_summer_third_mid_split']
-              : ['m_summer_mid_remit_drag', 'm_summer_mid_reply_school', 'm_summer_conflict', 'm_summer_mid_drag']);
+              : ['m_summer_first_mid_split', 'm_summer_mid_remit_drag', 'm_summer_mid_reply_school', 'm_summer_conflict', 'm_summer_mid_drag']);
         } else if (season.id === 'summer' && xun === 3) {
           preferredOrder = S.商年 === 2
             ? ['m_summer_second_tail_remit', 'm_summer_second_tail_trial']
             : (S.商年 === 3
               ? ['m_summer_third_tail_remit', 'm_summer_third_tail_split']
-              : ['m_summer_tail_remit_school', 'm_summer_tail_duty', 'm_summer_tail_school']);
+              : ['m_summer_first_tail_split', 'm_summer_tail_remit_school', 'm_summer_tail_duty', 'm_summer_tail_school', 'm_summer_tail_drag']);
         } else if (season.id === 'autumn' && xun === 1) {
           preferredOrder = S.商年 === 2
             ? ['m_autumn_second_head_remit', 'm_autumn_second_head_split', 'm_autumn_second_head_trial', 'm_autumn_head_duty', 'm_autumn_head_drag', 'm_autumn_supply_split']
@@ -10798,6 +10840,23 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['想先把伏夏起脚与回签拖欠分开，但这旬铜钱已先被别处占住，只得让起脚脚费、拖欠口风和锅火家书继续一起追这口现钱。', 'bad']);
               }
               break;
+            case 'm_summer_first_head_split':
+              if (spendCopper(80)) {
+                S.本年商路坐店 += 1;
+                S.本年商路核账 += 1;
+                S.本年商路家书 += 1;
+                S.本年商路供读 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.家族 += 1;
+                S.商信誉 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                pushMerchantSeasonTag(season.name + xunLabel + '拆首年伏夏头回帖');
+                log.push(['先把首年伏夏头柜边回帖与供读纸样分开：铜钱-80、坐店+1、核账+1、家书+1、供读+1、体魄+1、家族+1、商信誉+1。首个商年伏夏一起手，这层柜边回帖、供读纸样、凉汤汗巾和递话脚费先被压回了这一旬，坐店核账、家书与歇脚药钱不再全靠通用回钱动作兜底。', 'good']);
+              } else {
+                log.push(['想先把首年伏夏头柜边回帖与供读纸样分开，但这旬铜钱已先被别处占住，只得让柜边回帖、纸样和凉汤脚费继续一起追这口现钱。', 'bad']);
+              }
+              break;
             case 'm_summer_second_route':
               if (spendCopper(75)) {
                 S.本年商路跑单 += 1;
@@ -10987,6 +11046,25 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把伏夏拖欠与凉药门包分开：铜钱-70、催账+1、家书+1、拖欠+1、歇养+1、体魄+1、家族+1。伏夏中旬这层拖欠口风、凉药门包、柜边回帖和家里催信，先被压回了这一旬；银还没回手时，拖欠后手、自己的身子和家里那头不再继续抢同一口现钱。', 'good']);
               } else {
                 log.push(['想先把伏夏拖欠与凉药门包分开，但这旬铜钱已先被别处占住，只得让拖欠口风、凉药门包和家里催信继续一起追这口现钱。', 'bad']);
+              }
+              break;
+            case 'm_summer_first_mid_split':
+              if (spendCopper(85)) {
+                S.本年商路坐店 += 1;
+                S.本年商路核账 += 1;
+                S.本年商路家书 += 1;
+                S.本年商路供读 += 1;
+                S.本年商路催账 += 1;
+                S.本年商路拖欠 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.家族 += 1;
+                S.商信誉 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                pushMerchantSeasonTag(season.name + xunLabel + '拆首年伏夏中回帖');
+                log.push(['先把首年伏夏中柜边回帖与供读拖账分开：铜钱-85、坐店+1、核账+1、家书+1、供读+1、催账+1、拖欠+1、歇养+1、体魄+1、家族+1、商信誉+1。首个商年伏夏中旬，这层柜边回帖、供读纸样、旧拖欠口风和凉药门包先被压回了这一旬，盛夏中腰不再只剩一笔回钱在写账。', 'good']);
+              } else {
+                log.push(['想先把首年伏夏中柜边回帖与供读拖账分开，但这旬铜钱已先被别处占住，只得让回帖、供读、拖账和凉药门包继续一起追这口现钱。', 'bad']);
               }
               break;
             case 'm_summer_second_mid_trial':
@@ -11809,6 +11887,24 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 log.push(['先把夏尾拖欠与回客脚费分开：铜钱-75、催账+1、家书+1、拖欠+1、体魄+1、家族+1。伏夏尾声这层旧拖欠、回客脚费、秋前样纸和凉药门包先被压回了这一旬，秋路未开前，拖欠回话、家里催信和自己这副身子不再继续抢同一口现钱。', 'good']);
               } else {
                 log.push(['想先把夏尾拖欠与回客脚费分开，但这旬铜钱已先紧，只得让旧拖欠、回客脚费和凉药门包继续一起追这口现钱。', 'bad']);
+              }
+              break;
+            case 'm_summer_first_tail_split':
+              if (spendCopper(85)) {
+                S.本年商路跑单 += 1;
+                S.本年商路家书 += 1;
+                S.本年商路供读 += 1;
+                S.本年商路催账 += 1;
+                S.本年商路拖欠 += 1;
+                S.本年商路歇养 += 1;
+                S.体魄 += 1;
+                S.家族 += 1;
+                S.商信誉 += 1;
+                S.供读压力 = Math.max(0, S.供读压力 - 1);
+                pushMerchantSeasonTag(season.name + xunLabel + '拆首年夏尾回客');
+                log.push(['先把首年夏尾回客药脚与供读拖账分开：铜钱-85、跑单+1、家书+1、供读+1、催账+1、拖欠+1、歇养+1、体魄+1、家族+1、商信誉+1。首个商年伏夏尾声这层回客药脚、供读纸样、旧拖欠回话和回客脚费先被压回了这一旬，秋路未开前，回客、供读、拖账与身子都先排出了一次序。', 'good']);
+              } else {
+                log.push(['想先把首年夏尾回客药脚与供读拖账分开，但这旬铜钱已先紧，只得让回客药脚、供读纸样和旧拖欠回话继续一起追这口现钱。', 'bad']);
               }
               break;
             case 'm_summer_tail_remit_school':
@@ -14039,6 +14135,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive())
             || (S.供读压力 || 0) >= 2
           );
+        var yearOneStructuralUpperDelayPriority = xun === 1
+          && examYear === 1
+          && structuralUpperDelayPressure
+          && delayUpperActive;
         var upperSeasonDelayPriority = xun === 1
           && (
             ((season.id === 'autumn' || season.id === 'winter')
@@ -14050,7 +14150,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               ))
             || warmSeasonDelayPriority
           );
-        if (upperSeasonDelayPriority) preferredOrder.push('e_delay_upper');
+        if (upperSeasonDelayPriority || yearOneStructuralUpperDelayPriority) preferredOrder.push('e_delay_upper');
         var bodyIds = xun === 1
           ? (season.id === 'autumn'
             ? ['e_autumn_open_cloth', 'e_rest']
@@ -28728,6 +28828,14 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     renderStatus(); renderStage(); renderLedger();
     window.scrollTo({ top: 0 });
   }
+  function rebuildCurrentPhaseStageAfterPatch() {
+    if (phase === 'establishment') curStage = stageEstablishment();
+    else if (phase === 'marriage') curStage = stageMarriage();
+    else if (phase === 'family') curStage = stageFamily();
+    else if (phase === 'household') curStage = stageHousehold();
+    else if (phase === 'elder') curStage = stageElder();
+    else if (phase === 'death') curStage = stageDeath();
+  }
 
   // ── 流水账渲染 ───────────────────────────────────
   function fmtD(o) {
@@ -28833,7 +28941,12 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         if (!patch || typeof patch !== 'object') return false;
         Object.keys(patch).forEach(function (k) { S[k] = patch[k]; });
         syncCurrentFoundingSnapshotState();
+        syncCurrentParentRouteState();
+        syncCurrentInheritanceState();
+        syncCurrentRouteAwareState();
+        syncCurrentLegacyCarryFloors();
         clampAttr('体魄'); clampAttr('家族');
+        rebuildCurrentPhaseStageAfterPatch();
         renderStatus(); renderStage(); renderLedger();
         return true;
       },
