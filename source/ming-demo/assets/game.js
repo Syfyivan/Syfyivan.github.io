@@ -1173,6 +1173,33 @@
       委托待收租谷: pendingRent
     };
   }
+  function delegatedEstateMode(route) {
+    var normalized = normalizeCarryString(route, '无');
+    if (normalized === '无') return 'none';
+    if (normalized === '分得薄田自耕') return 'selfField';
+    if (normalized === '兄代管薄田') return 'sharedManage';
+    if (normalized === '书户分得薄田出佃') return 'studyLease';
+    if (normalized === '出佃收租') return 'lease';
+    return 'other';
+  }
+  function delegatedEstateCarryExplanation(route) {
+    var normalized = normalizeCarryString(route, '无');
+    var mode = delegatedEstateMode(normalized);
+    if (mode === 'none') return '';
+    if (mode === 'selfField') {
+      return '上一代临终前已把分得薄田按“分得薄田自耕”坐成自耕账，这房起手不能再把那几亩田看成一句空名';
+    }
+    if (mode === 'sharedManage') {
+      return '上一代临终前已把分得薄田按“兄代管薄田”托着走，兄房代管那层田面回话与租路次序没有被悄悄洗掉';
+    }
+    if (mode === 'studyLease') {
+      return '上一代临终前已把书户分得薄田按“书户分得薄田出佃”托着走，书路这边的供读旧账与租谷回路仍得并着算';
+    }
+    if (mode === 'lease') {
+      return '上一代临终前已把分得薄田按“出佃收租”托着走，这层租谷安排没有被悄悄洗掉';
+    }
+    return '上一代临终前已把分得薄田按“' + normalized + '”托着走，这层田面安排没有被悄悄洗掉';
+  }
   function lifecycleInheritanceBridge() {
     var parentRoute = syncCurrentParentRouteState();
     syncCurrentRouteAwareState();
@@ -1259,8 +1286,10 @@
     var decayHint = lineageDecayHint(decay);
     if (decayHint) explain.push(decayHint);
     if ((S.委托待收租谷 || 0) > 0) explain.push('账上另有待收委托田租' + S.委托待收租谷 + '石，不能当作已经落袋的存米');
-    else if ((S.委托营生 || '无') === '分得薄田自耕') explain.push('上一代临终前已把分得薄田坐成自耕账，这房起手不能再把那几亩田看成一句空名');
-    else if ((S.委托营生 || '无') !== '无') explain.push('上一代临终前已把分得薄田按“' + S.委托营生 + '”托着走，这层田面安排没有被悄悄洗掉');
+    else {
+      var delegatedExplain = delegatedEstateCarryExplanation(S.委托营生 || '无');
+      if (delegatedExplain) explain.push(delegatedExplain);
+    }
     if (visibleMarriagePath !== '未定') explain.push((routeAwareValueStillInherited('婚配路径', '未定') ? '上一代婚配最后走到“' : '这一代婚配眼下已走到“') + visibleMarriagePath + '”，这层婚配余绪仍挂在这一房旧账里');
     if (visibleJointState !== '未合爨') explain.push((routeAwareValueStillInherited('合爨状态', '未合爨') ? '上一代留下的“' : '这一房眼下仍带着“') + visibleJointState + '”共账余绪');
     if (visibleFixedRent !== '未立') explain.push((routeAwareValueStillInherited('定额佃状态', '未立') ? '上一代立过“' : '这一房已经立下“') + visibleFixedRent + '”，这房对押租与租账次序不算陌生');
@@ -1406,8 +1435,8 @@
       }
     }
     if ((carry.负债银 || 0) > 0) hints.push('只是这一房还背着旧债' + carry.负债银 + '两，起手无论走哪条路都得先想着别让旧账再滚大');
-    if ((carry.委托营生 || '') === '分得薄田自耕') hints.push('上一代临终前已把分得薄田坐成自耕账，起手就得按那本薄田家计去守');
-    else if ((carry.委托营生 || '') && carry.委托营生 !== '无') hints.push('上一代留下的薄产仍按“' + carry.委托营生 + '”托着走，不能把这层旧安排当作凭空消掉');
+    var delegatedHint = delegatedEstateCarryExplanation(carry.委托营生 || '无');
+    if (delegatedHint) hints.push(delegatedHint);
     if ((carry.委托租谷 || 0) > 0) hints.push('委托租谷=' + carry.委托租谷 + '石/年这笔旧入项还在跑，起手盘账得把它算在家底里');
     if ((carry.委托待收租谷 || 0) > 0) hints.push('待收委托田租=' + carry.委托待收租谷 + '石还没真正落袋，眼下不能把它当现成存米去花');
     var decayHint = lineageDecayHint(lineageDecayLevel(carry));
@@ -28840,8 +28869,13 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           ? '商路里另划出来的供读专账，并没有随着本人身故抹平，仍按老规矩压在下一代门前'
           : '这一房前代留下的供读底子，并没有在本代中后段悄悄洗掉，临终时仍按老规矩压在下一代门前');
       }
-      if ((S.委托营生 || '无') === '分得薄田自耕') {
+      var delegatedMode = delegatedEstateMode(S.委托营生 || '无');
+      if (delegatedMode === 'selfField') {
         parts.push('这房临终前已把分得薄田坐成自耕账；哪怕下一代重走别路，也不能把这层守田次序洗成一句“名下有田”');
+      } else if (delegatedMode === 'sharedManage') {
+        parts.push('这房临终前已把分得薄田按“兄代管薄田”托着走；兄房代管能替你挡一层田面奔波，却不能把这层田账洗成已经落袋的现粮');
+      } else if (delegatedMode === 'studyLease') {
+        parts.push('这房临终前已把书户分得薄田另立成“书户分得薄田出佃”账；租谷回路与供读旧账都还得并着往下一代门前摆');
       } else if ((S.委托营生 || '无') !== '无' && ((S.委托租谷 || 0) > 0 || pendingRentMi > 0)) {
         parts.push('这房临终前留下的委托经营账，也要连着待收租谷一起结清，不能当作已经落袋');
       }
