@@ -14212,6 +14212,25 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
                 once: true
               });
             }
+            if (
+              examYear >= 3
+              && S.识字
+              && (
+                S.本年应试结果 === '落第'
+                || (S.本年应场受阻次数 || 0) > 0
+                || S.供读状态 === '已断供'
+              )
+            ) {
+              A.push({
+                id: 'e_fail_tutor_bridge_tail',
+                name: '落第后再替塾馆誊课带蒙童',
+                cost: 1,
+                eff: '铜钱+90·识字转业值+2·家族+1·供读压力-1',
+                desc: '若冬中还没来得及把塾馆教读、誊抄契样和照看蒙童这条退路接上，冬尾还能再去试一回。钱不厚，却能让第三举业年的落第、断供或场外受阻不只剩一句“明年再说”，而是在年关里先把识字底子换成一点现钱与体面。',
+                can: true,
+                once: true
+              });
+            }
             A.push({ id: 'e_winter_packet', name: '先把来春投帖门包与年下薄礼分开', cost: 1, eff: '铜钱-60·家族+1·体魄+1', desc: '冬尾最怕来春投帖门包、年下薄礼、回乡脚钱和锅火后手一起压上来。先把这层小钱拆开，明春门路和今冬家计就不至继续挤同一口现钱。', can: S.铜钱 >= 60, why: S.铜钱 >= 60 ? '' : '铜钱不足60文', once: true });
             A.push({
               id: 'e_winter_tail_cure',
@@ -14316,6 +14335,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           || (S.本年应场受阻次数 || 0) > 0
           || S.供读状态 === '已断供'
         )) preferredOrder.push('e_fail_tutor_bridge');
+        if (examYear >= 3 && season.id === 'winter' && xun === 3 && (
+          S.本年应试结果 === '落第'
+          || (S.本年应场受阻次数 || 0) > 0
+          || S.供读状态 === '已断供'
+        )) preferredOrder.push('e_fail_tutor_bridge_tail');
         if (season.id === 'winter' && xun === 2 && (S.负债银 || 0) > 0 && !S.本年债息已结) {
           preferredOrder.push('e_winter_debt_note');
         }
@@ -15502,6 +15526,18 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               S.本年延婚牵扯 += 1;
               pushExamSeasonTag(stepTag + '落第后试接教读');
               log.push(['落第后先替塾师誊课带几名蒙童：铜钱+120、识字转业值+2、家族+1、供读压力-1。第三举业年的冬中没有只把落第留成一句“明年再试”，而是先把识字底子换成馆里现钱与一点体面；这120文也记作当年举业自筹，不再和家里续供现钱混成同一口账，让塾馆教读、誊抄契样这条退路在年关里先站住半步。', 'good']);
+              break;
+            case 'e_fail_tutor_bridge_tail':
+              S.铜钱 += 90;
+              noteExamSelfRaised(90);
+              S.识字转业值 += 2;
+              S.家族 += 1;
+              if ((S.供读压力 || 0) > 0) S.供读压力 -= 1;
+              S.本年誊抄次数 += 1;
+              S.本年教读试接次数 += 1;
+              S.本年延婚牵扯 += 1;
+              pushExamSeasonTag(stepTag + '冬尾补接教读');
+              log.push(['落第后再替塾馆誊课带蒙童：铜钱+90、识字转业值+2、家族+1、供读压力-1。若冬中没能先把教读、誊抄和蒙童活路接上，冬尾这一旬仍能再试一回；第三举业年的退路不再只停在冬中一瞬，而会连着年下锅火、来春帖样与家里续供口风一起继续见账。', 'good']);
               break;
             case 'e_spring_tail_packet':
               if (spendCopper(45)) {
