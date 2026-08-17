@@ -436,7 +436,7 @@
       老季: 1, 老旬: 1, 本年养老协商: 0, 本年养老收租: 0, 本年养老卖田: 0, 本年养老医药: 0, 本年养老守田: 0, 本年养老旧识: 0, 本年养老铺账: 0, 本年养老节礼: 0, 本年养老归乡: 0, 本年养老供读: 0, 本年养老季务: [],
       _advanceElderSeason: false,
       // 代际承接字段（不直接折现，只改变下一代入口分布）
-      父辈路线: '未定', 承继身份: '次子', 承嗣来路: '本支次子承继', 承继定位: '本房次子另起一手', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0, 旧门路衰减: 0,
+      父辈路线: '未定', 承继身份: '次子', 承嗣来路: '本支次子承继', 承继定位: '本房次子另起一手', 家传书香: 0, 城里门路: 0, 商路门路: 0, 家传手艺: 0, 家传农事: 0, 亦贾亦儒底子: 0, 供读底子: 0, 旧门路衰减: 0, 承继供读旧账: '', 承继三年锅火: '',
       _farmLegacyApplied: false, _wageLegacyApplied: false, _apprenticeLegacyApplied: false, _merchantLegacyApplied: false, _examLegacyApplied: false,
       // 起步模式：用于入口文案区分“从出生跑起” vs “从 16 岁立身起算”
       _startMode: startMode,
@@ -475,6 +475,8 @@
       S.亦贾亦儒底子 = Math.max(0, normalizedCarry.亦贾亦儒底子 || 0);
       S.供读底子 = Math.max(0, normalizedCarry.供读底子 || 0);
       S.旧门路衰减 = Math.max(0, normalizedCarry.旧门路衰减 || 0);
+      S.承继供读旧账 = normalizeCarryString(normalizedCarry.承继供读旧账, '');
+      S.承继三年锅火 = normalizeCarryString(normalizedCarry.承继三年锅火, '');
 
       // 委托田租：作为“应收”承接到下一代，不自动折算为存米
       if (typeof normalizedCarry.委托营生 === 'string') S.委托营生 = normalizedCarry.委托营生;
@@ -897,6 +899,8 @@
     normalized.家传农事 = normalizeCarryNumber(normalized.家传农事);
     normalized.亦贾亦儒底子 = normalizeCarryNumber(normalized.亦贾亦儒底子);
     normalized.供读底子 = normalizeCarryNumber(normalized.供读底子);
+    normalized.承继供读旧账 = normalizeCarryString(normalized.承继供读旧账, '');
+    normalized.承继三年锅火 = normalizeCarryString(normalized.承继三年锅火, '');
     normalized.委托租谷 = normalizeCarryNumber(normalized.委托租谷);
     normalized.委托待收租谷 = normalizeCarryNumber(normalized.委托待收租谷);
     normalized.旧门路衰减 = Math.max(lineageDecayLevel(normalized), normalizeCarryNumber(normalized.旧门路衰减));
@@ -1132,6 +1136,8 @@
     if ((carry.亦贾亦儒底子 || 0) > 0) tags.push('亦贾亦儒底子' + carry.亦贾亦儒底子 + '层');
     if ((carry.供读底子 || 0) > 0) tags.push('供读底子' + carry.供读底子 + '层');
     if ((carry.旧门路衰减 || 0) > 0) tags.push('旧门路衰减' + carry.旧门路衰减 + '层');
+    if ((carry.承继供读旧账 || '')) tags.push('供读旧账=' + carry.承继供读旧账);
+    if ((carry.承继三年锅火 || '')) tags.push('三年锅火=' + carry.承继三年锅火);
     if ((carry.委托营生 || '') && carry.委托营生 !== '无') tags.push('委托营生=' + carry.委托营生);
     if ((carry.委托租谷 || 0) > 0) tags.push('委托租谷' + carry.委托租谷 + '石/年');
     if ((carry.委托待收租谷 || 0) > 0) tags.push('待收委托田租' + carry.委托待收租谷 + '石');
