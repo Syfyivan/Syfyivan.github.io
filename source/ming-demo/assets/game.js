@@ -97,9 +97,9 @@
   var _yearEndNext = null;   // 年终结账面板之后要去的地方：'newyear' | 'marriage'
   var phase;                 // 'childhood' | 'establishment' | 'farm' | 'wage' | 'apprentice' | 'merchant' | 'civilExam' | 'marriage' | 'household' | 'elder' | 'death'
   var generation = 0;        // 第几代
-  // 玩家只在每季的代表旬作一次主决定；中、下旬仍由原引擎逐笔结算，
-  // 但不再要求玩家把每一笔灯油、脚费和回话都点成按钮。
-  // 低层回放 API 仍保留逐旬推进，便于验证完整账本。
+  // 默认仍让玩家在各路的代表旬作主决定；中、下旬由引擎逐笔结算，
+  // 但举业路已改为逐旬停靠，识字、投塾、保结、应试、供读、婚话与身耗都直接让玩家在当旬拍板。
+  // 低层回放 API 一直保留逐旬推进，便于验证完整账本。
   var playerSeasonPolicies = {};
   var carryOver = null;      // 上一代传下的期初结余
   var curStage = null;       // 当前人生阶段卡（非农事时）
@@ -5572,13 +5572,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
   function isLifePlayerBeat() {
     var pos = lifeRhythmPosition();
     if (!pos) return true;
-    // 把玩家停在真正需要判断的旬位：举业秋里先亲自办报名担保、再亲自决定是否应试；
-    // 若秋里没办成，冬里再给一次补办与补考机会。其余季节只在季初定方向。
+    // 路五已补成逐旬节奏：春夏秋冬每一旬都可能单独冒出识字、投塾、保结、
+    // 应试、续供、婚话、身耗与债息分账，因此不再只停在代表旬。
     if (phase === 'civilExam') {
-      if (pos.season <= 2) return pos.xun === 1;
-      if (pos.xun === 2) return !S.生员身份 && !S.本年下场 && (S.保结进度 || 0) < 2;
-      if (pos.xun === 3) return pos.season === 3 || (!S.生员身份 && !S.本年下场);
-      return false;
+      return true;
     }
     if (phase === 'merchant') return pos.xun === (pos.season === 3 ? 2 : (pos.season === 4 ? 3 : 1));
     if (phase === 'apprentice' && pos.season === 4) return pos.xun === 3;
@@ -7807,7 +7804,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         return lifePicks.some(function (p) { return p.id === a.id; });
       });
       h += '<div class="choice-guide"><strong>' + decisionGuideText() + '</strong>' +
-        '<span>这一季只需要亲自决定一次。系统会按你的方向处理本季其余日常，并把小账写入人生账本；本页最多显示 6 个真正有取舍的方向，互斥项会标明几选一。</span></div>';
+        '<span>' + (phase === 'civilExam'
+          ? '举业路现在按旬停靠：这一旬的识字、投塾、保结、应试、供读、婚话与身耗都在这里拍板；本页最多显示 6 个真正有取舍的方向，互斥项会标明几选一。'
+          : '这一季只需要亲自决定一次。系统会按你的方向处理本季其余日常，并把小账写入人生账本；本页最多显示 6 个真正有取舍的方向，互斥项会标明几选一。')
+        + '</span></div>';
       h += '<div class="action-group-head"><strong>这一步最关键</strong><span>先看这里就够了</span></div>';
       h += '<div class="actions primary-actions">';
       primaryActions.forEach(function (a) { h += renderLifeActionCard(a, true); });
@@ -8020,7 +8020,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     h += '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">📚 生命周期延伸卡</span>' +
       '<span class="cb-val">单代闭环</span></div>' +
-      '<div class="cb-tip">底层仍按四季三旬结算，但玩家每季只定一次主方向；家计、制度、身体与门路小账由系统记入同一本人生账本。' +
+      '<div class="cb-tip">底层按四季三旬结算；其中举业路已改为逐旬推进，识字、投塾、保结、应试、供读、婚话与身耗都会在当旬拍板，其余路线仍按代表旬停靠。' +
       '<br>保持守恒、不变量与史料诚实：不写成功分、排名或最优路线。</div></div>';
     h += '<div class="crop-bar g-ok"><div class="cb-head">' +
       '<span class="cb-title">🧾 五路多代账本卡</span>' +
@@ -12879,9 +12879,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
       commitLabel: isYearEnd ? '了这一举业年 →' : '了这一旬举业细账 →',
       outcomeSummary: isYearEnd ? renderExamYearOutcomeSummary : null,
       guidance: renderExamEntryGuide,
-      note: '第' + S.举业年 + '举业年重心：' + yearFocus.tag + '。' + yearBudgetLead + ' 一年从春课、夏课走到秋试、冬清账；玩家每季定一次主方向，其余旬位仍由账本结算课业、塾门与保结、家计与供读、身子或差役。真正下场必须走通“识字/题样 → 塾门/读法 → 馆课/评文 → 保结 → 应场”，缺口未补就只能停在场外；家里续供也要用真实米银换纸墨盘缠。'
+      note: '第' + S.举业年 + '举业年重心：' + yearFocus.tag + '。' + yearBudgetLead + ' 一年从春课、夏课走到秋试、冬清账；如今举业上中下旬都可单独拍板，识字、投塾、保结、应试、家计供读、婚话拖延、身子与差役后手都会在当旬入账。真正下场必须走通“识字/题样 → 塾门/读法 → 馆课/评文 → 保结 → 应场”，缺口未补就只能停在场外；家里续供也要用真实米银换纸墨盘缠。'
         + (examCarryHook.note ? (' ' + examCarryHook.note) : ''),
-      narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + xunLabel + '</span>。' + yearFocus.note + ' ' + yearBudgetLead + ' ' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火、婚事口风和身子亏空都在争同一笔钱。') + examPulseLead + ' 这次只要定本季主方向；结算前可撤销，结算后才正式入账。',
+      narrative: '你已<span class="em">' + age + '岁</span>，这一举业年走到<span class="em">' + season.name + xunLabel + '</span>。' + yearFocus.note + ' ' + yearBudgetLead + ' ' + season.actionLead + xunLead + (isLate ? '这一旬最像清账：若哪笔钱、哪口气、哪段家计没先留住，到了年关就会一起反噬。' : '同一年里，识字底子、投塾回话、保结、盘缠、家里锅火、婚事口风和身子亏空都在争同一笔钱。') + examPulseLead + ' 这次就把这一旬要硬顶哪一口账定下来；结算前可撤销，结算后才正式入账。',
       dossier: function () {
           return lifeDossier(yearFocus.dossier + '｜当前举程=' + season.name + '·' + xunLabel + '｜投塾=' + examEnrollmentLabel(S.投塾进度) + '｜举链=' + examChainStageLabel() + '｜童试层级=' + examTierLabel(S.童试层级, S.生员身份) + '｜本次应场=' + examAttemptTargetLabel(S.童试层级, S.生员身份) + '｜保结=' + examGuaranteeLabel(S.保结进度) + '｜资格细账=' + examGuaranteeDetailLabel() + '｜资格动量=' + examAttemptGuaranteeLabel() + '｜文章火候=' + S.文章火候 + '｜识字底子=' + examLiteracyFoundationLabel() + '｜供读状态=' + examSupportStateDetail() + '｜婚事口风=' + examDelayStatusLabel() + '｜三年婚事承压=' + examLifetimeDelayLabel() + '｜身耗=' + examBodyStatusLabel() + '｜本年举务=' + examVisibleSeasonalLedgerCount() + '｜举务脉络=' + examVisibleSeasonalLedgerTrail() + '｜本年应试=' + examAttemptResultLabel(S.本年应试结果, S.本年应场受阻次数) + '｜本年投塾=' + S.本年投塾次数 + '｜识字旬=' + S.本年识字旬数 + '｜馆课=' + S.本年馆课次数 + '｜半读=' + S.本年半读次数 + '｜评文=' + S.本年评文次数 + '｜保帖底样=' + (S.本年保帖底样次数 || 0) + '旬｜保结奔走=' + S.本年保结次数 + '｜应场受阻=' + (S.本年应场受阻次数 || 0) + '回｜誊抄=' + S.本年誊抄次数 + '｜归家缓家=' + S.本年归家次数 + '回/' + S.本年家中贴补米 + '石｜公账贴补=' + (S.本年公账贴补次 || 0) + '回/' + (S.本年公账贴补文 || 0) + '文（已落' + (S.本年家中供读公账文 || 0) + '）｜母纺贴补=' + (S.本年母纺贴补次 || 0) + '回/' + (S.本年母纺贴补文 || 0) + '文（已落' + (S.本年母纺供读已用文 || 0) + '）｜兄婚让读=' + (S.本年兄婚让读次 || 0) + '回/' + (S.本年兄婚让读文 || 0) + '文（已落' + (S.本年兄婚供读已用文 || 0) + '）｜婚事让开=' + (S.本年婚事让开次数 || 0) + '旬｜供读转折=' + (S.本年供读转折旬数 || 0) + '旬｜婚事转折=' + (S.本年婚事转折旬数 || 0) + '旬｜身耗转折=' + (S.本年身耗转折旬数 || 0) + '旬｜家中供读=' + S.本年家中供读次 + '回/' + S.本年家中供读文 + '文/' + S.本年家中供读米 + '石（公账已落' + (S.本年家中供读公账文 || 0) + '｜旧现钱已落' + (S.本年现钱供读已用文 || 0) + '｜硬银已落' + (S.本年硬银供读已用两 || 0) + '两｜粜米已落' + (S.本年粜米供读已用文 || 0) + '｜母纺已落' + (S.本年母纺供读已用文 || 0) + '｜兄让已落' + (S.本年兄婚供读已用文 || 0) + '｜债补' + (S.本年举业债补供读两 || 0) + '两）｜家中续供回话=' + (S.本年家中续供次 || 0) + '旬｜馆保回话=' + (S.本年馆保回话次数 || 0) + '旬｜婚话回札=' + (S.本年婚话回札次数 || 0) + '旬｜回榜口风=' + (S.本年回榜口风次数 || 0) + '旬｜笔墨自筹=' + (S.本年举业自筹文 || 0) + '文（已落' + (S.本年举业自筹已用文 || 0) + '）' + ((S.本年举业自筹缓压 || 0) > 0 ? ('｜笔墨已缓供读' + (S.本年举业自筹缓压 || 0) + '线') : '') + ((S.本年供读缓冲已用 || 0) > 0 ? ('｜家内续读缓冲已用' + (S.本年供读缓冲已用 || 0) + '次') : '') + '｜已落举业支出=' + S.本年已落举业支出文 + '文｜束脩=' + S.本年束脩支出文 + '文｜纸墨=' + S.本年纸墨支出文 + '文｜保结脚费=' + S.本年保结支出文 + '文｜盘缠=' + S.本年盘缠支出文 + '文｜零耗=' + S.本年零耗支出文 + '文｜衣药=' + S.本年衣药支出文 + '文｜役扰=' + (S.本年役扰支出文 || 0) + '文' + ((S.本年役扰已结 || false) ? '｜役钱已见光' : '') + '｜债息=' + (S.本年债息增银 || 0) + '两' + ((S.本年债息已结 || false) ? '｜债息已滚' : '') + '｜落第=' + S.本年落第次数 + '｜延婚牵扯=' + S.本年延婚牵扯 + '｜身子亏空=' + S.本年身子亏空 + '｜累计投塾=' + (S.举业累计投塾次数 || 0) + '｜累计识字=' + (S.举业累计识字旬数 || 0) + '｜累计保帖底样=' + (S.举业累计保帖底样次数 || 0) + '｜累计馆保回话=' + (S.举业累计馆保回话次数 || 0) + '｜累计婚话回札=' + (S.举业累计婚话回札次数 || 0) + '｜累计保结=' + (S.举业累计保结次数 || 0) + '｜累计应场受阻=' + (S.举业累计应场受阻次数 || 0) + '｜累计落第=' + (S.举业累计落第次数 || 0) + '｜累计延婚=' + (S.举业累计延婚牵扯 || 0) + '｜累计让开婚事=' + (S.举业累计婚事让开次数 || 0) + '｜累计身耗=' + (S.举业累计身子亏空 || 0) + (S.生员身份 ? '｜已是生员' : '') + '。'
           + (examCarryHook.dossier ? ('｜' + examCarryHook.dossier) : ''));
