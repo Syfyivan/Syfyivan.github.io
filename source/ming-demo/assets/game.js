@@ -5613,6 +5613,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     S.本年养老铺账 = 0;
     S.本年养老节礼 = 0;
     S.本年养老归乡 = 0;
+    S.本年养老供读 = 0;
     S.本年养老季务 = [];
   }
   function resetHouseholdYearLedger() {
@@ -5624,6 +5625,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     S.本年户通融 = 0;
     S.本年户委托 = 0;
     S.本年户供读 = 0;
+    S.本年户衣药 = 0;
     S.本年户季务 = [];
   }
   function householdNextPhaseAfterCurrentYear() {
