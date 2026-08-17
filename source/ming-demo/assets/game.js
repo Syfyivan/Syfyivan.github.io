@@ -7555,7 +7555,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
     var max = Math.max(3, limit || 6);
     var source = (actions || []).filter(function (action) { return !isRoutineLedgerAction(action); });
     var visible = [];
-    var examWinterSupportIds = null;
+    var examPinnedVisibleIds = null;
     function add(action) {
       if (!action || visible.some(function (item) { return item.id === action.id; }) || visible.length >= max) return;
       visible.push(action);
@@ -7601,7 +7601,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         add(action);
       });
       if (keepExamWinterSupportVisible) {
-        examWinterSupportIds = ['e_family_cash', 'e_family_grain', 'e_mother_help', 'e_brother_help'];
+        examPinnedVisibleIds = ['e_family_cash', 'e_family_grain', 'e_mother_help', 'e_brother_help'];
       }
     }
     if (phase === 'civilExam' && currentExamXun() === 3) {
@@ -7619,7 +7619,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
           || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive())
           || (S.供读压力 || 0) >= 2
         )) {
-        examWinterSupportIds = ['e_family_cash', 'e_tail_grain', 'e_tail_mother_help', 'e_tail_brother_help'];
+        examPinnedVisibleIds = ['e_family_cash', 'e_tail_grain', 'e_tail_mother_help', 'e_tail_brother_help'];
       }
     }
     if (phase === 'wage') {
@@ -7628,11 +7628,11 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         return group && group.id === 'wage-work-mode';
       }).forEach(add);
     }
-    if (examWinterSupportIds) {
+    if (examPinnedVisibleIds) {
       var seededVisible = visible.slice();
       visible = [];
       add(source[0]);
-      examWinterSupportIds.forEach(function (id) {
+      examPinnedVisibleIds.forEach(function (id) {
         add(source.filter(function (action) { return action.id === id; })[0]);
       });
       seededVisible.forEach(add);
@@ -14109,6 +14109,10 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive())
             || (S.供读压力 || 0) >= 2
           );
+        var yearOneUpperSupportFirst = examYear === 1
+          && xun === 1
+          && (season.id === 'autumn' || season.id === 'winter')
+          && supportPriorityActive;
         if (yearTwoWinterSupportFirst) {
           preferredOrder = preferredOrder.concat(supportIds);
         }
@@ -14151,6 +14155,9 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             || warmSeasonDelayPriority
           );
         if (upperSeasonDelayPriority || yearOneStructuralUpperDelayPriority) preferredOrder.push('e_delay_upper');
+        if (yearOneUpperSupportFirst) {
+          preferredOrder = preferredOrder.concat(supportIds);
+        }
         var bodyIds = xun === 1
           ? (season.id === 'autumn'
             ? ['e_autumn_open_cloth', 'e_rest']
@@ -14200,7 +14207,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
         else if (gapCode === 'studyCount' || gapCode === 'article') preferredOrder = preferredOrder.concat(['e_essay', 'e_copy']);
         else if (gapCode === 'supportCut') preferredOrder = preferredOrder.concat(['e_copy', 'e_fail_tutor_bridge']);
         else if (gapCode === 'bodySpent') preferredOrder = preferredOrder.concat(bodyIds);
-        if (supportPriorityActive && !yearThreeSpringShoulderSupportFirst && !lateWarmSeasonSupportFirst && !winterDebtSupportFirst && !yearTwoWinterSupportFirst && !yearTwoAutumnSupportFirst) {
+        if (supportPriorityActive && !yearThreeSpringShoulderSupportFirst && !lateWarmSeasonSupportFirst && !winterDebtSupportFirst && !yearTwoWinterSupportFirst && !yearTwoAutumnSupportFirst && !yearOneUpperSupportFirst) {
           preferredOrder = preferredOrder.concat(supportIds);
         }
         if (((S.本年延婚牵扯 || 0) > 0) || ((S.本年婚事让开次数 || 0) <= 0 && examDelayCarryActive()) || ((S.供读压力 || 0) >= 2)) {
@@ -15187,6 +15194,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
             case 'e_fail_talk':
               S.家族 += 2;
               S.供读压力 = Math.max(0, S.供读压力 - 1);
+              noteExamSupportRenewal(1, { countSupportTurn: true });
               if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
               S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
               noteExamMarriageReply();
