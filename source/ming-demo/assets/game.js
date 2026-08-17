@@ -15189,6 +15189,7 @@ function applySeasonalElderFriction(log, stepLabel, season, xun, picked) {
               S.供读压力 = Math.max(0, S.供读压力 - 1);
               if ((S.本年延婚牵扯 || 0) > 0) S.本年延婚牵扯 -= 1;
               S.本年婚事让开次数 = (S.本年婚事让开次数 || 0) + 1;
+              noteExamMarriageReply();
               S.本年归家次数 += 1;
               S.本年家中贴补次 += 1;
               pushExamSeasonTag(stepTag + '落第后回家缓口风');
