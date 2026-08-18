@@ -151,7 +151,7 @@ sup a:hover{text-decoration:underline;}
 .map-preview-actions button,.map-preview-actions a{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid var(--rule);background:#fff;color:var(--ink);font-size:0.88rem;font-weight:700;cursor:pointer;text-decoration:none;}
 .map-preview-actions button.active,.map-preview-actions button.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
 .map-preview-frame{position:relative;border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:#faf8f5;}
-.map-preview-frame iframe{width:100%;height:clamp(600px,72vh,820px);border:0;display:block;background:#fff;}
+.map-preview-frame iframe{width:100%;height:clamp(440px,56vh,600px);border:0;display:block;background:#fff;}
 .map-preview-frame.map-preview-fullscreen{position:fixed;left:0;right:0;bottom:0;top:var(--map-modal-toolbar-height,62px);z-index:100002;width:100vw;height:auto;border:0;border-radius:0;background:#fff;}
 .map-preview-frame.map-preview-fullscreen iframe{width:100%;height:100%;}
 .map-preview-note{margin-top:10px;color:var(--muted);font-size:0.82rem;line-height:1.6;}
@@ -172,7 +172,7 @@ sup a:hover{text-decoration:underline;}
   .map-preview{padding:12px;margin-top:16px;}
   .map-preview-actions{width:100%;}
   .map-preview-actions button,.map-preview-actions a{flex:1 1 auto;}
-  .map-preview-frame iframe{height:68vh;min-height:560px;}
+  .map-preview-frame iframe{height:52vh;min-height:420px;}
 }
 /* 粘性章节导航 - 固定在顶部 */
 .section-nav{position:fixed;top:0;left:0;right:0;z-index:99999;background:#faf8f5;border-bottom:2px solid var(--rule);padding:12px 0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;box-shadow:0 2px 12px rgba(0,0,0,0.15);}
@@ -415,21 +415,26 @@ sup a:hover{text-decoration:underline;}
 <section id="overview">
   <div class="section-num">Route & Roadbook</div>
   <h2>路线总览与逐日路书</h2>
-  <p class="lead">路线逻辑：<strong>从北向南追着秋天走，重点放在公路、大地风景和沿途地貌本身</strong>。G227、青海湖北岸、G315、北疆秋色公路、独库公路、帕米尔、新藏线G219、阿里荒原、滇藏线和川西高原是核心路段；本行程不安排冈仁波齐转山与珠峰大本营，把时间集中在恢复与天气窗口上。<strong>下面这张地图看路线走向，点“打开 D1—D70 完整路书”看每天的详细安排——两者是同一份数据的两种呈现，不是两份内容。</strong></p>
+  <p class="lead">路线逻辑：<strong>从北向南追着秋天走，核心是公路和沿途地貌</strong>——G227、青海湖北岸、独库公路、帕米尔、新藏线G219、阿里、滇藏线、川西高原。不安排冈仁波齐转山和珠峰大本营。</p>
+
+  <div class="callout">
+    <div class="callout-title">这一段只有两样东西：一张地图 + 一份路书</div>
+    <p><strong>①下面的地图</strong>：看整条路线大概走向，能放大缩小。<strong>②一个按钮</strong>：点开就是 D1—D70 每天的详细安排（路线、吃住、花费、链接）。全程逐日信息只有这一份路书，其它板块（吃饭、住宿）只讲全局，具体到某天都回到这份路书里。</p>
+  </div>
 
   <div id="route-map" class="map-preview">
     <div class="map-preview-head">
-      <p><strong>这张就是可缩放的主地图</strong>：直接在图内滚轮放大、按住抓手拖动，选择 D1—D70 查看当天道路和住宿、景点、吃饭、采购、厕所及救援点。点全屏后仍是<strong>同一个地图实例</strong>，当前中心、缩放级别和图层不会重置。</p>
+      <p><strong>这是全程路线的可缩放地图</strong>，默认显示整条线路的全国概览——所以看起来“缩得很小”是正常的，用两指放大或滚轮就能看清某一段。图上标了路线、住宿、景点、吃饭和加油点。</p>
       <div class="map-preview-actions">
-        <button id="mapPreviewOnline" class="active" type="button" onclick="switchMapPreview('online')">在线真高德版</button>
-        <button id="mapPreviewOffline" type="button" onclick="switchMapPreview('offline')">可缩放离线版</button>
+        <button id="mapPreviewOnline" class="active" type="button" onclick="switchMapPreview('online')">在线高德版</button>
+        <button id="mapPreviewOffline" type="button" onclick="switchMapPreview('offline')">离线版</button>
         <button class="primary" type="button" onclick="openMapFullscreen()">全屏看地图</button>
       </div>
     </div>
     <div id="routePreviewHome" class="map-preview-frame">
       <iframe id="routePreviewFrame" src="./route-map-amap.html?v=13" data-mode="online" title="70天自驾路线交互地图" loading="eager"></iframe>
     </div>
-    <div class="map-preview-note">地图按20段城市间主干导航绘制，并加入住宿、景点、吃饭区域、采购加油、厕所参考和医疗救援图层。厕所、营业和住宿地址属于规划参考，出发前仍要用实时地图或订单页复核。</div>
+    <div class="map-preview-note">地图只用来看路线走向，地址/营业信息为规划参考；每天的具体安排请点下面的“打开完整路书”，不要在地图里找。</div>
   </div>
 
   <details class="static-map-fallback">
@@ -468,17 +473,12 @@ sup a:hover{text-decoration:underline;}
 
   <div class="roadbook-intro" style="margin-top:22px;">
     <div class="roadbook-intro-copy">
-      <div class="section-num">Daily Roadbook</div>
-      <h2>D1—D70 完整路书</h2>
-      <p class="lead">这是全程唯一的逐日信息源：D1—D70 每天的路线、停靠、三餐建议、住宿、门票/接驳费用、当天参考支出都在这份路书里，并且每晚都带价格区间和可点开的比价/订单链接。打开后可按天筛选、展开全部、打印、下载 TXT，也支持断网访问。下面的“吃饭策略”“住宿总表”只讲全局口径，具体到某一天请直接看路书。</p>
+      <h3 style="margin:0 0 8px;">每天的详细安排都在这一份路书里</h3>
+      <p class="lead">这是全程<strong>唯一</strong>的逐日信息源：D1—D70 每天的路线、停靠、三餐建议、住宿、门票/接驳费用、当天参考支出，每晚都带价格区间和可点开的比价/订单链接。打开后可按天筛选、展开全部、打印、下载 TXT，也支持断网访问。</p>
     </div>
     <div class="roadbook-actions">
       <a class="primary" href="./route-roadbook.html?v=13">打开 D1—D70 完整路书</a>
     </div>
-  </div>
-  <div class="callout green">
-    <div class="callout-title">统一数据来源</div>
-    <p>上面地图里的“查看当天路书”同样指向这一份路书；路线、住宿和吃饭安排统一在此维护，避免多份内容不一致。</p>
   </div>
 
 </section>
@@ -546,7 +546,52 @@ sup a:hover{text-decoration:underline;}
   </div>
   <div class="callout">
     <div class="callout-title">户外自己煮 / 野炊：可以，但只用便携炉具、避开明火管制</div>
-    <p>你明确不想在高速服务区吃饭，宁可自己解决——这完全可行，长途午餐默认就走<strong>自带热食：加热包热提前冻好的家常菜、保温饭盒、自泡面，或在允许的地方用便携气炉煮一锅面</strong>。这套方案已经写进每天的午餐建议里。<strong>关键约束是防火：</strong>全程大部分路段（新疆草原、青海、阿里、藏区、川西高原林区）处于<strong>防火期与野外用火管制</strong>，草原和林区违规明火可能违法且风险高。所以“户外自己煮”优先选<strong>合规的便携卡式炉/气罐</strong>并在允许区域（正规营地、休息区硬化地面、非防火期的开阔安全地带）操作，随手清理、绝不在草原/林区动明火或炭火。真正的明火烧烤只在允许的正规营地或商业烧烤区进行。需要的话我把便携炉具、气罐运输规定和一份“冻菜+加热包”采购清单补进行前准备。</p>
+    <p>你明确不想在高速服务区吃饭，宁可自己解决——这完全可行，长途午餐默认就走<strong>自带热食：加热包热提前冻好的家常菜、保温饭盒、自泡面，或在允许的地方用便携气炉煮一锅面</strong>。这套方案已经写进每天的午餐建议里。<strong>关键约束是防火：</strong>全程大部分路段（新疆草原、青海、阿里、藏区、川西高原林区）处于<strong>防火期与野外用火管制</strong>，草原和林区违规明火可能违法且风险高。所以“户外自己煮”优先选<strong>合规的便携卡式炉/气罐</strong>并在允许区域（正规营地、休息区硬化地面、非防火期的开阔安全地带）操作，随手清理、绝不在草原/林区动明火或炭火。真正的明火烧烤只在允许的正规营地或商业烧烤区进行。</p>
+  </div>
+
+  <h3 style="margin-top:28px;">自带食材：什么时候买、在哪买、怎么做、怎么保存</h3>
+  <p class="lead">这些不是“到时候再说”，我按行程节点排好了：<strong>耐放的装备和干粮在北京一次买齐，冻菜出发前在家做好、靠车载冰箱续冷，沿途大城市补货和重新冷冻。</strong>下面每一步都对应具体的日子和城市。</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>时间 / 节点</th><th>买什么 · 在哪买</th><th>做什么 · 怎么保存</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>出发前 3–5 天<br>北京（D1 前）</strong></td>
+          <td>耐放装备一次备齐：<strong>卡式炉 + 气罐 4–6 罐、加热包/自热饭盒 1 箱、密封餐盒、保温饭盒、折叠保鲜袋</strong>；干粮：泡面、自热米饭、挂面、榨菜、午餐肉、鸡蛋。超市 + 网购均可。</td>
+          <td>装备按“车内随手拿 / 后备箱深处”分层装箱，气罐单独硬包存放、避免暴晒。</td>
+        </tr>
+        <tr>
+          <td><strong>出发前 1–2 天<br>北京家里</strong></td>
+          <td>买做冻菜的食材：红烧肉、咖喱鸡、番茄牛腩、梅菜扣肉、卤味等<strong>耐冻、复热不柴</strong>的家常菜原料，配速冻主食（米饭、馒头）。</td>
+          <td><strong>做好后分成单餐份量、彻底放凉再装密封盒冷冻</strong>；出发当天清晨从冰箱转入车载冰箱（保持 -18℃ 冷冻或 0–4℃ 冷藏）。规划够吃 <strong>前 5–7 天</strong>的量即可，不用一次做满 70 天。</td>
+        </tr>
+        <tr>
+          <td><strong>D6–D7<br>敦煌 / 哈密（9/23–24）</strong></td>
+          <td>进疆前第一轮补货：饮用水、蔬果、鸡蛋、熟食、泡面自热饭补量。大超市选择多。</td>
+          <td>车载冰箱里的冻菜若已吃到一半，<strong>在敦煌住宿冷冻格补冻一批新的</strong>（住公寓可简单加工）；生鲜只买 2–3 天的量。</td>
+        </tr>
+        <tr>
+          <td><strong>D20 / D22<br>喀什（10/7、10/9）</strong></td>
+          <td><strong>新藏线前最后一次大补给（必须补满）：</strong>气罐、加热包、泡面/自热米饭、高热量干粮、榨菜、饮用水；蔬果尽量多带耐放的（土豆、洋葱、胡萝卜、苹果）。</td>
+          <td>上新藏线后 3–4 天几乎无补给，<strong>把自带热食和干粮备足到能撑过阿里段</strong>；冻菜在喀什住宿最后复冻一批。此后以自热饭 + 干粮 + 住宿热餐为主。</td>
+        </tr>
+        <tr>
+          <td><strong>D33<br>拉萨（10/20）</strong></td>
+          <td>阿里段结束后的大城市补给：新鲜蔬果、鸡蛋、熟食、泡面自热饭补量，气罐按剩余情况补。</td>
+          <td>拉萨休整窗口长，<strong>可重新做/买一批冻菜</strong>放住宿冷冻，给滇藏线和川西段续上。</td>
+        </tr>
+        <tr>
+          <td><strong>D55 / D63<br>丽江 / 成都（11/11、11/19）</strong></td>
+          <td>返程段大城市，按需补干粮和气罐即可，蔬果随买随吃。</td>
+          <td>返程以进店和就近热餐为主，<strong>自带热食主要留给成都→西安 D65 长途高速日</strong>；返京前把没吃完的生鲜清掉，不带上返程车。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout green">
+    <div class="callout-title">三个保存要点</div>
+    <p>①<strong>车载冰箱是核心</strong>：坦克300后备箱有 12V 电源，冻菜靠它维持；停车过夜若断电，已解冻的当天优先食用。②<strong>冻菜分单餐份量</strong>，吃多少解多少，不反复冻融。③<strong>气罐不托运、不暴晒、不放高温车内长时间曝晒</strong>，用完的空罐按营地/加油站规定处理；高海拔用卡式炉注意通风。</p>
   </div>
 </section>
 
