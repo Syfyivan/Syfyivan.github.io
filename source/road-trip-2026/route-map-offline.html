@@ -274,6 +274,16 @@
       });
     }
 
+    // 聚焦单天时只留当天专属标注：隐藏全部 POI 与城市节点，避免同一坐标多层图标叠在一起
+    function hideGlobalMarkers() {
+      poiEls.forEach(element => { element.style.display = 'none'; });
+      routeNodeEls.forEach(element => { element.style.display = 'none'; });
+    }
+    function showGlobalMarkers() {
+      routeNodeEls.forEach(element => { element.style.display = ''; });
+      updatePoiVisibility();
+    }
+
     function activateDayButton(id) { document.querySelectorAll('.day-btn').forEach(button => button.classList.toggle('active', button.dataset.id === id)); }
     function activatePoiButton(id) { document.querySelectorAll('.poi-btn').forEach(button => button.classList.toggle('active', button.dataset.id === id)); }
 
@@ -321,6 +331,7 @@
       document.querySelectorAll('.road-label').forEach(label => label.classList.remove('active'));
       routeNodeEls.forEach(element => element.classList.remove('active'));
       poiEls.forEach(element => element.classList.remove('selected'));
+      showGlobalMarkers();
       setView({ ...defaultView });
       activateDayButton(''); activatePoiButton('');
       pageTitle.textContent = '全程路线'; pageSub.textContent = '滚轮缩放、按住拖动；点路段或地点会自动聚焦。';
@@ -339,6 +350,7 @@
       document.querySelectorAll('.road-label').forEach(label => label.classList.toggle('active', label.dataset.id === id));
       routeNodeEls.forEach((element, name) => element.classList.toggle('active', name === seg.from.name || name === seg.to.name));
       poiEls.forEach(element => element.classList.remove('selected'));
+      showGlobalMarkers();
       fitBounds(seg.bounds, 55);
       activateDayButton(''); activatePoiButton('');
       pageTitle.textContent = seg.title; pageSub.textContent = `${note.roads || seg.group} · 约 ${seg.lengthKm} km`;
@@ -408,7 +420,7 @@
       document.querySelectorAll('.road-label').forEach(label => label.classList.toggle('active', related.has(label.dataset.id)));
       routeNodeEls.forEach(element => element.classList.remove('active'));
       poiEls.forEach(element => element.classList.remove('selected'));
-      updatePoiVisibility();
+      hideGlobalMarkers();
       dayRouteGroup = mk('g', { 'data-day': day.id });
       const projected = day.points.map(point => project(point.lng, point.lat));
       if (projected.length > 1) mk('polyline', { points: projected.map(p => `${p.x},${p.y}`).join(' '), class: 'day-route' }, dayRouteGroup);
@@ -443,6 +455,7 @@
       routeEls.forEach(element => element.classList.remove('active', 'dimmed'));
       document.querySelectorAll('.road-label').forEach(label => label.classList.remove('active'));
       routeNodeEls.forEach(element => element.classList.remove('active'));
+      showGlobalMarkers();
       poiEls.forEach((element, poiId) => element.classList.toggle('selected', poiId === id));
       const p = project(poi.lng, poi.lat);
       setView({ x: p.x - 90, y: p.y - 55, w: 180, h: 110 });

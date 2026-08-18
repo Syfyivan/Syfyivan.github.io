@@ -244,6 +244,16 @@
       mapEl.querySelectorAll('.route-node').forEach(node => node.classList.remove('active'));
     }
 
+    // 聚焦单天/单点时隐藏全局聚合 POI 与城市节点；回到总览时再恢复，避免图标层层叠加
+    function hideGlobalPois() {
+      if (poiCluster) poiCluster.setMap(null);
+      routeNodeMarkers.forEach(marker => marker.hide());
+    }
+    function showGlobalPois() {
+      if (poiCluster) poiCluster.setMap(map);
+      routeNodeMarkers.forEach(marker => marker.show());
+    }
+
     function renderDayActions(day) {
       const last = day.points[day.points.length - 1];
       const nav = day.points.length > 1 ? `<a class="primary" target="_blank" rel="noopener" href="${amapNav(last)}">导航到终点</a>` : `<a class="primary" target="_blank" rel="noopener" href="${amapPosition(last)}">打开当天地点</a>`;
@@ -303,6 +313,8 @@
     function selectDay(id) {
       const day = DAILY.days.find(item => item.id === id); if (!day || !map) return;
       activeDayId = id; activePoiId = ''; if (activeMarker) activeMarker.setMap(null); if (infoWindow) infoWindow.close(); clearDayRoute();
+      // 选中某天时只保留当天专属标注，隐藏全局聚合 POI 与城市节点，避免同一坐标多层图标叠在一起看不清
+      hideGlobalPois();
       segmentOverlays.forEach(polyline => polyline.setOptions({strokeOpacity:.10,strokeWeight:4}));
       const path = day.points.map(point => [point.lng,point.lat]);
       day.points.forEach((point,index) => {
@@ -346,6 +358,7 @@
     function showAll() {
       if (!map) return;
       activeDayId = ''; activePoiId = ''; clearDayRoute(); if (activeMarker) activeMarker.setMap(null); if (infoWindow) infoWindow.close();
+      showGlobalPois();
       segmentOverlays.forEach(polyline => polyline.setOptions({strokeOpacity:.62,strokeWeight:6}));
       map.setFitView([...segmentOverlays.values(),...routeNodeMarkers.values()],false,[60,60,60,60],14);
       pageTitle.textContent = '全程路线'; pageSub.textContent = '滚轮缩放，按住拖动；点击某天或某个地点聚焦。';
