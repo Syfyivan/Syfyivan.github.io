@@ -25,7 +25,7 @@
     .daybook-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 32px));max-height:min(82vh,720px);overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(30,22,16,.32);padding:22px 22px 18px}
     .daybook-close{position:absolute;top:12px;right:14px;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
     .db-head{margin-bottom:12px;padding-right:26px}.db-head strong{display:block;font-size:17px}.db-head span{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
-    .db-row{display:grid;grid-template-columns:84px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--line);align-items:start}.db-k{font-size:12px;font-weight:800;color:var(--accent)}.db-v{font-size:13px;line-height:1.6;color:var(--ink)}.db-v em{font-style:normal;color:var(--muted);font-size:12px}.db-v small{color:var(--muted)}.db-v a{color:#8b3f28;font-weight:700}
+    .db-row{display:grid;grid-template-columns:84px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--line);align-items:start}.db-k{font-size:12px;font-weight:800;color:var(--accent)}.db-v{font-size:13px;line-height:1.6;color:var(--ink)}.db-v em{font-style:normal;color:var(--muted);font-size:12px}.db-v small{color:var(--muted)}.db-v a{color:#8b3f28;font-weight:700}.db-kitchen{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:#e9f8ef;color:#167345;font-size:11px;font-weight:800;vertical-align:middle}
     .db-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.db-actions a{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:8px 12px;text-decoration:none;font-size:12px;font-weight:800}.db-actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}
   </style>
 </head>
@@ -101,6 +101,18 @@
     let activeDayId = '';
     let activePoiId = '';
     const dayMarkers = [];
+    // 把“当天路线”和“景点/吃饭/住宿”关联起来：住宿用 stayId 精确匹配，
+    // 景点与吃饭点按坐标就近匹配（这些点本来就落在当天路线节点上），不臆造数据。
+    function poisForDay(day) {
+      const result = []; const seen = new Set();
+      if (day.stayId) { const stay = stayById.get(day.stayId); if (stay) { result.push(stay); seen.add(stay.id); } }
+      const near = (poi) => day.points.some(pt => Math.hypot(poi.lng - pt.lng, poi.lat - pt.lat) <= 0.4);
+      PLACES.pois.forEach(poi => {
+        if (seen.has(poi.id)) return;
+        if ((poi.category === 'scenic' || poi.category === 'food') && near(poi)) { result.push(poi); seen.add(poi.id); }
+      });
+      return result;
+    }
     const segmentOverlays = new Map();
     const routeNodeMarkers = new Map();
 
@@ -255,8 +267,15 @@
       if (stay) {
         const price = stay.priceParty4 ? `<em>（4人当晚约${yuan(stay.priceParty4)}）</em>` : '';
         const link = stay.bookingUrl || stay.sourceUrl;
-        stayHtml = `<div class="db-row"><span class="db-k">住宿</span><span class="db-v">${link ? `<a target="_blank" rel="noopener" href="${link}">${escapeHtml(stay.name)}</a>` : escapeHtml(stay.name)}${price}${stay.note ? `<br><small>${escapeHtml(stay.note)}</small>` : ''}</span></div>`;
+        const hasKitchen = /厨|整套|做饭/.test(stay.note || '') && !/无需厨房|非自炊/.test(stay.note || '');
+        const kitchenTag = hasKitchen ? '<span class="db-kitchen">可做饭</span>' : '';
+        stayHtml = `<div class="db-row"><span class="db-k">住宿</span><span class="db-v">${link ? `<a target="_blank" rel="noopener" href="${link}">${escapeHtml(stay.name)}</a>` : escapeHtml(stay.name)}${kitchenTag}${price}${stay.note ? `<br><small>${escapeHtml(stay.note)}</small>` : ''}</span></div>`;
       }
+      const scenics = poisForDay(day).filter(p => p.category === 'scenic');
+      const foods = poisForDay(day).filter(p => p.category === 'food');
+      let poiHtml = '';
+      if (scenics.length) poiHtml += `<div class="db-row"><span class="db-k">景点</span><span class="db-v">${scenics.map(p => escapeHtml(p.name)).join('、')}</span></div>`;
+      if (foods.length) poiHtml += `<div class="db-row"><span class="db-k">吃饭区</span><span class="db-v">${foods.map(p => escapeHtml(p.name)).join('、')}</span></div>`;
       let costHtml = '';
       if (cost) {
         const tickets = (cost.tickets || []).map(t => `${escapeHtml(t.name)} ${yuan(t.party4)}`).join('；');
@@ -269,6 +288,7 @@
         <div class="db-row"><span class="db-k">路线</span><span class="db-v">${escapeHtml(day.roads)}</span></div>
         <div class="db-row"><span class="db-k">停靠</span><span class="db-v">${stops}</span></div>
         ${day.critical ? `<div class="db-row"><span class="db-k">当天要点</span><span class="db-v">${escapeHtml(day.critical)}</span></div>` : ''}
+        ${poiHtml}
         ${mealHtml}
         ${stayHtml}
         ${costHtml}
@@ -288,6 +308,12 @@
       day.points.forEach((point,index) => {
         const marker = new AMapRef.Marker({position:[point.lng,point.lat],title:point.name,zIndex:360,content:`<div class="day-stop">${index + 1}</div>`,offset:new AMapRef.Pixel(0,0)});
         marker.setMap(map); marker.on('click',() => { infoWindow.setContent(`<div class="poi-info"><h4>${escapeHtml(point.name)}</h4><p>${day.id} 第${index + 1}站</p><div class="links"><a target="_blank" rel="noopener" href="${amapNav(point)}">导航到这里</a></div></div>`); infoWindow.open(map,[point.lng,point.lat]); }); dayMarkers.push(marker);
+      });
+      // 当天景点/吃饭/住宿：直接在地图上打上带名字的标注，不再只显示编号站点
+      poisForDay(day).forEach(poi => {
+        const category = categories[poi.category];
+        const poiMarker = new AMapRef.Marker({position:[poi.lng,poi.lat],zIndex:400,offset:new AMapRef.Pixel(0,0),content:`<div class="poi-marker active" style="--poi:${category.color}"><span class="poi-icon">${category.short}</span><span class="poi-name">${escapeHtml(poi.name)}</span></div>`});
+        poiMarker.setMap(map); poiMarker.on('click',() => openPoiInfo(poi)); dayMarkers.push(poiMarker);
       });
       const willDrive = (day.type === 'drive' || day.type === 'local') && day.points.length > 1 && driving;
       if (path.length > 1) {
