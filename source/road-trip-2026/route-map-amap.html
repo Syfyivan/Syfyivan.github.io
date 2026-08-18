@@ -20,6 +20,13 @@
     .poi-marker{display:flex;align-items:center;gap:5px;white-space:nowrap;transform:translate(-15px,-15px)}.poi-icon{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:10px;background:var(--poi);color:#fff;border:2px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.25);font-size:11px;font-weight:900}.poi-name{display:none;max-width:190px;overflow:hidden;text-overflow:ellipsis;background:rgba(255,255,255,.96);border:1px solid color-mix(in srgb,var(--poi) 45%,#ddd);border-radius:7px;padding:4px 7px;font-size:11px;font-weight:800;color:#292521;box-shadow:0 2px 8px rgba(0,0,0,.12)}.poi-marker.active .poi-name{display:block}.cluster-bubble{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:3px solid #fff;border-radius:50%;background:#282522;color:#fff;font-size:12px;font-weight:900;box-shadow:0 4px 14px rgba(0,0,0,.28)}.day-stop{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#c75b39;color:#fff;border:2px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.28);font-size:10px;font-weight:900;transform:translate(-13px,-13px)}
     .poi-info{min-width:220px;max-width:340px;padding:4px}.poi-info h4{font-size:14px;margin:0 0 5px}.poi-info .kind{font-size:11px;font-weight:800;margin-bottom:6px}.poi-info p{font-size:12px;color:#5f5953;line-height:1.55;margin:0}.poi-info small{display:block;margin-top:7px;color:#8a8178}.poi-info .links{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.poi-info a{border-radius:999px;background:#f4f1ec;color:#8b3f28;padding:5px 8px;text-decoration:none;font-size:11px;font-weight:800}
     @media(max-width:900px){.app{display:flex;flex-direction:column;height:auto;min-height:100vh;overflow:visible}.viewer{order:1;height:66vh;min-height:440px;padding:10px}.sidebar{order:2;height:auto;max-height:none;border-right:0;border-top:1px solid var(--line)}.brand{padding:13px}.search-wrap,.layers{padding-left:13px;padding-right:13px}.list-panel{max-height:60vh}.detail{grid-template-columns:1fr}.map-hint{display:none}}
+    .detail-actions .daybook-btn{background:var(--accent);border-color:var(--accent);color:#fff}
+    .daybook-modal{position:fixed;inset:0;z-index:100010;display:none}.daybook-modal.open{display:block}.daybook-backdrop{position:absolute;inset:0;background:rgba(30,26,22,.5);backdrop-filter:blur(2px)}
+    .daybook-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 32px));max-height:min(82vh,720px);overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(30,22,16,.32);padding:22px 22px 18px}
+    .daybook-close{position:absolute;top:12px;right:14px;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+    .db-head{margin-bottom:12px;padding-right:26px}.db-head strong{display:block;font-size:17px}.db-head span{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
+    .db-row{display:grid;grid-template-columns:84px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--line);align-items:start}.db-k{font-size:12px;font-weight:800;color:var(--accent)}.db-v{font-size:13px;line-height:1.6;color:var(--ink)}.db-v em{font-style:normal;color:var(--muted);font-size:12px}.db-v small{color:var(--muted)}.db-v a{color:#8b3f28;font-weight:700}
+    .db-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.db-actions a{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:8px 12px;text-decoration:none;font-size:12px;font-weight:800}.db-actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}
   </style>
 </head>
 <body>
@@ -44,15 +51,29 @@
       <div class="detail"><div><h3 id="detailTitle">全程路线</h3><p id="detailMeta">70天 · 主计划约16,380km</p></div><div><p id="detailText">总览仅显示路线骨架；选择某一天后加载当天详细导航。</p><div id="detailActions" class="detail-actions"></div></div></div>
     </main>
   </div>
+  <div id="dayBookModal" class="daybook-modal" aria-hidden="true">
+    <div class="daybook-backdrop" onclick="closeDayBook()"></div>
+    <div class="daybook-card" role="dialog" aria-modal="true" aria-label="当天路书">
+      <button type="button" class="daybook-close" onclick="closeDayBook()" aria-label="关闭">×</button>
+      <div id="dayBookBody" class="daybook-body"></div>
+    </div>
+  </div>
   <script>window.AMAP_LOCAL_CONFIG = window.AMAP_LOCAL_CONFIG || null;</script>
   <script src="./assets/amap-config.public.js"></script>
   <script src="./assets/route_segments_amap.js"></script>
   <script src="./assets/route_map_pois.js"></script>
   <script src="./assets/road_trip_days.js"></script>
+  <script src="./assets/road_trip_meals.js"></script>
+  <script src="./assets/road_trip_costs.js"></script>
   <script>
     const ROUTE = window.ROAD_TRIP_ROUTE_DATA;
     const PLACES = window.ROAD_TRIP_POI_DATA;
     const DAILY = window.ROAD_TRIP_DAY_DATA;
+    const MEALS = window.ROAD_TRIP_MEAL_DATA;
+    const COSTS = window.ROAD_TRIP_COST_DATA;
+    const mealByDay = new Map((MEALS && MEALS.meals || []).map(m => [m.day, m]));
+    const costByDay = new Map((COSTS && COSTS.items || []).map(c => [c.day, c]));
+    const stayById = new Map(PLACES.pois.filter(p => p.category === 'stay').map(p => [p.id, p]));
     const categories = PLACES.categories;
     const visibleCategories = new Set(Object.entries(categories).filter(([, value]) => value.defaultVisible).map(([key]) => key));
     const dayList = document.getElementById('dayList');
@@ -67,6 +88,8 @@
     const searchInput = document.getElementById('searchInput');
     const layerChips = document.getElementById('layerChips');
     const mapEl = document.getElementById('map');
+    const dayBookModal = document.getElementById('dayBookModal');
+    const dayBookBody = document.getElementById('dayBookBody');
     let map = null;
     let AMapRef = null;
     let infoWindow = null;
@@ -213,8 +236,49 @@
       const last = day.points[day.points.length - 1];
       const nav = day.points.length > 1 ? `<a class="primary" target="_blank" rel="noopener" href="${amapNav(last)}">导航到终点</a>` : `<a class="primary" target="_blank" rel="noopener" href="${amapPosition(last)}">打开当天地点</a>`;
       const via = day.points.slice(1,-1).map(point => `<a target="_blank" rel="noopener" href="${amapNav(point)}">到${escapeHtml(point.name)}</a>`).join('');
-      detailActions.innerHTML = `${nav}${via}<a href="./route-roadbook.html?day=${day.day}">查看当天路书</a>`;
+      detailActions.innerHTML = `${nav}${via}<button type="button" class="daybook-btn" onclick="openDayBook(${day.day})">看当天路书</button>`;
     }
+
+    const yuan = range => (!range || (!range[0] && !range[1])) ? '—' : (range[0] === range[1] ? `${range[0]}元` : `${range[0]}–${range[1]}元`);
+    function openDayBook(dayNum) {
+      const day = DAILY.days.find(item => item.day === dayNum); if (!day) return;
+      const meal = mealByDay.get(dayNum); const cost = costByDay.get(dayNum); const stay = day.stayId ? stayById.get(day.stayId) : null;
+      const stops = day.points.map((p,i) => `${i + 1}. ${escapeHtml(p.name)}`).join('　→　');
+      let mealHtml = '';
+      if (meal) {
+        mealHtml = `
+          <div class="db-row"><span class="db-k">早餐</span><span class="db-v">${escapeHtml(meal.breakfast.plan)}<em>（约${yuan(meal.breakfast.perPax)}/人）</em></span></div>
+          <div class="db-row"><span class="db-k">午餐</span><span class="db-v">${escapeHtml(meal.lunch.plan)}<em>（约${yuan(meal.lunch.perPax)}/人）</em>${meal.lunch.backup ? `<br><small>备选：${escapeHtml(meal.lunch.backup)}</small>` : ''}</span></div>
+          <div class="db-row"><span class="db-k">晚餐 · ${escapeHtml(meal.dinner.label)}</span><span class="db-v">${escapeHtml(meal.dinner.plan)}<em>（4人约${yuan(meal.dinner.party4)}）</em></span></div>`;
+      }
+      let stayHtml = '';
+      if (stay) {
+        const price = stay.priceParty4 ? `<em>（4人当晚约${yuan(stay.priceParty4)}）</em>` : '';
+        const link = stay.bookingUrl || stay.sourceUrl;
+        stayHtml = `<div class="db-row"><span class="db-k">住宿</span><span class="db-v">${link ? `<a target="_blank" rel="noopener" href="${link}">${escapeHtml(stay.name)}</a>` : escapeHtml(stay.name)}${price}${stay.note ? `<br><small>${escapeHtml(stay.note)}</small>` : ''}</span></div>`;
+      }
+      let costHtml = '';
+      if (cost) {
+        const tickets = (cost.tickets || []).map(t => `${escapeHtml(t.name)} ${yuan(t.party4)}`).join('；');
+        costHtml = `
+          <div class="db-row"><span class="db-k">油+过路</span><span class="db-v">4人约${yuan(cost.fuelToll)}</span></div>
+          ${tickets ? `<div class="db-row"><span class="db-k">门票/接驳</span><span class="db-v">${tickets}</span></div>` : ''}`;
+      }
+      dayBookBody.innerHTML = `
+        <div class="db-head"><strong>${day.id} · ${escapeHtml(day.title)}</strong><span>${formatDate(day.date)} · ${DAILY.typeLabels[day.type]} · ${day.distanceKm ? `计划约${day.distanceKm}km` : escapeHtml(day.roads)}</span></div>
+        <div class="db-row"><span class="db-k">路线</span><span class="db-v">${escapeHtml(day.roads)}</span></div>
+        <div class="db-row"><span class="db-k">停靠</span><span class="db-v">${stops}</span></div>
+        ${day.critical ? `<div class="db-row"><span class="db-k">当天要点</span><span class="db-v">${escapeHtml(day.critical)}</span></div>` : ''}
+        ${mealHtml}
+        ${stayHtml}
+        ${costHtml}
+        <div class="db-actions">
+          <a class="primary" target="_blank" rel="noopener" href="${amapNav(day.points[day.points.length - 1])}">导航到终点</a>
+          <a href="./route-roadbook.html?day=${day.day}" target="_blank" rel="noopener">在完整路书里看这一天</a>
+        </div>`;
+      dayBookModal.classList.add('open'); dayBookModal.setAttribute('aria-hidden','false');
+    }
+    function closeDayBook() { dayBookModal.classList.remove('open'); dayBookModal.setAttribute('aria-hidden','true'); }
 
     function selectDay(id) {
       const day = DAILY.days.find(item => item.id === id); if (!day || !map) return;
@@ -225,20 +289,28 @@
         const marker = new AMapRef.Marker({position:[point.lng,point.lat],title:point.name,zIndex:360,content:`<div class="day-stop">${index + 1}</div>`,offset:new AMapRef.Pixel(0,0)});
         marker.setMap(map); marker.on('click',() => { infoWindow.setContent(`<div class="poi-info"><h4>${escapeHtml(point.name)}</h4><p>${day.id} 第${index + 1}站</p><div class="links"><a target="_blank" rel="noopener" href="${amapNav(point)}">导航到这里</a></div></div>`); infoWindow.open(map,[point.lng,point.lat]); }); dayMarkers.push(marker);
       });
+      const willDrive = (day.type === 'drive' || day.type === 'local') && day.points.length > 1 && driving;
       if (path.length > 1) {
-        dayLine = new AMapRef.Polyline({path,strokeColor:'#c75b39',strokeOpacity:.9,strokeWeight:6,strokeStyle:day.type === 'drive' ? 'solid' : 'dashed',zIndex:250}); dayLine.setMap(map);
+        // 行车日先画一条淡淡的占位连线，等高德真实道路加载好后立刻移除，避免留下“直线穿越”；
+        // 徒步/接驳等不走导航的日子，用虚线连接停靠点即可。
+        dayLine = new AMapRef.Polyline({path,strokeColor:'#c75b39',strokeOpacity:willDrive ? .28 : .9,strokeWeight:willDrive ? 3 : 6,strokeStyle:willDrive ? 'dashed' : (day.type === 'drive' ? 'solid' : 'dashed'),zIndex:250}); dayLine.setMap(map);
       }
       const fit = [dayLine,...dayMarkers].filter(Boolean); if (fit.length) map.setFitView(fit,false,[70,70,70,70],15);
       pageTitle.textContent = `${day.id} · ${day.title}`; pageSub.textContent = `${formatDate(day.date)} · ${DAILY.typeLabels[day.type]} · ${day.distanceKm ? `计划约${day.distanceKm}km` : day.roads}`;
       detailTitle.textContent = `${day.id} 当前执行`; detailMeta.innerHTML = `<strong>${escapeHtml(day.roads)}</strong> · ${day.distanceKm ? `约${day.distanceKm}km` : DAILY.typeLabels[day.type]}`; detailText.textContent = day.critical; renderDayActions(day);
       renderDayList(); renderPoiList();
-      if ((day.type === 'drive' || day.type === 'local') && day.points.length > 1 && driving) {
+      if (willDrive) {
         const origin = day.points[0]; const destination = day.points[day.points.length - 1]; const waypoints = day.points.slice(1,-1).map(point => new AMapRef.LngLat(point.lng,point.lat));
         driving.search(new AMapRef.LngLat(origin.lng,origin.lat),new AMapRef.LngLat(destination.lng,destination.lat),{waypoints},(status,result) => {
           if (activeDayId !== day.id) return;
           if (status === 'complete' && result.routes && result.routes[0]) {
+            // 真实道路已画出，移除占位直线
+            if (dayLine) { dayLine.setMap(null); dayLine = null; }
             const route = result.routes[0]; const actualKm = (route.distance/1000).toFixed(0); const hours = Math.floor(route.time/3600); const minutes = Math.round((route.time%3600)/60);
             detailMeta.innerHTML = `<strong>${escapeHtml(day.roads)}</strong> · 高德当前约${actualKm}km / ${hours}小时${minutes}分 · 攻略计划${day.distanceKm}km`;
+          } else if (dayLine) {
+            // 导航失败时，把占位线恢复成清晰连线，至少能看出起终点
+            dayLine.setOptions({strokeOpacity:.9,strokeWeight:6,strokeStyle:'solid'});
           }
         });
       }
@@ -272,6 +344,7 @@
     document.getElementById('locateBtn').addEventListener('click',() => { if(geolocation) geolocation.getCurrentPosition((status,result) => { if(status !== 'complete') showError('定位失败，请检查浏览器定位权限；地图其他功能不受影响。'); }); });
     document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click',() => { document.querySelectorAll('.tab').forEach(item => item.classList.toggle('active',item===tab)); document.getElementById('routePanel').hidden=tab.dataset.panel!=='routes'; document.getElementById('placePanel').hidden=tab.dataset.panel!=='places'; }));
     searchInput.addEventListener('input',() => {renderDayList();renderPoiList();}); window.addEventListener('message',event => {if(event.data&&event.data.type==='route-map-resize'&&map)map.resize();}); renderLayers();renderDayList();renderPoiList();
+    document.addEventListener('keydown',event => { if(event.key==='Escape') closeDayBook(); });
     const cfg=window.AMAP_LOCAL_CONFIG;
     if(!cfg||!cfg.jsKey||!cfg.securityJsCode){showError('没有检测到高德 JS API 配置。可以切换离线版，逐日路线与规划地点仍可使用。');}
     else{window._AMapSecurityConfig={securityJsCode:cfg.securityJsCode};const loaderScript=document.createElement('script');loaderScript.src='https://webapi.amap.com/loader.js';loaderScript.onload=async()=>{try{const AMap=await AMapLoader.load({key:cfg.jsKey,version:'2.0',plugins:['AMap.Scale','AMap.ToolBar','AMap.MapType','AMap.MarkerCluster','AMap.Driving','AMap.Geolocation']});createMap(AMap);}catch(error){showError(`高德底图加载失败：${error&&error.message?error.message:error}。离线版仍可使用。`);}};loaderScript.onerror=()=>showError('当前网络无法加载高德底图。请切换离线版。');document.head.appendChild(loaderScript);}

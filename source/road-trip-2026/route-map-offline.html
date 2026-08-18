@@ -16,6 +16,13 @@
     .viewer{position:relative;min-width:0;height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:16px;gap:12px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.topbar h2{font-size:21px;margin:0}.topbar p{margin:4px 0 0;font-size:12px;color:var(--muted)}.stats{display:flex;gap:7px;flex-wrap:wrap}.stat{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:700;color:var(--muted)}
     .map-shell{position:relative;min-height:0;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#edf4f8 0%,#f8f5ef 100%);box-shadow:var(--shadow)}#mapSvg{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none;user-select:none}#mapSvg.dragging{cursor:grabbing}.offline-controls{position:absolute;z-index:4;right:14px;top:14px;display:grid;gap:7px}.offline-controls button{width:38px;height:38px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.94);box-shadow:0 5px 14px rgba(0,0,0,.10);font-size:18px;font-weight:900;cursor:pointer;color:var(--ink)}.map-hint{position:absolute;left:14px;bottom:14px;z-index:2;background:rgba(38,35,32,.86);color:#fff;border-radius:10px;padding:8px 10px;font-size:11px;pointer-events:none;backdrop-filter:blur(8px)}
     .china{fill:#fbfaf7;stroke:#cfc7bd;stroke-width:1.3;vector-effect:non-scaling-stroke}.geo-grid{stroke:#dbe2e5;stroke-width:1;stroke-dasharray:5 7;vector-effect:non-scaling-stroke}.grid-label{fill:#8a969c;font-size:11px}.detailed .grid-label{display:none}.route{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:7;opacity:.54;cursor:pointer;vector-effect:non-scaling-stroke}.route:hover{opacity:.9}.route.active{opacity:1;stroke-width:10}.route.dimmed{opacity:.05;stroke-width:4}.day-route{fill:none;stroke:#c75b39;stroke-width:6;stroke-dasharray:10 7;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.day-stop-circle{fill:#c75b39;stroke:#fff;stroke-width:2}.day-stop-text{fill:#fff;font-size:8px;font-weight:900;text-anchor:middle;dominant-baseline:central}.gps-circle{fill:#2563eb;stroke:#fff;stroke-width:3}.route-node-group,.road-label-group,.poi-group{cursor:pointer}.route-node{fill:#1f2937;stroke:#fff;stroke-width:2}.route-node-label{font-size:11px;font-weight:800;fill:#1f2937;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;display:none}.route-node-group:hover .route-node-label,.route-node-group.active .route-node-label{display:block}.road-label{font-size:11px;font-weight:900;fill:#7f3f28;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;display:none}.road-label.active{display:block}.poi-circle{stroke:#fff;stroke-width:2}.poi-short{fill:#fff;font-size:8px;font-weight:900;text-anchor:middle;dominant-baseline:central;pointer-events:none}.poi-label{display:none;font-size:11px;font-weight:800;fill:#27231f;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;pointer-events:none}.poi-group:hover .poi-label,.poi-group.selected .poi-label{display:block}.poi-group.selected .poi-circle{stroke:#1f2937;stroke-width:3}.detail{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 15px;display:grid;grid-template-columns:minmax(180px,.58fr) minmax(260px,1.42fr);gap:16px;align-items:center}.detail h3{margin:0;font-size:15px}.detail p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.55}.detail strong{color:var(--ink)}.detail-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.detail-actions a,.detail-actions button{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:6px 10px;text-decoration:none;font-size:11px;font-weight:800;cursor:pointer}.detail-actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .detail-actions .daybook-btn{background:var(--accent);border-color:var(--accent);color:#fff}
+    .daybook-modal{position:fixed;inset:0;z-index:100010;display:none}.daybook-modal.open{display:block}.daybook-backdrop{position:absolute;inset:0;background:rgba(30,26,22,.5);backdrop-filter:blur(2px)}
+    .daybook-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 32px));max-height:min(82vh,720px);overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(30,22,16,.32);padding:22px 22px 18px}
+    .daybook-close{position:absolute;top:12px;right:14px;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+    .db-head{margin-right:34px}.db-head strong{font-size:16px}.db-head span{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
+    .db-row{display:grid;grid-template-columns:84px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--line);align-items:start}.db-k{font-size:12px;font-weight:800;color:var(--accent)}.db-v{font-size:13px;line-height:1.6;color:var(--ink)}.db-v em{font-style:normal;color:var(--muted);font-size:12px}.db-v small{color:var(--muted)}.db-v a{color:#8b3f28;font-weight:700}
+    .db-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.db-actions a{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:7px 12px;text-decoration:none;font-size:12px;font-weight:800}.db-actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}
     @media(max-width:900px){.app{display:flex;flex-direction:column;height:auto;min-height:100vh;overflow:visible}.viewer{order:1;height:64vh;min-height:440px;padding:10px}.sidebar{order:2;height:auto;max-height:none;border-right:0;border-top:1px solid var(--line)}.brand{padding:14px}.search-wrap,.layers{padding-left:14px;padding-right:14px}.list-panel{max-height:58vh}.detail{grid-template-columns:1fr}.map-hint{display:none}.route-node-label{display:none!important}}
   </style>
 </head>
@@ -48,13 +55,27 @@
       <div class="detail"><div><h3 id="detailTitle">全程路线</h3><p id="detailMeta">70天 · 主计划约16,380km</p></div><div><p id="detailText">选择任意一天后会高亮对应主干路段、停靠点和当日风险提示。</p><div id="detailActions" class="detail-actions"></div></div></div>
     </main>
   </div>
+  <div id="dayBookModal" class="daybook-modal" aria-hidden="true">
+    <div class="daybook-backdrop" onclick="closeDayBook()"></div>
+    <div class="daybook-card" role="dialog" aria-modal="true" aria-label="当天路书">
+      <button type="button" class="daybook-close" onclick="closeDayBook()" aria-label="关闭">×</button>
+      <div id="dayBookBody" class="daybook-body"></div>
+    </div>
+  </div>
   <script src="./assets/route_segments_amap.js"></script>
   <script src="./assets/route_map_pois.js"></script>
   <script src="./assets/road_trip_days.js"></script>
+  <script src="./assets/road_trip_meals.js"></script>
+  <script src="./assets/road_trip_costs.js"></script>
   <script>
     const ROUTE = window.ROAD_TRIP_ROUTE_DATA;
     const PLACES = window.ROAD_TRIP_POI_DATA;
     const DAILY = window.ROAD_TRIP_DAY_DATA;
+    const MEALS = window.ROAD_TRIP_MEAL_DATA;
+    const COSTS = window.ROAD_TRIP_COST_DATA;
+    const mealByDay = new Map((MEALS && MEALS.meals || []).map(m => [m.day, m]));
+    const costByDay = new Map((COSTS && COSTS.items || []).map(c => [c.day, c]));
+    const stayById = new Map(PLACES.pois.filter(p => p.category === 'stay').map(p => [p.id, p]));
     const categories = PLACES.categories;
     const svg = document.getElementById('mapSvg');
     const dayList = document.getElementById('dayList');
@@ -67,6 +88,8 @@
     const detailMeta = document.getElementById('detailMeta');
     const detailText = document.getElementById('detailText');
     const detailActions = document.getElementById('detailActions');
+    const dayBookModal = document.getElementById('dayBookModal');
+    const dayBookBody = document.getElementById('dayBookBody');
     const visibleCategories = new Set(Object.entries(categories).filter(([, value]) => value.defaultVisible).map(([key]) => key));
     const routeEls = new Map();
     const routeNodeEls = new Map();
@@ -314,6 +337,48 @@
       window.parent.postMessage({ type: 'route-map-state', mode: 'offline', segment: id }, '*');
     }
 
+    const yuan = range => (!range || (!range[0] && !range[1])) ? '—' : (range[0] === range[1] ? `${range[0]}元` : `${range[0]}–${range[1]}元`);
+    function openDayBook(dayNum) {
+      const day = DAILY.days.find(item => item.day === dayNum); if (!day) return;
+      const meal = mealByDay.get(dayNum); const cost = costByDay.get(dayNum); const stay = day.stayId ? stayById.get(day.stayId) : null;
+      const stops = day.points.map((p, i) => `${i + 1}. ${escapeHtml(p.name)}`).join('　→　');
+      let mealHtml = '';
+      if (meal) {
+        mealHtml = `
+          <div class="db-row"><span class="db-k">早餐</span><span class="db-v">${escapeHtml(meal.breakfast.plan)}<em>（约${yuan(meal.breakfast.perPax)}/人）</em></span></div>
+          <div class="db-row"><span class="db-k">午餐</span><span class="db-v">${escapeHtml(meal.lunch.plan)}<em>（约${yuan(meal.lunch.perPax)}/人）</em>${meal.lunch.backup ? `<br><small>备选：${escapeHtml(meal.lunch.backup)}</small>` : ''}</span></div>
+          <div class="db-row"><span class="db-k">晚餐 · ${escapeHtml(meal.dinner.label)}</span><span class="db-v">${escapeHtml(meal.dinner.plan)}<em>（4人约${yuan(meal.dinner.party4)}）</em></span></div>`;
+      }
+      let stayHtml = '';
+      if (stay) {
+        const price = stay.priceParty4 ? `<em>（4人当晚约${yuan(stay.priceParty4)}）</em>` : '';
+        const link = stay.bookingUrl || stay.sourceUrl;
+        stayHtml = `<div class="db-row"><span class="db-k">住宿</span><span class="db-v">${link ? `<a target="_blank" rel="noopener" href="${link}">${escapeHtml(stay.name)}</a>` : escapeHtml(stay.name)}${price}${stay.note ? `<br><small>${escapeHtml(stay.note)}</small>` : ''}</span></div>`;
+      }
+      let costHtml = '';
+      if (cost) {
+        const tickets = (cost.tickets || []).map(t => `${escapeHtml(t.name)} ${yuan(t.party4)}`).join('；');
+        costHtml = `
+          <div class="db-row"><span class="db-k">油+过路</span><span class="db-v">4人约${yuan(cost.fuelToll)}</span></div>
+          ${tickets ? `<div class="db-row"><span class="db-k">门票/接驳</span><span class="db-v">${tickets}</span></div>` : ''}`;
+      }
+      dayBookBody.innerHTML = `
+        <div class="db-head"><strong>${day.id} · ${escapeHtml(day.title)}</strong><span>${formatDate(day.date)} · ${DAILY.typeLabels[day.type]} · ${day.distanceKm ? `计划约${day.distanceKm}km` : escapeHtml(day.roads)}</span></div>
+        <div class="db-row"><span class="db-k">路线</span><span class="db-v">${escapeHtml(day.roads)}</span></div>
+        <div class="db-row"><span class="db-k">停靠</span><span class="db-v">${stops}</span></div>
+        ${day.critical ? `<div class="db-row"><span class="db-k">当天要点</span><span class="db-v">${escapeHtml(day.critical)}</span></div>` : ''}
+        ${mealHtml}
+        ${stayHtml}
+        ${costHtml}
+        <div class="db-actions">
+          <a href="./route-roadbook.html?day=${day.day}" target="_blank" rel="noopener">在完整路书里看这一天</a>
+          <button type="button" onclick="window.print()">打印/存PDF</button>
+        </div>`;
+      dayBookModal.classList.add('open'); dayBookModal.setAttribute('aria-hidden', 'false');
+    }
+    function closeDayBook() { dayBookModal.classList.remove('open'); dayBookModal.setAttribute('aria-hidden', 'true'); }
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeDayBook(); });
+
     function selectDay(id) {
       const day = DAILY.days.find(item => item.id === id);
       if (!day) return;
@@ -338,7 +403,7 @@
       pageTitle.textContent = `${day.id} · ${day.title}`;
       pageSub.textContent = `${formatDate(day.date)} · ${DAILY.typeLabels[day.type]} · ${day.distanceKm ? `约${day.distanceKm}km` : day.roads}`;
       detailTitle.textContent = `${day.id} 当前执行`; detailMeta.innerHTML = `<strong>${escapeHtml(day.roads)}</strong> · ${day.distanceKm ? `计划约${day.distanceKm}km` : DAILY.typeLabels[day.type]}`;
-      detailText.textContent = day.critical; detailActions.innerHTML = `<a class="primary" href="./route-roadbook.html?day=${day.day}">查看当天路书</a><button type="button" onclick="window.print()">打印/存PDF</button>`;
+      detailText.textContent = day.critical; detailActions.innerHTML = `<button type="button" class="daybook-btn" onclick="openDayBook(${day.day})">看当天路书</button><button type="button" onclick="window.print()">打印/存PDF</button>`;
       renderDayList(); renderPoiList(); updateSymbolScale();
       window.parent.postMessage({ type: 'route-map-state', mode: 'offline', day: day.day }, '*');
     }
