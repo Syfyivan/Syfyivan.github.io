@@ -203,6 +203,9 @@
     return { mode, label, plan, perPax, party4: perPaxToParty4(perPax), priceNote: '当地常见家常正餐估算区间' };
   };
 
+  // 逐日手写明细：覆盖按类型批量生成的早/午餐模板，并提供“今日安排”叙述。
+  const DETAIL = window.ROAD_TRIP_DAILY_DETAIL || {};
+
   const meals = DAILY.days.map(day => {
     const breakfast = breakfastFor(day);
     const lunch = lunchFor(day);
@@ -210,6 +213,11 @@
     // 给午餐、晚餐补“在哪吃”落点，让每天都能看到具体去哪个餐饮街/商圈，或明确是自带热食。
     lunch.where = whereForLunch(day);
     dinner.where = whereToEatDinner(day, dinner.mode);
+    // 若该天有逐日手写明细，用它覆盖早/午餐模板文案（价格区间保持不变）。
+    const detail = DETAIL[day.day];
+    if (detail && detail.bf) breakfast.plan = detail.bf;
+    if (detail && detail.ln) lunch.plan = detail.ln;
+    const todo = detail && detail.todo ? detail.todo : '';
     // “自带食材·怎么带”：需要靠自带热食/复冻的日子才给出具体物流，其余天为空字符串。
     const carry = carryNote(day);
     // 当天餐饮合计（4人）：早餐、午餐按每人区间×4，晚餐用party4。
@@ -217,7 +225,7 @@
       round5(breakfast.perPax[0] * 4 + lunch.perPax[0] * 4 + dinner.party4[0]),
       round5(breakfast.perPax[1] * 4 + lunch.perPax[1] * 4 + dinner.party4[1])
     ];
-    return { day: day.day, breakfast, lunch, dinner, carry, dayTotal4 };
+    return { day: day.day, todo, breakfast, lunch, dinner, carry, dayTotal4 };
   });
 
   const dinnerCounts = meals.reduce((counts, meal) => {

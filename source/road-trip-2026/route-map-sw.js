@@ -1,4 +1,4 @@
-const CACHE_NAME = 'road-trip-2026-map-v34';
+const CACHE_NAME = 'road-trip-2026-map-v35';
 const CORE_PATHS = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const CORE_PATHS = [
   './assets/route_segments_amap.js',
   './assets/route_map_pois.js',
   './assets/road_trip_days.js',
+  './assets/road_trip_daily_detail.js',
   './assets/road_trip_meals.js',
   './assets/road_trip_costs.js',
   './assets/amap-config.public.js'

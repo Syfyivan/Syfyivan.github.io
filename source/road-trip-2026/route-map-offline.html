@@ -32,7 +32,7 @@
       <div class="brand">
         <div class="brand-row"><h1>西部大闭环离线路线与地点</h1><span class="mode-badge"><span class="mode-dot"></span>可离线</span></div>
         <p>主干导航折线、D1—D70路书和全部规划地点都已内置；可离线缩放、拖动、定位和按天筛选。</p>
-        <div class="quick-actions"><button id="showAllBtn" class="primary" type="button">查看全程</button><button id="locateBtn" type="button">定位我</button><a href="./route-map-amap.html?v=13">切到在线高德</a><a href="./route-roadbook.html?v=13" target="_blank" rel="noopener">完整路书</a><a href="./index.html#overview" target="_blank" rel="noopener">返回攻略</a></div>
+        <div class="quick-actions"><button id="showAllBtn" class="primary" type="button">查看全程</button><button id="locateBtn" type="button">定位我</button><a href="./route-map-amap.html?v=14">切到在线高德</a><a href="./route-roadbook.html?v=14" target="_blank" rel="noopener">完整路书</a><a href="./index.html#overview" target="_blank" rel="noopener">返回攻略</a></div>
       </div>
       <div class="search-wrap"><input id="searchInput" class="search" type="search" placeholder="搜索住宿、景点、补给或路段" aria-label="搜索离线地图地点"></div>
       <div id="layerChips" class="layers" aria-label="地点图层"></div>
@@ -65,6 +65,7 @@
   <script src="./assets/route_segments_amap.js"></script>
   <script src="./assets/route_map_pois.js"></script>
   <script src="./assets/road_trip_days.js"></script>
+  <script src="./assets/road_trip_daily_detail.js"></script>
   <script src="./assets/road_trip_meals.js"></script>
   <script src="./assets/road_trip_costs.js"></script>
   <script>
@@ -337,7 +338,7 @@
       pageTitle.textContent = '全程路线'; pageSub.textContent = '滚轮缩放、按住拖动；点路段或地点会自动聚焦。';
       detailTitle.textContent = '全程路线'; detailMeta.textContent = `${DAILY.days.length}天 · 主计划约${DAILY.meta.plannedDrivingKm.toLocaleString()}km · 预算里程${DAILY.meta.budgetMileageKm.toLocaleString()}km`;
       detailText.textContent = '离线版已内置主干导航折线、D1—D70停靠点、住宿、景点、吃饭、采购、厕所与救援参考点。选择某天后只高亮当天相关路线。';
-      detailActions.innerHTML = '<a class="primary" href="./route-roadbook.html?v=13" target="_blank" rel="noopener">打开D1—D70完整路书</a>';
+      detailActions.innerHTML = '<a class="primary" href="./route-roadbook.html?v=14" target="_blank" rel="noopener">打开D1—D70完整路书</a>';
       window.parent.postMessage({ type: 'route-map-state', mode: 'offline', day: 0 }, '*');
     }
 
@@ -398,6 +399,7 @@
         <div class="db-head"><strong>${day.id} · ${escapeHtml(day.title)}</strong><span>${formatDate(day.date)} · ${DAILY.typeLabels[day.type]} · ${day.distanceKm ? `计划约${day.distanceKm}km` : escapeHtml(day.roads)}</span></div>
         <div class="db-row"><span class="db-k">路线</span><span class="db-v">${escapeHtml(day.roads)}</span></div>
         <div class="db-row"><span class="db-k">停靠</span><span class="db-v">${stops}</span></div>
+        ${meal && meal.todo ? `<div class="db-row"><span class="db-k">今日安排</span><span class="db-v">${escapeHtml(meal.todo)}</span></div>` : ''}
         ${day.critical ? `<div class="db-row"><span class="db-k">当天要点</span><span class="db-v">${escapeHtml(day.critical)}</span></div>` : ''}
         ${poiHtml}
         ${mealHtml}

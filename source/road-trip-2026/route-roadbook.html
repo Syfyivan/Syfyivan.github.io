@@ -37,7 +37,7 @@
       <p>2026年9月18日—11月26日 · 4人 / 2位司机轮换 · 逐日道路、停靠点、住宿、吃饭与关键风险统一在此维护。页面与数据会随离线地图一起缓存。</p>
       <div class="stats"><span class="stat" id="statDays"></span><span class="stat" id="statKm"></span><span class="stat" id="statMeals"></span><span class="stat">68晚外地住宿</span><span class="stat">11月25日回北京 · 11月26日还车</span></div>
     </section>
-    <nav class="actions"><a class="primary" href="./route-map-offline.html?v=13">打开离线地图</a><a href="./route-map-amap.html?v=13">打开在线高德</a><a href="./index.html#roadbook">返回详细攻略</a><button id="expandBtn" type="button">展开全部</button><button id="collapseBtn" type="button">全部收起</button><button id="downloadBtn" type="button">下载TXT路书</button><button type="button" onclick="window.print()">打印 / 存为PDF</button></nav>
+    <nav class="actions"><a class="primary" href="./route-map-offline.html?v=14">打开离线地图</a><a href="./route-map-amap.html?v=14">打开在线高德</a><a href="./index.html#roadbook">返回详细攻略</a><button id="expandBtn" type="button">展开全部</button><button id="collapseBtn" type="button">全部收起</button><button id="downloadBtn" type="button">下载TXT路书</button><button type="button" onclick="window.print()">打印 / 存为PDF</button></nav>
     <div class="note"><strong>离线边界：</strong>本页保存的是计划道路、坐标和风险提醒，不冒充实时路况。封路、边防、景区换乘和营业状态必须在有网时复核；无网时以现场标志、交警与景区指令为准。</div>
     <div class="note" style="background:#fff6ef;border-left-color:var(--accent)"><strong>价格说明：</strong>以下价格用于行程预算，不代表锁定报价。住宿、门票、区间车、油价和餐饮价格应在预订时及出发前再次核验。卡片内标签区分「官方价 / 参考价 / 估算」，餐饮与门票接驳为规划估算区间，住宿价见各订单页实时房价。</div>
     <div class="filter"><label>只看 D</label><input id="fromDay" type="number" min="1" max="70" value="1"><span>到</span><input id="toDay" type="number" min="1" max="70" value="70"><button id="filterBtn" type="button">筛选</button><button id="todayBtn" type="button">按日期定位</button><span id="filterStatus" class="meta"></span></div>
@@ -46,6 +46,7 @@
   </main>
   <script src="./assets/route_map_pois.js"></script>
   <script src="./assets/road_trip_days.js"></script>
+  <script src="./assets/road_trip_daily_detail.js"></script>
   <script src="./assets/road_trip_meals.js"></script>
   <script src="./assets/road_trip_costs.js"></script>
   <script>
@@ -89,6 +90,11 @@
     document.getElementById('statDays').textContent = `${DAILY.days.length}天`;
     document.getElementById('statKm').textContent = `主计划${DAILY.meta.plannedDrivingKm.toLocaleString()}km · 预算上限${DAILY.meta.budgetMileageKm.toLocaleString()}km`;
     document.getElementById('statMeals').textContent = `${FOOD.dinnerCounts.restaurant}天目的地进店 · ${FOOD.dinnerCounts.cook}晚自炊`;
+
+    function todoBlock(meal) {
+      if (!meal || !meal.todo) return '';
+      return `<div class="sec sec-route" style="background:#fff6ef;border-color:#f0c9b6"><h3>今日安排</h3><p>${escapeHtml(meal.todo)}</p></div>`;
+    }
 
     function foodBlock(meal) {
       if (!meal) return '';
@@ -140,6 +146,7 @@
         const stops = day.points.map(point => point.name).join(' → '); const last = day.points[day.points.length - 1];
         card.innerHTML = `<summary class="day-head"><h2>${day.id} · ${escapeHtml(day.title)}</h2><span class="badge">${formatDate(day.date)}</span></summary><div class="day-body">`
           + `<div class="sec sec-route"><h3>路线与时间</h3><p><span class="lab">类型 / 里程：</span>${escapeHtml(DAILY.typeLabels[day.type])}${day.distanceKm ? ` · 计划约 ${day.distanceKm}km` : ''} · ${escapeHtml(day.roads)}</p><p><span class="lab">停靠顺序：</span>${escapeHtml(stops)}</p></div>`
+          + todoBlock(meal)
           + foodBlock(meal)
           + stayBlock(day, stay)
           + feeBlock(cost)
@@ -164,6 +171,7 @@
       DAILY.days.forEach(day => {
         const stay = stays.get(day.stayId); const meal = meals.get(day.day); const cost = costs.get(day.day);
         lines.push(`${day.id} ${day.date}｜${day.title}`, `类型/里程：${DAILY.typeLabels[day.type]}${day.distanceKm ? `，约${day.distanceKm}km` : ''}`, `道路：${day.roads}`, `停靠：${day.points.map(point => point.name).join(' → ')}`);
+        if (meal && meal.todo) lines.push(`今日安排：${meal.todo}`);
         if (meal) {
           lines.push(`早餐：${meal.breakfast.plan}（每人${money(meal.breakfast.perPax)}）`, `午餐：${meal.lunch.plan}（每人${money(meal.lunch.perPax)}）${meal.lunch.backup ? `｜备用：${meal.lunch.backup}` : ''}`, `晚餐·${meal.dinner.label}：${meal.dinner.plan}（每人${money(meal.dinner.perPax)}／4人${money(meal.dinner.party4)}）`, `餐饮4人合计：${money(meal.dayTotal4)}`);
         }
