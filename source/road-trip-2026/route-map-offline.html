@@ -370,7 +370,8 @@
         mealHtml = `
           <div class="db-row"><span class="db-k">早餐</span><span class="db-v">${escapeHtml(meal.breakfast.plan)}<em>（约${yuan(meal.breakfast.perPax)}/人）</em></span></div>
           <div class="db-row"><span class="db-k">午餐</span><span class="db-v">${escapeHtml(meal.lunch.plan)}<em>（约${yuan(meal.lunch.perPax)}/人）</em>${meal.lunch.where ? `<br><small style="color:#c75b39">在哪吃：${escapeHtml(meal.lunch.where)}</small>` : ''}${meal.lunch.backup ? `<br><small>备选：${escapeHtml(meal.lunch.backup)}</small>` : ''}</span></div>
-          <div class="db-row"><span class="db-k">晚餐 · ${escapeHtml(meal.dinner.label)}</span><span class="db-v">${escapeHtml(meal.dinner.plan)}<em>（4人约${yuan(meal.dinner.party4)}）</em>${meal.dinner.where ? `<br><small style="color:#c75b39">在哪吃：${escapeHtml(meal.dinner.where)}</small>` : ''}</span></div>`;
+          <div class="db-row"><span class="db-k">晚餐 · ${escapeHtml(meal.dinner.label)}</span><span class="db-v">${escapeHtml(meal.dinner.plan)}<em>（4人约${yuan(meal.dinner.party4)}）</em>${meal.dinner.where ? `<br><small style="color:#c75b39">在哪吃：${escapeHtml(meal.dinner.where)}</small>` : ''}</span></div>
+          ${meal.carry ? `<div class="db-row"><span class="db-k">自带食材 · 怎么带</span><span class="db-v">${escapeHtml(meal.carry)}<br><small><a href="./index.html#food-plan" target="_blank" rel="noopener">买 / 冻 / 做 / 带完整方案 →</a></small></span></div>` : ''}`;
       }
       let stayHtml = '';
       if (stay) {

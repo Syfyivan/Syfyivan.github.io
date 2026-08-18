@@ -112,6 +112,26 @@
   // 偏远/高海拔/徒步/晚到节点，晚餐以住宿或就近可靠热食为主（lodging）。
   const REMOTE_DAYS = new Set([11, 12, 13, 21, 25, 26, 27, 29, 30, 31, 41, 42, 43, 44, 47, 48, 49, 50, 53, 54, 57, 58, 59, 60, 61, 62]);
 
+  // “自带食材·怎么带”：只在真正要靠自带热食的日子给出——徒步/接驳/长途高速/偏远住宿。
+  // 写清这顿从哪来（车载冰箱里的冻菜/干粮）、怎么保温加热、断电或吃不上怎么办；不写成空话。
+  // 复冻/补货的关键城市节点（敦煌D6、喀什D20/22、拉萨D33、丽江D55、成都D63）单独提示。
+  const RESTOCK_NOTE = {
+    6: '敦煌住公寓，带冷冻格：把车载冰箱吃掉一半的冻菜在这里补做/补冻一批，进疆前装满。',
+    20: '喀什是新藏线前最后大补给：气罐、加热包、自热饭、干粮补满，冻菜在住宿冷冻格做最后一次复冻。',
+    22: '喀什复冻窗口：上阿里前把冻菜和自热饭备足到能撑过狮泉河，之后 3–4 天几乎无补给。',
+    33: '拉萨休整窗口长：可重新买/做一批冻菜放住宿冷冻格，给滇藏线和川西续上。',
+    55: '丽江是返程成熟城市：按需补干粮和气罐，蔬果随买随吃，不用大囤。',
+    63: '成都补给：给 D65 成都→西安长途高速日备好自带热食和干粮。'
+  };
+  const carryNote = day => {
+    const restock = RESTOCK_NOTE[day.day] ? '　补给/复冻：' + RESTOCK_NOTE[day.day] : '';
+    if (day.type === 'hike') return '前一晚在住宿把三明治/饭团、水煮蛋、熟肉、坚果、水果装进背包保温袋；徒步全程随身带，出山回住宿再吃正餐。' + restock;
+    if (day.type === 'mixed') return '出发前从车载冰箱取出当天份冻菜，用加热包/保温饭盒加热带上；接驳段随身背，遇可靠热食点再补碗汤面。' + restock;
+    if (day.distanceKm >= 400) return '当天份冻菜清晨从车载冰箱（-18℃）取到保温饭盒，午间用加热包复热即食；配自热饭/泡面和水果。断电或化了就当天优先吃掉，不反复冻融。' + restock;
+    if (REMOTE_DAYS.has(day.day)) return '这一带餐饮少：晚餐靠住宿餐或就近小馆，吃不惯就用车载冰箱里的冻菜复热、或便携气炉煮面（守当地防火管制）。' + restock;
+    return restock ? restock.replace(/^　/, '') : '';
+  };
+
   const DAILY = window.ROAD_TRIP_DAY_DATA;
   if (!DAILY) return;
 
@@ -190,12 +210,14 @@
     // 给午餐、晚餐补“在哪吃”落点，让每天都能看到具体去哪个餐饮街/商圈，或明确是自带热食。
     lunch.where = whereForLunch(day);
     dinner.where = whereToEatDinner(day, dinner.mode);
+    // “自带食材·怎么带”：需要靠自带热食/复冻的日子才给出具体物流，其余天为空字符串。
+    const carry = carryNote(day);
     // 当天餐饮合计（4人）：早餐、午餐按每人区间×4，晚餐用party4。
     const dayTotal4 = [
       round5(breakfast.perPax[0] * 4 + lunch.perPax[0] * 4 + dinner.party4[0]),
       round5(breakfast.perPax[1] * 4 + lunch.perPax[1] * 4 + dinner.party4[1])
     ];
-    return { day: day.day, breakfast, lunch, dinner, dayTotal4 };
+    return { day: day.day, breakfast, lunch, dinner, carry, dayTotal4 };
   });
 
   const dinnerCounts = meals.reduce((counts, meal) => {

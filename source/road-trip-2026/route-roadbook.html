@@ -95,8 +95,9 @@
       const bf = `<p class="meal-row"><span class="lab">早餐：</span>${escapeHtml(meal.breakfast.plan)}${tagPP(meal.breakfast.perPax)}</p>`;
       const ln = `<p class="meal-row"><span class="lab">午餐：</span>${escapeHtml(meal.lunch.plan)}${tagPP(meal.lunch.perPax)}${meal.lunch.where ? `<br><span class="lab" style="color:#c75b39">在哪吃：</span>${escapeHtml(meal.lunch.where)}` : ''}${meal.lunch.backup ? `<br><span class="lab" style="color:#8a6d3b">备用：</span>${escapeHtml(meal.lunch.backup)}` : ''}</p>`;
       const dn = `<p class="meal-row"><span class="lab">晚餐 · ${escapeHtml(meal.dinner.label)}：</span>${escapeHtml(meal.dinner.plan)}${tagPP(meal.dinner.perPax)}${tagP4(meal.dinner.party4)}${meal.dinner.where ? `<br><span class="lab" style="color:#c75b39">在哪吃：</span>${escapeHtml(meal.dinner.where)}` : ''}</p>`;
+      const carry = meal.carry ? `<p class="meal-row"><span class="lab" style="color:#c75b39">自带食材·怎么带：</span>${escapeHtml(meal.carry)}<br><a href="./index.html#food-plan" target="_blank" rel="noopener" style="font-size:12px">买 / 冻 / 做 / 带完整方案 →</a></p>` : '';
       const sum = `<p class="meal-row" style="color:var(--muted)">全天餐饮（4人）合计约 ${range(meal.dayTotal4)}<span class="tag tag-est">估算</span></p>`;
-      return `<div class="sec sec-food"><h3>三餐建议</h3>${bf}${ln}${dn}${sum}</div>`;
+      return `<div class="sec sec-food"><h3>三餐建议</h3>${bf}${ln}${dn}${carry}${sum}</div>`;
     }
 
     function stayBlock(day, stay) {
