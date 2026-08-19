@@ -34,13 +34,13 @@
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-row"><h1>Plan B · 川进滇出逐日地图</h1><span class="mode-badge"><span class="mode-dot"></span>在线高德</span></div>
-        <p>总览只显示路线骨架，地点会自动聚合；选中 D1—D36 任意一天后才加载当天道路，放大不会被大段文字盖住。</p>
+        <p>总览只显示路线骨架，地点会自动聚合；选中 D1—D29 任意一天后才加载当天道路，放大不会被大段文字盖住。</p>
         <div class="quick-actions"><button id="showAllBtn" class="primary" type="button">查看全程</button><button id="locateBtn" type="button">定位我</button><a href="./route-map-offline.html?v=14">切到离线版</a><a href="./route-roadbook.html?v=14" target="_blank" rel="noopener">完整路书</a><a href="./index.html#overview" target="_blank" rel="noopener">返回攻略</a></div>
       </div>
       <div class="search-wrap"><input id="searchInput" class="search" type="search" placeholder="搜索 D28、住宿、景点、道路或城市" aria-label="搜索逐日路线和地图地点"></div>
       <div id="layerChips" class="layers" aria-label="地点图层"></div>
       <div class="browser">
-        <div class="tabs"><button class="tab active" data-panel="routes" type="button">D1—D36 逐日路线</button><button class="tab" data-panel="places" type="button">地点清单 <span id="poiCount"></span></button></div>
+        <div class="tabs"><button class="tab active" data-panel="routes" type="button">D1—D29 逐日路线</button><button class="tab" data-panel="places" type="button">地点清单 <span id="poiCount"></span></button></div>
         <div id="routePanel" class="list-panel"><div id="dayList" class="list"></div></div>
         <div id="placePanel" class="list-panel" hidden><div id="poiList" class="list"></div></div>
       </div>
@@ -48,7 +48,7 @@
     <main class="viewer">
       <div class="topbar"><div><h2 id="pageTitle">全程路线</h2><p id="pageSub">滚轮缩放，按住拖动；点击某天或某个地点聚焦。</p></div><div class="stats"><span class="stat" id="statDays"></span><span class="stat" id="statPois"></span><span class="stat" id="offlineStatus">离线包准备中</span></div></div>
       <div class="map-shell"><div id="errorBox" class="error"></div><div id="map" aria-label="Plan B 川进滇出在线高德逐日地图"></div><div class="map-hint">总览无常驻文字 · 地点自动聚合 · 选某天看道路</div></div>
-      <div class="detail"><div><h3 id="detailTitle">全程路线</h3><p id="detailMeta">36天 · 主计划约8,980km</p></div><div><p id="detailText">总览仅显示路线骨架；选择某一天后加载当天详细导航。</p><div id="detailActions" class="detail-actions"></div></div></div>
+      <div class="detail"><div><h3 id="detailTitle">全程路线</h3><p id="detailMeta">29天 · 主计划约8,870km</p></div><div><p id="detailText">总览仅显示路线骨架；选择某一天后加载当天详细导航。</p><div id="detailActions" class="detail-actions"></div></div></div>
     </main>
   </div>
   <div id="dayBookModal" class="daybook-modal" aria-hidden="true">
@@ -366,7 +366,7 @@
       map.setFitView([...segmentOverlays.values(),...routeNodeMarkers.values()],false,[60,60,60,60],14);
       pageTitle.textContent = '全程路线'; pageSub.textContent = '滚轮缩放，按住拖动；点击某天或某个地点聚焦。';
       detailTitle.textContent = '全程路线'; detailMeta.textContent = `${DAILY.days.length}天 · 主计划约${DAILY.meta.plannedDrivingKm.toLocaleString()}km · 预算里程${DAILY.meta.budgetMileageKm.toLocaleString()}km`;
-      detailText.textContent = '总览只显示路线骨架和聚合图标；选择某一天才加载当天道路，住宿、景点、吃饭、采购、厕所与救援图层可单独开关。'; detailActions.innerHTML = '<a class="primary" href="./route-roadbook.html?v=14" target="_blank" rel="noopener">打开D1—D36完整路书</a>';
+      detailText.textContent = '总览只显示路线骨架和聚合图标；选择某一天才加载当天道路，住宿、景点、吃饭、采购、厕所与救援图层可单独开关。'; detailActions.innerHTML = '<a class="primary" href="./route-roadbook.html?v=14" target="_blank" rel="noopener">打开D1—D29完整路书</a>';
       renderDayList(); renderPoiList(); window.parent.postMessage({type:'route-map-state',mode:'online',day:0},'*');
     }
 

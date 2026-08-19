@@ -31,13 +31,13 @@
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-row"><h1>Plan B · 川进滇出离线路线与地点</h1><span class="mode-badge"><span class="mode-dot"></span>可离线</span></div>
-        <p>主干导航折线、D1—D36路书和全部规划地点都已内置；可离线缩放、拖动、定位和按天筛选。</p>
+        <p>主干导航折线、D1—D29路书和全部规划地点都已内置；可离线缩放、拖动、定位和按天筛选。</p>
         <div class="quick-actions"><button id="showAllBtn" class="primary" type="button">查看全程</button><button id="locateBtn" type="button">定位我</button><a href="./route-map-amap.html?v=14">切到在线高德</a><a href="./route-roadbook.html?v=14" target="_blank" rel="noopener">完整路书</a><a href="./index.html#overview" target="_blank" rel="noopener">返回攻略</a></div>
       </div>
       <div class="search-wrap"><input id="searchInput" class="search" type="search" placeholder="搜索住宿、景点、补给或路段" aria-label="搜索离线地图地点"></div>
       <div id="layerChips" class="layers" aria-label="地点图层"></div>
       <div class="browser">
-        <div class="tabs"><button class="tab active" data-panel="routes" type="button">D1—D36逐日路线</button><button class="tab" data-panel="places" type="button">地点清单 <span id="poiCount"></span></button></div>
+        <div class="tabs"><button class="tab active" data-panel="routes" type="button">D1—D29逐日路线</button><button class="tab" data-panel="places" type="button">地点清单 <span id="poiCount"></span></button></div>
         <div id="routePanel" class="list-panel"><div id="dayList" class="list"></div></div>
         <div id="placePanel" class="list-panel" hidden><div id="poiList" class="list"></div></div>
       </div>
@@ -52,7 +52,7 @@
         <div class="offline-controls"><button id="zoomInBtn" type="button" aria-label="放大">＋</button><button id="zoomOutBtn" type="button" aria-label="缩小">−</button><button id="resetBtn" type="button" aria-label="回到全程">⌂</button></div>
         <div class="map-hint">滚轮缩放 · 抓手拖动 · 点图标看名称</div>
       </div>
-      <div class="detail"><div><h3 id="detailTitle">全程路线</h3><p id="detailMeta">36天 · 主计划约8,980km</p></div><div><p id="detailText">选择任意一天后会高亮对应主干路段、停靠点和当日风险提示。</p><div id="detailActions" class="detail-actions"></div></div></div>
+      <div class="detail"><div><h3 id="detailTitle">全程路线</h3><p id="detailMeta">29天 · 川进滇出约9,000km</p></div><div><p id="detailText">选择任意一天后会高亮对应主干路段、停靠点和当日风险提示。</p><div id="detailActions" class="detail-actions"></div></div></div>
     </main>
   </div>
   <div id="dayBookModal" class="daybook-modal" aria-hidden="true">
@@ -126,26 +126,23 @@
     const typeColor = type => ({ drive:'#c75b39', mixed:'#b45309', hike:'#059669', rest:'#64748b', local:'#2563eb', service:'#7c3aed' }[type] || '#64748b');
     function segmentsForDay(day) {
       if (!day.distanceKm && day.type !== 'local') {
-        // 停留日（亚丁徒步/休整/保养）仍按所在路段高亮背景
+        // 停留日（亚丁徒步/拉萨恢复）仍按所在路段高亮背景
         const n0 = day.day;
-        if (n0 >= 8 && n0 <= 10) return ['seg-04'];
-        if (n0 === 15) return ['seg-06'];
-        if (n0 >= 18 && n0 <= 20) return ['seg-06'];
-        if (n0 === 29) return ['seg-08'];
-        if (n0 === 32) return ['seg-09'];
+        if (n0 === 8) return ['seg-04'];   // 亚丁长线徒步
+        if (n0 === 16) return ['seg-06'];  // 拉萨深度恢复日
         return [];
       }
       const dayNumber = day.day;
-      // Plan B 川进滇出：36 天映射到 10 段骨架
+      // Plan B 川进滇出：29 天映射到 10 段骨架
       if (dayNumber <= 2) return ['seg-01'];   // 北京→平遥→西安
       if (dayNumber <= 4) return ['seg-02'];   // 西安→广元→成都
       if (dayNumber === 5) return ['seg-03'];  // 成都→新都桥
-      if (dayNumber <= 10) return ['seg-04'];  // 新都桥→理塘→稻城亚丁往返
-      if (dayNumber <= 13) return ['seg-05'];  // 理塘→巴塘→左贡→八宿
-      if (dayNumber <= 20) return ['seg-06'];  // 八宿→波密→林芝→拉萨 + 拉萨恢复
-      if (dayNumber <= 24) return ['seg-07'];  // 拉萨反向回芒康
-      if (dayNumber <= 29) return ['seg-08'];  // 芒康→德钦→香格里拉→丽江
-      if (dayNumber <= 32) return ['seg-09'];  // 丽江→西昌→成都
+      if (dayNumber <= 9) return ['seg-04'];   // 新都桥→理塘→稻城亚丁往返
+      if (dayNumber <= 12) return ['seg-05'];  // 理塘→巴塘→左贡→八宿
+      if (dayNumber <= 17) return ['seg-06'];  // 八宿→波密→林芝→拉萨 + 拉萨恢复
+      if (dayNumber <= 21) return ['seg-07'];  // 拉萨反向回芒康
+      if (dayNumber <= 24) return ['seg-08'];  // 芒康→德钦→香格里拉→丽江
+      if (dayNumber <= 26) return ['seg-09'];  // 丽江→西昌→成都
       return ['seg-10'];                        // 成都→西安→平遥→北京
     }
 
@@ -351,8 +348,8 @@
       activateDayButton(''); activatePoiButton('');
       pageTitle.textContent = '全程路线'; pageSub.textContent = '滚轮缩放、按住拖动；点路段或地点会自动聚焦。';
       detailTitle.textContent = '全程路线'; detailMeta.textContent = `${DAILY.days.length}天 · 主计划约${DAILY.meta.plannedDrivingKm.toLocaleString()}km · 预算里程${DAILY.meta.budgetMileageKm.toLocaleString()}km`;
-      detailText.textContent = '离线版已内置主干导航折线、D1—D36停靠点、住宿、景点、吃饭、采购、厕所与救援参考点。选择某天后只高亮当天相关路线。';
-      detailActions.innerHTML = '<a class="primary" href="./route-roadbook.html?v=14" target="_blank" rel="noopener">打开D1—D36完整路书</a>';
+      detailText.textContent = '离线版已内置主干导航折线、D1—D29停靠点、住宿、景点、吃饭、采购、厕所与救援参考点。选择某天后只高亮当天相关路线。';
+      detailActions.innerHTML = '<a class="primary" href="./route-roadbook.html?v=14" target="_blank" rel="noopener">打开D1—D29完整路书</a>';
       window.parent.postMessage({ type: 'route-map-state', mode: 'offline', day: 0 }, '*');
     }
 
