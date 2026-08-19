@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+  <title id="title">70天青甘完整核心 + 西部主线双司机均衡版路线图</title>
+  <desc id="desc">北京出发，经张掖丹霞、青海湖、茶卡、德令哈、大柴旦、敦煌、哈密、北疆、喀什、阿里、拉萨、林芝、梅里、丽江、亚丁、成都、西安返回北京的近似地理方位路线图。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#eef2f7"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .title{font:700 34px -apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif;fill:#1f2937}
+      .meta{font:600 15px -apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif;fill:#64748b}
+      .city{font:700 18px -apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif;fill:#0f172a}
+      .minor{font:600 15px -apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif;fill:#334155}
+      .tiny{font:500 13px -apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif;fill:#64748b}
+      .legend{font:600 15px -apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif;fill:#0f172a}
+    </style>
+  </defs>
+
+  <rect width="1600" height="980" rx="32" fill="url(#bg)"/>
+  <rect x="36" y="36" width="1528" height="908" rx="28" fill="#fff" filter="url(#shadow)"/>
+
+  <text x="86" y="96" class="title">70天青甘完整核心 + 西部主线双司机均衡版路线图</text>
+  <text x="86" y="130" class="meta">当前版本改成更接近真实方位关系的示意图：重点看路线相对位置，不看精确公里测绘</text>
+
+  <!-- faint china-like silhouette -->
+  <path d="M280,200
+           C360,170 460,150 580,155
+           C710,160 830,185 930,175
+           C1040,165 1160,175 1260,215
+           C1330,245 1380,300 1380,365
+           C1380,430 1340,470 1310,525
+           C1280,575 1280,640 1240,700
+           C1195,770 1110,820 1010,845
+           C885,875 770,872 655,850
+           C560,832 490,788 435,750
+           C385,715 325,660 300,600
+           C270,530 250,465 250,395
+           C250,325 255,260 280,200 Z"
+        fill="#f8fafc" stroke="#e5e7eb" stroke-width="2"/>
+
+  <!-- route segments -->
+  <polyline points="1260,215 1110,235 945,270 770,325 640,380 585,455 640,520 760,525"
+            fill="none" stroke="#e74c3c" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="760,525 710,430 610,310 485,240 395,210 330,270"
+            fill="none" stroke="#f39c12" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="330,270 420,405 470,540 515,650"
+            fill="none" stroke="#d4a017" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="515,650 665,690 825,640 945,590 1055,565"
+            fill="none" stroke="#229954" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="1055,565 1090,620 1060,700 990,770"
+            fill="none" stroke="#2980b9" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="990,770 1095,740 1180,705 1240,630 1210,535 1185,430 1215,315 1260,215"
+            fill="none" stroke="#8B5E3C" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- nodes -->
+  <g fill="#fff" stroke="#0f172a" stroke-width="3.5">
+    <circle cx="1260" cy="215" r="9"/>
+    <circle cx="1110" cy="235" r="9"/>
+    <circle cx="945" cy="270" r="9"/>
+    <circle cx="770" cy="325" r="9"/>
+    <circle cx="640" cy="380" r="9"/>
+    <circle cx="585" cy="455" r="9"/>
+    <circle cx="640" cy="520" r="9"/>
+    <circle cx="760" cy="525" r="9"/>
+    <circle cx="710" cy="430" r="9"/>
+    <circle cx="610" cy="310" r="9"/>
+    <circle cx="485" cy="240" r="9"/>
+    <circle cx="395" cy="210" r="9"/>
+    <circle cx="330" cy="270" r="9"/>
+    <circle cx="420" cy="405" r="9"/>
+    <circle cx="470" cy="540" r="9"/>
+    <circle cx="515" cy="650" r="9"/>
+    <circle cx="665" cy="690" r="9"/>
+    <circle cx="825" cy="640" r="9"/>
+    <circle cx="945" cy="590" r="9"/>
+    <circle cx="1055" cy="565" r="9"/>
+    <circle cx="1090" cy="620" r="9"/>
+    <circle cx="1060" cy="700" r="9"/>
+    <circle cx="990" cy="770" r="9"/>
+    <circle cx="1095" cy="740" r="9"/>
+    <circle cx="1180" cy="705" r="9"/>
+    <circle cx="1240" cy="630" r="9"/>
+    <circle cx="1210" cy="535" r="9"/>
+    <circle cx="1185" cy="430" r="9"/>
+    <circle cx="1215" cy="315" r="9"/>
+  </g>
+
+  <!-- labels -->
+  <text x="1280" y="210" class="city">北京</text>
+  <text x="1080" y="222" class="minor">西安</text>
+  <text x="905" y="258" class="minor">张掖丹霞</text>
+  <text x="725" y="315" class="minor">青海湖北岸</text>
+  <text x="605" y="372" class="minor">茶卡</text>
+  <text x="530" y="447" class="minor">德令哈</text>
+  <text x="590" y="545" class="minor">大柴旦 / G315</text>
+  <text x="735" y="550" class="minor">敦煌 / 哈密</text>
+
+  <text x="670" y="420" class="minor">白哈巴 / 禾木</text>
+  <text x="560" y="300" class="minor">伊宁 / 赛里木湖</text>
+  <text x="435" y="228" class="minor">独库</text>
+  <text x="300" y="197" class="minor">库车</text>
+
+  <text x="350" y="398" class="minor">喀什 / 塔县</text>
+  <text x="430" y="565" class="minor">阿里</text>
+  <text x="470" y="675" class="minor">萨嘎 / 日喀则</text>
+
+  <text x="640" y="715" class="minor">拉萨</text>
+  <text x="800" y="632" class="minor">林芝 / 然乌</text>
+  <text x="930" y="580" class="minor">梅里 / 雨崩</text>
+  <text x="1070" y="562" class="minor">丽江</text>
+  <text x="1112" y="618" class="minor">亚丁 / 新都桥</text>
+  <text x="1072" y="720" class="minor">成都</text>
+  <text x="1185" y="695" class="minor">返程华北</text>
+  <text x="1220" y="522" class="minor">回到北京</text>
+
+  <!-- callouts -->
+  <rect x="92" y="170" width="230" height="110" rx="16" fill="#fff7ed" stroke="#fed7aa"/>
+  <text x="112" y="205" class="city" style="font-size:20px">青甘完整核心</text>
+  <text x="112" y="235" class="tiny">张掖丹霞 → G227 → 青海湖</text>
+  <text x="112" y="257" class="tiny">→ 茶卡 → 德令哈 → 大柴旦</text>
+  <text x="112" y="279" class="tiny">→ G315 → 敦煌 → 哈密</text>
+
+  <rect x="92" y="310" width="230" height="110" rx="16" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="112" y="345" class="city" style="font-size:20px">新疆主线</text>
+  <text x="112" y="375" class="tiny">白哈巴 / 禾木 → 赛里木湖</text>
+  <text x="112" y="397" class="tiny">→ 独库 → 喀什 / 帕米尔</text>
+
+  <rect x="92" y="450" width="230" height="128" rx="16" fill="#f0fdf4" stroke="#bbf7d0"/>
+  <text x="112" y="485" class="city" style="font-size:20px">西藏主线</text>
+  <text x="112" y="515" class="tiny">新藏线 G219 → 阿里 → 日喀则</text>
+  <text x="112" y="537" class="tiny">→ 拉萨 → 林芝 / 然乌</text>
+  <text x="112" y="559" class="tiny">城市景点压缩，把时间让给青甘</text>
+
+  <rect x="92" y="608" width="230" height="122" rx="16" fill="#ecfeff" stroke="#a5f3fc"/>
+  <text x="112" y="643" class="city" style="font-size:20px">云南 / 川西 / 返程</text>
+  <text x="112" y="673" class="tiny">梅里 / 雨崩 → 丽江 → 亚丁</text>
+  <text x="112" y="695" class="tiny">→ 成都 → 西安 → 北京</text>
+  <text x="112" y="717" class="tiny">保留徒步主菜，不深刷城市景点</text>
+
+  <!-- legend -->
+  <rect x="86" y="864" width="1428" height="54" rx="16" fill="#f8fafc" stroke="#e5e7eb"/>
+  <line x1="118" y1="891" x2="172" y2="891" stroke="#e74c3c" stroke-width="10" stroke-linecap="round"/>
+  <text x="184" y="897" class="legend">青甘完整核心</text>
+  <line x1="384" y1="891" x2="438" y2="891" stroke="#f39c12" stroke-width="10" stroke-linecap="round"/>
+  <text x="450" y="897" class="legend">北疆 / 独库</text>
+  <line x1="628" y1="891" x2="682" y2="891" stroke="#d4a017" stroke-width="10" stroke-linecap="round"/>
+  <text x="694" y="897" class="legend">喀什 / 阿里 / 日喀则</text>
+  <line x1="940" y1="891" x2="994" y2="891" stroke="#229954" stroke-width="10" stroke-linecap="round"/>
+  <text x="1006" y="897" class="legend">拉萨 / 林芝</text>
+  <line x1="1170" y1="891" x2="1224" y2="891" stroke="#2980b9" stroke-width="10" stroke-linecap="round"/>
+  <text x="1236" y="897" class="legend">滇藏 / 云南</text>
+  <line x1="1360" y1="891" x2="1414" y2="891" stroke="#8B5E3C" stroke-width="10" stroke-linecap="round"/>
+  <text x="1426" y="897" class="legend">川西 / 返程</text>
+</svg>

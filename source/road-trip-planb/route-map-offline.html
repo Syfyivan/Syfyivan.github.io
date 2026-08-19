@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan B · 川进滇出可缩放离线路线与地点地图</title>
+  <style>
+    :root{--bg:#f4f1ec;--card:#fff;--ink:#282522;--muted:#6d6761;--line:#e4ddd5;--accent:#c75b39;--accent-soft:#fff0e9;--shadow:0 14px 36px rgba(62,45,34,.10)}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif;background:var(--bg);color:var(--ink)}button,input{font:inherit}
+    .app{display:grid;grid-template-columns:360px minmax(0,1fr);height:100vh;min-height:680px;overflow:hidden}.sidebar{background:rgba(255,255,255,.97);border-right:1px solid var(--line);display:grid;grid-template-rows:auto auto auto 1fr;min-height:0;position:relative;z-index:5}
+    .brand{padding:20px 18px 14px;border-bottom:1px solid var(--line)}.brand-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand h1{font-size:19px;line-height:1.35;margin:0}.brand p{font-size:12px;color:var(--muted);line-height:1.6;margin:7px 0 0}.mode-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#edf4ff;color:#285ca8;padding:6px 9px;font-size:11px;font-weight:800;white-space:nowrap}.mode-dot{width:7px;height:7px;border-radius:50%;background:#367bd3;box-shadow:0 0 0 4px rgba(54,123,211,.12)}
+    .quick-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.quick-actions button,.quick-actions a{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:7px 11px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none}.quick-actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .search-wrap{padding:12px 18px 8px}.search{width:100%;border:1px solid var(--line);background:#faf8f5;border-radius:12px;padding:10px 12px;outline:none;font-size:13px}.search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(199,91,57,.11)}
+    .layers{padding:0 18px 12px;display:flex;gap:7px;flex-wrap:wrap;border-bottom:1px solid var(--line)}.layer-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px}.layer-chip::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--chip)}.layer-chip.active{color:var(--ink);border-color:var(--chip);box-shadow:0 0 0 2px color-mix(in srgb,var(--chip) 14%,transparent)}
+    .browser{min-height:0;display:grid;grid-template-rows:auto 1fr}.tabs{display:grid;grid-template-columns:1fr 1fr;padding:10px 18px 8px;gap:8px}.tab{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:800;color:var(--muted);cursor:pointer}.tab.active{background:var(--accent-soft);color:var(--accent);border-color:#efbea9}.list-panel{overflow:auto;padding:0 12px 18px}.list-panel[hidden]{display:none}.list{display:flex;flex-direction:column;gap:7px}.list-btn{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 11px;cursor:pointer;transition:.18s}.list-btn:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(60,45,34,.08)}.list-btn.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(199,91,57,.12)}.list-title{font-size:13px;font-weight:800;line-height:1.4;display:flex;align-items:flex-start;gap:7px}.idx,.poi-dot{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:900}.list-meta{font-size:11px;color:var(--muted);line-height:1.45;margin-top:5px;padding-left:29px}.empty{padding:24px 10px;text-align:center;color:var(--muted);font-size:13px}
+    .viewer{position:relative;min-width:0;height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:16px;gap:12px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.topbar h2{font-size:21px;margin:0}.topbar p{margin:4px 0 0;font-size:12px;color:var(--muted)}.stats{display:flex;gap:7px;flex-wrap:wrap}.stat{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:700;color:var(--muted)}
+    .map-shell{position:relative;min-height:0;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#edf4f8 0%,#f8f5ef 100%);box-shadow:var(--shadow)}#mapSvg{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none;user-select:none}#mapSvg.dragging{cursor:grabbing}.offline-controls{position:absolute;z-index:4;right:14px;top:14px;display:grid;gap:7px}.offline-controls button{width:38px;height:38px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.94);box-shadow:0 5px 14px rgba(0,0,0,.10);font-size:18px;font-weight:900;cursor:pointer;color:var(--ink)}.map-hint{position:absolute;left:14px;bottom:14px;z-index:2;background:rgba(38,35,32,.86);color:#fff;border-radius:10px;padding:8px 10px;font-size:11px;pointer-events:none;backdrop-filter:blur(8px)}
+    .china{fill:#fbfaf7;stroke:#cfc7bd;stroke-width:1.3;vector-effect:non-scaling-stroke}.geo-grid{stroke:#dbe2e5;stroke-width:1;stroke-dasharray:5 7;vector-effect:non-scaling-stroke}.grid-label{fill:#8a969c;font-size:11px}.detailed .grid-label{display:none}.route{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:7;opacity:.54;cursor:pointer;vector-effect:non-scaling-stroke}.route:hover{opacity:.9}.route.active{opacity:1;stroke-width:10}.route.dimmed{opacity:.05;stroke-width:4}.day-route{fill:none;stroke:#c75b39;stroke-width:6;stroke-dasharray:10 7;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.day-stop-circle{fill:#c75b39;stroke:#fff;stroke-width:2}.day-stop-text{fill:#fff;font-size:8px;font-weight:900;text-anchor:middle;dominant-baseline:central}.gps-circle{fill:#2563eb;stroke:#fff;stroke-width:3}.route-node-group,.road-label-group,.poi-group{cursor:pointer}.route-node{fill:#1f2937;stroke:#fff;stroke-width:2}.route-node-label{font-size:11px;font-weight:800;fill:#1f2937;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;display:none}.route-node-group:hover .route-node-label,.route-node-group.active .route-node-label{display:block}.road-label{font-size:11px;font-weight:900;fill:#7f3f28;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;display:none}.road-label.active{display:block}.poi-circle{stroke:#fff;stroke-width:2}.poi-short{fill:#fff;font-size:8px;font-weight:900;text-anchor:middle;dominant-baseline:central;pointer-events:none}.poi-label{display:none;font-size:11px;font-weight:800;fill:#27231f;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;pointer-events:none}.poi-group:hover .poi-label,.poi-group.selected .poi-label{display:block}.poi-group.selected .poi-circle{stroke:#1f2937;stroke-width:3}.detail{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 15px;display:grid;grid-template-columns:minmax(180px,.58fr) minmax(260px,1.42fr);gap:16px;align-items:center}.detail h3{margin:0;font-size:15px}.detail p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.55}.detail strong{color:var(--ink)}.detail-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.detail-actions a,.detail-actions button{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:6px 10px;text-decoration:none;font-size:11px;font-weight:800;cursor:pointer}.detail-actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .detail-actions .daybook-btn{background:var(--accent);border-color:var(--accent);color:#fff}
+    .daybook-modal{position:fixed;inset:0;z-index:100010;display:none}.daybook-modal.open{display:block}.daybook-backdrop{position:absolute;inset:0;background:rgba(30,26,22,.5);backdrop-filter:blur(2px)}
+    .daybook-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 32px));max-height:min(82vh,720px);overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(30,22,16,.32);padding:22px 22px 18px}
+    .daybook-close{position:absolute;top:12px;right:14px;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+    .db-head{margin-right:34px}.db-head strong{font-size:16px}.db-head span{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
+    .db-row{display:grid;grid-template-columns:84px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--line);align-items:start}.db-k{font-size:12px;font-weight:800;color:var(--accent)}.db-v{font-size:13px;line-height:1.6;color:var(--ink)}.db-v em{font-style:normal;color:var(--muted);font-size:12px}.db-v small{color:var(--muted)}.db-v a{color:#8b3f28;font-weight:700}.db-kitchen{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:#e9f8ef;color:#167345;font-size:11px;font-weight:800;vertical-align:middle}
+    .db-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.db-actions a{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:7px 12px;text-decoration:none;font-size:12px;font-weight:800}.db-actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    @media(max-width:900px){.app{display:flex;flex-direction:column;height:auto;min-height:100vh;overflow:visible}.viewer{order:1;height:64vh;min-height:440px;padding:10px}.sidebar{order:2;height:auto;max-height:none;border-right:0;border-top:1px solid var(--line)}.brand{padding:14px}.search-wrap,.layers{padding-left:14px;padding-right:14px}.list-panel{max-height:58vh}.detail{grid-template-columns:1fr}.map-hint{display:none}.route-node-label{display:none!important}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-row"><h1>Plan B · 川进滇出离线路线与地点</h1><span class="mode-badge"><span class="mode-dot"></span>可离线</span></div>
+        <p>主干导航折线、D1—D36路书和全部规划地点都已内置；可离线缩放、拖动、定位和按天筛选。</p>
+        <div class="quick-actions"><button id="showAllBtn" class="primary" type="button">查看全程</button><button id="locateBtn" type="button">定位我</button><a href="./route-map-amap.html?v=14">切到在线高德</a><a href="./route-roadbook.html?v=14" target="_blank" rel="noopener">完整路书</a><a href="./index.html#overview" target="_blank" rel="noopener">返回攻略</a></div>
+      </div>
+      <div class="search-wrap"><input id="searchInput" class="search" type="search" placeholder="搜索住宿、景点、补给或路段" aria-label="搜索离线地图地点"></div>
+      <div id="layerChips" class="layers" aria-label="地点图层"></div>
+      <div class="browser">
+        <div class="tabs"><button class="tab active" data-panel="routes" type="button">D1—D36逐日路线</button><button class="tab" data-panel="places" type="button">地点清单 <span id="poiCount"></span></button></div>
+        <div id="routePanel" class="list-panel"><div id="dayList" class="list"></div></div>
+        <div id="placePanel" class="list-panel" hidden><div id="poiList" class="list"></div></div>
+      </div>
+    </aside>
+    <main class="viewer">
+      <div class="topbar">
+        <div><h2 id="pageTitle">全程路线</h2><p id="pageSub">滚轮缩放、按住拖动；点路段或地点会自动聚焦。</p></div>
+        <div class="stats"><span class="stat" id="statDays"></span><span class="stat" id="statPois"></span><span class="stat" id="offlineStatus">离线数据已内置</span></div>
+      </div>
+      <div class="map-shell" id="mapShell">
+        <svg id="mapSvg" viewBox="0 0 1600 980" aria-label="Plan B 川进滇出可缩放离线路线图"></svg>
+        <div class="offline-controls"><button id="zoomInBtn" type="button" aria-label="放大">＋</button><button id="zoomOutBtn" type="button" aria-label="缩小">−</button><button id="resetBtn" type="button" aria-label="回到全程">⌂</button></div>
+        <div class="map-hint">滚轮缩放 · 抓手拖动 · 点图标看名称</div>
+      </div>
+      <div class="detail"><div><h3 id="detailTitle">全程路线</h3><p id="detailMeta">36天 · 主计划约8,980km</p></div><div><p id="detailText">选择任意一天后会高亮对应主干路段、停靠点和当日风险提示。</p><div id="detailActions" class="detail-actions"></div></div></div>
+    </main>
+  </div>
+  <div id="dayBookModal" class="daybook-modal" aria-hidden="true">
+    <div class="daybook-backdrop" onclick="closeDayBook()"></div>
+    <div class="daybook-card" role="dialog" aria-modal="true" aria-label="当天路书">
+      <button type="button" class="daybook-close" onclick="closeDayBook()" aria-label="关闭">×</button>
+      <div id="dayBookBody" class="daybook-body"></div>
+    </div>
+  </div>
+  <script src="./assets/route_segments_amap.js"></script>
+  <script src="./assets/route_map_pois.js"></script>
+  <script src="./assets/road_trip_days.js"></script>
+  <script src="./assets/road_trip_daily_detail.js"></script>
+  <script src="./assets/road_trip_meals.js"></script>
+  <script src="./assets/road_trip_costs.js"></script>
+  <script>
+    const ROUTE = window.ROAD_TRIP_ROUTE_DATA;
+    const PLACES = window.ROAD_TRIP_POI_DATA;
+    const DAILY = window.ROAD_TRIP_DAY_DATA;
+    const MEALS = window.ROAD_TRIP_MEAL_DATA;
+    const COSTS = window.ROAD_TRIP_COST_DATA;
+    const mealByDay = new Map((MEALS && MEALS.meals || []).map(m => [m.day, m]));
+    const costByDay = new Map((COSTS && COSTS.items || []).map(c => [c.day, c]));
+    const stayById = new Map(PLACES.pois.filter(p => p.category === 'stay').map(p => [p.id, p]));
+    const categories = PLACES.categories;
+    // 当天景点/吃饭/住宿：住宿按 stayId 精确匹配，景点与吃饭点按坐标就近匹配，不臆造数据。
+    function poisForDay(day) {
+      const result = []; const seen = new Set();
+      if (day.stayId) { const stay = stayById.get(day.stayId); if (stay) { result.push(stay); seen.add(stay.id); } }
+      const near = (poi) => day.points.some(pt => Math.hypot(poi.lng - pt.lng, poi.lat - pt.lat) <= 0.4);
+      PLACES.pois.forEach(poi => {
+        if (seen.has(poi.id)) return;
+        if ((poi.category === 'scenic' || poi.category === 'food') && near(poi)) { result.push(poi); seen.add(poi.id); }
+      });
+      return result;
+    }
+    const svg = document.getElementById('mapSvg');
+    const dayList = document.getElementById('dayList');
+    const poiList = document.getElementById('poiList');
+    const searchInput = document.getElementById('searchInput');
+    const layerChips = document.getElementById('layerChips');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageSub = document.getElementById('pageSub');
+    const detailTitle = document.getElementById('detailTitle');
+    const detailMeta = document.getElementById('detailMeta');
+    const detailText = document.getElementById('detailText');
+    const detailActions = document.getElementById('detailActions');
+    const dayBookModal = document.getElementById('dayBookModal');
+    const dayBookBody = document.getElementById('dayBookBody');
+    const visibleCategories = new Set(Object.entries(categories).filter(([, value]) => value.defaultVisible).map(([key]) => key));
+    const routeEls = new Map();
+    const routeNodeEls = new Map();
+    const poiEls = new Map();
+    const scaledSymbols = [];
+    const totalKm = ROUTE.segments.reduce((sum, seg) => sum + seg.lengthKm, 0);
+    const defaultView = { x: 0, y: 0, w: ROUTE.meta.width, h: ROUTE.meta.height };
+    let view = { ...defaultView };
+    let activeSegmentId = '';
+    let activeDayId = '';
+    let activePoiId = '';
+    let dayRouteGroup = null;
+    let gpsGroup = null;
+
+    document.getElementById('statDays').textContent = `${DAILY.days.length}天 · ${DAILY.meta.plannedDrivingKm.toLocaleString()}km`;
+    document.getElementById('statPois').textContent = `离线地点 ${PLACES.pois.length} 个`;
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    }
+    const formatDate = value => `${Number(value.slice(5, 7))}月${Number(value.slice(8, 10))}日`;
+    const typeColor = type => ({ drive:'#c75b39', mixed:'#b45309', hike:'#059669', rest:'#64748b', local:'#2563eb', service:'#7c3aed' }[type] || '#64748b');
+    function segmentsForDay(day) {
+      if (!day.distanceKm && day.type !== 'local') {
+        // 停留日（亚丁徒步/休整/保养）仍按所在路段高亮背景
+        const n0 = day.day;
+        if (n0 >= 8 && n0 <= 10) return ['seg-04'];
+        if (n0 === 15) return ['seg-06'];
+        if (n0 >= 18 && n0 <= 20) return ['seg-06'];
+        if (n0 === 29) return ['seg-08'];
+        if (n0 === 32) return ['seg-09'];
+        return [];
+      }
+      const dayNumber = day.day;
+      // Plan B 川进滇出：36 天映射到 10 段骨架
+      if (dayNumber <= 2) return ['seg-01'];   // 北京→平遥→西安
+      if (dayNumber <= 4) return ['seg-02'];   // 西安→广元→成都
+      if (dayNumber === 5) return ['seg-03'];  // 成都→新都桥
+      if (dayNumber <= 10) return ['seg-04'];  // 新都桥→理塘→稻城亚丁往返
+      if (dayNumber <= 13) return ['seg-05'];  // 理塘→巴塘→左贡→八宿
+      if (dayNumber <= 20) return ['seg-06'];  // 八宿→波密→林芝→拉萨 + 拉萨恢复
+      if (dayNumber <= 24) return ['seg-07'];  // 拉萨反向回芒康
+      if (dayNumber <= 29) return ['seg-08'];  // 芒康→德钦→香格里拉→丽江
+      if (dayNumber <= 32) return ['seg-09'];  // 丽江→西昌→成都
+      return ['seg-10'];                        // 成都→西安→平遥→北京
+    }
+
+    function mk(tag, attrs = {}, parent = svg) {
+      const element = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      Object.entries(attrs).forEach(([key, value]) => element.setAttribute(key, value));
+      parent.appendChild(element);
+      return element;
+    }
+
+    const xNodeA = ROUTE.nodes[0];
+    const xNodeB = ROUTE.nodes.find(node => Math.abs(node.lng - xNodeA.lng) > 10);
+    const yNodeB = ROUTE.nodes.find(node => Math.abs(node.lat - xNodeA.lat) > 5);
+    const xScale = (xNodeB.x - xNodeA.x) / (xNodeB.lng - xNodeA.lng);
+    const yScale = (yNodeB.y - xNodeA.y) / (yNodeB.lat - xNodeA.lat);
+    function project(lng, lat) { return { x: xNodeA.x + (lng - xNodeA.lng) * xScale, y: xNodeA.y + (lat - xNodeA.lat) * yScale }; }
+
+    function setView(next) {
+      const minW = 28;
+      const aspect = Math.max(.5, svg.clientWidth / Math.max(1, svg.clientHeight));
+      let w = Math.max(minW, Math.min(ROUTE.meta.width, next.w));
+      let h = w / aspect;
+      if (h > ROUTE.meta.height) { h = ROUTE.meta.height; w = h * aspect; }
+      let x = Math.max(0, Math.min(ROUTE.meta.width - w, next.x));
+      let y = Math.max(0, Math.min(ROUTE.meta.height - h, next.y));
+      view = { x, y, w, h };
+      svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+      svg.classList.toggle('detailed', w < 520);
+      updateSymbolScale();
+    }
+
+    function registerScaledSymbol(element) {
+      scaledSymbols.push(element);
+      return element;
+    }
+
+    function updateSymbolScale() {
+      const screenWidth = Math.max(320, svg.clientWidth || 0);
+      const scale = Math.max(.12, Math.min(6, 10 * view.w / (9 * screenWidth)));
+      scaledSymbols.forEach(element => element.setAttribute('transform', `scale(${scale})`));
+    }
+
+    function fitBounds(bounds, padding = 45) {
+      const shellAspect = Math.max(.5, svg.clientWidth / Math.max(1, svg.clientHeight));
+      let w = Math.max(70, bounds.maxX - bounds.minX + padding * 2);
+      let h = Math.max(50, bounds.maxY - bounds.minY + padding * 2);
+      if (w / h < shellAspect) w = h * shellAspect; else h = w / shellAspect;
+      setView({ x: (bounds.minX + bounds.maxX - w) / 2, y: (bounds.minY + bounds.maxY - h) / 2, w, h });
+    }
+
+    function zoomAt(clientX, clientY, factor) {
+      const rect = svg.getBoundingClientRect();
+      const rx = (clientX - rect.left) / rect.width;
+      const ry = (clientY - rect.top) / rect.height;
+      const nextW = view.w * factor;
+      const nextH = view.h * factor;
+      setView({ x: view.x + view.w * rx - nextW * rx, y: view.y + view.h * ry - nextH * ry, w: nextW, h: nextH });
+    }
+
+    const gridLayer = mk('g');
+    for (let lng = 75; lng <= 115; lng += 5) {
+      const top = project(lng, 50); const bottom = project(lng, 25);
+      mk('line', { x1: top.x, y1: top.y, x2: bottom.x, y2: bottom.y, class: 'geo-grid' }, gridLayer);
+      const label = mk('text', { x: bottom.x + 4, y: bottom.y - 5, class: 'grid-label' }, gridLayer); label.textContent = `${lng}°E`;
+    }
+    for (let lat = 30; lat <= 45; lat += 5) {
+      const left = project(70, lat); const right = project(120, lat);
+      mk('line', { x1: left.x, y1: left.y, x2: right.x, y2: right.y, class: 'geo-grid' }, gridLayer);
+      const label = mk('text', { x: right.x - 35, y: right.y - 5, class: 'grid-label' }, gridLayer); label.textContent = `${lat}°N`;
+    }
+
+    const outlineLayer = mk('g');
+    ROUTE.outlinePaths.forEach(path => mk('path', { d: path, class: 'china' }, outlineLayer));
+    const routeLayer = mk('g');
+    const roadLabelLayer = mk('g');
+    ROUTE.segments.forEach(seg => {
+      const points = seg.projected.map(([x, y]) => `${x},${y}`).join(' ');
+      const polyline = mk('polyline', { points, class: 'route', stroke: seg.color, 'data-id': seg.id }, routeLayer);
+      polyline.addEventListener('click', event => { event.stopPropagation(); selectSegment(seg.id); });
+      routeEls.set(seg.id, polyline);
+      const middle = seg.projected[Math.floor(seg.projected.length / 2)];
+      const roadGroup = mk('g', { class: 'road-label-group', transform: `translate(${middle[0]} ${middle[1]})` }, roadLabelLayer);
+      const roadSymbol = registerScaledSymbol(mk('g', {}, roadGroup));
+      const road = mk('text', { x: 8, y: -8, class: 'road-label', 'data-id': seg.id }, roadSymbol);
+      road.textContent = (PLACES.segmentNotes[seg.id] || {}).roads || seg.group;
+    });
+
+    const nodeLayer = mk('g');
+    const seenNodes = new Set();
+    ROUTE.segments.forEach(seg => [seg.from, seg.to].forEach(point => {
+      if (seenNodes.has(point.name)) return;
+      seenNodes.add(point.name);
+      const p = project(point.lng, point.lat);
+      const group = mk('g', { class: 'route-node-group', transform: `translate(${p.x} ${p.y})`, 'data-name': point.name }, nodeLayer);
+      const symbol = registerScaledSymbol(mk('g', {}, group));
+      mk('circle', { cx: 0, cy: 0, r: 5.5, class: 'route-node' }, symbol);
+      const label = mk('text', { x: 9, y: -8, class: 'route-node-label' }, symbol); label.textContent = point.name;
+      routeNodeEls.set(point.name, group);
+    }));
+
+    const poiLayer = mk('g');
+    PLACES.pois.forEach(poi => {
+      const category = categories[poi.category];
+      const p = project(poi.lng, poi.lat);
+      const group = mk('g', { class: 'poi-group', transform: `translate(${p.x} ${p.y})`, 'data-id': poi.id, 'data-category': poi.category }, poiLayer);
+      const symbol = registerScaledSymbol(mk('g', {}, group));
+      mk('circle', { cx: 0, cy: 0, r: 9, fill: category.color, class: 'poi-circle' }, symbol);
+      const short = mk('text', { x: 0, y: .5, class: 'poi-short' }, symbol); short.textContent = category.short;
+      const label = mk('text', { x: 13, y: 4, class: 'poi-label' }, symbol); label.textContent = poi.name;
+      group.addEventListener('click', event => { event.stopPropagation(); focusPoi(poi.id); });
+      poiEls.set(poi.id, group);
+    });
+
+    function renderLayers() {
+      layerChips.innerHTML = '';
+      Object.entries(categories).forEach(([key, category]) => {
+        const count = PLACES.pois.filter(poi => poi.category === key).length;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `layer-chip${visibleCategories.has(key) ? ' active' : ''}`;
+        button.style.setProperty('--chip', category.color);
+        button.dataset.category = key;
+        button.textContent = `${category.label} ${count}`;
+        button.addEventListener('click', () => toggleCategory(key));
+        layerChips.appendChild(button);
+      });
+    }
+
+    function toggleCategory(category, forceOn) {
+      const shouldShow = forceOn === true || !visibleCategories.has(category);
+      if (shouldShow) visibleCategories.add(category); else visibleCategories.delete(category);
+      document.querySelectorAll('.layer-chip').forEach(button => button.classList.toggle('active', visibleCategories.has(button.dataset.category)));
+      updatePoiVisibility();
+      renderPoiList();
+    }
+
+    function updatePoiVisibility() {
+      poiEls.forEach((element, id) => {
+        const poi = PLACES.pois.find(item => item.id === id);
+        element.style.display = poi && visibleCategories.has(poi.category) ? '' : 'none';
+      });
+    }
+
+    // 聚焦单天时只留当天专属标注：隐藏全部 POI 与城市节点，避免同一坐标多层图标叠在一起
+    function hideGlobalMarkers() {
+      poiEls.forEach(element => { element.style.display = 'none'; });
+      routeNodeEls.forEach(element => { element.style.display = 'none'; });
+    }
+    function showGlobalMarkers() {
+      routeNodeEls.forEach(element => { element.style.display = ''; });
+      updatePoiVisibility();
+    }
+
+    function activateDayButton(id) { document.querySelectorAll('.day-btn').forEach(button => button.classList.toggle('active', button.dataset.id === id)); }
+    function activatePoiButton(id) { document.querySelectorAll('.poi-btn').forEach(button => button.classList.toggle('active', button.dataset.id === id)); }
+
+    function renderDayList() {
+      const query = searchInput.value.trim().toLowerCase();
+      dayList.innerHTML = '';
+      DAILY.days.filter(day => !query || `${day.id} ${day.date} ${day.title} ${day.roads} ${day.critical}`.toLowerCase().includes(query)).forEach(day => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'list-btn day-btn'; button.dataset.id = day.id;
+        const km = day.distanceKm ? `约${day.distanceKm}km` : DAILY.typeLabels[day.type];
+        button.innerHTML = `<div class="list-title"><span class="idx" style="background:${typeColor(day.type)}">${day.id}</span><span>${escapeHtml(day.title)}</span></div><div class="list-meta">${formatDate(day.date)} · ${escapeHtml(day.roads)} · ${km}</div>`;
+        button.addEventListener('click', () => selectDay(day.id)); dayList.appendChild(button);
+      });
+      if (!dayList.children.length) dayList.innerHTML = '<div class="empty">没有匹配的日期或路线</div>';
+      activateDayButton(activeDayId);
+    }
+
+    function filteredPois() {
+      const query = searchInput.value.trim().toLowerCase();
+      return PLACES.pois.filter(poi => visibleCategories.has(poi.category) && (!query || `${poi.name} ${poi.area} ${poi.note} ${categories[poi.category].label}`.toLowerCase().includes(query)));
+    }
+
+    function renderPoiList() {
+      const result = filteredPois();
+      document.getElementById('poiCount').textContent = `(${result.length})`;
+      poiList.innerHTML = '';
+      result.forEach(poi => {
+        const category = categories[poi.category];
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'list-btn poi-btn'; button.dataset.id = poi.id;
+        button.innerHTML = `<div class="list-title"><span class="poi-dot" style="background:${category.color}">${category.short}</span><span>${escapeHtml(poi.name)}</span></div><div class="list-meta">${escapeHtml(category.label)} · ${escapeHtml(poi.area)}</div>`;
+        button.addEventListener('click', () => focusPoi(poi.id)); poiList.appendChild(button);
+      });
+      if (!result.length) poiList.innerHTML = '<div class="empty">打开更多图层，或换一个关键词</div>';
+      activatePoiButton(activePoiId);
+    }
+
+    function clearDayRoute() {
+      if (dayRouteGroup) { dayRouteGroup.remove(); dayRouteGroup = null; }
+    }
+
+    function showAll() {
+      activeSegmentId = ''; activeDayId = ''; activePoiId = ''; clearDayRoute();
+      routeEls.forEach(element => { element.classList.remove('active', 'dimmed'); });
+      document.querySelectorAll('.road-label').forEach(label => label.classList.remove('active'));
+      routeNodeEls.forEach(element => element.classList.remove('active'));
+      poiEls.forEach(element => element.classList.remove('selected'));
+      showGlobalMarkers();
+      setView({ ...defaultView });
+      activateDayButton(''); activatePoiButton('');
+      pageTitle.textContent = '全程路线'; pageSub.textContent = '滚轮缩放、按住拖动；点路段或地点会自动聚焦。';
+      detailTitle.textContent = '全程路线'; detailMeta.textContent = `${DAILY.days.length}天 · 主计划约${DAILY.meta.plannedDrivingKm.toLocaleString()}km · 预算里程${DAILY.meta.budgetMileageKm.toLocaleString()}km`;
+      detailText.textContent = '离线版已内置主干导航折线、D1—D36停靠点、住宿、景点、吃饭、采购、厕所与救援参考点。选择某天后只高亮当天相关路线。';
+      detailActions.innerHTML = '<a class="primary" href="./route-roadbook.html?v=14" target="_blank" rel="noopener">打开D1—D36完整路书</a>';
+      window.parent.postMessage({ type: 'route-map-state', mode: 'offline', day: 0 }, '*');
+    }
+
+    function selectSegment(id) {
+      const seg = ROUTE.segments.find(item => item.id === id);
+      if (!seg) return;
+      const note = PLACES.segmentNotes[id] || {};
+      activeSegmentId = id; activeDayId = ''; activePoiId = ''; clearDayRoute();
+      routeEls.forEach((element, segId) => { element.classList.toggle('active', segId === id); element.classList.toggle('dimmed', segId !== id); });
+      document.querySelectorAll('.road-label').forEach(label => label.classList.toggle('active', label.dataset.id === id));
+      routeNodeEls.forEach((element, name) => element.classList.toggle('active', name === seg.from.name || name === seg.to.name));
+      poiEls.forEach(element => element.classList.remove('selected'));
+      showGlobalMarkers();
+      fitBounds(seg.bounds, 55);
+      activateDayButton(''); activatePoiButton('');
+      pageTitle.textContent = seg.title; pageSub.textContent = `${note.roads || seg.group} · 约 ${seg.lengthKm} km`;
+      detailTitle.textContent = seg.title; detailMeta.innerHTML = `<strong>${escapeHtml(note.roads || seg.group)}</strong> · ${seg.lengthKm} km · 路线点 ${seg.displayPointCount}`;
+      detailText.textContent = note.note || `第 ${seg.index} 段真实导航折线。`;
+      detailActions.innerHTML = '';
+      window.parent.postMessage({ type: 'route-map-state', mode: 'offline', segment: id }, '*');
+    }
+
+    const yuan = range => (!range || (!range[0] && !range[1])) ? '—' : (range[0] === range[1] ? `${range[0]}元` : `${range[0]}–${range[1]}元`);
+    function openDayBook(dayNum) {
+      const day = DAILY.days.find(item => item.day === dayNum); if (!day) return;
+      const meal = mealByDay.get(dayNum); const cost = costByDay.get(dayNum); const stay = day.stayId ? stayById.get(day.stayId) : null;
+      const stops = day.points.map((p, i) => `${i + 1}. ${escapeHtml(p.name)}`).join('　→　');
+      let mealHtml = '';
+      if (meal) {
+        mealHtml = `
+          <div class="db-row"><span class="db-k">早餐</span><span class="db-v">${escapeHtml(meal.breakfast.plan)}<em>（约${yuan(meal.breakfast.perPax)}/人）</em></span></div>
+          <div class="db-row"><span class="db-k">午餐</span><span class="db-v">${escapeHtml(meal.lunch.plan)}<em>（约${yuan(meal.lunch.perPax)}/人）</em>${meal.lunch.where ? `<br><small style="color:#c75b39">在哪吃：${escapeHtml(meal.lunch.where)}</small>` : ''}${meal.lunch.backup ? `<br><small>备选：${escapeHtml(meal.lunch.backup)}</small>` : ''}</span></div>
+          <div class="db-row"><span class="db-k">晚餐 · ${escapeHtml(meal.dinner.label)}</span><span class="db-v">${escapeHtml(meal.dinner.plan)}<em>（4人约${yuan(meal.dinner.party4)}）</em>${meal.dinner.where ? `<br><small style="color:#c75b39">在哪吃：${escapeHtml(meal.dinner.where)}</small>` : ''}</span></div>
+          ${meal.carry ? `<div class="db-row"><span class="db-k">自带食材 · 怎么带</span><span class="db-v">${escapeHtml(meal.carry)}<br><small><a href="./index.html#food-plan" target="_blank" rel="noopener">买 / 冻 / 做 / 带完整方案 →</a></small></span></div>` : ''}`;
+      }
+      let stayHtml = '';
+      if (stay) {
+        const price = stay.priceParty4 ? `<em>（4人当晚约${yuan(stay.priceParty4)}）</em>` : '';
+        const link = stay.bookingUrl || stay.sourceUrl;
+        const hasKitchen = /厨|整套|做饭/.test(stay.note || '') && !/无需厨房|非自炊/.test(stay.note || '');
+        const kitchenTag = hasKitchen ? '<span class="db-kitchen">可做饭</span>' : '';
+        stayHtml = `<div class="db-row"><span class="db-k">住宿</span><span class="db-v">${link ? `<a target="_blank" rel="noopener" href="${link}">${escapeHtml(stay.name)}</a>` : escapeHtml(stay.name)}${kitchenTag}${price}${stay.note ? `<br><small>${escapeHtml(stay.note)}</small>` : ''}</span></div>`;
+      }
+      const dayPois = poisForDay(day);
+      const scenics = dayPois.filter(p => p.category === 'scenic');
+      const foods = dayPois.filter(p => p.category === 'food');
+      let poiHtml = '';
+      if (scenics.length) poiHtml += `<div class="db-row"><span class="db-k">景点</span><span class="db-v">${scenics.map(p => escapeHtml(p.name)).join('、')}</span></div>`;
+      if (foods.length) poiHtml += `<div class="db-row"><span class="db-k">吃饭区</span><span class="db-v">${foods.map(p => escapeHtml(p.name)).join('、')}</span></div>`;
+      let costHtml = '';
+      if (cost) {
+        const tickets = (cost.tickets || []).map(t => `${escapeHtml(t.name)} ${yuan(t.party4)}`).join('；');
+        costHtml = `
+          <div class="db-row"><span class="db-k">油+过路</span><span class="db-v">4人约${yuan(cost.fuelToll)}</span></div>
+          ${tickets ? `<div class="db-row"><span class="db-k">门票/接驳</span><span class="db-v">${tickets}</span></div>` : ''}`;
+      }
+      dayBookBody.innerHTML = `
+        <div class="db-head"><strong>${day.id} · ${escapeHtml(day.title)}</strong><span>${formatDate(day.date)} · ${DAILY.typeLabels[day.type]} · ${day.distanceKm ? `计划约${day.distanceKm}km` : escapeHtml(day.roads)}</span></div>
+        <div class="db-row"><span class="db-k">路线</span><span class="db-v">${escapeHtml(day.roads)}</span></div>
+        <div class="db-row"><span class="db-k">停靠</span><span class="db-v">${stops}</span></div>
+        ${meal && meal.todo ? `<div class="db-row"><span class="db-k">今日安排</span><span class="db-v">${escapeHtml(meal.todo)}</span></div>` : ''}
+        ${day.critical ? `<div class="db-row"><span class="db-k">当天要点</span><span class="db-v">${escapeHtml(day.critical)}</span></div>` : ''}
+        ${poiHtml}
+        ${mealHtml}
+        ${stayHtml}
+        ${costHtml}
+        <div class="db-actions">
+          <a href="./route-roadbook.html?day=${day.day}" target="_blank" rel="noopener">在完整路书里看这一天</a>
+          <button type="button" onclick="window.print()">打印/存PDF</button>
+        </div>`;
+      dayBookModal.classList.add('open'); dayBookModal.setAttribute('aria-hidden', 'false');
+    }
+    function closeDayBook() { dayBookModal.classList.remove('open'); dayBookModal.setAttribute('aria-hidden', 'true'); }
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeDayBook(); });
+
+    function selectDay(id) {
+      const day = DAILY.days.find(item => item.id === id);
+      if (!day) return;
+      activeDayId = id; activeSegmentId = ''; activePoiId = ''; clearDayRoute();
+      const related = new Set(segmentsForDay(day));
+      routeEls.forEach((element, segId) => { element.classList.toggle('active', related.has(segId)); element.classList.toggle('dimmed', !related.has(segId)); });
+      document.querySelectorAll('.road-label').forEach(label => label.classList.toggle('active', related.has(label.dataset.id)));
+      routeNodeEls.forEach(element => element.classList.remove('active'));
+      poiEls.forEach(element => element.classList.remove('selected'));
+      hideGlobalMarkers();
+      dayRouteGroup = mk('g', { 'data-day': day.id });
+      const projected = day.points.map(point => project(point.lng, point.lat));
+      if (projected.length > 1) mk('polyline', { points: projected.map(p => `${p.x},${p.y}`).join(' '), class: 'day-route' }, dayRouteGroup);
+      projected.forEach((p, index) => {
+        const group = mk('g', { transform: `translate(${p.x} ${p.y})` }, dayRouteGroup);
+        const symbol = registerScaledSymbol(mk('g', {}, group));
+        mk('circle', { cx: 0, cy: 0, r: 8, class: 'day-stop-circle' }, symbol);
+        const text = mk('text', { x: 0, y: .5, class: 'day-stop-text' }, symbol); text.textContent = index + 1;
+      });
+      // 高亮当天景点/吃饭/住宿：即使对应图层被关掉，也临时显示并标记 selected，便于一眼看清
+      const dayPois = poisForDay(day); const dayPoiXs = []; const dayPoiYs = [];
+      dayPois.forEach(poi => {
+        const element = poiEls.get(poi.id); if (element) { element.style.display = ''; element.classList.add('selected'); }
+        const pp = project(poi.lng, poi.lat); dayPoiXs.push(pp.x); dayPoiYs.push(pp.y);
+      });
+      const xs = projected.map(p => p.x).concat(dayPoiXs); const ys = projected.map(p => p.y).concat(dayPoiYs);
+      fitBounds({ minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) }, projected.length > 1 ? 70 : 100);
+      activateDayButton(id); activatePoiButton('');
+      pageTitle.textContent = `${day.id} · ${day.title}`;
+      pageSub.textContent = `${formatDate(day.date)} · ${DAILY.typeLabels[day.type]} · ${day.distanceKm ? `约${day.distanceKm}km` : day.roads}`;
+      detailTitle.textContent = `${day.id} 当前执行`; detailMeta.innerHTML = `<strong>${escapeHtml(day.roads)}</strong> · ${day.distanceKm ? `计划约${day.distanceKm}km` : DAILY.typeLabels[day.type]}`;
+      detailText.textContent = day.critical; detailActions.innerHTML = `<button type="button" class="daybook-btn" onclick="openDayBook(${day.day})">看当天路书</button><button type="button" onclick="window.print()">打印/存PDF</button>`;
+      renderDayList(); renderPoiList(); updateSymbolScale();
+      window.parent.postMessage({ type: 'route-map-state', mode: 'offline', day: day.day }, '*');
+    }
+
+    function focusPoi(id) {
+      const poi = PLACES.pois.find(item => item.id === id);
+      if (!poi) return;
+      if (!visibleCategories.has(poi.category)) toggleCategory(poi.category, true);
+      activePoiId = id; activeDayId = ''; activeSegmentId = ''; clearDayRoute();
+      routeEls.forEach(element => element.classList.remove('active', 'dimmed'));
+      document.querySelectorAll('.road-label').forEach(label => label.classList.remove('active'));
+      routeNodeEls.forEach(element => element.classList.remove('active'));
+      showGlobalMarkers();
+      poiEls.forEach((element, poiId) => element.classList.toggle('selected', poiId === id));
+      const p = project(poi.lng, poi.lat);
+      setView({ x: p.x - 90, y: p.y - 55, w: 180, h: 110 });
+      activateDayButton(''); activatePoiButton(id);
+      const category = categories[poi.category];
+      pageTitle.textContent = poi.name; pageSub.textContent = `${category.label} · ${poi.area}`;
+      detailTitle.textContent = poi.name; detailMeta.textContent = `${category.label} · ${poi.area}`; detailText.textContent = poi.note;
+      detailActions.innerHTML = poi.bookingUrl ? `<a class="primary" target="_blank" rel="noopener" href="${escapeHtml(poi.bookingUrl)}">联网后查房型/实时价</a>` : '';
+      window.parent.postMessage({ type: 'route-map-state', mode: 'offline', poi: id }, '*');
+    }
+
+    svg.addEventListener('wheel', event => { event.preventDefault(); zoomAt(event.clientX, event.clientY, event.deltaY > 0 ? 1.22 : .82); }, { passive: false });
+    const pointers = new Map();
+    let gesture = null;
+    function pointerCenter(values) { return { x: (values[0].x + values[1].x) / 2, y: (values[0].y + values[1].y) / 2 }; }
+    function pointerDistance(values) { return Math.hypot(values[0].x - values[1].x, values[0].y - values[1].y); }
+    svg.addEventListener('pointerdown', event => {
+      svg.setPointerCapture(event.pointerId); pointers.set(event.pointerId, { x: event.clientX, y: event.clientY }); svg.classList.add('dragging');
+      const values = [...pointers.values()];
+      gesture = values.length === 1 ? { type: 'drag', start: values[0], view: { ...view } } : { type: 'pinch', distance: pointerDistance(values), center: pointerCenter(values), view: { ...view } };
+    });
+    svg.addEventListener('pointermove', event => {
+      if (!pointers.has(event.pointerId) || !gesture) return;
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      const values = [...pointers.values()];
+      const rect = svg.getBoundingClientRect();
+      if (values.length === 1 && gesture.type === 'drag') {
+        const dx = values[0].x - gesture.start.x; const dy = values[0].y - gesture.start.y;
+        setView({ x: gesture.view.x - dx * gesture.view.w / rect.width, y: gesture.view.y - dy * gesture.view.h / rect.height, w: gesture.view.w, h: gesture.view.h });
+      } else if (values.length >= 2) {
+        if (gesture.type !== 'pinch') gesture = { type: 'pinch', distance: pointerDistance(values), center: pointerCenter(values), view: { ...view } };
+        const center = pointerCenter(values); const factor = gesture.distance / Math.max(20, pointerDistance(values));
+        const rx = (center.x - rect.left) / rect.width; const ry = (center.y - rect.top) / rect.height;
+        const nextW = gesture.view.w * factor; const nextH = gesture.view.h * factor;
+        setView({ x: gesture.view.x + gesture.view.w * rx - nextW * rx, y: gesture.view.y + gesture.view.h * ry - nextH * ry, w: nextW, h: nextH });
+      }
+    });
+    function endPointer(event) {
+      pointers.delete(event.pointerId);
+      if (!pointers.size) { gesture = null; svg.classList.remove('dragging'); return; }
+      const values = [...pointers.values()]; gesture = { type: 'drag', start: values[0], view: { ...view } };
+    }
+    svg.addEventListener('pointerup', endPointer); svg.addEventListener('pointercancel', endPointer);
+
+    function locateMe() {
+      if (!navigator.geolocation) { detailText.textContent = '当前浏览器不支持定位；离线地图与路书仍可使用。'; return; }
+      navigator.geolocation.getCurrentPosition(position => {
+        const p = project(position.coords.longitude, position.coords.latitude);
+        if (gpsGroup) gpsGroup.remove();
+        gpsGroup = mk('g', { transform: `translate(${p.x} ${p.y})` });
+        const symbol = registerScaledSymbol(mk('g', {}, gpsGroup));
+        mk('circle', { cx: 0, cy: 0, r: 9, class: 'gps-circle' }, symbol);
+        setView({ x: p.x - 95, y: p.y - 60, w: 190, h: 120 });
+        pageTitle.textContent = '我的位置'; pageSub.textContent = `定位精度约 ${Math.round(position.coords.accuracy)} 米`;
+        detailTitle.textContent = '离线定位成功'; detailMeta.textContent = `${position.coords.longitude.toFixed(5)}, ${position.coords.latitude.toFixed(5)}`;
+        detailText.textContent = '蓝点是设备当前坐标；离线版不计算实时道路导航，请结合当天路书和道路标志行驶。';
+      }, () => { detailText.textContent = '定位失败，请检查浏览器定位权限。通过 HTTPS 缓存打开时可在无网络环境继续使用设备 GPS。'; }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
+    }
+
+    document.getElementById('zoomInBtn').addEventListener('click', () => { const rect = svg.getBoundingClientRect(); zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, .72); });
+    document.getElementById('zoomOutBtn').addEventListener('click', () => { const rect = svg.getBoundingClientRect(); zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, 1.38); });
+    document.getElementById('resetBtn').addEventListener('click', showAll); document.getElementById('showAllBtn').addEventListener('click', showAll); document.getElementById('locateBtn').addEventListener('click', locateMe);
+    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(item => item.classList.toggle('active', item === tab)); document.getElementById('routePanel').hidden = tab.dataset.panel !== 'routes'; document.getElementById('placePanel').hidden = tab.dataset.panel !== 'places'; }));
+    searchInput.addEventListener('input', () => { renderDayList(); renderPoiList(); });
+    window.addEventListener('resize', () => setView(view));
+    window.addEventListener('message', event => { if (event.data && event.data.type === 'route-map-resize') setView(view); });
+
+    renderLayers(); renderDayList(); renderPoiList(); updatePoiVisibility(); showAll();
+    const params = new URLSearchParams(location.search); if (params.get('day')) selectDay(`D${Number(params.get('day'))}`); else if (params.get('segment')) selectSegment(params.get('segment')); else if (params.get('poi')) focusPoi(params.get('poi'));
+
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      navigator.serviceWorker.register('./route-map-sw.js').then(() => navigator.serviceWorker.ready).then(() => { document.getElementById('offlineStatus').textContent = '离线缓存已就绪'; }).catch(() => { document.getElementById('offlineStatus').textContent = '本页仍可本地使用'; });
+    }
+  </script>
+</body>
+</html>

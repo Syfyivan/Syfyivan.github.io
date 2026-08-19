@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan B · 川进滇出在线高德逐日地图</title>
+  <style>
+    :root{--bg:#f4f1ec;--card:#fff;--ink:#282522;--muted:#6d6761;--line:#e4ddd5;--accent:#c75b39;--accent-soft:#fff0e9;--shadow:0 14px 36px rgba(62,45,34,.10)}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif;background:var(--bg);color:var(--ink)}button,input{font:inherit}
+    .app{display:grid;grid-template-columns:370px minmax(0,1fr);height:100vh;min-height:680px;overflow:hidden}.sidebar{background:rgba(255,255,255,.97);border-right:1px solid var(--line);display:grid;grid-template-rows:auto auto auto 1fr;min-height:0;position:relative;z-index:5}
+    .brand{padding:18px 18px 13px;border-bottom:1px solid var(--line)}.brand-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand h1{font-size:19px;line-height:1.35;margin:0}.brand p{font-size:12px;color:var(--muted);line-height:1.55;margin:7px 0 0}.mode-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#e9f8ef;color:#167345;padding:6px 9px;font-size:11px;font-weight:800;white-space:nowrap}.mode-dot{width:7px;height:7px;border-radius:50%;background:#18a05e;box-shadow:0 0 0 4px rgba(24,160,94,.12)}
+    .quick-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.quick-actions button,.quick-actions a{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:7px 11px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none}.quick-actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}.search-wrap{padding:11px 18px 8px}.search{width:100%;border:1px solid var(--line);background:#faf8f5;border-radius:12px;padding:10px 12px;outline:none;font-size:13px}.search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(199,91,57,.11)}
+    .layers{padding:0 18px 11px;display:flex;gap:7px;flex-wrap:wrap;border-bottom:1px solid var(--line)}.layer-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px}.layer-chip::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--chip)}.layer-chip.active{color:var(--ink);border-color:var(--chip);box-shadow:0 0 0 2px color-mix(in srgb,var(--chip) 14%,transparent)}
+    .browser{min-height:0;display:grid;grid-template-rows:auto 1fr}.tabs{display:grid;grid-template-columns:1fr 1fr;padding:10px 18px 8px;gap:8px}.tab{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 8px;font-size:12px;font-weight:800;color:var(--muted);cursor:pointer}.tab.active{background:var(--accent-soft);color:var(--accent);border-color:#efbea9}.list-panel{overflow:auto;padding:0 12px 18px}.list-panel[hidden]{display:none}.list{display:flex;flex-direction:column;gap:7px}.list-btn{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 10px;cursor:pointer;transition:.18s}.list-btn:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(60,45,34,.08)}.list-btn.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(199,91,57,.12)}
+    .list-title{font-size:13px;font-weight:800;line-height:1.4;display:flex;align-items:flex-start;gap:7px}.idx,.poi-dot{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:25px;height:25px;border-radius:50%;color:#fff;font-size:10px;font-weight:900}.list-meta{font-size:11px;color:var(--muted);line-height:1.45;margin-top:4px;padding-left:32px}.empty{padding:24px 10px;text-align:center;color:var(--muted);font-size:13px}
+    .viewer{position:relative;min-width:0;height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:16px;gap:12px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.topbar h2{font-size:21px;margin:0}.topbar p{margin:4px 0 0;font-size:12px;color:var(--muted)}.stats{display:flex;gap:7px;flex-wrap:wrap}.stat{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:700;color:var(--muted)}
+    .map-shell{position:relative;min-height:0;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:#fff;box-shadow:var(--shadow)}#map{position:absolute;inset:0}.map-hint{position:absolute;left:14px;bottom:14px;z-index:2;background:rgba(38,35,32,.86);color:#fff;border-radius:10px;padding:8px 10px;font-size:11px;pointer-events:none;backdrop-filter:blur(8px)}.error{position:absolute;z-index:10;top:16px;left:50%;transform:translateX(-50%);width:min(680px,calc(100% - 32px));background:#fff1f1;border:1px solid #efcaca;color:#9b2c2c;border-radius:14px;padding:12px 14px;font-size:13px;display:none}
+    .detail{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 15px;display:grid;grid-template-columns:minmax(190px,.58fr) minmax(280px,1.42fr);gap:16px;align-items:center}.detail h3{margin:0;font-size:15px}.detail p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.55}.detail strong{color:var(--ink)}.detail-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.detail-actions a,.detail-actions button{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:6px 10px;text-decoration:none;font-size:11px;font-weight:800;cursor:pointer}.detail-actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .amap-maps,.amap-drags{cursor:grab!important}.amap-maps:active,.amap-drags:active{cursor:grabbing!important}.route-node{display:flex;align-items:center;gap:5px;white-space:nowrap;transform:translate(-12px,-12px)}.route-node b{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;border-radius:50%;background:#1f2937;color:#fff;border:2px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.28);font-size:10px}.route-node span{display:none;background:rgba(255,255,255,.96);border:1px solid #d8d2ca;border-radius:7px;padding:3px 6px;color:#292521;font-size:11px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.12)}.route-node:hover span,.route-node.active span{display:block}
+    .poi-marker{display:flex;align-items:center;gap:5px;white-space:nowrap;transform:translate(-15px,-15px)}.poi-icon{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:10px;background:var(--poi);color:#fff;border:2px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.25);font-size:11px;font-weight:900}.poi-name{display:none;max-width:190px;overflow:hidden;text-overflow:ellipsis;background:rgba(255,255,255,.96);border:1px solid color-mix(in srgb,var(--poi) 45%,#ddd);border-radius:7px;padding:4px 7px;font-size:11px;font-weight:800;color:#292521;box-shadow:0 2px 8px rgba(0,0,0,.12)}.poi-marker.active .poi-name{display:block}.cluster-bubble{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:3px solid #fff;border-radius:50%;background:#282522;color:#fff;font-size:12px;font-weight:900;box-shadow:0 4px 14px rgba(0,0,0,.28)}.day-stop{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#c75b39;color:#fff;border:2px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.28);font-size:10px;font-weight:900;transform:translate(-13px,-13px)}
+    .poi-info{min-width:220px;max-width:340px;padding:4px}.poi-info h4{font-size:14px;margin:0 0 5px}.poi-info .kind{font-size:11px;font-weight:800;margin-bottom:6px}.poi-info p{font-size:12px;color:#5f5953;line-height:1.55;margin:0}.poi-info small{display:block;margin-top:7px;color:#8a8178}.poi-info .links{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.poi-info a{border-radius:999px;background:#f4f1ec;color:#8b3f28;padding:5px 8px;text-decoration:none;font-size:11px;font-weight:800}
+    @media(max-width:900px){.app{display:flex;flex-direction:column;height:auto;min-height:100vh;overflow:visible}.viewer{order:1;height:66vh;min-height:440px;padding:10px}.sidebar{order:2;height:auto;max-height:none;border-right:0;border-top:1px solid var(--line)}.brand{padding:13px}.search-wrap,.layers{padding-left:13px;padding-right:13px}.list-panel{max-height:60vh}.detail{grid-template-columns:1fr}.map-hint{display:none}}
+    .detail-actions .daybook-btn{background:var(--accent);border-color:var(--accent);color:#fff}
+    .daybook-modal{position:fixed;inset:0;z-index:100010;display:none}.daybook-modal.open{display:block}.daybook-backdrop{position:absolute;inset:0;background:rgba(30,26,22,.5);backdrop-filter:blur(2px)}
+    .daybook-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 32px));max-height:min(82vh,720px);overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(30,22,16,.32);padding:22px 22px 18px}
+    .daybook-close{position:absolute;top:12px;right:14px;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+    .db-head{margin-bottom:12px;padding-right:26px}.db-head strong{display:block;font-size:17px}.db-head span{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
+    .db-row{display:grid;grid-template-columns:84px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--line);align-items:start}.db-k{font-size:12px;font-weight:800;color:var(--accent)}.db-v{font-size:13px;line-height:1.6;color:var(--ink)}.db-v em{font-style:normal;color:var(--muted);font-size:12px}.db-v small{color:var(--muted)}.db-v a{color:#8b3f28;font-weight:700}.db-kitchen{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:#e9f8ef;color:#167345;font-size:11px;font-weight:800;vertical-align:middle}
+    .db-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.db-actions a{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:8px 12px;text-decoration:none;font-size:12px;font-weight:800}.db-actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-row"><h1>Plan B · 川进滇出逐日地图</h1><span class="mode-badge"><span class="mode-dot"></span>在线高德</span></div>
+        <p>总览只显示路线骨架，地点会自动聚合；选中 D1—D36 任意一天后才加载当天道路，放大不会被大段文字盖住。</p>
+        <div class="quick-actions"><button id="showAllBtn" class="primary" type="button">查看全程</button><button id="locateBtn" type="button">定位我</button><a href="./route-map-offline.html?v=14">切到离线版</a><a href="./route-roadbook.html?v=14" target="_blank" rel="noopener">完整路书</a><a href="./index.html#overview" target="_blank" rel="noopener">返回攻略</a></div>
+      </div>
+      <div class="search-wrap"><input id="searchInput" class="search" type="search" placeholder="搜索 D28、住宿、景点、道路或城市" aria-label="搜索逐日路线和地图地点"></div>
+      <div id="layerChips" class="layers" aria-label="地点图层"></div>
+      <div class="browser">
+        <div class="tabs"><button class="tab active" data-panel="routes" type="button">D1—D36 逐日路线</button><button class="tab" data-panel="places" type="button">地点清单 <span id="poiCount"></span></button></div>
+        <div id="routePanel" class="list-panel"><div id="dayList" class="list"></div></div>
+        <div id="placePanel" class="list-panel" hidden><div id="poiList" class="list"></div></div>
+      </div>
+    </aside>
+    <main class="viewer">
+      <div class="topbar"><div><h2 id="pageTitle">全程路线</h2><p id="pageSub">滚轮缩放，按住拖动；点击某天或某个地点聚焦。</p></div><div class="stats"><span class="stat" id="statDays"></span><span class="stat" id="statPois"></span><span class="stat" id="offlineStatus">离线包准备中</span></div></div>
+      <div class="map-shell"><div id="errorBox" class="error"></div><div id="map" aria-label="Plan B 川进滇出在线高德逐日地图"></div><div class="map-hint">总览无常驻文字 · 地点自动聚合 · 选某天看道路</div></div>
+      <div class="detail"><div><h3 id="detailTitle">全程路线</h3><p id="detailMeta">36天 · 主计划约8,980km</p></div><div><p id="detailText">总览仅显示路线骨架；选择某一天后加载当天详细导航。</p><div id="detailActions" class="detail-actions"></div></div></div>
+    </main>
+  </div>
+  <div id="dayBookModal" class="daybook-modal" aria-hidden="true">
+    <div class="daybook-backdrop" onclick="closeDayBook()"></div>
+    <div class="daybook-card" role="dialog" aria-modal="true" aria-label="当天路书">
+      <button type="button" class="daybook-close" onclick="closeDayBook()" aria-label="关闭">×</button>
+      <div id="dayBookBody" class="daybook-body"></div>
+    </div>
+  </div>
+  <script>window.AMAP_LOCAL_CONFIG = window.AMAP_LOCAL_CONFIG || null;</script>
+  <script src="./assets/amap-config.public.js"></script>
+  <script src="./assets/route_segments_amap.js"></script>
+  <script src="./assets/route_map_pois.js"></script>
+  <script src="./assets/road_trip_days.js"></script>
+  <script src="./assets/road_trip_daily_detail.js"></script>
+  <script src="./assets/road_trip_meals.js"></script>
+  <script src="./assets/road_trip_costs.js"></script>
+  <script>
+    const ROUTE = window.ROAD_TRIP_ROUTE_DATA;
+    const PLACES = window.ROAD_TRIP_POI_DATA;
+    const DAILY = window.ROAD_TRIP_DAY_DATA;
+    const MEALS = window.ROAD_TRIP_MEAL_DATA;
+    const COSTS = window.ROAD_TRIP_COST_DATA;
+    const mealByDay = new Map((MEALS && MEALS.meals || []).map(m => [m.day, m]));
+    const costByDay = new Map((COSTS && COSTS.items || []).map(c => [c.day, c]));
+    const stayById = new Map(PLACES.pois.filter(p => p.category === 'stay').map(p => [p.id, p]));
+    const categories = PLACES.categories;
+    const visibleCategories = new Set(Object.entries(categories).filter(([, value]) => value.defaultVisible).map(([key]) => key));
+    const dayList = document.getElementById('dayList');
+    const poiList = document.getElementById('poiList');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageSub = document.getElementById('pageSub');
+    const detailTitle = document.getElementById('detailTitle');
+    const detailMeta = document.getElementById('detailMeta');
+    const detailText = document.getElementById('detailText');
+    const detailActions = document.getElementById('detailActions');
+    const errorBox = document.getElementById('errorBox');
+    const searchInput = document.getElementById('searchInput');
+    const layerChips = document.getElementById('layerChips');
+    const mapEl = document.getElementById('map');
+    const dayBookModal = document.getElementById('dayBookModal');
+    const dayBookBody = document.getElementById('dayBookBody');
+    let map = null;
+    let AMapRef = null;
+    let infoWindow = null;
+    let poiCluster = null;
+    let driving = null;
+    let geolocation = null;
+    let dayLine = null;
+    let activeMarker = null;
+    let activeDayId = '';
+    let activePoiId = '';
+    const dayMarkers = [];
+    // 把“当天路线”和“景点/吃饭/住宿”关联起来：住宿用 stayId 精确匹配，
+    // 景点与吃饭点按坐标就近匹配（这些点本来就落在当天路线节点上），不臆造数据。
+    function poisForDay(day) {
+      const result = []; const seen = new Set();
+      if (day.stayId) { const stay = stayById.get(day.stayId); if (stay) { result.push(stay); seen.add(stay.id); } }
+      const near = (poi) => day.points.some(pt => Math.hypot(poi.lng - pt.lng, poi.lat - pt.lat) <= 0.4);
+      PLACES.pois.forEach(poi => {
+        if (seen.has(poi.id)) return;
+        if ((poi.category === 'scenic' || poi.category === 'food') && near(poi)) { result.push(poi); seen.add(poi.id); }
+      });
+      return result;
+    }
+    const segmentOverlays = new Map();
+    const routeNodeMarkers = new Map();
+
+    const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    const formatDate = value => `${Number(value.slice(5,7))}月${Number(value.slice(8,10))}日`;
+    const typeColor = type => ({drive:'#c75b39',mixed:'#b45309',hike:'#059669',rest:'#64748b',local:'#2563eb',service:'#7c3aed'}[type] || '#64748b');
+    const amapNav = point => `https://uri.amap.com/navigation?to=${point.lng},${point.lat},${encodeURIComponent(point.name)}&mode=car&policy=1&src=Syfyivan.road-trip&coordinate=gaode&callnative=1`;
+    const amapPosition = point => `https://uri.amap.com/marker?position=${point.lng},${point.lat}&name=${encodeURIComponent(point.name)}&src=Syfyivan.road-trip&coordinate=gaode&callnative=1`;
+    const showError = message => { errorBox.style.display = 'block'; errorBox.textContent = message; };
+    document.getElementById('statDays').textContent = `${DAILY.days.length}天 · ${DAILY.meta.plannedDrivingKm.toLocaleString()}km`;
+    document.getElementById('statPois').textContent = `${PLACES.pois.length}个规划地点`;
+
+    function renderLayers() {
+      layerChips.innerHTML = '';
+      Object.entries(categories).forEach(([key, category]) => {
+        const count = PLACES.pois.filter(poi => poi.category === key).length;
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = `layer-chip${visibleCategories.has(key) ? ' active' : ''}`;
+        button.style.setProperty('--chip', category.color); button.dataset.category = key; button.textContent = `${category.label} ${count}`;
+        button.addEventListener('click', () => toggleCategory(key)); layerChips.appendChild(button);
+      });
+    }
+
+    function toggleCategory(category, forceOn) {
+      const shouldShow = forceOn === true || !visibleCategories.has(category);
+      if (shouldShow) visibleCategories.add(category); else visibleCategories.delete(category);
+      document.querySelectorAll('.layer-chip').forEach(button => button.classList.toggle('active', visibleCategories.has(button.dataset.category)));
+      updatePoiCluster(); renderPoiList();
+    }
+
+    function matchingDays() {
+      const query = searchInput.value.trim().toLowerCase();
+      return DAILY.days.filter(day => !query || `${day.id} ${day.date} ${day.title} ${day.roads} ${day.critical}`.toLowerCase().includes(query));
+    }
+
+    function renderDayList() {
+      dayList.innerHTML = '';
+      matchingDays().forEach(day => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'list-btn day-btn'; button.dataset.id = day.id;
+        const km = day.distanceKm ? `约${day.distanceKm}km` : DAILY.typeLabels[day.type];
+        button.innerHTML = `<div class="list-title"><span class="idx" style="background:${typeColor(day.type)}">${day.id}</span><span>${escapeHtml(day.title)}</span></div><div class="list-meta">${formatDate(day.date)} · ${escapeHtml(day.roads)} · ${km}</div>`;
+        button.addEventListener('click', () => selectDay(day.id)); dayList.appendChild(button);
+      });
+      if (!dayList.children.length) dayList.innerHTML = '<div class="empty">没有匹配的日期或路线</div>';
+      document.querySelectorAll('.day-btn').forEach(button => button.classList.toggle('active', button.dataset.id === activeDayId));
+    }
+
+    function filteredPois() {
+      const query = searchInput.value.trim().toLowerCase();
+      return PLACES.pois.filter(poi => visibleCategories.has(poi.category) && (!query || `${poi.name} ${poi.area} ${poi.note} ${categories[poi.category].label}`.toLowerCase().includes(query)));
+    }
+
+    function renderPoiList() {
+      const result = filteredPois();
+      document.getElementById('poiCount').textContent = `(${result.length})`; poiList.innerHTML = '';
+      result.forEach(poi => {
+        const category = categories[poi.category]; const button = document.createElement('button');
+        button.type = 'button'; button.className = 'list-btn poi-btn'; button.dataset.id = poi.id;
+        button.innerHTML = `<div class="list-title"><span class="poi-dot" style="background:${category.color}">${category.short}</span><span>${escapeHtml(poi.name)}</span></div><div class="list-meta">${escapeHtml(category.label)} · ${escapeHtml(poi.area)}</div>`;
+        button.addEventListener('click', () => focusPoi(poi.id)); poiList.appendChild(button);
+      });
+      if (!result.length) poiList.innerHTML = '<div class="empty">打开更多图层，或换一个关键词</div>';
+      document.querySelectorAll('.poi-btn').forEach(button => button.classList.toggle('active', button.dataset.id === activePoiId));
+    }
+
+    function clusterData() {
+      return PLACES.pois.filter(poi => visibleCategories.has(poi.category)).map(poi => ({lnglat:[poi.lng,poi.lat],weight:poi.category === 'stay' ? 3 : 1,poi}));
+    }
+
+    function updatePoiCluster() {
+      if (!map || !AMapRef) return;
+      const data = clusterData();
+      if (!poiCluster) {
+        poiCluster = new AMapRef.MarkerCluster(map, data, {
+          gridSize: 68, maxZoom: 11, clusterByZoomChange: true,
+          renderClusterMarker(context) {
+            context.marker.setContent(`<div class="cluster-bubble">${context.count}</div>`);
+            context.marker.setOffset(new AMapRef.Pixel(-19,-19));
+          },
+          renderMarker(context) {
+            const datum = Array.isArray(context.data) ? context.data[0] : context.data;
+            const poi = datum.poi; const category = categories[poi.category];
+            context.marker.setContent(`<div class="poi-marker" style="--poi:${category.color}"><span class="poi-icon">${category.short}</span></div>`);
+            context.marker.setOffset(new AMapRef.Pixel(0,0)); context.marker.setExtData(poi);
+            if (!context.marker.__roadTripBound) { context.marker.__roadTripBound = true; context.marker.on('click', () => openPoiInfo(context.marker.getExtData())); }
+          }
+        });
+      } else {
+        poiCluster.setData(data);
+      }
+    }
+
+    function poiLinks(poi) {
+      const point = {lng:poi.lng,lat:poi.lat,name:poi.name};
+      return `<div class="links"><a target="_blank" rel="noopener" href="${amapNav(point)}">高德导航</a><a target="_blank" rel="noopener" href="${amapPosition(point)}">高德位置</a>${poi.bookingUrl ? `<a target="_blank" rel="noopener" href="${escapeHtml(poi.bookingUrl)}">查看房型/实时价</a>` : ''}</div>`;
+    }
+
+    function setActivePoiMarker(poi) {
+      if (activeMarker) activeMarker.setMap(null);
+      const category = categories[poi.category];
+      activeMarker = new AMapRef.Marker({position:[poi.lng,poi.lat],zIndex:420,offset:new AMapRef.Pixel(0,0),content:`<div class="poi-marker active" style="--poi:${category.color}"><span class="poi-icon">${category.short}</span><span class="poi-name">${escapeHtml(poi.name)}</span></div>`});
+      activeMarker.setMap(map);
+    }
+
+    function openPoiInfo(poi) {
+      if (!poi || !map || !AMapRef) return;
+      const category = categories[poi.category]; activePoiId = poi.id; activeDayId = '';
+      setActivePoiMarker(poi);
+      infoWindow.setContent(`<div class="poi-info"><h4>${escapeHtml(poi.name)}</h4><div class="kind" style="color:${category.color}">${escapeHtml(category.label)} · ${escapeHtml(poi.area)}</div><p>${escapeHtml(poi.note)}</p>${poiLinks(poi)}<small>坐标 ${poi.lng.toFixed(6)}, ${poi.lat.toFixed(6)}</small></div>`);
+      infoWindow.open(map,[poi.lng,poi.lat]);
+      pageTitle.textContent = poi.name; pageSub.textContent = `${category.label} · ${poi.area}`;
+      detailTitle.textContent = poi.name; detailMeta.textContent = `${category.label} · ${poi.area}`; detailText.textContent = poi.note;
+      detailActions.innerHTML = `<a class="primary" target="_blank" rel="noopener" href="${amapNav({lng:poi.lng,lat:poi.lat,name:poi.name})}">开始导航</a>${poi.bookingUrl ? `<a target="_blank" rel="noopener" href="${escapeHtml(poi.bookingUrl)}">实时房态与价格</a>` : ''}`;
+      renderDayList(); renderPoiList();
+    }
+
+    function focusPoi(id) {
+      const poi = PLACES.pois.find(item => item.id === id); if (!poi || !map) return;
+      if (!visibleCategories.has(poi.category)) toggleCategory(poi.category,true);
+      clearDayRoute(); map.setZoomAndCenter(12,[poi.lng,poi.lat],true); openPoiInfo(poi);
+      window.parent.postMessage({type:'route-map-state',mode:'online',poi:id},'*');
+    }
+
+    function clearDayRoute() {
+      if (driving) driving.clear();
+      if (dayLine) { dayLine.setMap(null); dayLine = null; }
+      while (dayMarkers.length) dayMarkers.pop().setMap(null);
+      mapEl.querySelectorAll('.route-node').forEach(node => node.classList.remove('active'));
+    }
+
+    // 聚焦单天/单点时隐藏全局聚合 POI 与城市节点；回到总览时再恢复，避免图标层层叠加
+    function hideGlobalPois() {
+      if (poiCluster) poiCluster.setMap(null);
+      routeNodeMarkers.forEach(marker => marker.hide());
+    }
+    function showGlobalPois() {
+      if (poiCluster) poiCluster.setMap(map);
+      routeNodeMarkers.forEach(marker => marker.show());
+    }
+
+    function renderDayActions(day) {
+      const last = day.points[day.points.length - 1];
+      const nav = day.points.length > 1 ? `<a class="primary" target="_blank" rel="noopener" href="${amapNav(last)}">导航到终点</a>` : `<a class="primary" target="_blank" rel="noopener" href="${amapPosition(last)}">打开当天地点</a>`;
+      const via = day.points.slice(1,-1).map(point => `<a target="_blank" rel="noopener" href="${amapNav(point)}">到${escapeHtml(point.name)}</a>`).join('');
+      detailActions.innerHTML = `${nav}${via}<button type="button" class="daybook-btn" onclick="openDayBook(${day.day})">看当天路书</button>`;
+    }
+
+    const yuan = range => (!range || (!range[0] && !range[1])) ? '—' : (range[0] === range[1] ? `${range[0]}元` : `${range[0]}–${range[1]}元`);
+    function openDayBook(dayNum) {
+      const day = DAILY.days.find(item => item.day === dayNum); if (!day) return;
+      const meal = mealByDay.get(dayNum); const cost = costByDay.get(dayNum); const stay = day.stayId ? stayById.get(day.stayId) : null;
+      const stops = day.points.map((p,i) => `${i + 1}. ${escapeHtml(p.name)}`).join('　→　');
+      let mealHtml = '';
+      if (meal) {
+        mealHtml = `
+          <div class="db-row"><span class="db-k">早餐</span><span class="db-v">${escapeHtml(meal.breakfast.plan)}<em>（约${yuan(meal.breakfast.perPax)}/人）</em></span></div>
+          <div class="db-row"><span class="db-k">午餐</span><span class="db-v">${escapeHtml(meal.lunch.plan)}<em>（约${yuan(meal.lunch.perPax)}/人）</em>${meal.lunch.where ? `<br><small style="color:#c75b39">在哪吃：${escapeHtml(meal.lunch.where)}</small>` : ''}${meal.lunch.backup ? `<br><small>备选：${escapeHtml(meal.lunch.backup)}</small>` : ''}</span></div>
+          <div class="db-row"><span class="db-k">晚餐 · ${escapeHtml(meal.dinner.label)}</span><span class="db-v">${escapeHtml(meal.dinner.plan)}<em>（4人约${yuan(meal.dinner.party4)}）</em>${meal.dinner.where ? `<br><small style="color:#c75b39">在哪吃：${escapeHtml(meal.dinner.where)}</small>` : ''}</span></div>
+          ${meal.carry ? `<div class="db-row"><span class="db-k">自带食材 · 怎么带</span><span class="db-v">${escapeHtml(meal.carry)}<br><small><a href="./index.html#food-plan" target="_blank" rel="noopener">买 / 冻 / 做 / 带完整方案 →</a></small></span></div>` : ''}`;
+      }
+      let stayHtml = '';
+      if (stay) {
+        const price = stay.priceParty4 ? `<em>（4人当晚约${yuan(stay.priceParty4)}）</em>` : '';
+        const link = stay.bookingUrl || stay.sourceUrl;
+        const hasKitchen = /厨|整套|做饭/.test(stay.note || '') && !/无需厨房|非自炊/.test(stay.note || '');
+        const kitchenTag = hasKitchen ? '<span class="db-kitchen">可做饭</span>' : '';
+        stayHtml = `<div class="db-row"><span class="db-k">住宿</span><span class="db-v">${link ? `<a target="_blank" rel="noopener" href="${link}">${escapeHtml(stay.name)}</a>` : escapeHtml(stay.name)}${kitchenTag}${price}${stay.note ? `<br><small>${escapeHtml(stay.note)}</small>` : ''}</span></div>`;
+      }
+      const scenics = poisForDay(day).filter(p => p.category === 'scenic');
+      const foods = poisForDay(day).filter(p => p.category === 'food');
+      let poiHtml = '';
+      if (scenics.length) poiHtml += `<div class="db-row"><span class="db-k">景点</span><span class="db-v">${scenics.map(p => escapeHtml(p.name)).join('、')}</span></div>`;
+      if (foods.length) poiHtml += `<div class="db-row"><span class="db-k">吃饭区</span><span class="db-v">${foods.map(p => escapeHtml(p.name)).join('、')}</span></div>`;
+      let costHtml = '';
+      if (cost) {
+        const tickets = (cost.tickets || []).map(t => `${escapeHtml(t.name)} ${yuan(t.party4)}`).join('；');
+        costHtml = `
+          <div class="db-row"><span class="db-k">油+过路</span><span class="db-v">4人约${yuan(cost.fuelToll)}</span></div>
+          ${tickets ? `<div class="db-row"><span class="db-k">门票/接驳</span><span class="db-v">${tickets}</span></div>` : ''}`;
+      }
+      dayBookBody.innerHTML = `
+        <div class="db-head"><strong>${day.id} · ${escapeHtml(day.title)}</strong><span>${formatDate(day.date)} · ${DAILY.typeLabels[day.type]} · ${day.distanceKm ? `计划约${day.distanceKm}km` : escapeHtml(day.roads)}</span></div>
+        <div class="db-row"><span class="db-k">路线</span><span class="db-v">${escapeHtml(day.roads)}</span></div>
+        <div class="db-row"><span class="db-k">停靠</span><span class="db-v">${stops}</span></div>
+        ${meal && meal.todo ? `<div class="db-row"><span class="db-k">今日安排</span><span class="db-v">${escapeHtml(meal.todo)}</span></div>` : ''}
+        ${day.critical ? `<div class="db-row"><span class="db-k">当天要点</span><span class="db-v">${escapeHtml(day.critical)}</span></div>` : ''}
+        ${poiHtml}
+        ${mealHtml}
+        ${stayHtml}
+        ${costHtml}
+        <div class="db-actions">
+          <a class="primary" target="_blank" rel="noopener" href="${amapNav(day.points[day.points.length - 1])}">导航到终点</a>
+          <a href="./route-roadbook.html?day=${day.day}" target="_blank" rel="noopener">在完整路书里看这一天</a>
+        </div>`;
+      dayBookModal.classList.add('open'); dayBookModal.setAttribute('aria-hidden','false');
+    }
+    function closeDayBook() { dayBookModal.classList.remove('open'); dayBookModal.setAttribute('aria-hidden','true'); }
+
+    function selectDay(id) {
+      const day = DAILY.days.find(item => item.id === id); if (!day || !map) return;
+      activeDayId = id; activePoiId = ''; if (activeMarker) activeMarker.setMap(null); if (infoWindow) infoWindow.close(); clearDayRoute();
+      // 选中某天时只保留当天专属标注，隐藏全局聚合 POI 与城市节点，避免同一坐标多层图标叠在一起看不清
+      hideGlobalPois();
+      segmentOverlays.forEach(polyline => polyline.setOptions({strokeOpacity:.10,strokeWeight:4}));
+      const path = day.points.map(point => [point.lng,point.lat]);
+      day.points.forEach((point,index) => {
+        const marker = new AMapRef.Marker({position:[point.lng,point.lat],title:point.name,zIndex:360,content:`<div class="day-stop">${index + 1}</div>`,offset:new AMapRef.Pixel(0,0)});
+        marker.setMap(map); marker.on('click',() => { infoWindow.setContent(`<div class="poi-info"><h4>${escapeHtml(point.name)}</h4><p>${day.id} 第${index + 1}站</p><div class="links"><a target="_blank" rel="noopener" href="${amapNav(point)}">导航到这里</a></div></div>`); infoWindow.open(map,[point.lng,point.lat]); }); dayMarkers.push(marker);
+      });
+      // 当天景点/吃饭/住宿：直接在地图上打上带名字的标注，不再只显示编号站点
+      poisForDay(day).forEach(poi => {
+        const category = categories[poi.category];
+        const poiMarker = new AMapRef.Marker({position:[poi.lng,poi.lat],zIndex:400,offset:new AMapRef.Pixel(0,0),content:`<div class="poi-marker active" style="--poi:${category.color}"><span class="poi-icon">${category.short}</span><span class="poi-name">${escapeHtml(poi.name)}</span></div>`});
+        poiMarker.setMap(map); poiMarker.on('click',() => openPoiInfo(poi)); dayMarkers.push(poiMarker);
+      });
+      const willDrive = (day.type === 'drive' || day.type === 'local') && day.points.length > 1 && driving;
+      if (path.length > 1) {
+        // 行车日先画一条淡淡的占位连线，等高德真实道路加载好后立刻移除，避免留下“直线穿越”；
+        // 徒步/接驳等不走导航的日子，用虚线连接停靠点即可。
+        dayLine = new AMapRef.Polyline({path,strokeColor:'#c75b39',strokeOpacity:willDrive ? .28 : .9,strokeWeight:willDrive ? 3 : 6,strokeStyle:willDrive ? 'dashed' : (day.type === 'drive' ? 'solid' : 'dashed'),zIndex:250}); dayLine.setMap(map);
+      }
+      const fit = [dayLine,...dayMarkers].filter(Boolean); if (fit.length) map.setFitView(fit,false,[70,70,70,70],15);
+      pageTitle.textContent = `${day.id} · ${day.title}`; pageSub.textContent = `${formatDate(day.date)} · ${DAILY.typeLabels[day.type]} · ${day.distanceKm ? `计划约${day.distanceKm}km` : day.roads}`;
+      detailTitle.textContent = `${day.id} 当前执行`; detailMeta.innerHTML = `<strong>${escapeHtml(day.roads)}</strong> · ${day.distanceKm ? `约${day.distanceKm}km` : DAILY.typeLabels[day.type]}`; detailText.textContent = day.critical; renderDayActions(day);
+      renderDayList(); renderPoiList();
+      if (willDrive) {
+        const origin = day.points[0]; const destination = day.points[day.points.length - 1]; const waypoints = day.points.slice(1,-1).map(point => new AMapRef.LngLat(point.lng,point.lat));
+        driving.search(new AMapRef.LngLat(origin.lng,origin.lat),new AMapRef.LngLat(destination.lng,destination.lat),{waypoints},(status,result) => {
+          if (activeDayId !== day.id) return;
+          if (status === 'complete' && result.routes && result.routes[0]) {
+            // 真实道路已画出，移除占位直线
+            if (dayLine) { dayLine.setMap(null); dayLine = null; }
+            const route = result.routes[0]; const actualKm = (route.distance/1000).toFixed(0); const hours = Math.floor(route.time/3600); const minutes = Math.round((route.time%3600)/60);
+            detailMeta.innerHTML = `<strong>${escapeHtml(day.roads)}</strong> · 高德当前约${actualKm}km / ${hours}小时${minutes}分 · 攻略计划${day.distanceKm}km`;
+          } else if (dayLine) {
+            // 导航失败时，把占位线恢复成清晰连线，至少能看出起终点
+            dayLine.setOptions({strokeOpacity:.9,strokeWeight:6,strokeStyle:'solid'});
+          }
+        });
+      }
+      window.parent.postMessage({type:'route-map-state',mode:'online',day:day.day},'*');
+    }
+
+    function showAll() {
+      if (!map) return;
+      activeDayId = ''; activePoiId = ''; clearDayRoute(); if (activeMarker) activeMarker.setMap(null); if (infoWindow) infoWindow.close();
+      showGlobalPois();
+      segmentOverlays.forEach(polyline => polyline.setOptions({strokeOpacity:.62,strokeWeight:6}));
+      map.setFitView([...segmentOverlays.values(),...routeNodeMarkers.values()],false,[60,60,60,60],14);
+      pageTitle.textContent = '全程路线'; pageSub.textContent = '滚轮缩放，按住拖动；点击某天或某个地点聚焦。';
+      detailTitle.textContent = '全程路线'; detailMeta.textContent = `${DAILY.days.length}天 · 主计划约${DAILY.meta.plannedDrivingKm.toLocaleString()}km · 预算里程${DAILY.meta.budgetMileageKm.toLocaleString()}km`;
+      detailText.textContent = '总览只显示路线骨架和聚合图标；选择某一天才加载当天道路，住宿、景点、吃饭、采购、厕所与救援图层可单独开关。'; detailActions.innerHTML = '<a class="primary" href="./route-roadbook.html?v=14" target="_blank" rel="noopener">打开D1—D36完整路书</a>';
+      renderDayList(); renderPoiList(); window.parent.postMessage({type:'route-map-state',mode:'online',day:0},'*');
+    }
+
+    function createMap(AMap) {
+      AMapRef = AMap; map = new AMap.Map('map',{viewMode:'2D',zoom:4.8,center:[95.5,36.5],mapStyle:'amap://styles/normal',dragEnable:true,zoomEnable:true,scrollWheel:true,doubleClickZoom:true,keyboardEnable:true});
+      map.addControl(new AMap.Scale({position:'LB'})); map.addControl(new AMap.ToolBar({position:{right:'18px',top:'18px'}})); map.addControl(new AMap.MapType({defaultType:0,showTraffic:false,showRoad:true}));
+      geolocation = new AMap.Geolocation({position:'RB',enableHighAccuracy:true,timeout:10000,zoomToAccuracy:true,showMarker:true,showCircle:true}); map.addControl(geolocation);
+      infoWindow = new AMap.InfoWindow({anchor:'bottom-center',offset:new AMap.Pixel(0,-18)}); driving = new AMap.Driving({map,hideMarkers:true,showTraffic:false,autoFitView:false,policy:AMap.DrivingPolicy.LEAST_TIME});
+      const routeNodes=[]; const seen=new Set(); ROUTE.segments.forEach(seg => [seg.from,seg.to].forEach(point => { if(!seen.has(point.name)){seen.add(point.name);routeNodes.push(point);} }));
+      routeNodes.forEach((node,index) => { const marker=new AMap.Marker({position:[node.lng,node.lat],title:node.name,content:`<div class="route-node" data-name="${escapeHtml(node.name)}"><b>${index+1}</b><span>${escapeHtml(node.name)}</span></div>`,offset:new AMap.Pixel(0,0),zIndex:180}); marker.setMap(map); marker.on('click',() => {map.setZoomAndCenter(Math.max(map.getZoom(),8),[node.lng,node.lat],true);}); routeNodeMarkers.set(node.name,marker); });
+      ROUTE.segments.forEach(seg => { const polyline=new AMap.Polyline({path:seg.polyline,strokeColor:seg.color,strokeOpacity:.62,strokeWeight:6,lineJoin:'round',lineCap:'round',zIndex:80}); polyline.setMap(map); segmentOverlays.set(seg.id,polyline); });
+      updatePoiCluster(); showAll();
+      const params=new URLSearchParams(location.search); if(params.get('day')) selectDay(`D${Number(params.get('day'))}`); else if(params.get('poi')) focusPoi(params.get('poi'));
+    }
+
+    document.getElementById('showAllBtn').addEventListener('click',showAll);
+    document.getElementById('locateBtn').addEventListener('click',() => { if(geolocation) geolocation.getCurrentPosition((status,result) => { if(status !== 'complete') showError('定位失败，请检查浏览器定位权限；地图其他功能不受影响。'); }); });
+    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click',() => { document.querySelectorAll('.tab').forEach(item => item.classList.toggle('active',item===tab)); document.getElementById('routePanel').hidden=tab.dataset.panel!=='routes'; document.getElementById('placePanel').hidden=tab.dataset.panel!=='places'; }));
+    searchInput.addEventListener('input',() => {renderDayList();renderPoiList();}); window.addEventListener('message',event => {if(event.data&&event.data.type==='route-map-resize'&&map)map.resize();}); renderLayers();renderDayList();renderPoiList();
+    document.addEventListener('keydown',event => { if(event.key==='Escape') closeDayBook(); });
+    const cfg=window.AMAP_LOCAL_CONFIG;
+    if(!cfg||!cfg.jsKey||!cfg.securityJsCode){showError('没有检测到高德 JS API 配置。可以切换离线版，逐日路线与规划地点仍可使用。');}
+    else{window._AMapSecurityConfig={securityJsCode:cfg.securityJsCode};const loaderScript=document.createElement('script');loaderScript.src='https://webapi.amap.com/loader.js';loaderScript.onload=async()=>{try{const AMap=await AMapLoader.load({key:cfg.jsKey,version:'2.0',plugins:['AMap.Scale','AMap.ToolBar','AMap.MapType','AMap.MarkerCluster','AMap.Driving','AMap.Geolocation']});createMap(AMap);}catch(error){showError(`高德底图加载失败：${error&&error.message?error.message:error}。离线版仍可使用。`);}};loaderScript.onerror=()=>showError('当前网络无法加载高德底图。请切换离线版。');document.head.appendChild(loaderScript);}
+    if('serviceWorker'in navigator&&location.protocol.startsWith('http')){navigator.serviceWorker.register('./route-map-sw.js').then(()=>navigator.serviceWorker.ready).then(()=>{document.getElementById('offlineStatus').textContent='离线包已缓存';}).catch(()=>{document.getElementById('offlineStatus').textContent='离线缓存未就绪';});}else{document.getElementById('offlineStatus').textContent='本地文件模式';}
+  </script>
+</body>
+</html>
