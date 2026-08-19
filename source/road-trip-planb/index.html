@@ -140,6 +140,16 @@ sup a:hover{text-decoration:underline;}
   h2{font-size:1.45rem;}
   .critical-alert .alert-inner{flex-direction:column;gap:6px;}
 }
+
+/* altitude profile */
+#altitude-profile .altitude-chart{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 12px 8px;margin:8px 0 14px;overflow-x:auto;}
+#altitude-profile .alt-legend{display:flex;flex-wrap:wrap;gap:14px;padding:8px 4px 2px;font-size:0.8rem;color:var(--muted);}
+#altitude-profile .alt-legend span{display:inline-flex;align-items:center;gap:6px;}
+#altitude-profile .alt-legend i{width:14px;height:10px;border-radius:2px;display:inline-block;}
+#altitude-profile .alt-legend i.dash{height:0;border-top:2px dashed #8b6b4a;background:none!important;}
+#altitude-profile .altitude-notes{background:var(--accent2-light);border:1px solid var(--border);border-radius:12px;padding:14px 16px;}
+#altitude-profile .altitude-notes p{margin:0 0 8px;font-size:0.9rem;line-height:1.6;}
+#altitude-profile .altitude-notes p:last-child{margin-bottom:0;}
 </style>
 <style>
 .map-legend{background:white;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.1);font-size:0.82rem;line-height:1.6;margin:0 auto 20px;max-width:500px;}
@@ -393,6 +403,19 @@ sup a:hover{text-decoration:underline;}
   </details>
 </section>
 
+<!-- Altitude profile -->
+<section id="altitude-profile">
+  <div class="section-num">Altitude</div>
+  <h2>29 天海拔剖面：睡得高不高、单日爬升猛不猛</h2>
+  <p class="lead">高反防控看两条线：<strong>绿色实线</strong>是每晚<strong>睡觉海拔</strong>（睡得越高越难恢复），<strong>棕色虚线</strong>是当天翻越的<strong>最高垭口</strong>（决定单日爬升强度）。红色虚线为 3500m 高原睡眠警戒线——线以上的夜晚要重点关注高反。</p>
+  <div id="altitudeChart" class="altitude-chart"></div>
+  <div class="altitude-notes">
+    <p><strong>最险三天：</strong>D11 翻东达山 5130m（全程最高垭口）、D6 睡理塘 4014m（首个高原睡眠夜）、D15/D18 两翻米拉山 5013m。这几天放慢、多喝温水、不硬冲。</p>
+    <p><strong>恢复夜安排：</strong>D10 巴塘（2580m）、D13 波密（2750m）、D14 林芝（2900m）是进藏途中难得的低海拔恢复点，睡前别熬夜。</p>
+    <p style="color:var(--muted);font-size:0.82rem;">海拔为沿 G318/G214 及稻城亚丁公开的城镇与垭口参考值（约数），仅供高反防控参考，非实测；实际以现场路牌与导航为准。</p>
+  </div>
+</section>
+
 <!-- Food plan -->
 <section id="food-plan">
   <div class="section-num">Food Rhythm</div>
@@ -573,6 +596,7 @@ sup a:hover{text-decoration:underline;}
 </div>
 
 <script src="./assets/route_map_pois.js"></script>
+<script src="./assets/road_trip_altitude.js"></script>
 <script>
 function getMapPage(mode) {
   return mode === 'offline' ? './route-map-offline.html?v=14' : './route-map-amap.html?v=14';

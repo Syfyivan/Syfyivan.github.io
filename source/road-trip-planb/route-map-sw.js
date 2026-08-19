@@ -1,4 +1,4 @@
-const CACHE_NAME = 'road-trip-planb-map-v2';
+const CACHE_NAME = 'road-trip-planb-map-v3';
 const CORE_PATHS = [
   './',
   './index.html',
@@ -11,6 +11,7 @@ const CORE_PATHS = [
   './assets/road_trip_daily_detail.js',
   './assets/road_trip_meals.js',
   './assets/road_trip_costs.js',
+  './assets/road_trip_altitude.js',
   './assets/amap-config.public.js'
 ];
 
