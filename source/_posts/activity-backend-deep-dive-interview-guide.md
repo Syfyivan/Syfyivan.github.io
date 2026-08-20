@@ -26,6 +26,17 @@ categories: [技术笔记, 服务端, 面试准备]
 
 这一区分很重要。服务端面试可以推演，但不能把推演出来的事故、数据和所有权说成真实经历。
 
+## 专题文章导航
+
+这篇保留跨项目的一致性、幂等和架构总览。各项目的真实时间线、开发顺序、迭代修正和完整追问树拆到独立文章：
+
+- 集卡抽卡、卡片实例、赠卡/求卡和两阶段履约：继续阅读本文第二章；
+- [进度解锁活动服务端复盘：从七人日需求到可复用聚合能力](/2026/08/20/activity-backend-progress-unlock-timeline/)；
+- [自动徽章发放复盘：从批量工具到统一权益领域能力](/2026/08/20/activity-backend-badge-grant-timeline/)；
+- [六仓活动服务重构复盘：如何在四周内迁移而不改变业务行为](/2026/08/20/activity-backend-multi-repo-refactor-timeline/)；
+- [高流量活动压测复盘：从单请求准入到全链路隔离证据](/2026/08/20/activity-backend-pressure-test-timeline/)；
+- [一次 MQ 重放写放大治理：活动结束了，消费者为什么还在工作](/2026/08/20/activity-backend-event-replay-write-amplification/)。
+
 <!-- more -->
 
 ## 一、先看完整服务端版图
