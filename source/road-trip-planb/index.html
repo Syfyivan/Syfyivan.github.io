@@ -150,6 +150,14 @@ sup a:hover{text-decoration:underline;}
 #altitude-profile .altitude-notes{background:var(--accent2-light);border:1px solid var(--border);border-radius:12px;padding:14px 16px;}
 #altitude-profile .altitude-notes p{margin:0 0 8px;font-size:0.9rem;line-height:1.6;}
 #altitude-profile .altitude-notes p:last-child{margin-bottom:0;}
+
+/* holiday tactics */
+#holiday-tactics .tactics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:8px;}
+#holiday-tactics .tactic-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+#holiday-tactics .tactic-card h4{margin:0 0 8px;font-size:0.98rem;color:var(--ink);}
+#holiday-tactics .tactic-card p{margin:0;font-size:0.9rem;line-height:1.62;color:var(--body);}
+#holiday-tactics .tactic-card.danger{border-left:4px solid var(--danger);background:var(--danger-light);}
+#holiday-tactics .tactic-card.ok{border-left:4px solid var(--accent2);background:var(--accent2-light);}
 </style>
 <style>
 .map-legend{background:white;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.1);font-size:0.82rem;line-height:1.6;margin:0 auto 20px;max-width:500px;}
@@ -480,7 +488,7 @@ sup a:hover{text-decoration:underline;}
     <table id="stayTable">
       <thead><tr><th>夜/日期</th><th>区域</th><th>住宿（点名可订）</th><th>房型</th><th>4人当晚总价</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td><strong>D1·D28 · 10/4·10/31</strong></td><td>平遥</td><td><a href="https://hotels.ctrip.com/hotels/list?cityId=104&checkin=2026-10-04&checkout=2026-10-05&crn=2&adult=4&curr=CNY" target="_blank" rel="noopener">平遥一得客栈</a></td><td>客栈2间·往返各1晚</td><td>¥480–620</td><td>去程国庆首日房价偏高；古城外停车步行入住，回程再住一晚</td></tr>
+        <tr><td><strong>D1·D28 · 10/4·10/31</strong></td><td>平遥</td><td><a href="https://hotels.ctrip.com/hotels/list?cityId=104&checkin=2026-10-04&checkout=2026-10-05&crn=2&adult=4&curr=CNY" target="_blank" rel="noopener">平遥一得客栈</a></td><td>客栈2间·往返各1晚</td><td>¥480–620</td><td>去程国庆假期第4天房价偏高；古城外停车步行入住，回程再住一晚</td></tr>
         <tr><td><strong>D2·D27 · 10/5·10/30</strong></td><td>西安</td><td><a href="https://us.trip.com/hotels/xi-an-hotel-detail-78099745/xi-an-qianxun-homestay/" target="_blank" rel="noopener">西安千浔民宿</a></td><td>两室一厅整套·往返各1晚</td><td>¥400–650</td><td>可做饭；去程逢假期偏高，回程错峰更便宜</td></tr>
         <tr><td><strong>D3 · 10/6</strong></td><td>广元</td><td><a href="https://hotels.ctrip.com/hotels/list?cityId=226&checkin=2026-10-06&checkout=2026-10-07&crn=2&adult=4&curr=CNY" target="_blank" rel="noopener">广元利州皇冠假日酒店</a></td><td>酒店2间</td><td>¥360–520</td><td>入蜀翻秦岭后落脚，次日看剑门关</td></tr>
         <tr><td><strong>D4·D26 · 10/7·10/29</strong></td><td>成都</td><td><a href="https://www.trip.com/hotels/chengdu-hotel-detail-123334753/ninth-realm-designer-suites-residences/" target="_blank" rel="noopener">玖境 ZEN9 设计师套房</a></td><td>90㎡双卧整套·往返各1晚</td><td>¥400–700</td><td>进藏前大补给；回程北上前整补一晚</td></tr>
@@ -503,6 +511,41 @@ sup a:hover{text-decoration:underline;}
     </table>
   </div>
   <p style="color:var(--muted);margin-top:10px">往返复用：平遥、西安、成都、理塘、左贡、林芝各往返 2 晚（表中合并为一条，价格同一酒店）。全程 28 晚外地住宿，D29（11/1）回北京自家，不计外地住宿。</p>
+</section>
+
+<!-- Holiday lodging tactics -->
+<section id="holiday-tactics">
+  <div class="section-num">Holiday</div>
+  <h2>国庆头两晚房价规避：平遥 D1、西安 D2 怎么订</h2>
+  <p class="lead">据国务院办公厅通知，2026 年国庆假期为 <strong>10 月 1 日（周四）至 7 日（周三）共 7 天</strong>。我们 10/4 出发正卡在假期第 4 天，<strong>平遥（D1·10/4 周日）</strong>和<strong>西安（D2·10/5 周一）</strong>这两晚是全程房价最高、最难订的两晚——但也是仅有的两晚。从 D5（10/8 周四，节后首日）起全程彻底错峰，回程 D25—D29 更是淡季价。</p>
+
+  <div class="tactics-grid">
+    <div class="tactic-card danger">
+      <h4>为什么只有这两晚贵</h4>
+      <p>平遥古城、西安是国庆一线热门目的地，假期内房价普遍翻 1.5—3 倍且一房难求。进藏后的新都桥、理塘等节点 10/8 起已过高峰，价格回落到淡季区间；回程整段（10/28—11/1）完全避开假期。<strong>省钱重心就放在守住这两晚。</strong></p>
+    </div>
+    <div class="tactic-card">
+      <h4>动作一：立刻锁价、别等</h4>
+      <p>平遥、西安两晚现在就订，选<strong>免费取消</strong>房型锁住价格；越临近国庆越贵、越可能售罄。行程确定后再把免费取消换成不可取消的低价，通常能再降一档。</p>
+    </div>
+    <div class="tactic-card">
+      <h4>动作二：住城郊、不住核心区</h4>
+      <p>平遥不必住古城内客栈——<strong>古城外/高铁站附近连锁酒店</strong>假期溢价更小、有免费停车（坦克300进古城限行本就不便）。西安避开钟楼/回民街核心圈，选<strong>三环外地铁沿线整套民宿</strong>，4 人一套比订 2 间酒店房更划算，还能做饭洗衣。</p>
+    </div>
+    <div class="tactic-card">
+      <h4>动作三：错峰入住时点</h4>
+      <p>两天都是纯高速转场日，可<strong>晚到早走</strong>：傍晚 check-in、次日一早退房，压缩在店时间；到店前用地图确认好停车位，避开古城/景区周边晚高峰堵车。</p>
+    </div>
+    <div class="tactic-card">
+      <h4>动作四：把观光挪到回程</h4>
+      <p>去程 D1/D2 定位为「赶路落脚」，古城深度游别安排在国庆高峰。<strong>回程 D28（10/31）再住平遥一晚、错峰逛古城</strong>，人少价低体验更好；西安回程 D27（10/30）同理。</p>
+    </div>
+    <div class="tactic-card ok">
+      <h4>算总账：其实不亏</h4>
+      <p>头两晚假期溢价合计大约多花几百元，但 10/1—7 <strong>7 座以下小客车高速免费</strong>——去程京→成都、以及回程部分路段的过路费省下的，基本能对冲甚至超过这两晚的房价溢价。<strong>10/4 出发是经过权衡的最优解，不是将就。</strong></p>
+    </div>
+  </div>
+  <p style="color:var(--muted);margin-top:12px;font-size:0.82rem;">说明：房价倍数为国庆热门地历年经验区间，非锁定报价；高速免费政策与假期日期以出行前官方最新通知为准，建议临行再核实一次。</p>
 </section>
 
 <!-- Budget -->
