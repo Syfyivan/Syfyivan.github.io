@@ -158,6 +158,21 @@ sup a:hover{text-decoration:underline;}
 #holiday-tactics .tactic-card p{margin:0;font-size:0.9rem;line-height:1.62;color:var(--body);}
 #holiday-tactics .tactic-card.danger{border-left:4px solid var(--danger);background:var(--danger-light);}
 #holiday-tactics .tactic-card.ok{border-left:4px solid var(--accent2);background:var(--accent2-light);}
+
+/* pre-trip packlist */
+#execution .packlist{margin-top:18px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+#execution .packlist-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+#execution .packlist-title{font-size:1.05rem;font-weight:700;color:var(--ink);}
+#execution .packlist-progress{display:flex;align-items:center;gap:10px;min-width:180px;}
+#execution .packlist-bar{flex:1;height:8px;background:var(--accent-light);border-radius:999px;overflow:hidden;}
+#execution .packlist-bar span{display:block;height:100%;width:0;background:var(--accent2);transition:width .3s;}
+#execution #packPct{font-size:0.85rem;font-weight:700;color:var(--accent2);min-width:38px;text-align:right;}
+#execution .packlist-hint{font-size:0.82rem;color:var(--muted);margin:6px 0 12px;}
+#execution .packlist-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+#execution .pack-col h5{margin:0 0 8px;font-size:0.92rem;color:var(--accent);}
+#execution .pack-col label{display:flex;align-items:flex-start;gap:8px;font-size:0.88rem;line-height:1.5;padding:5px 0;cursor:pointer;color:var(--body);}
+#execution .pack-col input{margin-top:3px;flex-shrink:0;width:15px;height:15px;accent-color:var(--accent2);cursor:pointer;}
+#execution .pack-col label.done{color:var(--muted);text-decoration:line-through;}
 </style>
 <style>
 .map-legend{background:white;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.1);font-size:0.82rem;line-height:1.6;margin:0 auto 20px;max-width:500px;}
@@ -603,6 +618,49 @@ sup a:hover{text-decoration:underline;}
     <div class="callout-title">补给与保养节点</div>
     <p><strong>成都（D4）</strong>：取车验车、进藏大补给（速食、气罐、药品）；<strong>拉萨（D17 机动日）</strong>：车辆保养、洗衣、补速食到够滇藏川西用、复核滇藏/雅西天气；<strong>丽江（D24）</strong>：整补、洗衣、车辆整理，准备雅西回程。日常城市段随处能买，不用囤。</p>
   </div>
+
+  <div class="packlist" id="packlist">
+    <div class="packlist-head">
+      <div class="packlist-title">行前打包清单（出发前 3 天逐样装箱）</div>
+      <div class="packlist-progress"><div class="packlist-bar"><span id="packBar"></span></div><span id="packPct">0%</span></div>
+    </div>
+    <p class="packlist-hint">点一下打勾，进度自动保存在本机浏览器；换设备不同步。这是「带什么」清单，「要办什么」看上面的执行清单。</p>
+    <div class="packlist-grid">
+      <div class="pack-col">
+        <h5>① 证件与钱（人手一份，别只放一个包）</h5>
+        <label><input type="checkbox"> 身份证（4人）+ 2 位司机驾驶证</label>
+        <label><input type="checkbox"> 神州租车订单/工单打印件 + 进藏确认记录</label>
+        <label><input type="checkbox"> 现金若干（高原小店/加油站可能不便扫码）</label>
+        <label><input type="checkbox"> 含高原反应+紧急救援的旅行保险保单</label>
+        <label><input type="checkbox"> 常用银行卡分开放，手机存好各类电子证件照片</label>
+      </div>
+      <div class="pack-col">
+        <h5>② 高原药品与健康（核心，宁多勿少）</h5>
+        <label><input type="checkbox"> 红景天（建议出发前几天开始服，遵医嘱）</label>
+        <label><input type="checkbox"> 便携氧气瓶/罐（成都补给，车上常备）</label>
+        <label><input type="checkbox"> 葡萄糖、电解质泡腾片、维生素C</label>
+        <label><input type="checkbox"> 头痛药、感冒药、肠胃药、创可贴、体温计</label>
+        <label><input type="checkbox"> 唇膏、高倍防晒、墨镜（高原紫外线强）</label>
+        <label><input type="checkbox"> 个人处方药（按整程 29 天量+余量备足）</label>
+      </div>
+      <div class="pack-col">
+        <h5>③ 车辆与自驾装备</h5>
+        <label><input type="checkbox"> 防滑链（11月垭口暗冰）+ 手套</label>
+        <label><input type="checkbox"> 车载充电器、长数据线、充气泵、搭电线</label>
+        <label><input type="checkbox"> 拖车绳、三角牌、强光手电、工兵铲（可选）</label>
+        <label><input type="checkbox"> 保温杯×4、车载烧水壶（长途日热食/泡茶）</label>
+        <label><input type="checkbox"> 提前记好沿途拖车救援与保险报案电话</label>
+      </div>
+      <div class="pack-col">
+        <h5>④ 衣物与随身（早晚温差大）</h5>
+        <label><input type="checkbox"> 冲锋衣/羽绒（高原早晚 0℃上下）+ 速干衣裤</label>
+        <label><input type="checkbox"> 徒步鞋（亚丁长线用）+ 换洗袜子</label>
+        <label><input type="checkbox"> 帽子、围巾、保暖内衣，怕冷加暖宝宝</label>
+        <label><input type="checkbox"> 充电宝、多口插排（民宿插座常不够）</label>
+        <label><input type="checkbox"> 自带热食/自热食品首批（成都前先备一部分）</label>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- Cross-link to Plan A -->
@@ -640,6 +698,37 @@ sup a:hover{text-decoration:underline;}
 
 <script src="./assets/route_map_pois.js"></script>
 <script src="./assets/road_trip_altitude.js"></script>
+<script>
+(function(){
+  var root=document.getElementById('packlist');
+  if(!root) return;
+  var KEY='planb-packlist-v1';
+  var boxes=root.querySelectorAll('input[type=checkbox]');
+  var bar=document.getElementById('packBar'), pct=document.getElementById('packPct');
+  var saved={};
+  try{ saved=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ saved={}; }
+  function refresh(){
+    var done=0;
+    boxes.forEach(function(b,i){
+      var lb=b.closest('label');
+      if(b.checked){ done++; if(lb) lb.classList.add('done'); }
+      else if(lb){ lb.classList.remove('done'); }
+    });
+    var p=boxes.length?Math.round(done/boxes.length*100):0;
+    if(bar) bar.style.width=p+'%';
+    if(pct) pct.textContent=p+'%';
+  }
+  boxes.forEach(function(b,i){
+    if(saved[i]) b.checked=true;
+    b.addEventListener('change',function(){
+      saved[i]=b.checked;
+      try{ localStorage.setItem(KEY,JSON.stringify(saved)); }catch(e){}
+      refresh();
+    });
+  });
+  refresh();
+})();
+</script>
 <script>
 function getMapPage(mode) {
   return mode === 'offline' ? './route-map-offline.html?v=14' : './route-map-amap.html?v=14';
