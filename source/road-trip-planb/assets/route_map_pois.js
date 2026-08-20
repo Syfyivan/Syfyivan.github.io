@@ -53,7 +53,7 @@
     { id: 'scene-sangdui', category: 'scenic', name: '桑堆红草地', lng: 100.15, lat: 29.19, area: '稻城', note: 'D7季节对就是一片红，正规停车带短停。' },
     { id: 'scene-yading-gate', category: 'scenic', name: '亚丁游客中心', lng: 100.34, lat: 28.56, area: '香格里拉镇', note: 'D8—D9从日瓦住宿后由此换乘进景区。' },
     { id: 'scene-luorong', category: 'scenic', name: '洛绒牛场', lng: 100.34, lat: 28.37, area: '亚丁', note: 'D8长线状态判断点；高反明显就停止上升。' },
-    { id: 'scene-milk', category: 'scenic', name: '牛奶海 / 五色海方向', lng: 100.34, lat: 28.34, area: '亚丁', note: 'D8长线终点，仅在天气、开放和身体状态都允许时继续；抢11/20停线前。' },
+    { id: 'scene-milk', category: 'scenic', name: '牛奶海 / 五色海方向', lng: 100.34, lat: 28.34, area: '亚丁', note: 'D8长线终点，仅在天气、开放和身体状态都允许时继续；抢在长线停线前（2026官方开放至11/25）。' },
     { id: 'scene-chonggu', category: 'scenic', name: '冲古寺 / 珍珠海', lng: 100.34, lat: 28.43, area: '亚丁', note: 'D9短线轻量走约4km，下午回同一住宿恢复。' },
     { id: 'scene-jinshajiang', category: 'scenic', name: '金沙江大桥（川藏界）', lng: 99.02, lat: 29.92, area: '巴塘—芒康', note: 'D12过江正式入藏，翻觉巴山、东达山（5130m）。' },
     { id: 'scene-72guai', category: 'scenic', name: '怒江72拐 / 业拉山', lng: 96.90, lat: 29.86, area: '八宿', note: 'D13、D23只在正规观景台停车，绝不在弯道停留拍照。' },

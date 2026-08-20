@@ -11,6 +11,29 @@
     .actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.actions a,.actions button{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:9px 13px;text-decoration:none;font-size:12px;font-weight:800;cursor:pointer}.actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}.filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px}.filter label{font-size:12px;font-weight:800}.filter input{width:80px;border:1px solid var(--line);border-radius:9px;padding:7px 8px}
     .note{background:#fff9e9;border-left:4px solid #d69e2e;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6;margin:14px 0}.days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}.day{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:0;break-inside:avoid;overflow:hidden}.day-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px;cursor:pointer;list-style:none}.day-head::-webkit-details-marker{display:none}.day-head::after{content:'展开';flex:0 0 auto;color:var(--accent);font-size:11px;font-weight:900;margin-top:4px}.day[open]>.day-head{background:var(--soft);border-bottom:1px solid var(--line)}.day[open]>.day-head::after{content:'收起'}.day-body{padding:0 15px 15px}.day h2{font-size:16px;line-height:1.45;margin:0;flex:1}.badge{flex:0 0 auto;border-radius:999px;background:var(--soft);color:var(--accent);padding:5px 8px;font-size:11px;font-weight:900}.day[open] .badge{background:#fff}.meta{color:var(--muted);font-size:12px;line-height:1.6;margin-top:10px}.route{margin:10px 0 0;padding:10px 12px;border-radius:11px;background:#f8f6f2;font-size:12px;line-height:1.7}.route strong{color:var(--green)}.critical{margin:10px 0 0;padding:10px 12px;border-left:3px solid var(--accent);background:#fff8f5;font-size:12px;line-height:1.65}.stay{margin-top:9px;font-size:12px;line-height:1.6}.stay strong{color:#6d28d9}.meal{margin-top:9px;padding:9px 10px;border-radius:10px;background:#f3f8f5;font-size:12px;line-height:1.65}.meal strong{color:var(--green)}.day-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.day-actions a{border-radius:999px;background:#f1ede7;color:#8b3f28;padding:5px 8px;text-decoration:none;font-size:11px;font-weight:800}.footer{margin-top:20px;color:var(--muted);font-size:12px;line-height:1.7;text-align:center}
     .day[open]{grid-column:1 / -1}
+    /* altitude profile */
+    .altbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 16px 10px;margin:16px 0}
+    .altbox h2{font-size:16px;margin:0 0 4px}.altbox .lead{color:var(--muted);font-size:12px;line-height:1.65;margin:0 0 10px}
+    .altitude-chart{overflow-x:auto}
+    .alt-legend{display:flex;flex-wrap:wrap;gap:14px;padding:8px 2px 2px;font-size:11px;color:var(--muted)}
+    .alt-legend span{display:inline-flex;align-items:center;gap:6px}
+    .alt-legend i{width:14px;height:10px;border-radius:2px;display:inline-block}
+    .alt-legend i.dash{height:0;border-top:2px dashed #8b6b4a;background:none!important}
+    .altitude-notes{background:#f8f6f2;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px}
+    .altitude-notes p{margin:0 0 8px;font-size:12px;line-height:1.6}.altitude-notes p:last-child{margin-bottom:0}
+    /* packlist */
+    .packlist{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin:16px 0}
+    .packlist-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+    .packlist-title{font-size:15px;font-weight:800}
+    .packlist-progress{display:flex;align-items:center;gap:10px;min-width:170px}
+    .packlist-bar{flex:1;height:8px;background:#f1ede7;border-radius:999px;overflow:hidden}
+    .packlist-bar span{display:block;height:100%;width:0;background:var(--green);transition:width .3s}
+    .packlist-hint{font-size:12px;color:var(--muted);margin:6px 0 12px}
+    .packlist-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+    .pack-col h5{margin:0 0 8px;font-size:13px}
+    .pack-col label{display:block;font-size:12px;line-height:1.5;padding:4px 0;cursor:pointer;color:var(--ink)}
+    .pack-col label.done{color:var(--muted);text-decoration:line-through}
+    .pack-col input{margin-right:7px}
     .day-body h3{margin:0 0 6px;font-size:13px}
     .sec{margin-top:11px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.7}
     .sec p{margin:4px 0}
@@ -34,21 +57,74 @@
   <main class="wrap">
     <section class="hero">
       <h1>Plan B · D1—D29 完整路书</h1>
-      <p>2026年10月9日—11月13日 · 4人 / 2位司机轮换 · 国庆后出发的川进滇出备选方案，逐日道路、停靠点、住宿、吃饭与关键风险统一在此维护。页面与数据会随离线地图一起缓存。</p>
-      <div class="stats"><span class="stat" id="statDays"></span><span class="stat" id="statKm"></span><span class="stat" id="statMeals"></span><span class="stat">35晚外地住宿</span><span class="stat">11月13日回北京 · 11月14日还车</span></div>
+      <p>2026年10月4日—11月1日 · 4人 / 2位司机轮换 · 国庆后出发的川进滇出备选方案，逐日道路、停靠点、住宿、吃饭与关键风险统一在此维护。页面与数据会随离线地图一起缓存。</p>
+      <div class="stats"><span class="stat" id="statDays"></span><span class="stat" id="statKm"></span><span class="stat" id="statMeals"></span><span class="stat">28晚外地住宿</span><span class="stat">11月1日回北京 · 11月2日还车</span></div>
     </section>
     <nav class="actions"><a class="primary" href="./route-map-offline.html?v=14">打开离线地图</a><a href="./route-map-amap.html?v=14">打开在线高德</a><a href="./index.html#roadbook">返回详细攻略</a><button id="expandBtn" type="button">展开全部</button><button id="collapseBtn" type="button">全部收起</button><button id="downloadBtn" type="button">下载TXT路书</button><button type="button" onclick="window.print()">打印 / 存为PDF</button></nav>
     <div class="note"><strong>离线边界：</strong>本页保存的是计划道路、坐标和风险提醒，不冒充实时路况。封路、边防、景区换乘和营业状态必须在有网时复核；无网时以现场标志、交警与景区指令为准。</div>
     <div class="note" style="background:#fff6ef;border-left-color:var(--accent)"><strong>价格说明：</strong>以下价格用于行程预算，不代表锁定报价。住宿、门票、区间车、油价和餐饮价格应在预订时及出发前再次核验。卡片内标签区分「官方价 / 参考价 / 估算」，餐饮与门票接驳为规划估算区间，住宿价见各订单页实时房价。</div>
     <div class="filter"><label>只看 D</label><input id="fromDay" type="number" min="1" max="29" value="1"><span>到</span><input id="toDay" type="number" min="1" max="29" value="29"><button id="filterBtn" type="button">筛选</button><button id="todayBtn" type="button">按日期定位</button><span id="filterStatus" class="meta"></span></div>
+    <section class="altbox" id="altitude-profile">
+      <h2>29 天海拔剖面：睡得高不高、单日爬升猛不猛</h2>
+      <p class="lead">绿色实线＝每晚<strong>睡觉海拔</strong>（睡得越高越难恢复），棕色虚线＝当天翻越的<strong>最高垭口</strong>（决定单日爬升强度）。红色虚线为 3500m 高原睡眠警戒线，线以上的夜晚重点防高反。</p>
+      <div id="altitudeChart" class="altitude-chart"></div>
+      <div class="altitude-notes">
+        <p><strong>最险三天：</strong>D11 翻东达山 5130m（全程最高垭口）、D6 睡理塘 4014m（首个高原睡眠夜）、D15/D18 两翻米拉山 5013m（现走隧道，风险已降）。这几天放慢、多喝温水、不硬冲。</p>
+        <p><strong>恢复夜安排：</strong>D10 巴塘（2580m）、D13 波密（2750m）、D14 林芝（2900m）是进藏途中难得的低海拔恢复点。</p>
+        <p style="color:var(--muted)">海拔为沿 G318/G214 及稻城亚丁公开城镇与垭口参考值（约数），非实测；以现场路牌与导航为准。</p>
+      </div>
+    </section>
     <section id="days" class="days"></section>
-    <p class="footer">版本：daily-roadbook-v4 · 数据更新：2026-08-16 · 房价与库存以实际付款页为准。</p>
+    <section class="packlist" id="packlist">
+      <div class="packlist-head">
+        <div class="packlist-title">行前打包清单（出发前 3 天逐样装箱）</div>
+        <div class="packlist-progress"><div class="packlist-bar"><span id="packBar"></span></div><span id="packPct">0%</span></div>
+      </div>
+      <p class="packlist-hint">点一下打勾，进度自动保存在本机浏览器；换设备不同步。这是「带什么」清单，与详细攻略页共用同一份进度。</p>
+      <div class="packlist-grid">
+        <div class="pack-col">
+          <h5>① 证件与钱（人手一份，别只放一个包）</h5>
+          <label><input type="checkbox"> 身份证（4人）+ 2 位司机驾驶证</label>
+          <label><input type="checkbox"> 神州租车订单/工单打印件 + 进藏确认记录</label>
+          <label><input type="checkbox"> 现金若干（高原小店/加油站可能不便扫码）</label>
+          <label><input type="checkbox"> 含高原反应+紧急救援的旅行保险保单</label>
+          <label><input type="checkbox"> 银行卡分开放，手机存好各类电子证件照片</label>
+        </div>
+        <div class="pack-col">
+          <h5>② 高原药品与健康（核心，宁多勿少）</h5>
+          <label><input type="checkbox"> 红景天（建议出发前几天开始服，遵医嘱）</label>
+          <label><input type="checkbox"> 便携氧气瓶/罐（成都补给，车上常备）</label>
+          <label><input type="checkbox"> 葡萄糖、电解质泡腾片、维生素C</label>
+          <label><input type="checkbox"> 头痛药、感冒药、肠胃药、创可贴、体温计</label>
+          <label><input type="checkbox"> 唇膏、高倍防晒、墨镜（高原紫外线强）</label>
+          <label><input type="checkbox"> 个人处方药（按整程 29 天量+余量备足）</label>
+        </div>
+        <div class="pack-col">
+          <h5>③ 车辆与自驾装备</h5>
+          <label><input type="checkbox"> 防滑链（折多山/东达山/白马雪山垭口暗冰必带）+ 手套</label>
+          <label><input type="checkbox"> 车载充电器、长数据线、充气泵、搭电线</label>
+          <label><input type="checkbox"> 拖车绳、三角牌、强光手电、工兵铲（可选）</label>
+          <label><input type="checkbox"> 保温杯×4、车载烧水壶（长途日热食/泡茶）</label>
+          <label><input type="checkbox"> 提前记好沿途拖车救援与保险报案电话</label>
+        </div>
+        <div class="pack-col">
+          <h5>④ 衣物与随身（早晚温差大）</h5>
+          <label><input type="checkbox"> 冲锋衣/羽绒（高原早晚 0℃上下）+ 速干衣裤</label>
+          <label><input type="checkbox"> 徒步鞋（亚丁长线用）+ 换洗袜子</label>
+          <label><input type="checkbox"> 帽子、围巾、保暖内衣，怕冷加暖宝宝</label>
+          <label><input type="checkbox"> 充电宝、多口插排（民宿插座常不够）</label>
+          <label><input type="checkbox"> 自带热食/自热食品首批（成都前先备一部分）</label>
+        </div>
+      </div>
+    </section>
+    <p class="footer">版本：daily-roadbook-v5 · 数据更新：2026-08-20 · 房价与库存以实际付款页为准。</p>
   </main>
   <script src="./assets/route_map_pois.js"></script>
   <script src="./assets/road_trip_days.js"></script>
   <script src="./assets/road_trip_daily_detail.js"></script>
   <script src="./assets/road_trip_meals.js"></script>
   <script src="./assets/road_trip_costs.js"></script>
+  <script src="./assets/road_trip_altitude.js"></script>
   <script>
     // 自愈守卫：若数据脚本因旧离线缓存未加载，页面会“只剩框架”。
     // 此时清掉本站缓存并注销旧 Service Worker，然后带时间戳强制刷新一次，
@@ -199,6 +275,37 @@
     window.addEventListener('afterprint', () => { document.querySelectorAll('.day').forEach((card, index) => { card.open = Boolean(printOpenState[index]); }); });
     const requested = Number(new URLSearchParams(location.search).get('day')); if (requested >= 1 && requested <= 29) { document.getElementById('fromDay').value = requested; document.getElementById('toDay').value = requested; render(requested, requested); } else render();
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./route-map-sw.js').catch(() => {});
+  </script>
+  <script>
+  (function(){
+    var root=document.getElementById('packlist');
+    if(!root) return;
+    var KEY='planb-packlist-v1';
+    var boxes=root.querySelectorAll('input[type=checkbox]');
+    var bar=document.getElementById('packBar'), pct=document.getElementById('packPct');
+    var saved={};
+    try{ saved=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ saved={}; }
+    function refresh(){
+      var done=0;
+      boxes.forEach(function(b){
+        var lb=b.closest('label');
+        if(b.checked){ done++; if(lb) lb.classList.add('done'); }
+        else if(lb){ lb.classList.remove('done'); }
+      });
+      var p=boxes.length?Math.round(done/boxes.length*100):0;
+      if(bar) bar.style.width=p+'%';
+      if(pct) pct.textContent=p+'%';
+    }
+    boxes.forEach(function(b,i){
+      if(saved[i]) b.checked=true;
+      b.addEventListener('change',function(){
+        saved[i]=b.checked;
+        try{ localStorage.setItem(KEY,JSON.stringify(saved)); }catch(e){}
+        refresh();
+      });
+    });
+    refresh();
+  })();
   </script>
 </body>
 </html>
