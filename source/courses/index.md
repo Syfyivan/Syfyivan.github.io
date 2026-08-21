@@ -594,9 +594,18 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>服务端与网络</h2>
         <p>把“一个请求怎么跑起来”和“网络代理为什么这样工作”放在同一类，方便顺着工程链路学。</p>
       </div>
-      <span class="course-category-count">4 门</span>
+      <span class="course-category-count">5 门</span>
     </div>
     <div class="course-grid">
+      <article class="course-card">
+        <span class="course-badge is-ai">连载中 · 运行主线</span>
+        <h3>从 URL 到页面显示 · 运行主线课</h3>
+        <p>沿「地址栏输入 URL 到页面显示」这条真实运行主线，把浏览器、计算机网络、操作系统和前端运行时缝成一条因果链。不背孤立八股，每一段都承接上一段产生的状态，讲清每一步为什么触发下一步。主线与旁支分色标注，每节配 60–90 秒面试回答与常见追问。以 Chromium 桌面浏览器为实现背景。</p>
+        <div class="course-card-footer">
+          <span>适合：准备前端/全栈校招、想真正理解而非硬背的人</span>
+          <a class="course-link" href="/courses/browser-course/">进入课程</a>
+        </div>
+      </article>
       <article class="course-card">
         <span class="course-badge is-ai">15 讲 · 秋招实战</span>
         <h3>秋招计网面试实战课</h3>
