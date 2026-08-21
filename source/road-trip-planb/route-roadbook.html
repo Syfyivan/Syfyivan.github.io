@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plan B · 川进滇出 D1—D29 完整路书</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23c75b39'/%3E%3Cpath d='M12 46 26 22l8 12 5-8 13 20z' fill='%23fff'/%3E%3Cpath d='M22 30l4-6' stroke='%23c75b39' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M14 54c8-4 12 4 20 0s10-5 16-1' stroke='%23fff' stroke-width='3' fill='none' stroke-linecap='round' stroke-dasharray='1 6'/%3E%3C/svg%3E">
   <style>
     :root{--paper:#f5f1ea;--card:#fff;--ink:#282522;--muted:#6e6862;--line:#ded6cc;--accent:#c75b39;--soft:#fff0e9;--green:#0f766e}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif}.wrap{width:min(1080px,calc(100% - 28px));margin:0 auto;padding:26px 0 60px}
     .hero{background:#282522;color:#fff;border-radius:22px;padding:24px;box-shadow:0 16px 38px rgba(52,40,32,.15)}h1{font-size:clamp(24px,4vw,42px);margin:0 0 8px}.hero p{margin:0;color:#ddd5cd;line-height:1.65}.stats{display:flex;gap:8px;flex-wrap:wrap;margin:17px 0 0}.stat{border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800}
-    .actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.actions a,.actions button{border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:9px 13px;text-decoration:none;font-size:12px;font-weight:800;cursor:pointer}.actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}.filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px}.filter label{font-size:12px;font-weight:800}.filter input{width:80px;border:1px solid var(--line);border-radius:9px;padding:7px 8px}
-    .note{background:#fff9e9;border-left:4px solid #d69e2e;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6;margin:14px 0}.days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}.day{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:0;break-inside:avoid;overflow:hidden}.day-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px;cursor:pointer;list-style:none}.day-head::-webkit-details-marker{display:none}.day-head::after{content:'展开';flex:0 0 auto;color:var(--accent);font-size:11px;font-weight:900;margin-top:4px}.day[open]>.day-head{background:var(--soft);border-bottom:1px solid var(--line)}.day[open]>.day-head::after{content:'收起'}.day-body{padding:0 15px 15px}.day h2{font-size:16px;line-height:1.45;margin:0;flex:1}.badge{flex:0 0 auto;border-radius:999px;background:var(--soft);color:var(--accent);padding:5px 8px;font-size:11px;font-weight:900}.day[open] .badge{background:#fff}.meta{color:var(--muted);font-size:12px;line-height:1.6;margin-top:10px}.route{margin:10px 0 0;padding:10px 12px;border-radius:11px;background:#f8f6f2;font-size:12px;line-height:1.7}.route strong{color:var(--green)}.critical{margin:10px 0 0;padding:10px 12px;border-left:3px solid var(--accent);background:#fff8f5;font-size:12px;line-height:1.65}.stay{margin-top:9px;font-size:12px;line-height:1.6}.stay strong{color:#6d28d9}.meal{margin-top:9px;padding:9px 10px;border-radius:10px;background:#f3f8f5;font-size:12px;line-height:1.65}.meal strong{color:var(--green)}.day-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.day-actions a{border-radius:999px;background:#f1ede7;color:#8b3f28;padding:5px 8px;text-decoration:none;font-size:11px;font-weight:800}.footer{margin-top:20px;color:var(--muted);font-size:12px;line-height:1.7;text-align:center}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.actions a,.actions button{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);padding:9px 13px;text-decoration:none;font-size:12px;font-weight:800;cursor:pointer}.actions a svg,.actions button svg{width:14px;height:14px;stroke-width:2;flex:0 0 auto}.actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}.filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px}.filter label{font-size:12px;font-weight:800}.filter input{width:80px;border:1px solid var(--line);border-radius:9px;padding:7px 8px}
+    .note{background:#fff9e9;border-left:4px solid #d69e2e;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6;margin:14px 0}.days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}.day{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:0;break-inside:avoid;overflow:hidden}.day-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px;cursor:pointer;list-style:none}.day-head::-webkit-details-marker{display:none}.day-head::after{content:'展开';flex:0 0 auto;color:var(--accent);font-size:11px;font-weight:900;margin-top:4px}.day[open]>.day-head{background:var(--soft);border-bottom:1px solid var(--line)}.day[open]>.day-head::after{content:'收起'}.day-body{padding:0 15px 15px}.day h2{font-size:16px;line-height:1.45;margin:0;flex:1}.badge{flex:0 0 auto;border-radius:999px;background:var(--soft);color:var(--accent);padding:5px 8px;font-size:11px;font-weight:900}.day[open] .badge{background:#fff}.meta{color:var(--muted);font-size:12px;line-height:1.6;margin-top:10px}.route{margin:10px 0 0;padding:10px 12px;border-radius:11px;background:#f8f6f2;font-size:12px;line-height:1.7}.route strong{color:var(--green)}.critical{margin:10px 0 0;padding:10px 12px;border-left:3px solid var(--accent);background:#fff8f5;font-size:12px;line-height:1.65}.stay{margin-top:9px;font-size:12px;line-height:1.6}.stay strong{color:#6d28d9}.meal{margin-top:9px;padding:9px 10px;border-radius:10px;background:#f3f8f5;font-size:12px;line-height:1.65}.meal strong{color:var(--green)}.day-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.day-actions a{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#f1ede7;color:#8b3f28;padding:5px 8px;text-decoration:none;font-size:11px;font-weight:800}.day-actions a svg{width:12px;height:12px;stroke-width:2;flex:0 0 auto}.footer{margin-top:20px;color:var(--muted);font-size:12px;line-height:1.7;text-align:center}
     .day[open]{grid-column:1 / -1}
     /* altitude profile */
     .altbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 16px 10px;margin:16px 0}
@@ -37,6 +38,23 @@
     .day-body h3{margin:0 0 6px;font-size:13px}
     .sec{margin-top:11px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.7}
     .sec p{margin:4px 0}
+    /* 板块标题图标：线性 16px，颜色随板块主色，图标与文字底部对齐 */
+    .sec h3{display:flex;align-items:center;gap:7px}
+    .sec h3 svg{width:16px;height:16px;flex:0 0 auto;stroke-width:2;vertical-align:middle}
+    .sec-route h3 svg{color:var(--accent)}
+    .sec-food h3 svg{color:var(--green)}
+    .sec-stay h3 svg{color:#6d28d9}
+    .sec-fee h3 svg{color:#1d4ed8}
+    .sec-budget h3 svg{color:#b0431f}
+    .sec-risk h3 svg{color:var(--accent)}
+    /* 行内小图标：在哪吃/备用/备餐 前的提示图标 */
+    .ic{width:13px;height:13px;stroke-width:2;vertical-align:-2px;margin-right:3px;flex:0 0 auto}
+    /* 顶部统计条图标 */
+    .stat svg{width:13px;height:13px;stroke-width:2;vertical-align:-2px;margin-right:4px}
+    .packlist-title{display:flex;align-items:center;gap:8px}
+    .packlist-title svg{width:18px;height:18px;stroke-width:2;color:var(--accent);flex:0 0 auto}
+    .pack-col h5{display:flex;align-items:center;gap:6px}
+    .pack-col h5 svg{width:14px;height:14px;stroke-width:2;color:var(--green);flex:0 0 auto}
     .sec-route{background:#f8f6f2}.sec-food{background:#f3f8f5}.sec-stay{background:#f6f2fb}.sec-fee{background:#f2f6fb}
     .sec-budget{background:#fff6ef;border-color:#f0c9b6}.sec-risk{background:#fff8f5;border-left:3px solid var(--accent)}
     .sec-stay strong{color:#6d28d9}.sec-food strong{color:var(--green)}
@@ -60,7 +78,7 @@
       <p>2026年10月4日—11月1日 · 4人 / 2位司机轮换 · 国庆后出发的川进滇出备选方案，逐日道路、停靠点、住宿、吃饭与关键风险统一在此维护。页面与数据会随离线地图一起缓存。</p>
       <div class="stats"><span class="stat" id="statDays"></span><span class="stat" id="statKm"></span><span class="stat" id="statMeals"></span><span class="stat">28晚外地住宿</span><span class="stat">11月1日回北京 · 11月2日还车</span></div>
     </section>
-    <nav class="actions"><a class="primary" href="./route-map-offline.html?v=14">打开离线地图</a><a href="./route-map-amap.html?v=14">打开在线高德</a><a href="./index.html#roadbook">返回详细攻略</a><button id="expandBtn" type="button">展开全部</button><button id="collapseBtn" type="button">全部收起</button><button id="downloadBtn" type="button">下载TXT路书</button><button type="button" onclick="window.print()">打印 / 存为PDF</button></nav>
+    <nav class="actions"><a class="primary" href="./route-map-offline.html?v=14"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>打开离线地图</a><a href="./route-map-amap.html?v=14"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>打开在线高德</a><button id="expandBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>展开全部</button><button id="collapseBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 20 5-5 5 5M7 4l5 5 5-5"/></svg>全部收起</button><button id="downloadBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg>下载TXT路书</button><button type="button" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M6 14h12v7H6Z"/></svg>打印 / 存为PDF</button></nav>
     <div class="note"><strong>离线边界：</strong>本页保存的是计划道路、坐标和风险提醒，不冒充实时路况。封路、边防、景区换乘和营业状态必须在有网时复核；无网时以现场标志、交警与景区指令为准。</div>
     <div class="note" style="background:#fff6ef;border-left-color:var(--accent)"><strong>价格说明：</strong>以下价格用于行程预算，不代表锁定报价。住宿、门票、区间车、油价和餐饮价格应在预订时及出发前再次核验。卡片内标签区分「官方价 / 参考价 / 估算」，餐饮与门票接驳为规划估算区间，住宿价见各订单页实时房价。</div>
     <div class="filter"><label>只看 D</label><input id="fromDay" type="number" min="1" max="29" value="1"><span>到</span><input id="toDay" type="number" min="1" max="29" value="29"><button id="filterBtn" type="button">筛选</button><button id="todayBtn" type="button">按日期定位</button><span id="filterStatus" class="meta"></span></div>
@@ -77,13 +95,13 @@
     <section id="days" class="days"></section>
     <section class="packlist" id="packlist">
       <div class="packlist-head">
-        <div class="packlist-title">行前打包清单（出发前 3 天逐样装箱）</div>
+        <div class="packlist-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4Z"/><path d="m9 12 2 2 4-4"/></svg>行前打包清单（出发前 3 天逐样装箱）</div>
         <div class="packlist-progress"><div class="packlist-bar"><span id="packBar"></span></div><span id="packPct">0%</span></div>
       </div>
       <p class="packlist-hint">点一下打勾，进度自动保存在本机浏览器；换设备不同步。这是「带什么」清单，与详细攻略页共用同一份进度。</p>
       <div class="packlist-grid">
         <div class="pack-col">
-          <h5>① 证件与钱（人手一份，别只放一个包）</h5>
+          <h5><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M6 16c.5-1.5 1.7-2.5 3-2.5s2.5 1 3 2.5M15 9h4M15 13h4"/></svg>① 证件与钱（人手一份，别只放一个包）</h5>
           <label><input type="checkbox"> 身份证（4人）+ 2 位司机驾驶证</label>
           <label><input type="checkbox"> 神州租车订单/工单打印件 + 进藏确认记录</label>
           <label><input type="checkbox"> 现金若干（高原小店/加油站可能不便扫码）</label>
@@ -91,7 +109,7 @@
           <label><input type="checkbox"> 银行卡分开放，手机存好各类电子证件照片</label>
         </div>
         <div class="pack-col">
-          <h5>② 高原药品与健康（核心，宁多勿少）</h5>
+          <h5><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 8h-4V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v4H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h4v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4h4a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1Z"/></svg>② 高原药品与健康（核心，宁多勿少）</h5>
           <label><input type="checkbox"> 红景天（建议出发前几天开始服，遵医嘱）</label>
           <label><input type="checkbox"> 便携氧气瓶/罐（成都补给，车上常备）</label>
           <label><input type="checkbox"> 葡萄糖、电解质泡腾片、维生素C</label>
@@ -100,7 +118,7 @@
           <label><input type="checkbox"> 个人处方药（按整程 29 天量+余量备足）</label>
         </div>
         <div class="pack-col">
-          <h5>③ 车辆与自驾装备</h5>
+          <h5><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 17h9M5 17a2 2 0 0 1-2-2v-3l2-4h7l3 3h2a2 2 0 0 1 2 2v4h-2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>③ 车辆与自驾装备</h5>
           <label><input type="checkbox"> 防滑链（折多山/东达山/白马雪山垭口暗冰必带）+ 手套</label>
           <label><input type="checkbox"> 车载充电器、长数据线、充气泵、搭电线</label>
           <label><input type="checkbox"> 拖车绳、三角牌、强光手电、工兵铲（可选）</label>
@@ -108,16 +126,66 @@
           <label><input type="checkbox"> 提前记好沿途拖车救援与保险报案电话</label>
         </div>
         <div class="pack-col">
-          <h5>④ 衣物与随身（早晚温差大）</h5>
+          <h5><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.4 14.5 16 10 4 22M8 6l4 4M6 4l3 3M18 2l-4 4 2 2 4-4M12 12l2 2"/></svg>④ 衣物与随身（早晚温差大）</h5>
           <label><input type="checkbox"> 冲锋衣/羽绒（高原早晚 0℃上下）+ 速干衣裤</label>
           <label><input type="checkbox"> 徒步鞋（亚丁长线用）+ 换洗袜子</label>
           <label><input type="checkbox"> 帽子、围巾、保暖内衣，怕冷加暖宝宝</label>
           <label><input type="checkbox"> 充电宝、多口插排（民宿插座常不够）</label>
           <label><input type="checkbox"> 自带热食/自热食品首批（成都前先备一部分）</label>
         </div>
+        <div class="pack-col">
+          <h5><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3v7c0 1 .8 2 2 2v9M8 3v9M12 3c-1.3 0-2 1.6-2 4s.7 4 2 4v9"/></svg>⑤ 厨具与自炊装备（自热速食为主，不带冰箱）</h5>
+          <label><input type="checkbox"> 车载烧水壶（12V，泡自热饭/煮蛋/冲茶，全程主力）</label>
+          <label><input type="checkbox"> 高山炉头 + 异丁烷丙烷混合气罐（成都补 3—4 罐，勿买纯丁烷）</label>
+          <label><input type="checkbox"> 小单锅/折叠锅 1 口（偏远日煮米线泡面、丢蛋加菜）</label>
+          <label><input type="checkbox"> 保温杯×4 + 车载保温箱 + 冰袋/冰板（仅撑 D1—D2 家冻）</label>
+          <label><input type="checkbox"> 折叠餐具×4、水果刀、剪刀、砧板、打火机</label>
+          <label><input type="checkbox"> 保鲜盒/密封袋（西安·成都·丽江厨房现做后分装带走）</label>
+          <label><input type="checkbox"> 厨房纸、湿巾、大号垃圾袋（车上餐后清理，不留味）</label>
+        </div>
       </div>
     </section>
-    <p class="footer">版本：daily-roadbook-v5 · 数据更新：2026-08-20 · 房价与库存以实际付款页为准。</p>
+    <section class="packlist" id="supplement">
+      <div class="packlist-head">
+        <div class="packlist-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="4" rx="1"/><path d="M6 7v13a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7M9 11h6M9 15h4"/></svg>补品时间表：什么时候吃什么（防高反 + 补速食日营养缺口）</div>
+      </div>
+      <p class="packlist-hint">高原段主食多为自热速食，蔬菜维C和蛋白容易欠账，靠下面这张表按阶段补。剂量遵医嘱/说明书，出发前咨询医生，尤其有基础病或在服其他药时。</p>
+      <div class="table-wrap" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;line-height:1.6">
+          <thead>
+            <tr style="background:#f3f8f5;text-align:left">
+              <th style="padding:8px;border:1px solid var(--line)">阶段</th>
+              <th style="padding:8px;border:1px solid var(--line)">什么时候</th>
+              <th style="padding:8px;border:1px solid var(--line)">吃什么 · 怎么吃</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:8px;border:1px solid var(--line)"><strong>上高原前</strong></td>
+              <td style="padding:8px;border:1px solid var(--line)">D1—D4（进成都前，约提前 5—7 天更好）</td>
+              <td style="padding:8px;border:1px solid var(--line)">红景天提前几天开始按说明书服（遵医嘱）；正常吃饭，清淡、不饮酒，别熬夜。这几天还在低海拔，重点是把身体调到位。</td>
+            </tr>
+            <tr style="background:#fafafa">
+              <td style="padding:8px;border:1px solid var(--line)"><strong>刚上高原</strong></td>
+              <td style="padding:8px;border:1px solid var(--line)">D5—D9（新都桥/理塘/亚丁，海拔 3300—4600m）</td>
+              <td style="padding:8px;border:1px solid var(--line)">继续红景天；每天电解质泡腾片 1—2 片 + 维C，大量温水；出现头痛先休息吸氧，别硬扛。亚丁长线(D8)随身带葡萄糖/能量胶应急。</td>
+            </tr>
+            <tr>
+              <td style="padding:8px;border:1px solid var(--line)"><strong>高原纵深</strong></td>
+              <td style="padding:8px;border:1px solid var(--line)">D10—D23（川藏 G318 + 拉萨 + 滇藏，速食日最密集）</td>
+              <td style="padding:8px;border:1px solid var(--line)">每天 1 粒复合维生素补速食日欠的蔬菜维C；早餐鸡蛋、午餐卤蛋/午餐肉保证蛋白；拉萨恢复段(D16—D17)多下馆子吃蔬菜正餐，把缺口补回。翻高垭口日备葡萄糖。</td>
+            </tr>
+            <tr style="background:#fafafa">
+              <td style="padding:8px;border:1px solid var(--line)"><strong>下高原返程</strong></td>
+              <td style="padding:8px;border:1px solid var(--line)">D24—D29（丽江以后，海拔一路降）</td>
+              <td style="padding:8px;border:1px solid var(--line)">可停红景天；丽江/成都现做正餐补新鲜蔬菜水果；长途高速日继续维C + 电解质防疲劳，保证睡眠，别报复性大吃油腻。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="packlist-hint" style="margin-top:10px;color:#8a6d3b">备注：唇膏、高倍防晒、墨镜全程每天用（高原紫外线强）；头痛药、肠胃药、感冒药随身备用，个人处方药按 29 天量+余量带足。以上为出行保健建议，非医疗诊断，具体用药请遵医嘱。</p>
+    </section>
+    <p class="footer">版本：daily-roadbook-v7 · 数据更新：2026-08-21 · 房价与库存以实际付款页为准。</p>
   </main>
   <script src="./assets/route_map_pois.js"></script>
   <script src="./assets/road_trip_days.js"></script>
@@ -152,6 +220,25 @@
     const meals = new Map(FOOD.meals.map(meal => [meal.day, meal]));
     const costs = new Map((COSTS ? COSTS.items : []).map(item => [item.day, item]));
     const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    // 线性图标（Lucide 风格，inline SVG，离线可用，颜色继承 currentColor）。
+    const svg = (paths, cls) => `<svg class="${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+    const ICON = {
+      route: '<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>',
+      food: '<path d="M3 2v7c0 1.1.9 2 2 2h1v11M6 2v9M9 2v9M18 2c-1.7 0-3 2-3 5s1.3 5 3 5v10"/>',
+      stay: '<path d="M3 22V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M7 22V4M11 22V4M3 10h14M3 15h14M21 22V11a1 1 0 0 0-1-1h-3"/>',
+      fee: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',
+      budget: '<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+      risk: '<path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
+      todo: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      pin: '<path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/>',
+      backup: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/>',
+      prep: '<path d="M6 2h12M9 2v3.5a5 5 0 0 1-1.2 3.3L4 13a4 4 0 0 0 3 6.7h10A4 4 0 0 0 20 13l-3.8-4.2A5 5 0 0 1 15 5.5V2M5.5 14h13"/>',
+      day: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      km: '<path d="M4 20 20 4M6 8l2 2M10 4l2 2M14 8l2 2M4 14l2 2M8 18l2 2"/>',
+      meal: '<path d="M4 3v7c0 1 .8 2 2 2v9M8 3v9M12 3c-1.3 0-2 1.6-2 4s.7 4 2 4v9"/>',
+      pack: '<path d="M12 2 3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4Z"/><path d="m9 12 2 2 4-4"/>',
+      check: '<path d="M20 6 9 17l-5-5"/>'
+    };
     const formatDate = value => `${Number(value.slice(5,7))}月${Number(value.slice(8,10))}日`;
     const amapNav = point => `https://uri.amap.com/navigation?to=${point.lng},${point.lat},${encodeURIComponent(point.name)}&mode=car&policy=1&src=Syfyivan.road-trip&coordinate=gaode&callnative=1`;
     // 住宿链接：优先用已核到的酒店详情页(bookingUrl)，其次用携程“2间4人”当日比价直链(sourceUrl)，
@@ -163,33 +250,34 @@
     const natureTag = nature => nature === '官方固定价' ? '<span class="tag tag-official">官方价</span>' : nature === '携程实时价' ? '<span class="tag tag-ref">携程实时价</span>' : nature === '订单页参考价' ? '<span class="tag tag-ref">参考价</span>' : nature === '参考价·需电话确认' ? '<span class="tag tag-est">参考价·需电话</span>' : '<span class="tag tag-est">估算</span>';
     const tagPP = pair => `<span class="tag tag-pp">每人 ${range(pair)}</span>`;
     const tagP4 = pair => `<span class="tag tag-p4">4人 ${range(pair)}</span>`;
-    document.getElementById('statDays').textContent = `${DAILY.days.length}天`;
-    document.getElementById('statKm').textContent = `主计划${DAILY.meta.plannedDrivingKm.toLocaleString()}km · 预算上限${DAILY.meta.budgetMileageKm.toLocaleString()}km`;
-    document.getElementById('statMeals').textContent = `${FOOD.dinnerCounts.restaurant}天目的地进店 · ${FOOD.dinnerCounts.cook}晚自炊`;
+    document.getElementById('statDays').innerHTML = `${svg(ICON.day)}${DAILY.days.length}天`;
+    document.getElementById('statKm').innerHTML = `${svg(ICON.km)}主计划${DAILY.meta.plannedDrivingKm.toLocaleString()}km · 预算上限${DAILY.meta.budgetMileageKm.toLocaleString()}km`;
+    document.getElementById('statMeals').innerHTML = `${svg(ICON.meal)}${FOOD.dinnerCounts.restaurant}天目的地进店 · ${FOOD.dinnerCounts.cook}晚自炊`;
 
     function todoBlock(meal) {
       if (!meal || !meal.todo) return '';
-      return `<div class="sec sec-route" style="background:#fff6ef;border-color:#f0c9b6"><h3>今日安排</h3><p>${escapeHtml(meal.todo)}</p></div>`;
+      return `<div class="sec sec-route" style="background:#fff6ef;border-color:#f0c9b6"><h3>${svg(ICON.todo)}今日安排</h3><p>${escapeHtml(meal.todo)}</p></div>`;
     }
 
     function foodBlock(meal) {
       if (!meal) return '';
+      const prep = meal.prep ? `<p class="meal-row" style="background:#fff3ea;border-radius:8px;padding:7px 9px;margin:0 0 8px"><span class="lab" style="color:#c75b39">${svg(ICON.prep,'ic')}备餐 / 冻 / 补给：</span>${escapeHtml(meal.prep)}</p>` : '';
       const bf = `<p class="meal-row"><span class="lab">早餐：</span>${escapeHtml(meal.breakfast.plan)}${tagPP(meal.breakfast.perPax)}</p>`;
-      const ln = `<p class="meal-row"><span class="lab">午餐：</span>${escapeHtml(meal.lunch.plan)}${tagPP(meal.lunch.perPax)}${meal.lunch.where ? `<br><span class="lab" style="color:#c75b39">在哪吃：</span>${escapeHtml(meal.lunch.where)}` : ''}${meal.lunch.backup ? `<br><span class="lab" style="color:#8a6d3b">备用：</span>${escapeHtml(meal.lunch.backup)}` : ''}</p>`;
-      const dn = `<p class="meal-row"><span class="lab">晚餐 · ${escapeHtml(meal.dinner.label)}：</span>${escapeHtml(meal.dinner.plan)}${tagPP(meal.dinner.perPax)}${tagP4(meal.dinner.party4)}${meal.dinner.where ? `<br><span class="lab" style="color:#c75b39">在哪吃：</span>${escapeHtml(meal.dinner.where)}` : ''}</p>`;
-      const carry = meal.carry ? `<p class="meal-row"><span class="lab" style="color:#c75b39">自带食材·怎么带：</span>${escapeHtml(meal.carry)}<br><a href="./index.html#food-plan" target="_blank" rel="noopener" style="font-size:12px">买 / 冻 / 做 / 带完整方案 →</a></p>` : '';
+      const ln = `<p class="meal-row"><span class="lab">午餐：</span>${escapeHtml(meal.lunch.plan)}${tagPP(meal.lunch.perPax)}${meal.lunch.where ? `<br><span class="lab" style="color:#c75b39">${svg(ICON.pin,'ic')}在哪吃：</span>${escapeHtml(meal.lunch.where)}` : ''}${meal.lunch.backup ? `<br><span class="lab" style="color:#8a6d3b">${svg(ICON.backup,'ic')}备用：</span>${escapeHtml(meal.lunch.backup)}` : ''}</p>`;
+      const dn = `<p class="meal-row"><span class="lab">晚餐 · ${escapeHtml(meal.dinner.label)}：</span>${escapeHtml(meal.dinner.plan)}${tagPP(meal.dinner.perPax)}${tagP4(meal.dinner.party4)}${meal.dinner.where ? `<br><span class="lab" style="color:#c75b39">${svg(ICON.pin,'ic')}在哪吃：</span>${escapeHtml(meal.dinner.where)}` : ''}</p>`;
+      const carry = meal.carry ? `<p class="meal-row"><span class="lab" style="color:#c75b39">${svg(ICON.pack,'ic')}自带食材·怎么带：</span>${escapeHtml(meal.carry)}</p>` : '';
       const sum = `<p class="meal-row" style="color:var(--muted)">全天餐饮（4人）合计约 ${range(meal.dayTotal4)}<span class="tag tag-est">估算</span></p>`;
-      return `<div class="sec sec-food"><h3>三餐建议</h3>${bf}${ln}${dn}${carry}${sum}</div>`;
+      return `<div class="sec sec-food"><h3>${svg(ICON.food)}三餐建议</h3>${prep}${bf}${ln}${dn}${carry}${sum}</div>`;
     }
 
     function stayBlock(day, stay) {
       if (!stay) {
         const text = day.day === DAILY.days.length ? '回北京家里，行程结束（次日还车）' : '不换住宿（连住前一晚）';
-        return `<div class="sec sec-stay"><h3>住宿</h3><p>${text}</p></div>`;
+        return `<div class="sec sec-stay"><h3>${svg(ICON.stay)}住宿</h3><p>${text}</p></div>`;
       }
       const price = stay.priceParty4 ? `<p><span class="lab">当晚房费（4人）：</span>${range(stay.priceParty4)}${natureTag(stay.priceNature)}${stay.priceUpdatedAt ? `<span class="tag tag-est">更新 ${stay.priceUpdatedAt}</span>` : ''}</p>` : '';
       const inc = stay.priceIncludes ? `<p><span class="lab">含项：</span>${escapeHtml(stay.priceIncludes)}</p>` : '';
-      return `<div class="sec sec-stay"><h3>住宿</h3><p><strong>${escapeHtml(stay.name)}</strong>｜${escapeHtml(stay.note)}</p>${price}${inc}</div>`;
+      return `<div class="sec sec-stay"><h3>${svg(ICON.stay)}住宿</h3><p><strong>${escapeHtml(stay.name)}</strong>｜${escapeHtml(stay.note)}</p>${price}${inc}</div>`;
     }
 
     function feeBlock(cost) {
@@ -198,7 +286,7 @@
       cost.tickets.forEach(entry => items.push(`<li>${escapeHtml(entry.name)}：${range(entry.party4)} / 4人<span class="tag tag-est">估算</span></li>`));
       if (cost.permitNote) items.push(`<li>${escapeHtml(cost.permitNote)}</li>`);
       if (!items.length) items.push('<li>当天无景区门票、区间车或接驳费用。</li>');
-      return `<div class="sec sec-fee"><h3>门票 / 区间车 / 接驳</h3><ul class="fee-list">${items.join('')}</ul></div>`;
+      return `<div class="sec sec-fee"><h3>${svg(ICON.fee)}门票 / 区间车 / 接驳</h3><ul class="fee-list">${items.join('')}</ul></div>`;
     }
 
     function budgetBlock(meal, cost, stay) {
@@ -210,7 +298,7 @@
       if (cost.fuelToll && (cost.fuelToll[0] || cost.fuelToll[1])) rows.push(`<li><span class="k">油费 + 高速</span><span class="v">${range(cost.fuelToll)}</span></li>`);
       const lo = (meal ? meal.dayTotal4[0] : 0) + (stay && stay.priceParty4 ? stay.priceParty4[0] : 0) + (cost.ticketTotal ? cost.ticketTotal[0] : 0) + (cost.fuelToll ? cost.fuelToll[0] : 0);
       const hi = (meal ? meal.dayTotal4[1] : 0) + (stay && stay.priceParty4 ? stay.priceParty4[1] : 0) + (cost.ticketTotal ? cost.ticketTotal[1] : 0) + (cost.fuelToll ? cost.fuelToll[1] : 0);
-      return `<div class="sec sec-budget"><h3>当天参考支出（不含租车固定费）</h3><ul class="budget-list">${rows.join('')}</ul><div class="budget-total"><span>当天合计</span><span>${range([lo, hi])}</span></div></div>`;
+      return `<div class="sec sec-budget"><h3>${svg(ICON.budget)}当天参考支出（不含租车固定费）</h3><ul class="budget-list">${rows.join('')}</ul><div class="budget-total"><span>当天合计</span><span>${range([lo, hi])}</span></div></div>`;
     }
 
     function render(from = 1, to = DAILY.days.length) {
@@ -221,14 +309,13 @@
         const card = document.createElement('details'); card.className = 'day'; card.id = `D${day.day}`; card.open = selected.length <= 3;
         const stops = day.points.map(point => point.name).join(' → '); const last = day.points[day.points.length - 1];
         card.innerHTML = `<summary class="day-head"><h2>${day.id} · ${escapeHtml(day.title)}</h2><span class="badge">${formatDate(day.date)}</span></summary><div class="day-body">`
-          + `<div class="sec sec-route"><h3>路线与时间</h3><p><span class="lab">类型 / 里程：</span>${escapeHtml(DAILY.typeLabels[day.type])}${day.distanceKm ? ` · 计划约 ${day.distanceKm}km` : ''} · ${escapeHtml(day.roads)}</p><p><span class="lab">停靠顺序：</span>${escapeHtml(stops)}</p></div>`
+          + `<div class="sec sec-route"><h3>${svg(ICON.route)}路线与时间</h3><p><span class="lab">类型 / 里程：</span>${escapeHtml(DAILY.typeLabels[day.type])}${day.distanceKm ? ` · 计划约 ${day.distanceKm}km` : ''} · ${escapeHtml(day.roads)}</p><p><span class="lab">停靠顺序：</span>${escapeHtml(stops)}</p></div>`
           + todoBlock(meal)
           + foodBlock(meal)
           + stayBlock(day, stay)
           + feeBlock(cost)
           + budgetBlock(meal, cost, stay)
-          + `<div class="sec sec-risk"><h3>风险与降级</h3><p>${escapeHtml(day.critical)}</p></div>`
-          + `<div class="day-actions"><a href="./route-map-offline.html?day=${day.day}">离线地图定位</a><a target="_blank" rel="noopener" href="${amapNav(last)}">联网后高德导航</a>${stay ? `<a target="_blank" rel="noopener" href="${escapeHtml(stayBookingLink(stay))}">${stayBookingLabel(stay)}</a>` : ''}</div>`
+          + `<div class="sec sec-risk"><h3>${svg(ICON.risk)}风险与降级</h3><p>${escapeHtml(day.critical)}</p></div>`
           + `</div>`;
         target.appendChild(card);
       });
@@ -248,6 +335,7 @@
         const stay = stays.get(day.stayId); const meal = meals.get(day.day); const cost = costs.get(day.day);
         lines.push(`${day.id} ${day.date}｜${day.title}`, `类型/里程：${DAILY.typeLabels[day.type]}${day.distanceKm ? `，约${day.distanceKm}km` : ''}`, `道路：${day.roads}`, `停靠：${day.points.map(point => point.name).join(' → ')}`);
         if (meal && meal.todo) lines.push(`今日安排：${meal.todo}`);
+        if (meal && meal.prep) lines.push(`备餐/冻/补给：${meal.prep}`);
         if (meal) {
           lines.push(`早餐：${meal.breakfast.plan}（每人${money(meal.breakfast.perPax)}）`, `午餐：${meal.lunch.plan}（每人${money(meal.lunch.perPax)}）${meal.lunch.backup ? `｜备用：${meal.lunch.backup}` : ''}`, `晚餐·${meal.dinner.label}：${meal.dinner.plan}（每人${money(meal.dinner.perPax)}／4人${money(meal.dinner.party4)}）`, `餐饮4人合计：${money(meal.dayTotal4)}`);
         }

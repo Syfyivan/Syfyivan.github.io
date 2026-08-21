@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plan B · 川进滇出在线高德逐日地图</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23c75b39'/%3E%3Cpath d='M12 46 26 22l8 12 5-8 13 20z' fill='%23fff'/%3E%3Cpath d='M22 30l4-6' stroke='%23c75b39' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M14 54c8-4 12 4 20 0s10-5 16-1' stroke='%23fff' stroke-width='3' fill='none' stroke-linecap='round' stroke-dasharray='1 6'/%3E%3C/svg%3E">
   <style>
     :root{--bg:#f4f1ec;--card:#fff;--ink:#282522;--muted:#6d6761;--line:#e4ddd5;--accent:#c75b39;--accent-soft:#fff0e9;--shadow:0 14px 36px rgba(62,45,34,.10)}
     *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Noto Sans SC',sans-serif;background:var(--bg);color:var(--ink)}button,input{font:inherit}
@@ -270,10 +271,11 @@
       let mealHtml = '';
       if (meal) {
         mealHtml = `
+          ${meal.prep ? `<div class="db-row"><span class="db-k" style="color:#c75b39">备餐 / 冻 / 补给</span><span class="db-v">${escapeHtml(meal.prep)}</span></div>` : ''}
           <div class="db-row"><span class="db-k">早餐</span><span class="db-v">${escapeHtml(meal.breakfast.plan)}<em>（约${yuan(meal.breakfast.perPax)}/人）</em></span></div>
           <div class="db-row"><span class="db-k">午餐</span><span class="db-v">${escapeHtml(meal.lunch.plan)}<em>（约${yuan(meal.lunch.perPax)}/人）</em>${meal.lunch.where ? `<br><small style="color:#c75b39">在哪吃：${escapeHtml(meal.lunch.where)}</small>` : ''}${meal.lunch.backup ? `<br><small>备选：${escapeHtml(meal.lunch.backup)}</small>` : ''}</span></div>
           <div class="db-row"><span class="db-k">晚餐 · ${escapeHtml(meal.dinner.label)}</span><span class="db-v">${escapeHtml(meal.dinner.plan)}<em>（4人约${yuan(meal.dinner.party4)}）</em>${meal.dinner.where ? `<br><small style="color:#c75b39">在哪吃：${escapeHtml(meal.dinner.where)}</small>` : ''}</span></div>
-          ${meal.carry ? `<div class="db-row"><span class="db-k">自带食材 · 怎么带</span><span class="db-v">${escapeHtml(meal.carry)}<br><small><a href="./index.html#food-plan" target="_blank" rel="noopener">买 / 冻 / 做 / 带完整方案 →</a></small></span></div>` : ''}`;
+          ${meal.carry ? `<div class="db-row"><span class="db-k">自带食材 · 怎么带</span><span class="db-v">${escapeHtml(meal.carry)}</span></div>` : ''}`;
       }
       let stayHtml = '';
       if (stay) {

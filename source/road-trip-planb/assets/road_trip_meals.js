@@ -65,8 +65,10 @@
     29: '回北京，在家里吃。'
   };
 
-  // 晚餐“在哪吃”：优先用已核实的餐饮商圈；没有则按当天性质如实说明是住宿餐还是自带热食。
+  // 晚餐“在哪吃”：进店晚餐的点菜建议里已写明商圈（如“回民街/永兴坊”），不再重复“在哪吃”，避免冗余；
+  // 只有靠住宿餐/就近小馆/自带热食的日子，才补一句落脚说明。
   const whereToEatDinner = (day, mode) => {
+    if (mode === 'restaurant') return '';
     if (EAT_SPOT[day.day]) return EAT_SPOT[day.day];
     if (mode === 'home') return '在家吃。';
     if (mode === 'lodging') return '这一带没有像样的餐饮街，靠客栈 / 酒店餐或住宿附近唯一几家小馆；不方便就用自热饭/自热麻辣烫或煮米线泡面（遵守当地防火管制）。';
@@ -86,19 +88,29 @@
   const REMOTE_DAYS = new Set([7, 8, 9, 12, 19, 20, 22]);
 
   // “自带食材·怎么带”：只在真正要靠自带热食的日子给出——徒步/接驳/长途高速/偏远住宿。
-  // 补货的关键城市节点（成都D4、拉萨D19、丽江D29）单独提示。
+  // 补货节点写清「买多少 + 撑几天」；数量为 4 人估算，按实际食量增减。
+  // 蔬果常温保质期（车载阴凉、别闷塑料袋）：黄瓜 3—4 天最不耐放先吃、圣女果/胡萝卜 5—7 天、苹果 7—10 天最耐放垫后；
+  // 苹果会释放乙烯催熟别的，单独放。原则：在每个补给点只买够撑到下一个补给点的量，边走边吃、吃完在下个节点补，不囤到坏。
   const RESTOCK_NOTE = {
-    4: '成都是进川藏前最重要的大补给：取车验车、洗衣，把进藏几天的自热饭/米线/料包、干粮、异丁烷+丙烷高山混合气（勿买纯丁烷）和耐放蔬果+鸡蛋补满；全程不依赖冷冻。',
-    7: '香格里拉镇（日瓦）亚丁进山前补给：备好路餐（三明治/饭团、熟肉、坚果、水果）、氧气、保暖用品和足量饮水，长线徒步随身带。',
-    17: '拉萨机动日补给窗口：进店认真吃几顿有蔬菜蛋白的正餐，速食库存补到给滇藏线和雅西川西够用。',
-    24: '丽江是返程成熟城市：按需补速食和气罐，蔬果随买随吃，不用大囤；住整套公寓可当天买菜现做一顿。'
+    4: '成都大补给（进藏前唯一一次囤够，撑 D5—D17 拉萨这 13 天）——在成都大型超市/永辉一次配齐：自热米饭/自热麻辣烫 约30—36 盒、米线/泡面 约16—20 份、单独料包若干（备着减盐用）、火腿肠/午餐肉 约20 根/罐、卤蛋当天煮 16—20 个、异丁烷+丙烷高山混合气罐 3—4 罐（勿买纯丁烷，高原低温点不着）。蔬果分批策略：黄瓜只买 2—3 天量（3—4 天就蔫，先吃），圣女果/胡萝卜各买 5—7 天量，苹果买足能放 10 天（最耐放、单独放别催熟别的）；蔬果吃完不用等大补给，沿途理塘/巴塘/波密县城随时补新鲜的。同时取车验车、洗衣。全程不依赖冷冻，靠常温速食。',
+    7: '香格里拉镇（日瓦）亚丁进山路餐（只备 1 天长线用，不囤）：三明治/饭团 每人 1—2 个、熟牛肉/火腿 约1 斤、水煮蛋 6—8 个、坚果 2 袋、巧克力/能量棒 6—8 根、水果若干（苹果/橘子耐揣好带），另备氧气、保暖和每人 1.5L 以上饮水，长线全程随身背。',
+    10: '巴塘县城补新鲜蔬果（成都带的黄瓜已吃完、圣女果也差不多）：低海拔县城超市/菜市补黄瓜、圣女果、苹果各 2—3 天量，趁海拔低吃顿有蔬菜的正餐；速食主食这里还够，不用大补。',
+    13: '波密县城补给（低海拔、物资较全）：补新鲜蔬果各 3—4 天量续上，自热盒饭/泡面若见底补 6—8 盒到拉萨，气罐够就不补。',
+    17: '拉萨机动日补给（补到够 D18—D24 丽江这 7 天用）：自热米饭 约18—22 盒、米线/泡面 约10 份、气罐 2 罐、卤蛋/午餐肉补一轮、蔬果按“黄瓜少买勤补、苹果多备”原则再配 5—7 天量。同时在店里认真吃几顿有蔬菜蛋白的正餐，把速食日欠的营养补回来。',
+    24: '丽江返程补给（补 D25—D29 高速日午餐，约 5 天）：自热米饭/麻辣烫 约14—18 盒、卤蛋/午餐肉补一轮；蔬果随买随吃不用大囤（往后全程低海拔成熟高速，西昌/攀枝花随处能买）；住带厨房整套房，当天可买菜现做一顿热的放松。'
+  };
+  // 每顿常温速食的“具体吃多少”（4 人一顿的量），写进各类型午餐/兜底晚餐。
+  const PORTION = {
+    hwy: '自热盒饭 4 盒（每人 1 盒）或自热麻辣烫 4 份',
+    mx: '米线/泡面 4 份（每人 1 份），料包只下一半降钠',
+    boost: '每人加 1 个卤蛋或 1 根火腿肠 + 一把耐放蔬果（按黄瓜→圣女果/胡萝卜→苹果的顺序先吃易坏的）补蛋白和维C'
   };
   const carryNote = day => {
     const restock = RESTOCK_NOTE[day.day] ? '　补给：' + RESTOCK_NOTE[day.day] : '';
-    if (day.type === 'hike') return '前一晚在住宿把三明治/饭团、水煮蛋、熟肉、坚果、水果装进背包保温袋；徒步全程随身带，出山回住宿再吃正餐。' + restock;
-    if (day.type === 'mixed') return '带上自热米饭/自热麻辣烫或泡好的米线，接驳段随身背，遇可靠热食点再补碗汤面。' + restock;
-    if (day.distanceKm >= 400) return '长途高速日主食走常温速食：自热米饭/自热麻辣烫、米线泡面配料包，即开即热、不依赖冷链；料包只放一半降钠，加个卤蛋/午餐肉和耐放蔬果补蛋白和维C，主食口味每天换着来别重复。' + restock;
-    if (REMOTE_DAYS.has(day.day)) return '这一带餐饮少：晚餐靠住宿餐或就近小馆，吃不惯就用自热饭/自热麻辣烫、或高山炉煮米线泡面（丢个鸡蛋+一把耐放菜同煮，料包减量降钠；只在通风露天处点火，守当地防火管制）。' + restock;
+    if (day.type === 'hike') return '前一晚在住宿把三明治/饭团（每人 1—2 个）、水煮蛋（每人 1—2 个）、熟肉、坚果、水果装进背包保温袋；徒步全程随身带，出山回住宿再吃正餐。' + restock;
+    if (day.type === 'mixed') return `带上 ${PORTION.hwy} 或泡好的 ${PORTION.mx}，接驳段随身背，遇可靠热食点再补碗汤面。` + restock;
+    if (day.distanceKm >= 400) return `长途高速日午餐走常温速食：${PORTION.hwy}，或 ${PORTION.mx}；${PORTION.boost}。即开即热不依赖冷链，主食口味每天换着来别重复。` + restock;
+    if (REMOTE_DAYS.has(day.day)) return `这一带餐饮少：晚餐靠住宿餐或就近小馆，吃不惯就 ${PORTION.hwy}，或用高山炉煮 ${PORTION.mx}（丢 4 个鸡蛋 + 一把耐放菜同煮，料包减量降钠；只在通风露天处点火，守当地防火管制）。` + restock;
     return restock ? restock.replace(/^　/, '') : '';
   };
 
@@ -183,13 +195,15 @@
     const detail = DETAIL[day.day];
     if (detail && detail.bf) breakfast.plan = detail.bf;
     if (detail && detail.ln) lunch.plan = detail.ln;
+    if (detail && detail.dn) dinner.plan = detail.dn;
     const todo = detail && detail.todo ? detail.todo : '';
+    const prep = detail && detail.prep ? detail.prep : '';
     const carry = carryNote(day);
     const dayTotal4 = [
       round5(breakfast.perPax[0] * 4 + lunch.perPax[0] * 4 + dinner.party4[0]),
       round5(breakfast.perPax[1] * 4 + lunch.perPax[1] * 4 + dinner.party4[1])
     ];
-    return { day: day.day, todo, breakfast, lunch, dinner, carry, dayTotal4 };
+    return { day: day.day, todo, breakfast, lunch, dinner, prep, carry, dayTotal4 };
   });
 
   const dinnerCounts = meals.reduce((counts, meal) => {
@@ -199,8 +213,8 @@
 
   window.ROAD_TRIP_MEAL_DATA = {
     meta: {
-      version: 'planb-daily-meals-v2',
-      updatedAt: '2026-08-19',
+      version: 'planb-daily-meals-v4',
+      updatedAt: '2026-08-21',
       priceNature: '规划估算价',
       priceBasis: '价格反映当地常见家常正餐消费区间，用于行程预算，不代表锁定报价；点餐或到店时以实际菜单为准。',
       kitchenNights: [],
