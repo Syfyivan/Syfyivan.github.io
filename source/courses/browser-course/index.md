@@ -42,4 +42,12 @@ html[data-user-color-scheme="dark"] .bc-hero{background:rgba(63,93,126,.2)}
 <a class="bc-row" href="/2026/08/21/browser-course-11/"><span class="bc-num done">11</span><div class="bc-rt"><h4>绘制、栅格化与合成</h4><p>绘制记录如何定顺序、内容为何分合成层、栅格化怎样把矢量变像素、GPU 合成上屏，以及 transform/opacity 动画为何流畅。</p></div></a>
 <a class="bc-row" href="/2026/08/21/browser-course-12/"><span class="bc-num done">12</span><div class="bc-rt"><h4>性能指标与完整复盘</h4><p>把十二节点串成一条因果链，并挂上 TTFB/FCP/LCP/INP/CLS——每个指标卡在主线哪一步、怎样反推优化。</p></div></a>
 
-<div class="bc-note">主线十二节点已全部完成，从「地址栏输入」一路讲到「像素上屏」并做了性能复盘。后续三条独立分支（WebRTC、操作系统机制、Web 存储与安全）从主线相应节点岔出，作为可选深水区延展，会陆续补上并同步到本页。</div>
+<div class="bc-sub">独立分支（可选深水区）</div>
+
+<div class="bc-note">这三条分支从主线相应节点岔出，各自独立成篇。不看不影响主线连贯，但每条都是校招高频的深水区：想在面试里多一层深度，挑感兴趣的读。</div>
+
+<a class="bc-row" href="/2026/08/21/browser-course-b1/"><span class="bc-num done">A</span><div class="bc-rt"><h4>WebRTC 实时通信</h4><p>主线是「向服务器取文档」，WebRTC 是「两个浏览器直连」——信令交换、ICE/STUN/TURN 凿穿 NAT、DTLS 加密与 SRTP 传输，走一条和 HTTP 全然不同的建连路径。</p></div></a>
+<a class="bc-row" href="/2026/08/21/browser-course-b2/"><span class="bc-num done">B</span><div class="bc-rt"><h4>操作系统机制：进程、线程与内存</h4><p>主线反复出现的「浏览器进程」「渲染进程」「主线程」，根都扎在这里：进程做隔离、线程做调度、虚拟内存造独占假象、用户态内核态划权限墙。</p></div></a>
+<a class="bc-row" href="/2026/08/21/browser-course-b3/"><span class="bc-num done">C</span><div class="bc-rt"><h4>Web 存储与安全</h4><p>请求头里的 Cookie 从哪来、脚本能碰哪些本地数据？Cookie/Web Storage/IndexedDB 的分工，同源策略这条地基，以及 CSRF、XSS 怎样钻「自动携带」与「同源信任」的空子。</p></div></a>
+
+<div class="bc-note"><strong>全系列已完结：</strong>12 节主线 + 3 条分支，从「地址栏输入 URL」一路缝到「像素上屏」，覆盖浏览器、计算机网络、操作系统与前端运行时四门课的核心因果链。</div>
