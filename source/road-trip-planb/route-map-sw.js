@@ -1,4 +1,4 @@
-const CACHE_NAME = 'road-trip-planb-map-v13';
+const CACHE_NAME = 'road-trip-planb-map-v14';
 const CORE_PATHS = [
   './',
   './index.html',
