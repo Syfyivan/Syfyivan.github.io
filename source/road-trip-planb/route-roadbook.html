@@ -80,6 +80,7 @@
     </section>
     <nav class="actions"><a class="primary" href="./route-map-offline.html?v=14"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>打开离线地图</a><a href="./route-map-amap.html?v=14"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>打开在线高德</a><button id="expandBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>展开全部</button><button id="collapseBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 20 5-5 5 5M7 4l5 5 5-5"/></svg>全部收起</button><button id="downloadBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg>下载TXT路书</button><button type="button" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M6 14h12v7H6Z"/></svg>打印 / 存为PDF</button></nav>
     <div class="note"><strong>离线边界：</strong>本页保存的是计划道路、坐标和风险提醒，不冒充实时路况。封路、边防、景区换乘和营业状态必须在有网时复核；无网时以现场标志、交警与景区指令为准。</div>
+    <div class="note" style="background:#eef4fb;border-left-color:#1d4ed8"><strong>通讯与信号：</strong>川藏/滇藏高原段信号三网里<strong>移动最好、电信次之、联通最差</strong>，建议主卡移动、备一张电信。垭口、峡谷、长隧道（如高尔寺隧道）会长时间无信号，属正常现象。出发前告知家人：白天山里可能失联，晚上到住宿有信号或WiFi再报平安；把每日住宿点和大致到达时间留给家人，别让人干等着急。<strong>本路线不经边境管理区，无需办边防证</strong>（亚丁只需提前网上预约门票）。</div>
     <div class="note" style="background:#fff6ef;border-left-color:var(--accent)"><strong>价格说明：</strong>以下价格用于行程预算，不代表锁定报价。住宿、门票、区间车、油价和餐饮价格应在预订时及出发前再次核验。卡片内标签区分「官方价 / 参考价 / 估算」，餐饮与门票接驳为规划估算区间，住宿价见各订单页实时房价。</div>
     <div class="filter"><label>只看 D</label><input id="fromDay" type="number" min="1" max="29" value="1"><span>到</span><input id="toDay" type="number" min="1" max="29" value="29"><button id="filterBtn" type="button">筛选</button><button id="todayBtn" type="button">按日期定位</button><span id="filterStatus" class="meta"></span></div>
     <section class="altbox" id="altitude-profile">
@@ -93,6 +94,18 @@
       </div>
     </section>
     <section id="days" class="days"></section>
+    <section class="packlist" id="budget-total">
+      <div class="packlist-head">
+        <div class="packlist-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>全程预算总账（4人合计估算，不含租车固定费）</div>
+      </div>
+      <p class="packlist-hint">下表把各日「餐饮 + 住宿 + 门票接驳 + 油费高速」自动累加成全程区间。<strong>租车与全险约 1.7—2 万另计</strong>（见主页）。所有金额为规划估算，出发前须逐项复核，不代表锁定报价。</p>
+      <div class="table-wrap" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;line-height:1.7">
+          <thead><tr style="background:#fff6ef;text-align:left"><th style="padding:9px;border:1px solid var(--line)">项目（4人全程）</th><th style="padding:9px;border:1px solid var(--line)">估算区间</th></tr></thead>
+          <tbody id="budgetTotalBody"></tbody>
+        </table>
+      </div>
+    </section>
     <section class="packlist" id="packlist">
       <div class="packlist-head">
         <div class="packlist-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4Z"/><path d="m9 12 2 2 4-4"/></svg>行前打包清单（出发前 3 天逐样装箱）</div>
@@ -197,7 +210,7 @@
       </div>
       <p class="packlist-hint" style="margin-top:10px;color:#8a6d3b">备注：唇膏、高倍防晒、墨镜全程每天用（高原紫外线强）；头痛药、肠胃药、感冒药随身备用，个人处方药按 29 天量+余量带足。以上为出行保健建议，非医疗诊断，具体用药请遵医嘱。</p>
     </section>
-    <p class="footer">版本：daily-roadbook-v11 · 数据更新：2026-08-21 · 房价与库存以实际付款页为准。</p>
+    <p class="footer">版本：daily-roadbook-v12 · 数据更新：2026-08-21 · 房价与库存以实际付款页为准。</p>
   </main>
   <script src="./assets/route_map_pois.js"></script>
   <script src="./assets/road_trip_days.js"></script>
@@ -365,6 +378,29 @@
       const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'}); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = 'PlanB-川进滇出-D1-D29-执行路书.txt'; link.click(); URL.revokeObjectURL(url);
     }
 
+    function renderBudgetTotal() {
+      const body = document.getElementById('budgetTotalBody');
+      if (!body) return;
+      const acc = { meal:[0,0], stay:[0,0], ticket:[0,0], fuel:[0,0] };
+      DAILY.days.forEach(day => {
+        const meal = meals.get(day.day); const cost = costs.get(day.day); const stay = stays.get(day.stayId);
+        if (meal && meal.dayTotal4) { acc.meal[0]+=meal.dayTotal4[0]; acc.meal[1]+=meal.dayTotal4[1]; }
+        if (stay && stay.priceParty4) { acc.stay[0]+=stay.priceParty4[0]; acc.stay[1]+=stay.priceParty4[1]; }
+        if (cost && cost.ticketTotal) { acc.ticket[0]+=cost.ticketTotal[0]; acc.ticket[1]+=cost.ticketTotal[1]; }
+        if (cost && cost.fuelToll) { acc.fuel[0]+=cost.fuelToll[0]; acc.fuel[1]+=cost.fuelToll[1]; }
+      });
+      const rows = [
+        ['餐饮（29天）', acc.meal],
+        ['住宿（28晚）', acc.stay],
+        ['门票 / 区间车 / 接驳', acc.ticket],
+        ['油费 + 高速费', acc.fuel]
+      ];
+      const grand = [rows.reduce((s,r)=>s+r[1][0],0), rows.reduce((s,r)=>s+r[1][1],0)];
+      body.innerHTML = rows.map(r=>`<tr><td style="padding:9px;border:1px solid var(--line)">${r[0]}</td><td style="padding:9px;border:1px solid var(--line)">${range(r[1])}</td></tr>`).join('')
+        + `<tr style="background:#fdeadf;font-weight:900;color:var(--accent)"><td style="padding:9px;border:1px solid var(--line)">全程合计（不含租车）</td><td style="padding:9px;border:1px solid var(--line)">${range(grand)}</td></tr>`
+        + `<tr><td style="padding:9px;border:1px solid var(--line)">＋租车 + 全险（另计，见主页）</td><td style="padding:9px;border:1px solid var(--line)">约 17,000—20,000</td></tr>`;
+    }
+    renderBudgetTotal();
     document.getElementById('filterBtn').addEventListener('click', applyFilter);
     document.getElementById('expandBtn').addEventListener('click', () => document.querySelectorAll('.day').forEach(card => { card.open = true; }));
     document.getElementById('collapseBtn').addEventListener('click', () => document.querySelectorAll('.day').forEach(card => { card.open = false; }));
