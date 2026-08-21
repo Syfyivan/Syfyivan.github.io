@@ -178,4 +178,4 @@ DNS 分为递归查询和迭代查询。
 节点一从最开始的地方切入——用户在地址栏敲下的那串字符还不是一次导航，浏览器要先决定它是网址、搜索词还是别的东西，再把它变成一次真正的导航，最后交出一份结构化的加载任务。之所以从这里开始，是因为在拿到「加载任务」之前，网络世界里什么都还没发生。
 
 
-<div class="bc-nav"><a href="/courses/browser-course/" >← 课程目录</a><a class="r" href="/2026/08/21/browser-course-01/">01 · 用户输入与导航创建 →</a></div>
+<div class="bc-nav"><a href="/courses/browser-course/">← 课程目录</a><a class="r" href="/2026/08/21/browser-course-01/">01 · 用户输入与导航创建 →</a></div>
