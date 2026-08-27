@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>面试预约表</title>
+    <meta
+      name="description"
+      content="一个可编辑的面试预约表：按日期列、时间行展示5-7天"
+    />
+    <style>
+      :root {
+        --bg: radial-gradient(1200px 500px at 10% -20%, #f9d29d 0%, transparent 40%),
+          radial-gradient(900px 420px at 90% 0%, #b2d9ff 0%, transparent 45%),
+          linear-gradient(135deg, #1f2933, #111827);
+        --card: #ffffffcc;
+        --ink: #14213d;
+        --line: #d6deef;
+        --muted: #64748b;
+        --accent: #2563eb;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "Trebuchet MS", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB",
+          "Microsoft YaHei", sans-serif;
+        background: var(--bg);
+        padding: clamp(1rem, 2vw, 2rem);
+      }
+
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .hero {
+        animation: rise 500ms ease;
+        padding: 1.6rem;
+        border-radius: 20px;
+        background: var(--card);
+        backdrop-filter: blur(8px);
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 20px 50px #00000022;
+      }
+
+      h1 {
+        margin: 0 0 0.4rem;
+        font-size: clamp(1.5rem, 2.3vw, 2rem);
+        letter-spacing: 0.02em;
+        color: #0f172a;
+      }
+
+      .hint {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .mobile-hint {
+        display: none;
+      }
+
+      .toolbar {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.7rem;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .toolbar button,
+      .toolbar .meta {
+        border-radius: 999px;
+        border: 1px solid #d1d5db;
+        padding: 0.58rem 1.1rem;
+        background: #fff;
+        cursor: pointer;
+      }
+
+      .toolbar button {
+        font-weight: 600;
+        transition:
+          transform 160ms ease,
+          background-color 160ms ease,
+          color 160ms ease;
+      }
+
+      .toolbar button:hover {
+        transform: translateY(-1px);
+        background: #f1f5ff;
+      }
+
+      .toolbar button.active {
+        color: #fff;
+        border-color: var(--accent);
+        background: var(--accent);
+      }
+
+      .toolbar .meta {
+        color: #334155;
+        border-style: dashed;
+        border-color: #cbd5e1;
+      }
+
+      .table-wrap {
+        margin-top: 1rem;
+        overflow: auto;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        animation: fadeIn 600ms ease;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        min-width: 110px;
+      }
+
+      th {
+        background: #f8fafc;
+        color: #0f172a;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+      }
+
+      thead th:first-child {
+        left: 0;
+        z-index: 3;
+      }
+
+      .time-col {
+        width: 95px;
+        background: #f1f5f9;
+        font-weight: 600;
+        text-align: center;
+      }
+
+      .date-col {
+        text-align: center;
+        padding: 0.6rem;
+        min-width: 140px;
+      }
+
+      .date-short,
+      .corner-short {
+        display: none;
+      }
+
+      .weekday {
+        font-size: 0.82rem;
+        color: #64748b;
+      }
+
+      .slot-cell {
+        position: relative;
+        background: #f8fafc;
+        vertical-align: top;
+        height: 86px;
+        padding: 0.45rem;
+        transition: background-color 140ms ease;
+      }
+
+      .slot-cell[data-filled="true"] {
+        font-weight: 600;
+      }
+
+      .slot-text {
+        min-height: 62px;
+        border-radius: 10px;
+        border: 1px dashed #cbd5e1;
+        background: rgba(255, 255, 255, 0.72);
+        padding: 0.45rem 1.85rem 0.45rem 0.55rem;
+        line-height: 1.35;
+        outline: none;
+        white-space: pre-wrap;
+      }
+
+      .slot-text:focus {
+        border-style: solid;
+        border-color: #94a3b8;
+      }
+
+      .slot-color {
+        position: absolute;
+        right: 0.45rem;
+        top: 0.45rem;
+        height: 22px;
+        width: 22px;
+        border: none;
+        padding: 0;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 6px;
+      }
+
+      .slot-color::-webkit-color-swatch-wrapper {
+        padding: 0;
+      }
+
+      .slot-color::-webkit-color-swatch {
+        border: none;
+        border-radius: 6px;
+      }
+
+      .legend {
+        margin-top: 1rem;
+        color: #334155;
+        line-height: 1.7;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+      }
+
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .chip {
+        width: 14px;
+        height: 14px;
+        border-radius: 999px;
+        background: #94a3b8;
+        border: 1px solid #cbd5e1;
+      }
+
+      .actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+      }
+
+      .actions button {
+        border: 1px solid #1d4ed8;
+        background: #1d4ed8;
+        color: #fff;
+        border-radius: 10px;
+        padding: 0.55rem 1rem;
+        cursor: pointer;
+      }
+
+      .actions button.secondary {
+        background: #fff;
+        color: #334155;
+        border-color: #cbd5e1;
+      }
+
+      .slot-editor {
+        width: min(calc(100% - 1rem), 460px);
+        margin: auto auto 0.5rem;
+        padding: 1rem;
+        color: var(--ink);
+        background: #fff;
+        border: 0;
+        border-radius: 18px;
+        box-shadow: 0 24px 70px #0f172a55;
+      }
+
+      .slot-editor::backdrop {
+        background: #0f172a80;
+        backdrop-filter: blur(3px);
+      }
+
+      .slot-editor h2 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .editor-slot-label {
+        margin: 0.25rem 0 0.8rem;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .editor-field-label {
+        display: block;
+        margin-bottom: 0.35rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .editor-text {
+        display: block;
+        width: 100%;
+        min-height: 96px;
+        resize: vertical;
+        padding: 0.7rem;
+        color: var(--ink);
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font: inherit;
+        font-size: 16px;
+        line-height: 1.4;
+        outline: none;
+      }
+
+      .editor-text:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px #2563eb1a;
+      }
+
+      .editor-color-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+        align-items: center;
+        margin-top: 0.8rem;
+      }
+
+      .editor-color-row .editor-field-label {
+        flex-basis: 100%;
+        margin-bottom: 0;
+      }
+
+      .editor-color {
+        flex: 0 0 48px;
+        width: 48px;
+        height: 42px;
+        padding: 2px;
+        background: #fff;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+      }
+
+      .color-presets {
+        display: flex;
+        flex: 1;
+        justify-content: space-between;
+        gap: 0.3rem;
+        min-width: 0;
+      }
+
+      .color-preset {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: 2px solid #fff;
+        border-radius: 999px;
+        box-shadow: 0 0 0 1px #cbd5e1;
+        cursor: pointer;
+      }
+
+      .editor-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.55rem;
+        margin-top: 1rem;
+      }
+
+      .editor-actions button {
+        min-height: 44px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        background: #fff;
+        color: #334155;
+        font-weight: 700;
+      }
+
+      .editor-actions .primary {
+        color: #fff;
+        border-color: var(--accent);
+        background: var(--accent);
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 0.45rem;
+        }
+
+        .hero {
+          padding: 0.7rem;
+          border-radius: 14px;
+        }
+
+        h1 {
+          font-size: 1.25rem;
+        }
+
+        .hint {
+          font-size: 0.78rem;
+          line-height: 1.45;
+        }
+
+        .desktop-hint {
+          display: none;
+        }
+
+        .mobile-hint {
+          display: inline;
+        }
+
+        .toolbar {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 0.4rem;
+          margin-top: 0.7rem;
+        }
+
+        .toolbar button,
+        .toolbar .meta {
+          min-width: 0;
+          padding: 0.45rem 0.2rem;
+          font-size: 0.72rem;
+          text-align: center;
+        }
+
+        .toolbar .meta {
+          grid-column: 1 / -1;
+        }
+
+        .actions {
+          gap: 0.4rem;
+          margin-top: 0.65rem;
+        }
+
+        .actions button {
+          flex: 1;
+          min-width: 0;
+          padding: 0.48rem 0.3rem;
+          font-size: 0.75rem;
+        }
+
+        .legend {
+          gap: 0.3rem 0.65rem;
+          margin-top: 0.65rem;
+          font-size: 0.7rem;
+          line-height: 1.4;
+        }
+
+        .chip {
+          width: 10px;
+          height: 10px;
+        }
+
+        .table-wrap {
+          margin-top: 0.65rem;
+          overflow-x: hidden;
+          border-radius: 10px;
+        }
+
+        table {
+          width: 100%;
+          min-width: 0;
+          table-layout: fixed;
+        }
+
+        th,
+        td {
+          min-width: 0;
+        }
+
+        .time-col {
+          width: 42px;
+          font-size: 0.62rem;
+          line-height: 1.15;
+        }
+
+        .date-col {
+          min-width: 0;
+          padding: 0.3rem 0.05rem;
+          font-size: 0.66rem;
+          line-height: 1.2;
+        }
+
+        .date-full,
+        .corner-long {
+          display: none;
+        }
+
+        .date-short,
+        .corner-short {
+          display: block;
+        }
+
+        .weekday {
+          margin-top: 0.12rem;
+          font-size: 0.58rem;
+        }
+
+        .slot-cell {
+          min-width: 0;
+          height: 68px;
+          padding: 2px;
+          cursor: pointer;
+        }
+
+        .slot-text {
+          min-height: 62px;
+          padding: 0.25rem 0.12rem;
+          border-radius: 5px;
+          font-size: 0.65rem;
+          line-height: 1.2;
+          overflow-wrap: anywhere;
+          pointer-events: none;
+        }
+
+        .slot-color {
+          right: 3px;
+          top: 3px;
+          width: 14px;
+          height: 14px;
+          border-radius: 4px;
+          opacity: 0.88;
+          pointer-events: none;
+        }
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0.5;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <h1>面试预约表（可编辑）</h1>
+        <p class="hint">
+          <span class="desktop-hint">每个格子可直接输入内容（候选人/电话/备注），再用右上角颜色块标记状态。</span>
+          <span class="mobile-hint">点格子打开编辑面板，可填写候选人、电话、备注并标记颜色。</span>
+          页面会自动保存到浏览器本地（当前电脑 + 当前浏览器）。
+        </p>
+
+        <div class="toolbar">
+          <button type="button" class="range-btn" data-range="5">显示 5 天</button>
+          <button type="button" class="range-btn" data-range="6">显示 6 天</button>
+          <button type="button" class="range-btn active" data-range="7">显示 7 天</button>
+          <span id="rangeLabel" class="meta">当前范围：7 天</span>
+        </div>
+
+        <div class="actions">
+          <button id="jumpToday" type="button">定位到今天</button>
+          <button id="clearAll" class="secondary" type="button">清空当前范围</button>
+        </div>
+
+        <div class="legend">
+          <span><i class="chip" style="background: #ecfccb"></i>绿：已确认</span>
+          <span><i class="chip" style="background: #fef08a"></i>黄：待确认</span>
+          <span><i class="chip" style="background: #fecdd3"></i>红：不可用</span>
+          <span><i class="chip" style="background: #e2e8f0"></i>灰：空闲</span>
+        </div>
+
+        <div class="table-wrap">
+          <table id="bookingTable">
+            <thead>
+              <tr id="tableHead">
+                <th class="time-col">
+                  <span class="corner-long">时间 / 日期</span><span class="corner-short">时间</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="slotEditor" class="slot-editor" aria-labelledby="editorTitle">
+      <form method="dialog">
+        <h2 id="editorTitle">编辑面试预约</h2>
+        <p id="editorSlotLabel" class="editor-slot-label"></p>
+        <label class="editor-field-label" for="editorText">预约内容</label>
+        <textarea
+          id="editorText"
+          class="editor-text"
+          rows="4"
+          maxlength="160"
+          placeholder="候选人 / 电话 / 备注"
+        ></textarea>
+        <div class="editor-color-row">
+          <label class="editor-field-label" for="editorColor">标记颜色</label>
+          <input id="editorColor" class="editor-color" type="color" value="#f8fafc" />
+          <div class="color-presets" aria-label="常用颜色">
+            <button class="color-preset" type="button" data-color="#ecfccb" style="background:#ecfccb" aria-label="已确认"></button>
+            <button class="color-preset" type="button" data-color="#fef08a" style="background:#fef08a" aria-label="待确认"></button>
+            <button class="color-preset" type="button" data-color="#fecdd3" style="background:#fecdd3" aria-label="不可用"></button>
+            <button class="color-preset" type="button" data-color="#e2e8f0" style="background:#e2e8f0" aria-label="空闲"></button>
+          </div>
+        </div>
+        <div class="editor-actions">
+          <button type="submit" value="cancel">取消</button>
+          <button id="saveEditor" class="primary" type="button">保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script>
+      (() => {
+        const STORAGE_KEY = "interview_booking_slots_v1";
+        const tableHead = document.getElementById("tableHead");
+        const tableBody = document.getElementById("tableBody");
+        const rangeLabel = document.getElementById("rangeLabel");
+        const rangeButtons = Array.from(document.querySelectorAll(".range-btn"));
+        const jumpTodayBtn = document.getElementById("jumpToday");
+        const clearBtn = document.getElementById("clearAll");
+        const slotEditor = document.getElementById("slotEditor");
+        const editorSlotLabel = document.getElementById("editorSlotLabel");
+        const editorText = document.getElementById("editorText");
+        const editorColor = document.getElementById("editorColor");
+        const saveEditorBtn = document.getElementById("saveEditor");
+        const colorPresets = Array.from(document.querySelectorAll(".color-preset"));
+        const mobileLayout = window.matchMedia("(max-width: 768px)");
+
+        const timeSlots = [
+          "09:00",
+          "10:00",
+          "11:00",
+          "12:00",
+          "13:00",
+          "14:00",
+          "15:00",
+          "16:00",
+          "17:00",
+          "18:00",
+          "19:00",
+          "20:00",
+          "21:00"
+        ];
+        const defaultColor = "#f8fafc";
+
+        let state = loadState();
+        let dayCount = Number(localStorage.getItem("interview_booking_day_count") || 7);
+        if (![5, 6, 7].includes(dayCount)) dayCount = 7;
+        let startDate = new Date();
+        let mobileEditTarget = null;
+
+        colorPresets.forEach((button) => {
+          button.addEventListener("click", () => {
+            editorColor.value = button.dataset.color;
+          });
+        });
+
+        saveEditorBtn.addEventListener("click", () => {
+          if (!mobileEditTarget) return;
+          const value = editorText.value;
+          const color = editorColor.value;
+          mobileEditTarget.text.textContent = value;
+          mobileEditTarget.picker.value = color;
+          mobileEditTarget.cell.style.backgroundColor = color;
+          mobileEditTarget.cell.dataset.filled = value.trim() ? "true" : "false";
+          saveCell(mobileEditTarget.cellId, value, color);
+          slotEditor.close();
+        });
+
+        slotEditor.addEventListener("close", () => {
+          mobileEditTarget = null;
+        });
+
+        rangeButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            dayCount = Number(btn.dataset.range);
+            localStorage.setItem("interview_booking_day_count", String(dayCount));
+            updateRangeButtons();
+            render();
+          });
+        });
+
+        jumpTodayBtn.addEventListener("click", () => {
+          startDate = startOfToday();
+          render();
+        });
+
+        clearBtn.addEventListener("click", () => {
+          const keys = Object.keys(state);
+          const targets = getVisibleCellIds();
+          if (!targets.length) return;
+          targets.forEach((id) => delete state[id]);
+          persist();
+          render();
+        });
+
+        function startOfToday() {
+          const now = new Date();
+          now.setHours(0, 0, 0, 0);
+          return now;
+        }
+
+        function fmtDate(date) {
+          return `${date.getMonth() + 1}月${date.getDate()}日`;
+        }
+
+        function toISODate(date) {
+          const year = date.getFullYear();
+          const month = `${date.getMonth() + 1}`.padStart(2, "0");
+          const day = `${date.getDate()}`.padStart(2, "0");
+          return `${year}-${month}-${day}`;
+        }
+
+        function toCNWeekday(date) {
+          return ["日", "一", "二", "三", "四", "五", "六"][date.getDay()];
+        }
+
+        function saveCell(cellId, text, color) {
+          state[cellId] = { text, color };
+          persist();
+        }
+
+        function getVisibleCellIds() {
+          const ids = [];
+          for (let d = 0; d < dayCount; d++) {
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + d);
+            const dateKey = toISODate(date);
+            for (const slot of timeSlots) {
+              ids.push(`${dateKey}|${slot}`);
+            }
+          }
+          return ids;
+        }
+
+        function keyFor(date, time) {
+          return `${toISODate(date)}|${time}`;
+        }
+
+        function openMobileEditor(cellId, cell, text, picker, date, time) {
+          mobileEditTarget = { cellId, cell, text, picker };
+          editorSlotLabel.textContent = `${fmtDate(date)} 周${toCNWeekday(date)} · ${time}`;
+          editorText.value = text.textContent || "";
+          editorColor.value = picker.value;
+          slotEditor.showModal();
+          editorText.focus();
+        }
+
+        function loadState() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return {};
+            return JSON.parse(raw);
+          } catch (_e) {
+            return {};
+          }
+        }
+
+        function persist() {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function buildDateHeaders() {
+          tableHead.innerHTML = "";
+          const corner = document.createElement("th");
+          corner.className = "time-col";
+          corner.innerHTML =
+            '<span class="corner-long">时间 / 日期</span><span class="corner-short">时间</span>';
+          tableHead.appendChild(corner);
+
+          for (let i = 0; i < dayCount; i++) {
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + i);
+            const th = document.createElement("th");
+            th.className = "date-col";
+            th.innerHTML = `
+              <div class="date-full">${fmtDate(date)}</div>
+              <div class="date-short">${date.getMonth() + 1}/${date.getDate()}</div>
+              <div class="weekday">周${toCNWeekday(date)}</div>
+            `;
+            tableHead.appendChild(th);
+          }
+        }
+
+        function createRow(time) {
+          const row = document.createElement("tr");
+          const timeCell = document.createElement("th");
+          timeCell.className = "time-col";
+          timeCell.textContent = time;
+          row.appendChild(timeCell);
+
+          for (let i = 0; i < dayCount; i++) {
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + i);
+            const cellId = keyFor(date, time);
+            const cell = document.createElement("td");
+            cell.className = "slot-cell";
+            cell.dataset.id = cellId;
+
+            const text = document.createElement("div");
+            text.className = "slot-text";
+            text.contentEditable = mobileLayout.matches ? "false" : "true";
+            text.setAttribute("role", "textbox");
+            text.setAttribute("aria-label", `${time} ${fmtDate(date)} ${toCNWeekday(date)} 预约内容`);
+            text.textContent = state[cellId]?.text || "";
+
+            if (mobileLayout.matches) {
+              cell.tabIndex = 0;
+              cell.setAttribute("role", "button");
+              cell.setAttribute("aria-label", `${time} ${fmtDate(date)} 周${toCNWeekday(date)}，点按编辑预约`);
+            }
+
+            const picker = document.createElement("input");
+            picker.className = "slot-color";
+            picker.type = "color";
+            picker.title = "设置格子颜色";
+            picker.value = state[cellId]?.color || "#f8fafc";
+            cell.style.backgroundColor = picker.value;
+            if ((state[cellId]?.text || "").trim()) {
+              cell.dataset.filled = "true";
+            }
+
+            text.addEventListener("input", () => {
+              saveCell(cellId, text.textContent || "", picker.value);
+              cell.dataset.filled = (text.textContent || "").trim() ? "true" : "false";
+            });
+
+            picker.addEventListener("input", () => {
+              const color = picker.value;
+              cell.style.backgroundColor = color;
+              saveCell(cellId, text.textContent || "", color);
+            });
+
+            cell.addEventListener("click", () => {
+              if (mobileLayout.matches) {
+                openMobileEditor(cellId, cell, text, picker, date, time);
+              }
+            });
+
+            cell.addEventListener("keydown", (event) => {
+              if (mobileLayout.matches && (event.key === "Enter" || event.key === " ")) {
+                event.preventDefault();
+                openMobileEditor(cellId, cell, text, picker, date, time);
+              }
+            });
+
+            cell.appendChild(text);
+            cell.appendChild(picker);
+            row.appendChild(cell);
+          }
+
+          return row;
+        }
+
+        function render() {
+          startDate = startOfToday();
+          buildDateHeaders();
+          tableBody.innerHTML = "";
+          for (const time of timeSlots) {
+            tableBody.appendChild(createRow(time));
+          }
+          rangeLabel.textContent = `当前范围：${dayCount} 天（从 ${fmtDate(startDate)} 起）`;
+          updateRangeButtons();
+        }
+
+        function updateRangeButtons() {
+          rangeButtons.forEach((btn) => {
+            btn.classList.toggle("active", Number(btn.dataset.range) === dayCount);
+          });
+        }
+
+        render();
+      })();
+    </script>
+  </body>
+</html>
