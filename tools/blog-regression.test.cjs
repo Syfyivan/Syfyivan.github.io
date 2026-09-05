@@ -7,11 +7,12 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 
 test('homepage enhancements never mount on inner index.html routes', () => {
-  for (const file of ['home-showcase.js', 'token-usage.js']) {
+  for (const file of ['home-showcase.js', 'token-usage.js', 'farm.js']) {
     for (const pathname of ['/courses/index.html', '/page/2/index.html', '/2026/08/21/browser-course-12/index.html']) {
       let queried = false;
       const sandbox = {
         window: { location: { pathname } },
+        location: { pathname },
         document: { readyState: 'complete', querySelector() { queried = true; }, getElementById() { queried = true; } },
       };
       vm.runInNewContext(fs.readFileSync(path.join(root, 'source/js', file), 'utf8'), sandbox);

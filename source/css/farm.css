@@ -1,0 +1,138 @@
+/* A continuous village and working farm. All moving actors have bounded lanes. */
+body:has(.home-showcase) .header-inner { height: 660px !important; min-height: 660px !important; }
+/* Fluid's photo parallax shifts interactive controls under the next section. */
+body:has(.home-showcase) .banner { transform: none !important; }
+body:has(.home-showcase) .banner-text { top: 96px; }
+body:has(.home-showcase) #subtitle { font-size: clamp(32px, 3.6vw, 46px); }
+body:has(.home-showcase) #subtitle::before { margin-bottom: 10px; }
+body:has(.home-showcase) #subtitle::after { margin-top: 12px; }
+body:has(.home-showcase) .home-start { margin-top: 20px; }
+.farm__town-lane { position: absolute; bottom: 0; left: 12%; width: 76%; height: 44px; z-index: 5; pointer-events: none; overflow: hidden; }
+.farm { --farm-paper:#fffae9; --farm-ink:#304830; --farm-muted:#576647; position: relative; color: var(--farm-ink); background: #85ba63 url('/img/village/grass-3x.png') repeat; border-top: 4px solid #6a954f; padding: 30px 24px 36px; scroll-margin-top: 0; }
+.farm * { box-sizing: border-box; }
+.farm__inner { max-width: 1120px; margin: auto; }
+.farm__heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 0 4px 22px; }
+.farm__heading h2 { color: #243c27; font-size: clamp(24px,3vw,32px); font-weight: 800; margin: 4px 0 8px; text-shadow: 0 2px #d9edaa; }
+.farm__heading p { margin: 0; font-size: 14px; color: #314b2c; }
+.farm .farm__eyebrow { font: 11px/1.5 Consolas,monospace; letter-spacing: .13em !important; margin-bottom: 8px; }
+.farm__basket { display:flex; flex-wrap:wrap; gap:12px 20px; flex-shrink:0; background: var(--farm-paper); padding: 12px 18px; border: 2px solid #657947; border-radius: 8px; box-shadow: 0 4px 0 #4d70394d; }
+.farm__motion { background:transparent; color:var(--farm-ink); border:1px solid #a5ad86; border-radius:6px; padding:6px 10px; min-height:40px; cursor:pointer; font-size:12px; }
+.farm__motion:disabled { cursor:default; opacity:.7; }
+.farm__basket span { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.farm__basket b { color: #80502d; font: bold 24px/1.4 Consolas,monospace; }
+.farm__land { display:grid; grid-template-columns: 1.05fr 1fr; gap:0 24px; }
+.farm__field,.farm__fishing { min-width:0; background: var(--farm-paper); border: 2px solid #7b854e; border-radius: 12px; padding: 20px 22px 14px; box-shadow: 0 5px 0 #46632b40; }
+.farm__section-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.farm h3 { font-size:18px; font-weight:700; color:var(--farm-ink); margin:0; line-height:1.5; }
+.farm__section-head label { display:flex; align-items:center; gap:6px; margin:0; font-size:12px; white-space:nowrap; }
+.farm select { min-height:40px; border:1px solid #b9bea3; border-radius:6px; background:var(--farm-paper); color:var(--farm-ink); padding:5px 6px; font-size:13px; cursor:pointer; max-width:100%; }
+.farm__help,.farm__field-note,.farm__small { font-size:12px; color:var(--farm-muted); line-height:1.7; }
+.farm__help { margin:7px 0 12px; }
+.farm__field-note { margin:10px 0 0; }
+.farm__plots { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; padding:12px; border:5px solid #b0bb73; border-radius:8px; background:#c4c98a; }
+.farm__plot { position:relative; height:86px; padding:0; border:3px solid #845334; border-radius:4px; background:repeating-linear-gradient(0deg,#ad754b 0 7px,#97613d 7px 9px); box-shadow:inset 0 3px #70492c; color:#fff9de; cursor:pointer; touch-action:manipulation; transition:border-color .15s,box-shadow .15s; }
+.farm__plot:hover { border-color:#efd090; }
+.farm__plot[data-stage="growing"] { cursor:default; background:repeating-linear-gradient(0deg,#744c36 0 7px,#65412d 7px 9px); }
+.farm__plot[data-stage="ready"] { border-color:#ffe89b; box-shadow:0 0 0 2px #ac853d,inset 0 3px #70492c; }
+.farm__seed-mark { position:absolute; inset:4px 0 22px; font:28px/50px monospace; color:#f4cd97; }
+.farm__plot-label { position:absolute; bottom:5px; left:0; right:0; font-size:12px; text-align:center; line-height:18px; text-shadow:0 1px #503b29; }
+.farm__crop { position:absolute; width:36px; height:43px; left:calc(50% - 18px); top:6px; image-rendering:pixelated; shape-rendering:crispEdges; transform-origin:50% 100%; }
+.farm__plot[data-stage="empty"] .farm__crop { display:none; }
+.farm__plot:not([data-stage="empty"]) .farm__seed-mark { display:none; }
+.farm__plot[data-stage="seed"] .farm__crop { transform:scale(.4); }
+.farm__plot[data-stage="growing"] .farm__crop { transform:scale(calc(.45 + var(--growth)*.5)); }
+.farm__plot[data-crop="turnip"] .farm__root { fill:#fff4cb; }
+.farm__growth { position:absolute; bottom:0; left:0; width:100%; height:3px; background:#acd366; transform:scaleX(var(--growth)); transform-origin:left; }
+.farm__pond { position:relative; height:196px; margin:12px 0; background:#9cbd72; border-radius:28px 52px 20px 32px; box-shadow:inset 0 0 0 6px #bcc68a; overflow:hidden; }
+.farm__water { position:absolute; inset:15px 28px 18px 20px; border:5px solid #6b9275; border-radius:36px 54px 28px 48px; background:repeating-linear-gradient(0deg,#6dafb0 0 5px,#73b8b7 5px 8px,#6dafb0 8px 26px); box-shadow:inset 0 6px #527c7355,0 4px #d3ce8a; overflow:hidden; }
+.farm__ripple { position:absolute; width:54px; height:10px; border:2px solid #ceede078; border-top:0; border-radius:50%; animation:farm-ripple 3s ease-in-out infinite; }
+.farm__ripple--a { left:35%; top:25%; }.farm__ripple--b { left:58%; top:70%; animation-delay:-1.5s; }
+@keyframes farm-ripple { 50% { transform:scaleX(1.35); opacity:.3; } }
+.farm__lily { position:absolute; width:27px; height:18px; border-radius:50%; background:conic-gradient(from 25deg,#689450 0 300deg,transparent 300deg); box-shadow:0 3px #416d63; }
+.farm__lily--a { left:14%; bottom:15%; }.farm__lily--b { right:10%; top:17%; width:20px; height:14px; }
+.farm__lily--a::after { content:''; position:absolute; width:8px; height:8px; background:#f0b4b7; top:-4px; left:10px; box-shadow:3px 3px #ffdebf,-3px 3px #eab0be; }
+.farm__dock { position:absolute; right:0; top:100px; width:85px; height:40px; background:repeating-linear-gradient(90deg,#ae7951 0 13px,#765637 13px 16px); border-block:5px solid #775638; box-shadow:0 6px #3b604850; }
+.farm__fisher { position:absolute; right:6px; top:68px; width:56px; height:56px; background:url('/img/village/player.png') 0 -112px / 336px 168px; image-rendering:pixelated; transform:scaleX(-1); }
+.farm__reeds { position:absolute; left:14px; bottom:10px; width:5px; height:24px; background:#4a7845; box-shadow:8px -5px #537e40,16px 3px #668b45,-5px 6px #6a8e47; transform:rotate(-8deg); }
+.farm__duck-lane { position:absolute; left:9%; top:5%; width:73%; height:60%; }
+.farm__fish-lane { position:absolute; left:18%; top:59%; width:62%; height:28%; }
+.farm__bobber { display:none; position:absolute; left:68%; top:56%; width:8px; height:12px; border-top:6px solid #e87760; border-bottom:6px solid #fff3d6; box-shadow:0 2px #315d6555; }
+.farm[data-fishing="waiting"] .farm__bobber,.farm[data-fishing="bite"] .farm__bobber { display:block; animation:farm-bob 1s ease-in-out infinite; }
+.farm[data-fishing="bite"] .farm__bobber { animation-duration:.3s; outline:3px solid #ffe5aa; outline-offset:6px; }
+.farm[data-fishing="waiting"] .farm__dock::before,.farm[data-fishing="bite"] .farm__dock::before { content:''; position:absolute; right:22px; top:-12px; width:105px; height:1px; background:#f5edcf; transform:rotate(22deg); transform-origin:right; }
+@keyframes farm-bob { 50% { translate:0 4px; } }
+.farm__fishing-controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; }
+.farm__cast,.farm__feed,.farm__cancel { min-height:44px; border:1px solid #496342; background:#385c42; color:#fffce9; border-radius:6px; font-size:13px; font-weight:600; padding:9px 14px; cursor:pointer; touch-action:manipulation; }
+.farm__cancel { background:transparent; color:var(--farm-ink); }
+.farm button[aria-disabled="true"] { cursor:default; }
+.farm__cast[aria-disabled="true"] { background:#738367; }
+.farm__rod-note { font-size:12px; color:var(--farm-muted); flex:1 1 150px; }
+.farm__trail { position:relative; grid-column:1 / -1; height:92px; margin:8px 14px; cursor:crosshair; border-radius:20px; background:linear-gradient(0deg,transparent 0 22px,#b6aa7177 22px 46px,transparent 46px); overflow:hidden; }
+.farm__trail::before { content:''; position:absolute; left:0; right:0; bottom:27px; height:10px; background:repeating-linear-gradient(90deg,transparent 0 50px,#ccc28f 50px 72px,transparent 72px 86px); }
+.farm__trail-hint { position:absolute; top:6px; left:0; right:0; text-align:center; font-size:11px; color:#304529; pointer-events:none; }
+.farm__pasture { grid-column:1 / -1; border:3px solid #65864c; border-radius:10px; background:#b1ce7a88; overflow:hidden; }
+.farm__pasture > .farm__section-head { position:relative; z-index:1; padding:14px 20px 0; }
+.farm__pasture .farm__help { margin:4px 0 0; }
+.farm__grazing { position:relative; height:148px; background:radial-gradient(ellipse at 43% 95%,#c4cf8355,transparent 60%); border-bottom:14px solid transparent; border-image:url('/img/village/fence.png') 0 0 16 fill / 0 0 24px / 0 repeat; }
+.farm__animal-lane { position:absolute; left:3%; top:0; width:84%; height:118px; overflow:hidden; }
+.farm__pasture-tree { position:absolute; bottom:0; right:2%; width:64px; height:96px; background:url('/img/village/tree-big.png') center bottom / contain no-repeat; image-rendering:pixelated; pointer-events:none; }
+.farm__flowers { position:absolute; bottom:25px; right:16%; width:4px; height:4px; background:#fff3ba; box-shadow:8px 6px #f4dda0,-3px 14px #f4bfac,20px 2px #fff3ba,27px 13px #f4dda0; }
+.farm__hay { position:absolute; bottom:32px; left:45%; width:45px; height:16px; background:repeating-linear-gradient(85deg,#a87938 0 5px,#d2a153 5px 8px); border:3px solid #795735; border-radius:3px; }
+.farm--feeding .farm__hay { background:#e4d084; box-shadow:0 -5px #b2c65b; }
+.farm__actor { position:absolute; left:0; top:0; background-repeat:no-repeat; image-rendering:pixelated; pointer-events:none; will-change:transform; }
+.farm__actor--player { background-image:url('/img/village/player.png'); }
+.farm__actor--horse { background-image:url('/img/village/horse.png'); }
+.farm__actor--cow { background-image:url('/img/village/cow.png'); }
+.farm__actor--sheep { background-image:url('/img/village/sheep.png'); }
+.farm__actor--rabbit { background-image:url('/img/village/rabbit.png'); }
+.farm__actor--babychick { background-image:url('/img/village/babychick.png'); }
+.farm__actor--chicken { background-image:url('/img/village/chicken.png'); }
+.farm__actor--duck { background-image:url('/img/village/duck.png'); }
+.farm__actor--silhouette::before { content:''; position:absolute; inset:8px 4px; background:#387e8180; border-radius:50%; }
+.farm__actor--silhouette::after { content:''; position:absolute; right:0; top:7px; border-right:6px solid #387e8180; border-top:5px solid transparent; border-bottom:5px solid transparent; }
+.farm__footer { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; padding:12px 16px; background:var(--farm-paper); border:1px solid #809655; border-radius:8px; }
+.farm .farm__status { margin:0; font-size:13px; line-height:1.7; min-height:22px; color:var(--farm-ink); }
+.farm__save-note { color:var(--farm-muted); font-size:11px; flex-shrink:0; }
+html[data-user-color-scheme="dark"] .farm { --farm-paper:#263b32; --farm-ink:#e4ead3; --farm-muted:#bbc8af; background:#263c31 url('/img/village/grass-night-3x.png'); border-color:#405e3b; }
+html[data-user-color-scheme="dark"] .farm__heading h2 { color:#e4ead3; text-shadow:0 2px #1a3025; }
+html[data-user-color-scheme="dark"] .farm__heading p,html[data-user-color-scheme="dark"] .farm__trail-hint { color:#d1dfbf; }
+html[data-user-color-scheme="dark"] .farm__basket b { color:#efc884; }
+html[data-user-color-scheme="dark"] .farm__pasture { background:#56764655; }
+html[data-user-color-scheme="dark"] .farm__pond { filter:brightness(.8); }
+html[data-user-color-scheme="dark"] .farm__plots { background:#56623b; border-color:#69754a; }
+@media (max-width:991px) {
+  body:has(.home-showcase) .header-inner { height:840px !important; min-height:840px !important; }
+  .farm { padding-inline:20px; }
+  .farm__field,.farm__fishing { padding:16px 14px 12px; }
+  .farm__land { gap:0 16px; }
+  .farm__section-head { flex-wrap:wrap; gap:8px; }
+  .farm__small { display:none; }
+  .farm__plot { height:86px; }
+  .farm__plots { gap:8px; padding:8px; }
+  .farm__footer { align-items:start; flex-direction:column; gap:4px; }
+  .farm__town-lane { left:3%; width:94%; height:36px; }
+}
+@media (max-width:620px) {
+  body:has(.home-showcase) .header-inner { height:860px !important; min-height:860px !important; }
+  body:has(.home-showcase) .banner-text { top:94px; padding-top:0; }
+  body:has(.home-showcase) #subtitle::after { font-size:13px; }
+  body:has(.home-showcase) .home-start { gap:8px; flex-wrap:wrap; }
+  .home-start__btn { padding:9px 10px; font-size:12px; min-height:42px; }
+  .farm { padding:24px 14px; }
+  .farm__heading { align-items:start; flex-direction:column; gap:12px; padding-bottom:18px; }
+  .farm__heading h2 { font-size:25px; }
+  .farm__basket { padding:7px 14px; gap:24px; }
+  .farm__basket b { font-size:21px; }
+  .farm__land { grid-template-columns:minmax(0,1fr); gap:18px; }
+  .farm__field,.farm__fishing { padding:16px 14px 14px; }
+  .farm__section-head { gap:10px; }
+  .farm__plots { padding:10px; gap:9px; }
+  .farm__pond { height:196px; }
+  .farm__trail { height:88px; margin:-12px 0; }
+  .farm__pasture > .farm__section-head { padding:12px 12px 0; }
+  .farm__pasture .farm__help { max-width:190px; }
+  .farm__feed { font-size:12px; padding:8px 10px; }
+  .farm__grazing { height:200px; }
+  .farm__animal-lane { width:80%; height:170px; }
+  .farm__pasture-tree { width:48px; height:72px; }
+}

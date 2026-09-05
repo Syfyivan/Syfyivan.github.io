@@ -30,7 +30,7 @@ jobs:
       - name: Build Hexo
         run: pnpm run build
       - name: Verify blog behavior and generated routes
-        run: node --test tools/blog-regression.test.cjs tools/blog-built.test.cjs
+        run: node --test tools/blog-regression.test.cjs tools/blog-built.test.cjs tools/farm.test.cjs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
