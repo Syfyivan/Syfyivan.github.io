@@ -1146,41 +1146,6 @@ body:has(.home-showcase) #board {
   pointer-events: none;
 }
 
-.home-layout > .index-card .index-info {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.home-layout > .index-card .post-metas {
-  order: 1;
-  margin: 0 0 14px;
-}
-
-.home-layout > .index-card .index-header {
-  order: 2;
-  max-width: 780px;
-  margin-bottom: 13px;
-  font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
-  font-size: clamp(1.46rem, 2.15vw, 2rem);
-  line-height: 1.24;
-}
-
-.home-layout > .index-card .index-excerpt {
-  order: 3;
-  max-width: 770px;
-  font-size: 1rem;
-  line-height: 1.82;
-}
-
-.home-layout > .index-card .index-excerpt > div {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-}
-
 #scroll-top-button {
   border: 1px solid var(--yf-line);
   border-radius: var(--yf-radius);
@@ -1261,7 +1226,6 @@ html[data-user-color-scheme="dark"] body .category-post-list .list-group-item {
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-html[data-user-color-scheme="dark"] body .index-card:hover,
 html[data-user-color-scheme="dark"] body .list-group-item:hover,
 html[data-user-color-scheme="dark"] body .category-item:hover,
 html[data-user-color-scheme="dark"] body .category-count:hover {

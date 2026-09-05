@@ -42,7 +42,7 @@
 
   function ensureContainer() {
     // Home page only.
-    var isHome = window.location.pathname === "/" || /\/index\.html$/.test(window.location.pathname);
+    var isHome = window.location.pathname === "/" || window.location.pathname === "/index.html";
     if (!isHome) return null;
 
     var existing = document.getElementById("token-usage");
@@ -110,6 +110,8 @@
     var day = pick(data, ["periods", "day"]) || null;
     var week = pick(data, ["periods", "week"]) || null;
     var month = pick(data, ["periods", "month"]) || null;
+    var generated = new Date(pick(data, ['generated_at']));
+    var historical = !isNaN(generated.getTime()) && generated.toDateString() !== new Date().toDateString();
 
     var subtitle = "已用 Token " + formatCompact(totalTokens) + "（输入 " + formatCompact(inputTokens) + " / 输出 " + formatCompact(outputTokens) + "）";
     if (hasCost) {
@@ -125,7 +127,7 @@
       if (typeof ga === "string" && ga) {
         var d = new Date(ga);
         if (!isNaN(d.getTime())) {
-          updatedText = "更新于 " + d.toLocaleString();
+          updatedText = "更新于 " + d.toLocaleString() + (historical ? ' · 历史快照，非实时用量' : '');
         }
       }
       metaEl.textContent = updatedText || "";
@@ -133,9 +135,9 @@
 
     if (periodsEl) {
       var ps = [
-        { k: "今日", p: day },
-        { k: "本周", p: week },
-        { k: "本月", p: month },
+        { k: historical ? '统计当日' : '今日', p: day },
+        { k: historical ? '统计当周' : '本周', p: week },
+        { k: historical ? '统计当月' : '本月', p: month },
       ];
       var ph = "";
       for (var j = 0; j < ps.length; j++) {

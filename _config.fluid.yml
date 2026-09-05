@@ -234,20 +234,23 @@ font:
 # 指定自定义 .js 文件路径，支持列表；路径是相对 source 目录，如 /js/custom.js 对应存放目录 source/js/custom.js
 # Specify the path of your custom js file, support list. The path is relative to the source directory, such as `/js/custom.js` corresponding to the directory `source/js/custom.js`
 custom_js:
-  - /js/home-showcase.js?v=20260614-2.js
-  - /js/token-usage.js?v=20260606-1.js
+  - /js/search-core.js?v=20260905-1.js
+  - /js/home-showcase.js?v=20260905-1.js
+  - /js/token-usage.js?v=20260905-1.js
   - /js/post-heading-hash.js?v=20260617-2.js
   - /js/post-affiliation.js?v=20260618-2.js
   - /js/post-toc.js?v=20260621-1.js
   - /js/post-inline-editor.js?v=20260618-2.js
+  - /js/site-interactions.js?v=20260905-1.js
 
 # 指定自定义 .css 文件路径，用法和 custom_js 相同
 # The usage is the same as custom_js
 custom_css:
   - /css/token-usage.css?v=20260606-1.css
-  - /css/site-polish.css?v=20260621-2.css
+  - /css/site-polish.css?v=20260905-1.css
   - /css/post-affiliation.css?v=20260618-1.css
   - /css/post-inline-editor.css?v=20260618-1.css
+  - /css/blog-refinement.css?v=20260905-1.css
 
 # 网页访问统计
 # Analysis of website visitors
@@ -691,6 +694,8 @@ post:
   # Table of contents (TOC) in the sidebar
   toc:
     enable: true
+    # Native anchor scrolling shares the navbar offset and reduced-motion setting.
+    scrollSmooth: false
     # 进入文章时是否默认展开全部目录
     # Expand all TOC items on enter
     expand_all: true

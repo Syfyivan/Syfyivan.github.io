@@ -22,13 +22,14 @@
     },
     {
       tone: "blue",
-      label: "桥接器控制面",
+      label: "桥接器控制面 · 内网",
       title: "Bridge Viewer",
       subtitle: "Task Session Viewer",
       desc: "飞书机器人任务进度的可视化入口，用 Goofy Preview 分享给内网同事查看。",
       url: "https://bridge-task-viewer-syf.gf-preview.bytedance.net",
       displayUrl: "bridge-task-viewer-syf.gf-preview.bytedance.net",
       external: true,
+      access: "需内网",
     },
     {
       tone: "green",
@@ -52,7 +53,7 @@
 
   function isHomePage() {
     var path = window.location.pathname || "/";
-    return path === "/" || path === "/index.html" || /\/index\.html$/.test(path);
+    return path === "/" || path === "/index.html";
   }
 
   function escapeHtml(value) {
@@ -69,7 +70,7 @@
       '<article class="home-project-card home-project-card--' + escapeHtml(project.tone) + '">' +
         '<div class="home-project-card__top">' +
           '<span class="home-project-card__label">' + escapeHtml(project.label) + "</span>" +
-          '<span class="home-project-card__pill">独立页</span>' +
+          '<span class="home-project-card__pill">' + (project.access || '公开访问') + '</span>' +
         "</div>" +
         '<div class="home-project-card__body">' +
           '<h3>' + escapeHtml(project.title) + "</h3>" +
@@ -111,9 +112,9 @@
       '<div class="home-showcase__heading">' +
         '<div>' +
           '<p class="home-kicker">STANDALONE PROJECTS</p>' +
-          '<h2 id="home-projects-title">已独立维护的项目</h2>' +
+          '<h2 id="home-projects-title">在这里，动手做点什么</h2>' +
         "</div>" +
-        '<p class="home-showcase__intro">长期维护的小项目都放在这里，保留简短索引和公开地址。</p>' +
+        '<p class="home-showcase__intro">一些持续生长的项目，一些从实践开始的笔记。</p>' +
       "</div>" +
       '<a class="home-workshop-banner" href="/projects/">' +
         '<div class="home-workshop-banner__text">' +
@@ -127,10 +128,12 @@
 
     var writingHead = document.createElement("section");
     writingHead.className = "home-writing-head";
+    writingHead.id = "latest-writing";
     writingHead.setAttribute("aria-labelledby", "home-writing-title");
     writingHead.innerHTML =
       '<p class="home-kicker">LATEST WRITING</p>' +
-      '<h2 id="home-writing-title">最新文章</h2>';
+      '<h2 id="home-writing-title">最近写下的</h2>' +
+      '<a class="home-all-posts" href="/archives/">全部文章 <span aria-hidden="true">↗</span></a>';
 
     boardCol.insertBefore(showcase, firstCard);
     boardCol.insertBefore(writingHead, firstCard);
@@ -154,15 +157,14 @@
     main.insertBefore(meadow, main.firstElementChild);
   }
 
-  // 巴士入口指向已部署的 AI 小镇（溪山镇）首页。注意：10.37.87.203 是内网地址，
-  // 仅在字节内网可访问；公网访客点击会连不上。换成公网地址后此处替换即可。
-  var AI_TOWN_URL = "http://10.37.87.203:5173/ai-town/";
+  // The public course is available to every visitor; the old private dev URL was not.
+  var AI_TOWN_URL = "/courses/ai-town/";
 
   var TOWN = [
     { key: "school", name: "课程", desc: "把文章串成可连续学习的课程", href: "/courses/", row: "back", pet: "sheep" },
     { key: "workshop", name: "项目工坊", desc: "每个项目一张工单，配拆解教程", href: "/projects/", row: "back", pet: null },
     { key: "wizard", name: "AI 视觉", desc: "AI 视觉浏览器的魔法画册", href: "/flipbook/", row: "back", pet: "butterfly" },
-    { key: "aitown", name: "AI 小镇", desc: "坐巴士去 AI 小镇逛逛", href: AI_TOWN_URL, row: "front", pet: null, bus: true },
+    { key: "aitown", name: "AI 小镇", desc: "阅读 AI 小镇的实现课程", href: AI_TOWN_URL, row: "front", pet: null, bus: true },
     { key: "about", name: "关于我", desc: "村长一凡住在这里", href: "/about/", row: "front", pet: "babychick", smoke: true },
     { key: "news", name: "晨读", desc: "每天早上的技术晨报", href: "/morning-read/", row: "front", pet: "duck" },
     { key: "painters", name: "画室", desc: "协作像素画室", href: "/painters-guild/", row: "front", pet: "fox" },
@@ -218,7 +220,8 @@
       var start = document.createElement("div");
       start.className = "home-start";
       start.innerHTML =
-        '<a class="home-start__btn" href="#board">先逛逛文章 <span aria-hidden="true">▼</span></a>';
+        '<a class="home-start__btn" href="#latest-writing">读最新文章 <span aria-hidden="true">↓</span></a>' +
+        '<a class="home-start__btn home-start__btn--quiet" href="/courses/">浏览课程 <span aria-hidden="true">↗</span></a>';
       bannerText.appendChild(start);
     }
 
@@ -228,7 +231,7 @@
 
   function initPlayer(banner, village) {
     var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-    if (coarse || banner.clientWidth < 720) return;
+    if (coarse) return;
 
     var meadow = document.querySelector(".meadow");
     var fx = meadow ? meadow.querySelector(".meadow__fx") : null;
@@ -245,8 +248,43 @@
     var hint = document.createElement("div");
     hint.className = "player-hint";
     hint.innerHTML =
-      '<span class="player-hint__keys"><b>W</b><b>A</b><b>S</b><b>D</b></span> 控制小人走动，走进房门进板块，沿小路往下到河边';
+      '<span class="player-hint__keys"><b>W</b><b>A</b><b>S</b><b>D</b></span> 移动 · 走进房门访问 · 空格钓鱼 · Esc 退出';
     banner.appendChild(hint);
+    hint.id = "player-instructions";
+    village.tabIndex = -1;
+    village.setAttribute('aria-describedby', hint.id);
+    var play = document.createElement('button');
+    play.type = 'button';
+    play.className = 'home-play';
+    play.setAttribute('aria-pressed', 'false');
+    play.textContent = '探索小镇';
+    banner.querySelector('.home-start').appendChild(play);
+    var active = false;
+    var raf = 0;
+    var lastFrame = 0;
+    var step = 1;
+
+    function setActive(value) {
+      active = value;
+      keys = {};
+      cancelAnimationFrame(raf);
+      raf = 0;
+      lastFrame = 0;
+      play.setAttribute('aria-pressed', String(active));
+      play.textContent = active ? '结束探索' : '探索小镇';
+      if (!active && zone === 'meadow') {
+        zone = 'hero';
+        village.appendChild(player);
+        player.style.top = 'auto';
+        player.style.bottom = '0';
+        x = banner.clientWidth / 2 - SIZE / 2;
+        yBottom = 44;
+        renderHero();
+      }
+      document.body.classList.toggle('is-exploring', active);
+      if (active) { computeDoors(); village.focus({ preventScroll: true }); raf = requestAnimationFrame(tick); }
+    }
+    play.addEventListener('click', function () { setActive(!active); });
 
     var SIZE = 64;
     var SPEED = 2.7;
@@ -338,11 +376,16 @@
       return function (e) {
         var dir = KEYMAP[e.code];
         var isAction = e.code === "Space" || e.code === "KeyE" || e.code === "Enter";
+        // Always release held keys, even after focus, visibility or zone changes.
+        if (!down) { if (dir) keys[dir] = false; if (isAction) keys.action = false; return; }
+        if (active && e.code === 'Escape') { setActive(false); play.focus({ preventScroll: true }); return; }
+        if (!active || document.hidden) return;
         if (!dir && !isAction) return;
         if (!worldVisible()) return;
         if (e.metaKey || e.ctrlKey || e.altKey) return;
         var t = e.target;
-        if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+        if (t && (t.closest('a,button,input,textarea,select,[role="dialog"],[contenteditable]') || t.isContentEditable)) return;
+        if (document.querySelector('.modal.show, #mobile-grid-menu.show')) return;
         e.preventDefault();
         if (dir) keys[dir] = down;
         if (isAction) keys.action = down;
@@ -451,10 +494,12 @@
         if (dx !== 0) { dirRow = 2; flip = dx < 0; }
         else { dirRow = dy > 0 ? 1 : 0; }
         var norm = dx !== 0 && dy !== 0 ? 0.7071 : 1;
-        x += dx * SPEED * norm;
-        yBottom += dy * SPEED * norm;
+        x += dx * SPEED * norm * step;
+        yBottom += dy * SPEED * norm * step;
         x = Math.max(-8, Math.min(banner.clientWidth - SIZE + 8, x));
-        yBottom = Math.max(2, Math.min(groundHeight() - 26, yBottom));
+        var upperDoor = doors.length ? Math.min.apply(null, doors.map(function (door) { return door.y1; })) : banner.clientHeight;
+        var walkHeight = Math.max(groundHeight() - 26, banner.clientHeight - upperDoor + 20);
+        yBottom = Math.max(2, Math.min(walkHeight, yBottom));
 
         if (now - frameClock > 110) { frame = (frame + 1) % 6; frameClock = now; }
 
@@ -518,8 +563,8 @@
         else { dirRow = dy > 0 ? 1 : 0; }
         var norm = dx !== 0 && dy !== 0 ? 0.7071 : 1;
         var prevX = mx, prevY = my;
-        mx += dx * SPEED * norm;
-        my -= dy * SPEED * norm; // meadow is top-anchored: up (dy>0) decreases my
+        mx += dx * SPEED * norm * step;
+        my -= dy * SPEED * norm * step; // meadow is top-anchored: up (dy>0) decreases my
         mx = Math.max(-6, Math.min(meadow.clientWidth - SIZE + 6, mx));
         my = Math.max(-2, Math.min(meadow.clientHeight - SIZE - 6, my));
 
@@ -570,12 +615,16 @@
     }
 
     function tick(now) {
-      if (leaving) { return; }
+      raf = 0;
+      if (leaving || !active || document.hidden) return;
+      if (!worldVisible()) { setActive(false); return; }
+      step = lastFrame ? Math.min((now - lastFrame) / 16.667, 2) : 1;
+      lastFrame = now;
       var dx = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
       var dy = (keys.up ? 1 : 0) - (keys.down ? 1 : 0);
       if (zone === "hero") updateHero(now, dx, dy);
       else updateMeadow(now, dx, dy);
-      requestAnimationFrame(tick);
+      raf = requestAnimationFrame(tick);
     }
 
     // Coming back via the browser's back button restores the page from
@@ -590,26 +639,38 @@
       player.classList.remove("village__player--enter");
       var ent = document.querySelector(".town-lot--entering");
       if (ent) ent.classList.remove("town-lot--entering");
-      requestAnimationFrame(tick);
+      setActive(false);
     });
 
     computeDoors();
     renderHero();
-    window.addEventListener("resize", computeDoors);
+    window.addEventListener("resize", function () {
+      if (banner.clientWidth < 992) setActive(false);
+      x = Math.max(0, Math.min(banner.clientWidth - SIZE, x));
+      computeDoors();
+      renderHero();
+    });
+    window.addEventListener('blur', function () { setActive(false); });
+    document.addEventListener('visibilitychange', function () { if (document.hidden) setActive(false); });
+    document.addEventListener('focusin', function (event) { if (event.target !== village) keys = {}; });
     document.addEventListener("keydown", onKey(true));
     document.addEventListener("keyup", onKey(false));
-    requestAnimationFrame(tick);
   }
 
   function startPetals(banner) {
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     var canvas = document.createElement("canvas");
     canvas.className = "village__petals";
+    canvas.setAttribute('aria-hidden', 'true');
     banner.appendChild(canvas);
     var ctx = canvas.getContext("2d");
+    if (!ctx) { canvas.remove(); return; }
     var petals = [];
-    var COUNT = 28;
+    var COUNT = banner.clientWidth < 600 ? 10 : 20;
+    var raf = 0;
+    var visible = true;
+    var lastFrame = 0;
 
     function isDark() {
       return document.documentElement.getAttribute("data-user-color-scheme") === "dark";
@@ -637,21 +698,29 @@
 
     for (var i = 0; i < COUNT; i += 1) petals.push(spawn(true));
 
-    function tick() {
-      if (document.hidden) {
-        requestAnimationFrame(tick);
-        return;
-      }
+    function allowed() { return visible && !document.hidden && !motionQuery.matches && document.documentElement.dataset.motion !== 'paused'; }
+    function resume() {
+      cancelAnimationFrame(raf);
+      raf = 0;
+      lastFrame = 0;
+      if (allowed()) raf = requestAnimationFrame(tick);
+      else ctx.clearRect(0, 0, banner.clientWidth, banner.clientHeight);
+    }
+    function tick(now) {
+      raf = 0;
+      if (!allowed()) return;
+      var dt = lastFrame ? Math.min((now - lastFrame) / 16.667, 2) : 1;
+      lastFrame = now;
       var w = banner.clientWidth;
       var h = banner.clientHeight;
       ctx.clearRect(0, 0, w, h);
       var dark = isDark();
       for (var i = 0; i < petals.length; i += 1) {
         var p = petals[i];
-        p.phase += 0.012;
-        p.spin += p.spinSpeed;
-        p.y += p.fall;
-        p.x += Math.sin(p.phase) * p.drift;
+        p.phase += 0.012 * dt;
+        p.spin += p.spinSpeed * dt;
+        p.y += p.fall * dt;
+        p.x += Math.sin(p.phase) * p.drift * dt;
         if (p.y > h + 14 || p.x < -20 || p.x > w + 20) petals[i] = p = spawn(false);
         ctx.save();
         ctx.translate(p.x, p.y);
@@ -669,12 +738,20 @@
         }
         ctx.restore();
       }
-      requestAnimationFrame(tick);
+      raf = requestAnimationFrame(tick);
     }
 
     resize();
-    window.addEventListener("resize", resize);
-    requestAnimationFrame(tick);
+    window.addEventListener("resize", function () { resize(); resume(); });
+    document.addEventListener('visibilitychange', resume);
+    document.addEventListener('blog:motion', resume);
+    motionQuery.addEventListener('change', resume);
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (entries) {
+      visible = entries[0].isIntersecting;
+      banner.classList.toggle('scene-offscreen', !visible);
+      resume();
+    }).observe(banner);
+    resume();
   }
 
   if (document.readyState === "loading") {
