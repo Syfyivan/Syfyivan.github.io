@@ -17,7 +17,16 @@
     }
     var details=document.createElement('div');details.className='farm__details';
     [[3,68],[18,83],[38,51],[53,38],[96,65],[81,94],[8,10],[91,5]].forEach(function(p,i){var el=document.createElement('span');el.className=i%3===0?'farm__flowers':'farm__tuft';el.style.left=p[0]+'%';el.style.top=p[1]+'%';details.appendChild(el);});
-    for(var k=0;k<5;k++){var stone=document.createElement('span');stone.className='farm__stone';stone.style.left=(48-Math.sin(k*.6)*5)+'%';stone.style.top=(k*30+4)+'px';details.appendChild(stone);}
+    for(var k=0;k<10;k++){var tree=document.createElement('span');tree.className='farm__map-tree farm__map-tree--'+k;details.appendChild(tree);}
+    function paths(kind,box,d) {
+      var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('viewBox',box);svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('class','farm__map-paths farm__map-paths--'+kind);
+      var path=document.createElementNS('http://www.w3.org/2000/svg','path');
+      svg.innerHTML='<defs><pattern id="farm-soil-'+kind+'" width="24" height="20" patternUnits="userSpaceOnUse"><rect width="24" height="20" fill="#b5a574"/><path d="M2 4h4v2H2zM15 13h3v2h-3z" fill="#c6b985"/><path d="M18 3h2v2h-2zM6 15h3v2H6z" fill="#a79868"/></pattern></defs>';
+      path.setAttribute('d',d);path.setAttribute('fill','none');path.setAttribute('stroke','url(#farm-soil-'+kind+')');path.setAttribute('stroke-width','20');path.setAttribute('stroke-linecap','square');path.setAttribute('stroke-linejoin','bevel');svg.setAttribute('shape-rendering','crispEdges');svg.appendChild(path);farm.appendChild(svg);
+    }
+    paths('desktop','0 0 1080 620','M175 180 L260 180 L310 198 L450 178 L570 210 L690 237 L785 255 L915 175 L990 165 M385 330 L430 350 L550 350 L610 368 L730 440 L860 470 L945 585 M270 348 L350 375 L430 350 M140 540 L250 557 L350 515 L425 530 L535 550 L620 535 L730 570 M550 350 L565 270 L570 210 M430 350 L405 450 L425 530');
+    paths('mobile','0 0 320 1000','M90 145 L136 175 L210 165 L235 190 L246 335 M85 380 L135 395 L185 365 L246 335 M246 335 L246 440 L260 515 L219 550 L213 705 M130 590 L165 607 L180 650 L213 705 M213 705 L145 700 L122 795 L80 820 M213 705 L237 850 L185 867 L157 940 L82 985');
     farm.appendChild(details);
     var line=document.createElementNS('http://www.w3.org/2000/svg','svg');line.setAttribute('viewBox','0 0 100 100');line.setAttribute('preserveAspectRatio','none');line.setAttribute('class','farm__fishing-line');line.innerHTML='<path d="M94 66 L83 36" stroke="#775237" stroke-width=".8" fill="none"/><path d="M83 36 Q71 36 65 56" stroke="#e1dfc6" stroke-width=".3" fill="none"/>';farm.querySelector('.farm__pond').appendChild(line);
     village.appendChild(farm);
@@ -37,8 +46,6 @@
     var duckLane=farm.querySelector('.farm__duck-lane'); for(var d=0;d<2;d++){var waterLane=document.createElement('div');waterLane.className='farm__duck-route farm__duck-route--'+d;duckLane.appendChild(waterLane);actor(zone(waterLane),'duck',d?28:32,4,d?10:12,.25,.4);}
     var fishes=zone(farm.querySelector('.farm__fish-lane')); actor(fishes,'silhouette',24,1,18,.2,.2); actor(fishes,'silhouette',20,1,14,.8,.4);
     var trail=zone(farm.querySelector('.farm__trail')); actor(trail,'player',48,6,23,.4,.3);
-    var village=document.querySelector('.village');
-    if(village) { var lane=document.createElement('div'); lane.className='farm__town-lane'; lane.setAttribute('aria-hidden','true'); village.appendChild(lane); var street=zone(lane); actor(street,'player',44,6,28,.5,.1); actor(street,'chicken',32,4,22,.2,.1); actor(street,'rabbit',32,4,25,.8,.2); }
     function measure() {
       zones.forEach(function(z) { z.width=z.el.clientWidth; z.height=z.el.clientHeight; });
       actors.forEach(function(a) { var w=Math.max(0,a.zone.width-a.size),h=Math.max(0,a.zone.height-a.size); if(a.start && a.zone.width>a.size) { a.x=a.start[0]*w; a.y=a.start[1]*h; a.tx=(1-a.start[0])*w; a.ty=(1-a.start[1])*h; a.start=null; } core.walk(a,0,w,h,Math.random); draw(a); });
