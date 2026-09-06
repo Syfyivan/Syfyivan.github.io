@@ -112,9 +112,9 @@
       '<div class="home-showcase__heading">' +
         '<div>' +
           '<p class="home-kicker">STANDALONE PROJECTS</p>' +
-          '<h2 id="home-projects-title">在这里，动手做点什么</h2>' +
+          '<h2 id="home-projects-title">项目与课程</h2>' +
         "</div>" +
-        '<p class="home-showcase__intro">一些持续生长的项目，一些从实践开始的笔记。</p>' +
+        '<p class="home-showcase__intro">项目、课程与实践记录</p>' +
       "</div>" +
       '<a class="home-workshop-banner" href="/projects/">' +
         '<div class="home-workshop-banner__text">' +
@@ -132,7 +132,7 @@
     writingHead.setAttribute("aria-labelledby", "home-writing-title");
     writingHead.innerHTML =
       '<p class="home-kicker">LATEST WRITING</p>' +
-      '<h2 id="home-writing-title">最近写下的</h2>' +
+      '<h2 id="home-writing-title">最新文章</h2>' +
       '<a class="home-all-posts" href="/archives/">全部文章 <span aria-hidden="true">↗</span></a>';
 
     boardCol.insertBefore(showcase, firstCard);
@@ -164,7 +164,6 @@
     var tgt = isExternal(lot.href) ? '" target="_blank" rel="noopener"' : '"';
     return (
       '<a class="town-lot town-lot--' + lot.key + ' town-lot--' + lot.row + '" href="' + lot.href + tgt + ' aria-label="' + escapeHtml(lot.name) + '：' + escapeHtml(lot.desc) + '">' +
-        '<span class="town-lot__bubble">' + escapeHtml(lot.desc) + "</span>" +
         (lot.smoke ? '<span class="town-lot__smoke"></span>' : "") +
         '<span class="town-lot__house"></span>' +
         '<span class="town-lot__sign">' + escapeHtml(lot.name) + "</span>" +
@@ -187,7 +186,6 @@
       '<div class="village__cloud village__cloud--b" aria-hidden="true"></div>' +
       '<div class="village__ground" aria-hidden="true"></div>' +
       '<div class="village__path" aria-hidden="true"></div>' +
-      '<div class="village__fence" aria-hidden="true"></div>' +
       '<div class="village__tree village__tree--big village__tree--l" aria-hidden="true"></div>' +
       '<div class="village__tree village__tree--mid village__tree--l2" aria-hidden="true"></div>' +
       '<div class="village__tree village__tree--big village__tree--r" aria-hidden="true"></div>' +
@@ -202,8 +200,7 @@
       start.className = "home-start";
       start.innerHTML =
         '<a class="home-start__btn" href="#latest-writing">读最新文章 <span aria-hidden="true">↓</span></a>' +
-        '<a class="home-start__btn home-start__btn--quiet" href="/courses/">浏览课程 <span aria-hidden="true">↗</span></a>' +
-        '<a class="home-start__btn home-start__btn--quiet" href="#farm">去农场种菜 <span aria-hidden="true">↓</span></a>';
+        '<a class="home-start__btn home-start__btn--quiet" href="/courses/">浏览课程 <span aria-hidden="true">↗</span></a>';
       bannerText.appendChild(start);
     }
 
