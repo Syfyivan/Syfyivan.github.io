@@ -142,8 +142,8 @@ body:has(.home-showcase) .banner { background:#bad393 !important; }
 .town-lot--news { left:56%; top:280px; width:5%; aspect-ratio:58/70; }
 .town-lot--aitown { left:83%; top:510px; width:8%; aspect-ratio:96/54; }
 .town-lot__house { position:absolute; inset:0; }
-.farm__beds { left:32%; top:40px; width:21%; height:120px; gap:5px; }
-.farm__bed { border:0; border-radius:0; box-shadow:inset 0 2px #b28c60,0 2px #748e4f; }
+.farm__beds { left:32%; top:40px; width:21%; height:120px; gap:5px; grid-template-columns:repeat(3,minmax(0,1fr)); }
+.farm__bed { min-width:0; grid-template-columns:repeat(2,minmax(0,1fr)); padding:2px; border:0; border-radius:0; box-shadow:inset 0 2px #b28c60,0 2px #748e4f; }
 .farm__bed:nth-child(3) { translate:0 8px; }.farm__bed:nth-child(4) { translate:0 -3px; }
 .farm__pond { left:7%; right:auto; top:215px; width:24%; height:155px; }
 .farm__trail { left:34%; top:345px; width:18%; height:65px; }
@@ -170,6 +170,8 @@ html[data-user-color-scheme="dark"] .village__ground { background-image:linear-g
 @media(max-width:991px) and (min-width:576px) {
  .town-lot__sign { font-size:12px; padding:4px 7px; }
  .farm__beds { width:21%; }
+ .farm__plant { width:16px; height:16px; background-size:32px 16px; }
+ .farm__bed:nth-child(even) .farm__plant { background-size:32px 16px; background-position:-16px 0; }
  .farm__pond { width:27%; }
 }
 @media(max-width:575px) {
