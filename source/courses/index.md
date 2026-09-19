@@ -388,9 +388,18 @@ description: "按方向整理技术课程：AI、服务端、前端客户端和�
         <h2>AI 与 Agent</h2>
         <p>先从 AI 导论、数据与机器学习讲起，再进入 LLM、RAG、MCP、Skill、Agent Loop、vibe coding、SDD、评测、安全治理、多模态、多 Agent 和产品化工程。</p>
       </div>
-      <span class="course-category-count">10 项</span>
+      <span class="course-category-count">11 项</span>
     </div>
     <div class="course-grid">
+      <article class="course-card">
+        <span class="course-badge is-ai">AI 全栈 · 12 章</span>
+        <h3>一次任务怎样在 AI 系统中运行</h3>
+        <p>沿着信息流与控制流，从模型调用讲到工具执行、CLI、MCP、Agent、Harness、Skill、状态恢复与前后端协作。先读通整个系统，再逐步深入细节。</p>
+        <div class="course-card-footer">
+          <span>适合：AI 全栈学习与面试准备</span>
+          <a class="course-link" href="/courses/ai-fullstack/">进入课程</a>
+        </div>
+      </article>
       <article class="course-card">
         <span class="course-badge is-ai">零基础入门 · 13 讲</span>
         <h3>写给高考生的编程第一课</h3>

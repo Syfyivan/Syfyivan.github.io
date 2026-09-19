@@ -117,6 +117,17 @@
   }
 
   function courseInfo(haystack) {
+    if (path.indexOf("/courses/ai-fullstack/") === 0) {
+      return {
+        navHref: "/courses/",
+        path: [
+          { label: "课程", href: "/courses/" },
+          { label: "AI 与 Agent", href: "/courses/#ai" },
+          { label: "AI 全栈", href: "/courses/ai-fullstack/" },
+          { label: title }
+        ]
+      };
+    }
     if (includesAny(haystack, ["ai-agent-fables", "ai 与 agent 大寓言课"])) {
       return {
         navHref: "/courses/",
