@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">云团兔</title>
+  <desc id="desc">奶白色长耳小兔，戴着浅蓝围巾，像一团柔软的云坐着。</desc>
+  <defs>
+    <linearGradient id="fur" x1="102" y1="57" x2="142" y2="202" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFEF9"/>
+      <stop offset="1" stop-color="#EFEBDD"/>
+    </linearGradient>
+    <filter id="shadow" x="25" y="185" width="190" height="45" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
+  <ellipse cx="121" cy="207" rx="64" ry="8" fill="#253B36" fill-opacity=".09" filter="url(#shadow)"/>
+  <circle cx="174" cy="179" r="18" fill="#FFFEF9" stroke="#819C9D" stroke-width="3"/>
+  <path d="M78 147C79 132 98 120 120 120C142 120 161 132 162 147L169 188C171 201 156 205 143 204H97C84 205 69 201 71 188L78 147Z" fill="url(#fur)" stroke="#819C9D" stroke-width="3"/>
+  <path d="M83 88C72 72 69 38 78 27C83 20 91 23 97 34C103 46 106 68 106 83" fill="url(#fur)" stroke="#819C9D" stroke-width="3" stroke-linecap="round"/>
+  <path d="M87 72C82 60 80 42 83 35C87 35 94 51 96 71" fill="#D4E5E5"/>
+  <path d="M134 83C134 68 137 46 143 34C149 23 157 20 162 27C171 38 168 72 157 88" fill="url(#fur)" stroke="#819C9D" stroke-width="3" stroke-linecap="round"/>
+  <path d="M144 71C146 51 153 35 157 35C160 42 158 60 153 72" fill="#D4E5E5"/>
+  <path d="M64 105C64 81 87 71 120 71C153 71 176 81 176 105C176 130 155 143 120 143C85 143 64 130 64 105Z" fill="url(#fur)" stroke="#819C9D" stroke-width="3"/>
+  <ellipse cx="84" cy="119" rx="10" ry="6" fill="#E5B8A5" fill-opacity=".65"/>
+  <ellipse cx="156" cy="119" rx="10" ry="6" fill="#E5B8A5" fill-opacity=".65"/>
+  <path d="M88 108C91 104 95 104 98 108M142 108C145 104 149 104 152 108" stroke="#526C6B" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M117 113C117 110 123 110 123 113L120 116L117 113Z" fill="#B99183"/>
+  <path d="M120 117V119M120 119C117 123 114 123 111 120M120 119C123 123 126 123 129 120" stroke="#526C6B" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M89 137C108 143 133 143 151 137L154 149C134 155 106 155 86 149L89 137Z" fill="#B6D3D8" stroke="#819C9D" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M139 149L154 147L160 172L146 178L139 149Z" fill="#B6D3D8" stroke="#819C9D" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M149 166L157 163" stroke="#E5EFF0" stroke-width="3" stroke-linecap="round"/>
+  <path d="M84 161C73 171 77 180 87 181M156 161C164 170 163 177 155 181" stroke="#819C9D" stroke-width="3" stroke-linecap="round"/>
+  <path d="M95 185C86 185 82 178 86 172C88 168 94 168 97 169C97 156 110 151 120 157C128 151 140 156 140 165C149 163 155 169 153 176C152 183 146 185 140 185H95Z" fill="#E3EDF0" stroke="#9AB6BC" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M80 192C75 191 72 195 74 199C78 206 95 205 101 200M160 192C165 191 168 195 166 199C162 206 145 205 139 200" fill="#FFFEF9" stroke="#819C9D" stroke-width="3" stroke-linecap="round"/>
+  <path d="M32 105C28 105 27 102 29 99C30 97 33 97 35 98C35 92 43 89 47 95C54 93 58 100 53 104C50 106 37 105 32 105Z" fill="#DDE9EB"/>
+  <circle cx="195" cy="116" r="4" fill="#D2E1E2"/>
+  <circle cx="207" cy="131" r="2.5" fill="#D2E1E2"/>
+</svg>

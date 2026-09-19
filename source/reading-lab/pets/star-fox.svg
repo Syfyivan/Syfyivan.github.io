@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">星星狐</title>
+  <desc id="desc">杏橘色的小狐狸，抱着一颗金色星星，毛茸茸的大尾巴卷在身旁。</desc>
+  <defs>
+    <linearGradient id="fur" x1="84" y1="62" x2="164" y2="193" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EABD8D"/>
+      <stop offset="1" stop-color="#D99468"/>
+    </linearGradient>
+    <filter id="shadow" x="25" y="186" width="195" height="44" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
+  <ellipse cx="125" cy="207" rx="67" ry="8" fill="#253B36" fill-opacity=".09" filter="url(#shadow)"/>
+  <path d="M156 199C189 205 208 187 209 162C210 143 201 129 185 116C185 144 171 147 160 158C147 171 144 190 156 199Z" fill="#DFA478" stroke="#946E53" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M185 116C185 133 180 141 173 147L186 145L191 157L202 149L209 160C209 142 200 128 185 116Z" fill="#FFF0D9"/>
+  <path d="M185 116C185 144 171 147 160 158" stroke="#946E53" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M77 145C80 130 95 120 116 120C139 120 154 131 157 146L166 188C169 200 154 205 141 204H93C79 205 65 200 68 188L77 145Z" fill="url(#fur)" stroke="#946E53" stroke-width="3"/>
+  <path d="M97 136L116 144L136 136L130 151L138 161L129 161L134 189H100L105 161L96 161L104 151L97 136Z" fill="#FFF0D9"/>
+  <path d="M68 90C61 76 57 54 64 33C84 40 97 56 99 74M135 74C139 56 152 40 174 33C179 57 173 81 167 91" fill="#DEA579" stroke="#946E53" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M70 49L75 76L91 74C86 63 80 54 70 49ZM165 49L156 76L143 74C149 62 156 53 165 49Z" fill="#F6D8B2"/>
+  <path d="M63 93C68 71 88 64 117 64C147 64 166 72 172 92L180 105L169 110L174 118L159 120C146 137 128 144 117 144C105 144 87 137 75 120L60 118L65 110L54 105L63 93Z" fill="url(#fur)" stroke="#946E53" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M66 105C82 99 101 102 117 116C133 102 152 99 169 105L163 114L164 117L157 119C144 134 127 140 117 140C106 140 89 134 77 119L69 117L71 114L66 105Z" fill="#FFF0D9"/>
+  <path d="M85 101C89 97 95 97 99 101M135 101C139 97 145 97 149 101" stroke="#6A503E" stroke-width="3.5" stroke-linecap="round"/>
+  <ellipse cx="83" cy="117" rx="8" ry="4.5" fill="#D99176" fill-opacity=".5"/>
+  <ellipse cx="151" cy="117" rx="8" ry="4.5" fill="#D99176" fill-opacity=".5"/>
+  <path d="M113 113C113 110 121 110 121 113L117 117L113 113Z" fill="#6A503E"/>
+  <path d="M117 119C114 124 109 125 105 121M117 119C120 124 125 125 129 121" stroke="#6A503E" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M117 150L125 166L142 169L130 182L133 199L117 191L101 199L104 182L92 169L109 166L117 150Z" fill="#EAC974" stroke="#B39349" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M117 160L121 169L131 172" stroke="#FFF0BC" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M81 156C73 165 75 176 92 179C97 180 101 175 99 171L92 165M153 156C161 165 159 176 142 179C137 180 133 175 135 171L142 165" fill="#E7B385" stroke="#946E53" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M80 192C75 191 72 195 74 199C78 205 94 205 100 200M153 192C158 191 161 195 159 199C155 205 139 205 133 200" fill="#EABD8D" stroke="#946E53" stroke-width="3" stroke-linecap="round"/>
+  <path d="M204 68L207 75L214 78L207 81L204 88L201 81L194 78L201 75L204 68Z" fill="#DAB86C"/>
+  <path d="M39 132L41 137L46 139L41 141L39 146L37 141L32 139L37 137L39 132Z" fill="#E4CC92"/>
+  <circle cx="189" cy="45" r="3" fill="#E4CC92"/>
+</svg>

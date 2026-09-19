@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">叶叶猫</title>
+  <desc id="desc">鼠尾草绿的小猫，长着叶片耳朵，坐着抱一本小书。</desc>
+  <defs>
+    <linearGradient id="fur" x1="81" y1="62" x2="167" y2="201" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B8CFA7"/>
+      <stop offset="1" stop-color="#95B78A"/>
+    </linearGradient>
+    <filter id="shadow" x="25" y="186" width="190" height="43" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
+  <ellipse cx="121" cy="207" rx="66" ry="8" fill="#253B36" fill-opacity=".09" filter="url(#shadow)"/>
+  <path d="M163 190C190 194 205 180 201 162C198 147 184 148 183 159C182 164 188 168 189 172C192 181 174 178 168 177" fill="#9FBE92" stroke="#52765A" stroke-width="3" stroke-linecap="round"/>
+  <path d="M76 143C77 128 93 116 120 116C147 116 162 128 165 146L173 189C176 202 160 205 146 204H94C79 205 64 201 67 189L76 143Z" fill="url(#fur)" stroke="#52765A" stroke-width="3"/>
+  <ellipse cx="120" cy="169" rx="30" ry="33" fill="#E8EED7"/>
+  <path d="M70 94C56 85 54 61 59 35C83 39 99 56 99 76" fill="#A9C697" stroke="#52765A" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M68 49C77 59 82 69 83 80" stroke="#71975F" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M170 94C184 85 186 61 181 35C157 39 141 56 141 76" fill="#A9C697" stroke="#52765A" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M172 49C163 59 158 69 157 80" stroke="#71975F" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M64 98C64 72 86 61 120 61C154 61 176 72 176 98C176 129 153 142 120 142C87 142 64 129 64 98Z" fill="url(#fur)" stroke="#52765A" stroke-width="3"/>
+  <path d="M108 64L112 76M121 63V77M134 64L130 76" stroke="#7E9F70" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="84" cy="114" rx="10" ry="6" fill="#D99D81" fill-opacity=".5"/>
+  <ellipse cx="156" cy="114" rx="10" ry="6" fill="#D99D81" fill-opacity=".5"/>
+  <path d="M86 103C90 98 96 98 100 103M140 103C144 98 150 98 154 103" stroke="#365244" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M116 109L120 113L124 109" fill="#52765A" stroke="#52765A" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M120 114V117M120 117C117 122 112 122 109 118M120 117C123 122 128 122 131 118" stroke="#365244" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M64 108L53 105M64 117L53 119M176 108L187 105M176 117L187 119" stroke="#71975F" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M94 153C103 150 112 151 120 156C128 151 137 150 146 153V183C136 181 128 183 120 187C112 183 104 181 94 183V153Z" fill="#FFFEFB" stroke="#52765A" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M120 157V185M101 161L112 163M101 168L112 170M128 163L139 161M128 170L139 168" stroke="#B5C5A9" stroke-width="2" stroke-linecap="round"/>
+  <path d="M79 154C69 168 75 180 93 176C98 175 100 169 96 165L88 158M161 154C171 168 165 180 147 176C142 175 140 169 144 165L152 158" fill="#A9C697" stroke="#52765A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M81 190C77 189 72 194 73 198C76 205 96 205 100 199M159 190C163 189 168 194 167 198C164 205 144 205 140 199" fill="#B7CCA2" stroke="#52765A" stroke-width="3" stroke-linecap="round"/>
+  <path d="M35 139C35 130 39 126 45 125C45 133 42 139 35 139Z" fill="#BDD0A7"/>
+  <path d="M203 94C203 88 206 85 211 84C211 90 208 94 203 94Z" fill="#BDD0A7"/>
+</svg>

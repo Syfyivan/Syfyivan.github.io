@@ -13,12 +13,17 @@ ES modules and browser storage, with no new packages or external services.
   import parsing, classification, wrapping, shuffle and accuracy calculations.
 - `tools/reading-lab.test.mjs`: data and core regression tests.
 - `_config.yml`, `source/js/home-showcase.js`: static route and discovery.
+- `rewards.js`, `player-store.js`: separate local player wallets, cumulative scores,
+  once-only settlement, migration, backup validation and pet progression.
+- `companions.css`, `pets/*.svg`: companion home, shop, rankings and three local
+  vector illustrations. No remote assets or additional dependencies are used.
 
 ## Validation commands
 
 ```sh
 node --check source/reading-lab/app.js
 node --test tools/reading-lab.test.mjs tools/blog-regression.test.cjs
+node --test tools/reading-lab-rewards.test.mjs tools/reading-lab-player-store.test.mjs
 pnpm run build
 node --test tools/blog-built.test.cjs
 git diff --check
@@ -50,3 +55,31 @@ unavailable or fill up; the UI reports failures and still allows JSON export.
 Word imports are limited to 1 MB/5000 entries; versioned backups allow 12 MB.
 Backups merge valid records, retain at most 100, and restore the custom article.
 Physical mobile devices and Safari require separate device acceptance testing.
+
+## Local players and companions
+
+The `reading-lab-v2` browser store contains up to eight profiles. Each profile has
+its own history, spendable coins, lifetime score, best single-session scores,
+settlement IDs, adopted pets and XP. Word banks and the custom article are shared.
+The prior `reading-lab-v1` store is retained; migration copies its records to the
+first player without inventing historical rewards. V2 backup import never adds
+an existing profile's wallet a second time. An untouched empty default profile
+can make room for all eight players in a full backup.
+
+Flash rewards correct answers by difficulty with a completion bonus; retries
+have a smaller reward. Story rewards require at least 20 non-whitespace code
+points in the retelling, with additional points for comprehension answers.
+Grid scores depend on size and errors. No speed bonus is awarded. Purchases and
+feeding reduce only spendable coins. Pet XP has ten levels and three visual stages.
+The UI contains the exact rules and affordability feedback.
+
+Incomplete training is reset on profile changes after a discard prompt, and
+settlement targets the session's original player ID. Other-tab storage changes
+pause the current page and request a refresh; a snapshot check before writes
+also rejects detected stale writes. This local-only feature is not an online
+competitive economy and is not an atomic multi-client database.
+
+Browser acceptance covers earning 118 points through eight 3×3 grids (one error),
+buying the 80-point cat, feeding twice to level 2, retaining 118 lifetime points
+with 8 spendable coins, switching to a fresh player, and reload persistence.
+Legacy records, flash reward settlement and custom-story rewards are checked too.
