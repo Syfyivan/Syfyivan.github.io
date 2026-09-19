@@ -3,6 +3,15 @@
 
   var PROJECTS = [
     {
+      tone: "green",
+      label: "阅读训练",
+      title: "一目 · 阅读实验室",
+      subtitle: "Reading Lab",
+      desc: "闪视词语、滚读故事、寻找数字，用短练习探索阅读节奏，支持导入自己的词库。",
+      url: "/reading-lab/",
+      displayUrl: "syfyivan.github.io/reading-lab",
+    },
+    {
       tone: "blue",
       label: "课程沉淀",
       title: "计网与代理",
