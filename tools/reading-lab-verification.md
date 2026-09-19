@@ -36,7 +36,7 @@ Do not change the search implementation to work around this unrelated test.
 
 ## Browser checks
 
-Exercise a complete flash session with both correct and incorrect responses,
+Exercise a complete flash session with both remembered and forgotten self-ratings,
 retry mistakes, and verify that imported numeric values are actually displayed.
 Exercise story completion, pause/resume, all masks, retelling and three-question
 scoring; custom articles intentionally use self-assessment. Finish a 3×3 grid,
@@ -66,7 +66,7 @@ first player without inventing historical rewards. V2 backup import never adds
 an existing profile's wallet a second time. An untouched empty default profile
 can make room for all eight players in a full backup.
 
-Flash rewards correct answers by difficulty with a completion bonus; retries
+Flash rewards self-rated recall by difficulty with a completion bonus; retries
 have a smaller reward. Story rewards require at least 20 non-whitespace code
 points in the retelling, with additional points for comprehension answers.
 Grid scores depend on size and errors. No speed bonus is awarded. Purchases and
@@ -83,3 +83,18 @@ Browser acceptance covers earning 118 points through eight 3×3 grids (one error
 buying the 80-point cat, feeding twice to level 2, retaining 118 lifetime points
 with 8 spendable coins, switching to a fresh player, and reload persistence.
 Legacy records, flash reward settlement and custom-story rewards are checked too.
+
+
+## Manual flash and continuous mask update
+
+Flash rounds begin only on a button press. After the timed stimulus disappears,
+the reader can reveal the answer and select remembered or forgotten without
+typing. Results and history explicitly say self-assessed; the existing score
+rules and mistake retry flow are retained. The next round waits for another click.
+
+The reading viewport uses one fixed pseudo-element from its top edge to the
+reading guide, including inter-line space, instead of separate rectangles on
+completed rows. The default translucent black, opaque black and gray options
+all cover the same region. Browser checks verify a five-round self-rating run,
+scoring, no text input, and that mask width equals the viewport width and mask
+height equals the guide position.

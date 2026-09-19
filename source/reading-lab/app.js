@@ -181,6 +181,7 @@ function startFlash(retry) {
 function fitStimulus() { const el=$('flash-stimulus');el.style.fontSize='';el.style.letterSpacing=[...el.textContent].length>12?'0':'2px';el.style.transform='';let size=parseFloat(getComputedStyle(el).fontSize);const limit=$('flash-stage').clientWidth-48;while(el.scrollWidth>limit&&size>12){size-=1;el.style.fontSize=`${size}px`;}if(el.scrollWidth>limit)el.style.transform=`scale(${limit/el.scrollWidth})`; }
 function nextFlash() {
   if(!flash)return;
+  if(!['ready','feedback','paused'].includes(flash.phase))return;
   if(flash.index>=flash.items.length){finishFlash();return;}
   const current=flash;current.phase='countdown';
   $('flash-answer').hidden=true;$('flash-feedback').hidden=true;$('flash-stimulus').hidden=false;
@@ -193,32 +194,35 @@ function nextFlash() {
     // Two animation frames ensure the stimulus has actually reached a paint before timing it.
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       if(flash!==current||current.phase!=='show')return;
-      flashTimer=setTimeout(()=>{if(flash!==current)return;current.phase='answer';$('flash-stimulus').textContent='· · ·';$('flash-status').textContent='回忆刚刚看到的内容';$('flash-answer').hidden=false;$('answer').value='';$('answer').focus({preventScroll:true});},current.exposure);
+      flashTimer=setTimeout(()=>{if(flash!==current)return;current.phase='answer';$('flash-stimulus').textContent='· · ·';$('flash-stimulus').style.transform='';$('flash-status').textContent='回想一下，再点击查看答案';$('flash-answer').hidden=false;$('flash-reveal').hidden=false;$('flash-rating').hidden=true;$('flash-reveal').focus({preventScroll:true});},current.exposure);
     }));
   },800);
 }
-function submitFlash(skip=false) {
+function revealFlash() {
   if(!flash||flash.phase!=='answer')return;
-  const answer=$('answer').value;
-  if(!skip&&!answer.trim()){$('answer').focus();return;}
-  const item=flash.items[flash.index],correct=!skip&&normalizeAnswer(answer)===normalizeAnswer(item.text);
-  flash.results.push({item,answer,correct});flash.index++;flash.phase='feedback';
+  flash.phase='revealed';$('flash-stimulus').textContent=flash.items[flash.index].text;fitStimulus();
+  $('flash-status').textContent='答案揭晓 · 按实际记忆情况自评';$('flash-reveal').hidden=true;$('flash-rating').hidden=false;
+}
+function submitFlash(correct) {
+  if(!flash||flash.phase!=='revealed')return;
+  const item=flash.items[flash.index];
+  flash.results.push({item,correct});flash.index++;flash.phase='feedback';
   $('flash-answer').hidden=true;$('flash-stimulus').hidden=true;$('flash-feedback').hidden=false;
-  $('flash-feedback').replaceChildren(node('strong',correct?'✓ 记住了！':`再看一眼：${item.text}`),node('span',correct?'保持这个节奏。':skip?'没关系，下一题再试试。':`你的输入：${answer}`),document.createElement('br'),action(flash.index===flash.items.length?'查看本组成绩':'下一题 →',nextFlash));
+  $('flash-feedback').replaceChildren(node('strong',correct?'✓ 已标记：记住了':`再看一眼：${item.text}`),node('span',correct?'保持这个节奏。':'没关系，准备好了再开始下一题。'),document.createElement('br'),action(flash.index===flash.items.length?'查看本组成绩':'开始下一题 →',nextFlash));
   $('flash-feedback').querySelector('button').focus({preventScroll:true});$('flash-progress').style.width=`${flash.index/flash.items.length*100}%`;
-  $('flash-status').textContent=correct?'回答正确':'一起校对';
+  $('flash-status').textContent=correct?'自评：记住了':'自评：没记住';
 }
 function finishFlash(partial=false) {
   clearTimeout(flashTimer);if(!flash)return;
   if(!flash.results.length){resetFlash();return;}
   const current=flash,{correct,total,accuracy}=summarize(current.results),wrong=current.results.filter(x=>!x.correct).map(x=>x.item);
   flash=null;lockFlash(false);$('flash-stimulus').hidden=true;$('flash-answer').hidden=true;$('flash-feedback').hidden=true;$('flash-result').hidden=false;
-  $('flash-result').replaceChildren(node('p',partial?'这一小步，也算数。':'一组完成，把目光放远一点。','eyebrow'),node('div',`${accuracy}%`,'score'),node('h2',accuracy>=80?'稳稳记住，慢慢加速。':'给记忆多一点时间。'),node('p',`${correct} / ${total} 题正确 · Lv.${current.level} · ${current.exposure} ms`),action('再练一组',()=>startFlash()));
+  $('flash-result').replaceChildren(node('p',partial?'这一小步，也算数。':'一组完成，把目光放远一点。','eyebrow'),node('div',`${accuracy}%`,'score'),node('h2',accuracy>=80?'稳稳记住，慢慢加速。':'给记忆多一点时间。'),node('p',`${correct} / ${total} 题记住 · 自评 · Lv.${current.level} · ${current.exposure} ms`),action('再练一组',()=>startFlash()));
   if(wrong.length)$('flash-result').append(document.createTextNode(' '),action(`重练 ${wrong.length} 道错题`,()=>startFlash(wrong),'secondary'));
-  const score=record('flash',`Lv.${current.level} · ${current.exposure} ms · ${correct}/${total} 正确${partial?' · 提前结束':''}`,{}, {id:current.id,playerId:current.playerId,metrics:{correct,total,level:current.level,completed:!partial,retry:current.retry}});
+  const score=record('flash',`Lv.${current.level} · ${current.exposure} ms · ${correct}/${total} 记住（自评）${partial?' · 提前结束':''}`,{}, {id:current.id,playerId:current.playerId,metrics:{correct,total,level:current.level,completed:!partial,retry:current.retry}});
   $('flash-result').append(node('p',`本次 +${score} 积分 · 去“我的伙伴”兑换奖励`,'earned-score'));$('flash-status').textContent='本组完成';
 }
-$('flash-start').onclick=()=>startFlash();$('flash-answer').onsubmit=e=>{e.preventDefault();submitFlash();};$('flash-skip').onclick=()=>submitFlash(true);$('flash-stop').onclick=()=>finishFlash(true);
+$('flash-start').onclick=()=>startFlash();$('flash-reveal').onclick=revealFlash;$('flash-remembered').onclick=()=>submitFlash(true);$('flash-forgot').onclick=()=>submitFlash(false);$('flash-stop').onclick=()=>finishFlash(true);
 document.querySelectorAll('#view-flash .settings input,#view-flash .settings select').forEach(el=>el.addEventListener('change',poolInfo));
 $('exposure').oninput=()=>{$('exposure-value').textContent=`${$('exposure').value} ms`;};
 
@@ -249,10 +253,9 @@ function paintRead() {
   if(!read)return;
   const story=read.story,ratio=Math.min(1,read.units/read.total);
   // Each line's duration is proportional to its character count, including the short final line.
-  let offset=0,remaining=read.units,completed=0;
-  for(const count of read.counts){if(remaining>=count){remaining-=count;offset+=50;completed++;}else{offset+=remaining/count*50;break;}}
+  let offset=0,remaining=read.units;
+  for(const count of read.counts){if(remaining>=count){remaining-=count;offset+=50;}else{offset+=remaining/count*50;break;}}
   $('reader-lines').style.transform=`translateY(-${offset}px)`;
-  [...$('reader-lines').children].forEach((el,i)=>el.classList.toggle('read',i<completed));
   $('read-percent').textContent=`${Math.round(ratio*100)}%`;$('read-progress').style.width=`${ratio*100}%`;
   if(ratio>=1){read.running=false;read.done=true;$('read-pause').disabled=true;$('read-status').textContent='读完了，试着复述';$('reader-window').hidden=true;showRecall(story);}
 }
