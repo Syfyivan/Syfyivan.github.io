@@ -235,9 +235,7 @@ font:
 # Specify the path of your custom js file, support list. The path is relative to the source directory, such as `/js/custom.js` corresponding to the directory `source/js/custom.js`
 custom_js:
   - /js/search-core.js?v=20260905-1.js
-  - /js/home-showcase.js?v=20260907-1.js
-  - /js/farm-core.js?v=20260907-1.js
-  - /js/farm.js?v=20260907-1.js
+  - /js/home-showcase.js?v=20260922-1.js
   - /js/token-usage.js?v=20260905-1.js
   - /js/post-heading-hash.js?v=20260617-2.js
   - /js/post-affiliation.js?v=20260618-2.js
@@ -253,7 +251,7 @@ custom_css:
   - /css/post-affiliation.css?v=20260618-1.css
   - /css/post-inline-editor.css?v=20260618-1.css
   - /css/blog-refinement.css?v=20260907-1.css
-  - /css/farm.css?v=20260907-1.css
+  - /css/journal-home.css?v=20260922-1.css
 
 # 网页访问统计
 # Analysis of website visitors
@@ -495,7 +493,7 @@ footer:
     <i class="iconfont icon-love"></i>
     <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a>
     <br>
-    <span>首页像素素材来自 <a href="https://emanuelledev.itch.io" target="_blank" rel="nofollow noopener">EmanuelleDev</a> 的 Farm RPG Asset Pack</span>
+    <span>原创小院插画 · 历史农场素材来自 <a href="https://emanuelledev.itch.io" target="_blank" rel="nofollow noopener">EmanuelleDev</a> 的 Farm RPG Asset Pack</span>
   '
 
   # 展示网站的 PV、UV 统计数
