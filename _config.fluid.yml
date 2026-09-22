@@ -412,6 +412,7 @@ navbar:
         - { key: "visual_browser", name: "AI视觉", link: "/flipbook/" }
         - { key: "mahjong", name: "麻将", link: "/mahjong/" }
         - { key: "painters_guild", name: "画室", link: "/painters-guild/" }
+        - { key: "game_mod_research", name: "游戏 Mod 调研", link: "/game-mod-research/" }
     - { key: "晨读", link: "/morning-read/", icon: "iconfont icon-newspaper" }
     - { key: "about", link: "/about/", icon: "iconfont icon-user-fill" }
     #- { key: "links", link: "/links/", icon: "iconfont icon-link-fill" }

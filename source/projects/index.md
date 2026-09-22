@@ -592,6 +592,11 @@ html[data-user-color-scheme="dark"] .workshop-page .ws-read:focus {
     </article>
   </div>
   <aside class="ws-note">
+    <h2>游戏 Mod 调研</h2>
+    <p>从《画家工会》开始，记录原版机制、画家成长、跨时代事件、工会经营和汉化实验。每篇区分代码发现、运行验证与设计方案。</p>
+    <p><a class="ws-read" href="/game-mod-research/">进入游戏 Mod 调研专题 →</a></p>
+  </aside>
+  <aside class="ws-note">
     <h2>怎么读这些拆解</h2>
     <p>每篇教程都按同一个思路写：先讲这个项目为什么存在、要解决什么麻烦，再给出架构和数据流，然后摘真实源码逐段拆，最后整理踩坑和可复用的经验。读完任何一篇，你都应该能照着做出一个自己的版本。</p>
   </aside>

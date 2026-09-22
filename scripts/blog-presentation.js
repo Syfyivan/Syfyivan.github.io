@@ -22,5 +22,5 @@ hexo.extend.generator.register('blog-search-index', locals => ({
   path: 'search-index.json',
   data: JSON.stringify(locals.posts.sort('-date').toArray()
     .filter(post => post.published !== false && post.indexing !== false && !post.hide && !post.encrypt)
-    .map(post => ({ title: post.title || '未命名文章', content: plainText(post.content), url: '/' + post.path })))
+    .map(post => ({ title: post.title || '未命名文章', content: plainText(post.content), url: '/' + post.path.replace(/^\/+/, '') })))
 }));
