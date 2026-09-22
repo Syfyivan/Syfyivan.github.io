@@ -27,3 +27,10 @@ Day and blue-hour map artwork generated for this site on 2026-09-22. Main artwor
 - Not verified on a physical Safari/iOS device.
 
 Changed areas: `_config.fluid.yml`, `source/js/home-showcase.js`, new `source/js/farm-world*.js`, `source/css/farm-world.css`, `source/img/farm-world/`, three journal icons and their generator, focused regression checks, and the Pages verification command.
+
+## Discovery action animation follow-up
+- Replaced instant text feedback with anchored picking, casting/bobber/ripple/fish-release, and chick approach/hop/heart sequences.
+- Added a visible map-footer notebook destination for flying memory tokens; existing discoveries replay without duplicate collection.
+- One sequence controller settles exactly once, clears scheduled stages, and restores targets on pause, reduced motion, page exit, resize, or zoom.
+- Reused existing SVGs and sprite sheets; no dependencies or new bitmap payloads.
+- Browser checked desktop and 390px mobile, fishing reveal, berry/chick motion, interrupting fishing with pause, notebook opening, reduced-motion instant collection, and clean console.

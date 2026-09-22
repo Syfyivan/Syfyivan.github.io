@@ -35,10 +35,10 @@
                   return '<button type="button" class="world-discovery world-discovery--' + d.id + '" data-discovery="' + d.id + '" style="--x:' + d.x + '%;--y:' + d.y + '%" aria-label="' + d.title + '：' + d.hint + '"><span class="world-discovery__spark" aria-hidden="true">✦</span><span class="world-discovery__label">' + ({berry:'摘草莓',fish:'钓个鱼',chick:'打招呼'})[d.id] + '</span></button>';
                 }).join('')}</div>
                 <div class="world-animals" aria-hidden="true"><i class="world-animal world-animal--hen"></i><i class="world-animal world-animal--chick"></i><i class="world-animal world-animal--duck"></i><i class="world-butterfly"></i></div>
-                <div class="world-burst" aria-hidden="true"></div>
+                <div class="world-action-scene" aria-hidden="true"></div>
               </div>
             </div>
-            <div class="world-map-footer"><span><span aria-hidden="true">✧</span> 点建筑去逛逛，点闪光找惊喜</span><button type="button" data-action="zoom" aria-pressed="false">＋ 放大逛逛</button></div>
+            <div class="world-map-footer"><button type="button" class="world-pocket" data-action="pocket" aria-label="打开收集手册">${icon('book')}<span>0 / 3</span></button><span class="world-footer-hint">点闪光，收集小惊喜</span><button type="button" data-action="zoom" aria-pressed="false">＋ 放大逛逛</button></div>
           </div>
           <div class="world-message" role="status" aria-live="polite"><span class="world-message__icon" aria-hidden="true">${icon('letter')}</span><span class="world-message__text">小院的门一直开着。今天，想先去哪里？</span></div>
         </div>
@@ -57,13 +57,14 @@
     try { storage = window.localStorage; found = core.restore(storage.getItem('yifan-farm-discoveries')); } catch (_) {}
     var reduced = matchMedia('(prefers-reduced-motion: reduce)'), paused = false, visible = true;
     try { paused = storage && storage.getItem('Blog_Motion_Paused') === 'true'; } catch (_) {}
-    var timeOverride = false, fishTimer = 0, hintTimer = 0;
+    var timeOverride = false, hintTimer = 0;
     var viewport = root.querySelector('.world-viewport'), map = root.querySelector('.world-map');
     var notebook = root.querySelector('.world-notebook');
     var $ = function (selector) { return root.querySelector(selector); };
     var message = function (text) { $('.world-message__text').textContent = text; };
     function syncFound() {
       $('.world-progress').textContent = found.length + ' / 3';
+      $('.world-pocket span').textContent = found.length + ' / 3';
       core.discoveries.forEach(function (d) {
         $('[data-find="' + d.id + '"]').classList.toggle('is-found', found.includes(d.id));
         $('[data-discovery="' + d.id + '"]').classList.toggle('is-found', found.includes(d.id));
@@ -82,19 +83,53 @@
       $('.world-save-note').textContent = saved ? '收集记录保存在当前浏览器里。' : '当前浏览器无法保存记录，本次散步仍可正常收集。';
       syncFound();
       message((repeated ? '再来看一眼：' : '') + d.message + (!repeated && found.length === 3 ? ' 三个小瞬间集齐，散步手册里多了一枚纪念章。' : ''));
-      var burst = $('.world-burst'); burst.style.left = d.x + '%'; burst.style.top = d.y + '%';
-      burst.classList.remove('is-active'); void burst.offsetWidth; burst.classList.add('is-active');
       if (audioOn) chime();
+    }
+    var scene = $('.world-action-scene'), flight = null;
+    var action = core.sequence({ set: function (fn, ms) { return setTimeout(fn, ms); }, clear: function (id) { clearTimeout(id); } });
+    function flyMemory(d) {
+      var from = scene.getBoundingClientRect(), to = $('.world-pocket').getBoundingClientRect();
+      var token = document.createElement('span'); token.className = 'world-memory-flight'; token.innerHTML = icon(d.icon);
+      token.style.left = from.left + 'px'; token.style.top = from.top + 'px'; root.appendChild(token);
+      var dx = to.left + to.width / 2 - from.left, dy = to.top + to.height / 2 - from.top;
+      flight = token;
+      if (token.animate) token.animate([
+        { transform:'translate(-50%,-50%) scale(1)', opacity:1 },
+        { transform:'translate(' + (dx*.45-14) + 'px,' + (Math.min(-65,dy*.2)-14) + 'px) scale(1.3)', opacity:1, offset:.4 },
+        { transform:'translate(' + (dx-14) + 'px,' + (dy-14) + 'px) scale(.4)', opacity:.2 }
+      ], { duration:850, easing:'cubic-bezier(.3,.1,.5,1)', fill:'forwards' });
     }
     root.querySelectorAll('[data-discovery]').forEach(function (button) {
       button.addEventListener('click', function () {
+        if (action.busy()) return;
         var d = core.discoveries.find(function (item) { return item.id === button.dataset.discovery; });
-        if (d.id === 'fish') {
-          if (fishTimer) return;
-          button.disabled = true; button.classList.add('is-fishing');
-          message('轻轻抛下鱼线……水面好像有了动静。');
-          fishTimer = setTimeout(function () { fishTimer = 0; button.disabled = false; button.classList.remove('is-fishing'); award(d); }, reduced.matches ? 200 : 1600);
-        } else { award(d); }
+        if (root.classList.contains('world-still')) { award(d); return; }
+        var r = button.getBoundingClientRect(), m = map.getBoundingClientRect();
+        scene.style.left = (r.left + r.width/2 - m.left) + 'px';
+        scene.style.top = (r.top + r.height/2 - m.top) + 'px';
+        scene.className = 'world-action-scene world-action--' + d.id;
+        scene.innerHTML = '<i class="world-action-shadow"></i><i class="world-action-ripple"></i><i class="world-action-ripple world-action-ripple--two"></i>' +
+          '<i class="world-action-line"></i><i class="world-action-bobber"></i><span class="world-action-actor">' + icon(d.icon) + '</span>' +
+          '<span class="world-action-heart">♥</span><span class="world-action-caption"></span>' +
+          Array.from({length:6},function(_,i){return '<i class="world-action-particle" style="--i:'+i+';--dx:'+(Math.cos(i*Math.PI/3)*35)+'px;--dy:'+(Math.sin(i*Math.PI/3)*24-16)+'px"></i>';}).join('');
+        var captions = { berry:['轻轻拨开叶子…','摘到啦！'], fish:['抛竿，等一等…','咬钩啦！'], chick:['撒一小把谷粒…','啾！喜欢你 ♥'] };
+        $('.world-action-caption').textContent = captions[d.id][0];
+        message(captions[d.id][0]); root.dataset.interacting = d.id;
+        button.classList.add('is-acting'); button.setAttribute('aria-busy','true');
+        root.querySelectorAll('[data-discovery]').forEach(function (b) { b.setAttribute('aria-disabled','true'); });
+        var reveal = d.id === 'fish' ? 1700 : 900;
+        action.start([
+          { at:reveal, run:function () { scene.classList.add('is-revealed'); $('.world-action-caption').textContent = captions[d.id][1]; if(audioOn)chime(); } },
+          { at:reveal+1300, run:function () { scene.classList.add('is-collected'); flyMemory(d); } },
+          { at:reveal+2200, run:function () { action.finish(); } }
+        ], function () {
+          if(flight) { flight.remove(); flight=null; }
+          scene.className='world-action-scene'; scene.innerHTML=''; delete root.dataset.interacting;
+          button.classList.remove('is-acting'); button.removeAttribute('aria-busy');
+          root.querySelectorAll('[data-discovery]').forEach(function (b) { b.removeAttribute('aria-disabled'); });
+          award(d);
+          var pocket=$('.world-pocket'); pocket.classList.remove('is-received'); void pocket.offsetWidth; pocket.classList.add('is-received');
+        });
       });
     });
     root.querySelectorAll('[data-find]').forEach(function (button) {
@@ -130,6 +165,7 @@
     function syncMotion() {
       var stop = paused || reduced.matches || !visible || document.hidden;
       root.classList.toggle('world-still', stop);
+      if (stop && action) action.finish();
       var button = $('[data-action="motion"]');
       button.disabled = reduced.matches;
       button.setAttribute('aria-pressed', String(paused || reduced.matches));
@@ -142,12 +178,13 @@
     document.addEventListener('visibilitychange', syncMotion);
     if ('IntersectionObserver' in window) new IntersectionObserver(function (entries) { visible = entries[0].isIntersecting; syncMotion(); }, { threshold: 0 }).observe(root);
     $('[data-action="zoom"]').addEventListener('click', function () {
+      action.finish();
       var zoomed = !viewport.classList.contains('is-zoomed'); viewport.classList.toggle('is-zoomed', zoomed);
       this.setAttribute('aria-pressed', String(zoomed)); this.textContent = zoomed ? '− 返回全景' : '＋ 放大逛逛';
       if (zoomed) { viewport.scrollTo({left:(map.scrollWidth - viewport.clientWidth) / 2, top:(map.scrollHeight - viewport.clientHeight) / 2, behavior:'auto'}); message('已放大，可以横向和纵向滑动地图。建筑和闪光仍然可以点击。'); }
       else { viewport.scrollLeft = 0; viewport.scrollTop = 0; message('回到全景。每一条小路，都通往一点新的发现。'); }
     });
-    $('[data-action="notebook"]').addEventListener('click', function () { syncFound(); notebook.showModal(); });
+    root.querySelectorAll('[data-action="notebook"], [data-action="pocket"]').forEach(function(button) { button.addEventListener('click', function () { syncFound(); notebook.showModal(); }); });
     $('.world-notebook-close').addEventListener('click', function () { notebook.close(); });
     $('.world-notebook-done').addEventListener('click', function () { notebook.close(); });
     notebook.addEventListener('click', function (e) { if (e.target === notebook) { var r = notebook.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) notebook.close(); } });
@@ -173,8 +210,9 @@
     });
     // Decorative particles are deterministic and never cover input targets.
     $('.world-fireflies').innerHTML = Array.from({length:14},function (_,i) { return '<i style="left:' + (8 + i * 37 % 86) + '%;top:' + (15 + i * 19 % 75) + '%;animation-delay:-' + (i*.71) + 's"></i>'; }).join('');
-    window.addEventListener('pagehide', function () { clearTimeout(audioTimer); if(audio)audio.suspend().catch(function(){}); });
+    window.addEventListener('pagehide', function () { action.finish(); clearTimeout(audioTimer); if(audio)audio.suspend().catch(function(){}); });
     window.addEventListener('pageshow', syncMotion);
+    window.addEventListener('resize', function () { action.finish(); });
     syncFound(); syncMotion();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

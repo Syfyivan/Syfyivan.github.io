@@ -24,3 +24,16 @@ test('all destinations and discoveries fit the map, with unique identities', () 
   for (const item of items) { assert.ok(item.x>0&&item.x<100); assert.ok(item.y>0&&item.y<100); }
   for (const place of core.places) assert.ok(place.href.startsWith('/') && !place.href.startsWith('//'));
 });
+test('animation sequence rejects overlapping actions and settles once on interruption', () => {
+  const pending = new Map(); let id=0, awards=0, stages=0;
+  const sequence=core.sequence({set(fn){pending.set(++id,fn);return id;},clear(id){pending.delete(id);}});
+  assert.equal(sequence.start([{at:100,run(){stages++;}}],()=>awards++),true);
+  assert.equal(sequence.start([],()=>awards++),false);
+  const stale=[...pending.values()][0];
+  sequence.finish(); sequence.finish(); stale();
+  assert.equal(awards,1); assert.equal(stages,0); assert.equal(pending.size,0);
+  assert.equal(sequence.busy(),false);
+  assert.equal(sequence.start([{at:100,run(){stages++;sequence.finish();}}],()=>awards++),true);
+  [...pending.values()][0]();
+  assert.equal(stages,1); assert.equal(awards,2); assert.equal(sequence.busy(),false);
+});

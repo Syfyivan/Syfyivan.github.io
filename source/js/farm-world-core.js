@@ -34,5 +34,27 @@
     try { storage.setItem('yifan-farm-discoveries', JSON.stringify({ version: 1, found: found })); return true; }
     catch (_) { return false; }
   }
-  return { discoveries: discoveries, places: places, restore: restore, collect: collect, save: save };
+  // A single active scene: cancellation also settles its reward exactly once.
+  function sequence(clock) {
+    var active = null;
+    function finish() {
+      if (!active) return;
+      var current = active; active = null;
+      current.timers.forEach(clock.clear);
+      current.done();
+    }
+    return {
+      start: function (steps, done) {
+        if (active) return false;
+        var current = { timers: [], done: done }; active = current;
+        steps.forEach(function (step) {
+          current.timers.push(clock.set(function () { if (active === current) step.run(); }, step.at));
+        });
+        return true;
+      },
+      finish: finish,
+      busy: function () { return !!active; }
+    };
+  }
+  return { discoveries: discoveries, places: places, restore: restore, collect: collect, save: save, sequence: sequence };
 });
