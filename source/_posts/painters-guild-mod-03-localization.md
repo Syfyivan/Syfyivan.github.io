@@ -11,8 +11,10 @@ tags: [汉化, Flash, ActionScript, Mod, 画家工会]
 
 在成长、事件和经营之外，中文本地化也值得单独做成一个可选扩展。对这款 Flash / AIR 游戏来说，改掉英文只是第一步，中文字体、文本框宽度和动态字符串都需要检查。
 
-当前是 **0.1 部分汉化候选**：四个主菜单标签、二十一组事件标题与正文已编译进候选 SWF，并完成重新导出检查。它不是完整汉化包，也尚未完成中文界面的运行验收。
+本文最初记录的是 **0.1 部分汉化候选**：四个主菜单标签、二十一组事件标题与正文已编译进候选 SWF，并完成重新导出检查。它不是完整汉化包，也尚未完成中文界面的运行验收。
 
+
+> 2026-09-23 更新：部分汉化与 8 类季度事件已完成、实测并安装。最新结果见[时代余响 1.0 实作与验收](/game-mod-research/painters-guild-era-echoes/)。本文保留 9 月 22 日的调研或设计阶段记录，不代表当前全部完成范围。
 <!-- more -->
 
 [专题目录](/game-mod-research/) · [四个 Mod 的分工](/game-mod-research/painters-guild-roadmap/)
@@ -71,7 +73,7 @@ field.setTextFormat(format);
 
 编译使用 JPEXS 的 `-replace` 能力；工具将该能力标为实验性，因此即便编译成功也必须做运行测试。命令格式参考[官方命令行说明](https://github.com/jindrapetrik/jpexs-decompiler/wiki/Commandline-arguments)。
 
-## 5. 当前覆盖与未完成项
+## 5. 0.1 阶段的覆盖与未完成项
 
 | 范围 | 状态 |
 | --- | --- |

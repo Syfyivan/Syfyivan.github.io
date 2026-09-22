@@ -13,6 +13,8 @@ tags: [游戏开发, Mod, Flash, ActionScript, 画家工会]
 
 这次调研已经完成文件检查、脚本导出，以及一次无改动重新编译。重新编译后的独立副本能打开主菜单，但尚未完成新游戏、长期运行与存读档验证。下文的机制结论主要来自静态代码分析。
 
+
+> 2026-09-23 更新：部分汉化与 8 类季度事件已完成、实测并安装。最新结果见[时代余响 1.0 实作与验收](/game-mod-research/painters-guild-era-echoes/)。本文保留 9 月 22 日的调研或设计阶段记录，不代表当前全部完成范围。
 <!-- more -->
 
 [专题目录](/game-mod-research/) · [下一篇：四个 Mod 的设计](/game-mod-research/painters-guild-roadmap/)

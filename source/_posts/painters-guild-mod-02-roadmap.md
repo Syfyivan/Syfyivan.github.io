@@ -11,8 +11,10 @@ tags: [游戏设计, Mod, 画家工会, 汉化]
 
 想要的不是一个“所有数值翻倍”的补丁，而是四个可以组合的方向：画家成长、更多时代事件、丰富的工会经营，以及汉化。
 
-这篇记录设计方案。**成长、时代、经营三个玩法 Mod 尚未完成实现；汉化只进入部分文本预览阶段。** 原版中已经确认的机制见[上一篇](/game-mod-research/painters-guild-mechanics/)。
+这篇记录四个方向的设计方案。**时代事件与部分汉化已完成第一版；完整成长系统与深度经营仍未实现。** 原版中已经确认的机制见[上一篇](/game-mod-research/painters-guild-mechanics/)。
 
+
+> 2026-09-23 更新：部分汉化与 8 类季度事件已完成、实测并安装。最新结果见[时代余响 1.0 实作与验收](/game-mod-research/painters-guild-era-echoes/)。本文保留 9 月 22 日的调研或设计阶段记录，不代表当前全部完成范围。
 <!-- more -->
 
 [专题目录](/game-mod-research/) · [下一篇：汉化实验](/game-mod-research/painters-guild-localization/)
