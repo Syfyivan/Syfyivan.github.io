@@ -151,30 +151,12 @@
   }
 
   function buildJournal() {
-    var banner = document.querySelector('.banner');
-    if (!banner) return;
-    document.body.classList.add('home-journal');
-    var journal = document.createElement('section');
-    journal.className = 'journal';
-    journal.setAttribute('aria-label', '欢迎来到一凡的小院');
-    var links = [
-      ['book', '课程书架', '一起慢慢学', '/courses/'],
-      ['house', '项目工坊', '把想法做出来', '/projects/'],
-      ['letter', '晨间来信', '今日技术晨读', '/morning-read/'],
-      ['flower', '像素画室', '留一点创造力', '/painters-guild/'],
-      ['chicken', '游戏角落', '休息一下吧', '/mahjong/'],
-      ['mushroom', '关于一凡', '认识小院主人', '/about/']
-    ];
-    journal.innerHTML = '<div class="journal-welcome">' +
-      '<div class="journal-copy"><p class="journal-eyebrow"><img src="/img/journal/sprout.svg" alt="" width="28" height="28"> YIFAN’S LITTLE GARDEN</p>' +
-      '<h1>一凡的小院<span>种下想法，慢慢生长。</span></h1>' +
-      '<p class="journal-description">你好，我是一凡。<br>在这里写代码、做些小玩意，也记录一路学到的东西。</p>' +
-      '<div class="journal-actions"><a href="#latest-writing">翻开手帐 <span aria-hidden="true">→</span></a><a href="/courses/">去书架看看</a></div></div>' +
-      '<figure class="journal-picture"><div class="journal-picture__label">小院日常 · 晴</div><img src="/img/journal/cottage.svg" width="480" height="288" alt="像素小院：红瓦木屋、菜畦、池塘和散步的小鸡"><figcaption>一点好奇心，一点点收获。</figcaption></figure></div>' +
-      '<nav class="journal-paths" aria-label="小院导航">' + links.map(function (link) {
-        return '<a href="' + link[3] + '"><img src="/img/journal/' + link[0] + '.svg" width="40" height="40" alt=""><span><strong>' + link[1] + '</strong><small>' + link[2] + '</small></span></a>';
-      }).join('') + '</nav>';
-    banner.appendChild(journal);
+    document.body.classList.add('home-journal', 'home-farm');
+    buildVillage();
+    var title = document.createElement('div');
+    title.className = 'farm-welcome';
+    title.innerHTML = '<p>YIFAN’S LITTLE FARM</p><h1>一凡的小院</h1><span>写代码，种想法，收获一点新发现。</span><a href="#latest-writing">翻开手帐 ↓</a>';
+    document.querySelector('.banner').appendChild(title);
     var icons = ['book', 'sprout', 'jar', 'letter', 'chicken', 'flower'];
     document.querySelectorAll('.home-project-card').forEach(function(card, i) {
       var icon = document.createElement('img');
@@ -182,6 +164,63 @@
       icon.src = '/img/journal/' + icons[i % icons.length] + '.svg';
       card.querySelector('.home-project-card__body').prepend(icon);
     });
+  }
+
+  // The public course is available to every visitor; the old private dev URL was not.
+  var AI_TOWN_URL = "/courses/ai-town/";
+
+  var TOWN = [
+    { key: "school", name: "课程", desc: "把文章串成可连续学习的课程", href: "/courses/", row: "back" },
+    { key: "workshop", name: "项目工坊", desc: "每个项目一张工单，配拆解教程", href: "/projects/", row: "back" },
+    { key: "wizard", name: "AI 视觉", desc: "AI 视觉浏览器的魔法画册", href: "/flipbook/", row: "back" },
+    { key: "aitown", name: "AI 小镇", desc: "阅读 AI 小镇的实现课程", href: AI_TOWN_URL, row: "front", bus: true },
+    { key: "about", name: "关于我", desc: "村长一凡住在这里", href: "/about/", row: "front" },
+    { key: "news", name: "晨读", desc: "每天早上的技术晨报", href: "/morning-read/", row: "front" },
+    { key: "painters", name: "画室", desc: "协作像素画室", href: "/painters-guild/", row: "front" },
+    { key: "archive", name: "归档", desc: "全部文章按时间归档", href: "/archives/", row: "front" },
+    { key: "mahjong", name: "麻将", desc: "在线麻将小游戏", href: "/mahjong/", row: "front" },
+  ];
+
+  function isExternal(href) {
+    return /^https?:\/\//.test(href);
+  }
+
+  function townLot(lot) {
+    var tgt = isExternal(lot.href) ? '" target="_blank" rel="noopener"' : '"';
+    return (
+      '<a class="town-lot town-lot--' + lot.key + ' town-lot--' + lot.row + '" href="' + lot.href + tgt + ' aria-label="' + escapeHtml(lot.name) + '：' + escapeHtml(lot.desc) + '">' +
+        '<span class="town-lot__house"></span>' +
+        '<span class="town-lot__sign">' + escapeHtml(lot.name) + "</span>" +
+      "</a>"
+    );
+  }
+
+  function buildVillage() {
+    var banner = document.querySelector(".banner");
+    if (!banner || banner.querySelector(".village")) return;
+
+    var lots = "";
+    for (var i = 0; i < TOWN.length; i += 1) lots += townLot(TOWN[i]);
+
+    var village = document.createElement("div");
+    village.className = "village";
+    village.innerHTML =
+      '<div class="village__ground" aria-hidden="true"></div>' +
+      '<nav class="town" aria-label="小镇导航">' + lots + "</nav>";
+    banner.appendChild(village);
+
+    var bannerText = banner.querySelector(".banner-text");
+    if (bannerText && !bannerText.querySelector(".home-start")) {
+      var start = document.createElement("div");
+      start.className = "home-start";
+      start.innerHTML =
+        '<a class="home-start__btn" href="#latest-writing">读最新文章 <span aria-hidden="true">↓</span></a>' +
+        '<a class="home-start__btn home-start__btn--quiet" href="/courses/">浏览课程 <span aria-hidden="true">↗</span></a>';
+      bannerText.appendChild(start);
+    }
+
+
+
   }
 
   if (document.readyState === "loading") {

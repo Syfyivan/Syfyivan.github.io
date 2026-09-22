@@ -45,8 +45,8 @@
     }
   };
   function layout(width) {
-    var key=width<=575?'mobile':width<=1000?'compact':'desktop';
-    var scene=scenes[key], scale=Math.min(1,(Math.max(280,width)-24)/scene.width);
+    var key=width<=800?'compact':'desktop';
+    var scene=scenes[key], scale=Math.min(key==='desktop'?.68:.78,(Math.max(280,width)-40)/scene.width);
     return {key:key,scene:scene,scale:scale};
   }
   function create(kind, route, delay, unit) {

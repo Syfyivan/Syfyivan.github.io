@@ -1,0 +1,28 @@
+/* The farm is the homepage's main scene, contained at a readable pixel scale. */
+body.home-farm:has(.home-showcase) .header-inner { height: var(--scene-header,800px) !important; min-height: var(--scene-header,800px) !important; padding-top: 68px; }
+body.home-farm:has(.home-showcase) .banner { height: calc(var(--scene-header,800px) - 68px) !important; min-height: 0 !important; max-width: 1120px; margin: 20px auto 0; border: 3px solid #94714f; border-radius: 4px; box-shadow: 0 4px 0 #baa37f,inset 0 0 0 4px #e0c59a; background: #adbf85 !important; }
+.home-farm .village { position: absolute; inset: 0; width: 100%; height: 100%; }
+.home-farm .village__ground { opacity: .20; background-image: url('/img/village/grass-3x.png'); background-size: 96px; }
+.home-farm .village::after { height: 16px; background: #86714f; border-top: 3px solid #c2b981; }
+.farm-welcome { position: absolute; z-index: 5; top: 20px; left: 50%; transform: translateX(-50%); width: min(460px,90%); text-align: center; color: #405236; }
+.farm-welcome p { margin: 0 0 5px; font: 10px/1.5 Consolas,monospace; letter-spacing: 3px; }
+.farm-welcome h1 { font-size: 32px; font-weight: 750; letter-spacing: 4px; margin: 0 0 7px; color: #344b30; text-shadow: 0 2px #e2ebc6; }
+.farm-welcome > span { font-size: 12px; }
+.farm-welcome a { position: absolute; left: calc(100% + 30px); top: 25px; white-space: nowrap; color: #574329; background: #f6e3b9; border: 2px solid #92724b; padding: 9px 13px; font-size: 12px; box-shadow: 0 3px #7a6544; }
+.home-farm .town-lot__sign { border-radius: 1px; color: #fff2cb; background: #785335; font-size: calc(11px / var(--scene-scale,1)); padding: 3px 7px; bottom: -27px; box-shadow: 0 2px #b49766; }
+.home-farm .town-lot:focus-visible { outline: 3px solid #fff2b0 !important; }
+.home-farm .town-lot--aitown .town-lot__sign { top: -34px; bottom: auto; }
+.home-farm .town-lot:hover .town-lot__house { filter: drop-shadow(0 0 5px #fff0b0); transform: translateY(-3px); }
+.home-farm .farm__water { border-radius: 0; clip-path: polygon(0 15%,10% 15%,10% 5%,25% 5%,25% 0,78% 0,78% 8%,94% 8%,94% 23%,100% 23%,100% 78%,91% 78%,91% 94%,70% 94%,70% 100%,20% 100%,20% 92%,5% 92%,5% 78%,0 78%); }
+.farm__garden-details { position:absolute; inset:0; pointer-events:none; }
+.farm__picket { position:absolute; border-inline:3px solid #ac8658; background:linear-gradient(transparent 3px,#e6c48b 3px 5px,#927147 5px 7px,transparent 7px); box-shadow: 0 2px #6b804a; }
+.farm__flowerpot { position:absolute; background:url('/img/journal/flower.svg') center / contain no-repeat; image-rendering:pixelated; }
+.farm__wildflower { position:absolute; border-bottom:5px solid #64844b; background:#f2dc8b; box-shadow:2px 0 #f1e2ab,-2px 0 #f1e2ab; }
+.farm__wildflower--1 { background:#f2c3b7; box-shadow:2px 0 #d69391,-2px 0 #d69391; }
+.home-farm .motion-toggle { bottom: 23px; right: 13px; background:#f4e4bf; color:#665234; border:1px solid #9b8058; border-radius:2px; }
+body.home-farm .home-showcase { margin-top: 55px; }
+html[data-user-color-scheme="dark"] body.home-farm:has(.home-showcase) .banner { background: #3d5540 !important; }
+html[data-user-color-scheme="dark"] .home-farm .village__ground { background-image:url('/img/village/grass-night-3x.png'); }
+html[data-user-color-scheme="dark"] .farm-welcome, html[data-user-color-scheme="dark"] .farm-welcome h1 { color:#eee1b9; text-shadow:none; }
+@media(max-width:1180px) { body.home-farm:has(.home-showcase) .banner { width:calc(100% - 36px); }.farm-welcome a { left:calc(100% + 5px); } }
+@media(max-width:800px) { .farm-welcome { top:16px; }.farm-welcome h1 { font-size:28px; }.farm-welcome a { position:static; display:inline-block; margin-left:10px; padding:5px 8px; font-size:10px; }.farm-welcome > span { font-size:10px; }.home-farm .town-lot__sign { font-size:calc(10px / var(--scene-scale,1)); padding:3px 5px; }.home-farm .motion-toggle { font-size:10px; min-height:32px; bottom:18px; } }
