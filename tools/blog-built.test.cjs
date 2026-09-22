@@ -20,6 +20,17 @@ test('all primary navigation, project, pagination and article routes exist', () 
   for (const route of routes) assert.ok(fs.existsSync(fileFor(route)), `Missing route ${route}`);
 });
 
+test('farm map assets, collection icons and every destination survive static generation', () => {
+  const farm = require('../source/js/farm-world-core.js');
+  for (const place of farm.places) assert.ok(fs.existsSync(fileFor(place.href)), `Missing farm destination ${place.href}`);
+  const icons = new Set(farm.places.concat(farm.discoveries).map(item => item.icon).concat('medal'));
+  for (const icon of icons) assert.ok(fs.existsSync(fileFor(`/img/journal/${icon}.svg`)));
+  for (const time of ['day', 'night']) assert.ok(fs.statSync(fileFor(`/img/farm-world/${time}.webp`)).size > 50000);
+  const html = fs.readFileSync(fileFor('/'), 'utf8');
+  for (const asset of ['/js/farm-world-core.js', '/js/farm-world.js', '/css/farm-world.css']) assert.ok(html.includes(asset));
+  assert.ok(!html.includes('/js/farm.js?'), 'Old farm renderer must not run alongside the new world');
+});
+
 test('all search results resolve to generated articles, without embedded styles', () => {
   const entries = JSON.parse(fs.readFileSync(path.join(output, 'search-index.json'), 'utf8'));
   assert.ok(entries.length > 500, 'Expected the existing article collection');

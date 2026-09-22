@@ -15,7 +15,10 @@ const letter=rect(3,8,26,19,ink)+rect(5,10,22,15,cream)+path('M5 10h3v2h4v2h8v-2
 const chicken=rect(11,8,9,3,red)+rect(9,11,13,12,ink)+rect(7,14,16,7,'#fff3ce')+rect(11,12,9,7,'#fff8e1')+rect(19,13,2,2,ink)+rect(22,15,4,3,'#dea24d')+rect(10,23,2,4,'#c9873c')+rect(18,23,2,4,'#c9873c')+rect(4,11,4,7,'#e7d9b0');
 const jar=rect(10,4,13,4,ink)+rect(11,8,11,3,'#d7b781')+rect(7,11,19,18,ink)+rect(9,12,15,15,'#e9b650')+rect(10,14,3,10,'#ffe4a0')+rect(14,17,7,7,cream)+rect(16,19,3,3,red);
 const mushroom=rect(12,18,9,11,ink)+rect(14,17,5,10,cream)+path('M3 19v-7h4V8h5V5h9v3h5v4h3v7z',ink)+path('M5 17v-5h4V9h5V7h5v3h5v4h3v3z',red)+rect(10,11,4,3,cream)+rect(19,13,4,3,cream);
-const icons={sprout,book,house,flower,letter,chicken,jar,mushroom};
+const berry=path('M8 10h17v4h3v9h-4v4h-4v4h-6v-4h-4v-4H6v-9h2z',ink)+path('M9 12h14v3h3v7h-4v4h-4v3h-3v-4h-4v-4H8v-6h1z','#c85a4c')+path('M15 11V4h3v7h7v3h-6v3h-5v-4H8v-3z',green)+rect(11,16,2,2,cream)+rect(20,17,2,2,cream)+rect(15,21,2,2,cream)+rect(18,25,1,2,cream);
+const fish=path('M3 12h5v3h3v-4h5V8h7v3h4v4h3v7h-5v3H14v-3h-4v-3H7v4H3z',ink)+path('M5 14h3v4H5zM12 15h5v-4h6v3h3v7h-4v2h-7v-3h-3z','#70aaa8')+rect(16,13,5,3,'#c6e0c3')+rect(24,16,2,2,ink)+rect(15,20,4,2,'#e9d69e');
+const medal=path('M9 3h6l2 10-5 4z','#bb684e')+path('M18 3h6l-4 14-6-4z','#648169')+path('M10 12h12v3h4v10h-4v4H10v-4H6V15h4z',ink)+path('M11 14h10v3h3v6h-4v4h-8v-4H8v-6h3z','#e0b35b')+rect(14,17,4,8,cream)+rect(12,19,8,4,cream);
+const icons={sprout,book,house,flower,letter,chicken,jar,mushroom,berry,fish,medal};
 for(const [name,s] of Object.entries(icons)) save(name,32,32,s);
 let s=rect(0,0,240,144,'#bfd8d1')+rect(0,64,240,80,'#99b567');
 s+=rect(190,12,14,14,'#fff0b3');
