@@ -86,9 +86,10 @@
       if (audioOn) chime();
     }
     var scene = $('.world-action-scene'), flight = null;
-    var artReady = false, artFailed = false, actionArt = new Image();
-    actionArt.onload = function () { artReady = true; };
-    actionArt.onerror = function () { artFailed = true; };
+    var artReady = false, artFailed = false, queuedAction = null, actionArt = new Image();
+    function resumeQueuedAction() { if (queuedAction) { var target = queuedAction; queuedAction = null; target.click(); } }
+    actionArt.onload = function () { artReady = true; resumeQueuedAction(); };
+    actionArt.onerror = function () { artFailed = true; resumeQueuedAction(); };
     actionArt.src = '/img/farm-world/actions-v2.png';
     var action = core.sequence({ set: function (fn, ms) { return setTimeout(fn, ms); }, clear: function (id) { clearTimeout(id); } });
     function flyMemory(d) {
@@ -109,7 +110,7 @@
         var d = core.discoveries.find(function (item) { return item.id === button.dataset.discovery; });
         if (root.classList.contains('world-still')) { award(d); return; }
         if (artFailed) { award(d); return; }
-        if (!artReady) { message('小院里的小伙伴还在准备，稍等一下再来。'); return; }
+        if (!artReady) { queuedAction = button; message('小伙伴马上就来，稍等片刻。'); return; }
         var m = map.getBoundingClientRect(), scale = m.width / 1536;
         // Scene anchors are in the original painting's coordinate system, not UI-label positions.
         var anchors = { berry:[153,374], fish:[780,792], chick:[937,480] };
