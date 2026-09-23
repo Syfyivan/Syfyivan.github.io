@@ -34,3 +34,6 @@ Changed areas: `_config.fluid.yml`, `source/js/home-showcase.js`, new `source/js
 - One sequence controller settles exactly once, clears scheduled stages, and restores targets on pause, reduced motion, page exit, resize, or zoom.
 - Reused existing SVGs and sprite sheets; no dependencies or new bitmap payloads.
 - Browser checked desktop and 390px mobile, fishing reveal, berry/chick motion, interrupting fishing with pause, notebook opening, reduced-motion instant collection, and clean console.
+
+## Animation art integration plan
+Replace the prior icon-based scene CSS and markup, preserving collection persistence, sequence interruption behavior, accessible targets and navigation. Reuse the tested single-sequence controller. Add one transparent reference-matched sprite atlas, authored scene scale/anchors and a restrained rod/water/ground composition. Verify atlas alpha, timeline completion/interruption, desktop/mobile and night compositing before release.

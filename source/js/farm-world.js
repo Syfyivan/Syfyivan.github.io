@@ -86,16 +86,20 @@
       if (audioOn) chime();
     }
     var scene = $('.world-action-scene'), flight = null;
+    var artReady = false, artFailed = false, actionArt = new Image();
+    actionArt.onload = function () { artReady = true; };
+    actionArt.onerror = function () { artFailed = true; };
+    actionArt.src = '/img/farm-world/actions-v2.png';
     var action = core.sequence({ set: function (fn, ms) { return setTimeout(fn, ms); }, clear: function (id) { clearTimeout(id); } });
     function flyMemory(d) {
       var from = scene.getBoundingClientRect(), to = $('.world-pocket').getBoundingClientRect();
-      var token = document.createElement('span'); token.className = 'world-memory-flight'; token.innerHTML = icon(d.icon);
+      var token = document.createElement('span'); token.className = 'world-memory-flight'; token.innerHTML = '<i class="world-atlas world-atlas--' + d.id + '"></i>';
       token.style.left = from.left + 'px'; token.style.top = from.top + 'px'; root.appendChild(token);
       var dx = to.left + to.width / 2 - from.left, dy = to.top + to.height / 2 - from.top;
       flight = token;
       if (token.animate) token.animate([
         { transform:'translate(-50%,-50%) scale(1)', opacity:1 },
-        { transform:'translate(' + (dx*.45-14) + 'px,' + (Math.min(-65,dy*.2)-14) + 'px) scale(1.3)', opacity:1, offset:.4 },
+        { transform:'translate(' + (dx*.45-14) + 'px,' + (Math.min(-65,dy*.2)-14) + 'px) scale(.9)', opacity:1, offset:.4 },
         { transform:'translate(' + (dx-14) + 'px,' + (dy-14) + 'px) scale(.4)', opacity:.2 }
       ], { duration:850, easing:'cubic-bezier(.3,.1,.5,1)', fill:'forwards' });
     }
@@ -104,24 +108,35 @@
         if (action.busy()) return;
         var d = core.discoveries.find(function (item) { return item.id === button.dataset.discovery; });
         if (root.classList.contains('world-still')) { award(d); return; }
-        var r = button.getBoundingClientRect(), m = map.getBoundingClientRect();
-        scene.style.left = (r.left + r.width/2 - m.left) + 'px';
-        scene.style.top = (r.top + r.height/2 - m.top) + 'px';
+        if (artFailed) { award(d); return; }
+        if (!artReady) { message('小院里的小伙伴还在准备，稍等一下再来。'); return; }
+        var m = map.getBoundingClientRect(), scale = m.width / 1536;
+        // Scene anchors are in the original painting's coordinate system, not UI-label positions.
+        var anchors = { berry:[153,374], fish:[780,792], chick:[937,480] };
+        var anchor = anchors[d.id];
+        scene.style.left = anchor[0] / 1536 * 100 + '%';
+        scene.style.top = anchor[1] / 1024 * 100 + '%';
+        scene.style.setProperty('--scene-scale', scale);
         scene.className = 'world-action-scene world-action--' + d.id;
-        scene.innerHTML = '<i class="world-action-shadow"></i><i class="world-action-ripple"></i><i class="world-action-ripple world-action-ripple--two"></i>' +
-          '<i class="world-action-line"></i><i class="world-action-bobber"></i><span class="world-action-actor">' + icon(d.icon) + '</span>' +
-          '<span class="world-action-heart">♥</span><span class="world-action-caption"></span>' +
-          Array.from({length:6},function(_,i){return '<i class="world-action-particle" style="--i:'+i+';--dx:'+(Math.cos(i*Math.PI/3)*35)+'px;--dy:'+(Math.sin(i*Math.PI/3)*24-16)+'px"></i>';}).join('');
-        var captions = { berry:['轻轻拨开叶子…','摘到啦！'], fish:['抛竿，等一等…','咬钩啦！'], chick:['撒一小把谷粒…','啾！喜欢你 ♥'] };
-        $('.world-action-caption').textContent = captions[d.id][0];
+        scene.innerHTML = '<div class="world-action-stage">' +
+          '<i class="world-crop-rustle"></i><i class="world-action-shadow"></i>' +
+          '<svg class="world-fishing-tackle" viewBox="0 0 240 210"><defs><linearGradient id="world-rod-wood" x2="1" y2="1"><stop stop-color="#cbaa70"/><stop offset="1" stop-color="#624728"/></linearGradient></defs>' +
+          '<path class="world-rod" d="M47 77 Q77 37 118 32"/><path class="world-rod-grip" d="M47 77 L59 63"/><path class="world-fishing-line" d="M118 32 Q131 68 132 130"/></svg>' +
+          '<i class="world-underwater-fish"></i><i class="world-action-ripple"></i><i class="world-action-ripple world-action-ripple--two"></i>' +
+          '<i class="world-action-bobber"></i><i class="world-action-splash world-atlas"></i>' +
+          '<span class="world-action-actor"><i class="world-atlas world-atlas--' + d.id + '"></i></span>' +
+          '<span class="world-action-affection"><i></i><i></i><i></i></span>' +
+          Array.from({length:7},function(_,i){return '<i class="world-action-particle" style="--i:'+i+';--dx:'+(Math.cos(i*Math.PI/3.5)*18)+'px;--dy:'+(Math.sin(i*Math.PI/3.5)*11-7)+'px"></i>';}).join('') + '</div>';
+        var captions = { berry:['拨开叶子，发现一颗熟透的草莓。','轻轻摘下，叶片还在晃动。'], fish:['鱼线落进池塘，等水面轻轻一动……','咬钩了！银色的鱼背闪过水面。'], chick:['撒下一点谷粒，等小鸡慢慢走近。','它低头啄了几粒，又抬头看了看你。'] };
         message(captions[d.id][0]); root.dataset.interacting = d.id;
         button.classList.add('is-acting'); button.setAttribute('aria-busy','true');
         root.querySelectorAll('[data-discovery]').forEach(function (b) { b.setAttribute('aria-disabled','true'); });
-        var reveal = d.id === 'fish' ? 1700 : 900;
+        var reveal = d.id === 'fish' ? 2400 : d.id === 'chick' ? 1300 : 800;
+        var after = d.id === 'chick' ? 2400 : 1700;
         action.start([
-          { at:reveal, run:function () { scene.classList.add('is-revealed'); $('.world-action-caption').textContent = captions[d.id][1]; if(audioOn)chime(); } },
-          { at:reveal+1300, run:function () { scene.classList.add('is-collected'); flyMemory(d); } },
-          { at:reveal+2200, run:function () { action.finish(); } }
+          { at:reveal, run:function () { scene.classList.add('is-revealed'); message(captions[d.id][1]); } },
+          { at:reveal+after, run:function () { scene.classList.add('is-collected'); flyMemory(d); } },
+          { at:reveal+after+900, run:function () { action.finish(); } }
         ], function () {
           if(flight) { flight.remove(); flight=null; }
           scene.className='world-action-scene'; scene.innerHTML=''; delete root.dataset.interacting;

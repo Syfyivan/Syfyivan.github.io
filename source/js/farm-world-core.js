@@ -9,7 +9,7 @@
     { id: 'fish', title: '池塘的礼物', hint: '到木栈桥坐坐，试试今天的手气。', icon: 'fish', x: 48, y: 72,
       message: '一条小银鱼探出了水面！看过它闪亮的鳞片，再轻轻放回池塘。' },
     { id: 'chick', title: '新朋友', hint: '广场东边的小鸡，正在等你打招呼。', icon: 'chicken', x: 62, y: 43,
-      message: '啾！小鸡绕着你转了一圈。恭喜，你在小院里多了一位朋友。' }
+      message: '啾！小鸡啄了几粒谷子，又抬头看了看你。恭喜，你在小院里多了一位朋友。' }
   ];
   var places = [
     { id: 'library', name: '课程书屋', subtitle: '把零散知识，串成一条路', href: '/courses/', icon: 'book', x: 22, y: 29, w: 19, h: 24 },

@@ -26,6 +26,9 @@ test('farm map assets, collection icons and every destination survive static gen
   const icons = new Set(farm.places.concat(farm.discoveries).map(item => item.icon).concat('medal'));
   for (const icon of icons) assert.ok(fs.existsSync(fileFor(`/img/journal/${icon}.svg`)));
   for (const time of ['day', 'night']) assert.ok(fs.statSync(fileFor(`/img/farm-world/${time}.webp`)).size > 50000);
+  const atlas = fs.readFileSync(fileFor('/img/farm-world/actions-v2.png'));
+  assert.equal(atlas.toString('ascii', 1, 4), 'PNG');
+  assert.equal(atlas[25], 6, 'Scene atlas must retain RGBA transparency');
   const html = fs.readFileSync(fileFor('/'), 'utf8');
   for (const asset of ['/js/farm-world-core.js', '/js/farm-world.js', '/css/farm-world.css']) assert.ok(html.includes(asset));
   assert.ok(!html.includes('/js/farm.js?'), 'Old farm renderer must not run alongside the new world');
