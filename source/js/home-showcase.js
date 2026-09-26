@@ -7,7 +7,7 @@
       label: "面试练习",
       title: "想明白 · 智力题",
       subtitle: "Thinking Notebook",
-      desc: "30 道面试智力题，按推理方法分类，提供提示、完整解答和追问，记录自己的学习进度。",
+      desc: "42 道面试智力题，按推理方法分类，提供提示、完整解答和追问，记录自己的学习进度。",
       url: "/interview-puzzles/",
       displayUrl: "syfyivan.github.io/interview-puzzles",
     },

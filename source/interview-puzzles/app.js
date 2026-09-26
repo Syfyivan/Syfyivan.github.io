@@ -19,7 +19,9 @@
   function updateProgress() {
     $('learned').textContent = mastered.size;
     $('progress').value = mastered.size;
-    $('progress').textContent = `${mastered.size} / 30`;
+    $('progress').max = questions.length;
+    $('total').textContent = questions.length;
+    $('progress').textContent = `${mastered.size} / ${questions.length}`;
   }
   function render() {
     const list = selected();
