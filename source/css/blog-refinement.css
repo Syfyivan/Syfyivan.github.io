@@ -136,7 +136,6 @@ body:has(.home-showcase) .home-layout > .index-card:hover { transform: translate
 .post-metas .post-meta:last-child { display: flex; flex-wrap: wrap; gap: 4px; }
 .post-meta a { padding: 4px 7px; background: transparent; border-color: var(--yf-line); }
 .pagination .page-number, .pagination .extend { min-width: 44px; min-height: 44px; line-height: 44px; padding: 0 8px; border-radius: 9px; }
-body:has(.home-showcase) .token-usage { background: var(--yf-panel) !important; border: 1px solid var(--yf-line) !important; border-radius: 14px; box-shadow: none !important; }
 
 /* Reading, archives and dialogs share the same paper and ink palette. */
 body:has(.markdown-body) .header-inner, body:has(.list-group):not(:has(.home-showcase)) .header-inner, body:has(.category-list) .header-inner, body:has(.tagcloud) .header-inner { height: 350px !important; min-height: 350px; max-height: 350px; }
@@ -174,6 +173,7 @@ body:has(.markdown-body) #board, html[data-user-color-scheme="dark"] body:has(.m
 .search-hit span { display: block; font-size: 14px; line-height: 1.8; color: var(--yf-muted); margin-top: 5px; overflow-wrap: anywhere; }
 .search-hit:hover { background: var(--yf-bg); border-color: #9cac9b; }
 .search-retry { padding: 10px 18px; border: 1px solid var(--yf-line); border-radius: 8px; color: var(--yf-ink); background: var(--yf-bg); }
+.search-scope { margin-top: 8px; }
 .arrived { animation: journal-arrive .55s ease-out both; }
 @keyframes journal-arrive { from { opacity: .6; translate: 0 12px; } to { opacity: 1; translate: 0 0; } }
 html[data-motion="paused"] *, html[data-motion="paused"] *::before, html[data-motion="paused"] *::after, .scene-offscreen * { animation-play-state: paused !important; }

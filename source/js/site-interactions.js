@@ -187,7 +187,7 @@
     window.addEventListener('resize', scheduleScroll);
     if (article && 'ResizeObserver' in window) new ResizeObserver(scheduleScroll).observe(article);
     updateScroll();
-    if (document.querySelector('.home-showcase') && /^#(latest-writing|token-usage)$/.test(location.hash)) {
+    if (document.querySelector('.home-showcase') && location.hash === '#latest-writing') {
       var destination = document.querySelector(location.hash);
       if (destination) requestAnimationFrame(function () { destination.scrollIntoView({ behavior: 'auto', block: 'start' }); });
     }

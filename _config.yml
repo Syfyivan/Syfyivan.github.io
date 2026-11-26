@@ -32,7 +32,6 @@ skip_render:
   - thesis-defense/**
   - interview-puzzles/**
   - reading-lab/**
-  - stats/token-usage.json
   - beijing-indoor/**
   - flipbook/**
   - mahjong/**

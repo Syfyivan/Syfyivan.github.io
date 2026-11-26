@@ -3,6 +3,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { gzipSync } = require('node:zlib');
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'public');
 const routes = ['/', '/index.html', '/page/2/', '/page/54/', '/archives/', '/categories/', '/tags/',
@@ -35,8 +36,12 @@ test('farm map assets, collection icons and every destination survive static gen
 });
 
 test('all search results resolve to generated articles, without embedded styles', () => {
-  const entries = JSON.parse(fs.readFileSync(path.join(output, 'search-index.json'), 'utf8'));
+  const fullJson = fs.readFileSync(path.join(output, 'search-index.json'));
+  const previewJson = fs.readFileSync(path.join(output, 'search-preview.json'));
+  const entries = JSON.parse(fullJson);
   assert.ok(entries.length > 500, 'Expected the existing article collection');
+  assert.deepEqual(JSON.parse(previewJson), entries.map(entry => ({ ...entry, content: entry.content.slice(0, 150) })));
+  assert.ok(gzipSync(previewJson).length < gzipSync(fullJson).length / 10, 'First search must avoid downloading the full text');
   for (const entry of entries) {
     assert.ok(fs.existsSync(fileFor(entry.url)), `Broken search result ${entry.url}`);
     assert.equal(typeof entry.title, 'string');
@@ -52,7 +57,20 @@ test('generated home excerpts are readable and theme search is replaced exactly'
   assert.ok(html.includes('主线已经'));
   assert.ok(!html.includes('.bc-sec{'));
   assert.ok(html.includes('/css/blog-refinement.css'));
-  assert.equal(fs.readFileSync(path.join(output, 'js/local-search.js'), 'utf8'), fs.readFileSync(path.join(root, 'source/js/local-search.js'), 'utf8'));
+  const generatedSearch = fs.readFileSync(path.join(output, 'js/local-search.js'), 'utf8');
+  const sourceSearch = fs.readFileSync(path.join(root, 'source/js/local-search.js'), 'utf8');
+  assert.equal(generatedSearch, sourceSearch.replace(/\r\n/g, '\n'));
+});
+
+test('public home advertises local writing and omits the retired usage board', () => {
+  const html = fs.readFileSync(fileFor('/'), 'utf8');
+  assert.match(html, /本地写作说明/);
+  assert.doesNotMatch(html, /token-usage/);
+  const homeScript = fs.readFileSync(fileFor('/js/home-showcase.js'), 'utf8');
+  assert.doesNotMatch(homeScript, /token-usage/);
+  for (const route of ['/stats/token-usage.json', '/js/token-usage.js', '/css/token-usage.css']) {
+    assert.ok(!fs.existsSync(fileFor(route)), `Unexpected route ${route}`);
+  }
 });
 
 test('shared blog pages reference only existing local scripts, styles and images', () => {

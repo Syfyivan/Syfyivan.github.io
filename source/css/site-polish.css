@@ -781,25 +781,6 @@ body:has(.markdown-body) #board {
   background: rgba(183, 58, 44, 0.1);
 }
 
-.token-usage {
-  border-color: var(--yf-line);
-  border-radius: var(--yf-radius);
-  background: #fdfdfc;
-  box-shadow: var(--yf-shadow-soft);
-}
-
-.token-usage__title {
-  color: var(--yf-ink);
-  font-weight: 780;
-}
-
-.token-usage__period,
-.token-usage__cell {
-  border-color: var(--yf-line);
-  border-radius: var(--yf-radius);
-  background: #fbfbfa;
-}
-
 body:has(.home-showcase) {
   background:
     radial-gradient(circle at 10% 12%, rgba(63, 93, 126, 0.12), transparent 28vw),
@@ -1106,14 +1087,6 @@ body:has(.home-showcase) #board {
   background: var(--project-accent);
 }
 
-.home-layout > .token-usage {
-  margin: 30px 0 0;
-  border-color: rgba(24, 35, 33, 0.13);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.93), rgba(246, 250, 250, 0.86)),
-    linear-gradient(90deg, rgba(63, 93, 126, 0.08), rgba(183, 58, 44, 0.07));
-}
-
 .home-writing-head {
   margin: 18px 0 26px;
 }
@@ -1277,21 +1250,13 @@ html[data-user-color-scheme="dark"] body .markdown-body h2,
 html[data-user-color-scheme="dark"] body .markdown-body figure.highlight,
 html[data-user-color-scheme="dark"] body .markdown-body pre,
 html[data-user-color-scheme="dark"] body #toc,
-html[data-user-color-scheme="dark"] body .token-usage,
 html[data-user-color-scheme="dark"] body #scroll-top-button {
   border-color: rgba(255, 255, 255, 0.1);
 }
 
 html[data-user-color-scheme="dark"] body #toc,
-html[data-user-color-scheme="dark"] body .token-usage,
 html[data-user-color-scheme="dark"] body #scroll-top-button {
   background: rgba(18, 27, 36, 0.86);
-}
-
-html[data-user-color-scheme="dark"] body .token-usage__period,
-html[data-user-color-scheme="dark"] body .token-usage__cell {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.055);
 }
 
 html[data-user-color-scheme="dark"] body:has(.home-showcase) {
@@ -1374,13 +1339,6 @@ html[data-user-color-scheme="dark"] body .home-workshop-banner:focus .home-works
   border-color: #d4604c;
   color: #ffffff;
   background: #d4604c;
-}
-
-html[data-user-color-scheme="dark"] body .home-layout > .token-usage {
-  border-color: rgba(255, 255, 255, 0.12);
-  background:
-    linear-gradient(135deg, rgba(20, 30, 41, 0.92), rgba(16, 26, 36, 0.88)),
-    linear-gradient(90deg, rgba(143, 182, 221, 0.1), rgba(212, 96, 76, 0.08));
 }
 
 html[data-user-color-scheme="dark"] body .home-layout > .index-card {
@@ -1472,10 +1430,6 @@ html[data-user-color-scheme="dark"] body .home-layout > .index-card::after {
     max-width: 620px;
     margin: 10px 0 0;
     text-align: left;
-  }
-
-  .home-layout > .token-usage {
-    margin-top: 26px;
   }
 
   .home-layout > .index-card {
@@ -1600,10 +1554,6 @@ html[data-user-color-scheme="dark"] body .home-layout > .index-card::after {
     width: fit-content;
   }
 
-  .home-layout > .token-usage {
-    margin-top: 18px;
-  }
-
   .home-writing-head {
     margin-bottom: 20px;
   }
@@ -1649,10 +1599,6 @@ html[data-user-color-scheme="dark"] body .home-layout > .index-card::after {
   .category-chain-item {
     margin-right: 0;
     overflow-wrap: anywhere;
-  }
-
-  .token-usage__periods {
-    grid-template-columns: 1fr;
   }
 
   .post-content,
@@ -2649,8 +2595,7 @@ body:has(.home-showcase) .home-showcase__intro {
 
 body:has(.home-showcase) .home-project-card,
 body:has(.home-showcase) .home-workshop-banner,
-body:has(.home-showcase) .home-layout > .index-card,
-body:has(.home-showcase) .home-layout > .token-usage {
+body:has(.home-showcase) .home-layout > .index-card {
   border: 2px solid #d9c69d;
   border-radius: 4px;
   background: #fffdf4;
@@ -2710,8 +2655,7 @@ html[data-user-color-scheme="dark"] body:has(.home-showcase) .home-showcase__int
 
 html[data-user-color-scheme="dark"] body:has(.home-showcase) .home-project-card,
 html[data-user-color-scheme="dark"] body:has(.home-showcase) .home-workshop-banner,
-html[data-user-color-scheme="dark"] body:has(.home-showcase) .home-layout > .index-card,
-html[data-user-color-scheme="dark"] body:has(.home-showcase) .home-layout > .token-usage {
+html[data-user-color-scheme="dark"] body:has(.home-showcase) .home-layout > .index-card {
   border-color: #4a4232;
   background: #38332a;
   box-shadow: 0 5px 0 rgba(0, 0, 0, 0.28);

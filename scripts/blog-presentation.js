@@ -16,11 +16,14 @@ hexo.extend.filter.register('before_generate', () => {
     .replace('<h1 style="display: none">', '<h1 class="sr-only">'));
 });
 
-// Full readable text, without repeated CSS/HTML payloads. URLs remain local
-// so preview search and production search have identical navigation behavior.
-hexo.extend.generator.register('blog-search-index', locals => ({
-  path: 'search-index.json',
-  data: JSON.stringify(locals.posts.sort('-date').toArray()
+// Keep title and summary search small while full-text search stays available.
+hexo.extend.generator.register('blog-search-index', locals => {
+  const entries = locals.posts.sort('-date').toArray()
     .filter(post => post.published !== false && post.indexing !== false && !post.hide && !post.encrypt)
-    .map(post => ({ title: post.title || '未命名文章', content: plainText(post.content), url: '/' + post.path.replace(/^\/+/, '') })))
-}));
+    .map(post => ({ title: post.title || '未命名文章', content: plainText(post.content), url: '/' + post.path.replace(/^\/+/, '') }));
+  const previews = entries.map(entry => ({ ...entry, content: entry.content.slice(0, 150) }));
+  return [
+    { path: 'search-preview.json', data: JSON.stringify(previews) },
+    { path: 'search-index.json', data: JSON.stringify(entries) },
+  ];
+});

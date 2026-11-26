@@ -30,15 +30,6 @@
       displayUrl: "syfyivan.github.io/courses/network-proxy",
     },
     {
-      tone: "rust",
-      label: "用量看板",
-      title: "Token 用量",
-      subtitle: "Codex Usage Board",
-      desc: "汇总本地 Codex 会话消耗，观察模型使用、项目节奏和长期趋势。",
-      url: "#token-usage",
-      displayUrl: "syfyivan.github.io/#token-usage",
-    },
-    {
       tone: "blue",
       label: "桥接器控制面 · 内网",
       title: "Bridge Viewer",

@@ -83,9 +83,9 @@
     }
     page.innerHTML = [
       '<section class="editor-locked" aria-labelledby="locked-title">',
-      '  <p class="eyebrow">Local draft mode</p>',
-      '  <h1 id="locked-title">公开站点不开放编辑器</h1>',
-      '  <p>这是静态博客。为了避免把前端开关误当成作者权限，线上页面不会开放编辑和草稿保存；请在本地运行博客后编辑，真正发布仍然需要仓库写权限和部署流程。</p>',
+      '  <p class="eyebrow">Local writing</p>',
+      '  <h1 id="locked-title">本地写作说明</h1>',
+      '  <p>编辑器只在本地博客启用。要编辑文章，请在博客仓库运行 <code>pnpm run server</code>，然后从本地站点打开编辑器。草稿保存在当前浏览器，发布通过仓库提交和部署完成。</p>',
       '  <a href="/">返回博客首页</a>',
       "</section>"
     ].join("");

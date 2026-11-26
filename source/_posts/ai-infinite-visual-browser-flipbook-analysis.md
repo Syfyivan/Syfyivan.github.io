@@ -62,7 +62,6 @@ Flipbook 的关键变化是：生成结果本身是一整张图片。页面上�
 
 ```yaml
 skip_render:
-  - stats/token-usage.json
   - flipbook/**
 ```
 
