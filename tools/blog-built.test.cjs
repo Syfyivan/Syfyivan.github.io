@@ -57,6 +57,7 @@ test('generated home excerpts are readable and theme search is replaced exactly'
   assert.ok(html.includes('主线已经'));
   assert.ok(!html.includes('.bc-sec{'));
   assert.ok(html.includes('/css/blog-refinement.css'));
+  assert.match(html, /src="\/js\/local-search\.js\?v=[0-9a-f]{12}"/);
   const generatedSearch = fs.readFileSync(path.join(output, 'js/local-search.js'), 'utf8');
   const sourceSearch = fs.readFileSync(path.join(root, 'source/js/local-search.js'), 'utf8');
   assert.equal(generatedSearch, sourceSearch.replace(/\r\n/g, '\n'));
