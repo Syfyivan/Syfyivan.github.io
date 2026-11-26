@@ -63,9 +63,9 @@ test('generated home excerpts are readable and theme search is replaced exactly'
   assert.equal(generatedSearch, sourceSearch.replace(/\r\n/g, '\n'));
 });
 
-test('public home advertises local writing and omits the retired usage board', () => {
+test('public home omits the writing entry and the retired usage board', () => {
   const html = fs.readFileSync(fileFor('/'), 'utf8');
-  assert.match(html, /本地写作说明/);
+  assert.ok(!html.includes('href="/editor/"'), 'Editor link must stay out of the public navigation');
   assert.doesNotMatch(html, /token-usage/);
   const homeScript = fs.readFileSync(fileFor('/js/home-showcase.js'), 'utf8');
   assert.doesNotMatch(homeScript, /token-usage/);

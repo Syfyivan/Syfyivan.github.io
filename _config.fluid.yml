@@ -402,7 +402,6 @@ navbar:
     - { key: "tag", link: "/tags/", icon: "iconfont icon-tags-fill" }
     - { key: "projects", name: "项目工坊", link: "/projects/", icon: "iconfont icon-code" }
     - { key: "courses", name: "课程", link: "/courses/", icon: "iconfont icon-articles" }
-    - { key: "editor", name: "本地写作说明", link: "/editor/", icon: "iconfont icon-edit" }
     - key: "works"
       name: "作品"
       icon: "iconfont icon-image"
