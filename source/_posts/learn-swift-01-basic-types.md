@@ -306,4 +306,4 @@ let rawId: Int = userId   // 完全合法
 
 ---
 
-> **下一讲**：[第02讲·Optional：Swift 的空值安全哲学](/posts/learn-swift-02-optional/)
+> **下一讲**：[第02讲·Optional：Swift 的空值安全哲学](/2026/06/22/learn-swift-02-optional/)

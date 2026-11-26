@@ -5,7 +5,7 @@
 # Site
 title: 一凡的博客
 subtitle: "Yifan's Blog"
-description: ''
+description: '一凡的个人博客，记录工程实践、源码学习、AI 与 Web 开发，也分享自己做的项目和小实验。'
 keywords:
 author: 宋一凡
 language: zh-CN
@@ -13,11 +13,11 @@ timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: https://Syfyivan.github.io/
+url: https://syfyivan.github.io/
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
-  trailing_index: true # Set to false to remove trailing 'index.html' from permalinks
+  trailing_index: false # Set to false to remove trailing 'index.html' from permalinks
   trailing_html: true # Set to false to remove trailing '.html' from permalinks
 
 # Directory

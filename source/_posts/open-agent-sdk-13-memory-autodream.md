@@ -12,7 +12,7 @@ categories:
 series: open-agent-sdk
 ---
 
-> **系列导航** → [课程目录](/courses/open-agent-sdk/) · 上一讲：[第12讲·上下文压缩](/2026/06/21/open-agent-sdk-12-compact/)
+> **系列导航** → [课程目录](/courses/open-agent-sdk/) · 上一讲：[第12讲·上下文压缩](/2026/06/22/open-agent-sdk-12-compact/)
 
 ---
 

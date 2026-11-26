@@ -21,6 +21,47 @@ test('all primary navigation, project, pagination and article routes exist', () 
   for (const route of routes) assert.ok(fs.existsSync(fileFor(route)), `Missing route ${route}`);
 });
 
+test('public URLs agree with the generated sitemap and canonical metadata', () => {
+  const base = 'https://syfyivan.github.io';
+  const robots = fs.readFileSync(fileFor('/robots.txt'), 'utf8');
+  assert.ok(robots.includes('Sitemap: ' + base + '/sitemap.xml'));
+  const xml = fs.readFileSync(fileFor('/sitemap.xml'), 'utf8');
+  const links = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => url.replaceAll('&amp;', '&').replaceAll('&apos;', "'"));
+  assert.ok(links.length > 500, 'Expected the existing public article collection');
+  assert.equal(new Set(links).size, links.length, 'Sitemap URLs must be unique');
+  for (const url of links) {
+    assert.equal(new URL(url).origin, base);
+    assert.ok(!url.endsWith('/index.html'), 'Prefer directory URLs');
+    assert.ok(fs.existsSync(fileFor(url)), 'Missing sitemap entry ' + url);
+  }
+  assert.ok(!links.includes(base + '/editor/'), 'Local editor belongs outside the public sitemap');
+  for (const route of ['/', '/about/', '/agent-notes-loop/', '/page/2/']) {
+    const html = fs.readFileSync(fileFor(route), 'utf8');
+    const canonical = html.match(/<link rel="canonical" href="([^"]+)"/);
+    assert.ok(canonical, 'Missing canonical URL for ' + route);
+    assert.equal(new URL(canonical[1]).href, base + route);
+    assert.ok(html.includes('<meta property="og:url" content="' + base + route + '">'), 'Incorrect share URL for ' + route);
+  }
+  const home = fs.readFileSync(fileFor('/'), 'utf8');
+  assert.match(home, /<meta name="description" content="一凡的个人博客，/);
+  assert.ok(links.includes(base + '/agent-notes-loop/'));
+});
+
+test('category disclosures have unique toggles and correctly linked panels', () => {
+  const html = fs.readFileSync(fileFor('/categories/'), 'utf8');
+  const toggles = [...html.matchAll(/<a\b[^>]*\bid="(heading-[^"]+)"[^>]*\bhref="#(collapse-[^"]+)"[^>]*>/g)];
+  const panels = [...html.matchAll(/<div\b[^>]*\bid="(collapse-[^"]+)"[^>]*\baria-labelledby="(heading-[^"]+)"[^>]*>/g)];
+  assert.ok(toggles.length > 0, 'Expected category disclosures');
+  assert.equal(new Set(toggles.map(([, headingId]) => headingId)).size, toggles.length, 'Category toggle IDs must be unique');
+  const panelLabels = new Map(panels.map(([, panelId, headingId]) => [panelId, headingId]));
+  assert.equal(panelLabels.size, panels.length, 'Category panel IDs must be unique');
+  assert.equal(panels.length, toggles.length);
+  for (const [tag, headingId, panelId] of toggles) {
+    assert.equal(panelLabels.get(panelId), headingId, 'Each toggle must label its own panel');
+    assert.ok(tag.includes('aria-controls="' + panelId + '"'), 'Each toggle must identify its own panel');
+  }
+});
+
 test('farm map assets, collection icons and every destination survive static generation', () => {
   const farm = require('../source/js/farm-world-core.js');
   for (const place of farm.places) assert.ok(fs.existsSync(fileFor(place.href)), `Missing farm destination ${place.href}`);
